@@ -2,35 +2,15 @@
 host = https://www.transifex.com
 type = PO
 
-[cubeengine.core]
-file_filter = cubeengine/src/main/resources/translations/<lang>.po
-source_file = cubeengine/src/main/resources/translations/messages.pot
-source_lang = en_US
-
 [cubeengine.backpack]
 file_filter = backpack/src/main/resources/translations/<lang>.po
 source_file = backpack/src/main/resources/translations/messages.pot
-source_lang = en_US
-
-[cubeengine.basics]
-file_filter = basics/src/main/resources/translations/<lang>.po
-source_file = basics/src/main/resources/translations/messages.pot
 source_lang = en_US
 
 [cubeengine.border]
 file_filter = border/src/main/resources/translations/<lang>.po
 source_file = border/src/main/resources/translations/messages.pot
 source_lang = en_US
-
-[cubeengine.conomy]
-file_filter = conomy/src/main/resources/translations/<lang>.po
-source_file = conomy/src/main/resources/translations/messages.pot
-source_lang = en_US
-
-;[cubeengine.faq]
-;file_filter = faq/src/main/resources/translations/<lang>.po
-;source_file = faq/src/main/resources/translations/messages.pot
-;source_lang = en_US
 
 [cubeengine.fly]
 file_filter = fly/src/main/resources/translations/<lang>.po
@@ -57,29 +37,9 @@ file_filter = kits/src/main/resources/translations/<lang>.po
 source_file = kits/src/main/resources/translations/messages.pot
 source_lang = en_US
 
-[cubeengine.locker]
-file_filter = locker/src/main/resources/translations/<lang>.po
-source_file = locker/src/main/resources/translations/messages.pot
-source_lang = en_US
-
 [cubeengine.log]
 file_filter = log/src/main/resources/translations/<lang>.po
 source_file = log/src/main/resources/translations/messages.pot
-source_lang = en_US
-
-[cubeengine.portals]
-file_filter = portals/src/main/resources/translations/<lang>.po
-source_file = portals/src/main/resources/translations/messages.pot
-source_lang = en_US
-
-[cubeengine.powertools]
-file_filter = powertools/src/main/resources/translations/<lang>.po
-source_file = powertools/src/main/resources/translations/messages.pot
-source_lang = en_US
-
-[cubeengine.roles]
-file_filter = roles/src/main/resources/translations/<lang>.po
-source_file = roles/src/main/resources/translations/messages.pot
 source_lang = en_US
 
 [cubeengine.rulebook]
