@@ -22,7 +22,7 @@
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>de.cubeisland.engine</groupId>
+      <groupId>${project.parent.groupId}</groupId>
       <artifactId>worlds</artifactId>
       <version>1.0.0-SNAPSHOT</version>
       <type>jar</type>
