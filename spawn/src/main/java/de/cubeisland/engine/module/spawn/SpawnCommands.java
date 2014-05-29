@@ -24,9 +24,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
-import de.cubeisland.engine.core.command.CommandSender;
 import de.cubeisland.engine.core.command.CubeContext;
-import de.cubeisland.engine.core.command.parameterized.Completer;
 import de.cubeisland.engine.core.command.readers.UserListOrAllReader;
 import de.cubeisland.engine.core.command.reflected.Command;
 import de.cubeisland.engine.core.command.reflected.context.Flag;
@@ -40,8 +38,8 @@ import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.StringUtils;
 import de.cubeisland.engine.core.util.math.BlockVector3;
 import de.cubeisland.engine.core.world.WorldSetSpawnEvent;
+import de.cubeisland.engine.module.roles.RoleCompleter;
 import de.cubeisland.engine.module.roles.Roles;
-import de.cubeisland.engine.module.roles.commands.ManagementCommands;
 import de.cubeisland.engine.module.roles.role.Role;
 import de.cubeisland.engine.module.roles.role.RolesAttachment;
 import de.cubeisland.engine.module.roles.role.RolesManager;
@@ -54,7 +52,7 @@ public class SpawnCommands
     private final Roles roles;
     private final Spawn module;
 
-    private static RolesManager manager;
+    private RolesManager manager;
 
     public SpawnCommands(Roles roles, Spawn module)
     {
@@ -356,45 +354,6 @@ public class SpawnCommands
         else
         {
             user.safeTeleport(spawnLocation,TeleportCause.COMMAND,false);
-        }
-    }
-
-    public static class RoleCompleter implements Completer
-    {
-        @Override
-        public List<String> complete(CubeContext context, String token)
-        {
-            final CommandSender sender = context.getSender();
-            List<String> roles = new ArrayList<>();
-            if (sender instanceof User)
-            {
-                User user = (User)sender;
-                if (user.get(RolesAttachment.class).getWorkingWorld() != null)
-                {
-                    for (Role role : manager.getProvider(user.get(RolesAttachment.class).getWorkingWorld()).getRoles())
-                    {
-                        roles.add(role.getName());
-                    }
-                }
-                else
-                {
-                    for (Role role : manager.getProvider(user.getWorld()).getRoles())
-                    {
-                        roles.add(role.getName());
-                    }
-                }
-            }
-            else
-            {
-                if (ManagementCommands.curWorldOfConsole != null)
-                {
-                    for (Role role : manager.getProvider(ManagementCommands.curWorldOfConsole).getRoles())
-                    {
-                        roles.add(role.getName());
-                    }
-                }
-            }
-            return roles;
         }
     }
 }
