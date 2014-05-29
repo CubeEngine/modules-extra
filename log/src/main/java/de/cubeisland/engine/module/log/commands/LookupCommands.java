@@ -123,8 +123,8 @@ public class LookupCommands
             {
                 try
                 {
+                    context.getCommand().getChild("?").run(context);
                     // TODO show all selected params of last lookup
-                    context.getCommand().help(context);
                 }
                 catch (Exception e)
                 {
