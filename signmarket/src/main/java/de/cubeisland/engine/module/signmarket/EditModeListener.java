@@ -482,6 +482,10 @@ public class EditModeListener extends ConversationCommand
                 user.sendTranslated(NEGATIVE, "You have to take all items out of the market-sign to be able to change the item in it!");
                 return null;
             }
+            else
+            {
+                marketSign.setItemStack(item, false);
+            }
         }
         if (context.hasNamed("size"))
         {
