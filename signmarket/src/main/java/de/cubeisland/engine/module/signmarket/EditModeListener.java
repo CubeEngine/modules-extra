@@ -86,8 +86,7 @@ public class EditModeListener extends ConversationCommand
                         }
                         return Arrays.asList("6", "5", "4", "3", "2", "1");
                     }
-                }))
-        ;
+                })).calculateArgBounds();
     }
 
     private final TLongObjectHashMap<Location> currentSignLocation = new TLongObjectHashMap<>();
