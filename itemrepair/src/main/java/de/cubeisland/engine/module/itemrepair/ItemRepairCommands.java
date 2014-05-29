@@ -28,7 +28,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.CubeContext;
 import de.cubeisland.engine.core.command.ContainerCommand;
 import de.cubeisland.engine.core.command.reflected.Command;
 import de.cubeisland.engine.core.user.User;
@@ -57,7 +57,7 @@ public class ItemRepairCommands extends ContainerCommand implements Listener
     }
 
     @Command(desc = "Adds a new RepairBlock")
-    public void add(CommandContext context)
+    public void add(CubeContext context)
     {
         if (context.getSender() instanceof User)
         {
@@ -86,7 +86,7 @@ public class ItemRepairCommands extends ContainerCommand implements Listener
     }
 
     @Command(desc = "Removes an existing RepairBlock")
-    public void remove(CommandContext context)
+    public void remove(CubeContext context)
     {
         if (context.getSender() instanceof User)
         {

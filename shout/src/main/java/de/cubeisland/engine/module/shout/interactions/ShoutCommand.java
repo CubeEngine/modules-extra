@@ -28,7 +28,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.CubeContext;
 import de.cubeisland.engine.core.command.CommandResult;
 import de.cubeisland.engine.core.command.ContainerCommand;
 import de.cubeisland.engine.core.command.reflected.context.Flag;
@@ -36,7 +36,6 @@ import de.cubeisland.engine.core.command.reflected.context.Flags;
 import de.cubeisland.engine.core.command.reflected.context.IParams;
 import de.cubeisland.engine.core.command.reflected.context.NParams;
 import de.cubeisland.engine.core.command.reflected.context.Named;
-import de.cubeisland.engine.core.command.parameterized.ParameterizedContext;
 import de.cubeisland.engine.core.command.reflected.Alias;
 import de.cubeisland.engine.core.command.reflected.context.Grouped;
 import de.cubeisland.engine.core.command.reflected.Command;
@@ -65,9 +64,9 @@ public class ShoutCommand extends ContainerCommand
         // TODO this.getContextFactory().setArgBounds(new ArgBounds(1, 1));
     }
 
-    public CommandResult run(CommandContext context)
+    public CommandResult run(CubeContext context)
     {
-        Announcement announcement = this.module.getAnnouncementManager().getAnnouncement(context.<String>getArg(0));
+        Announcement announcement = this.module.getAnnouncementManager().getAnnouncement(context.getString(0));
         if (announcement == null)
         {
             context.sendTranslated(NEGATIVE, "{input#announcement} was not found!", context.getArg(0));
@@ -112,7 +111,7 @@ public class ShoutCommand extends ContainerCommand
 
     @Alias(names = {"announcements"})
     @Command(alias = "announcements", desc = "List all announcements")
-    public void list(CommandContext context)
+    public void list(CubeContext context)
     {
         Iterator<Announcement> iter = this.module.getAnnouncementManager().getAllAnnouncements().iterator();
         if (iter.hasNext())
@@ -138,9 +137,9 @@ public class ShoutCommand extends ContainerCommand
               @Named(names ={"group", "g"}),
               @Named(names ={"locale", "l"})})
     @Flags(@Flag(name = "fc", longName = "fixed-cycle"))
-    public void create(ParameterizedContext context)
+    public void create(CubeContext context)
     {
-        if (!context.hasParam("message"))
+        if (!context.hasNamed("message"))
         {
             context.sendTranslated(NEUTRAL, "You have to include a message!");
             return;
@@ -148,7 +147,7 @@ public class ShoutCommand extends ContainerCommand
 
         String message = context.getString("message");
         Locale locale = context.getSender().getLocale();
-        if (context.hasParam("locale"))
+        if (context.hasNamed("locale"))
         {
             locale = I18nUtil.stringToLocale(context.getString("locale"));
         }
@@ -161,7 +160,7 @@ public class ShoutCommand extends ContainerCommand
         {
             this.module.getAnnouncementManager().addAnnouncement(
                 this.module.getAnnouncementManager().createAnnouncement(
-                    context.<String>getArg(0),
+                    context.getString(0),
                     locale,
                     message,
                     context.getString("delay", "10 minutes"),
@@ -186,7 +185,7 @@ public class ShoutCommand extends ContainerCommand
     }
 
     @Command(desc = "clean all loaded announcements form memory and load from disk")
-    public void reload(CommandContext context)
+    public void reload(CubeContext context)
     {
         module.getAnnouncementManager().reload();
         context.sendTranslated(POSITIVE, "All the announcements have now been reloaded, and the players have been re-added");
@@ -194,7 +193,7 @@ public class ShoutCommand extends ContainerCommand
 
     @Alias(names = "motd")
     @Command(desc = "Prints out the message of the day.")
-    public void motd(CommandContext context)
+    public void motd(CubeContext context)
     {
         MessageOfTheDay motd = this.module.getAnnouncementManager().getMotd();
         if (motd != null)

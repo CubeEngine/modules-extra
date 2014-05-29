@@ -31,7 +31,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.util.Vector;
 
 import de.cubeisland.engine.core.CubeEngine;
-import de.cubeisland.engine.core.command.parameterized.ParameterizedContext;
+import de.cubeisland.engine.core.command.CubeContext;
 import de.cubeisland.engine.core.command.reflected.Command;
 import de.cubeisland.engine.core.command.reflected.context.Grouped;
 import de.cubeisland.engine.core.command.reflected.context.IParams;
@@ -64,13 +64,13 @@ public class RocketCommand
     @Command(desc = "Shoots a player upwards with a cool smoke effect")
     @IParams(@Grouped(req = false, value = @Indexed(label = "height")))
     @NParams(@Named(names = {"player", "p"}, type = User.class))
-    public void rocket(ParameterizedContext context)
+    public void rocket(CubeContext context)
     {
         int height = context.getArg(0, 10);
         User user;
-        if (context.hasParam("player"))
+        if (context.hasNamed("player"))
         {
-            user = context.getParam("player");
+            user = context.getArg("player");
             if (user == null)
             {
                 context.sendTranslated(NEGATIVE, "Player {user} not found!", context.getString("player"));

@@ -32,7 +32,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.util.Vector;
 
-import de.cubeisland.engine.core.command.parameterized.ParameterizedContext;
+import de.cubeisland.engine.core.command.CubeContext;
 import de.cubeisland.engine.core.command.reflected.Command;
 import de.cubeisland.engine.core.command.reflected.context.Flag;
 import de.cubeisland.engine.core.command.reflected.context.Flags;
@@ -76,13 +76,13 @@ public class NukeCommand
               @Named(names = {"shape", "s"}, type = String.class)})
     @Flags({@Flag(longName = "unsafe", name = "u"),
             @Flag(longName = "quiet", name = "q")})
-    public void nuke(ParameterizedContext context)
+    public void nuke(CubeContext context)
     {
         Location location;
         User user = null;
 
-        int explosionRange = context.getParam("range", 4);
-        int height = context.getParam("height", 5);
+        int explosionRange = context.getArg("range", 4);
+        int height = context.getArg("height", 5);
 
         if(explosionRange != 4 && !module.perms().COMMAND_NUKE_CHANGE_RANGE.isAuthorized(context.getSender()))
         {
@@ -95,7 +95,7 @@ public class NukeCommand
             return;
         }
 
-        if(context.hasParam("player"))
+        if(context.hasNamed("player"))
         {
             if(!module.perms().COMMAND_NUKE_OTHER.isAuthorized(context.getSender()))
             {
@@ -103,7 +103,7 @@ public class NukeCommand
                 return;
             }
 
-            user = context.getUser("player");
+            user = context.getArg("player");
             if(user == null)
             {
                 context.sendTranslated(NEGATIVE, "Player not found");
@@ -139,7 +139,7 @@ public class NukeCommand
         }
     }
 
-    private Shape getShape(ParameterizedContext context, Location location, int locationHeight)
+    private Shape getShape(CubeContext context, Location location, int locationHeight)
     {
         String shapeName = context.getString("shape", "cylinder");
 

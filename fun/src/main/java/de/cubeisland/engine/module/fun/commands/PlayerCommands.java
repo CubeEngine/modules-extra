@@ -26,8 +26,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.Vector;
 
-import de.cubeisland.engine.core.command.CommandContext;
-import de.cubeisland.engine.core.command.parameterized.ParameterizedContext;
+import de.cubeisland.engine.core.command.CubeContext;
 import de.cubeisland.engine.core.command.reflected.Command;
 import de.cubeisland.engine.core.command.reflected.context.Flag;
 import de.cubeisland.engine.core.command.reflected.context.Flags;
@@ -58,7 +57,7 @@ public class PlayerCommands
     @IParams(@Grouped(req = false, value = @Indexed(label = "item")))
     @NParams(@Named(names = {"player", "p"}, type = User.class))
     @Flags(@Flag(longName = "quiet", name = "q"))
-    public void hat(ParameterizedContext context)
+    public void hat(CubeContext context)
     {
         User user;
         ItemStack head;
@@ -70,7 +69,7 @@ public class PlayerCommands
         {
             console = true;
         }
-        if(context.hasParam( "player" ) )
+        if(context.hasNamed("player") )
         {
             if(!module.perms().COMMAND_HAT_OTHER.isAuthorized( context.getSender() ) )
             {
@@ -78,7 +77,7 @@ public class PlayerCommands
                 return;
             }
             
-            user = context.getUser( "player" );
+            user = context.getArg("player");
             
             if(user == null)
             {
@@ -96,14 +95,14 @@ public class PlayerCommands
             return;
         }
         
-        if(context.hasArg( 0 ) )
+        if(context.hasIndexed(0) )
         {
             if(!module.perms().COMMAND_HAT_ITEM.isAuthorized( context.getSender() ))
             {
                 context.sendTranslated(NEGATIVE, "You can only use your item in hand!");
                 return;
             }
-            head = Match.material().itemStack( context.<String>getArg(0) );
+            head = Match.material().itemStack( context.getString(0) );
             if(head == null)
             {
                 context.sendTranslated(NEGATIVE, "Item not found!");
@@ -131,7 +130,7 @@ public class PlayerCommands
         int amount = head.getAmount();
         head.setAmount( 1 );
         
-        if( !context.hasArg( 0 ) && senderInventory != null)
+        if( !context.hasIndexed(0) && senderInventory != null)
         {
             ItemStack item = head.clone();
             item.setAmount( amount - 1);
@@ -158,20 +157,20 @@ public class PlayerCommands
             @Flag(longName = "fire", name = "f"),
             @Flag(longName = "blockDamage", name = "b"),
             @Flag(longName = "playerDamage", name = "p")})
-    public void explosion(ParameterizedContext context)
+    public void explosion(CubeContext context)
     {
         User user;
         Location location;
-        int power = context.getParam("damage", 1);
+        int power = context.getArg("damage", 1);
 
-        if (context.hasParam("player"))
+        if (context.hasNamed("player"))
         {
             if (!module.perms().COMMAND_EXPLOSION_OTHER.isAuthorized(context.getSender()))
             {
                 context.sendTranslated(NEGATIVE, "You are not allowed to specify a player.");
                 return;
             }
-            user = context.getUser("player");
+            user = context.getArg("player");
             if (user == null)
             {
                 context.sendTranslated(NEGATIVE, "Player not found!");
@@ -225,11 +224,11 @@ public class PlayerCommands
               @Named(names = {"damage", "d"}, label = "value", type = Integer.class),
               @Named(names = {"fireticks", "f"}, label = "seconds", type = Integer.class)})
     @Flags(@Flag(longName = "unsafe", name = "u"))
-    public void lightning(ParameterizedContext context)
+    public void lightning(CubeContext context)
     {
         User user;
         Location location;
-        int damage = context.getParam("damage", -1);
+        int damage = context.getArg("damage", -1);
 
         if (damage != -1 && !module.perms().COMMAND_LIGHTNING_PLAYER_DAMAGE.isAuthorized(context.getSender()))
         {
@@ -242,9 +241,9 @@ public class PlayerCommands
             return;
         }
 
-        if (context.hasParam("player"))
+        if (context.hasNamed("player"))
         {
-            user = context.getUser("player");
+            user = context.getArg("player");
             if (user == null)
             {
                 context.sendTranslated(NEGATIVE, "Player not found!");
@@ -256,7 +255,7 @@ public class PlayerCommands
                 context.sendTranslated(NEGATIVE, "The damage value has to be a number from 1 to 20");
                 return;
             }
-            user.setFireTicks(20 * context.getParam("fireticks", 0));
+            user.setFireTicks(20 * context.getArg("fireticks", 0));
         }
         else
         {
@@ -286,7 +285,7 @@ public class PlayerCommands
     @Command(desc = "Slaps a player")
     @IParams({@Grouped(value = @Indexed(label = "player", type = User.class)),
               @Grouped(req = false, value = @Indexed(label = "damage"))})
-    public void slap(CommandContext context)
+    public void slap(CubeContext context)
     {
         User user = context.getArg(0);
         int damage = context.getArg(1, 3);
@@ -306,7 +305,7 @@ public class PlayerCommands
     @IParams({@Grouped(value = @Indexed(label = "player", type = User.class)),
               @Grouped(req = false, value = @Indexed(label = "seconds"))})
     @Flags(@Flag(longName = "unset", name = "u"))
-    public void burn(ParameterizedContext context)
+    public void burn(CubeContext context)
     {
         User user = context.getArg(0);
         int seconds = context.getArg(1, 5);

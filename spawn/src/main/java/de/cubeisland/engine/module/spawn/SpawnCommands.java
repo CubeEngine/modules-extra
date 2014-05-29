@@ -24,20 +24,18 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
-import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.command.CommandSender;
+import de.cubeisland.engine.core.command.CubeContext;
 import de.cubeisland.engine.core.command.parameterized.Completer;
+import de.cubeisland.engine.core.command.readers.UserListOrAllReader;
+import de.cubeisland.engine.core.command.reflected.Command;
 import de.cubeisland.engine.core.command.reflected.context.Flag;
 import de.cubeisland.engine.core.command.reflected.context.Flags;
+import de.cubeisland.engine.core.command.reflected.context.Grouped;
 import de.cubeisland.engine.core.command.reflected.context.IParams;
+import de.cubeisland.engine.core.command.reflected.context.Indexed;
 import de.cubeisland.engine.core.command.reflected.context.NParams;
 import de.cubeisland.engine.core.command.reflected.context.Named;
-import de.cubeisland.engine.core.command.parameterized.ParameterizedContext;
-import de.cubeisland.engine.core.command.parameterized.ParameterizedTabContext;
-import de.cubeisland.engine.core.command.readers.UserListOrAllReader;
-import de.cubeisland.engine.core.command.reflected.context.Grouped;
-import de.cubeisland.engine.core.command.reflected.Command;
-import de.cubeisland.engine.core.command.reflected.context.Indexed;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.StringUtils;
 import de.cubeisland.engine.core.util.math.BlockVector3;
@@ -71,16 +69,16 @@ public class SpawnCommands
                                              @Indexed(label = "y"),
                                              @Indexed(label = "z"),}),
               @Grouped(req = false, value = @Indexed(label = "world"))})
-    public void setSpawn(CommandContext context)
+    public void setSpawn(CubeContext context)
     {
-        if (!(context.getSender() instanceof User) && context.hasArg(4))
+        if (!(context.getSender() instanceof User) && context.hasIndexed(4))
         {
             context.sendTranslated(NEGATIVE, "If not used ingame you have to specify a world and coordinates!");
             context.sendTranslated(NEUTRAL, "Use {text:global} instead of the role name to set the default spawn.");
             return;
         }
         World world;
-        if (context.hasArg(4))
+        if (context.hasIndexed(4))
         {
             world = context.getArg(0, null);
             if (world == null)
@@ -98,7 +96,7 @@ public class SpawnCommands
         Double z;
         float yaw = 0;
         float pitch = 0;
-        if (context.hasArg(3))
+        if (context.hasIndexed(3))
         {
             x = context.getArg(1, null);
             y = context.getArg(2, null);
@@ -118,9 +116,9 @@ public class SpawnCommands
             yaw = loc.getYaw();
             pitch = loc.getPitch();
         }
-        if (context.hasArg(0) && !"global".equalsIgnoreCase(context.<String>getArg(0)))
+        if (context.hasIndexed(0) && !"global".equalsIgnoreCase(context.getString(0)))
         {
-            Role role = manager.getProvider(world).getRole(context.<String>getArg(0));
+            Role role = manager.getProvider(world).getRole(context.getString(0));
             if (role == null)
             {
                 context.sendTranslated(NEGATIVE, "Could not find the role {input} in {world}!", context.getArg(0), world);
@@ -155,17 +153,17 @@ public class SpawnCommands
     @NParams({@Named(names = {"world", "w", "in"}, type = World.class),
               @Named(names = {"role", "r"}, completer = RoleCompleter.class)})
     @Flags(@Flag(longName = "force", name = "f"))
-    public void spawn(ParameterizedContext context)
+    public void spawn(CubeContext context)
     {
-        if (!(context.getSender() instanceof User || context.hasArg(0)))
+        if (!(context.getSender() instanceof User || context.hasIndexed(0)))
         {
             context.sendTranslated(NEGATIVE, "{text:Pro Tip}: Teleport does not work IRL!");
             return;
         }
         World world;
-        if (context.hasParam("world"))
+        if (context.hasNamed("world"))
         {
-            world = context.getParam("world", null);
+            world = context.getArg("world", null);
             if (world == null)
             {
                 context.sendTranslated(NEGATIVE, "World {input} not found!", context.getString("world"));
@@ -184,7 +182,7 @@ public class SpawnCommands
         }
         Role role = null;
         Location spawnLocation;
-        if (context.hasParam("role"))
+        if (context.hasNamed("role"))
         {
             String roleName = context.getString("role");
             role = manager.getProvider(world).getRole(roleName);
@@ -219,7 +217,7 @@ public class SpawnCommands
         }
 
         List<User> tpList = new ArrayList<>();
-        if (context.hasArg(0))
+        if (context.hasIndexed(0))
         {
             boolean all = false;
             if ("*".equals(context.getArg(0)))
@@ -364,7 +362,7 @@ public class SpawnCommands
     public static class RoleCompleter implements Completer
     {
         @Override
-        public List<String> complete(ParameterizedTabContext context, String token)
+        public List<String> complete(CubeContext context, String token)
         {
             final CommandSender sender = context.getSender();
             List<String> roles = new ArrayList<>();

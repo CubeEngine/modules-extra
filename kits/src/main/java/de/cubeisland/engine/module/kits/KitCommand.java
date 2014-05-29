@@ -22,10 +22,9 @@ import java.util.List;
 
 import org.bukkit.inventory.ItemStack;
 
-import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.CubeContext;
 import de.cubeisland.engine.core.command.ContainerCommand;
 import de.cubeisland.engine.core.command.reflected.context.Flag;
-import de.cubeisland.engine.core.command.parameterized.ParameterizedContext;
 import de.cubeisland.engine.core.command.reflected.Alias;
 import de.cubeisland.engine.core.command.reflected.Command;
 import de.cubeisland.engine.core.command.reflected.context.Flags;
@@ -54,9 +53,9 @@ public class KitCommand extends ContainerCommand
         this.delegateChild(new DelegatingContextFilter()
         {
             @Override
-            public String delegateTo(CommandContext context)
+            public String delegateTo(CubeContext context)
             {
-                return context.hasArg(0) ? "give" : null;
+                return context.hasIndexed(0) ? "give" : null;
             }
         });
     }
@@ -64,7 +63,7 @@ public class KitCommand extends ContainerCommand
     @Command(desc = "Creates a new kit with the items in your inventory.")
     @IParams(@Grouped(@Indexed(label = "kitname")))
     @Flags(@Flag(longName = "toolbar", name = "t"))
-    public void create(ParameterizedContext context)
+    public void create(CubeContext context)
     {
         User sender = null;
         if (context.getSender() instanceof User)
@@ -110,7 +109,7 @@ public class KitCommand extends ContainerCommand
                             item.getEnchantments()));
             }
         }
-        Kit kit = new Kit(module, context.<String>getArg(0), false, 0, -1, true, "", new ArrayList<String>(), itemList);
+        Kit kit = new Kit(module, context.getString(0), false, 0, -1, true, "", new ArrayList<String>(), itemList);
         if (!FileUtil.isValidFileName(kit.getKitName()))
         {
             context.sendTranslated(NEGATIVE, "{name#kit} is is not a valid name! Do not use characters like *, | or ?", kit.getKitName());
@@ -127,7 +126,7 @@ public class KitCommand extends ContainerCommand
 
     @Alias(names = "kitlist")
     @Command(desc = "Lists all currently available kits.")
-    public void list(ParameterizedContext context)
+    public void list(CubeContext context)
     {
         context.sendTranslated(POSITIVE, "The following kits are available:");
         String format = "  " + WHITE + "-" + YELLOW;
@@ -143,7 +142,7 @@ public class KitCommand extends ContainerCommand
               @Grouped(req = false, value =  @Indexed(label = "player", type = User.class))})
     @Flags({@Flag(longName = "all", name = "a"),
             @Flag(longName = "force", name = "f")})
-    public void give(ParameterizedContext context)
+    public void give(CubeContext context)
     {
         String kitname = context.getArg(0);
         User user;
@@ -197,7 +196,7 @@ public class KitCommand extends ContainerCommand
         else
         {
             boolean other = false;
-            if (context.hasArg(1))
+            if (context.hasIndexed(1))
             {
                 user = context.getArg(1);
                 other = true;

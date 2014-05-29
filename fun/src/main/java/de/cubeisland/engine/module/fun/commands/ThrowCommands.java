@@ -39,7 +39,7 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.util.Vector;
 
-import de.cubeisland.engine.core.command.parameterized.ParameterizedContext;
+import de.cubeisland.engine.core.command.CubeContext;
 import de.cubeisland.engine.core.command.reflected.Command;
 import de.cubeisland.engine.core.command.reflected.context.Flag;
 import de.cubeisland.engine.core.command.reflected.context.Flags;
@@ -86,7 +86,7 @@ public class ThrowCommands
                    @Grouped(req = false, value = @Indexed(label = "amount"))})
     @NParams(@Named(names = { "delay", "d" }, type = Integer.class))
     @Flags(@Flag(longName = "unsafe", name = "u"))
-    public void throwCommand(ParameterizedContext context)
+    public void throwCommand(CubeContext context)
     {
         if (!(context.getSender() instanceof User))
         {
@@ -102,7 +102,9 @@ public class ThrowCommands
         ThrowTask task = this.thrownItems.remove(user.getUniqueId());
         if (task != null)
         {
-            if (!context.hasArg(0) || (type = Match.entity().any(context.<String>getArg(0))) == task.getType() && task.getInterval() == context.getParam("delay", task.getInterval()) && task.getPreventDamage() != unsafe && !context.hasArg(1))
+            if (!context.hasIndexed(0) || (type = Match.entity().any(context.getString(0))) == task.getType() && task.getInterval() == context.getArg(
+                "delay", task.getInterval()) && task.getPreventDamage() != unsafe && !context.hasIndexed(
+                1))
             {
                 task.stop(true);
                 return;
@@ -110,7 +112,7 @@ public class ThrowCommands
             task.stop(showNotification = false);
         }
 
-        if (context.getArgCount() == 0)
+        if (context.getIndexedCount() == 0)
         {
             context.sendTranslated(NEGATIVE, "You have to specify the material you want to throw.");
             return;
@@ -123,7 +125,7 @@ public class ThrowCommands
             return;
         }
 
-        int delay = context.getParam("delay", 3);
+        int delay = context.getArg("delay", 3);
         if (delay > this.module.getConfig().command.throwSection.maxDelay || delay < 0)
         {
             context.sendTranslated(NEGATIVE, "The delay must be a number from 0 to {integer}", this.module.getConfig().command.throwSection.maxDelay);

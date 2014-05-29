@@ -25,7 +25,7 @@ import org.bukkit.World;
 
 import de.cubeisland.engine.core.command.CommandSender;
 import de.cubeisland.engine.core.command.ContainerCommand;
-import de.cubeisland.engine.core.command.parameterized.ParameterizedContext;
+import de.cubeisland.engine.core.command.CubeContext;
 import de.cubeisland.engine.core.command.parameterized.completer.WorldCompleter;
 import de.cubeisland.engine.core.command.reflected.Alias;
 import de.cubeisland.engine.core.command.reflected.Command;
@@ -65,12 +65,12 @@ public class BorderCommands extends ContainerCommand
     @IParams(@Grouped(req = false, value = {@Indexed(label = "chunkX"), @Indexed(label = "chunkZ")}))
     @NParams(@Named(names = {"in", "world", "w"}, label = "world", type = World.class, completer = WorldCompleter.class))
     @Flags(@Flag(longName = "spawn", name = "s"))
-    public void setCenter(ParameterizedContext context)
+    public void setCenter(CubeContext context)
     {
         World world;
-        if (context.hasParam("in"))
+        if (context.hasNamed("in"))
         {
-            world = context.getParam("in");
+            world = context.getArg("in");
         }
         else if (!(context.getSender() instanceof User))
         {
@@ -88,7 +88,7 @@ public class BorderCommands extends ContainerCommand
             context.sendTranslated(POSITIVE, "Center for Border in {world} set to world spawn!", world);
             return;
         }
-        else if (context.hasArg(1))
+        else if (context.hasIndexed(1))
         {
             Integer x = context.getArg(0, null);
             Integer z = context.getArg(0, null);
@@ -115,7 +115,7 @@ public class BorderCommands extends ContainerCommand
     @Alias(names = "generateBorder")
     @Command(desc = "Generates the chunks located in the border")
     @IParams(@Grouped(@Indexed(label = "world")))
-    public void generate(ParameterizedContext context)
+    public void generate(CubeContext context)
     {
         if (running)
         {

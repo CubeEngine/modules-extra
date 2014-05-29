@@ -32,15 +32,13 @@ import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
-import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.command.CommandResult;
+import de.cubeisland.engine.core.command.CubeContext;
 import de.cubeisland.engine.core.command.conversation.ConversationCommand;
 import de.cubeisland.engine.core.command.conversation.ConversationContextFactory;
 import de.cubeisland.engine.core.command.parameterized.CommandFlag;
 import de.cubeisland.engine.core.command.parameterized.CommandParameter;
 import de.cubeisland.engine.core.command.parameterized.Completer;
-import de.cubeisland.engine.core.command.parameterized.ParameterizedContext;
-import de.cubeisland.engine.core.command.parameterized.ParameterizedTabContext;
 import de.cubeisland.engine.core.command.parameterized.completer.ItemCompleter;
 import de.cubeisland.engine.core.command.parameterized.completer.PlayerCompleter;
 import de.cubeisland.engine.core.user.User;
@@ -71,16 +69,16 @@ public class EditModeListener extends ConversationCommand
                 .addFlag(new CommandFlag("user","user"))
                 .addFlag(new CommandFlag("stock", "stock"))
                 .addFlag(new CommandFlag("nodemand", "nodemand"))
-                .addParameter(new CommandParameter("demand", "demand", Integer.class))
-                .addParameter(new CommandParameter("owner", "owner", User.class).setCompleter(new PlayerCompleter()))
-                .addParameter(new CommandParameter("price", "price", String.class))
-                .addParameter(new CommandParameter("amount", "amount", Integer.class))
-                .addParameter(new CommandParameter("item", "item", ItemStack.class).setCompleter(new ItemCompleter()))
-                .addParameter(new CommandParameter("setstock", "setstock", Integer.class))
-                .addParameter(new CommandParameter("size", "size", Integer.class).setCompleter(new Completer()
+                .addNamed(new CommandParameter("demand", "demand", Integer.class))
+                .addNamed(new CommandParameter("owner", "owner", User.class).setCompleter(new PlayerCompleter()))
+                .addNamed(new CommandParameter("price", "price", String.class))
+                .addNamed(new CommandParameter("amount", "amount", Integer.class))
+                .addNamed(new CommandParameter("item", "item", ItemStack.class).setCompleter(new ItemCompleter()))
+                .addNamed(new CommandParameter("setstock", "setstock", Integer.class))
+                .addNamed(new CommandParameter("size", "size", Integer.class).setCompleter(new Completer()
                 {
                     @Override
-                    public List<String> complete(ParameterizedTabContext context, String token)
+                    public List<String> complete(CubeContext context, String token)
                     {
                         if (module.perms().SIGN_SIZE_INFINITE.isAuthorized(context.getSender()))
                         {
@@ -162,10 +160,10 @@ public class EditModeListener extends ConversationCommand
         }
     }
 
-    public CommandResult run(CommandContext runContext)
+    public CommandResult run(CubeContext runContext)
     {
         User user = (User)runContext.getSender();
-        ParameterizedContext context = (ParameterizedContext) runContext;
+        CubeContext context = (CubeContext) runContext;
         Location loc = this.currentSignLocation.get(user.getId());
         if (loc == null)
         {
@@ -261,7 +259,7 @@ public class EditModeListener extends ConversationCommand
                 }
             }
         }
-        if (context.hasParam("demand"))
+        if (context.hasNamed("demand"))
         {
             if (!marketSign.hasType())
             {
@@ -279,7 +277,7 @@ public class EditModeListener extends ConversationCommand
             }
             else
             {
-                Integer demand = context.getParam("demand",null);
+                Integer demand = context.getArg("demand", null);
                 if (demand == -1)
                 {
                     marketSign.setNoDemand();
@@ -339,11 +337,11 @@ public class EditModeListener extends ConversationCommand
                 return null;
             }
         }
-        if (context.hasParam("owner"))
+        if (context.hasNamed("owner"))
         {
             if (module.perms().SIGN_CREATE_USER_OTHER.isAuthorized(user))
             {
-                User owner = context.getParam("owner",null);
+                User owner = context.getArg("owner", null);
                 if (owner == null)
                 {
                     user.sendTranslated(NEGATIVE, "Player {user} not found!", context.getString("owner"));
@@ -411,13 +409,13 @@ public class EditModeListener extends ConversationCommand
                 return null;
             }
         }
-        if (context.hasParam("setstock"))
+        if (context.hasNamed("setstock"))
         {
             if (module.perms().SIGN_SETSTOCK.isAuthorized(user))
             {
                 if (marketSign.hasStock())
                 {
-                    marketSign.setStock(context.getParam("setstock",0));
+                    marketSign.setStock(context.getArg("setstock", 0));
                     marketSign.syncOnMe = true;
                 }
                 else
@@ -432,7 +430,7 @@ public class EditModeListener extends ConversationCommand
                 return null;
             }
         }
-        if (context.hasParam("price"))
+        if (context.hasNamed("price"))
         {
             Double dPrice = marketSign.economy.parseFor(context.getString("price"), context.getSender().getLocale());
             if (dPrice == null)
@@ -451,9 +449,9 @@ public class EditModeListener extends ConversationCommand
                 marketSign.setPrice((long)(dPrice * marketSign.economy.fractionalDigitsFactor()));
             }
         }
-        if (context.hasParam("amount"))
+        if (context.hasNamed("amount"))
         {
-            Integer amount = context.getParam("amount",null);
+            Integer amount = context.getArg("amount", null);
             if (amount == null)
             {
                 user.sendTranslated(NEGATIVE, "Invalid amount {input#amount}!", context.getString("amount"));
@@ -469,9 +467,9 @@ public class EditModeListener extends ConversationCommand
                 marketSign.setAmount(amount);
             }
         }
-        if (context.hasParam("item"))
+        if (context.hasNamed("item"))
         {
-            ItemStack item = context.getParam("item", null);
+            ItemStack item = context.getArg("item", null);
             if (item == null)
             {
                 user.sendTranslated(NEGATIVE, "Item not found!");
@@ -486,11 +484,11 @@ public class EditModeListener extends ConversationCommand
                 return null;
             }
         }
-        if (context.hasParam("size"))
+        if (context.hasNamed("size"))
         {
             if (module.perms().SIGN_SIZE_CHANGE.isAuthorized(user))
             {
-                Integer size = context.getParam("size",null);
+                Integer size = context.getArg("size", null);
                 if (size == null || size == 0 || size > 6 || size < -1)
                 {
                     context.sendTranslated(NEGATIVE, "Invalid size! Use -1 for infinite OR 1-6 inventory-lines!");

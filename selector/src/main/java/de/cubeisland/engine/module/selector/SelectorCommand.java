@@ -23,41 +23,27 @@ import java.util.HashSet;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import de.cubeisland.engine.core.command.BasicContextFactory;
-import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.command.CommandResult;
 import de.cubeisland.engine.core.command.CubeCommand;
+import de.cubeisland.engine.core.command.CubeContext;
+import de.cubeisland.engine.core.command.CubeContextFactory;
 import de.cubeisland.engine.core.user.User;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.selector.CuboidSelector.SELECTOR_TOOL_NAME;
-import static org.bukkit.Material.WOOD_AXE;
 import static java.util.Arrays.asList;
+import static org.bukkit.Material.WOOD_AXE;
 
 public class SelectorCommand extends CubeCommand
 {
     public SelectorCommand(Selector module)
     {
-        super(module, "selectiontool", "Provides you with a wand to select a cuboid", new BasicContextFactory());
+        super(module, "selectiontool", "Provides you with a wand to select a cuboid", new CubeContextFactory());
         if (!module.hasWorldEdit())
         {
             this.setAliases(new HashSet<>(asList("/wand")));
         }
-    }
-
-    @Override
-    public CommandResult run(CommandContext context)
-    {
-        if (context.getSender() instanceof User)
-        {
-            giveSelectionTool((User)context.getSender());
-        }
-        else
-        {
-            context.sendTranslated(NEGATIVE, "You cannot hold a selection tool!");
-        }
-        return null;
     }
 
     @SuppressWarnings("deprecation")
@@ -66,8 +52,7 @@ public class SelectorCommand extends CubeCommand
         ItemStack found = null;
         for (ItemStack item : user.getInventory().getContents())
         {
-            if (item != null && item.getType() == WOOD_AXE
-                && item.hasItemMeta() && item.getItemMeta().hasDisplayName()
+            if (item != null && item.getType() == WOOD_AXE && item.hasItemMeta() && item.getItemMeta().hasDisplayName()
                 && item.getItemMeta().getDisplayName().equals(SELECTOR_TOOL_NAME))
             {
                 found = item;
@@ -76,17 +61,17 @@ public class SelectorCommand extends CubeCommand
         }
         if (found == null)
         {
-            found = new ItemStack(WOOD_AXE,1);
+            found = new ItemStack(WOOD_AXE, 1);
             ItemMeta meta = found.getItemMeta();
             meta.setDisplayName(SELECTOR_TOOL_NAME);
             meta.setLore(asList("created by " + user.getDisplayName()));
             found.setItemMeta(meta);
             ItemStack oldItemInHand = user.getItemInHand();
             user.setItemInHand(found);
-            HashMap<Integer,ItemStack> tooMuch = user.getInventory().addItem(oldItemInHand);
+            HashMap<Integer, ItemStack> tooMuch = user.getInventory().addItem(oldItemInHand);
             for (ItemStack item : tooMuch.values())
             {
-                user.getWorld().dropItemNaturally(user.getLocation(),item);
+                user.getWorld().dropItemNaturally(user.getLocation(), item);
             }
             user.updateInventory();
             user.sendTranslated(POSITIVE, "Received a new region selector tool");
@@ -98,5 +83,19 @@ public class SelectorCommand extends CubeCommand
         user.getInventory().addItem(oldItemInHand);
         user.updateInventory();
         user.sendTranslated(POSITIVE, "Found a region selector tool in your inventory!");
+    }
+
+    @Override
+    public CommandResult run(CubeContext context)
+    {
+        if (context.getSender() instanceof User)
+        {
+            giveSelectionTool((User)context.getSender());
+        }
+        else
+        {
+            context.sendTranslated(NEGATIVE, "You cannot hold a selection tool!");
+        }
+        return null;
     }
 }

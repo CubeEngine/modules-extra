@@ -24,9 +24,8 @@ import java.util.Map.Entry;
 
 import de.cubeisland.engine.core.command.CommandResult;
 import de.cubeisland.engine.core.command.ContainerCommand;
+import de.cubeisland.engine.core.command.CubeContext;
 import de.cubeisland.engine.core.command.parameterized.Completer;
-import de.cubeisland.engine.core.command.parameterized.ParameterizedContext;
-import de.cubeisland.engine.core.command.parameterized.ParameterizedTabContext;
 import de.cubeisland.engine.core.command.reflected.Command;
 import de.cubeisland.engine.core.command.reflected.CommandPermission;
 import de.cubeisland.engine.core.command.reflected.context.Flag;
@@ -60,7 +59,7 @@ public class ManagementCommands extends ContainerCommand
     @Flags({@Flag(name = "force", permDefault = TRUE),
             @Flag(name = "global")})
     @CommandPermission(permDefault = TRUE)
-    public void add(ParameterizedContext context)
+    public void add(CubeContext context)
     {
         String name = context.getArg(0);
         String message = context.getStrings(1);
@@ -90,7 +89,7 @@ public class ManagementCommands extends ContainerCommand
     @IParams(@Grouped(@Indexed(label = "name", completer = CustomCommandCompleter.class)))
     @Flags(@Flag(name = "global"))
     @CommandPermission(permDefault = TRUE)
-    public void delete(ParameterizedContext context)
+    public void delete(CubeContext context)
     {
         String name = context.getArg(0);
 
@@ -107,9 +106,10 @@ public class ManagementCommands extends ContainerCommand
         }
     }
 
-    @Command(desc = "Prints out all the custom chat commands.")
+
+    @Command(name = "help", desc = "Prints out all the custom chat commands.")
     @CommandPermission(permDefault = TRUE)
-    public CommandResult help(ParameterizedContext context)
+    public CommandResult showHelp(CubeContext context)
     {
         return new PaginatedResult(context, new CustomCommandIterator());
     }
@@ -158,7 +158,7 @@ public class ManagementCommands extends ContainerCommand
     public static class CustomCommandCompleter implements Completer
     {
         @Override
-        public List<String> complete(ParameterizedTabContext context, String token)
+        public List<String> complete(CubeContext context, String token)
         {
             ArrayList<String> list = new ArrayList<>();
             for (String item : ((Customcommands)context.getCommand().getModule()).getConfig().commands.keySet())

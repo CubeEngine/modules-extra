@@ -24,7 +24,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.CubeContext;
 import de.cubeisland.engine.core.command.ContainerCommand;
 import de.cubeisland.engine.core.command.reflected.Alias;
 import de.cubeisland.engine.core.command.reflected.Command;
@@ -101,7 +101,7 @@ public class LogCommands extends ContainerCommand
     //TODO loghand (cmd hand) -> toggles general lookup with bare hands
 
     @Command(desc = "Shows the current queue-size.")
-    public void queuesize(CommandContext context)
+    public void queuesize(CubeContext context)
     {
         int size = module.getLogManager().getQueueSize();
         if (size == 0)
@@ -216,12 +216,12 @@ public class LogCommands extends ContainerCommand
         "kills: Shows kill-interactions only\n" +
         "block: Shows block-changes only")
     @IParams(@Grouped(req = false, value = @Indexed(label = "log-type")))
-    public void block(CommandContext context)
+    public void block(CubeContext context)
     {
         //TODO tabcompleter for logBlockTypes (waiting for CE-389)
         if (context.getSender() instanceof User)
         {
-            Material blockMaterial = this.matchType(context.<String>getArg(0), true);
+            Material blockMaterial = this.matchType(context.getString(0), true);
             if (blockMaterial == null)
             {
                 context
@@ -247,12 +247,12 @@ public class LogCommands extends ContainerCommand
         "kills: Shows kill-interactions only\n" +
         "block: Shows block-changes only")
     @IParams(@Grouped(req = false, value = @Indexed(label = "log-type")))
-    public void tool(CommandContext context)
+    public void tool(CubeContext context)
     {
         //TODO tabcompleter for logToolTypes (waiting for CE-389)
         if (context.getSender() instanceof User)
         {
-            Material blockMaterial = this.matchType(context.<String>getArg(0), false);
+            Material blockMaterial = this.matchType(context.getString(0), false);
             if (blockMaterial == null)
             {
                 context.sendTranslated(NEGATIVE, "{input} is not a valid log-type. Use chest, container, player, block or kills instead!", context.getArg(
@@ -269,7 +269,7 @@ public class LogCommands extends ContainerCommand
     }
 
     @Command(desc = "Gives you a item to select a region with.")
-    public void selectionTool(CommandContext context)
+    public void selectionTool(CubeContext context)
     {
         if (context.getSender() instanceof User)
         {

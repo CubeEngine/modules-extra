@@ -25,7 +25,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import de.cubeisland.engine.core.command.ContainerCommand;
-import de.cubeisland.engine.core.command.parameterized.ParameterizedContext;
+import de.cubeisland.engine.core.command.CubeContext;
 import de.cubeisland.engine.core.command.parameterized.completer.WorldCompleter;
 import de.cubeisland.engine.core.command.reflected.Alias;
 import de.cubeisland.engine.core.command.reflected.Command;
@@ -63,19 +63,19 @@ public class BackpackCommands extends ContainerCommand
     @IParams({@Grouped(@Indexed(label = "name")),
               @Grouped(req = false, value = @Indexed(label = "user", type = User.class))})
     @NParams(@Named(names = {"world", "for", "in", "w"}, completer = WorldCompleter.class, type = World.class))
-    public void open(ParameterizedContext context)
+    public void open(CubeContext context)
     {
         if (context.getSender() instanceof User)
         {
             User forUser = (User)context.getSender();
-            if (context.hasArg(1))
+            if (context.hasIndexed(1))
             {
                 forUser = context.getArg(1);
             }
             World forWorld = forUser.getWorld();
-            if (context.hasParam("w"))
+            if (context.hasNamed("w"))
             {
-                forWorld = context.getParam("w", null);
+                forWorld = context.getArg("w", null);
                 if (forWorld == null)
                 {
                     context.sendTranslated(NEGATIVE, "Unknown World {input#world}!", context.getString("w"));
@@ -92,7 +92,7 @@ public class BackpackCommands extends ContainerCommand
                 context.sendTranslated(NEGATIVE, "You are not allowed to open backpacks from an other world!");
                 return;
             }
-            manager.openBackpack((User)context.getSender(), forUser, forWorld, context.<String>getArg(0));
+            manager.openBackpack((User)context.getSender(), forUser, forWorld, context.getString(0));
             return;
         }
         context.sendTranslated(NEGATIVE, "You cannot open a inventory in console!"); // TODO perhaps save inventory to yml
@@ -108,13 +108,13 @@ public class BackpackCommands extends ContainerCommand
     @Flags({@Flag(name = "g", longName = "global"), // TODO OR flags
             @Flag(name = "s", longName = "single"),
             @Flag(name = "b", longName = "blockinput")})
-    public void create(ParameterizedContext context)
+    public void create(CubeContext context)
     {
         User forUser = null;
         World forWorld = null;
-        if (context.hasParam("w"))
+        if (context.hasNamed("w"))
         {
-            forWorld = context.getParam("w", null);
+            forWorld = context.getArg("w", null);
             if (forWorld == null)
             {
                 context.sendTranslated(NEGATIVE, "Unknown World {input#world}!", context.getString("w"));
@@ -131,7 +131,7 @@ public class BackpackCommands extends ContainerCommand
             context.sendTranslated(POSITIVE, "You have to specify a world for non global backpacks!");
             return;
         }
-        if (context.hasArg(1))
+        if (context.hasIndexed(1))
         {
             forUser = context.getArg(1);
         }
@@ -140,9 +140,9 @@ public class BackpackCommands extends ContainerCommand
             context.sendTranslated(NEGATIVE, "You need to specify a user");
             return;
         }
-        manager.createBackpack(context.getSender(), forUser, context.<String>getArg(0), forWorld,
+        manager.createBackpack(context.getSender(), forUser, context.getString(0), forWorld,
                                context.hasFlag("g"), context.hasFlag("s"), context.hasFlag("b"),
-                               context.getParam("p", 1), context.getParam("s", 6));
+                               context.getArg("p", 1), context.getArg("s", 6));
     }
 
     @Alias(names = "modifybp")
@@ -153,7 +153,7 @@ public class BackpackCommands extends ContainerCommand
               @Named(names = {"size","s"}, type = Integer.class),
               @Named(names = {"blockinput","b"}, type = Boolean.class, label = "true|false"),
               @Named(names = {"world", "for", "in", "w"}, completer = WorldCompleter.class, type = World.class)})
-    public void modify(ParameterizedContext context)
+    public void modify(CubeContext context)
     {
         User forUser = null;
         World forWorld = null;
@@ -162,9 +162,9 @@ public class BackpackCommands extends ContainerCommand
             forUser = (User)context.getSender();
             forWorld = ((User)context.getSender()).getWorld();
         }
-        else if (context.hasParam("w"))
+        else if (context.hasNamed("w"))
         {
-            forWorld = context.getParam("w", null);
+            forWorld = context.getArg("w", null);
             if (forWorld == null)
             {
                 context.sendTranslated(NEGATIVE, "Unknown World {input#world}!", context.getString("w"));
@@ -176,7 +176,7 @@ public class BackpackCommands extends ContainerCommand
             context.sendTranslated(POSITIVE, "You have to specify a world for non global backpacks!");
             return;
         }
-        if (context.hasArg(1))
+        if (context.hasIndexed(1))
         {
             forUser = context.getArg(1);
         }
@@ -185,10 +185,10 @@ public class BackpackCommands extends ContainerCommand
             context.sendTranslated(NEGATIVE, "You need to specify a user");
             return;
         }
-        manager.modifyBackpack(context.getSender(), forUser, context.<String>getArg(0), forWorld,
-                               (Integer)context.getParam("p", null),
-                               (Boolean)context.getParam("b", null),
-                               (Integer)context.getParam("s", null));
+        manager.modifyBackpack(context.getSender(), forUser, context.getString(0), forWorld,
+                               (Integer)context.getArg("p", null),
+                               (Boolean)context.getArg("b", null),
+                               (Integer)context.getArg("s", null));
     }
 
     @Alias(names = "givebp")
@@ -203,7 +203,7 @@ public class BackpackCommands extends ContainerCommand
               @Named(names = {"world", "for", "in", "w"},
                      completer = WorldCompleter.class, type = World.class)})
     // /givebp premium Faithcaio item diamondpick:1500 name "broken pick" lore "A broken\npick" "ench unbreaking:1,effi:3"
-    public void give(ParameterizedContext context)
+    public void give(CubeContext context)
     {
         User forUser = null;
         World forWorld = null;
@@ -212,16 +212,16 @@ public class BackpackCommands extends ContainerCommand
             forUser = (User)context.getSender();
             forWorld = ((User)context.getSender()).getWorld();
         }
-        else if (context.hasParam("w"))
+        else if (context.hasNamed("w"))
         {
-            forWorld = context.getParam("w", null);
+            forWorld = context.getArg("w", null);
             if (forWorld == null)
             {
                 context.sendTranslated(NEGATIVE, "Unknown World {input#world}!", context.getString("w"));
                 return;
             }
         }
-        if (context.hasArg(1))
+        if (context.hasIndexed(1))
         {
             forUser = context.getArg(1);
         }
@@ -237,15 +237,15 @@ public class BackpackCommands extends ContainerCommand
             return;
         }
         ItemMeta itemMeta = matchedItem.getItemMeta();
-        if (context.hasParam("n"))
+        if (context.hasNamed("n"))
         {
             itemMeta.setDisplayName(ChatFormat.parseFormats(context.getString("n")));
         }
-        if (context.hasParam("l"))
+        if (context.hasNamed("l"))
         {
             itemMeta.setLore(asList(StringUtils.explode("\\n", ChatFormat.parseFormats(context.getString("l")))));
         }
-        if (context.hasParam("e"))
+        if (context.hasNamed("e"))
         {
             String[] enchs = StringUtils.explode(",", context.getString("e"));
             for (String ench : enchs)
@@ -277,9 +277,9 @@ public class BackpackCommands extends ContainerCommand
         }
         matchedItem.setItemMeta(itemMeta);
         Integer amount = matchedItem.getMaxStackSize();
-        if (context.hasParam("a"))
+        if (context.hasNamed("a"))
         {
-            amount = context.getParam("a", null);
+            amount = context.getArg("a", null);
             if (amount == null)
             {
                 context.sendTranslated(NEGATIVE, "Invalid amount {input#amount}", context.getString("a"));
@@ -287,6 +287,6 @@ public class BackpackCommands extends ContainerCommand
             }
         }
         matchedItem.setAmount(amount);
-        this.manager.giveItem(context.getSender(), forUser, forWorld, context.<String>getArg(0), matchedItem);
+        this.manager.giveItem(context.getSender(), forUser, forWorld, context.getString(0), matchedItem);
     }
 }

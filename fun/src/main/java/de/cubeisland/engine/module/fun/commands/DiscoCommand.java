@@ -23,7 +23,7 @@ import java.util.Map;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 
-import de.cubeisland.engine.core.command.parameterized.ParameterizedContext;
+import de.cubeisland.engine.core.command.CubeContext;
 import de.cubeisland.engine.core.command.reflected.Command;
 import de.cubeisland.engine.core.command.reflected.context.Grouped;
 import de.cubeisland.engine.core.command.reflected.context.IParams;
@@ -51,7 +51,7 @@ public class DiscoCommand
     @Command(desc = "Rapidly changes from day to night")
     @IParams(@Grouped(req = false, value = @Indexed(label = "world", type = World.class)))
     @NParams(@Named(names = {"delay", "d"}, type = Integer.class))
-    public void disco(ParameterizedContext context)
+    public void disco(CubeContext context)
     {
         final CommandSender sender = context.getSender();
 
@@ -61,7 +61,7 @@ public class DiscoCommand
             world = ((User)sender).getWorld();
         }
 
-        if (context.hasArg(0))
+        if (context.hasIndexed(0))
         {
             world = context.getArg(0);
             if (world == null)
@@ -77,7 +77,7 @@ public class DiscoCommand
             return;
         }
 
-        final int delay = context.getParam("delay", this.module.getConfig().command.disco.defaultDelay);
+        final int delay = context.getArg("delay", this.module.getConfig().command.disco.defaultDelay);
         if (delay < this.module.getConfig().command.disco.minDelay || delay > this.module.getConfig().command.disco.maxDelay)
         {
             context.sendTranslated(NEGATIVE, "The delay has to be a number between {integer} and {integer}", this.module.getConfig().command.disco.minDelay, this.module.getConfig().command.disco.maxDelay);

@@ -25,8 +25,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 
-import de.cubeisland.engine.core.command.HelpContext;
-import de.cubeisland.engine.core.command.parameterized.ParameterizedContext;
+import de.cubeisland.engine.core.command.CubeContext;
 import de.cubeisland.engine.core.command.parameterized.completer.MaterialListCompleter;
 import de.cubeisland.engine.core.command.parameterized.completer.PlayerListCompleter;
 import de.cubeisland.engine.core.command.parameterized.completer.WorldCompleter;
@@ -65,9 +64,9 @@ public class LookupCommands
         this.actionManager = module.getActionManager();
     }
 
-    private void params(ParameterizedContext context)
+    private void params(CubeContext context)
     {
-        if (context.hasParam("params"))
+        if (context.hasNamed("params"))
         {
             String param = context.getString("params");
             context.sendMessage("NOT YET DONE");
@@ -111,9 +110,10 @@ public class LookupCommands
               @Flag(longName = "nodate", name = "nd"),
               @Flag(longName = "descending", name = "desc")})
     // TODO param for filter / chat / command / signtexts
-    public void lookup(ParameterizedContext context)
+    public void lookup(CubeContext context)
     {
-        if ((context.hasArg(0) && "params".equalsIgnoreCase(context.<String>getArg(0))) || context.hasParam("params"))
+        if ((context.hasIndexed(0) && "params".equalsIgnoreCase(context.getString(0))) || context.hasNamed(
+            "params"))
         {
             this.params(context);
         }
@@ -124,7 +124,7 @@ public class LookupCommands
                 try
                 {
                     // TODO show all selected params of last lookup
-                    context.getCommand().help(new HelpContext(context));
+                    context.getCommand().help(context);
                 }
                 catch (Exception e)
                 {
@@ -147,7 +147,7 @@ public class LookupCommands
                 .readUser(params, context.getString("user"), user) && this
                 .readBlocks(params, context.getString("block"), user) && this
                 .readEntities(params, context.getString("entity"), user) && this
-                .readWorld(params, context.getString("world"), context.hasParam("radius"), user) && this
+                .readWorld(params, context.getString("world"), context.hasNamed("radius"), user) && this
                 .readTimeSince(params, context.getString("since"), user) && this
                 .readTimeBefore(params, context.getString("before"), user)))
             {
@@ -169,18 +169,18 @@ public class LookupCommands
               @Named(names = {"user", "player", "p"}, completer = PlayerListCompleter.class), @Named(names = {"block", "b"}, completer = MaterialListCompleter.class), @Named(names = {"entity", "e"}), @Named(names = {"since", "time", "t"}), // if not given default since 3d
               @Named(names = {"before"}), @Named(names = {"world", "w", "in"}, type = World.class, completer = WorldCompleter.class)})
     @Flags(@Flag(longName = "preview", name = "pre"))
-    public void rollback(ParameterizedContext context)
+    public void rollback(CubeContext context)
     {
-        if (context.hasArg(0))
+        if (context.hasIndexed(0))
         {
-            if ("params".equalsIgnoreCase(context.<String>getArg(0)))
+            if ("params".equalsIgnoreCase(context.getString(0)))
             {
                 this.params(context);
             }
         }
         else if (context.getSender() instanceof User)
         {
-            if (!context.hasParams())
+            if (!context.hasNamed())
             {
                 context.sendTranslated(NEGATIVE, "You need to define parameters to rollback!");
                 return;
@@ -194,7 +194,7 @@ public class LookupCommands
                 .readUser(params, context.getString("user"), user) && this
                 .readBlocks(params, context.getString("block"), user) && this
                 .readEntities(params, context.getString("entity"), user) && this
-                .readWorld(params, context.getString("world"), context.hasParam("radius"), user) && this
+                .readWorld(params, context.getString("world"), context.hasNamed("radius"), user) && this
                 .readTimeSince(params, context.getString("since"), user) && this
                 .readTimeBefore(params, context.getString("before"), user)))
             {
@@ -222,18 +222,18 @@ public class LookupCommands
               @Named(names = {"user", "player", "p"}, completer = PlayerListCompleter.class), @Named(names = {"block", "b"}, completer = MaterialListCompleter.class), @Named(names = {"entity", "e"}), @Named(names = {"since", "time", "t"}), // if not given default since 3d
               @Named(names = {"before"}), @Named(names = {"world", "w", "in"}, type = World.class, completer = WorldCompleter.class)})
     @Flags(@Flag(longName = "preview", name = "pre"))
-    public void redo(ParameterizedContext context)
+    public void redo(CubeContext context)
     {
-        if (context.hasArg(0))
+        if (context.hasIndexed(0))
         {
-            if ("params".equalsIgnoreCase(context.<String>getArg(0)))
+            if ("params".equalsIgnoreCase(context.getString(0)))
             {
                 this.params(context);
             }
         }
         else if (context.getSender() instanceof User)
         {
-            if (!context.hasParams())
+            if (!context.hasNamed())
             {
                 context.sendTranslated(NEGATIVE, "You need to define parameters to redo!");
                 return;
@@ -247,7 +247,7 @@ public class LookupCommands
                 .readUser(params, context.getString("user"), user) && this
                 .readBlocks(params, context.getString("block"), user) && this
                 .readEntities(params, context.getString("entity"), user) && this
-                .readWorld(params, context.getString("world"), context.hasParam("radius"), user) && this
+                .readWorld(params, context.getString("world"), context.hasNamed("radius"), user) && this
                 .readTimeSince(params, context.getString("since"), user) && this
                 .readTimeBefore(params, context.getString("before"), user)))
             {
@@ -399,15 +399,15 @@ public class LookupCommands
         return true;
     }
 
-    private boolean fillShowOptions(LogAttachment attachment, Lookup lookup, ShowParameter show, ParameterizedContext context)
+    private boolean fillShowOptions(LogAttachment attachment, Lookup lookup, ShowParameter show, CubeContext context)
     {
         show.showCoords = context.hasFlag("coords");
         show.showDate = !context.hasFlag("nd");
         show.compress = !context.hasFlag("det");
         show.reverseOrder = !context.hasFlag("desc");
-        if (context.hasParam("limit"))
+        if (context.hasNamed("limit"))
         {
-            Integer limit = context.getParam("limit", null);
+            Integer limit = context.getArg("limit", null);
             if (limit == null)
             {
                 return false;
@@ -419,9 +419,9 @@ public class LookupCommands
             }
             show.pagelimit = limit;
         }
-        if (context.hasArg(0))
+        if (context.hasIndexed(0))
         {
-            if ("show".equalsIgnoreCase(context.<String>getArg(0)))
+            if ("show".equalsIgnoreCase(context.getString(0)))
             {
                 if (lookup != null && lookup.queried())
                 {
@@ -436,11 +436,11 @@ public class LookupCommands
             }
             return false;
         }
-        if (context.hasParam("page"))
+        if (context.hasNamed("page"))
         {
             if (lookup != null && lookup.queried())
             {
-                Integer page = context.getParam("page", null);
+                Integer page = context.getArg("page", null);
                 if (page == null)
                 {
                     context.sendTranslated(NEGATIVE, "Invalid page!");

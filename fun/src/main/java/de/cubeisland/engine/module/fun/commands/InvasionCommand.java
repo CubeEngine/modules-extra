@@ -23,7 +23,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
-import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.CubeContext;
 import de.cubeisland.engine.core.command.reflected.Command;
 import de.cubeisland.engine.core.command.reflected.context.Grouped;
 import de.cubeisland.engine.core.command.reflected.context.IParams;
@@ -44,7 +44,7 @@ public class InvasionCommand
 
     @Command(desc = "Spawns a mob next to every player on the server")
     @IParams(@Grouped(@Indexed(label = "mob")))
-    public void invasion(CommandContext context)
+    public void invasion(CubeContext context)
     {
         EntityType entityType = Match.entity().mob(context.getString(0, null));
         if (entityType == null)

@@ -32,10 +32,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.CubeContext;
 import de.cubeisland.engine.core.command.CommandSender;
 import de.cubeisland.engine.core.command.ContainerCommand;
-import de.cubeisland.engine.core.command.parameterized.ParameterizedContext;
 import de.cubeisland.engine.core.command.reflected.Alias;
 import de.cubeisland.engine.core.command.reflected.Command;
 import de.cubeisland.engine.core.command.reflected.context.Flag;
@@ -69,21 +68,21 @@ public class PowerToolCommand extends ContainerCommand implements Listener
         this.delegateChild(new DelegatingContextFilter()
         {
             @Override
-            public String delegateTo(CommandContext context)
+            public String delegateTo(CubeContext context)
             {
-                return context.hasArg(0) ? "add" : "clear";
+                return context.hasIndexed(0) ? "add" : "clear";
             }
 
             @Override
-            public CommandContext filterContext(CommandContext context, String child)
+            public CubeContext filterContext(CubeContext context, String child)
             {
-                ParameterizedContext pContext = (ParameterizedContext)context;
-                Set<String> flagSet = pContext.getFlags();
+                Set<String> flagSet = context.getFlags();
                 if (child.equals("add"))
                 {
                     flagSet.add("r");
                 }
-                return new ParameterizedContext(context.getCommand(), context.getSender(), context.getLabels(), context.getArgs(), flagSet, pContext.getParams());
+                // TODO read context before passing
+                return new CubeContext(context.getRawArgs(), context.getRawIndexed(), context.getRawNamed(), flagSet, context.getCommand(), context.getSender(), context.getLabels());
             }
         });
     }
@@ -91,7 +90,7 @@ public class PowerToolCommand extends ContainerCommand implements Listener
     @Alias(names = "ptc")
     @Command(desc = "Removes all commands from your powertool")
     @Flags(@Flag(longName = "all", name = "a"))
-    public void clear(ParameterizedContext context)
+    public void clear(CubeContext context)
     {
         CommandSender sender = context.getSender();
         if (sender instanceof User)
@@ -124,7 +123,7 @@ public class PowerToolCommand extends ContainerCommand implements Listener
     @Command(alias = {"del", "delete", "rm"}, desc = "Removes a command from your powertool")
     @IParams(@Grouped(req = false, value = @Indexed(label = "command"), greedy = true))
     @Flags(@Flag(longName = "chat", name = "c"))
-    public void remove(ParameterizedContext context)
+    public void remove(CubeContext context)
     {
         if (context.getSender() instanceof User)
         {
@@ -141,7 +140,7 @@ public class PowerToolCommand extends ContainerCommand implements Listener
         context.sendTranslated(NEUTRAL, "No more power for you!");
     }
 
-    private void remove(CommandContext context, ItemStack item, String cmd, boolean isCommand)
+    private void remove(CubeContext context, ItemStack item, String cmd, boolean isCommand)
     {
         List<String> powertools = this.getPowerTools(item);
         if (cmd == null || cmd.isEmpty())
@@ -184,7 +183,7 @@ public class PowerToolCommand extends ContainerCommand implements Listener
     @IParams(@Grouped(value = @Indexed(label = "commandstring"), greedy = true))
     @Flags({@Flag(longName = "chat", name = "c"),
            @Flag(longName = "replace", name = "r")})
-    public void add(ParameterizedContext context)
+    public void add(CubeContext context)
     {
         CommandSender sender = context.getSender();
         if (sender instanceof User)
@@ -219,7 +218,7 @@ public class PowerToolCommand extends ContainerCommand implements Listener
     @Alias(names = "ptl")
     @Command(desc = "Lists your powertool-bindings.")
     @Flags(@Flag(longName = "all", name = "a"))
-    public void list(ParameterizedContext context)
+    public void list(CubeContext context)
     {
         if (context.getSender() instanceof User)
         {
@@ -254,7 +253,7 @@ public class PowerToolCommand extends ContainerCommand implements Listener
         context.sendTranslated(NEUTRAL, "You already have enough power!");
     }
 
-    private void showPowerToolList(CommandContext context, List<String> powertools, boolean lastAsNew, boolean showIfEmpty)
+    private void showPowerToolList(CubeContext context, List<String> powertools, boolean lastAsNew, boolean showIfEmpty)
     {
         if ((powertools == null || powertools.isEmpty()))
         {

@@ -20,7 +20,7 @@ package de.cubeisland.engine.module.signmarket;
 import java.util.HashSet;
 
 import de.cubeisland.engine.core.command.ContainerCommand;
-import de.cubeisland.engine.core.command.parameterized.ParameterizedContext;
+import de.cubeisland.engine.core.command.CubeContext;
 import de.cubeisland.engine.core.command.reflected.Alias;
 import de.cubeisland.engine.core.command.reflected.Command;
 import de.cubeisland.engine.core.user.User;
@@ -41,7 +41,7 @@ public class SignMarketCommands extends ContainerCommand
 
     @Alias(names = "medit")
     @Command(alias = "edit", desc = "Enters the editmode allowing to change market signs easily")
-    public void editMode(ParameterizedContext context)
+    public void editMode(CubeContext context)
     {
         if (context.getSender() instanceof User)
         {

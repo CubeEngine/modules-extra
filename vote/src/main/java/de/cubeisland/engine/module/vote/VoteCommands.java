@@ -20,7 +20,7 @@ package de.cubeisland.engine.module.vote;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.CubeContext;
 import de.cubeisland.engine.core.command.reflected.Command;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.TimeUtil;
@@ -49,7 +49,7 @@ public class VoteCommands
     }
 
     @Command(desc = "shows your current vote situation")
-    public void vote(CommandContext context)
+    public void vote(CubeContext context)
     {
         if (context.getSender() instanceof User)
         {

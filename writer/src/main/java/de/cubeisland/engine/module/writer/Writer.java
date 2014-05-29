@@ -27,9 +27,9 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
+import de.cubeisland.engine.core.command.CubeContext;
 import de.cubeisland.engine.core.command.reflected.context.NParams;
 import de.cubeisland.engine.core.command.reflected.context.Named;
-import de.cubeisland.engine.core.command.parameterized.ParameterizedContext;
 import de.cubeisland.engine.core.command.reflected.Command;
 import de.cubeisland.engine.core.command.reflected.ReflectedCommand;
 import de.cubeisland.engine.core.module.Module;
@@ -54,7 +54,7 @@ public class Writer extends Module
               @Named(names ={"2", "Line2"}, label = "2nd line"),
               @Named(names ={"3", "Line3"}, label = "3rd line"),
               @Named(names ={"4", "Line4"}, label = "4th line")})
-    public void edit(ParameterizedContext context)
+    public void edit(CubeContext context)
     {
         if (!(context.getSender() instanceof User))
         {

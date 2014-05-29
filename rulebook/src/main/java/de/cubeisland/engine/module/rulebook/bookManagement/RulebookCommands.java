@@ -24,7 +24,7 @@ import java.util.Locale;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
-import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.CubeContext;
 import de.cubeisland.engine.core.command.ContainerCommand;
 import de.cubeisland.engine.core.command.reflected.CommandPermission;
 import de.cubeisland.engine.core.command.reflected.context.Flag;
@@ -32,7 +32,6 @@ import de.cubeisland.engine.core.command.reflected.context.Flags;
 import de.cubeisland.engine.core.command.reflected.context.IParams;
 import de.cubeisland.engine.core.command.reflected.context.NParams;
 import de.cubeisland.engine.core.command.reflected.context.Named;
-import de.cubeisland.engine.core.command.parameterized.ParameterizedContext;
 import de.cubeisland.engine.core.command.reflected.Alias;
 import de.cubeisland.engine.core.command.reflected.Command;
 import de.cubeisland.engine.core.command.reflected.context.Grouped;
@@ -72,9 +71,9 @@ public class RulebookCommands extends ContainerCommand
     @IParams(@Grouped(req = false, value = @Indexed(label = "language")))
     @NParams(@Named(names = {"player", "p"}, label = "name", type = User.class))
     @CommandPermission(permDefault = TRUE)
-    public void getRuleBook(ParameterizedContext context)
+    public void getRuleBook(CubeContext context)
     {
-        if(!(context.getSender() instanceof User) && !context.hasParam("player"))
+        if(!(context.getSender() instanceof User) && !context.hasNamed("player"))
         {
             context.sendTranslated(NEGATIVE, "The post office will give you your book!");
             return;
@@ -82,14 +81,14 @@ public class RulebookCommands extends ContainerCommand
         
         Locale locale;
         User user;
-        if(context.hasParam("player"))
+        if(context.hasNamed("player"))
         {
             if(!getPermission.isAuthorized(context.getSender()))
             {
                 context.sendTranslated(NEGATIVE, "You do not have the permissions to add the rulebook to the inventory of an other player");
                 return;
             }
-            user = context.getParam("player");
+            user = context.getArg("player");
             if(user == null)
             {
                 context.sendTranslated(NEGATIVE, "The given user was not found!");
@@ -107,9 +106,9 @@ public class RulebookCommands extends ContainerCommand
             return;
         }
 
-        if(context.hasArg(0))
+        if(context.hasIndexed(0))
         {
-            Language language = this.rulebookManager.getLanguage(context.<String>getArg(0));
+            Language language = this.rulebookManager.getLanguage(context.getString(0));
 
             if(language == null)
             {
@@ -158,7 +157,7 @@ public class RulebookCommands extends ContainerCommand
     @Command(desc = "list all available languages of the rulebooks.")
     @Flags(@Flag(longName = "supported", name = "s"))
     @CommandPermission(permDefault = TRUE)
-    public void list(ParameterizedContext context)
+    public void list(CubeContext context)
     {
         if(!context.hasFlag("s"))
         {
@@ -188,9 +187,9 @@ public class RulebookCommands extends ContainerCommand
     @Alias(names = "removerules")
     @Command(desc = "removes the declared language and languagefiles!")
     @IParams(@Grouped(@Indexed(label = "language")))
-    public void remove(CommandContext context)
+    public void remove(CubeContext context)
     {
-        Language language = this.rulebookManager.getLanguage(context.<String>getArg(0));
+        Language language = this.rulebookManager.getLanguage(context.getString(0));
 
         if(language == null)
         {
@@ -219,7 +218,7 @@ public class RulebookCommands extends ContainerCommand
     @Alias(names = "modifyrules")
     @Command(desc = "modified the rulebook of the declared language with the book in hand")
     @IParams(@Grouped(@Indexed(label = "language")))
-    public void modify(CommandContext context)
+    public void modify(CubeContext context)
     {
         if(!(context.getSender() instanceof User))
         {
@@ -235,7 +234,7 @@ public class RulebookCommands extends ContainerCommand
             return;
         }
 
-        Language language = this.rulebookManager.getLanguage(context.<String>getArg(0));
+        Language language = this.rulebookManager.getLanguage(context.getString(0));
         if(language == null)
         {
             context.sendTranslated(NEGATIVE, "More than one or no language is matched with {input}", context.getArg(0));
@@ -267,7 +266,7 @@ public class RulebookCommands extends ContainerCommand
     @Alias(names = "addrules")
     @Command(desc = "adds the book in hand as rulebook of the declared language")
     @IParams(@Grouped(@Indexed(label = "language")))
-    public void add(CommandContext context)
+    public void add(CubeContext context)
     {
         if(!(context.getSender() instanceof User))
         {
@@ -283,7 +282,7 @@ public class RulebookCommands extends ContainerCommand
             return;
         }
 
-        Language language = this.rulebookManager.getLanguage(context.<String>getArg(0));
+        Language language = this.rulebookManager.getLanguage(context.getString(0));
         if(language == null)
         {
             context.sendTranslated(NEGATIVE, "More than one or no language is matched with {input}", context.getArg(0));

@@ -20,7 +20,7 @@ package de.cubeisland.engine.module.hide;
 import java.util.Set;
 import java.util.UUID;
 
-import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.CubeContext;
 import de.cubeisland.engine.core.command.CommandHolder;
 import de.cubeisland.engine.core.command.CommandSender;
 import de.cubeisland.engine.core.command.CubeCommand;
@@ -51,7 +51,7 @@ public class HideCommands implements CommandHolder
 
     @Command(desc = "Hides a player.")
     @IParams(@Grouped(req = false, value = @Indexed(label = "player", type = User.class)))
-    public void hide(CommandContext context)
+    public void hide(CubeContext context)
     {
         CommandSender sender = context.getSender();
         User target = getTargetUser(context);
@@ -87,7 +87,7 @@ public class HideCommands implements CommandHolder
 
     @Command(desc = "Unhides a player.")
     @IParams(@Grouped(req = false, value = @Indexed(label = "player", type = User.class)))
-    public void unhide(CommandContext context)
+    public void unhide(CubeContext context)
     {
         CommandSender sender = context.getSender();
         User target = getTargetUser(context);
@@ -123,7 +123,7 @@ public class HideCommands implements CommandHolder
 
     @Command(desc = "Checks whether a player is hidden.")
     @IParams(@Grouped(req = false, value = @Indexed(label = "player", type = User.class)))
-    public void hidden(CommandContext context)
+    public void hidden(CubeContext context)
     {
         CommandSender sender = context.getSender();
         User target = getTargetUser(context);
@@ -157,7 +157,7 @@ public class HideCommands implements CommandHolder
     }
 
     @Command(desc = "Lists all hidden players.")
-    public void listhiddens(CommandContext context)
+    public void listhiddens(CubeContext context)
     {
         Set<UUID> hiddens = this.module.getHiddenUsers();
         if (hiddens.isEmpty())
@@ -174,7 +174,7 @@ public class HideCommands implements CommandHolder
 
     @Command(desc = "Toggles the ability to see hidden players.")
     @IParams(@Grouped(req = false, value = @Indexed(label = "player", type = User.class)))
-    public void seehiddens(CommandContext context)
+    public void seehiddens(CubeContext context)
     {
         CommandSender sender = context.getSender();
         User target = getTargetUser(context);
@@ -211,7 +211,7 @@ public class HideCommands implements CommandHolder
 
     @Command(desc = "Checks whether a player can see hidden players.")
     @IParams(@Grouped(req = false, value = @Indexed(label = "player", type = User.class)))
-    public void canseehiddens(CommandContext context)
+    public void canseehiddens(CubeContext context)
     {
         CommandSender sender = context.getSender();
         User target = getTargetUser(context);
@@ -244,7 +244,7 @@ public class HideCommands implements CommandHolder
     }
 
     @Command(desc = "Lists all players who can see hidden players.")
-    public void listcanseehiddens(CommandContext context)
+    public void listcanseehiddens(CubeContext context)
     {
         Set<UUID> canSeeHiddens = this.module.getCanSeeHiddens();
         if (canSeeHiddens.isEmpty())
@@ -259,9 +259,9 @@ public class HideCommands implements CommandHolder
         }
     }
 
-    private static User getTargetUser(CommandContext context)
+    private static User getTargetUser(CubeContext context)
     {
-        if (context.getArgCount() > 0)
+        if (context.getIndexedCount() > 0)
         {
             return context.getArg(0);
         }

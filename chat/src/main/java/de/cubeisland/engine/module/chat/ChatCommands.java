@@ -17,7 +17,7 @@
  */
 package de.cubeisland.engine.module.chat;
 
-import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.CubeContext;
 import de.cubeisland.engine.core.command.reflected.Command;
 import de.cubeisland.engine.core.command.reflected.context.Grouped;
 import de.cubeisland.engine.core.command.reflected.context.IParams;
@@ -38,7 +38,7 @@ public class ChatCommands
 
     @Command(desc = "Allows you to emote")
     @IParams(@Grouped(value = @Indexed(label = "message"), greedy = true))
-    public void me(CommandContext context)
+    public void me(CubeContext context)
     {
         String message = context.getStrings(0);
         this.module.getCore().getUserManager().broadcastStatus(message, context.getSender());
@@ -47,10 +47,10 @@ public class ChatCommands
     @Command(desc = "Changes your display name")
     @IParams({@Grouped(@Indexed(label = {"name","!reset"})),
               @Grouped(req = false, value = @Indexed(label = "player", type = User.class))})
-    public void nick(CommandContext context)
+    public void nick(CubeContext context)
     {
         User forUser;
-        if (context.hasArg(1))
+        if (context.hasIndexed(1))
         {
             forUser = context.getArg(1);
             if (forUser == null)

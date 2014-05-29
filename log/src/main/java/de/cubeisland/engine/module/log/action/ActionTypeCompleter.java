@@ -20,15 +20,15 @@ package de.cubeisland.engine.module.log.action;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.cubeisland.engine.core.command.CubeContext;
 import de.cubeisland.engine.core.command.parameterized.Completer;
-import de.cubeisland.engine.core.command.parameterized.ParameterizedTabContext;
 
 public class ActionTypeCompleter implements Completer
 {
     static ActionManager manager; // TODO cleanup on shutdown
 
     @Override
-    public List<String> complete(ParameterizedTabContext context, String token)
+    public List<String> complete(CubeContext context, String token)
     {
         List<String> result = new ArrayList<>();
         String lastToken = token.toLowerCase();
