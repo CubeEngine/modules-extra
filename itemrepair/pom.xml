@@ -4,7 +4,6 @@
     <groupId>de.cubeisland.engine.module</groupId>
     <artifactId>parent</artifactId>
     <version>1</version>
-    <relativePath/>
   </parent>
 
   <artifactId>itemrepair</artifactId>
