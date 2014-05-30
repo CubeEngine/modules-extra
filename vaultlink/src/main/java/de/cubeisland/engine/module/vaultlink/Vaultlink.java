@@ -65,7 +65,9 @@ public class Vaultlink extends Module implements Listener
     public void onEnable()
     {
         this.getCore().getEventManager().registerListener(this, this);
-        this.economyReference.set(getCore().getModuleManager().getServiceManager().getServiceImplementation(de.cubeisland.engine.core.module.service.Economy.class));
+        this.economyReference.set(getCore().getModuleManager().getServiceManager().getServiceImplementation(
+            de.cubeisland.engine.core.module.service.Economy.class));
+        this.metadataReference.set(getCore().getModuleManager().getServiceManager().getServiceImplementation(Metadata.class));
     }
 
     @Override
