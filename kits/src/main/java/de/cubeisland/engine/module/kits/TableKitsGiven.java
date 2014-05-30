@@ -20,14 +20,19 @@ package de.cubeisland.engine.module.kits;
 import de.cubeisland.engine.core.storage.database.Table;
 import de.cubeisland.engine.core.util.Version;
 import org.jooq.TableField;
-import org.jooq.impl.SQLDataType;
 import org.jooq.types.UInteger;
 
 import static de.cubeisland.engine.core.user.TableUser.TABLE_USER;
+import static org.jooq.impl.SQLDataType.INTEGER;
+import static org.jooq.impl.SQLDataType.VARCHAR;
 
 public class TableKitsGiven extends Table<KitsGiven>
 {
     public static TableKitsGiven TABLE_KITS;
+    public final TableField<KitsGiven, UInteger> USERID = createField("userId", U_INTEGER.nullable(false), this);
+    public final TableField<KitsGiven, String> KITNAME = createField("kitName", VARCHAR.length(50).nullable(false),
+                                                                     this);
+    public final TableField<KitsGiven, Integer> AMOUNT = createField("amount", INTEGER.nullable(false), this);
 
     public TableKitsGiven(String prefix)
     {
@@ -38,12 +43,9 @@ public class TableKitsGiven extends Table<KitsGiven>
         TABLE_KITS = this;
     }
 
-    public final TableField<KitsGiven, UInteger> USERID = createField("userId", U_INTEGER.nullable(false), this);
-    public final TableField<KitsGiven, String> KITNAME = createField("kitName", SQLDataType.VARCHAR.length(50).nullable(false), this);
-    public final TableField<KitsGiven, Integer> AMOUNT = createField("amount", SQLDataType.INTEGER.nullable(false), this);
-
     @Override
-    public Class<KitsGiven> getRecordType() {
+    public Class<KitsGiven> getRecordType()
+    {
         return KitsGiven.class;
     }
 }

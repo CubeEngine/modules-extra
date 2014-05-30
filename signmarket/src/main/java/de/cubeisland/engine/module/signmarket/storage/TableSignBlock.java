@@ -20,17 +20,29 @@ package de.cubeisland.engine.module.signmarket.storage;
 import de.cubeisland.engine.core.storage.database.AutoIncrementTable;
 import de.cubeisland.engine.core.util.Version;
 import org.jooq.TableField;
-import org.jooq.impl.SQLDataType;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
 
 import static de.cubeisland.engine.core.user.TableUser.TABLE_USER;
 import static de.cubeisland.engine.core.world.TableWorld.TABLE_WORLD;
 import static de.cubeisland.engine.module.signmarket.storage.TableSignItem.TABLE_SIGN_ITEM;
+import static org.jooq.impl.SQLDataType.INTEGER;
+import static org.jooq.impl.SQLDataType.TINYINT;
 
-public class TableSignBlock extends AutoIncrementTable<SignMarketBlockModel, UInteger>
+public class TableSignBlock extends AutoIncrementTable<BlockModel, UInteger>
 {
     public static TableSignBlock TABLE_SIGN_BLOCK;
+    public final TableField<BlockModel, UInteger> KEY = createField("key", U_INTEGER.nullable(false), this);
+    public final TableField<BlockModel, UInteger> WORLD = createField("world", U_INTEGER.nullable(false), this);
+    public final TableField<BlockModel, Integer> X = createField("x", INTEGER, this);
+    public final TableField<BlockModel, Integer> Y = createField("y", INTEGER, this);
+    public final TableField<BlockModel, Integer> Z = createField("z", INTEGER, this);
+    public final TableField<BlockModel, Byte> SIGNTYPE = createField("signType", TINYINT, this);
+    public final TableField<BlockModel, UInteger> OWNER = createField("owner", U_INTEGER, this);
+    public final TableField<BlockModel, UInteger> ITEMKEY = createField("itemKey", U_INTEGER.nullable(false), this);
+    public final TableField<BlockModel, UShort> AMOUNT = createField("amount", U_SMALLINT.nullable(false), this);
+    public final TableField<BlockModel, UInteger> DEMAND = createField("demand", U_MEDIUMINT, this);
+    public final TableField<BlockModel, UInteger> PRICE = createField("price", U_INTEGER.nullable(false), this);
 
     public TableSignBlock(String prefix)
     {
@@ -40,24 +52,13 @@ public class TableSignBlock extends AutoIncrementTable<SignMarketBlockModel, UIn
         this.addForeignKey(TABLE_USER.getPrimaryKey(), OWNER);
         this.addForeignKey(TABLE_WORLD.getPrimaryKey(), WORLD);
         this.addForeignKey(TABLE_SIGN_ITEM.getPrimaryKey(), ITEMKEY);
-        this.addFields(KEY, WORLD, X,Y,Z, SIGNTYPE,OWNER, ITEMKEY, AMOUNT, DEMAND, PRICE);
+        this.addFields(KEY, WORLD, X, Y, Z, SIGNTYPE, OWNER, ITEMKEY, AMOUNT, DEMAND, PRICE);
         TABLE_SIGN_BLOCK = this;
     }
 
-    public final TableField<SignMarketBlockModel, UInteger> KEY = createField("key", U_INTEGER.nullable(false), this);
-    public final TableField<SignMarketBlockModel, UInteger> WORLD = createField("world", U_INTEGER.nullable(false), this);
-    public final TableField<SignMarketBlockModel, Integer> X = createField("x", SQLDataType.INTEGER, this);
-    public final TableField<SignMarketBlockModel, Integer> Y = createField("y", SQLDataType.INTEGER, this);
-    public final TableField<SignMarketBlockModel, Integer> Z = createField("z", SQLDataType.INTEGER, this);
-    public final TableField<SignMarketBlockModel, Byte> SIGNTYPE = createField("signType", SQLDataType.TINYINT, this);
-    public final TableField<SignMarketBlockModel, UInteger> OWNER = createField("owner", U_INTEGER, this);
-    public final TableField<SignMarketBlockModel, UInteger> ITEMKEY = createField("itemKey", U_INTEGER.nullable(false), this);
-    public final TableField<SignMarketBlockModel, UShort> AMOUNT = createField("amount", U_SMALLINT.nullable(false), this);
-    public final TableField<SignMarketBlockModel, UInteger> DEMAND = createField("demand", U_MEDIUMINT, this);
-    public final TableField<SignMarketBlockModel, UInteger> PRICE = createField("price", U_INTEGER.nullable(false), this);
-
     @Override
-    public Class<SignMarketBlockModel> getRecordType() {
-        return SignMarketBlockModel.class;
+    public Class<BlockModel> getRecordType()
+    {
+        return BlockModel.class;
     }
 }

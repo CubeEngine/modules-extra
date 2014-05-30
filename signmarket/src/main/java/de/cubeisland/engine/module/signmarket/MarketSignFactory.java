@@ -17,21 +17,27 @@
  */
 package de.cubeisland.engine.module.signmarket;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.bukkit.Location;
 
 import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.module.signmarket.storage.BlockModel;
+import de.cubeisland.engine.module.signmarket.storage.ItemModel;
 import de.cubeisland.engine.module.signmarket.storage.SignMarketBlockManager;
-import de.cubeisland.engine.module.signmarket.storage.SignMarketBlockModel;
 import de.cubeisland.engine.module.signmarket.storage.SignMarketItemManager;
-import de.cubeisland.engine.module.signmarket.storage.SignMarketItemModel;
-import gnu.trove.map.hash.THashMap;
-import gnu.trove.set.hash.TLongHashSet;
+import org.jooq.types.UInteger;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
+import static de.cubeisland.engine.module.signmarket.storage.TableSignBlock.TABLE_SIGN_BLOCK;
+import static de.cubeisland.engine.module.signmarket.storage.TableSignItem.TABLE_SIGN_ITEM;
 
 public class MarketSignFactory
 {
-    private final THashMap<Location, MarketSign> marketSigns = new THashMap<>();
+    private final Map<Location, MarketSign> marketSigns = new HashMap<>();
 
     private final SignMarketItemManager signMarketItemManager;
     private final SignMarketBlockManager signMarketBlockManager;
@@ -49,17 +55,17 @@ public class MarketSignFactory
     {
         this.signMarketItemManager.load();
         this.signMarketBlockManager.load();
-        TLongHashSet usedItemKeys = new TLongHashSet();
-        for (SignMarketBlockModel blockModel : this.signMarketBlockManager.getLoadedModels())
+        Set<UInteger> usedItemKeys = new HashSet<>();
+        for (BlockModel blockModel : this.signMarketBlockManager.getLoadedModels())
         {
-            SignMarketItemModel itemModel = this.signMarketItemManager.getInfoModel(blockModel.getItemkey().longValue());
+            ItemModel itemModel = this.signMarketItemManager.getInfoModel(blockModel.getValue(TABLE_SIGN_BLOCK.ITEMKEY));
             if (itemModel == null)
             {
                 this.module.getLog().warn("Inconsistent Data! BlockInfo without Marketsigninfo!");
                 continue;
             }
             MarketSign marketSign = new MarketSign(module, itemModel, blockModel);
-            usedItemKeys.add(blockModel.getItemkey().intValue());
+            usedItemKeys.add(blockModel.getValue(TABLE_SIGN_BLOCK.ITEMKEY));
             this.marketSigns.put(blockModel.getLocation(),marketSign);
         }
         this.signMarketItemManager.deleteUnusedModels(usedItemKeys);
@@ -136,19 +142,21 @@ public class MarketSignFactory
     {
         this.marketSigns.remove(marketSign.getLocation());
         this.signMarketBlockManager.delete(marketSign.getBlockInfo());
-        this.module.getLog().debug("{} deleted block-model #{}", marketSign.isAdminSign() ? "Server" : marketSign.getOwner().getDisplayName(), marketSign.getBlockInfo().getKey());
-        SignMarketItemModel itemInfo = marketSign.getItemInfo();
+        this.module.getLog().debug("{} deleted block-model #{}", marketSign.isAdminSign() ? "Server" : marketSign.getOwner().getDisplayName(), marketSign.getBlockInfo().getValue(
+            TABLE_SIGN_BLOCK.KEY));
+        ItemModel itemInfo = marketSign.getItemInfo();
         itemInfo.removeSign(marketSign);
         if (itemInfo.isNotReferenced())
         {
             this.signMarketItemManager.delete(itemInfo);
-            this.module.getLog().debug("{} deleted item-model #{}", marketSign.isAdminSign() ? "Server" : marketSign.getOwner().getDisplayName(), itemInfo.getKey());
+            this.module.getLog().debug("{} deleted item-model #{}", marketSign.isAdminSign() ? "Server" : marketSign.getOwner().getDisplayName(), itemInfo.getValue(
+                TABLE_SIGN_BLOCK.KEY));
         }
     }
 
     public void syncAndSaveSign(MarketSign sign)
     {
-        if (sign.getItemInfo().getKey().longValue() == 0 || sign.getItemInfo().getReferenced().size() == 1) // de-synced sign OR possibly sync-able sign
+        if (sign.getItemInfo().getValue(TABLE_SIGN_ITEM.KEY).longValue() == 0 || sign.getItemInfo().getReferenced().size() == 1) // de-synced sign OR possibly sync-able sign
         {
             for (MarketSign other : this.marketSigns.values())
             {
@@ -160,20 +168,23 @@ public class MarketSignFactory
                     && sign.canSync(other)) // both have stock AND same item -> doSync
                 {
                     // apply the found item-info to the marketsign
-                    SignMarketItemModel itemModel = sign.setItemInfo(other.getItemInfo());
+                    ItemModel itemModel = sign.setItemInfo(other.getItemInfo());
                     if (sign.syncOnMe) // stock OR stock-size change
                     {
-                        sign.setStock(itemModel.getStock().intValue());
-                        sign.setSize(itemModel.getSize().intValue());
+                        sign.setStock(itemModel.getValue(TABLE_SIGN_ITEM.STOCK).intValue());
+                        sign.setSize(itemModel.getValue(TABLE_SIGN_ITEM.SIZE).intValue());
                         sign.syncOnMe = false;
                     }
                     this.saveOrUpdate(sign);
                     this.module.getLog().debug("block-model #{} synced onto the item-model #{} (size: {})" ,
-                                               sign.getBlockInfo().getKey(), sign.getItemInfo().getKey(), sign.getItemInfo().getReferenced().size());
-                    if (itemModel.getKey().longValue() != 0 && itemModel.isNotReferenced())
+                                               sign.getBlockInfo().getValue(
+                                                   TABLE_SIGN_BLOCK.KEY), sign.getItemInfo().getValue(
+                        TABLE_SIGN_ITEM.KEY), sign.getItemInfo().getReferenced().size());
+                    if (itemModel.getValue(TABLE_SIGN_ITEM.KEY).longValue() != 0 && itemModel.isNotReferenced())
                     {
                         this.signMarketItemManager.delete(itemModel); // delete if no more referenced
-                        this.module.getLog().debug("{} deleted item-model #{}", sign.isAdminSign() ? "Server" : sign.getOwner().getDisplayName(), sign.getItemInfo().getKey());
+                        this.module.getLog().debug("{} deleted item-model #{}", sign.isAdminSign() ? "Server" : sign.getOwner().getDisplayName(), sign.getItemInfo().getValue(
+                            TABLE_SIGN_ITEM.KEY));
                     }
                     sign.getItemInfo().updateSignTexts(); // update all signs that use the same itemInfo
                     return;
@@ -189,21 +200,22 @@ public class MarketSignFactory
     {
         if (marketSign.isValidSign(null))
         {
-            if (marketSign.getItemInfo().getKey().longValue() == 0) // itemInfo not saved in database
+            if (marketSign.getItemInfo().getValue(TABLE_SIGN_ITEM.KEY).longValue() == 0) // itemInfo not saved in database
             {
                 this.signMarketItemManager.store(marketSign.getItemInfo());
-                this.module.getLog().debug("{} stored item-model #{}", marketSign.isAdminSign() ? "Server" : marketSign.getOwner().getDisplayName(), marketSign.getItemInfo().getKey());
+                this.module.getLog().debug("{} stored item-model #{}", marketSign.isAdminSign() ? "Server" : marketSign.getOwner().getDisplayName(), marketSign.getItemInfo().getValue(
+                    TABLE_SIGN_ITEM.KEY));
                 // set freshly assigned itemData reference in BlockInfo
-                marketSign.getBlockInfo().setItemkey(marketSign.getItemInfo().getKey());
+                marketSign.getBlockInfo().setValue(TABLE_SIGN_BLOCK.ITEMKEY, marketSign.getItemInfo().getValue(TABLE_SIGN_ITEM.KEY));
             }
             else // update
             {
                 this.signMarketItemManager.update(marketSign.getItemInfo());
             }
-            if (marketSign.getBlockInfo().getKey().longValue() == 0) // blockInfo not saved in database
+            if (marketSign.getBlockInfo().getValue(TABLE_SIGN_BLOCK.KEY).longValue() == 0) // blockInfo not saved in database
             {
                 this.signMarketBlockManager.store(marketSign.getBlockInfo());
-                this.module.getLog().debug("{} stored block-model #{}", marketSign.isAdminSign() ? "Server" : marketSign.getOwner().getDisplayName(), marketSign.getBlockInfo().getKey());
+                this.module.getLog().debug("{} stored block-model #{}", marketSign.isAdminSign() ? "Server" : marketSign.getOwner().getDisplayName(), marketSign.getBlockInfo().getValue(TABLE_SIGN_BLOCK.KEY));
             }
             else // update
             {

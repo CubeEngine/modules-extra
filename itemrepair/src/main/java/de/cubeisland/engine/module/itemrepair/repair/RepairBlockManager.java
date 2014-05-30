@@ -81,7 +81,7 @@ public class RepairBlockManager implements Listener
         for (RepairBlockModel model : models)
         {
             Block block = model.getBlock(this.module.getCore().getWorldManager());
-            if (block.getType().name().equals(model.getType()))
+            if (block.getType().name().equals(model.getValue(TABLE_REPAIR_BLOCK.TYPE)))
             {
                 if (this.repairBlocks.containsKey(block.getType()))
                 {

@@ -67,19 +67,19 @@ public class Vote extends Module implements Listener
             }
             else
             {
-                if (System.currentTimeMillis() - voteModel.getLastvote().getTime() > this.config.voteBonusTime.getMillis())
+                if (System.currentTimeMillis() - voteModel.getValue(TABLE_VOTE.LASTVOTE).getTime() > this.config.voteBonusTime.getMillis())
                 {
-                    voteModel.setVoteamount(UShort.valueOf(1));
+                    voteModel.setValue(TABLE_VOTE.VOTEAMOUNT, UShort.valueOf(1));
                 }
                 else
                 {
-                    voteModel.setVoteamount(UShort.valueOf(voteModel.getVoteamount().intValue() + 1));
+                    voteModel.setValue(TABLE_VOTE.VOTEAMOUNT, UShort.valueOf(voteModel.getValue(TABLE_VOTE.VOTEAMOUNT).intValue() + 1));
                 }
-                voteModel.setLastvote(new Timestamp(System.currentTimeMillis()));
+                voteModel.setValue(TABLE_VOTE.LASTVOTE, new Timestamp(System.currentTimeMillis()));
                 voteModel.update();
             }
             economy.createAccount(user.getUniqueId());
-            int voteamount = voteModel.getVoteamount().intValue();
+            int voteamount = voteModel.getValue(TABLE_VOTE.VOTEAMOUNT).intValue();
             double money = this.config.voteReward * (Math.pow(1+1.5/voteamount, voteamount-1));
             economy.deposit(user.getUniqueId(), money);
             String moneyFormat = economy.format(money);

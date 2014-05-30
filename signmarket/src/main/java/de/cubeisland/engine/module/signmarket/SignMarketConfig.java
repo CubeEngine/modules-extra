@@ -102,8 +102,8 @@ public class SignMarketConfig extends ReflectedYaml
         {
             return true;
         }
-        World w1 = manager.getWorld(world1.longValue());
-        World w2 = manager.getWorld(world2.longValue());
+        World w1 = manager.getWorld(world1);
+        World w2 = manager.getWorld(world2);
         for (Entry<String, List<String>> entry : syncWorlds.entrySet())
         {
             List<String> list = new ArrayList<>(entry.getValue());

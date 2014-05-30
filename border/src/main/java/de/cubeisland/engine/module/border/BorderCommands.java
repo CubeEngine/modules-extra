@@ -38,6 +38,7 @@ import de.cubeisland.engine.core.command.reflected.context.NParams;
 import de.cubeisland.engine.core.command.reflected.context.Named;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.Triplet;
+import org.jooq.types.UInteger;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
@@ -52,7 +53,7 @@ public class BorderCommands extends ContainerCommand
         this.module = module;
     }
 
-    private LinkedList<Triplet<Long,Integer,Integer>> chunksToGenerate;
+    private LinkedList<Triplet<UInteger,Integer,Integer>> chunksToGenerate;
     private LinkedList<Triplet<World,Integer,Integer>> chunksToUnload;
     private CommandSender sender = null;
     private int total = 0;
@@ -160,7 +161,7 @@ public class BorderCommands extends ContainerCommand
         radius += sender.getServer().getViewDistance();
         int radiusSquared = radius * radius;
         int chunksAdded = 0;
-        long worldID = this.module.getCore().getWorldManager().getWorldId(world);
+        UInteger worldID = this.module.getCore().getWorldManager().getWorldId(world);
         // Construct Spiral
         int curLen = 1;
         int curX = spawnX;
@@ -190,7 +191,7 @@ public class BorderCommands extends ContainerCommand
         sender.sendTranslated(POSITIVE, "Added {amount} chunks to generate in {world}", chunksAdded, world);
     }
 
-    private boolean addIfInBorder(BorderConfig config, long worldId, int x, int z, int spawnX, int spawnZ, int radius, int radiusSquared)
+    private boolean addIfInBorder(BorderConfig config, UInteger worldId, int x, int z, int spawnX, int spawnZ, int radius, int radiusSquared)
     {
         if (config.square)
         {
@@ -240,7 +241,7 @@ public class BorderCommands extends ContainerCommand
             {
                 break;
             }
-            Triplet<Long, Integer, Integer> poll = chunksToGenerate.poll();
+            Triplet<UInteger, Integer, Integer> poll = chunksToGenerate.poll();
             World world = this.module.getCore().getWorldManager().getWorld(poll.getFirst());
             if (!world.isChunkLoaded(poll.getSecond(), poll.getThird()))
             {

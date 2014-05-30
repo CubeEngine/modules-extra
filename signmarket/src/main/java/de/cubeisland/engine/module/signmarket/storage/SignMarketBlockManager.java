@@ -24,12 +24,13 @@ import org.bukkit.Location;
 import de.cubeisland.engine.module.signmarket.Signmarket;
 import gnu.trove.map.hash.THashMap;
 import org.jooq.DSLContext;
+import org.jooq.types.UInteger;
 
 import static de.cubeisland.engine.module.signmarket.storage.TableSignBlock.TABLE_SIGN_BLOCK;
 
 public class SignMarketBlockManager
 {
-    private THashMap<Location,SignMarketBlockModel> blockModels;
+    private THashMap<Location,BlockModel> blockModels;
 
     private final Signmarket module;
     private final DSLContext dsl;
@@ -43,32 +44,33 @@ public class SignMarketBlockManager
     public void load()
     {
         this.blockModels = new THashMap<>();
-        for (SignMarketBlockModel model : this.dsl.selectFrom(TABLE_SIGN_BLOCK).fetch())
+        for (BlockModel model : this.dsl.selectFrom(TABLE_SIGN_BLOCK).fetch())
         {
             this.blockModels.put(model.getLocation(),model);
         }
         this.module.getLog().debug("{} block models loaded", this.blockModels.size());
     }
 
-    public Collection<SignMarketBlockModel> getLoadedModels()
+    public Collection<BlockModel> getLoadedModels()
     {
         return this.blockModels.values();
     }
 
-    public void delete(SignMarketBlockModel model)
+    public void delete(BlockModel model)
     {
         this.blockModels.remove(model.getLocation());
-        if (model.getKey() == null || model.getKey().longValue() == 0) return; // unsaved model
+        UInteger key = model.getValue(TABLE_SIGN_BLOCK.KEY);
+        if (key == null || key.longValue() == 0) return; // unsaved model
         model.delete();
     }
 
-    public void store(SignMarketBlockModel blockModel)
+    public void store(BlockModel blockModel)
     {
         this.blockModels.put(blockModel.getLocation(),blockModel);
         blockModel.insert();
     }
 
-    public void update(SignMarketBlockModel blockItemModel)
+    public void update(BlockModel blockItemModel)
     {
         blockItemModel.update();
     }

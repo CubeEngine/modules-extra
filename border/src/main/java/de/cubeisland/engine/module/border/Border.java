@@ -26,11 +26,12 @@ import org.bukkit.World;
 
 import de.cubeisland.engine.core.module.Module;
 import de.cubeisland.engine.core.world.WorldManager;
+import org.jooq.types.UInteger;
 
 public class Border extends Module
 {
     private BorderConfig globalConfig;
-    private Map<Long, BorderConfig> worldConfigs;
+    private Map<UInteger, BorderConfig> worldConfigs;
     private WorldManager wm;
     private File folder;
     private BorderPerms perms;

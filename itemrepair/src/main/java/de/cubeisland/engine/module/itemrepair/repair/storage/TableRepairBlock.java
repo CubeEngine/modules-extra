@@ -20,14 +20,21 @@ package de.cubeisland.engine.module.itemrepair.repair.storage;
 import de.cubeisland.engine.core.storage.database.AutoIncrementTable;
 import de.cubeisland.engine.core.util.Version;
 import org.jooq.TableField;
-import org.jooq.impl.SQLDataType;
 import org.jooq.types.UInteger;
 
 import static de.cubeisland.engine.core.world.TableWorld.TABLE_WORLD;
+import static org.jooq.impl.SQLDataType.INTEGER;
+import static org.jooq.impl.SQLDataType.VARCHAR;
 
 public class TableRepairBlock extends AutoIncrementTable<RepairBlockModel, UInteger>
 {
     public static TableRepairBlock TABLE_REPAIR_BLOCK;
+    public final TableField<RepairBlockModel, UInteger> ID = createField("id", U_INTEGER.nullable(false), this);
+    public final TableField<RepairBlockModel, UInteger> WORLD = createField("world", U_INTEGER.nullable(false), this);
+    public final TableField<RepairBlockModel, Integer> X = createField("x", INTEGER.nullable(false), this);
+    public final TableField<RepairBlockModel, Integer> Y = createField("y", INTEGER.nullable(false), this);
+    public final TableField<RepairBlockModel, Integer> Z = createField("z", INTEGER.nullable(false), this);
+    public final TableField<RepairBlockModel, String> TYPE = createField("type", VARCHAR.length(64).nullable(false), this);
 
     public TableRepairBlock(String prefix)
     {
@@ -35,19 +42,13 @@ public class TableRepairBlock extends AutoIncrementTable<RepairBlockModel, UInte
         this.setAIKey(ID);
         this.addUniqueKey(WORLD, X, Y, Z);
         this.addForeignKey(TABLE_WORLD.getPrimaryKey(), WORLD);
-        this.addFields(ID, WORLD, X,Y,Z, TYPE);
+        this.addFields(ID, WORLD, X, Y, Z, TYPE);
         TABLE_REPAIR_BLOCK = this;
     }
 
-    public final TableField<RepairBlockModel, UInteger> ID = createField("id", U_INTEGER.nullable(false), this);
-    public final TableField<RepairBlockModel, UInteger> WORLD = createField("world", U_INTEGER.nullable(false), this);
-    public final TableField<RepairBlockModel, Integer> X = createField("x", SQLDataType.INTEGER.nullable(false), this);
-    public final TableField<RepairBlockModel, Integer> Y = createField("y", SQLDataType.INTEGER.nullable(false), this);
-    public final TableField<RepairBlockModel, Integer> Z = createField("z", SQLDataType.INTEGER.nullable(false), this);
-    public final TableField<RepairBlockModel, String> TYPE = createField("type", SQLDataType.VARCHAR.length(64).nullable(false), this);
-
     @Override
-    public Class<RepairBlockModel> getRecordType() {
+    public Class<RepairBlockModel> getRecordType()
+    {
         return RepairBlockModel.class;
     }
 }
