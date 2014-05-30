@@ -136,7 +136,6 @@ public class KitCommand extends ContainerCommand
         }
     }
 
-    @Alias(names = "kit")
     @Command(desc = "Gives a set of items.")
     @IParams({@Grouped(@Indexed(label = "kitname")),
               @Grouped(req = false, value =  @Indexed(label = "player", type = User.class))})
