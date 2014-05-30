@@ -6,7 +6,8 @@ build-timestamp: "${timestamp}"
 soft-dependencies:
 - roles
 - conomy
-services:
+soft-services:
 - de.cubeisland.engine.core.module.service.Economy
+- de.cubeisland.engine.core.module.service.Metadata
 plugin-dependencies:
 - Vault

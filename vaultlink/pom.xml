@@ -22,9 +22,8 @@
     </dependency>
     <dependency>
       <groupId>net.milkbowl.vault</groupId>
-      <artifactId>Vault</artifactId>
-      <version>1.2.30</version>
-      <type>jar</type>
+      <artifactId>VaultAPI</artifactId>
+      <version>1.4</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

@@ -31,7 +31,7 @@ import de.cubeisland.engine.core.i18n.I18n;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.McUUID;
 import de.cubeisland.engine.module.vaultlink.Vaultlink;
-import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.AbstractEconomy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.economy.EconomyResponse.ResponseType;
 
@@ -39,7 +39,7 @@ import static de.cubeisland.engine.core.util.formatter.MessageType.NONE;
 import static net.milkbowl.vault.economy.EconomyResponse.ResponseType.FAILURE;
 import static net.milkbowl.vault.economy.EconomyResponse.ResponseType.SUCCESS;
 
-public class CubeEconomyService implements Economy
+public class CubeEconomyService extends AbstractEconomy
 {
     private final Vaultlink module;
     private final AtomicReference<de.cubeisland.engine.core.module.service.Economy> backingService;
@@ -311,4 +311,6 @@ public class CubeEconomyService implements Economy
     {
         return createPlayerAccount(name);
     }
+
+
 }
