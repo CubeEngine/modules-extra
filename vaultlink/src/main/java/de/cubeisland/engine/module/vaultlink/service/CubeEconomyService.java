@@ -26,7 +26,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 import de.cubeisland.engine.core.Core;
-import de.cubeisland.engine.core.CubeEngine;
 import de.cubeisland.engine.core.i18n.I18n;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.McUUID;
@@ -41,7 +40,6 @@ import static net.milkbowl.vault.economy.EconomyResponse.ResponseType.SUCCESS;
 
 public class CubeEconomyService extends AbstractEconomy
 {
-    private final Vaultlink module;
     private final AtomicReference<de.cubeisland.engine.core.module.service.Economy> backingService;
     private final Core core;
     private final I18n i18n;
@@ -49,7 +47,6 @@ public class CubeEconomyService extends AbstractEconomy
     public CubeEconomyService(Vaultlink module,
                               AtomicReference<de.cubeisland.engine.core.module.service.Economy> backingService)
     {
-        this.module = module;
         this.backingService = backingService;
         this.core = module.getCore();
         this.i18n = core.getI18n();
@@ -58,13 +55,17 @@ public class CubeEconomyService extends AbstractEconomy
     @Override
     public boolean isEnabled()
     {
-        return module.isEnabled();
+        return backingService.get() != null && backingService.get().isEnabled();
     }
 
     @Override
     public String getName()
     {
-        return CubeEngine.class.getSimpleName() + ":" + module.getName();
+        if (backingService.get() == null)
+        {
+            return "CubeEngine:Vaultlink";
+        }
+        return backingService.get().getName();
     }
 
     @Override

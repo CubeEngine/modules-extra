@@ -75,4 +75,10 @@ public class VaultMetadataService implements Metadata
         vaultChat.get().setGroupInfoString(world == null ? null : world.getName(), role, key, value);
         return old;
     }
+
+    @Override
+    public String getName()
+    {
+        return vaultChat.get().getName();
+    }
 }

@@ -34,14 +34,14 @@ import net.milkbowl.vault.permission.Permission;
 public class CubePermissionService extends Permission
 {
     private final Vaultlink module;
-    private AtomicReference<de.cubeisland.engine.core.module.service.Permission> permissions;
+    private AtomicReference<de.cubeisland.engine.core.module.service.Permission> backingService;
     private final WorldManager wm;
     private final UserManager um;
 
     public CubePermissionService(Vaultlink module, AtomicReference<de.cubeisland.engine.core.module.service.Permission> roles)
     {
         this.module = module;
-        this.permissions = roles;
+        this.backingService = roles;
         this.wm = module.getCore().getWorldManager();
         this.um = module.getCore().getUserManager();
     }
@@ -49,13 +49,17 @@ public class CubePermissionService extends Permission
     @Override
     public String getName()
     {
-        return permissions.get().getName();
+        if (backingService.get() == null)
+        {
+            return "CubeEngine:Vaultlink";
+        }
+        return backingService.get().getName();
     }
 
     @Override
     public boolean isEnabled()
     {
-        return permissions.get().isEnabled();
+        return backingService.get() != null && backingService.get().isEnabled();
     }
 
     @Override
@@ -81,7 +85,7 @@ public class CubePermissionService extends Permission
         {
             world = this.wm.getWorld(worldName);
         }
-        return world != null && permissions.get().has(world, user, permission);
+        return world != null && backingService.get().has(world, user, permission);
     }
 
     @Override
@@ -105,7 +109,7 @@ public class CubePermissionService extends Permission
         {
             return false;
         }
-        return this.permissions.get().add(world, user, permission);
+        return this.backingService.get().add(world, user, permission);
     }
 
     @Override
@@ -116,7 +120,7 @@ public class CubePermissionService extends Permission
         {
             return false;
         }
-        return this.permissions.get().addTemporary(player.getWorld(), player, permission);
+        return this.backingService.get().addTemporary(player.getWorld(), player, permission);
     }
 
     @Override
@@ -140,7 +144,7 @@ public class CubePermissionService extends Permission
         {
             return false;
         }
-        return this.permissions.get().remove(world, user, permission);
+        return this.backingService.get().remove(world, user, permission);
     }
 
     @Override
@@ -151,7 +155,7 @@ public class CubePermissionService extends Permission
         {
             return false;
         }
-        return this.permissions.get().removeTemporary(player.getWorld(), player, permission);
+        return this.backingService.get().removeTemporary(player.getWorld(), player, permission);
     }
 
     @Override
@@ -162,7 +166,7 @@ public class CubePermissionService extends Permission
             this.module.getLog().warn(new IllegalArgumentException(), "The group name should never be null!");
             return false;
         }
-        return this.permissions.get().has(wm.getWorld(worldName), group, permission);
+        return this.backingService.get().has(wm.getWorld(worldName), group, permission);
     }
 
     @Override
@@ -173,7 +177,7 @@ public class CubePermissionService extends Permission
             this.module.getLog().warn(new IllegalArgumentException(), "The group name should never be null!");
             return false;
         }
-        return this.permissions.get().add(wm.getWorld(worldName), group, permission);
+        return this.backingService.get().add(wm.getWorld(worldName), group, permission);
     }
 
     @Override
@@ -184,7 +188,7 @@ public class CubePermissionService extends Permission
             this.module.getLog().warn(new IllegalArgumentException(), "The group name should never be null!");
             return false;
         }
-        return this.permissions.get().remove(wm.getWorld(worldName), group, permission);
+        return this.backingService.get().remove(wm.getWorld(worldName), group, permission);
     }
 
     @Override
@@ -209,7 +213,7 @@ public class CubePermissionService extends Permission
         {
             world = wm.getWorld(worldName);
         }
-        return world != null && this.permissions.get().hasRole(world, user, group);
+        return world != null && this.backingService.get().hasRole(world, user, group);
     }
 
     @Override
@@ -234,7 +238,7 @@ public class CubePermissionService extends Permission
         {
             world = wm.getWorld(worldName);
         }
-        return world != null && this.permissions.get().addRole(world, user, group);
+        return world != null && this.backingService.get().addRole(world, user, group);
     }
 
     @Override
@@ -259,7 +263,7 @@ public class CubePermissionService extends Permission
         {
             world = wm.getWorld(worldName);
         }
-        return world != null && this.permissions.get().removeRole(world, user, group);
+        return world != null && this.backingService.get().removeRole(world, user, group);
     }
 
     @Override
@@ -279,7 +283,7 @@ public class CubePermissionService extends Permission
         {
             world = wm.getWorld(worldName);
         }
-        return world == null ? null : this.permissions.get().getRoles(world, user);
+        return world == null ? null : this.backingService.get().getRoles(world, user);
     }
 
     @Override
@@ -299,17 +303,17 @@ public class CubePermissionService extends Permission
         {
             world = wm.getWorld(worldName);
         }
-        return world == null ? null : this.permissions.get().getDominantRole(world, user);
+        return world == null ? null : this.backingService.get().getDominantRole(world, user);
     }
 
     @Override
     public String[] getGroups()
     {
         Set<String> roles = new HashSet<>();
-        roles.addAll(Arrays.asList(this.permissions.get().getRoles(null)));
+        roles.addAll(Arrays.asList(this.backingService.get().getRoles(null)));
         for (World world : wm.getWorlds())
         {
-            roles.addAll(Arrays.asList(this.permissions.get().getRoles(world)));
+            roles.addAll(Arrays.asList(this.backingService.get().getRoles(world)));
         }
         return roles.toArray(new String[roles.size()]);
     }
@@ -317,6 +321,6 @@ public class CubePermissionService extends Permission
     @Override
     public boolean hasGroupSupport()
     {
-        return this.permissions.get().hasRoleSupport();
+        return this.backingService.get().hasRoleSupport();
     }
 }

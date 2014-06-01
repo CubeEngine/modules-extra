@@ -21,7 +21,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.bukkit.World;
 
-import de.cubeisland.engine.core.CubeEngine;
 import de.cubeisland.engine.core.module.service.Metadata;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.user.UserManager;
@@ -34,14 +33,14 @@ public class CubeChatService extends Chat
 {
     private final Vaultlink module;
     private final UserManager um;
-    private final AtomicReference<Metadata> metadata;
+    private final AtomicReference<Metadata> backingService;
     private final WorldManager wm;
 
     public CubeChatService(Vaultlink module, AtomicReference<Metadata> metadata, Permission perms)
     {
         super(perms);
         this.module = module;
-        this.metadata = metadata;
+        this.backingService = metadata;
         this.wm = module.getCore().getWorldManager();
         this.um = module.getCore().getUserManager();
     }
@@ -49,13 +48,17 @@ public class CubeChatService extends Chat
     @Override
     public String getName()
     {
-        return CubeEngine.class.getSimpleName() + ":" + module.getName();
+        if (backingService.get() == null)
+        {
+            return "CubeEngine:Vaultlink";
+        }
+        return backingService.get().getName();
     }
 
     @Override
     public boolean isEnabled()
     {
-        return true;
+        return backingService.get() != null;
     }
 
     private String getUserMetadata(String worldName, String player, String key)
@@ -78,7 +81,7 @@ public class CubeChatService extends Chat
         {
             return null;
         }
-        return metadata.get().getMetadata(user, world, key);
+        return backingService.get().getMetadata(user, world, key);
     }
 
     private String getRoleMetadata(String worldName, String group, String key)
@@ -93,7 +96,7 @@ public class CubeChatService extends Chat
             }
 
         }
-        return metadata.get().getRoleMetadata(group, world, key);
+        return backingService.get().getRoleMetadata(group, world, key);
     }
 
     @Override
@@ -300,7 +303,7 @@ public class CubeChatService extends Chat
         {
             return;
         }
-        metadata.get().setMetadata(user, world, node, value);
+        backingService.get().setMetadata(user, world, node, value);
     }
 
     @Override
@@ -322,6 +325,6 @@ public class CubeChatService extends Chat
         {
             return;
         }
-        metadata.get().setRoleMetadata(group, world, node, value);
+        backingService.get().setRoleMetadata(group, world, node, value);
     }
 }
