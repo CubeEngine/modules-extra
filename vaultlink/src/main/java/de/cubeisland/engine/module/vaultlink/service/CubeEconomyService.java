@@ -191,7 +191,7 @@ public class CubeEconomyService extends AbstractEconomy
     @Override
     public EconomyResponse createBank(String name, String owner)
     {
-        if (backingService.get().createBank(name, owner))
+        if (backingService.get().createBank(name, core.getUserManager().getExactUser(owner).getUniqueId())) // TODO this is ugly :(
         {
             return new EconomyResponse(0, bankBalance(name).balance, SUCCESS, "");
         }
