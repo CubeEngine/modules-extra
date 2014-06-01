@@ -35,7 +35,6 @@ import de.cubeisland.engine.core.bukkit.BukkitServiceManager;
 import de.cubeisland.engine.core.module.Module;
 import de.cubeisland.engine.core.module.service.Metadata;
 import de.cubeisland.engine.core.module.service.ServiceManager;
-import de.cubeisland.engine.module.roles.Roles;
 import de.cubeisland.engine.module.vaultlink.service.CubeChatService;
 import de.cubeisland.engine.module.vaultlink.service.CubeEconomyService;
 import de.cubeisland.engine.module.vaultlink.service.CubePermissionService;
@@ -45,34 +44,30 @@ import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 
-// TODO declare service providing. possibly at runtime?
 public class Vaultlink extends Module implements Listener
 {
-    private final AtomicReference<de.cubeisland.engine.core.module.service.Economy> economyReference = new AtomicReference<>();
-    private final AtomicReference<Metadata> metadataReference = new AtomicReference<>();
-    private final AtomicReference<Chat> vaultChatReference = new AtomicReference<>();
-    private final AtomicReference<Economy> vaultEconomyReference = new AtomicReference<>();
+    private final AtomicReference<de.cubeisland.engine.core.module.service.Permission> permRef = new AtomicReference<>();
+    private final AtomicReference<Metadata> metaRef = new AtomicReference<>();
+    private final AtomicReference<de.cubeisland.engine.core.module.service.Economy> econRef = new AtomicReference<>();
+    private final AtomicReference<Permission> vaultPermRef = new AtomicReference<>();
+    private final AtomicReference<Chat> vaultChatRef = new AtomicReference<>();
+    private final AtomicReference<Economy> vaultEconRef = new AtomicReference<>();
     private BukkitServiceManager bukkitServiceManager;
-    private Permission vaultPermService;
-    private Chat vaultChatService;
-    private Economy vaultEconService;
 
     @Override
     public void onLoad()
     {
         this.bukkitServiceManager = ((BukkitCore)this.getCore()).getModuleManager().getServiceManager();
-        Module module = getCore().getModuleManager().getModule("roles");
-        if (module != null && module instanceof Roles)
-        {
-            Roles roles = (Roles)module;
-            vaultPermService = new CubePermissionService(this, roles);
-            vaultChatService = new CubeChatService(this, metadataReference, vaultPermService);
 
-            this.bukkitServiceManager.register(Permission.class, vaultPermService, this, ServicePriority.Low);
-            this.bukkitServiceManager.register(Chat.class, vaultChatService, this, ServicePriority.Low);
-        }
-        vaultEconService = new CubeEconomyService(this, economyReference);
-        this.bukkitServiceManager.register(Economy.class, vaultEconService, this, ServicePriority.Low);
+        // Permission & Metadata/Chat
+        vaultPermRef.set(new CubePermissionService(this, permRef));
+        vaultChatRef.set(new CubeChatService(this, metaRef, vaultPermRef.get()));
+        this.bukkitServiceManager.register(Permission.class, vaultPermRef.get(), this, ServicePriority.Low);
+        this.bukkitServiceManager.register(Chat.class, vaultChatRef.get(), this, ServicePriority.Low);
+
+        // Economy
+        vaultEconRef.set(new CubeEconomyService(this, econRef));
+        this.bukkitServiceManager.register(Economy.class, vaultEconRef.get(), this, ServicePriority.Low);
     }
 
     @Override
@@ -84,34 +79,47 @@ public class Vaultlink extends Module implements Listener
         this.getCore().getEventManager().registerListener(this, this);
         if (serviceManager.isImplemented(de.cubeisland.engine.core.module.service.Economy.class))
         {
-            this.economyReference.set(serviceManager.getServiceImplementation(
+            this.econRef.set(serviceManager.getServiceImplementation(
                 de.cubeisland.engine.core.module.service.Economy.class));
         }
         else
         {
-            this.bukkitServiceManager.unregister(Economy.class, vaultEconService);
-            this.vaultEconService = null;
+            this.bukkitServiceManager.unregister(Economy.class, vaultEconRef.get());
+            this.vaultEconRef.set(null);
             if (this.bukkitServiceManager.isProvidedFor(Economy.class))
             {
-                vaultEconService = this.bukkitServiceManager.load(Economy.class);
-                vaultEconomyReference.set(vaultEconService);
+                vaultEconRef.set(this.bukkitServiceManager.load(Economy.class));
                 serviceManager.registerService(this, de.cubeisland.engine.core.module.service.Economy.class,
-                                               new VaultEconomyService(this.vaultEconomyReference));
+                                               new VaultEconomyService(this.vaultEconRef));
+            }
+        }
+        if (serviceManager.isImplemented(de.cubeisland.engine.core.module.service.Permission.class))
+        {
+            this.permRef.set(serviceManager.getServiceImplementation(
+                de.cubeisland.engine.core.module.service.Permission.class));
+        }
+        else
+        {
+            this.bukkitServiceManager.unregister(vaultPermRef.get());
+            this.vaultPermRef.set(null);
+            if (this.bukkitServiceManager.isProvidedFor(Permission.class))
+            {
+                vaultPermRef.set(this.bukkitServiceManager.load(Permission.class));
+                serviceManager.registerService(this, de.cubeisland.engine.core.module.service.Permission.class, new VaultPermissionService(this.vaultPermRef));
             }
         }
         if (serviceManager.isImplemented(Metadata.class))
         {
-            this.metadataReference.set(serviceManager.getServiceImplementation(Metadata.class));
+            this.metaRef.set(serviceManager.getServiceImplementation(Metadata.class));
         }
         else
         {
-            this.bukkitServiceManager.unregister(Chat.class, vaultChatService);
-            this.vaultChatService = null;
+            this.bukkitServiceManager.unregister(Chat.class, vaultChatRef.get());
+            this.vaultChatRef.set(null);
             if (this.bukkitServiceManager.isProvidedFor(Chat.class))
             {
-                vaultChatService = this.bukkitServiceManager.load(Chat.class);
-                vaultChatReference.set(vaultChatService);
-                serviceManager.registerService(this, Metadata.class, new VaultMetadataService(this.vaultChatReference));
+                vaultChatRef.set(this.bukkitServiceManager.load(Chat.class));
+                serviceManager.registerService(this, Metadata.class, new VaultMetadataService(this.vaultChatRef));
             }
         }
         core.getEventManager().registerListener(this, this);
@@ -149,17 +157,25 @@ public class Vaultlink extends Module implements Listener
         if (Economy.class.equals(event.getProvider().getService()))
         {
             Economy load = bukkitServiceManager.load(Economy.class);
-            if (vaultEconomyReference.get() != load)
+            if (vaultEconRef.get() != load)
             {
-                vaultEconomyReference.set(load);
+                vaultEconRef.set(load);
+            }
+        }
+        if (Permission.class.equals(event.getProvider().getService()))
+        {
+            Permission load = bukkitServiceManager.load(Permission.class);
+            if (vaultPermRef.get() != load)
+            {
+                vaultPermRef.set(load);
             }
         }
         if (Chat.class.equals(event.getProvider().getService()))
         {
             Chat load = bukkitServiceManager.load(Chat.class);
-            if (vaultChatReference.get() != load)
+            if (vaultChatRef.get() != load)
             {
-                vaultChatReference.set(load);
+                vaultChatRef.set(load);
             }
         }
     }

@@ -3,11 +3,13 @@ version: ${project.version}
 description: ${project.description}
 source-version: ${githead.branch}-${githead.commit}
 build-timestamp: "${timestamp}"
-soft-dependencies:
-- roles
-- conomy
 soft-services:
 - de.cubeisland.engine.core.module.service.Economy
 - de.cubeisland.engine.core.module.service.Metadata
+- de.cubeisland.engine.core.module.service.Permission
+provided-services:
+- de.cubeisland.engine.core.module.service.Economy
+- de.cubeisland.engine.core.module.service.Metadata
+- de.cubeisland.engine.core.module.service.Permission
 plugin-dependencies:
 - Vault
