@@ -51,7 +51,7 @@ public class ListenerItem extends ListenerPlayerLog
 {
     public ListenerItem(Log module)
     {
-        super(module, ItemCraft.class, ItemEnchant.class, ItemDrop.class, ItemPickup.class, UsePotionSplash.class);
+        super(module, ItemCraft.class, ItemEnchant.class, ItemDrop.class, ItemPickup.class, UseFirework.class, UsePotionSplash.class);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
