@@ -216,7 +216,7 @@ public class QueryManager
             this.module.getConfiguration().cleanup.deletedWorlds = false;
             this.module.getConfiguration().save();
             List<UUID> uuids = new ArrayList<>(this.module.getCore().getWorldManager().getAllWorldUUIDs());
-            BasicDBObject condition = new BasicDBObject("coord.world-uuid", new BasicDBObject("$uuid", uuids));
+            BasicDBObject condition = new BasicDBObject("coord.world-uuid", new BasicDBObject("$in", uuids));
             BasicDBObject fields = new BasicDBObject("_id", 1);
             this.latch.acquire();
             DBCursor toRemove = this.collection.find(condition, fields);
