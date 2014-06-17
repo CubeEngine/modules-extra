@@ -184,20 +184,21 @@ public class QueryManager
             this.latch.acquire();
 
             DBCursor toRemove = this.collection.find(condition, fields);
-            int count = toRemove.count();
-            if (count != 0)
+            this.module.getLog().debug("CleanUp - Counting old logs...");
+            int total = toRemove.count();
+            if (total != 0)
             {
+                int count = total;
                 toRemove.skip(count < steps ? count - 1 : steps - 1).limit(1);
                 this.module.getLog().debug("CleanUp - CleanUp of {} old logs", toRemove.count());
-                int i = 0;
                 while (count > 0)
                 {
-                    i += this.collection.remove(new BasicDBObject("_id", new BasicDBObject("$lte", toRemove.next().get("_id")))).getN();
+                    int removed = this.collection.remove(new BasicDBObject("_id", new BasicDBObject("$lte", toRemove.next().get("_id")))).getN();
                     this.latch.release();
-                    this.module.getLog().debug("CleanUp - {} logs deleted", i);
+                    this.module.getLog().debug("CleanUp - {}/{} logs deleted", total - count, total);
                     this.latch.acquire();
                     toRemove = this.collection.find(condition, fields);
-                    count = toRemove.count();
+                    count -= removed;
                     toRemove.skip(count < steps ? count - 1 : steps - 1).limit(1);
                 }
             }
