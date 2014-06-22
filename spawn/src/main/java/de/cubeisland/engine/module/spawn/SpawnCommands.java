@@ -25,7 +25,7 @@ import org.bukkit.World;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
 import de.cubeisland.engine.core.command.CubeContext;
-import de.cubeisland.engine.core.command.readers.UserListOrAllReader;
+import de.cubeisland.engine.core.command.readers.UserListReader;
 import de.cubeisland.engine.core.command.reflected.Command;
 import de.cubeisland.engine.core.command.reflected.context.Flag;
 import de.cubeisland.engine.core.command.reflected.context.Flags;
@@ -147,7 +147,7 @@ public class SpawnCommands
     }
 
     @Command(desc = "Teleport directly to the worlds spawn.")
-    @IParams(@Grouped(value = @Indexed(label = {"players","!*"}, type = UserListOrAllReader.class), req = false))
+    @IParams(@Grouped(value = @Indexed(label = {"players","!*"}, type = UserListReader.class), req = false))
     @NParams({@Named(names = {"world", "w", "in"}, type = World.class),
               @Named(names = {"role", "r"}, completer = RoleCompleter.class)})
     @Flags(@Flag(longName = "force", name = "f"))
@@ -218,7 +218,7 @@ public class SpawnCommands
         if (context.hasIndexed(0))
         {
             boolean all = false;
-            if ("*".equals(context.getArg(0)))
+            if ("*".equals(context.getString(0)))
             {
                 all = true;
                 if (!module.perms().COMMAND_SPAWN_ALL.isAuthorized(context.getSender()))

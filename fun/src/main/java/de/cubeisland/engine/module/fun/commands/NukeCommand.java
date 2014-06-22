@@ -67,9 +67,9 @@ public class NukeCommand
     }
 
     @Command(desc = "Makes a carpet of TNT fall on a player or where you're looking")
-    @IParams({@Grouped(req = false, value = @Indexed(label = "param1")),
-              @Grouped(req = false, value = @Indexed(label = "param2")),
-              @Grouped(req = false, value = @Indexed(label = "param3"))})
+    @IParams({@Grouped(req = false, value = @Indexed(label = "param1", type = Integer.class)),
+              @Grouped(req = false, value = @Indexed(label = "param2", type = Integer.class)),
+              @Grouped(req = false, value = @Indexed(label = "param3", type = Integer.class))})
     @NParams({@Named(names = {"player", "p"}, type = User.class),
               @Named(names = {"height", "h"}, type = Integer.class),
               @Named(names = {"range", "r"}, type = Integer.class),
