@@ -62,7 +62,7 @@ public class RocketCommand
     }
 
     @Command(desc = "Shoots a player upwards with a cool smoke effect")
-    @IParams(@Grouped(req = false, value = @Indexed(label = "height")))
+    @IParams(@Grouped(req = false, value = @Indexed(label = "height", type = Integer.class)))
     @NParams(@Named(names = {"player", "p"}, type = User.class))
     public void rocket(CubeContext context)
     {
