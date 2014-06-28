@@ -48,6 +48,7 @@
     <module>kits</module>
     <module>spawner</module>
     <module>bigdata</module>
+    <module>donations</module>
   </modules>
 
   <build>
