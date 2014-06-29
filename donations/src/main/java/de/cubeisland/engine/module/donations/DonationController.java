@@ -15,7 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.cubeisland.engine.donations;
+package de.cubeisland.engine.module.donations;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,7 +29,7 @@ import de.cubeisland.engine.core.webapi.ApiRequest;
 import de.cubeisland.engine.core.webapi.ApiResponse;
 import de.cubeisland.engine.core.webapi.Method;
 import de.cubeisland.engine.core.webapi.RequestMethod;
-import de.cubeisland.engine.donations.DonationsConfig.DonationGoal;
+import de.cubeisland.engine.module.donations.DonationsConfig.DonationGoal;
 
 public class DonationController
 {
@@ -45,19 +48,15 @@ public class DonationController
     public ApiResponse update(ApiRequest request)
     {
         JsonNode data = request.getData();
-
-        // TODO get data from JsonNode!
-
-        double newTotal = 0;
-
+        double newTotal = data.get("total").asDouble();
         this.updateDonation(newTotal);
-
-        String user = "name";
+        this.config.lastTotal = newTotal;
+        this.config.save();
+        JsonNode user = data.get("name");
         if (user != null)
         {
-            this.broadcastDonation(user); // Automatic updated do not include a user
+            this.broadcastDonation(user.asText()); // Automatic updated do not include a user
         }
-
         ApiResponse response = new ApiResponse();
         response.setContent(mapper.createObjectNode().put("response", "ok")); // TODO
         return response;
@@ -71,17 +70,17 @@ public class DonationController
 
     private void updateDonation(double newTotal)
     {
-        CommandManager cmdMan = module.getCore().getCommandManager();
+        final List<String> cmds = new ArrayList<>();
         if (newTotal < this.config.lastTotal)
         {
             for (Double val : this.config.goals.keySet())
             {
-                if (val > newTotal && val < config.lastTotal)
+                if (val > newTotal && val <= config.lastTotal)
                 {
                     DonationGoal goal = this.config.goals.get(val);
                     for (String cmd : goal.lost)
                     {
-                        cmdMan.runCommand(cmdMan.getConsoleSender(), cmd);
+                        cmds.add(cmd);
                     }
                 }
             }
@@ -90,15 +89,29 @@ public class DonationController
         {
             for (Double val : this.config.goals.keySet())
             {
-                if (val > config.lastTotal && val < newTotal)
+                if (val >= config.lastTotal && val < newTotal)
                 {
                     DonationGoal goal = this.config.goals.get(val);
                     for (String cmd : goal.reached)
                     {
-                        cmdMan.runCommand(cmdMan.getConsoleSender(), cmd);
+                        cmds.add(cmd);
                     }
                 }
             }
         }
+        module.getCore().getTaskManager().runTask(module, new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                CommandManager cmdMan = module.getCore().getCommandManager();
+                for (String cmd : cmds)
+                {
+                    cmdMan.runCommand(cmdMan.getConsoleSender(), cmd);
+                }
+            }
+        });
+
+
     }
 }

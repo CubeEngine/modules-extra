@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.cubeisland.engine.donations;
+package de.cubeisland.engine.module.donations;
 
 import de.cubeisland.engine.core.module.Module;
 
@@ -25,5 +25,6 @@ public class Donations extends Module
     public void onEnable()
     {
         DonationController controller = new DonationController(this, this.loadConfig(DonationsConfig.class));
+        this.getCore().getApiServer().registerApiHandlers(this, controller);
     }
 }
