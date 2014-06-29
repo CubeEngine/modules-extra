@@ -18,6 +18,8 @@
 package de.cubeisland.engine.module.signmarket.storage;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import de.cubeisland.engine.module.signmarket.Signmarket;
@@ -61,12 +63,15 @@ public class SignMarketItemManager
 
     public void deleteUnusedModels(Set<UInteger> usedKeys)
     {
-        for (UInteger key : this.itemInfoModels.keySet())
+        Iterator<Entry<UInteger, ItemModel>> it = this.itemInfoModels.entrySet().iterator();
+        while (it.hasNext())
         {
-            if (!usedKeys.contains(key))
+            Entry<UInteger, ItemModel> next = it.next();
+            if (!usedKeys.contains(next.getKey()))
             {
-                this.itemInfoModels.remove(key).delete();
-                this.module.getLog().debug("deleted unused item model #{}", key);
+                it.remove();
+                next.getValue().delete();
+                this.module.getLog().debug("deleted unused item model #{}", next.getKey().intValue());
             }
         }
     }
