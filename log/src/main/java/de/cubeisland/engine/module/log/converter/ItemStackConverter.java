@@ -17,8 +17,8 @@
  */
 package de.cubeisland.engine.module.log.converter;
 
-import net.minecraft.server.v1_7_R3.NBTTagCompound;
-import org.bukkit.craftbukkit.v1_7_R3.inventory.CraftItemStack;
+import net.minecraft.server.v1_7_R4.NBTTagCompound;
+import org.bukkit.craftbukkit.v1_7_R4.inventory.CraftItemStack;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -48,7 +48,7 @@ public class ItemStackConverter implements Converter<ItemStack>
         item.setExactNode("Count", new IntNode(itemStack.getAmount()));
         item.setExactNode("Damage", new IntNode(itemStack.getDurability()));
         item.setExactNode("Item", StringNode.of(itemStack.getType().name()));
-        net.minecraft.server.v1_7_R3.ItemStack nmsCopy = CraftItemStack.asNMSCopy(itemStack);
+        net.minecraft.server.v1_7_R4.ItemStack nmsCopy = CraftItemStack.asNMSCopy(itemStack);
         if (nmsCopy == null)
         {
             CubeEngine.getLog().error("NMSCopy is unexpectedly null! " + itemStack);
@@ -77,7 +77,7 @@ public class ItemStackConverter implements Converter<ItemStack>
                     ItemStack itemStack = new ItemStack(Material.valueOf(item.asText()));
                     itemStack.setDurability(((IntNode)damage).getValue().shortValue());
                     itemStack.setAmount(((IntNode)count).getValue());
-                    net.minecraft.server.v1_7_R3.ItemStack nms = CraftItemStack.asNMSCopy(itemStack);
+                    net.minecraft.server.v1_7_R4.ItemStack nms = CraftItemStack.asNMSCopy(itemStack);
                     nms.tag = ((MapNode)tag).isEmpty() ? null : (NBTTagCompound)NBTUtils.convertNodeToNBT(tag);
                     return CraftItemStack.asBukkitCopy(nms);
                 }
