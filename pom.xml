@@ -49,6 +49,7 @@
     <module>spawner</module>
     <module>bigdata</module>
     <module>donations</module>
+    <module>chopchop</module>
   </modules>
 
   <build>
