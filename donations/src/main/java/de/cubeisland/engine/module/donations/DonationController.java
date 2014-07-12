@@ -48,11 +48,12 @@ public class DonationController
     public ApiResponse update(ApiRequest request)
     {
         JsonNode data = request.getData();
+        JsonNode user = data.get("name");
         double newTotal = data.get("total").asDouble();
-        this.updateDonation(newTotal);
+        this.updateDonation(newTotal, user == null ? null : user.asText());
         this.config.lastTotal = newTotal;
         this.config.save();
-        JsonNode user = data.get("name");
+
         if (user != null)
         {
             this.broadcastDonation(user.asText()); // Automatic updated do not include a user
@@ -68,7 +69,7 @@ public class DonationController
                                                            user);
     }
 
-    private void updateDonation(double newTotal)
+    private void updateDonation(final double newTotal, final String user)
     {
         final List<String> cmds = new ArrayList<>();
         if (newTotal < this.config.lastTotal)
@@ -107,6 +108,15 @@ public class DonationController
                 CommandManager cmdMan = module.getCore().getCommandManager();
                 for (String cmd : cmds)
                 {
+                    if (cmd.contains("{NAME}"))
+                    {
+                        if (user == null)
+                        {
+                            continue;
+                        }
+                        cmd = cmd.replace("{NAME}", user);
+                    }
+                    cmd = cmd.replace("{TOTAL}", String.format("%.2f", newTotal));
                     cmdMan.runCommand(cmdMan.getConsoleSender(), cmd);
                 }
             }
