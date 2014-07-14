@@ -33,6 +33,8 @@ public class DonationsConfig extends ReflectedYaml
     public Map<Double, DonationGoal> goals = new HashMap<>();
     public double lastTotal = 0;
 
+    public List<String> forUser = new ArrayList<>();
+
     public static class DonationGoal implements Section
     {
         public String name;

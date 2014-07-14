@@ -49,15 +49,39 @@ public class DonationController
     {
         JsonNode data = request.getData();
         JsonNode user = data.get("name");
-        double newTotal = data.get("total").asDouble();
+        final double newTotal = data.get("total").asDouble();
+        if (user != null)
+        {
+            final String userName = user.asText();
+            this.broadcastDonation(userName);
+
+            module.getCore().getTaskManager().runTask(module, new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    CommandManager cmdMan = module.getCore().getCommandManager();
+                    for (String cmd : config.forUser)
+                    {
+                        if (cmd.contains("{NAME}"))
+                        {
+                            if (userName == null)
+                            {
+                                continue;
+                            }
+                            cmd = cmd.replace("{NAME}", userName);
+                        }
+                        cmd = cmd.replace("{TOTAL}", String.format("%.2f", newTotal));
+                        cmdMan.runCommand(cmdMan.getConsoleSender(), cmd);
+                    }
+                }
+            });
+        }
+
         this.updateDonation(newTotal, user == null ? null : user.asText());
         this.config.lastTotal = newTotal;
         this.config.save();
 
-        if (user != null)
-        {
-            this.broadcastDonation(user.asText()); // Automatic updated do not include a user
-        }
         ApiResponse response = new ApiResponse();
         response.setContent(mapper.createObjectNode().put("response", "ok")); // TODO
         return response;
