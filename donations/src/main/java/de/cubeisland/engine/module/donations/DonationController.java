@@ -103,10 +103,7 @@ public class DonationController
                 if (val > newTotal && val <= config.lastTotal)
                 {
                     DonationGoal goal = this.config.goals.get(val);
-                    for (String cmd : goal.lost)
-                    {
-                        cmds.add(cmd);
-                    }
+                    cmds.addAll(goal.lost);
                 }
             }
         }
@@ -117,10 +114,7 @@ public class DonationController
                 if (val >= config.lastTotal && val < newTotal)
                 {
                     DonationGoal goal = this.config.goals.get(val);
-                    for (String cmd : goal.reached)
-                    {
-                        cmds.add(cmd);
-                    }
+                    cmds.addAll(goal.reached);
                 }
             }
         }
