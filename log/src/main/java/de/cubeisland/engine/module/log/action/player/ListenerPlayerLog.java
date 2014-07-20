@@ -25,6 +25,7 @@ import de.cubeisland.engine.module.log.action.LogListener;
 
 public abstract class ListenerPlayerLog extends LogListener
 {
+    @SafeVarargs
     protected ListenerPlayerLog(Log module, Class<? extends BaseAction>... actions)
     {
         super(module, actions);

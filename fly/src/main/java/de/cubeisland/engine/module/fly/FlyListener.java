@@ -105,17 +105,14 @@ public class FlyListener implements Listener
                         this.cancelTask();
                         return;
                     }
-                    if (player.isFlying())
+                    if (player.getInventory().contains(Material.FEATHER))
                     {
-                        if (player.getInventory().contains(Material.FEATHER))
-                        {
-                            player.getInventory().removeItem(feather);
-                        }
-                        else
-                        {
-                            player.setAllowFlight(false);
-                            this.cancelTask();
-                        }
+                        player.getInventory().removeItem(feather);
+                    }
+                    else
+                    {
+                        player.setAllowFlight(false);
+                        this.cancelTask();
                     }
                 }
             };

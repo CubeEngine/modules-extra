@@ -667,7 +667,7 @@ public class QueryManager
         ROLLBACK,
         REDO,
         ROLLBACK_PREVIEW,
-        REDO_PREVIEW;
+        REDO_PREVIEW
     }
 
     public static class QueuedSqlParams

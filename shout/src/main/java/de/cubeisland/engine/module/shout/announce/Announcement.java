@@ -110,7 +110,7 @@ public class Announcement
         {
             if (lang instanceof NormalLanguage)
             {
-                lang = ((NormalLanguage)lang).getParent();
+                lang = lang.getParent();
                 if (lang != null)
                 {
                     return this.messages.get(lang.getLocale());

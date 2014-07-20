@@ -159,10 +159,9 @@ public class EditModeListener extends ConversationCommand
         }
     }
 
-    public CommandResult run(CubeContext runContext)
+    public CommandResult run(CubeContext context)
     {
-        User user = (User)runContext.getSender();
-        CubeContext context = (CubeContext) runContext;
+        User user = (User)context.getSender();
         Location loc = this.currentSignLocation.get(user.getId());
         if (loc == null)
         {
