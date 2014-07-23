@@ -40,6 +40,7 @@ import de.cubeisland.engine.core.util.matcher.Match;
 import de.cubeisland.engine.module.fun.Fun;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
+import static org.bukkit.Material.AIR;
 
 public class PlayerCommands
 {
@@ -120,10 +121,30 @@ public class PlayerCommands
             senderInventory = ((User)context.getSender()).getInventory();
             head = senderInventory.getItemInHand().clone();
         }
-        if (head.getTypeId() == 0)
+        if (head.getType() == AIR)
         {
             context.sendTranslated(NEGATIVE, "You do not have any item in your hand!");
             return;
+        }
+        switch (head.getType())
+        {
+            case LEATHER_BOOTS:
+            case LEATHER_CHESTPLATE:
+            case LEATHER_LEGGINGS:
+            case IRON_BOOTS:
+            case IRON_CHESTPLATE:
+            case IRON_LEGGINGS:
+            case DIAMOND_BOOTS:
+            case DIAMOND_CHESTPLATE:
+            case DIAMOND_LEGGINGS:
+            case CHAINMAIL_BOOTS:
+            case CHAINMAIL_CHESTPLATE:
+            case CHAINMAIL_LEGGINGS:
+                if (!module.perms().COMMAND_HAT_MORE_ARMOR.isAuthorized(context.getSender()))
+                {
+                    context.sendTranslated(NEGATIVE, "You are not allowed to use other armor as headpiece");
+                }
+                return;
         }
         userInventory = user.getInventory();
         

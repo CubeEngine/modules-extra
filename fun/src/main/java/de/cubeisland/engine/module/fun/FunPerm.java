@@ -61,6 +61,7 @@ public class FunPerm extends PermissionContainer<Fun>
     private final Permission COMMAND_HAT = COMMAND.childWildcard("hat");
     public final Permission COMMAND_HAT_OTHER = COMMAND_HAT.child("other");
     public final Permission COMMAND_HAT_ITEM = COMMAND_HAT.child("item");
+    public final Permission COMMAND_HAT_MORE_ARMOR = COMMAND_HAT.child("more-armor");
     public final Permission COMMAND_HAT_QUIET = COMMAND_HAT.child("quit");
     public final Permission COMMAND_HAT_NOTIFY = COMMAND_HAT.child("notify", PermDefault.TRUE);
 
