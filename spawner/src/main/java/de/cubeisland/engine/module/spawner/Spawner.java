@@ -17,7 +17,6 @@
  */
 package de.cubeisland.engine.module.spawner;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,12 +36,12 @@ import de.cubeisland.engine.core.module.Module;
 import de.cubeisland.engine.core.permission.Permission;
 import de.cubeisland.engine.core.permission.PermissionManager;
 import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.core.util.ChatFormat;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 import static org.bukkit.GameMode.CREATIVE;
 import static org.bukkit.Material.MOB_SPAWNER;
 import static org.bukkit.Material.MONSTER_EGG;
+import static org.bukkit.enchantments.Enchantment.LURE;
 import static org.bukkit.enchantments.Enchantment.SILK_TOUCH;
 import static org.bukkit.entity.EntityType.*;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;
@@ -64,10 +63,7 @@ public class Spawner extends Module implements Listener
         permMan.registerPermission(this, this.eggPerms);
         this.initPerms();
         this.spawnerItem = new ItemStack(MOB_SPAWNER, 1);
-
-        ItemMeta meta = spawnerItem.getItemMeta();
-        meta.setLore(Arrays.asList(ChatFormat.parseFormats("&5&7&a&e&r"))); // pssht i am not here
-        spawnerItem.setItemMeta(meta);
+        spawnerItem.addUnsafeEnchantment(LURE, 1);
         this.getCore().getEventManager().registerListener(this, this);
     }
 
@@ -114,7 +110,7 @@ public class Spawner extends Module implements Listener
     {
         if (event.getBlockPlaced().getType() == MOB_SPAWNER)
         {
-            if (event.getPlayer().getItemInHand().isSimilar(spawnerItem))
+            if (event.getPlayer().getItemInHand().getEnchantmentLevel(LURE) == 1)
             {
                 CreatureSpawner spawner = (CreatureSpawner)event.getBlock().getState();
                 spawner.setSpawnedType(SNOWBALL);
