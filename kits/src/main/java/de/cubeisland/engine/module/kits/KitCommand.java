@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.bukkit.inventory.ItemStack;
 
-import de.cubeisland.engine.core.command.CubeContext;
+import de.cubeisland.engine.core.command.context.CubeContext;
 import de.cubeisland.engine.core.command.ContainerCommand;
 import de.cubeisland.engine.core.command.reflected.context.Flag;
 import de.cubeisland.engine.core.command.reflected.Alias;

@@ -24,7 +24,7 @@ import java.util.Locale;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
-import de.cubeisland.engine.core.command.CubeContext;
+import de.cubeisland.engine.core.command.context.CubeContext;
 import de.cubeisland.engine.core.command.ContainerCommand;
 import de.cubeisland.engine.core.command.reflected.CommandPermission;
 import de.cubeisland.engine.core.command.reflected.context.Flag;

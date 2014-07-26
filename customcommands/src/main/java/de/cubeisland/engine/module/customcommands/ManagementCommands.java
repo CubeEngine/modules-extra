@@ -24,7 +24,7 @@ import java.util.Map.Entry;
 
 import de.cubeisland.engine.core.command.CommandResult;
 import de.cubeisland.engine.core.command.ContainerCommand;
-import de.cubeisland.engine.core.command.CubeContext;
+import de.cubeisland.engine.core.command.context.CubeContext;
 import de.cubeisland.engine.core.command.parameterized.Completer;
 import de.cubeisland.engine.core.command.reflected.Command;
 import de.cubeisland.engine.core.command.reflected.CommandPermission;

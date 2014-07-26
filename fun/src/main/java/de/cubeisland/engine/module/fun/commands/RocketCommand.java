@@ -31,7 +31,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.util.Vector;
 
 import de.cubeisland.engine.core.CubeEngine;
-import de.cubeisland.engine.core.command.CubeContext;
+import de.cubeisland.engine.core.command.context.CubeContext;
 import de.cubeisland.engine.core.command.reflected.Command;
 import de.cubeisland.engine.core.command.reflected.context.Grouped;
 import de.cubeisland.engine.core.command.reflected.context.IParams;

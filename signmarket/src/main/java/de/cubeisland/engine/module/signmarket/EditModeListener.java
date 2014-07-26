@@ -33,7 +33,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import de.cubeisland.engine.core.command.CommandResult;
-import de.cubeisland.engine.core.command.CubeContext;
+import de.cubeisland.engine.core.command.context.ContextBuilder;
+import de.cubeisland.engine.core.command.context.CubeContext;
 import de.cubeisland.engine.core.command.conversation.ConversationCommand;
 import de.cubeisland.engine.core.command.conversation.ConversationContextFactory;
 import de.cubeisland.engine.core.command.parameterized.CommandFlag;
@@ -53,29 +54,28 @@ public class EditModeListener extends ConversationCommand
 {
     private final MarketSignFactory signFactory;
     private final Signmarket module;
+    private final TLongObjectHashMap<Location> currentSignLocation = new TLongObjectHashMap<>();
+    private final TLongObjectHashMap<MarketSign> previousMarketSign = new TLongObjectHashMap<>();
 
     public EditModeListener(final Signmarket module)
     {
-        super(module, new ConversationContextFactory());
-        this.module = module;
-        this.signFactory = module.getMarketSignFactory();
-
-        this.getContextFactory()
-                .addFlag(new CommandFlag("exit", "exit"))
-                .addFlag(new CommandFlag("copy", "copy"))
-                .addFlag(new CommandFlag("buy", "buy"))
-                .addFlag(new CommandFlag("sell","sell"))
-                .addFlag(new CommandFlag("admin","admin"))
-                .addFlag(new CommandFlag("user","user"))
-                .addFlag(new CommandFlag("stock", "stock"))
-                .addFlag(new CommandFlag("nodemand", "nodemand"))
-                .addNamed(new CommandParameter("demand", "demand", Integer.class))
-                .addNamed(new CommandParameter("owner", "owner", User.class).setCompleter(new PlayerCompleter()))
-                .addNamed(new CommandParameter("price", "price", String.class))
-                .addNamed(new CommandParameter("amount", "amount", Integer.class))
-                .addNamed(new CommandParameter("item", "item", ItemStack.class).setCompleter(new ItemCompleter()))
-                .addNamed(new CommandParameter("setstock", "setstock", Integer.class))
-                .addNamed(new CommandParameter("size", "size", Integer.class).setCompleter(new Completer()
+        super(module, new ConversationContextFactory(
+            ContextBuilder.build()
+                .add(new CommandFlag("exit", "exit"))
+                .add(new CommandFlag("copy", "copy"))
+                .add(new CommandFlag("buy", "buy"))
+                .add(new CommandFlag("sell", "sell"))
+                .add(new CommandFlag("admin", "admin"))
+                .add(new CommandFlag("user", "user"))
+                .add(new CommandFlag("stock", "stock"))
+                .add(new CommandFlag("nodemand", "nodemand"))
+                .add(new CommandParameter("demand", "demand", Integer.class))
+                .add(new CommandParameter("owner", "owner", User.class).setCompleter(new PlayerCompleter()))
+                .add(new CommandParameter("price", "price", String.class))
+                .add(new CommandParameter("amount", "amount", Integer.class))
+                .add(new CommandParameter("item", "item", ItemStack.class).setCompleter(new ItemCompleter()))
+                .add(new CommandParameter("setstock", "setstock", Integer.class))
+                .add(new CommandParameter("size", "size", Integer.class).setCompleter(new Completer()
                 {
                     @Override
                     public List<String> complete(CubeContext context, String token)
@@ -86,11 +86,11 @@ public class EditModeListener extends ConversationCommand
                         }
                         return Arrays.asList("6", "5", "4", "3", "2", "1");
                     }
-                })).calculateArgBounds();
+                })).get()
+        ));
+        this.module = module;
+        this.signFactory = module.getMarketSignFactory();
     }
-
-    private final TLongObjectHashMap<Location> currentSignLocation = new TLongObjectHashMap<>();
-    private final TLongObjectHashMap<MarketSign> previousMarketSign = new TLongObjectHashMap<>();
 
     private boolean setEditingSign(User user, MarketSign marketSign)
     {

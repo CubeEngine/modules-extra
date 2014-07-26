@@ -27,7 +27,7 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
-import de.cubeisland.engine.core.command.CubeContext;
+import de.cubeisland.engine.core.command.context.CubeContext;
 import de.cubeisland.engine.core.command.reflected.context.NParams;
 import de.cubeisland.engine.core.command.reflected.context.Named;
 import de.cubeisland.engine.core.command.reflected.Command;

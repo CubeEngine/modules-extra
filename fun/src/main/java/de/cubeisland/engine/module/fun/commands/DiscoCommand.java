@@ -23,7 +23,7 @@ import java.util.Map;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 
-import de.cubeisland.engine.core.command.CubeContext;
+import de.cubeisland.engine.core.command.context.CubeContext;
 import de.cubeisland.engine.core.command.reflected.Command;
 import de.cubeisland.engine.core.command.reflected.context.Grouped;
 import de.cubeisland.engine.core.command.reflected.context.IParams;

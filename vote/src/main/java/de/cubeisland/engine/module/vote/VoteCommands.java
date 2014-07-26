@@ -20,7 +20,7 @@ package de.cubeisland.engine.module.vote;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import de.cubeisland.engine.core.command.CubeContext;
+import de.cubeisland.engine.core.command.context.CubeContext;
 import de.cubeisland.engine.core.command.reflected.Command;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.TimeUtil;

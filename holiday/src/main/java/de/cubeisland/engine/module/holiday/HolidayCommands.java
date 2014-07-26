@@ -21,7 +21,7 @@ import java.sql.Date;
 import java.text.DateFormat;
 
 import de.cubeisland.engine.core.command.ContainerCommand;
-import de.cubeisland.engine.core.command.CubeContext;
+import de.cubeisland.engine.core.command.context.CubeContext;
 import de.cubeisland.engine.core.command.reflected.Command;
 import de.cubeisland.engine.core.command.reflected.OnlyIngame;
 import de.cubeisland.engine.core.command.reflected.context.Grouped;

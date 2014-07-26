@@ -20,7 +20,7 @@ package de.cubeisland.engine.module.log.action;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.cubeisland.engine.core.command.CubeContext;
+import de.cubeisland.engine.core.command.context.CubeContext;
 import de.cubeisland.engine.core.command.parameterized.Completer;
 
 public class ActionTypeCompleter implements Completer

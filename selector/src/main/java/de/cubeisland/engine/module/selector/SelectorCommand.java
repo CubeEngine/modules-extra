@@ -25,8 +25,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import de.cubeisland.engine.core.command.CommandResult;
 import de.cubeisland.engine.core.command.CubeCommand;
-import de.cubeisland.engine.core.command.CubeContext;
-import de.cubeisland.engine.core.command.CubeContextFactory;
+import de.cubeisland.engine.core.command.context.CubeContext;
+import de.cubeisland.engine.core.command.context.CubeContextFactory;
 import de.cubeisland.engine.core.user.User;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;

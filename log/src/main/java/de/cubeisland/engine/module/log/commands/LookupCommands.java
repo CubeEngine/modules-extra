@@ -25,7 +25,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 
-import de.cubeisland.engine.core.command.CubeContext;
+import de.cubeisland.engine.core.command.context.CubeContext;
 import de.cubeisland.engine.core.command.parameterized.completer.MaterialListCompleter;
 import de.cubeisland.engine.core.command.parameterized.completer.PlayerListCompleter;
 import de.cubeisland.engine.core.command.parameterized.completer.WorldCompleter;

@@ -20,7 +20,7 @@ package de.cubeisland.engine.module.hide;
 import java.util.Set;
 import java.util.UUID;
 
-import de.cubeisland.engine.core.command.CubeContext;
+import de.cubeisland.engine.core.command.context.CubeContext;
 import de.cubeisland.engine.core.command.CommandHolder;
 import de.cubeisland.engine.core.command.CommandSender;
 import de.cubeisland.engine.core.command.CubeCommand;
