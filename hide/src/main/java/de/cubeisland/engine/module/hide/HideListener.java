@@ -84,7 +84,7 @@ public class HideListener implements Listener
                 um.getExactUser(canSeeHidden).sendTranslated(POSITIVE, "Player {user} is now visible", event.getUser());
             }
         }
-        um.broadcastMessage(NEUTRAL, "{user:color=YELLOW} joined the game");
+        um.broadcastMessage(NEUTRAL, "{user:color=YELLOW} joined the game", event.getUser());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
