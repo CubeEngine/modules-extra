@@ -139,10 +139,10 @@ public class HideListener implements Listener
         {
             if (!uuid.equals(canSeeHidden))
             {
-                um.getExactUser(canSeeHidden).sendTranslated(POSITIVE, "Player {user}is now hidden!", event.getUser());
+                um.getExactUser(canSeeHidden).sendTranslated(POSITIVE, "Player {user} is now hidden!", event.getUser());
             }
         }
-        um.broadcastMessage(NEUTRAL, "{user:color=YELLOW} left the game");
+        um.broadcastMessage(NEUTRAL, "{user:color=YELLOW} left the game", event.getUser());
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
