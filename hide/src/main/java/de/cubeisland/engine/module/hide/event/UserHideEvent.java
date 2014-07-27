@@ -23,10 +23,6 @@ import de.cubeisland.engine.core.Core;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.user.UserEvent;
 
-/**
- *
- * @author CodeInfection
- */
 public class UserHideEvent extends UserEvent
 {
     private static final HandlerList handlers = new HandlerList();

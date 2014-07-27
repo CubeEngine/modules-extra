@@ -39,6 +39,7 @@ import de.cubeisland.engine.core.user.UserManager;
 import de.cubeisland.engine.module.hide.event.UserHideEvent;
 import de.cubeisland.engine.module.hide.event.UserShowEvent;
 
+import static de.cubeisland.engine.core.util.formatter.MessageType.NEUTRAL;
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
 import static org.bukkit.event.block.Action.PHYSICAL;
 
@@ -83,6 +84,7 @@ public class HideListener implements Listener
                 um.getExactUser(canSeeHidden).sendTranslated(POSITIVE, "Player {user} is now visible", event.getUser());
             }
         }
+        um.broadcastMessage(NEUTRAL, "{user:color=YELLOW} joined the game");
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -140,6 +142,7 @@ public class HideListener implements Listener
                 um.getExactUser(canSeeHidden).sendTranslated(POSITIVE, "Player {user}is now hidden!", event.getUser());
             }
         }
+        um.broadcastMessage(NEUTRAL, "{user:color=YELLOW} left the game");
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
