@@ -26,6 +26,7 @@ import org.bukkit.World;
 
 import de.cubeisland.engine.core.module.Module;
 import de.cubeisland.engine.core.world.WorldManager;
+import de.cubeisland.engine.module.portals.Portals;
 import org.jooq.types.UInteger;
 
 public class Border extends Module
@@ -62,6 +63,11 @@ public class Border extends Module
         if (!worldConfig.center.checkCenter(world))
         {
             this.getLog().warn("The world spawn of {} is not inside the border!", world.getName());
+        }
+        if (this.getCore().getModuleManager().getModule("portals") != null)
+        {
+            Portals portals = (Portals)this.getCore().getModuleManager().getModule("portals");
+            portals.getPortalManager().setRandomDestinationSetting(world, worldConfig.radius, world.getChunkAt(worldConfig.center.chunkX, worldConfig.center.chunkZ));
         }
         return worldConfig;
     }

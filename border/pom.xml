@@ -20,5 +20,12 @@
       <scope>provided</scope>
       <type>jar</type>
     </dependency>
+    <dependency>
+      <groupId>de.cubeisland.engine.module</groupId>
+      <artifactId>portals</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+      <scope>provided</scope>
+      <type>jar</type>
+    </dependency>
   </dependencies>
 </project>
