@@ -22,7 +22,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -35,6 +34,10 @@ import org.bukkit.util.BlockIterator;
 
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.BlockUtil;
+
+import static org.bukkit.Material.AIR;
+import static org.bukkit.event.Event.Result.DENY;
+import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;
 
 public class MarketSignListener implements Listener
 {
@@ -100,7 +103,7 @@ public class MarketSignListener implements Listener
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event)
     {
-        if (event.useItemInHand().equals(Event.Result.DENY))
+        if (event.useItemInHand().equals(DENY))
         {
             return;
         }
@@ -113,14 +116,14 @@ public class MarketSignListener implements Listener
             }
             User user = this.module.getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
             marketSign.executeAction(user, event.getAction());
-            event.setUseInteractedBlock(Event.Result.DENY);
-            event.setUseItemInHand(Event.Result.DENY);
+            event.setUseInteractedBlock(DENY);
+            event.setUseItemInHand(DENY);
             event.setCancelled(true);
             event.getPlayer().updateInventory();
         }
         else if (event.getAction().equals(Action.RIGHT_CLICK_AIR)) // when placing a block is not possible -> RIGHT_CLICK_AIR instead of RIGHT_CLICK_BLOCK
         {
-            if (event.getPlayer().getItemInHand() != null && event.getPlayer().getItemInHand().getTypeId() != 0)
+            if (event.getPlayer().getItemInHand() != null && event.getPlayer().getItemInHand().getType() != AIR)
             {
                 BlockState lastSignFound = getTargettedSign(event.getPlayer());
                 if (lastSignFound == null)
@@ -133,9 +136,9 @@ public class MarketSignListener implements Listener
                     return;
                 }
                 User user = this.module.getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
-                marketSign.executeAction(user, Action.RIGHT_CLICK_BLOCK);
-                event.setUseInteractedBlock(Event.Result.DENY);
-                event.setUseItemInHand(Event.Result.DENY);
+                marketSign.executeAction(user, RIGHT_CLICK_BLOCK);
+                event.setUseInteractedBlock(DENY);
+                event.setUseItemInHand(DENY);
                 event.setCancelled(true);
                 marketSign.updateSignText();
                 event.getPlayer().updateInventory();
@@ -154,7 +157,7 @@ public class MarketSignListener implements Listener
             {
                 lastSignFound = block.getState();
             }
-            else if (lastSignFound != null && block.getTypeId() != 0)
+            else if (lastSignFound != null && block.getType() != AIR)
             {
                 break;
             }

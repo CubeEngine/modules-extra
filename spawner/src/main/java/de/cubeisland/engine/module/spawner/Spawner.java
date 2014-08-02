@@ -102,6 +102,8 @@ public class Spawner extends Module implements Listener
             event.getPlayer().getWorld().dropItemNaturally(event.getBlock().getLocation(), clone);
 
             user.sendTranslated(POSITIVE, "Dropped inactive Monster Spawner!");
+
+            event.setExpToDrop(0);
         }
     }
 
