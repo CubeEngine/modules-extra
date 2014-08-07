@@ -113,6 +113,10 @@ public class ChopListener implements Listener
         final ItemStack axe = event.getPlayer().getItemInHand();
         if (isChopChop(event.getBlock(), axe))
         {
+            if (axe.getDurability() >= 1561)
+            {
+                return;
+            }
             TreeSpecies species = getSpecies(event.getBlock());
             Set<Block> treeBlocks = findTreeBlocks(event, species);
             if (!treeBlocks.isEmpty())
@@ -214,7 +218,7 @@ public class ChopListener implements Listener
                             if (axe.getAmount() == 1)
                             {
                                 axe.setAmount(0);
-                                axe.setType(AIR);
+                                axe.setDurability((short)1561);
                                 event.getPlayer().updateInventory();
                             }
                             else
