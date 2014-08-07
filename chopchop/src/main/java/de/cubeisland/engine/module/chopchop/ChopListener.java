@@ -214,6 +214,7 @@ public class ChopListener implements Listener
                             if (axe.getAmount() == 1)
                             {
                                 axe.setAmount(0);
+                                axe.setType(AIR);
                                 event.getPlayer().updateInventory();
                             }
                             else
