@@ -262,11 +262,13 @@ public class SpawnCommands
                 // BroadCast
                 if (role == null)
                 {
-                    this.module.getCore().getUserManager().broadcastMessage(POSITIVE, "Teleported everyone to the spawn of {world}!", world);
+                    this.module.getCore().getUserManager().broadcastTranslated(POSITIVE,
+                           "Teleported everyone to the spawn of {world}!", world);
                 }
                 else
                 {
-                    this.module.getCore().getUserManager().broadcastMessage(POSITIVE, "Teleported everyone to the spawn of the role {name#role} in {world}!", role.getName(), world);
+                    this.module.getCore().getUserManager().broadcastTranslated(POSITIVE,
+                           "Teleported everyone to the spawn of the role {name#role} in {world}!", role.getName(), world);
                 }
             }
             else

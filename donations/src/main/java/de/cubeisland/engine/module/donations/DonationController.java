@@ -89,8 +89,7 @@ public class DonationController
 
     private void broadcastDonation(String user)
     {
-        module.getCore().getUserManager().broadcastMessage(MessageType.POSITIVE, "New Donation! Thank you {user}!",
-                                                           user);
+        module.getCore().getUserManager().broadcastTranslated(MessageType.POSITIVE, "New Donation! Thank you {user}!", user);
     }
 
     private void updateDonation(final double newTotal, final String user)
