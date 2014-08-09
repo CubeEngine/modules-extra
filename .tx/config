@@ -12,6 +12,26 @@ file_filter = border/src/main/resources/translations/<lang>.po
 source_file = border/src/main/resources/translations/messages.pot
 source_lang = en_US
 
+[cubeengine.chat]
+file_filter = chat/src/main/resources/translations/<lang>.po
+source_file = chat/src/main/resources/translations/messages.pot
+source_lang = en_US
+
+[cubeengine.chophcop]
+file_filter = chophcop/src/main/resources/translations/<lang>.po
+source_file = chophcop/src/main/resources/translations/messages.pot
+source_lang = en_US
+
+[cubeengine.customcommands]
+file_filter = customcommands/src/main/resources/translations/<lang>.po
+source_file = customcommands/src/main/resources/translations/messages.pot
+source_lang = en_US
+
+[cubeengine.donations]
+file_filter = donations/src/main/resources/translations/<lang>.po
+source_file = donations/src/main/resources/translations/messages.pot
+source_lang = en_US
+
 [cubeengine.fly]
 file_filter = fly/src/main/resources/translations/<lang>.po
 source_file = fly/src/main/resources/translations/messages.pot
@@ -25,6 +45,11 @@ source_lang = en_US
 [cubeengine.hide]
 file_filter = hide/src/main/resources/translations/<lang>.po
 source_file = hide/src/main/resources/translations/messages.pot
+source_lang = en_US
+
+[cubeengine.holiday]
+file_filter = holiday/src/main/resources/translations/<lang>.po
+source_file = holiday/src/main/resources/translations/messages.pot
 source_lang = en_US
 
 [cubeengine.itemrepair]
@@ -42,6 +67,11 @@ file_filter = log/src/main/resources/translations/<lang>.po
 source_file = log/src/main/resources/translations/messages.pot
 source_lang = en_US
 
+[cubeengine.powertools]
+file_filter = powertools/src/main/resources/translations/<lang>.po
+source_file = powertools/src/main/resources/translations/messages.pot
+source_lang = en_US
+
 [cubeengine.rulebook]
 file_filter = rulebook/src/main/resources/translations/<lang>.po
 source_file = rulebook/src/main/resources/translations/messages.pot
@@ -57,6 +87,11 @@ file_filter = shout/src/main/resources/translations/<lang>.po
 source_file = shout/src/main/resources/translations/messages.pot
 source_lang = en_US
 
+[cubeengine.signmarket]
+file_filter = signmarket/src/main/resources/translations/<lang>.po
+source_file = signmarket/src/main/resources/translations/messages.pot
+source_lang = en_US
+
 [cubeengine.spawn]
 file_filter = spawn/src/main/resources/translations/<lang>.po
 source_file = spawn/src/main/resources/translations/messages.pot
@@ -67,24 +102,14 @@ file_filter = spawner/src/main/resources/translations/<lang>.po
 source_file = spawner/src/main/resources/translations/messages.pot
 source_lang = en_US
 
-[cubeengine.signmarket]
-file_filter = signmarket/src/main/resources/translations/<lang>.po
-source_file = signmarket/src/main/resources/translations/messages.pot
-source_lang = en_US
-
-[cubeengine.travel]
-file_filter = travel/src/main/resources/translations/<lang>.po
-source_file = travel/src/main/resources/translations/messages.pot
+[cubeengine.vaultlink]
+file_filter = vaultlink/src/main/resources/translations/<lang>.po
+source_file = vaultlink/src/main/resources/translations/messages.pot
 source_lang = en_US
 
 [cubeengine.vote]
 file_filter = vote/src/main/resources/translations/<lang>.po
 source_file = vote/src/main/resources/translations/messages.pot
-source_lang = en_US
-
-[cubeengine.worlds]
-file_filter = worlds/src/main/resources/translations/<lang>.po
-source_file = worlds/src/main/resources/translations/messages.pot
 source_lang = en_US
 
 [cubeengine.writer]
