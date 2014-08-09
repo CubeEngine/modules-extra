@@ -305,7 +305,7 @@ public class PlayerCommands
 
     @Command(desc = "Slaps a player")
     @IParams({@Grouped(value = @Indexed(label = "player", type = User.class)),
-              @Grouped(req = false, value = @Indexed(label = "damage"))})
+              @Grouped(req = false, value = @Indexed(label = "damage", type = Integer.class))})
     public void slap(CubeContext context)
     {
         User user = context.getArg(0);
