@@ -51,6 +51,7 @@
     <module>donations</module>
     <module>chopchop</module>
     <module>holiday</module>
+    <module>unbreakableboat</module>
   </modules>
 
   <build>

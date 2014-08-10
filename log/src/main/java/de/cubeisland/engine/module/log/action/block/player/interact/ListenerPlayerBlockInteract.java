@@ -18,7 +18,6 @@
 package de.cubeisland.engine.module.log.action.block.player.interact;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Note;
 import org.bukkit.Note.Tone;
 import org.bukkit.block.Block;
@@ -140,10 +139,11 @@ public class ListenerPlayerBlockInteract extends LogListener
             }
             else if (state.getData() instanceof Rails)
             {
-                if (itemInHand.getType() == Material.MINECART || itemInHand.getType() == Material.STORAGE_MINECART
-                    || itemInHand.getType() == Material.POWERED_MINECART
-                    || itemInHand.getType() == Material.HOPPER_MINECART
-                    || itemInHand.getType() == Material.EXPLOSIVE_MINECART) // BOAT is done down below
+                if (itemInHand.getType() == MINECART
+                    || itemInHand.getType() == STORAGE_MINECART
+                    || itemInHand.getType() == POWERED_MINECART
+                    || itemInHand.getType() == HOPPER_MINECART
+                    || itemInHand.getType() == EXPLOSIVE_MINECART) // BOAT is done down below
                 {
                     VehiclePrePlaceEvent vEvent = new VehiclePrePlaceEvent(event.getClickedBlock().getRelative(
                         UP).getLocation(), event.getPlayer());
@@ -151,7 +151,7 @@ public class ListenerPlayerBlockInteract extends LogListener
                 }
                 action = null;
             }
-            else if (itemInHand.getType().equals(Material.BOAT))
+            else if (itemInHand.getType().equals(BOAT))
             {
                 VehiclePrePlaceEvent vEvent = new VehiclePrePlaceEvent(event.getClickedBlock().getRelative(
                     UP).getLocation(), event.getPlayer());
