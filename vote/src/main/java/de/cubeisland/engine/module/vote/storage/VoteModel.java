@@ -19,13 +19,13 @@ package de.cubeisland.engine.module.vote.storage;
 
 import java.sql.Timestamp;
 
+import de.cubeisland.engine.core.storage.database.AsyncRecord;
 import de.cubeisland.engine.core.user.User;
-import org.jooq.impl.UpdatableRecordImpl;
 import org.jooq.types.UShort;
 
 import static de.cubeisland.engine.module.vote.storage.TableVote.TABLE_VOTE;
 
-public class VoteModel extends UpdatableRecordImpl<VoteModel>
+public class VoteModel extends AsyncRecord<VoteModel>
 {
     public VoteModel()
     {

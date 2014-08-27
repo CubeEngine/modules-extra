@@ -33,16 +33,16 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.Repairable;
 
 import de.cubeisland.engine.core.CubeEngine;
+import de.cubeisland.engine.core.storage.database.AsyncRecord;
 import de.cubeisland.engine.core.util.StringUtils;
 import de.cubeisland.engine.module.signmarket.MarketSign;
 import gnu.trove.set.hash.THashSet;
-import org.jooq.impl.UpdatableRecordImpl;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
 
 import static de.cubeisland.engine.module.signmarket.storage.TableSignItem.TABLE_SIGN_ITEM;
 
-public class ItemModel extends UpdatableRecordImpl<ItemModel> implements InventoryHolder, Cloneable
+public class ItemModel extends AsyncRecord<ItemModel> implements InventoryHolder, Cloneable
 {
     @Transient
     private final THashSet<MarketSign> sharedStockSigns = new THashSet<>();

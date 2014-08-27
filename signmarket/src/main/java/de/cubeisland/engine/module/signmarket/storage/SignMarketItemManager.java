@@ -57,7 +57,7 @@ public class SignMarketItemManager
 
     public void store(ItemModel itemInfo)
     {
-        itemInfo.insert();
+        itemInfo.asyncInsert();
         this.itemInfoModels.put(itemInfo.getValue(TABLE_SIGN_ITEM.KEY), itemInfo);
     }
 
@@ -70,7 +70,7 @@ public class SignMarketItemManager
             if (!usedKeys.contains(next.getKey()))
             {
                 it.remove();
-                next.getValue().delete();
+                next.getValue().asyncDelete();
                 this.module.getLog().debug("deleted unused item model #{}", next.getKey().intValue());
             }
         }
@@ -83,11 +83,11 @@ public class SignMarketItemManager
         {
             return; // unsaved model
         }
-        this.itemInfoModels.remove(key).delete();
+        this.itemInfoModels.remove(key).asyncDelete();
     }
 
     public void update(ItemModel itemInfo)
     {
-        itemInfo.update();
+        itemInfo.asyncUpdate();
     }
 }

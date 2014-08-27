@@ -17,11 +17,11 @@
  */
 package de.cubeisland.engine.module.holiday.storage;
 
-import org.jooq.impl.UpdatableRecordImpl;
+import de.cubeisland.engine.core.storage.database.AsyncRecord;
 
 import static de.cubeisland.engine.module.holiday.storage.TableHoliday.TABLE_HOLIDAY;
 
-public class HolidayModel extends UpdatableRecordImpl<HolidayModel>
+public class HolidayModel extends AsyncRecord<HolidayModel>
 {
     public HolidayModel()
     {

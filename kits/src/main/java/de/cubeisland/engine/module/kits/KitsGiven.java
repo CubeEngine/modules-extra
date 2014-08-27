@@ -17,9 +17,9 @@
  */
 package de.cubeisland.engine.module.kits;
 
-import org.jooq.impl.UpdatableRecordImpl;
+import de.cubeisland.engine.core.storage.database.AsyncRecord;
 
-public class KitsGiven extends UpdatableRecordImpl<KitsGiven>
+public class KitsGiven extends AsyncRecord<KitsGiven>
 {
     public KitsGiven()
     {
