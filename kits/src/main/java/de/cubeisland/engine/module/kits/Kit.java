@@ -44,6 +44,7 @@ import org.jooq.DSLContext;
 import org.jooq.Record1;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
+import static de.cubeisland.engine.module.kits.TableKitsGiven.TABLE_KITS;
 
 /**
  * A Kit of Items a User can receive
@@ -99,8 +100,8 @@ public class Kit
         {
             if (limitUsagePerPlayer > 0)
             {
-                Record1<Integer> record1 = this.dsl.select(TableKitsGiven.TABLE_KITS.AMOUNT).from(TableKitsGiven.TABLE_KITS).
-                    where(TableKitsGiven.TABLE_KITS.KITNAME.like(this.name), TableKitsGiven.TABLE_KITS.USERID.eq(user.getEntity().getKey())).fetchOne();
+                Record1<Integer> record1 = this.dsl.select(TABLE_KITS.AMOUNT).from(TABLE_KITS).
+                    where(TABLE_KITS.KITNAME.like(this.name), TABLE_KITS.USERID.eq(user.getEntity().getKey())).fetchOne();
                 if (record1 != null && record1.value1() >= this.limitUsagePerPlayer)
                 {
                     throw new IncorrectUsageException("Kit-limit reached.", false);
@@ -118,8 +119,16 @@ public class Kit
         List<ItemStack> list = this.getItems();
         if (InventoryUtil.giveItemsToUser(user, list.toArray(new ItemStack[list.size()])))
         {
-            this.dsl.insertInto(TableKitsGiven.TABLE_KITS, TableKitsGiven.TABLE_KITS.KITNAME, TableKitsGiven.TABLE_KITS.USERID, TableKitsGiven.TABLE_KITS.AMOUNT).values(this.getKitName(), user.getEntity().getKey(), 1)
-                    .onDuplicateKeyUpdate().set(TableKitsGiven.TABLE_KITS.AMOUNT, TableKitsGiven.TABLE_KITS.AMOUNT.add(1)).execute();
+            KitsGiven kitsGiven = this.dsl.selectFrom(TABLE_KITS).where(TABLE_KITS.USERID.eq(user.getEntity().getKey())).and(TABLE_KITS.KITNAME.eq(this.getKitName())).fetchOne();
+            if (kitsGiven == null)
+            {
+                this.dsl.newRecord(TABLE_KITS).newKitsGiven(user, this).asyncInsert();
+            }
+            else
+            {
+                kitsGiven.setValue(TABLE_KITS.AMOUNT, kitsGiven.getValue(TABLE_KITS.AMOUNT) + 1);
+                kitsGiven.asyncUpdate();
+            }
             this.executeCommands(user);
             if (limitUsageDelay != 0)
             {

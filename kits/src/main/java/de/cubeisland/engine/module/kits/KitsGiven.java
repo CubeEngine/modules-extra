@@ -18,11 +18,22 @@
 package de.cubeisland.engine.module.kits;
 
 import de.cubeisland.engine.core.storage.database.AsyncRecord;
+import de.cubeisland.engine.core.user.User;
+
+import static de.cubeisland.engine.module.kits.TableKitsGiven.TABLE_KITS;
 
 public class KitsGiven extends AsyncRecord<KitsGiven>
 {
     public KitsGiven()
     {
-        super(TableKitsGiven.TABLE_KITS);
+        super(TABLE_KITS);
+    }
+
+    public KitsGiven newKitsGiven(User user, Kit kit)
+    {
+        this.setValue(TABLE_KITS.USERID, user.getEntity().getKey());
+        this.setValue(TABLE_KITS.KITNAME, kit.getKitName());
+        this.setValue(TABLE_KITS.AMOUNT, 1);
+        return this;
     }
 }

@@ -17,7 +17,11 @@
  */
 package de.cubeisland.engine.module.kits;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 import de.cubeisland.engine.core.storage.database.Table;
+import de.cubeisland.engine.core.storage.database.TableUpdateCreator;
 import de.cubeisland.engine.core.util.Version;
 import org.jooq.TableField;
 import org.jooq.types.UInteger;
@@ -26,7 +30,7 @@ import static de.cubeisland.engine.core.user.TableUser.TABLE_USER;
 import static org.jooq.impl.SQLDataType.INTEGER;
 import static org.jooq.impl.SQLDataType.VARCHAR;
 
-public class TableKitsGiven extends Table<KitsGiven>
+public class TableKitsGiven extends Table<KitsGiven> implements TableUpdateCreator<KitsGiven>
 {
     public static TableKitsGiven TABLE_KITS;
     public final TableField<KitsGiven, UInteger> USERID = createField("userId", U_INTEGER.nullable(false), this);
@@ -36,8 +40,8 @@ public class TableKitsGiven extends Table<KitsGiven>
 
     public TableKitsGiven(String prefix)
     {
-        super(prefix + "kits", new Version(1));
-        this.setPrimaryKey(USERID);
+        super(prefix + "kits", new Version(1,1));
+        this.setPrimaryKey(USERID, KITNAME);
         this.addForeignKey(TABLE_USER.getPrimaryKey(), USERID);
         this.addFields(USERID, KITNAME, AMOUNT);
         TABLE_KITS = this;
@@ -47,5 +51,14 @@ public class TableKitsGiven extends Table<KitsGiven>
     public Class<KitsGiven> getRecordType()
     {
         return KitsGiven.class;
+    }
+
+    @Override
+    public void update(Connection connection, Version dbVersion) throws SQLException
+    {
+        if (dbVersion.getMajor() == 1 && dbVersion.getMinor() == 0)
+        {
+            connection.prepareStatement("ALTER TABLE cube_kits DROP PRIMARY KEY, ADD PRIMARY KEY (userId, kitName)").execute();
+        }
     }
 }
