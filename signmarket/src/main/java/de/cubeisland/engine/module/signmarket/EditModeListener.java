@@ -32,14 +32,14 @@ import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
+import de.cubeisland.engine.command.context.CtxBuilder;
 import de.cubeisland.engine.core.command.CommandResult;
-import de.cubeisland.engine.core.command.context.ContextBuilder;
 import de.cubeisland.engine.core.command.context.CubeContext;
 import de.cubeisland.engine.core.command.conversation.ConversationCommand;
 import de.cubeisland.engine.core.command.conversation.ConversationContextFactory;
 import de.cubeisland.engine.core.command.parameterized.CommandFlag;
-import de.cubeisland.engine.core.command.parameterized.CommandParameter;
-import de.cubeisland.engine.core.command.parameterized.Completer;
+import de.cubeisland.engine.core.command.parameterized.CommandParameterNamed;
+import de.cubeisland.engine.command.Completer;
 import de.cubeisland.engine.core.command.parameterized.completer.ItemCompleter;
 import de.cubeisland.engine.core.command.parameterized.completer.PlayerCompleter;
 import de.cubeisland.engine.core.user.User;
@@ -60,22 +60,22 @@ public class EditModeListener extends ConversationCommand
     public EditModeListener(final Signmarket module)
     {
         super(module, new ConversationContextFactory(
-            ContextBuilder.build()
-                .add(new CommandFlag("exit", "exit"))
-                .add(new CommandFlag("copy", "copy"))
-                .add(new CommandFlag("buy", "buy"))
-                .add(new CommandFlag("sell", "sell"))
-                .add(new CommandFlag("admin", "admin"))
-                .add(new CommandFlag("user", "user"))
-                .add(new CommandFlag("stock", "stock"))
-                .add(new CommandFlag("nodemand", "nodemand"))
-                .add(new CommandParameter("demand", "demand", Integer.class))
-                .add(new CommandParameter("owner", "owner", User.class).setCompleter(new PlayerCompleter()))
-                .add(new CommandParameter("price", "price", String.class))
-                .add(new CommandParameter("amount", "amount", Integer.class))
-                .add(new CommandParameter("item", "item", ItemStack.class).setCompleter(new ItemCompleter()))
-                .add(new CommandParameter("setstock", "setstock", Integer.class))
-                .add(new CommandParameter("size", "size", Integer.class).setCompleter(new Completer()
+            new CtxBuilder()
+                .addFlag(new CommandFlag("exit", "exit"))
+                .addFlag(new CommandFlag("copy", "copy"))
+                .addFlag(new CommandFlag("buy", "buy"))
+                .addFlag(new CommandFlag("sell", "sell"))
+                .addFlag(new CommandFlag("admin", "admin"))
+                .addFlag(new CommandFlag("user", "user"))
+                .addFlag(new CommandFlag("stock", "stock"))
+                .addFlag(new CommandFlag("nodemand", "nodemand"))
+                .addNamed(new CommandParameterNamed("demand", "demand", Integer.class))
+                .addNamed(new CommandParameterNamed("owner", "owner", User.class).withCompleter(new PlayerCompleter()))
+                .addNamed(new CommandParameterNamed("price", "price", String.class))
+                .addNamed(new CommandParameterNamed("amount", "amount", Integer.class))
+                .addNamed(new CommandParameterNamed("item", "item", ItemStack.class).withCompleter(new ItemCompleter()))
+                .addNamed(new CommandParameterNamed("setstock", "setstock", Integer.class))
+                .addNamed(new CommandParameterNamed("size", "size", Integer.class).withCompleter(new Completer<CubeContext>()
                 {
                     @Override
                     public List<String> complete(CubeContext context, String token)

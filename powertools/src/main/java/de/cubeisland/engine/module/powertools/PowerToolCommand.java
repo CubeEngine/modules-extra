@@ -82,7 +82,7 @@ public class PowerToolCommand extends ContainerCommand implements Listener
                     flagSet.add("r");
                 }
                 // TODO read context before passing
-                return new CubeContext(context.getRawArgs(), context.getRawIndexed(), context.getRawNamed(), flagSet, context.getCommand(), context.getSender(), context.getLabels());
+                return new CubeContext(context.getRawArgs(), context.getRawIndexed(), context.getRawNamed(), flagSet, context.getCommand(), context.getLabels());
             }
         });
     }

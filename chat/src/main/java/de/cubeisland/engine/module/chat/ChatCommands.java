@@ -45,7 +45,7 @@ public class ChatCommands
     }
 
     @Command(desc = "Changes your display name")
-    @IParams({@Grouped(@Indexed(label = {"name","!reset"})),
+    @IParams({@Grouped(@Indexed(label = "name", staticValues = {"-r", "-reset"})),
               @Grouped(req = false, value = @Indexed(label = "player", type = User.class))})
     public void nick(CubeContext context)
     {
@@ -70,7 +70,7 @@ public class ChatCommands
         }
         else
         {
-            context.sendTranslated(NEGATIVE, "You cannot change the consoles display name");
+            context.sendTranslated(NEGATIVE, "You cannot change the consoles display name"); // TODO You cannot?!?
             return;
         }
         String name = context.getArg(0);

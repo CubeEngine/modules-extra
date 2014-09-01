@@ -25,7 +25,6 @@ import org.bukkit.World;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
 import de.cubeisland.engine.core.command.context.CubeContext;
-import de.cubeisland.engine.core.command.readers.UserListReader;
 import de.cubeisland.engine.core.command.reflected.Command;
 import de.cubeisland.engine.core.command.reflected.context.Flag;
 import de.cubeisland.engine.core.command.reflected.context.Flags;
@@ -62,7 +61,7 @@ public class SpawnCommands
     }
 
     @Command(desc = "Changes the respawnpoint")
-    @IParams({@Grouped(req = false, value = @Indexed(label = {"role","!global"})),
+    @IParams({@Grouped(req = false, value = @Indexed(label = "role", staticValues = "global")),
               @Grouped(req = false, value = {@Indexed(label = "x"),
                                              @Indexed(label = "y"),
                                              @Indexed(label = "z"),}),
@@ -147,7 +146,7 @@ public class SpawnCommands
     }
 
     @Command(desc = "Teleport directly to the worlds spawn.")
-    @IParams(@Grouped(value = @Indexed(label = {"players","!*"}, type = UserListReader.class), req = false))
+    @IParams(@Grouped(value = @Indexed(label = "players", staticValues = "*", type = User.class, reader = List.class), req = false))
     @NParams({@Named(names = {"world", "w", "in"}, type = World.class),
               @Named(names = {"role", "r"}, completer = RoleCompleter.class)})
     @Flags(@Flag(longName = "force", name = "f"))

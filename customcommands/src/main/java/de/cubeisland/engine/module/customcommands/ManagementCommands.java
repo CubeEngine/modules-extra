@@ -22,10 +22,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
+import de.cubeisland.engine.command.Completer;
 import de.cubeisland.engine.core.command.CommandResult;
 import de.cubeisland.engine.core.command.ContainerCommand;
 import de.cubeisland.engine.core.command.context.CubeContext;
-import de.cubeisland.engine.core.command.parameterized.Completer;
 import de.cubeisland.engine.core.command.reflected.Command;
 import de.cubeisland.engine.core.command.reflected.CommandPermission;
 import de.cubeisland.engine.core.command.reflected.context.Flag;
@@ -155,13 +155,13 @@ public class ManagementCommands extends ContainerCommand
         }
     }
 
-    public static class CustomCommandCompleter implements Completer
+    public static class CustomCommandCompleter implements Completer<CubeContext>
     {
         @Override
         public List<String> complete(CubeContext context, String token)
         {
             ArrayList<String> list = new ArrayList<>();
-            for (String item : ((Customcommands)context.getCommand().getModule()).getConfig().commands.keySet())
+            for (String item : ((Customcommands)context.getCommand().getModule()).getConfig().commands.keySet()) // TODO instead pass module via constuctor and register as default for readertype
             {
                 if (item.startsWith(token.toLowerCase(ENGLISH)))
                 {
