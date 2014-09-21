@@ -16,39 +16,27 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: de.cubeisland.engine.module:spawner:1.0.0-SNAPSHOT\n"
+"Project-Id-Version: de.cubeisland.engine.module:vaultlink:1.0.0-SNAPSHOT\n"
 "Report-Msgid-Bugs-To: development@cubeisland.de\n"
-"POT-Creation-Date: 2014-09-21 03:27:54+0200\n"
+"POT-Creation-Date: 2014-09-21 03:27:53+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: en_US\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: de/cubeisland/engine/module/spawner/Spawner.java:149
-msgid "Invalid SpawnEgg!"
+#: de/cubeisland/engine/module/vaultlink/service/CubeEconomyService.java:182
+msgid "Money successfully deposited!"
 msgstr ""
 
-#: de/cubeisland/engine/module/spawner/Spawner.java:104
-msgid "Dropped inactive Monster Spawner!"
+#: de/cubeisland/engine/module/vaultlink/service/CubeEconomyService.java:157
+msgid "Money successfully withdrawn!"
 msgstr ""
 
-#: de/cubeisland/engine/module/spawner/Spawner.java:120
-msgid "Inactive Monster Spawner placed!"
+#: de/cubeisland/engine/module/vaultlink/service/CubeEconomyService.java:158
+msgid "You don't have enough money."
 msgstr ""
 
-#: de/cubeisland/engine/module/spawner/Spawner.java:170
-msgid "Monster Spawner activated!"
-msgstr ""
-
-#: de/cubeisland/engine/module/spawner/Spawner.java:153
-msgid "You are not allowed to change Monster Spawner to this EntityType!"
-msgstr ""
-
-#: de/cubeisland/engine/module/spawner/Spawner.java:140
-msgid "You can only change inactive Monster Spawner!"
-msgstr ""
-
-#: de/cubeisland/engine/module/spawner/Spawner.java:100
-msgid "Inactive Monster Spawner"
+#: de/cubeisland/engine/module/vaultlink/service/CubeEconomyService.java:183
+msgid "Your account is full."
 msgstr ""

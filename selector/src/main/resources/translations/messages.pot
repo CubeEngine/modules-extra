@@ -16,31 +16,35 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: de.cubeisland.engine:selector:1.0.0-SNAPSHOT\n"
+"Project-Id-Version: de.cubeisland.engine.module:selector:1.0.0-SNAPSHOT\n"
 "Report-Msgid-Bugs-To: development@cubeisland.de\n"
-"POT-Creation-Date: 2014-05-01 13:33:27+0200\n"
+"POT-Creation-Date: 2014-09-21 03:27:53+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: en_US\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: de/cubeisland/engine/selector/CuboidSelector.java:108
+#: de/cubeisland/engine/module/selector/CuboidSelector.java:108
 msgid "First position set to ({integer}, {integer}, {integer})."
 msgstr ""
 
-#: de/cubeisland/engine/selector/CuboidSelector.java:113
+#: de/cubeisland/engine/module/selector/CuboidSelector.java:113
 msgid "Second position set to ({integer}, {integer}, {integer})."
 msgstr ""
 
-#: de/cubeisland/engine/selector/SelectorCommand.java:58
+#: de/cubeisland/engine/module/selector/SelectorCommand.java:97
 msgid "You cannot hold a selection tool!"
 msgstr ""
 
-#: de/cubeisland/engine/selector/SelectorCommand.java:100
+#: de/cubeisland/engine/module/selector/SelectorCommand.java:85
 msgid "Found a region selector tool in your inventory!"
 msgstr ""
 
-#: de/cubeisland/engine/selector/SelectorCommand.java:92
+#: de/cubeisland/engine/module/selector/SelectorCommand.java:77
 msgid "Received a new region selector tool"
+msgstr ""
+
+#: de/cubeisland/engine/module/selector/SelectorCommand.java:42
+msgid "Provides you with a wand to select a cuboid"
 msgstr ""
