@@ -22,15 +22,14 @@ import java.util.List;
 
 import org.bukkit.inventory.ItemStack;
 
-import de.cubeisland.engine.core.command.context.CubeContext;
-import de.cubeisland.engine.core.command.ContainerCommand;
-import de.cubeisland.engine.core.command.reflected.context.Flag;
-import de.cubeisland.engine.core.command.reflected.Alias;
-import de.cubeisland.engine.core.command.reflected.Command;
-import de.cubeisland.engine.core.command.reflected.context.Flags;
-import de.cubeisland.engine.core.command.reflected.context.Grouped;
-import de.cubeisland.engine.core.command.reflected.context.IParams;
-import de.cubeisland.engine.core.command.reflected.context.Indexed;
+import de.cubeisland.engine.command.methodic.Command;
+import de.cubeisland.engine.command.methodic.Flag;
+import de.cubeisland.engine.command.methodic.Flags;
+import de.cubeisland.engine.command.methodic.Param;
+import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.core.command.CommandContainer;
+import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command_old.reflected.Alias;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.FileUtil;
 
@@ -39,36 +38,39 @@ import static de.cubeisland.engine.core.util.ChatFormat.YELLOW;
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 import static org.bukkit.Material.AIR;
 
-public class KitCommand extends ContainerCommand
+@Command(name = "kit", desc = "Manages item-kits")
+public class KitCommand extends CommandContainer
 {
     private final KitManager manager;
     private final Kits module;
 
     public KitCommand(Kits module)
     {
-        super(module, "kit", "Manages item-kits");
+        super(module);
         this.module = module;
         this.manager = module.getKitManager();
-        // TODO this.getContextFactory().setArgBounds(new ArgBounds(0, 2));
+
+/* TODO delegation
         this.delegateChild(new DelegatingContextFilter()
         {
             @Override
-            public String delegateTo(CubeContext context)
+            public String delegateTo(CommandContext context)
             {
-                return context.hasIndexed(0) ? "give" : null;
+                return context.hasPositional(0) ? "give" : null;
             }
         });
+        */
     }
 
     @Command(desc = "Creates a new kit with the items in your inventory.")
-    @IParams(@Grouped(@Indexed(label = "kitname")))
+    @Params(positional = @Param(label = "kitname"))
     @Flags(@Flag(longName = "toolbar", name = "t"))
-    public void create(CubeContext context)
+    public void create(CommandContext context)
     {
         User sender = null;
-        if (context.getSender() instanceof User)
+        if (context.getSource() instanceof User)
         {
-            sender = (User)context.getSender();
+            sender = (User)context.getSource();
         }
         if (sender == null)
         {
@@ -118,7 +120,7 @@ public class KitCommand extends ContainerCommand
         manager.saveKit(kit);
         if (kit.getPermission() != null)
         {
-            getModule().getCore().getPermissionManager().registerPermission(getModule(), kit.getPermission());
+            module.getCore().getPermissionManager().registerPermission(module, kit.getPermission());
         }
         context.sendTranslated(POSITIVE, "Created the {name#kit} kit!", kit.getKitName());
     }
@@ -126,7 +128,7 @@ public class KitCommand extends ContainerCommand
 
     @Alias(names = "kitlist")
     @Command(desc = "Lists all currently available kits.")
-    public void list(CubeContext context)
+    public void list(CommandContext context)
     {
         context.sendTranslated(POSITIVE, "The following kits are available:");
         String format = "  " + WHITE + "-" + YELLOW;
@@ -137,17 +139,17 @@ public class KitCommand extends ContainerCommand
     }
 
     @Command(desc = "Gives a set of items.")
-    @IParams({@Grouped(@Indexed(label = "kitname")),
-              @Grouped(req = false, value =  @Indexed(label = "player", type = User.class))})
+    @Params(positional = {@Param(label = "kitname"),
+                          @Param(req = false, label = "player", type = User.class)})
     @Flags({@Flag(longName = "all", name = "a"),
             @Flag(longName = "force", name = "f")})
-    public void give(CubeContext context)
+    public void give(CommandContext context)
     {
-        String kitname = context.getArg(0);
+        String kitname = context.get(0);
         User user;
         Kit kit = manager.getKit(kitname);
         boolean force = false;
-        if (context.hasFlag("f") && module.perms().COMMAND_KIT_GIVE_FORCE.isAuthorized(context.getSender()))
+        if (context.hasFlag("f") && module.perms().COMMAND_KIT_GIVE_FORCE.isAuthorized(context.getSource()))
         {
             force = true;
         }
@@ -160,13 +162,13 @@ public class KitCommand extends ContainerCommand
         {
             boolean gaveKit = false;
             int kitNotreceived = 0;
-            for (User receiver : getModule().getCore().getUserManager().getOnlineUsers())
+            for (User receiver : module.getCore().getUserManager().getOnlineUsers())
             {
                 try
                 {
-                    if (kit.give(context.getSender(), receiver, force))
+                    if (kit.give(context.getSource(), receiver, force))
                     {
-                        if (receiver.equals(context.getSender()))
+                        if (receiver.equals(context.getSource()))
                         {
                             context.sendTranslated(POSITIVE, "Received the {name#kit} kit!", kit.getKitName());
                         }
@@ -195,14 +197,14 @@ public class KitCommand extends ContainerCommand
         else
         {
             boolean other = false;
-            if (context.hasIndexed(1))
+            if (context.hasPositional(1))
             {
-                user = context.getArg(1);
+                user = context.get(1);
                 other = true;
             }
-            else if (context.getSender() instanceof User)
+            else if (context.getSource() instanceof User)
             {
-                user = (User)context.getSender();
+                user = (User)context.getSource();
             }
             else
             {
@@ -211,7 +213,7 @@ public class KitCommand extends ContainerCommand
             }
             if (user == null)
             {
-                context.sendTranslated(NEGATIVE, "Player {user} not found!", context.getArg(1));
+                context.sendTranslated(NEGATIVE, "Player {user} not found!", context.get(1));
                 return;
             }
             if (!user.isOnline())
@@ -219,7 +221,7 @@ public class KitCommand extends ContainerCommand
                 context.sendTranslated(NEGATIVE, "{user} is not online!", user.getDisplayName());
                 return;
             }
-            if (kit.give(context.getSender(), user, force))
+            if (kit.give(context.getSource(), user, force))
             {
                 if (!other)
                 {

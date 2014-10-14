@@ -49,7 +49,7 @@ public class Hide extends Module implements Reloadable
     {
         hiddenUsers = new HashSet<>();
         canSeeHiddens = new HashSet<>();
-        this.getCore().getCommandManager().registerCommands(this, new HideCommands(this));
+        this.getCore().getCommandManager().addCommands(this.getCore().getCommandManager(), this, new HideCommands(this));
         this.getCore().getEventManager().registerListener(this, new HideListener(this));
 
         this.perms = new HidePerm(this);

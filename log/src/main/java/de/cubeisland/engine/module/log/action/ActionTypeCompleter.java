@@ -20,8 +20,8 @@ package de.cubeisland.engine.module.log.action;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.cubeisland.engine.command.Completer;
-import de.cubeisland.engine.command.context.CommandContext;
+import de.cubeisland.engine.command.completer.Completer;
+import de.cubeisland.engine.command.methodic.context.BaseCommandContext;
 
 public class ActionTypeCompleter implements Completer
 {
@@ -33,7 +33,7 @@ public class ActionTypeCompleter implements Completer
     }
 
     @Override
-    public List<String> complete(CommandContext context, String token)
+    public List<String> complete(BaseCommandContext context, String token)
     {
         List<String> result = new ArrayList<>();
         String lastToken = token.toLowerCase();

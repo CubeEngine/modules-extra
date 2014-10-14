@@ -19,44 +19,44 @@ package de.cubeisland.engine.module.signmarket;
 
 import java.util.HashSet;
 
-import de.cubeisland.engine.core.command.ContainerCommand;
-import de.cubeisland.engine.core.command.context.CubeContext;
-import de.cubeisland.engine.core.command.reflected.Alias;
-import de.cubeisland.engine.core.command.reflected.Command;
+import de.cubeisland.engine.core.command.CommandContainer;
+import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command_old.reflected.Alias;
+import de.cubeisland.engine.command.methodic.Command;
 import de.cubeisland.engine.core.user.User;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 import static java.util.Arrays.asList;
 
-public class SignMarketCommands extends ContainerCommand
+@Command(name = "marketsign", desc = "MarketSign-Commands", alias = {"signmarket", "market"})
+public class SignMarketCommands extends CommandContainer
 {
     private final Signmarket module;
 
     public SignMarketCommands(Signmarket module)
     {
-        super(module, "marketsign", "MarketSign-Commands");
-        this.setAliases(new HashSet<>(asList("signmarket", "market")));
+        super(module);
         this.module = module;
     }
 
     @Alias(names = "medit")
     @Command(alias = "edit", desc = "Enters the editmode allowing to change market signs easily")
-    public void editMode(CubeContext context)
+    public void editMode(CommandContext context)
     {
-        if (context.getSender() instanceof User)
+        if (context.getSource() instanceof User)
         {
-            if (this.module.getEditModeListener().hasUser((User)context.getSender()))
+            if (this.module.getEditModeListener().hasUser((User)context.getSource()))
             {
-                this.module.getEditModeListener().removeUser((User)context.getSender());
+                this.module.getEditModeListener().removeUser((User)context.getSource());
             }
             else
             {
-                if (this.module.getConfig().disableInWorlds.contains(((User)context.getSender()).getWorld().getName()))
+                if (this.module.getConfig().disableInWorlds.contains(((User)context.getSource()).getWorld().getName()))
                 {
                     context.sendTranslated(NEUTRAL, "MarketSigns are disabled in the configuration for this world!");
                     return;
                 }
-                this.module.getEditModeListener().addUser((User)context.getSender());
+                this.module.getEditModeListener().addUser((User)context.getSource());
                 context.sendTranslated(POSITIVE, "You are now in edit mode!");
                 context.sendTranslated(POSITIVE, "Chat will now work as commands.");
                 context.sendTranslated(NEUTRAL, "Type exit or use this command again to leave the edit mode.");

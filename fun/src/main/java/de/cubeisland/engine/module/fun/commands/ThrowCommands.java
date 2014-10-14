@@ -39,15 +39,12 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.util.Vector;
 
-import de.cubeisland.engine.core.command.context.CubeContext;
-import de.cubeisland.engine.core.command.reflected.Command;
-import de.cubeisland.engine.core.command.reflected.context.Flag;
-import de.cubeisland.engine.core.command.reflected.context.Flags;
-import de.cubeisland.engine.core.command.reflected.context.Grouped;
-import de.cubeisland.engine.core.command.reflected.context.IParams;
-import de.cubeisland.engine.core.command.reflected.context.Indexed;
-import de.cubeisland.engine.core.command.reflected.context.NParams;
-import de.cubeisland.engine.core.command.reflected.context.Named;
+import de.cubeisland.engine.command.methodic.Command;
+import de.cubeisland.engine.command.methodic.Flag;
+import de.cubeisland.engine.command.methodic.Flags;
+import de.cubeisland.engine.command.methodic.Param;
+import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.permission.Permission;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.matcher.Match;
@@ -82,19 +79,19 @@ public class ThrowCommands
     }
 
     @Command(name = "throw", desc = "Throw something!")
-    @IParams({@Grouped(@Indexed(label = "material")),
-                   @Grouped(req = false, value = @Indexed(label = "amount"))})
-    @NParams(@Named(names = { "delay", "d" }, type = Integer.class))
+    @Params(positional = {@Param(label = "material"),
+                   @Param(req = false, label = "amount")},
+            nonpositional = @Param(names = { "delay", "d" }, type = Integer.class))
     @Flags(@Flag(longName = "unsafe", name = "u"))
-    public void throwCommand(CubeContext context)
+    public void throwCommand(CommandContext context)
     {
-        if (!(context.getSender() instanceof User))
+        if (!(context.getSource() instanceof User))
         {
             context.sendTranslated(NEGATIVE, "This command can only be used by a player!");
             return;
         }
         
-        User user = (User)context.getSender();
+        User user = (User)context.getSource();
         EntityType type = null;
         boolean showNotification = true;
         boolean unsafe = context.hasFlag("u");
@@ -102,9 +99,8 @@ public class ThrowCommands
         ThrowTask task = this.thrownItems.remove(user.getUniqueId());
         if (task != null)
         {
-            if (!context.hasIndexed(0) || (type = Match.entity().any(context.getString(0))) == task.getType() && task.getInterval() == context.getArg(
-                "delay", task.getInterval()) && task.getPreventDamage() != unsafe && !context.hasIndexed(
-                1))
+            if (!context.hasPositional(0) || (type = Match.entity().any(context.getString(0))) == task.getType() && task.getInterval() == context.get(
+                "delay", task.getInterval()) && task.getPreventDamage() != unsafe && !context.hasPositional(1))
             {
                 task.stop(true);
                 return;
@@ -112,33 +108,33 @@ public class ThrowCommands
             task.stop(showNotification = false);
         }
 
-        if (context.getIndexedCount() == 0)
+        if (context.getPositionalCount() == 0)
         {
             context.sendTranslated(NEGATIVE, "You have to specify the material you want to throw.");
             return;
         }
 
-        int amount = context.getArg(1, -1);
+        int amount = context.get(1, -1);
         if ((amount > this.module.getConfig().command.throwSection.maxAmount || amount < 1) && amount != -1)
         {
             context.sendTranslated(NEGATIVE, "The amount must be a number from 1 to {integer}", this.module.getConfig().command.throwSection.maxAmount);
             return;
         }
 
-        int delay = context.getArg("delay", 3);
+        int delay = context.get("delay", 3);
         if (delay > this.module.getConfig().command.throwSection.maxDelay || delay < 0)
         {
             context.sendTranslated(NEGATIVE, "The delay must be a number from 0 to {integer}", this.module.getConfig().command.throwSection.maxDelay);
             return;
         }
         
-        if(unsafe && !module.perms().COMMAND_THROW_UNSAFE.isAuthorized( context.getSender() ) )
+        if(unsafe && !module.perms().COMMAND_THROW_UNSAFE.isAuthorized( context.getSource() ) )
         {
             context.sendTranslated(NEGATIVE, "You are not allowed to execute this command in unsafe mode.");
             return;
         }
 
-        String object = context.getArg(0);
+        String object = context.get(0);
         if (type == null)
         {
             type = Match.entity().any(object);

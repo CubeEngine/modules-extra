@@ -18,15 +18,13 @@
 package de.cubeisland.engine.module.selector;
 
 import java.util.HashMap;
-import java.util.HashSet;
 
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import de.cubeisland.engine.core.command.CommandResult;
-import de.cubeisland.engine.core.command.CubeCommand;
-import de.cubeisland.engine.core.command.context.CubeContext;
-import de.cubeisland.engine.core.command.context.CubeContextFactory;
+import de.cubeisland.engine.command.methodic.Command;
+import de.cubeisland.engine.command.result.CommandResult;
+import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.user.User;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
@@ -35,16 +33,9 @@ import static de.cubeisland.engine.module.selector.CuboidSelector.SELECTOR_TOOL_
 import static java.util.Arrays.asList;
 import static org.bukkit.Material.WOOD_AXE;
 
-public class SelectorCommand extends CubeCommand
+public class SelectorCommand
 {
-    public SelectorCommand(Selector module)
-    {
-        super(module, "selectiontool", "Provides you with a wand to select a cuboid", new CubeContextFactory());
-        if (!module.hasWorldEdit())
-        {
-            this.setAliases(new HashSet<>(asList("/wand")));
-        }
-    }
+    // TODO add //wand alias when WE is not found
 
     @SuppressWarnings("deprecation")
     public static void giveSelectionTool(User user)
@@ -85,12 +76,12 @@ public class SelectorCommand extends CubeCommand
         user.sendTranslated(POSITIVE, "Found a region selector tool in your inventory!");
     }
 
-    @Override
-    public CommandResult run(CubeContext context)
+    @Command(desc = "Provides you with a wand to select a cuboid")
+    public CommandResult selectiontool(CommandContext context)
     {
-        if (context.getSender() instanceof User)
+        if (context.getSource() instanceof User)
         {
-            giveSelectionTool((User)context.getSender());
+            giveSelectionTool((User)context.getSource());
         }
         else
         {

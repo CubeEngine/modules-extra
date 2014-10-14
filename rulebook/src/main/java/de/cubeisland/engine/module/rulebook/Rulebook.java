@@ -38,7 +38,7 @@ public class Rulebook extends Module
 
         this.rulebookManager = new RulebookManager(this);
 
-        this.getCore().getCommandManager().registerCommand(new RulebookCommands(this));
+        this.getCore().getCommandManager().addCommand(new RulebookCommands(this));
         this.getCore().getEventManager().registerListener(this, new RulebookListener(this));
     }
 

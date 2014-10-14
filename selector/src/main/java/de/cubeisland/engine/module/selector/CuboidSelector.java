@@ -42,7 +42,7 @@ public class CuboidSelector implements Selector, Listener
     {
         this.module = module;
         this.module.getCore().getEventManager().registerListener(module, this);
-        this.module.getCore().getCommandManager().registerCommand(new SelectorCommand(module));
+        this.module.getCore().getCommandManager().addCommands(this.module.getCore().getCommandManager(), this.module, new SelectorCommand());
         this.selectPerm = module.getBasePermission().child("use-wand");
         this.module.getCore().getPermissionManager().registerPermission(module, selectPerm);
     }

@@ -23,11 +23,10 @@ import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
-import de.cubeisland.engine.core.command.context.CubeContext;
-import de.cubeisland.engine.core.command.reflected.Command;
-import de.cubeisland.engine.core.command.reflected.context.Grouped;
-import de.cubeisland.engine.core.command.reflected.context.IParams;
-import de.cubeisland.engine.core.command.reflected.context.Indexed;
+import de.cubeisland.engine.command.methodic.Command;
+import de.cubeisland.engine.command.methodic.Param;
+import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.util.matcher.Match;
 import de.cubeisland.engine.module.fun.Fun;
 
@@ -43,13 +42,13 @@ public class InvasionCommand
     }
 
     @Command(desc = "Spawns a mob next to every player on the server")
-    @IParams(@Grouped(@Indexed(label = "mob")))
-    public void invasion(CubeContext context)
+    @Params(positional = @Param(label = "mob"))
+    public void invasion(CommandContext context)
     {
         EntityType entityType = Match.entity().mob(context.getString(0, null));
         if (entityType == null)
         {
-            context.sendTranslated(NEGATIVE, "EntityType {input} not found", context.getArg(0));
+            context.sendTranslated(NEGATIVE, "EntityType {input} not found", context.get(0));
             return;
         }
         final Location helperLocation = new Location(null, 0, 0, 0);

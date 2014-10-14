@@ -19,7 +19,6 @@ package de.cubeisland.engine.module.shout.interactions;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -28,18 +27,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import de.cubeisland.engine.core.command.CommandResult;
-import de.cubeisland.engine.core.command.ContainerCommand;
-import de.cubeisland.engine.core.command.context.CubeContext;
-import de.cubeisland.engine.core.command.reflected.Alias;
-import de.cubeisland.engine.core.command.reflected.Command;
-import de.cubeisland.engine.core.command.reflected.context.Flag;
-import de.cubeisland.engine.core.command.reflected.context.Flags;
-import de.cubeisland.engine.core.command.reflected.context.Grouped;
-import de.cubeisland.engine.core.command.reflected.context.IParams;
-import de.cubeisland.engine.core.command.reflected.context.Indexed;
-import de.cubeisland.engine.core.command.reflected.context.NParams;
-import de.cubeisland.engine.core.command.reflected.context.Named;
+import de.cubeisland.engine.command.methodic.Command;
+import de.cubeisland.engine.command.methodic.Flag;
+import de.cubeisland.engine.command.methodic.Flags;
+import de.cubeisland.engine.command.methodic.Param;
+import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.command.result.CommandResult;
+import de.cubeisland.engine.core.command.CommandContainer;
+import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command_old.reflected.Alias;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.ChatFormat;
 import de.cubeisland.engine.i18n.I18nUtil;
@@ -48,28 +44,24 @@ import de.cubeisland.engine.module.shout.announce.Announcement;
 import de.cubeisland.engine.module.shout.announce.MessageOfTheDay;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
-import static java.util.Arrays.asList;
 
-public class ShoutCommand extends ContainerCommand
+@Command(name = "shout", desc = "Announce a message to players on the server", alias = "announce")
+public class ShoutCommand extends CommandContainer
 {
     private final Shout module;
 
     public ShoutCommand(Shout module)
     {
-        super(module, "shout", "Announce a message to players on the server");
-        this.setAliases(new HashSet<>(asList("announce")));
+        super(module);
         this.module = module;
-
-        // TODO this.setUsage("<announcement>");
-        // TODO this.getContextFactory().setArgBounds(new ArgBounds(1, 1));
     }
 
-    public CommandResult run(CubeContext context)
+    public CommandResult run(CommandContext context)
     {
         Announcement announcement = this.module.getAnnouncementManager().getAnnouncement(context.getString(0));
         if (announcement == null)
         {
-            context.sendTranslated(NEGATIVE, "{input#announcement} was not found!", context.getArg(0));
+            context.sendTranslated(NEGATIVE, "{input#announcement} was not found!", context.get(0));
             return null;
         }
         List<Player> players;
@@ -111,7 +103,7 @@ public class ShoutCommand extends ContainerCommand
 
     @Alias(names = {"announcements"})
     @Command(alias = "announcements", desc = "List all announcements")
-    public void list(CubeContext context)
+    public void list(CommandContext context)
     {
         Iterator<Announcement> iter = this.module.getAnnouncementManager().getAllAnnouncements().iterator();
         if (iter.hasNext())
@@ -129,15 +121,15 @@ public class ShoutCommand extends ContainerCommand
     }
 
     @Command(desc = "Creates a new announcement")
-    @IParams(@Grouped(@Indexed(label = "name")))
-    @NParams({@Named(names ={"message", "m"}),
-              @Named(names ={"delay", "d"}, label = "<x> minutes|hours|days"),
-              @Named(names ={"world", "w"}),
-              @Named(names = {"permission", "p"}, label = "permission node"),
-              @Named(names ={"group", "g"}),
-              @Named(names ={"locale", "l"})})
+    @Params(positional = @Param(label = "name"),
+            nonpositional = {@Param(names ={"message", "m"}),
+                             @Param(names ={"delay", "d"}, label = "<x> minutes|hours|days"),
+                             @Param(names ={"world", "w"}),
+                             @Param(names = {"permission", "p"}, label = "permission node"),
+                             @Param(names ={"group", "g"}),
+                             @Param(names ={"locale", "l"})})
     @Flags(@Flag(name = "fc", longName = "fixed-cycle"))
-    public void create(CubeContext context)
+    public void create(CommandContext context)
     {
         if (!context.hasNamed("message"))
         {
@@ -146,7 +138,7 @@ public class ShoutCommand extends ContainerCommand
         }
 
         String message = context.getString("message");
-        Locale locale = context.getSender().getLocale();
+        Locale locale = context.getSource().getLocale();
         if (context.hasNamed("locale"))
         {
             locale = I18nUtil.stringToLocale(context.getString("locale"));
@@ -185,7 +177,7 @@ public class ShoutCommand extends ContainerCommand
     }
 
     @Command(desc = "clean all loaded announcements form memory and load from disk")
-    public void reload(CubeContext context)
+    public void reload(CommandContext context)
     {
         module.getAnnouncementManager().reload();
         context.sendTranslated(POSITIVE, "All the announcements have now been reloaded, and the players have been re-added");
@@ -193,13 +185,13 @@ public class ShoutCommand extends ContainerCommand
 
     @Alias(names = "motd")
     @Command(desc = "Prints out the message of the day.")
-    public void motd(CubeContext context)
+    public void motd(CommandContext context)
     {
         MessageOfTheDay motd = this.module.getAnnouncementManager().getMotd();
         if (motd != null)
         {
             context.sendMessage(" ");
-            for (String line : motd.getMessage(context.getSender().getLocale()))
+            for (String line : motd.getMessage(context.getSource().getLocale()))
             {
                 context.sendMessage(line);
             }

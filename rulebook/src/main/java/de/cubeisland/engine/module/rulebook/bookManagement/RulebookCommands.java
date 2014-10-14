@@ -24,18 +24,15 @@ import java.util.Locale;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
-import de.cubeisland.engine.core.command.context.CubeContext;
-import de.cubeisland.engine.core.command.ContainerCommand;
-import de.cubeisland.engine.core.command.reflected.CommandPermission;
-import de.cubeisland.engine.core.command.reflected.context.Flag;
-import de.cubeisland.engine.core.command.reflected.context.Flags;
-import de.cubeisland.engine.core.command.reflected.context.IParams;
-import de.cubeisland.engine.core.command.reflected.context.NParams;
-import de.cubeisland.engine.core.command.reflected.context.Named;
-import de.cubeisland.engine.core.command.reflected.Alias;
-import de.cubeisland.engine.core.command.reflected.Command;
-import de.cubeisland.engine.core.command.reflected.context.Grouped;
-import de.cubeisland.engine.core.command.reflected.context.Indexed;
+import de.cubeisland.engine.command.methodic.Command;
+import de.cubeisland.engine.command.methodic.Flag;
+import de.cubeisland.engine.command.methodic.Flags;
+import de.cubeisland.engine.command.methodic.Param;
+import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.core.command.CommandContainer;
+import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.annotation.CommandPermission;
+import de.cubeisland.engine.core.command_old.reflected.Alias;
 import de.cubeisland.engine.core.permission.Permission;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.ChatFormat;
@@ -50,7 +47,8 @@ import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 import static org.bukkit.Material.BOOK_AND_QUILL;
 import static org.bukkit.Material.WRITTEN_BOOK;
 
-public class RulebookCommands extends ContainerCommand
+@Command(name = "rulebook", desc = "Shows all commands of the rulebook module")
+public class RulebookCommands extends CommandContainer
 {
     private final RulebookManager rulebookManager;
     private final Rulebook module;
@@ -59,7 +57,7 @@ public class RulebookCommands extends ContainerCommand
     
     public RulebookCommands(Rulebook module)
     {
-        super(module, "rulebook", "shows all commands of the rulebook module");
+        super(module);
         this.rulebookManager = module.getRuleBookManager();
         this.module = module;
         this.getPermission = module.getBasePermission().childWildcard("command").childWildcard("get").child("other");
@@ -68,12 +66,12 @@ public class RulebookCommands extends ContainerCommand
 
     @Alias(names = {"getrules", "rules"})
     @Command(desc = "gets the player the rulebook in the inventory")
-    @IParams(@Grouped(req = false, value = @Indexed(label = "language")))
-    @NParams(@Named(names = {"player", "p"}, label = "name", type = User.class))
+    @Params(positional = @Param(req = false, label = "language"),
+            nonpositional = @Param(names = {"player", "p"}, label = "name", type = User.class))
     @CommandPermission(permDefault = TRUE)
-    public void getRuleBook(CubeContext context)
+    public void getRuleBook(CommandContext context)
     {
-        if(!(context.getSender() instanceof User) && !context.hasNamed("player"))
+        if(!(context.getSource() instanceof User) && !context.hasNamed("player"))
         {
             context.sendTranslated(NEGATIVE, "The post office will give you your book!");
             return;
@@ -83,12 +81,12 @@ public class RulebookCommands extends ContainerCommand
         User user;
         if(context.hasNamed("player"))
         {
-            if(!getPermission.isAuthorized(context.getSender()))
+            if(!getPermission.isAuthorized(context.getSource()))
             {
                 context.sendTranslated(NEGATIVE, "You do not have the permissions to add the rulebook to the inventory of an other player");
                 return;
             }
-            user = context.getArg("player");
+            user = context.get("player");
             if(user == null)
             {
                 context.sendTranslated(NEGATIVE, "The given user was not found!");
@@ -97,7 +95,7 @@ public class RulebookCommands extends ContainerCommand
         }
         else
         {
-            user = (User) context.getSender();
+            user = (User) context.getSource();
         }
 
         if(this.rulebookManager.getLocales().isEmpty())
@@ -106,7 +104,7 @@ public class RulebookCommands extends ContainerCommand
             return;
         }
 
-        if(context.hasIndexed(0))
+        if(context.hasPositional(0))
         {
             Language language = this.rulebookManager.getLanguage(context.getString(0));
 
@@ -120,7 +118,7 @@ public class RulebookCommands extends ContainerCommand
             
             if(!this.rulebookManager.contains(locale))
             {
-                context.sendTranslated(NEUTRAL, "The language {name} is not supported yet.", language.getLocale().getDisplayLanguage(context.getSender().getLocale()));
+                context.sendTranslated(NEUTRAL, "The language {name} is not supported yet.", language.getLocale().getDisplayLanguage(context.getSource().getLocale()));
                 return;
             }
         }
@@ -157,7 +155,7 @@ public class RulebookCommands extends ContainerCommand
     @Command(desc = "list all available languages of the rulebooks.")
     @Flags(@Flag(longName = "supported", name = "s"))
     @CommandPermission(permDefault = TRUE)
-    public void list(CubeContext context)
+    public void list(CommandContext context)
     {
         if(!context.hasFlag("s"))
         {
@@ -170,61 +168,61 @@ public class RulebookCommands extends ContainerCommand
                 context.sendTranslated(NEUTRAL, "available languages:");
                 for(Locale locale : this.rulebookManager.getLocales())
                 {
-                    context.sendMessage(ChatFormat.YELLOW + "* " + locale.getDisplayLanguage(context.getSender().getLocale()));
+                    context.sendMessage(ChatFormat.YELLOW + "* " + locale.getDisplayLanguage(context.getSource().getLocale()));
                 }
             }
         }
         else
         {
             context.sendTranslated(NEUTRAL, "supported languages:");
-            for(Language language : this.getModule().getCore().getI18n().getLanguages())
+            for(Language language : this.module.getCore().getI18n().getLanguages())
             {
-                context.sendMessage(ChatFormat.YELLOW +  "* " + language.getLocale().getDisplayLanguage(context.getSender().getLocale()));
+                context.sendMessage(ChatFormat.YELLOW +  "* " + language.getLocale().getDisplayLanguage(context.getSource().getLocale()));
             }
         }
     }
 
     @Alias(names = "removerules")
     @Command(desc = "removes the declared language and languagefiles!")
-    @IParams(@Grouped(@Indexed(label = "language")))
-    public void remove(CubeContext context)
+    @Params(positional = @Param(label = "language"))
+    public void remove(CommandContext context)
     {
         Language language = this.rulebookManager.getLanguage(context.getString(0));
 
         if(language == null)
         {
-            context.sendTranslated(NEGATIVE, "More than one or no language is matched with {input}", context.getArg(0));
+            context.sendTranslated(NEGATIVE, "More than one or no language is matched with {input}", context.get(0));
             return;
         }
         if(!this.rulebookManager.contains(language.getLocale()))
         {
-            context.sendTranslated(POSITIVE, "The languagefile of {input} doesn't exist at the moment", language.getLocale().getDisplayLanguage(context.getSender().getLocale()));
+            context.sendTranslated(POSITIVE, "The languagefile of {input} doesn't exist at the moment", language.getLocale().getDisplayLanguage(context.getSource().getLocale()));
             return;
         }
         
         try
         {
             this.rulebookManager.removeBook(language.getLocale());
-            context.sendTranslated(POSITIVE, "The languagefiles of {input} was deleted", language.getLocale().getDisplayLanguage(context.getSender().getLocale()));
+            context.sendTranslated(POSITIVE, "The languagefiles of {input} was deleted", language.getLocale().getDisplayLanguage(context.getSource().getLocale()));
         }
         catch(IOException ex)
         {
-            context.sendTranslated(NEGATIVE, "The language file of {input} couldn't be deleted", language.getLocale().getDisplayLanguage(context.getSender().getLocale()));
-            this.getModule().getLog().error(ex, "Error when deleting the files!");
+            context.sendTranslated(NEGATIVE, "The language file of {input} couldn't be deleted", language.getLocale().getDisplayLanguage(context.getSource().getLocale()));
+            this.module.getLog().error(ex, "Error when deleting the files!");
         }
 
     }
 
     @Alias(names = "modifyrules")
     @Command(desc = "modified the rulebook of the declared language with the book in hand")
-    @IParams(@Grouped(@Indexed(label = "language")))
-    public void modify(CubeContext context)
+    @Params(positional = @Param(label = "language"))
+    public void modify(CommandContext context)
     {
-        if(!(context.getSender() instanceof User))
+        if(!(context.getSource() instanceof User))
         {
             context.sendTranslated(NEUTRAL, "You're able to write, right?");
         }
-        User user = (User) context.getSender();
+        User user = (User) context.getSource();
 
         ItemStack item = user.getItemInHand();
 
@@ -237,7 +235,7 @@ public class RulebookCommands extends ContainerCommand
         Language language = this.rulebookManager.getLanguage(context.getString(0));
         if(language == null)
         {
-            context.sendTranslated(NEGATIVE, "More than one or no language is matched with {input}", context.getArg(0));
+            context.sendTranslated(NEGATIVE, "More than one or no language is matched with {input}", context.get(0));
             return;
         }
         Locale locale = language.getLocale();
@@ -249,12 +247,12 @@ public class RulebookCommands extends ContainerCommand
                 this.rulebookManager.removeBook(locale);
                 this.rulebookManager.addBook(item, locale);
                 context.sendTranslated(POSITIVE, "The rulebook {name} was succesful modified.", locale
-                    .getDisplayLanguage(context.getSender().getLocale()));
+                    .getDisplayLanguage(context.getSource().getLocale()));
             }
             catch(IOException ex)
             {
                 context.sendTranslated(NEUTRAL, "An error ocurred while deleting the old rulebook");
-                this.getModule().getLog().error(ex, "Error when deleting the files!");
+                this.module.getLog().error(ex, "Error when deleting the files!");
             }
         }
         else
@@ -265,14 +263,14 @@ public class RulebookCommands extends ContainerCommand
 
     @Alias(names = "addrules")
     @Command(desc = "adds the book in hand as rulebook of the declared language")
-    @IParams(@Grouped(@Indexed(label = "language")))
-    public void add(CubeContext context)
+    @Params(positional = @Param(label = "language"))
+    public void add(CommandContext context)
     {
-        if(!(context.getSender() instanceof User))
+        if(!(context.getSource() instanceof User))
         {
             context.sendTranslated(NEUTRAL, "Are you illiterate?");
         }
-        User user = (User) context.getSender();
+        User user = (User) context.getSource();
 
         ItemStack item = user.getItemInHand();
 
@@ -285,7 +283,7 @@ public class RulebookCommands extends ContainerCommand
         Language language = this.rulebookManager.getLanguage(context.getString(0));
         if(language == null)
         {
-            context.sendTranslated(NEGATIVE, "More than one or no language is matched with {input}", context.getArg(0));
+            context.sendTranslated(NEGATIVE, "More than one or no language is matched with {input}", context.get(0));
             return;
         }
         Locale locale = language.getLocale();
@@ -293,7 +291,7 @@ public class RulebookCommands extends ContainerCommand
         if(!this.rulebookManager.contains(locale))
         {
             this.rulebookManager.addBook(item, locale);
-            context.sendTranslated(POSITIVE, "Rulebook for the language {input} was added succesfully", language.getLocale().getDisplayLanguage(context.getSender().getLocale()));
+            context.sendTranslated(POSITIVE, "Rulebook for the language {input} was added succesfully", language.getLocale().getDisplayLanguage(context.getSource().getLocale()));
         }
         else
         {

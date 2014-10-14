@@ -32,15 +32,12 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.util.Vector;
 
-import de.cubeisland.engine.core.command.context.CubeContext;
-import de.cubeisland.engine.core.command.reflected.Command;
-import de.cubeisland.engine.core.command.reflected.context.Flag;
-import de.cubeisland.engine.core.command.reflected.context.Flags;
-import de.cubeisland.engine.core.command.reflected.context.Grouped;
-import de.cubeisland.engine.core.command.reflected.context.IParams;
-import de.cubeisland.engine.core.command.reflected.context.Indexed;
-import de.cubeisland.engine.core.command.reflected.context.NParams;
-import de.cubeisland.engine.core.command.reflected.context.Named;
+import de.cubeisland.engine.command.methodic.Command;
+import de.cubeisland.engine.command.methodic.Flag;
+import de.cubeisland.engine.command.methodic.Flags;
+import de.cubeisland.engine.command.methodic.Param;
+import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.task.TaskManager;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.math.Vector3;
@@ -67,24 +64,24 @@ public class NukeCommand
     }
 
     @Command(desc = "Makes a carpet of TNT fall on a player or where you're looking")
-    @IParams({@Grouped(req = false, value = @Indexed(label = "param1", type = Integer.class)),
-              @Grouped(req = false, value = @Indexed(label = "param2", type = Integer.class)),
-              @Grouped(req = false, value = @Indexed(label = "param3", type = Integer.class))})
-    @NParams({@Named(names = {"player", "p"}, type = User.class),
-              @Named(names = {"height", "h"}, type = Integer.class),
-              @Named(names = {"range", "r"}, type = Integer.class),
-              @Named(names = {"shape", "s"}, type = String.class)})
+   @Params(positional = {@Param(req = false, label = "param1", type = Integer.class),
+                          @Param(req = false, label = "param2", type = Integer.class),
+                          @Param(req = false, label = "param3", type = Integer.class)},
+            nonpositional = {@Param(names = {"player", "p"}, type = User.class),
+                              @Param(names = {"height", "h"}, type = Integer.class),
+                              @Param(names = {"range", "r"}, type = Integer.class),
+                              @Param(names = {"shape", "s"}, type = String.class)})
     @Flags({@Flag(longName = "unsafe", name = "u"),
             @Flag(longName = "quiet", name = "q")})
-    public void nuke(CubeContext context)
+    public void nuke(CommandContext context)
     {
         Location location;
         User user = null;
 
-        int explosionRange = context.getArg("range", 4);
-        int height = context.getArg("height", 5);
+        int explosionRange = context.get("range", 4);
+        int height = context.get("height", 5);
 
-        if(explosionRange != 4 && !module.perms().COMMAND_NUKE_CHANGE_RANGE.isAuthorized(context.getSender()))
+        if(explosionRange != 4 && !module.perms().COMMAND_NUKE_CHANGE_RANGE.isAuthorized(context.getSource()))
         {
             context.sendTranslated(NEGATIVE, "You are not allowed to change the explosion range of the nuke carpet!");
             return;
@@ -97,13 +94,13 @@ public class NukeCommand
 
         if(context.hasNamed("player"))
         {
-            if(!module.perms().COMMAND_NUKE_OTHER.isAuthorized(context.getSender()))
+            if(!module.perms().COMMAND_NUKE_OTHER.isAuthorized(context.getSource()))
             {
                 context.sendTranslated(NEGATIVE, "You are not allowed to specify a player!");
                 return;
             }
 
-            user = context.getArg("player");
+            user = context.get("player");
             if(user == null)
             {
                 context.sendTranslated(NEGATIVE, "Player not found");
@@ -113,9 +110,9 @@ public class NukeCommand
         }
         else
         {
-            if(context.getSender() instanceof User)
+            if(context.getSource() instanceof User)
             {
-                user = (User) context.getSender();
+                user = (User) context.getSource();
             }
             if(user == null)
             {
@@ -139,7 +136,7 @@ public class NukeCommand
         }
     }
 
-    private Shape getShape(CubeContext context, Location location, int locationHeight)
+    private Shape getShape(CommandContext context, Location location, int locationHeight)
     {
         String shapeName = context.getString("shape", "cylinder");
 
@@ -147,20 +144,20 @@ public class NukeCommand
         {
         case "cylinder":
             location = this.getSpawnLocation(location, locationHeight);
-            int radiusX = context.getArg(0, 1);
+            int radiusX = context.get(0, 1);
             return new Cylinder(new Vector3(location.getX(), location.getY(), location.getZ()), radiusX, context
-                .getArg(2, radiusX), context.getArg(1, 1));
+                .get(2, radiusX), context.get(1, 1));
         case "cube":
         case "cuboid":
-            int width = context.getArg(0, 1);
-            int height = shapeName.equals("cube") ? width : context.getArg(1, width);
-            int depth = shapeName.equals("cube") ? width : context.getArg(2, width);
+            int width = context.get(0, 1);
+            int height = shapeName.equals("cube") ? width : context.get(1, width);
+            int depth = shapeName.equals("cube") ? width : context.get(2, width);
 
             location = location.subtract(width / 2d, 0, depth / 2d);
             location = this.getSpawnLocation(location, locationHeight);
             return new Cuboid(new Vector3(location.getX(), location.getY(), location.getZ()), width, height, depth);
         case "sphere":
-            int radius = context.getArg(0, 1);
+            int radius = context.get(0, 1);
             location = this.getSpawnLocation(location, locationHeight);
             return new Sphere(new Vector3(location.getX(), location.getY(), location.getZ()), radius);
         default:

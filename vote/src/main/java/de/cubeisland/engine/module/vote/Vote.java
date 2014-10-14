@@ -23,7 +23,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 import com.vexsoftware.votifier.model.VotifierEvent;
-import de.cubeisland.engine.core.command.reflected.ReflectedCommand;
 import de.cubeisland.engine.core.module.Module;
 import de.cubeisland.engine.core.module.service.Economy;
 import de.cubeisland.engine.core.user.User;
@@ -47,7 +46,7 @@ public class Vote extends Module implements Listener
         this.getCore().getDB().registerTable(TableVote.class);
         this.config = this.loadConfig(VoteConfiguration.class);
         this.getCore().getEventManager().registerListener(this, this);
-        this.getCore().getCommandManager().registerCommands(this, new VoteCommands(this), ReflectedCommand.class);
+        this.getCore().getCommandManager().addCommands(this.getCore().getCommandManager(), this, new VoteCommands(this));
         this.dsl = this.getCore().getDB().getDSL();
     }
 

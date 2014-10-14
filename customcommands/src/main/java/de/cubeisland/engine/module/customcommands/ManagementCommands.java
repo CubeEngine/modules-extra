@@ -22,46 +22,46 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
-import de.cubeisland.engine.command.Completer;
-import de.cubeisland.engine.core.command.CommandResult;
-import de.cubeisland.engine.core.command.ContainerCommand;
-import de.cubeisland.engine.core.command.context.CubeContext;
-import de.cubeisland.engine.core.command.reflected.Command;
-import de.cubeisland.engine.core.command.reflected.CommandPermission;
-import de.cubeisland.engine.core.command.reflected.context.Flag;
-import de.cubeisland.engine.core.command.reflected.context.Flags;
-import de.cubeisland.engine.core.command.reflected.context.Grouped;
-import de.cubeisland.engine.core.command.reflected.context.IParams;
-import de.cubeisland.engine.core.command.reflected.context.Indexed;
-import de.cubeisland.engine.core.command.result.paginated.PaginatedResult;
-import de.cubeisland.engine.core.command.result.paginated.PaginationIterator;
+import de.cubeisland.engine.command.completer.Completer;
+import de.cubeisland.engine.command.methodic.Command;
+import de.cubeisland.engine.command.methodic.Flag;
+import de.cubeisland.engine.command.methodic.Flags;
+import de.cubeisland.engine.command.methodic.Param;
+import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.command.result.CommandResult;
+import de.cubeisland.engine.core.command.CommandContainer;
+import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.annotation.CommandPermission;
+import de.cubeisland.engine.core.command_old.result.paginated.PaginatedResult;
+import de.cubeisland.engine.core.command_old.result.paginated.PaginationIterator;
 
+import static de.cubeisland.engine.command.parameter.property.Greed.INFINITE_GREED;
 import static de.cubeisland.engine.core.permission.PermDefault.TRUE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
 import static java.util.Locale.ENGLISH;
 
-public class ManagementCommands extends ContainerCommand
+@Command(name = "customcommands", desc = "Commands to modify custom commands.")
+public class ManagementCommands extends CommandContainer
 {
     private final Customcommands module;
     private final CustomCommandsConfig config;
 
     public ManagementCommands(Customcommands module)
     {
-        super(module, "customcommands", "Commands to modify custom commands.");
+        super(module);
         this.module = module;
         this.config = module.getConfig();
     }
 
     @Command(desc = "Adds a custom chat command.")
-    @IParams({@Grouped(@Indexed(label = "name")),
-              @Grouped(value = @Indexed(label = "message"), greedy = true)})
-    @Flags({@Flag(name = "force", permDefault = TRUE),
+    @Params(positional = {@Param(label = "name"),
+                          @Param(label = "message", greed = INFINITE_GREED)})
+    @Flags({@Flag(name = "force"),
             @Flag(name = "global")})
-    @CommandPermission(permDefault = TRUE)
-    public void add(CubeContext context)
+    public void add(CommandContext context)
     {
-        String name = context.getArg(0);
+        String name = context.get(0);
         String message = context.getStrings(1);
 
         if (config.commands.containsKey(name))
@@ -86,12 +86,11 @@ public class ManagementCommands extends ContainerCommand
     }
 
     @Command(desc = "Deletes a custom chat command.")
-    @IParams(@Grouped(@Indexed(label = "name", completer = CustomCommandCompleter.class)))
+    @Params(positional = @Param(label = "name", completer = CustomCommandCompleter.class))
     @Flags(@Flag(name = "global"))
-    @CommandPermission(permDefault = TRUE)
-    public void delete(CubeContext context)
+    public void delete(CommandContext context)
     {
-        String name = context.getArg(0);
+        String name = context.get(0);
 
         if (config.commands.containsKey(name))
         {
@@ -108,8 +107,7 @@ public class ManagementCommands extends ContainerCommand
 
 
     @Command(name = "help", desc = "Prints out all the custom chat commands.")
-    @CommandPermission(permDefault = TRUE)
-    public CommandResult showHelp(CubeContext context)
+    public CommandResult showHelp(CommandContext context)
     {
         return new PaginatedResult(context, new CustomCommandIterator());
     }
@@ -155,13 +153,13 @@ public class ManagementCommands extends ContainerCommand
         }
     }
 
-    public static class CustomCommandCompleter implements Completer<CubeContext>
+    public static class CustomCommandCompleter implements Completer<CommandContext>
     {
         @Override
-        public List<String> complete(CubeContext context, String token)
+        public List<String> complete(CommandContext context, String token)
         {
             ArrayList<String> list = new ArrayList<>();
-            for (String item : ((Customcommands)context.getCommand().getModule()).getConfig().commands.keySet()) // TODO instead pass module via constuctor and register as default for readertype
+            for (String item : ((Customcommands)context.getModule()).getConfig().commands.keySet()) // TODO instead pass module via constuctor and register as default for readertype
             {
                 if (item.startsWith(token.toLowerCase(ENGLISH)))
                 {

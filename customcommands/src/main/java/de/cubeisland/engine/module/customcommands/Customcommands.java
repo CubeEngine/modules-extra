@@ -32,7 +32,7 @@ public class Customcommands extends Module
         {
             this.getCore().getEventManager().registerListener(this, new CustomCommandsListener(this));
         }
-        this.getCore().getCommandManager().registerCommand(new ManagementCommands(this));
+        this.getCore().getCommandManager().addCommand(new ManagementCommands(this));
     }
 
     public CustomCommandsConfig getConfig()

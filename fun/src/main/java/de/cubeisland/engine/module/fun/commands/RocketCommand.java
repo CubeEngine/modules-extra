@@ -30,14 +30,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.util.Vector;
 
+import de.cubeisland.engine.command.methodic.Command;
+import de.cubeisland.engine.command.methodic.Param;
+import de.cubeisland.engine.command.methodic.Params;
 import de.cubeisland.engine.core.CubeEngine;
-import de.cubeisland.engine.core.command.context.CubeContext;
-import de.cubeisland.engine.core.command.reflected.Command;
-import de.cubeisland.engine.core.command.reflected.context.Grouped;
-import de.cubeisland.engine.core.command.reflected.context.IParams;
-import de.cubeisland.engine.core.command.reflected.context.Indexed;
-import de.cubeisland.engine.core.command.reflected.context.NParams;
-import de.cubeisland.engine.core.command.reflected.context.Named;
+import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.user.UserManager;
 import de.cubeisland.engine.module.fun.Fun;
@@ -62,15 +59,15 @@ public class RocketCommand
     }
 
     @Command(desc = "Shoots a player upwards with a cool smoke effect")
-    @IParams(@Grouped(req = false, value = @Indexed(label = "height", type = Integer.class)))
-    @NParams(@Named(names = {"player", "p"}, type = User.class))
-    public void rocket(CubeContext context)
+    @Params(positional = @Param(req = false, label = "height", type = Integer.class),
+            nonpositional = @Param(names = {"player", "p"}, type = User.class))
+    public void rocket(CommandContext context)
     {
-        int height = context.getArg(0, 10);
+        int height = context.get(0, 10);
         User user;
         if (context.hasNamed("player"))
         {
-            user = context.getArg("player");
+            user = context.get("player");
             if (user == null)
             {
                 context.sendTranslated(NEGATIVE, "Player {user} not found!", context.getString("player"));
@@ -79,12 +76,12 @@ public class RocketCommand
         }
         else
         {
-            if (!(context.getSender() instanceof User))
+            if (!(context.getSource() instanceof User))
             {
                 context.sendTranslated(NEGATIVE, "You have to specify a player!");
                 return;
             }
-            user = (User)context.getSender();
+            user = (User)context.getSource();
         }
 
         if (height > this.module.getConfig().command.rocket.maxHeight)

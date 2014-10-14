@@ -27,11 +27,10 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
-import de.cubeisland.engine.core.command.context.CubeContext;
-import de.cubeisland.engine.core.command.reflected.context.NParams;
-import de.cubeisland.engine.core.command.reflected.context.Named;
-import de.cubeisland.engine.core.command.reflected.Command;
-import de.cubeisland.engine.core.command.reflected.ReflectedCommand;
+import de.cubeisland.engine.command.methodic.Command;
+import de.cubeisland.engine.command.methodic.Param;
+import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.module.Module;
 import de.cubeisland.engine.core.user.User;
 
@@ -46,25 +45,25 @@ public class Writer extends Module
     @Override
     public void onEnable()
     {
-        this.getCore().getCommandManager().registerCommands(this, this, ReflectedCommand.class);
+        this.getCore().getCommandManager().addCommands(this.getCore().getCommandManager(), this, this);
     }
 
     @Command(alias = "rewrite", desc = "Edit a sign or unsign a book")
-    @NParams({@Named(names ={"1", "Line1"}, label = "1st line"),
-              @Named(names ={"2", "Line2"}, label = "2nd line"),
-              @Named(names ={"3", "Line3"}, label = "3rd line"),
-              @Named(names ={"4", "Line4"}, label = "4th line")})
-    public void edit(CubeContext context)
+    @Params(nonpositional = {@Param(names ={"1", "Line1"}, label = "1st line"),
+                             @Param(names ={"2", "Line2"}, label = "2nd line"),
+                             @Param(names ={"3", "Line3"}, label = "3rd line"),
+                             @Param(names ={"4", "Line4"}, label = "4th line")})
+    public void edit(CommandContext context)
     {
-        if (!(context.getSender() instanceof User))
+        if (!(context.getSource() instanceof User))
         {
             context.sendTranslated(NEGATIVE, "Edit what?");
             return;
         }
-        User user = (User)context.getSender();
+        User user = (User)context.getSource();
         if (!this.unsignBook(user))
         {
-            Map<String, Object> params = context.getParams();
+            Map<String, String> params = context.getRawNamed();
             if (params.size() < 1)
             {
                 context.sendTranslated(NEGATIVE, "You need to specify at least one parameter to edit a sign!");
@@ -88,16 +87,16 @@ public class Writer extends Module
      * @throws java.lang.NumberFormatException when the parameter keys are not numbers
      * @throws java.lang.ArrayIndexOutOfBoundsException when the parameter keys are other numbers than 1-4
      */
-    public boolean editSignInSight(User user, Map<String, Object> params)
+    public boolean editSignInSight(User user, Map<String, String> params)
     {
         Block target = user.getTargetBlock(null, 10);
         if (target.getType() == Material.WALL_SIGN || target.getType() == Material.SIGN_POST)
         {
             Sign sign = (Sign)target.getState();
             String[] lines = sign.getLines();
-            for (Entry<String, Object> entry : params.entrySet())
+            for (Entry<String, String> entry : params.entrySet())
             {
-                lines[Integer.parseInt(entry.getKey()) - 1] = (String)entry.getValue();
+                lines[Integer.parseInt(entry.getKey()) - 1] = entry.getValue();
             }
             SignChangeEvent event = new SignChangeEvent(sign.getBlock(), user, sign.getLines());
             user.getCore().getEventManager().fireEvent(event);
