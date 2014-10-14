@@ -16,15 +16,16 @@
 # Translators:
 # jeti83 <jeti83@hotmail.de>, 2014
 # jeti83 <jeti83@hotmail.de>, 2014
-# SirSheepster <s.raupach92@googlemail.com>, 2014
-# SirSheepster <s.raupach92@googlemail.com>, 2014
+# Phillip Schichtel, 2014
+# Sebastian Raupach <s.raupach92@googlemail.com>, 2014
+# Sebastian Raupach <s.raupach92@googlemail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: CubeEngine\n"
 "Report-Msgid-Bugs-To: development@cubeisland.de\n"
-"POT-Creation-Date: 2014-03-29 12:20:49+0100\n"
-"PO-Revision-Date: 2014-03-30 11:08+0000\n"
-"Last-Translator: Phillip Schichtel\n"
+"POT-Creation-Date: 2014-09-21 03:27:48+0200\n"
+"PO-Revision-Date: 2014-09-21 01:49+0000\n"
+"Last-Translator: Cube Island Development <development@cubeisland.de>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/cubeengine/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -32,85 +33,86 @@ msgstr ""
 "Language: de\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: de/cubeisland/engine/border/BorderCommands.java:108
-msgid "<world>"
-msgstr "<world>"
-
-#: de/cubeisland/engine/border/BorderCommands.java:108
+#: de/cubeisland/engine/module/border/BorderCommands.java:117
 msgid "Generates the chunks located in the border"
 msgstr "Generiert die Chunks die in der Begrenzung liegen."
 
-#: de/cubeisland/engine/border/BorderCommands.java:57
+#: de/cubeisland/engine/module/border/BorderCommands.java:65
 msgid "Sets the center of the border"
 msgstr "Legt den Mittelpunkt der Begrenzung fest"
 
-#: de/cubeisland/engine/border/BorderCommands.java:57
-msgid "[<chunkX> <chunkZ>]|[-spawn] [in <world>]"
-msgstr "[<chunkX> <chunkZ>]|[-spawn] [in <Welt>]"
-
-#: de/cubeisland/engine/border/BorderCommands.java:181
+#: de/cubeisland/engine/module/border/BorderCommands.java:191
 msgid "Added {amount} chunks to generate in {world}"
 msgstr "Es wurden {amount} zu erzeugende Chunks in {world} hinzugefügt"
 
-#: de/cubeisland/engine/border/BorderListener.java:101
+#: de/cubeisland/engine/module/border/BorderListener.java:103
 msgid ""
 "As you reach the border the world turns on itself and you appear on the "
 "other side of the world!"
 msgstr "Wenn Du die Begrenzung erreichst, wirst Du am anderen Ende Welt wieder erscheinen!"
 
-#: de/cubeisland/engine/border/BorderCommands.java:224
+#: de/cubeisland/engine/module/border/BorderCommands.java:234
 msgid "Available Memory getting low! Pausing Chunk Generation"
-msgstr ""
+msgstr "Die Chunkaufbau wird pausiert, da der Arbeitsspeicher knapp wird!"
 
-#: de/cubeisland/engine/border/BorderCommands.java:80
+#: de/cubeisland/engine/module/border/BorderCommands.java:89
 msgid "Center for Border in {world} set to world spawn!"
-msgstr ""
+msgstr "Mittelpunkt für die Begrenzung in {world} zum World-Spawn gesetzt!"
 
-#: de/cubeisland/engine/border/BorderCommands.java:104
+#: de/cubeisland/engine/module/border/BorderCommands.java:113
 msgid "Center for Border in {world} set!"
 msgstr "Mittelpunkt für die Begrenzung in {world} gesetzt!"
 
-#: de/cubeisland/engine/border/BorderCommands.java:269
+#: de/cubeisland/engine/module/border/BorderCommands.java:279
 msgid "Chunk generation completed! Generated {amount} chunks"
-msgstr ""
+msgstr "Chunkaufbau abgeschlossen!  {amount} Chunks erstellt"
 
-#: de/cubeisland/engine/border/BorderCommands.java:113
+#: de/cubeisland/engine/module/border/BorderCommands.java:123
 msgid "Chunk generation is already running!"
 msgstr "Chunkaufbau wird bereits ausgeführt!"
 
-#: de/cubeisland/engine/border/BorderCommands.java:256
+#: de/cubeisland/engine/module/border/BorderCommands.java:266
 msgid ""
 "Chunk generation is at {integer#percent}% ({amount#done}/{amount#total})"
-msgstr ""
+msgstr "Chunkaufbau bei {integer#percent}% ({amount#done}/{amount#total})"
 
-#: de/cubeisland/engine/border/BorderCommands.java:89
+#: de/cubeisland/engine/module/border/BorderCommands.java:98
 msgid "Invalid Chunk coordinates!"
-msgstr ""
+msgstr "Ungültige Chunk-Koordinaten! "
 
-#: de/cubeisland/engine/border/BorderListener.java:162
+#: de/cubeisland/engine/module/border/BorderListener.java:164
 msgid "This portal would teleport you behind the border!"
 msgstr "Dieses Portal würde dich hinter die Begrenzung teleportieren!"
 
-#: de/cubeisland/engine/border/BorderCommands.java:131
+#: de/cubeisland/engine/module/border/BorderCommands.java:141
 msgid "World {input} not found!"
 msgstr "Welt {input} nicht gefunden!"
 
-#: de/cubeisland/engine/border/BorderListener.java:114
+#: de/cubeisland/engine/module/border/BorderListener.java:116
 msgid "You are near the world border! You might want to turn around."
-msgstr ""
+msgstr "Du befindest dich nah an der Begrenzung! Willst Du nicht doch lieber umdrehen?"
 
-#: de/cubeisland/engine/border/BorderListener.java:88
+#: de/cubeisland/engine/module/border/BorderListener.java:90
 msgid "You cannot teleport outside the border!"
 msgstr "Du kannst nicht an eine Stelle außerhalb der Begrenzung teleportiert werden!"
 
-#: de/cubeisland/engine/border/BorderCommands.java:69
+#: de/cubeisland/engine/module/border/BorderCommands.java:78
 msgid "You need to specify a world!"
 msgstr "Du musst eine Welt angeben!"
 
-#: de/cubeisland/engine/border/BorderCommands.java:100
+#: de/cubeisland/engine/module/border/BorderCommands.java:109
 msgid "You need to specify the chunk coordinates or use the -spawn flag"
-msgstr ""
+msgstr "Du musst die Chunk-Koordinaten angeben oder den -spawn Schalter benutzen!"
 
-#: de/cubeisland/engine/border/BorderListener.java:108
+#: de/cubeisland/engine/module/border/BorderListener.java:110
 msgid "You've reached the border!"
 msgstr "Du hast die Begrenzung erreicht!"
+
+#: de/cubeisland/engine/module/border/BorderCommands.java:52
+msgid "border commands"
+msgstr ""
+
+#: de/cubeisland/engine/module/border/BorderCommands.java:67
+#: de/cubeisland/engine/module/border/BorderCommands.java:118
+msgid "world"
+msgstr ""

@@ -17,12 +17,14 @@
  */
 package de.cubeisland.engine.module.shout.task;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 import static de.cubeisland.engine.module.shout.announce.AnnouncementManager.parseDelay;
+import static org.junit.Assert.assertEquals;
 
-public class AnnouncementManagerTest extends TestCase
+public class AnnouncementManagerTest
 {
+    @Test
     public void testParseDelay()
     {
         assertEquals(1000l, parseDelay("1 second"));
