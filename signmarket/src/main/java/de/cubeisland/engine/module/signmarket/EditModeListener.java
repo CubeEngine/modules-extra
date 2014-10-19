@@ -41,7 +41,7 @@ import de.cubeisland.engine.command.methodic.Params;
 import de.cubeisland.engine.command.result.CommandResult;
 import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.command_old.conversation.ConversationCommand;
-import de.cubeisland.engine.core.command_old.parameterized.completer.ItemCompleter;
+import de.cubeisland.engine.core.command.completer.ItemCompleter;
 import de.cubeisland.engine.core.user.User;
 import gnu.trove.map.hash.TLongObjectHashMap;
 

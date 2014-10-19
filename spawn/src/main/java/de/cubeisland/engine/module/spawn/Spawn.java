@@ -17,7 +17,7 @@
  */
 package de.cubeisland.engine.module.spawn;
 
-import de.cubeisland.engine.core.command_old.CommandManager;
+import de.cubeisland.engine.core.command.CommandManager;
 import de.cubeisland.engine.core.module.Inject;
 import de.cubeisland.engine.core.module.Module;
 import de.cubeisland.engine.module.roles.Roles;

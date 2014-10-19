@@ -17,16 +17,13 @@
  */
 package de.cubeisland.engine.module.signmarket;
 
-import java.util.HashSet;
-
 import de.cubeisland.engine.core.command.CommandContainer;
 import de.cubeisland.engine.core.command.CommandContext;
-import de.cubeisland.engine.core.command_old.reflected.Alias;
+import de.cubeisland.engine.command.alias.Alias;
 import de.cubeisland.engine.command.methodic.Command;
 import de.cubeisland.engine.core.user.User;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
-import static java.util.Arrays.asList;
 
 @Command(name = "marketsign", desc = "MarketSign-Commands", alias = {"signmarket", "market"})
 public class SignMarketCommands extends CommandContainer

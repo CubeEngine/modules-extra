@@ -31,7 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import de.cubeisland.engine.module.bigdata.Bigdata;
 import de.cubeisland.engine.module.bigdata.MongoDBCodec;
-import de.cubeisland.engine.core.command_old.CommandManager;
+import de.cubeisland.engine.core.command.CommandManager;
 import de.cubeisland.engine.core.module.Inject;
 import de.cubeisland.engine.core.module.Module;
 import de.cubeisland.engine.module.log.action.ActionManager;

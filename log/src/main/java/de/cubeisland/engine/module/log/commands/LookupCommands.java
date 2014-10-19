@@ -32,9 +32,9 @@ import de.cubeisland.engine.command.methodic.Flags;
 import de.cubeisland.engine.command.methodic.Param;
 import de.cubeisland.engine.command.methodic.Params;
 import de.cubeisland.engine.core.command.CommandContext;
-import de.cubeisland.engine.core.command_old.parameterized.completer.MaterialListCompleter;
-import de.cubeisland.engine.core.command_old.parameterized.completer.PlayerListCompleter;
-import de.cubeisland.engine.core.command_old.parameterized.completer.WorldCompleter;
+import de.cubeisland.engine.core.command.completer.MaterialListCompleter;
+import de.cubeisland.engine.core.command.completer.PlayerListCompleter;
+import de.cubeisland.engine.core.command.completer.WorldCompleter;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.StringUtils;
 import de.cubeisland.engine.core.util.TimeConversionException;
@@ -121,7 +121,7 @@ public class LookupCommands
             {
                 try
                 {
-                    ((Dispatcher)context.getCommand()).getCommand("?").run(context.getInvocation());
+                    ((Dispatcher)context.getCommand()).getCommand("?").execute(context.getInvocation());
                     // TODO show all selected params of last lookup
                 }
                 catch (Exception e)
