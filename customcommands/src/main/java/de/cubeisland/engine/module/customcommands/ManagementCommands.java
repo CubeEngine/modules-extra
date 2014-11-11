@@ -31,12 +31,10 @@ import de.cubeisland.engine.command.methodic.Params;
 import de.cubeisland.engine.command.result.CommandResult;
 import de.cubeisland.engine.core.command.CommandContainer;
 import de.cubeisland.engine.core.command.CommandContext;
-import de.cubeisland.engine.core.command.annotation.CommandPermission;
-import de.cubeisland.engine.core.command_old.result.paginated.PaginatedResult;
-import de.cubeisland.engine.core.command_old.result.paginated.PaginationIterator;
+import de.cubeisland.engine.core.command.result.paginated.PaginatedResult;
+import de.cubeisland.engine.core.command.result.paginated.PaginationIterator;
 
 import static de.cubeisland.engine.command.parameter.property.Greed.INFINITE_GREED;
-import static de.cubeisland.engine.core.permission.PermDefault.TRUE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
 import static java.util.Locale.ENGLISH;
