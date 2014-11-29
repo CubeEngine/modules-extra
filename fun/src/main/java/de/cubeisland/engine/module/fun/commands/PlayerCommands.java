@@ -324,7 +324,7 @@ public class PlayerCommands
 
     @Command(desc = "Burns a player")
     @IParams({@Grouped(value = @Indexed(label = "player", type = User.class)),
-              @Grouped(req = false, value = @Indexed(label = "seconds"))})
+              @Grouped(req = false, value = @Indexed(label = "seconds", type = Integer.class))})
     @Flags(@Flag(longName = "unset", name = "u"))
     public void burn(CubeContext context)
     {
