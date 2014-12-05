@@ -17,6 +17,7 @@
  */
 package de.cubeisland.engine.module.signmarket;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,7 +32,10 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.permissions.Permissible;
 
+import de.cubeisland.engine.command.CommandInvocation;
+import de.cubeisland.engine.command.CommandSource;
 import de.cubeisland.engine.command.completer.Completer;
 import de.cubeisland.engine.command.methodic.Command;
 import de.cubeisland.engine.command.methodic.Flag;
@@ -40,6 +44,7 @@ import de.cubeisland.engine.command.methodic.Param;
 import de.cubeisland.engine.command.methodic.Params;
 import de.cubeisland.engine.command.result.CommandResult;
 import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.CommandSender;
 import de.cubeisland.engine.core.command.conversation.ConversationCommand;
 import de.cubeisland.engine.core.command.completer.ItemCompleter;
 import de.cubeisland.engine.core.user.User;
@@ -703,16 +708,21 @@ public class EditModeListener extends ConversationCommand
         }
     }
 
-    private class SignSizeCompleter implements Completer<CommandContext>
+    private class SignSizeCompleter implements Completer
     {
         @Override
-        public List<String> complete(CommandContext context, String token)
+        public List<String> getSuggestions(CommandInvocation invocation)
         {
-            if (module.perms().SIGN_SIZE_INFINITE.isAuthorized(context.getSource()))
+            CommandSource commandSource = invocation.getCommandSource();
+            if (commandSource instanceof CommandSender)
             {
-                return Arrays.asList("6", "5", "4", "3", "2", "1", "-1");
+                if (module.perms().SIGN_SIZE_INFINITE.isAuthorized((CommandSender)commandSource))
+                {
+                    return Arrays.asList("6", "5", "4", "3", "2", "1", "-1");
+                }
+                return Arrays.asList("6", "5", "4", "3", "2", "1");
             }
-            return Arrays.asList("6", "5", "4", "3", "2", "1");
+            return new ArrayList<>();
         }
     }
 }

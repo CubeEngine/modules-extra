@@ -20,8 +20,8 @@ package de.cubeisland.engine.module.log.action;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.cubeisland.engine.command.CommandInvocation;
 import de.cubeisland.engine.command.completer.Completer;
-import de.cubeisland.engine.command.methodic.context.BaseCommandContext;
 
 public class ActionTypeCompleter implements Completer
 {
@@ -33,10 +33,10 @@ public class ActionTypeCompleter implements Completer
     }
 
     @Override
-    public List<String> complete(BaseCommandContext context, String token)
+    public List<String> getSuggestions(CommandInvocation invocation)
     {
         List<String> result = new ArrayList<>();
-        String lastToken = token.toLowerCase();
+        String lastToken = invocation.currentToken().toLowerCase();
         String firstTokens = "";
         if (lastToken.contains(","))
         {
@@ -53,7 +53,7 @@ public class ActionTypeCompleter implements Completer
             String compare = s.toLowerCase();
             if (compare.startsWith(lastToken))
             {
-                if (!token.contains(compare+","))
+                if (!invocation.currentToken().contains(compare+","))
                 {
                     result.add(firstTokens + s);
                 }

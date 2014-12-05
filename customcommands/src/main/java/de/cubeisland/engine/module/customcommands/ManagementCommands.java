@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
+import de.cubeisland.engine.command.CommandInvocation;
 import de.cubeisland.engine.command.completer.Completer;
 import de.cubeisland.engine.command.methodic.Command;
 import de.cubeisland.engine.command.methodic.Flag;
@@ -31,6 +32,7 @@ import de.cubeisland.engine.command.methodic.Params;
 import de.cubeisland.engine.command.result.CommandResult;
 import de.cubeisland.engine.core.command.CommandContainer;
 import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.ModuleProvider;
 import de.cubeisland.engine.core.command.result.paginated.PaginatedResult;
 import de.cubeisland.engine.core.command.result.paginated.PaginationIterator;
 
@@ -151,15 +153,15 @@ public class ManagementCommands extends CommandContainer
         }
     }
 
-    public static class CustomCommandCompleter implements Completer<CommandContext>
+    public static class CustomCommandCompleter implements Completer
     {
         @Override
-        public List<String> complete(CommandContext context, String token)
+        public List<String> getSuggestions(CommandInvocation invocation)
         {
             ArrayList<String> list = new ArrayList<>();
-            for (String item : ((Customcommands)context.getModule()).getConfig().commands.keySet()) // TODO instead pass module via constuctor and register as default for readertype
+            for (String item : ((Customcommands)invocation.valueFor(ModuleProvider.class)).getConfig().commands.keySet()) // TODO instead pass module via constuctor and register as default for readertype
             {
-                if (item.startsWith(token.toLowerCase(ENGLISH)))
+                if (item.startsWith(invocation.currentToken().toLowerCase(ENGLISH)))
                 {
                     list.add(item);
                 }
