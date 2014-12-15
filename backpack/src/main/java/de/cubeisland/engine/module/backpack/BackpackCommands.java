@@ -53,7 +53,7 @@ public class BackpackCommands extends CommandContainer
         this.manager = manager;
     }
 
-    @Alias(names = "openbp")
+    @Alias(value = "openbp")
     @Command(desc = "opens a backpack")
     @Params(positional = {@Param(label = "name"),
                           @Param(req = false, label = "user", type = User.class)},
@@ -93,7 +93,7 @@ public class BackpackCommands extends CommandContainer
         context.sendTranslated(NEGATIVE, "You cannot open a inventory in console!"); // TODO perhaps save inventory to yml
     }
 
-    @Alias(names = "createbp")
+    @Alias(value = "createbp")
     @Command(desc = "creates a new backpack")
     @Params(positional = {@Param(label = "name"),
                           @Param(req = false, label = "user", type = User.class)},
@@ -140,7 +140,7 @@ public class BackpackCommands extends CommandContainer
                                context.get("p", 1), context.get("s", 6));
     }
 
-    @Alias(names = "modifybp")
+    @Alias(value = "modifybp")
     @Command(desc = "modifies a backpack")
     @Params(positional = {@Param(label = "name"),
                           @Param(req = false, label = "user", type = User.class)},
@@ -186,7 +186,7 @@ public class BackpackCommands extends CommandContainer
                                (Integer)context.get("s", null));
     }
 
-    @Alias(names = "givebp")
+    @Alias(value = "givebp")
     @Command(desc = "Puts items into a backpack")
     @Params(positional = {@Param(label = "name"),
                           @Param(req = false, label = "user", type = User.class)},

@@ -84,7 +84,7 @@ public class PowerToolCommand extends CommandContainer implements Listener
          */
     }
 
-    @Alias(names = "ptc")
+    @Alias(value = "ptc")
     @Command(desc = "Removes all commands from your powertool")
     @Flags(@Flag(longName = "all", name = "a"))
     public void clear(CommandContext context)
@@ -116,7 +116,7 @@ public class PowerToolCommand extends CommandContainer implements Listener
         context.sendTranslated(NEUTRAL, "No more power for you!");
     }
 
-    @Alias(names = "ptr")
+    @Alias(value = "ptr")
     @Command(alias = {"del", "delete", "rm"}, desc = "Removes a command from your powertool")
     @Params(positional = @Param(req = false, label = "command", greed = INFINITE_GREED))
     @Flags(@Flag(longName = "chat", name = "c"))
@@ -175,7 +175,7 @@ public class PowerToolCommand extends CommandContainer implements Listener
         this.showPowerToolList(context, powertools, false, false);
     }
 
-    @Alias(names = "pta")
+    @Alias(value = "pta")
     @Command(desc = "Adds a command to your powertool")
     @Params(positional = @Param(label = "commandstring", greed = INFINITE_GREED))
     @Flags({@Flag(longName = "chat", name = "c"),
@@ -212,7 +212,7 @@ public class PowerToolCommand extends CommandContainer implements Listener
         context.sendTranslated(NEUTRAL, "You already have enough power!");
     }
 
-    @Alias(names = "ptl")
+    @Alias(value = "ptl")
     @Command(desc = "Lists your powertool-bindings.")
     @Flags(@Flag(longName = "all", name = "a"))
     public void list(CommandContext context)

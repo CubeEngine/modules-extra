@@ -126,7 +126,7 @@ public class KitCommand extends CommandContainer
     }
 
 
-    @Alias(names = "kitlist")
+    @Alias(value = "kitlist")
     @Command(desc = "Lists all currently available kits.")
     public void list(CommandContext context)
     {

@@ -208,7 +208,7 @@ public class LogCommands extends CommandContainer
         user.sendTranslated(POSITIVE, "Found a Log-Tool in your inventory!");
     }
 
-    @Alias(names = "lb")
+    @Alias(value = "lb")
     @Command(desc = "Gives you a block to check logs with." +
         "no log-type: Shows everything\n" +
         "chest: Shows chest-interactions only\n" +
@@ -239,7 +239,7 @@ public class LogCommands extends CommandContainer
         }
     }
 
-    @Alias(names = "lt")
+    @Alias(value = "lt")
     @Command(desc = "Gives you an item to check logs with.\n" +
         "no log-type: Shows everything\n" +
         "chest: Shows chest-interactions only\n" +

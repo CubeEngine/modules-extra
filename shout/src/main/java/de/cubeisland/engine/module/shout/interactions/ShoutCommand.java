@@ -101,7 +101,7 @@ public class ShoutCommand extends CommandContainer
         return null;
     }
 
-    @Alias(names = {"announcements"})
+    @Alias(value = {"announcements"})
     @Command(alias = "announcements", desc = "List all announcements")
     public void list(CommandContext context)
     {
@@ -183,7 +183,7 @@ public class ShoutCommand extends CommandContainer
         context.sendTranslated(POSITIVE, "All the announcements have now been reloaded, and the players have been re-added");
     }
 
-    @Alias(names = "motd")
+    @Alias(value = "motd")
     @Command(desc = "Prints out the message of the day.")
     public void motd(CommandContext context)
     {

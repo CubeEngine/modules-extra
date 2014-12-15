@@ -112,7 +112,7 @@ public class BorderCommands extends CommandContainer
         context.sendTranslated(POSITIVE, "Center for Border in {world} set!", world);
     }
 
-    @Alias(names = "generateBorder")
+    @Alias(value = "generateBorder")
     @Command(desc = "Generates the chunks located in the border")
     @Params(positional = @Param(label = "world"))
     public void generate(CommandContext context)

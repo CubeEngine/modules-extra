@@ -36,7 +36,7 @@ public class SignMarketCommands extends CommandContainer
         this.module = module;
     }
 
-    @Alias(names = "medit")
+    @Alias(value = "medit")
     @Command(alias = "edit", desc = "Enters the editmode allowing to change market signs easily")
     public void editMode(CommandContext context)
     {

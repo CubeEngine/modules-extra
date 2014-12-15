@@ -64,7 +64,7 @@ public class RulebookCommands extends CommandContainer
         this.module.getCore().getPermissionManager().registerPermission(module, getPermission);
     }
 
-    @Alias(names = {"getrules", "rules"})
+    @Alias(value = {"getrules", "rules"})
     @Command(desc = "gets the player the rulebook in the inventory")
     @Params(positional = @Param(req = false, label = "language"),
             nonpositional = @Param(names = {"player", "p"}, label = "name", type = User.class))
@@ -151,7 +151,7 @@ public class RulebookCommands extends CommandContainer
         }
     }
 
-    @Alias(names = "listrules")
+    @Alias(value = "listrules")
     @Command(desc = "list all available languages of the rulebooks.")
     @Flags(@Flag(longName = "supported", name = "s"))
     @CommandPermission(permDefault = TRUE)
@@ -182,7 +182,7 @@ public class RulebookCommands extends CommandContainer
         }
     }
 
-    @Alias(names = "removerules")
+    @Alias(value = "removerules")
     @Command(desc = "removes the declared language and languagefiles!")
     @Params(positional = @Param(label = "language"))
     public void remove(CommandContext context)
@@ -213,7 +213,7 @@ public class RulebookCommands extends CommandContainer
 
     }
 
-    @Alias(names = "modifyrules")
+    @Alias(value = "modifyrules")
     @Command(desc = "modified the rulebook of the declared language with the book in hand")
     @Params(positional = @Param(label = "language"))
     public void modify(CommandContext context)
@@ -261,7 +261,7 @@ public class RulebookCommands extends CommandContainer
         }
     }
 
-    @Alias(names = "addrules")
+    @Alias(value = "addrules")
     @Command(desc = "adds the book in hand as rulebook of the declared language")
     @Params(positional = @Param(label = "language"))
     public void add(CommandContext context)
