@@ -36,7 +36,7 @@ import de.cubeisland.engine.core.command.ModuleProvider;
 import de.cubeisland.engine.core.command.result.paginated.PaginatedResult;
 import de.cubeisland.engine.core.command.result.paginated.PaginationIterator;
 
-import static de.cubeisland.engine.command.parameter.property.Greed.INFINITE_GREED;
+import static de.cubeisland.engine.command.parameter.Parameter.INFINITE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
 import static java.util.Locale.ENGLISH;
@@ -56,7 +56,7 @@ public class ManagementCommands extends CommandContainer
 
     @Command(desc = "Adds a custom chat command.")
     @Params(positional = {@Param(label = "name"),
-                          @Param(label = "message", greed = INFINITE_GREED)})
+                          @Param(label = "message", greed = INFINITE)})
     @Flags({@Flag(name = "force"),
             @Flag(name = "global")})
     public void add(CommandContext context)

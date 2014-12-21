@@ -33,7 +33,7 @@ import de.cubeisland.engine.reflect.exception.ConversionException;
 import de.cubeisland.engine.reflect.node.StringNode;
 import org.jooq.DSLContext;
 
-import static de.cubeisland.engine.command.parameter.property.Greed.INFINITE_GREED;
+import static de.cubeisland.engine.command.parameter.Parameter.INFINITE;
 import static de.cubeisland.engine.core.user.TableUser.TABLE_USER;
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 import static de.cubeisland.engine.module.holiday.storage.TableHoliday.TABLE_HOLIDAY;
@@ -52,7 +52,7 @@ public class HolidayCommands extends CommandContainer
 
     @Command(name = "for", desc = "Starts your holiday and kicks you from the server")
     @Params(positional = {@Param(label = "duration"),
-                          @Param(label = "reason", req = false, greed = INFINITE_GREED)})
+                          @Param(label = "reason", req = false, greed = INFINITE)})
     @Restricted(User.class)
     public void forCommand(CommandContext context)
     {

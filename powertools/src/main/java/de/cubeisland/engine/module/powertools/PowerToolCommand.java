@@ -43,7 +43,7 @@ import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.ChatFormat;
 import de.cubeisland.engine.core.util.matcher.Match;
 
-import static de.cubeisland.engine.command.parameter.property.Greed.INFINITE_GREED;
+import static de.cubeisland.engine.command.parameter.Parameter.INFINITE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 
 /**
@@ -118,7 +118,7 @@ public class PowerToolCommand extends CommandContainer implements Listener
 
     @Alias(value = "ptr")
     @Command(alias = {"del", "delete", "rm"}, desc = "Removes a command from your powertool")
-    @Params(positional = @Param(req = false, label = "command", greed = INFINITE_GREED))
+    @Params(positional = @Param(req = false, label = "command", greed = INFINITE))
     @Flags(@Flag(longName = "chat", name = "c"))
     public void remove(CommandContext context)
     {
@@ -177,7 +177,7 @@ public class PowerToolCommand extends CommandContainer implements Listener
 
     @Alias(value = "pta")
     @Command(desc = "Adds a command to your powertool")
-    @Params(positional = @Param(label = "commandstring", greed = INFINITE_GREED))
+    @Params(positional = @Param(label = "commandstring", greed = INFINITE))
     @Flags({@Flag(longName = "chat", name = "c"),
            @Flag(longName = "replace", name = "r")})
     public void add(CommandContext context)

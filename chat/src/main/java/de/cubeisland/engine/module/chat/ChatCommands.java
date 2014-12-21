@@ -25,7 +25,7 @@ import de.cubeisland.engine.command.methodic.parametric.Label;
 import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.user.User;
 
-import static de.cubeisland.engine.command.parameter.property.Greed.INFINITE_GREED;
+import static de.cubeisland.engine.command.parameter.Parameter.INFINITE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
 
@@ -39,7 +39,7 @@ public class ChatCommands
     }
 
     @Command(desc = "Allows you to emote")
-    public void me(CommandContext context, @Label("message") @Greed(INFINITE_GREED) String message)
+    public void me(CommandContext context, @Label("message") @Greed(INFINITE) String message)
     {
         this.module.getCore().getUserManager().broadcastStatus(message, context.getSource());
     }
