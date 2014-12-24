@@ -45,11 +45,11 @@ import org.bson.types.ObjectId;
 public class MongoDBCodec extends Codec<DBObject, DBObject>
 {
     @Override
-    public Collection<ErrorNode> loadReflected(Reflected reflected, DBObject dbo)
+    public void loadReflected(Reflected reflected, DBObject dbo)
     {
         try
         {
-            return dumpIntoSection(reflected.getDefault(), reflected, this.load(dbo, reflected), reflected);
+            fillReflected(reflected, this.load(dbo, reflected));
         }
         catch (ConversionException ex)
         {
@@ -58,7 +58,6 @@ public class MongoDBCodec extends Codec<DBObject, DBObject>
                 throw new CodecIOException("Could not load reflected", ex);
             }
             reflected.getLogger().warning("Could not load reflected" + ex);
-            return Collections.emptyList();
         }
     }
 
@@ -67,7 +66,7 @@ public class MongoDBCodec extends Codec<DBObject, DBObject>
     {
         try
         {
-            this.save(convertSection(reflected.getDefault(), reflected, reflected), dbo, reflected);
+            this.save(convertReflected(reflected), dbo, reflected);
         }
         catch (ConversionException ex)
         {

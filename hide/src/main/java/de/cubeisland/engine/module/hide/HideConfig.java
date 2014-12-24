@@ -17,7 +17,7 @@
  */
 package de.cubeisland.engine.module.hide;
 
-import de.cubeisland.engine.reflect.ReflectedYaml;
+import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
 
 @SuppressWarnings("all")
 public class HideConfig extends ReflectedYaml

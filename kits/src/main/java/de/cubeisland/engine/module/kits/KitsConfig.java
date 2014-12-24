@@ -17,7 +17,7 @@
  */
 package de.cubeisland.engine.module.kits;
 
-import de.cubeisland.engine.reflect.ReflectedYaml;
+import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
 
 @SuppressWarnings("all")
 public class KitsConfig extends ReflectedYaml

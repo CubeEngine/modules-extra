@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.cubeisland.engine.reflect.Section;
-import de.cubeisland.engine.reflect.ReflectedYaml;
+import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
 import de.cubeisland.engine.reflect.annotations.Comment;
 import de.cubeisland.engine.reflect.annotations.Name;
 import de.cubeisland.engine.module.itemrepair.material.BaseMaterialContainer;

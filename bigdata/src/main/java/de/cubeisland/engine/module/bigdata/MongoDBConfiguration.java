@@ -17,7 +17,7 @@
  */
 package de.cubeisland.engine.module.bigdata;
 
-import de.cubeisland.engine.reflect.ReflectedYaml;
+import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
 
 public class MongoDBConfiguration extends ReflectedYaml
 {

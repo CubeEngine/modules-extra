@@ -25,7 +25,7 @@ import java.util.Set;
 import org.bukkit.Material;
 
 import de.cubeisland.engine.module.log.action.player.item.container.ContainerType;
-import de.cubeisland.engine.reflect.ReflectedYaml;
+import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
 import de.cubeisland.engine.reflect.Section;
 import de.cubeisland.engine.reflect.annotations.Comment;
 
