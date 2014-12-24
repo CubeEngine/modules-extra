@@ -17,13 +17,15 @@
  */
 package de.cubeisland.engine.module.chat;
 
-import de.cubeisland.engine.core.command.context.CubeContext;
-import de.cubeisland.engine.core.command.reflected.Command;
-import de.cubeisland.engine.core.command.reflected.context.Grouped;
-import de.cubeisland.engine.core.command.reflected.context.IParams;
-import de.cubeisland.engine.core.command.reflected.context.Indexed;
+import de.cubeisland.engine.command.methodic.Command;
+import de.cubeisland.engine.command.methodic.Param;
+import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.command.methodic.parametric.Greed;
+import de.cubeisland.engine.command.methodic.parametric.Label;
+import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.user.User;
 
+import static de.cubeisland.engine.command.parameter.Parameter.INFINITE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
 
@@ -37,57 +39,55 @@ public class ChatCommands
     }
 
     @Command(desc = "Allows you to emote")
-    @IParams(@Grouped(value = @Indexed(label = "message"), greedy = true))
-    public void me(CubeContext context)
+    public void me(CommandContext context, @Label("message") @Greed(INFINITE) String message)
     {
-        String message = context.getStrings(0);
-        this.module.getCore().getUserManager().broadcastStatus(message, context.getSender());
+        this.module.getCore().getUserManager().broadcastStatus(message, context.getSource());
     }
 
     @Command(desc = "Changes your display name")
-    @IParams({@Grouped(@Indexed(label = {"name","!reset"})),
-              @Grouped(req = false, value = @Indexed(label = "player", type = User.class))})
-    public void nick(CubeContext context)
+    @Params(positional = {@Param(label = "name"), // TODO static values , staticValues = {"-r", "-reset"}
+                          @Param(req = false, label = "player", type = User.class)})
+    public void nick(CommandContext context)
     {
         User forUser;
-        if (context.hasIndexed(1))
+        if (context.hasPositional(1))
         {
-            forUser = context.getArg(1);
+            forUser = context.get(1);
             if (forUser == null)
             {
-                context.sendTranslated(NEGATIVE, "Player {user} not found!", context.getArg(1));
+                context.sendTranslated(NEGATIVE, "Player {user} not found!", context.get(1));
                 return;
            }
-           if (forUser != context.getSender() && !module.perms().COMMAND_NICK_OTHER.isAuthorized(context.getSender()))
+           if (forUser != context.getSource() && !module.perms().COMMAND_NICK_OTHER.isAuthorized(context.getSource()))
            {
                context.sendTranslated(NEGATIVE, "You are not allowed to change the nickname of another player!");
                return;
            }
         }
-        else if (context.getSender() instanceof User)
+        else if (context.getSource() instanceof User)
         {
-            forUser = (User)context.getSender();
+            forUser = (User)context.getSource();
         }
         else
         {
-            context.sendTranslated(NEGATIVE, "You cannot change the consoles display name");
+            context.sendTranslated(NEGATIVE, "You cannot change the consoles display name"); // TODO You cannot?!?
             return;
         }
-        String name = context.getArg(0);
+        String name = context.get(0);
         if (name.equalsIgnoreCase("-r") || name.equalsIgnoreCase("-reset"))
         {
-            forUser.setDisplayName(context.getSender().getName());
-            context.sendTranslated(POSITIVE, "Display name reset to {user}", context.getSender());
+            forUser.setDisplayName(context.getSource().getName());
+            context.sendTranslated(POSITIVE, "Display name reset to {user}", context.getSource());
         }
         else
         {
-            if (module.getCore().getUserManager().findExactUser(name) != null && !module.perms().COMMAND_NICK_OFOTHER.isAuthorized(context.getSender()))
+            if (module.getCore().getUserManager().findExactUser(name) != null && !module.perms().COMMAND_NICK_OFOTHER.isAuthorized(context.getSource()))
             {
                 context.sendTranslated(NEGATIVE, "This name has been taken by another player!");
                 return;
             }
-            context.sendTranslated(POSITIVE, "Display name changed from {user} to {user}", context.getSender(), name);
-            ((User)context.getSender()).setDisplayName(name);
+            context.sendTranslated(POSITIVE, "Display name changed from {user} to {user}", context.getSource(), name);
+            ((User)context.getSource()).setDisplayName(name);
         }
     }
 }

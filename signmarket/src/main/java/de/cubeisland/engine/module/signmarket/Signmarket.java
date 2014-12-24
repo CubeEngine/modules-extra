@@ -42,7 +42,7 @@ public class Signmarket extends Module implements Reloadable
         this.editModeListener = new EditModeListener(this);
         this.getCore().getEventManager().registerListener(this, new MarketSignListener(this));
         smCmds = new SignMarketCommands(this);
-        this.getCore().getCommandManager().registerCommand(smCmds);
+        this.getCore().getCommandManager().addCommand(smCmds);
         this.perms = new MarketSignPerm(this, smCmds);
         this.config = this.loadConfig(SignMarketConfig.class);
     }

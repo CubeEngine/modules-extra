@@ -37,7 +37,7 @@ public class Itemrepair extends Module
         this.config = this.loadConfig(ItemrepairConfig.class);
         this.repairBlockManager = new RepairBlockManager(this);
         this.getCore().getEventManager().registerListener(this, new ItemRepairListener(this));
-        this.getCore().getCommandManager().registerCommand(new ItemRepairCommands(this));
+        this.getCore().getCommandManager().addCommand(new ItemRepairCommands(this));
     }
 
     public ItemrepairConfig getConfig()

@@ -42,7 +42,7 @@ public class BackpackManager implements Listener
     public BackpackManager(Backpack module)
     {
         this.module = module;
-        this.module.getCore().getCommandManager().registerCommand(new BackpackCommands(module, this));
+        this.module.getCore().getCommandManager().addCommand(new BackpackCommands(module, this));
         this.module.getCore().getEventManager().registerListener(module, this);
     }
 

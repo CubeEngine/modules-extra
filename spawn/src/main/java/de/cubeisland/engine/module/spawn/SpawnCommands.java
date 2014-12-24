@@ -24,17 +24,14 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
-import de.cubeisland.engine.core.command.context.CubeContext;
-import de.cubeisland.engine.core.command.readers.UserListReader;
-import de.cubeisland.engine.core.command.reflected.Command;
-import de.cubeisland.engine.core.command.reflected.context.Flag;
-import de.cubeisland.engine.core.command.reflected.context.Flags;
-import de.cubeisland.engine.core.command.reflected.context.Grouped;
-import de.cubeisland.engine.core.command.reflected.context.IParams;
-import de.cubeisland.engine.core.command.reflected.context.Indexed;
-import de.cubeisland.engine.core.command.reflected.context.NParams;
-import de.cubeisland.engine.core.command.reflected.context.Named;
+import de.cubeisland.engine.command.methodic.Command;
+import de.cubeisland.engine.command.methodic.Flag;
+import de.cubeisland.engine.command.methodic.Flags;
+import de.cubeisland.engine.command.methodic.Param;
+import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.core.user.UserList;
 import de.cubeisland.engine.core.util.StringUtils;
 import de.cubeisland.engine.core.util.math.BlockVector3;
 import de.cubeisland.engine.core.world.WorldSetSpawnEvent;
@@ -62,43 +59,43 @@ public class SpawnCommands
     }
 
     @Command(desc = "Changes the respawnpoint")
-    @IParams({@Grouped(req = false, value = @Indexed(label = {"role","!global"})),
-              @Grouped(req = false, value = {@Indexed(label = "x"),
-                                             @Indexed(label = "y"),
-                                             @Indexed(label = "z"),}),
-              @Grouped(req = false, value = @Indexed(label = "world"))})
-    public void setSpawn(CubeContext context)
+    @Params(positional = {@Param(req = false, label = "role", desc = "The role or \"global\""), // TODO staticValue "global"
+                          @Param(req = false, label = "x"),
+                          @Param(req = false, label = "y"),
+                          @Param(req = false, label = "z"),
+                          @Param(req = false, label = "world")})
+    public void setSpawn(CommandContext context)
     {
-        if (!(context.getSender() instanceof User) && context.hasIndexed(4))
+        if (!(context.getSource() instanceof User) && context.hasPositional(4))
         {
             context.sendTranslated(NEGATIVE, "If not used ingame you have to specify a world and coordinates!");
             context.sendTranslated(NEUTRAL, "Use {text:global} instead of the role name to set the default spawn.");
             return;
         }
         World world;
-        if (context.hasIndexed(4))
+        if (context.hasPositional(4))
         {
-            world = context.getArg(0, null);
+            world = context.get(0, null);
             if (world == null)
             {
-                context.sendTranslated(NEGATIVE, "World {input} not found", context.getArg(0));
+                context.sendTranslated(NEGATIVE, "World {input} not found", context.get(0));
                 return;
             }
         }
         else
         {
-            world = ((User)context.getSender()).getWorld();
+            world = ((User)context.getSource()).getWorld();
         }
         Double x;
         Double y;
         Double z;
         float yaw = 0;
         float pitch = 0;
-        if (context.hasIndexed(3))
+        if (context.hasPositional(3))
         {
-            x = context.getArg(1, null);
-            y = context.getArg(2, null);
-            z = context.getArg(3, null);
+            x = context.get(1, null);
+            y = context.get(2, null);
+            z = context.get(3, null);
             if (x == null || y == null || z == null)
             {
                 context.sendTranslated(NEGATIVE, "Coordinates are invalid!");
@@ -107,19 +104,19 @@ public class SpawnCommands
         }
         else
         {
-            final Location loc = ((User)context.getSender()).getLocation();
+            final Location loc = ((User)context.getSource()).getLocation();
             x = loc.getX();
             y = loc.getY();
             z = loc.getZ();
             yaw = loc.getYaw();
             pitch = loc.getPitch();
         }
-        if (context.hasIndexed(0) && !"global".equalsIgnoreCase(context.getString(0)))
+        if (context.hasPositional(0) && !"global".equalsIgnoreCase(context.getString(0)))
         {
             Role role = manager.getProvider(world).getRole(context.getString(0));
             if (role == null)
             {
-                context.sendTranslated(NEGATIVE, "Could not find the role {input} in {world}!", context.getArg(0), world);
+                context.sendTranslated(NEGATIVE, "Could not find the role {input} in {world}!", context.get(0), world);
                 return;
             }
             setRoleSpawn(world, x, y, z, yaw, pitch, role);
@@ -147,13 +144,13 @@ public class SpawnCommands
     }
 
     @Command(desc = "Teleport directly to the worlds spawn.")
-    @IParams(@Grouped(value = @Indexed(label = {"players","!*"}, type = UserListReader.class), req = false))
-    @NParams({@Named(names = {"world", "w", "in"}, type = World.class),
-              @Named(names = {"role", "r"}, completer = RoleCompleter.class)})
+    @Params(positional = @Param(label = "players", type = UserList.class, req = false, desc = "The players to teleport or * for all players"),
+            nonpositional = {@Param(names = {"world", "w", "in"}, type = World.class),
+                             @Param(names = {"role", "r"}, completer = RoleCompleter.class)})
     @Flags(@Flag(longName = "force", name = "f"))
-    public void spawn(CubeContext context)
+    public void spawn(CommandContext context)
     {
-        if (!(context.getSender() instanceof User || context.hasIndexed(0)))
+        if (!(context.getSource() instanceof User || context.hasPositional(0)))
         {
             context.sendTranslated(NEGATIVE, "{text:Pro Tip}: Teleport does not work IRL!");
             return;
@@ -161,7 +158,7 @@ public class SpawnCommands
         World world;
         if (context.hasNamed("world"))
         {
-            world = context.getArg("world", null);
+            world = context.get("world", null);
             if (world == null)
             {
                 context.sendTranslated(NEGATIVE, "World {input} not found!", context.getString("world"));
@@ -209,25 +206,24 @@ public class SpawnCommands
         }
 
         boolean force = false;
-        if (context.hasFlag("f") && module.perms().COMMAND_SPAWN_FORCE.isAuthorized(context.getSender()))
+        if (context.hasFlag("f") && module.perms().COMMAND_SPAWN_FORCE.isAuthorized(context.getSource()))
         {
             force = true; // if not allowed ignore flag
         }
 
         List<User> tpList = new ArrayList<>();
-        if (context.hasIndexed(0))
+        if (context.hasPositional(0))
         {
-            boolean all = false;
-            if ("*".equals(context.getString(0)))
+            UserList userList = context.get(0);
+            if (userList.isAll())
             {
-                all = true;
-                if (!module.perms().COMMAND_SPAWN_ALL.isAuthorized(context.getSender()))
+                if (!module.perms().COMMAND_SPAWN_ALL.isAuthorized(context.getSource()))
                 {
                     context.sendTranslated(NEGATIVE, "You are not allowed to spawn everyone!");
                     return;
                 }
 
-                for (User user : context.getCore().getUserManager().getOnlineUsers())
+                for (User user : userList.list())
                 {
                     if (!force && module.perms().COMMAND_SPAWN_PREVENT.isAuthorized(user))
                     {
@@ -238,7 +234,7 @@ public class SpawnCommands
             }
             else
             {
-                for (User user : context.<List<User>>getArg(0))
+                for (User user : userList.list())
                 {
                     if (!user.isOnline())
                     {
@@ -257,7 +253,7 @@ public class SpawnCommands
             {
                 this.tpToSpawn(user, spawnLocation, force);
             }
-            if (all)
+            if (userList.isAll())
             {
                 // BroadCast
                 if (role == null)
@@ -275,14 +271,14 @@ public class SpawnCommands
             {
                 if (role == null)
                 {
-                    context.getSender().sendTranslatedN(POSITIVE, tpList.size(),
+                    context.getSource().sendTranslatedN(POSITIVE, tpList.size(),
                                                         "Teleported {1:user} to the spawn of {world}",
                                                         "Teleported {2:integer#amount} users to the spawn of {world}",
                                                         world, tpList.get(0), tpList.size());
                 }
                 else
                 {
-                    context.getSender().sendTranslatedN(POSITIVE, tpList.size(),
+                    context.getSource().sendTranslatedN(POSITIVE, tpList.size(),
                                                         "Teleported {2:user} to the spawn of the role {name#role} in {world}",
                                                         "Teleported {3:integer#amount} users to the spawn of the role {name#role} in {world}",
                                                         role.getName(), world, tpList.get(0), tpList.size());
@@ -291,7 +287,7 @@ public class SpawnCommands
             return;
         }
         // else no user specified
-        User user = (User)context.getSender();
+        User user = (User)context.getSource();
         if (role == null)
         {
             RolesAttachment rolesAttachment = user.get(RolesAttachment.class);

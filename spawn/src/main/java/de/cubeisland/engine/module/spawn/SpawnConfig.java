@@ -21,7 +21,7 @@ import org.bukkit.Bukkit;
 
 import de.cubeisland.engine.core.CubeEngine;
 import de.cubeisland.engine.core.world.ConfigWorld;
-import de.cubeisland.engine.reflect.ReflectedYaml;
+import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
 
 @SuppressWarnings("all")
 public class SpawnConfig extends ReflectedYaml

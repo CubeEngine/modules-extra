@@ -18,7 +18,6 @@
 package de.cubeisland.engine.module.spawn;
 
 import de.cubeisland.engine.core.command.CommandManager;
-import de.cubeisland.engine.core.command.reflected.ReflectedCommand;
 import de.cubeisland.engine.core.module.Inject;
 import de.cubeisland.engine.core.module.Module;
 import de.cubeisland.engine.module.roles.Roles;
@@ -38,14 +37,14 @@ public class Spawn extends Module
         CommandManager cm = this.getCore().getCommandManager();
         cm.removeCommand("setSpawn", true); // unregister basics commands
         cm.removeCommand("spawn", true); // unregister basics commands
-        cm.registerCommands(this, new SpawnCommands(roles, this), ReflectedCommand.class);
+        cm.addCommands(cm, this, new SpawnCommands(roles, this));
         perms = new SpawnPerms(this); // PermContainer registers itself
     }
 
     @Override
     public void onDisable()
     {
-        // TODO if not complete shutdown reregister basics commands OR do not unregister simply override (let CommandManager handle it)
+        // TODO if not getSuggestions shutdown reregister basics commands OR do not unregister simply override (let CommandManager handle it)
     }
 
     public SpawnConfig getConfiguration()

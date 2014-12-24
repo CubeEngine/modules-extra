@@ -20,21 +20,17 @@ package de.cubeisland.engine.module.hide;
 import java.util.Set;
 import java.util.UUID;
 
-import de.cubeisland.engine.core.command.context.CubeContext;
-import de.cubeisland.engine.core.command.CommandHolder;
+import de.cubeisland.engine.command.methodic.Command;
+import de.cubeisland.engine.command.methodic.Param;
+import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.command.CommandSender;
-import de.cubeisland.engine.core.command.CubeCommand;
-import de.cubeisland.engine.core.command.reflected.Command;
-import de.cubeisland.engine.core.command.reflected.context.Grouped;
-import de.cubeisland.engine.core.command.reflected.context.IParams;
-import de.cubeisland.engine.core.command.reflected.context.Indexed;
-import de.cubeisland.engine.core.command.reflected.ReflectedCommand;
 import de.cubeisland.engine.core.user.User;
 
 import static de.cubeisland.engine.core.util.ChatFormat.YELLOW;
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 
-public class HideCommands implements CommandHolder
+public class HideCommands
 {
     private final Hide module;
 
@@ -43,17 +39,11 @@ public class HideCommands implements CommandHolder
         this.module = module;
     }
 
-    @Override
-    public Class<? extends CubeCommand> getCommandType()
-    {
-        return ReflectedCommand.class;
-    }
-
     @Command(desc = "Hides a player.")
-    @IParams(@Grouped(req = false, value = @Indexed(label = "player", type = User.class)))
-    public void hide(CubeContext context)
+    @Params(positional = @Param(req = false, label = "player", type = User.class))
+    public void hide(CommandContext context)
     {
-        CommandSender sender = context.getSender();
+        CommandSender sender = context.getSource();
         User target = getTargetUser(context);
         if (target == null)
         {
@@ -86,10 +76,10 @@ public class HideCommands implements CommandHolder
     }
 
     @Command(desc = "Unhides a player.")
-    @IParams(@Grouped(req = false, value = @Indexed(label = "player", type = User.class)))
-    public void unhide(CubeContext context)
+    @Params(positional = @Param(req = false, label = "player", type = User.class))
+    public void unhide(CommandContext context)
     {
-        CommandSender sender = context.getSender();
+        CommandSender sender = context.getSource();
         User target = getTargetUser(context);
         if (target == null)
         {
@@ -122,10 +112,10 @@ public class HideCommands implements CommandHolder
     }
 
     @Command(desc = "Checks whether a player is hidden.")
-    @IParams(@Grouped(req = false, value = @Indexed(label = "player", type = User.class)))
-    public void hidden(CubeContext context)
+    @Params(positional = @Param(req = false, label = "player", type = User.class))
+    public void hidden(CommandContext context)
     {
-        CommandSender sender = context.getSender();
+        CommandSender sender = context.getSource();
         User target = getTargetUser(context);
         if (target == null)
         {
@@ -157,7 +147,7 @@ public class HideCommands implements CommandHolder
     }
 
     @Command(desc = "Lists all hidden players.")
-    public void listhiddens(CubeContext context)
+    public void listhiddens(CommandContext context)
     {
         Set<UUID> hiddens = this.module.getHiddenUsers();
         if (hiddens.isEmpty())
@@ -173,10 +163,10 @@ public class HideCommands implements CommandHolder
     }
 
     @Command(desc = "Toggles the ability to see hidden players.")
-    @IParams(@Grouped(req = false, value = @Indexed(label = "player", type = User.class)))
-    public void seehiddens(CubeContext context)
+    @Params(positional = @Param(req = false, label = "player", type = User.class))
+    public void seehiddens(CommandContext context)
     {
-        CommandSender sender = context.getSender();
+        CommandSender sender = context.getSource();
         User target = getTargetUser(context);
         if (target == null)
         {
@@ -210,10 +200,10 @@ public class HideCommands implements CommandHolder
     }
 
     @Command(desc = "Checks whether a player can see hidden players.")
-    @IParams(@Grouped(req = false, value = @Indexed(label = "player", type = User.class)))
-    public void canseehiddens(CubeContext context)
+    @Params(positional = @Param(req = false, label = "player", type = User.class))
+    public void canseehiddens(CommandContext context)
     {
-        CommandSender sender = context.getSender();
+        CommandSender sender = context.getSource();
         User target = getTargetUser(context);
         if (target == null)
         {
@@ -244,7 +234,7 @@ public class HideCommands implements CommandHolder
     }
 
     @Command(desc = "Lists all players who can see hidden players.")
-    public void listcanseehiddens(CubeContext context)
+    public void listcanseehiddens(CommandContext context)
     {
         Set<UUID> canSeeHiddens = this.module.getCanSeeHiddens();
         if (canSeeHiddens.isEmpty())
@@ -259,15 +249,15 @@ public class HideCommands implements CommandHolder
         }
     }
 
-    private static User getTargetUser(CubeContext context)
+    private static User getTargetUser(CommandContext context)
     {
-        if (context.getIndexedCount() > 0)
+        if (context.getPositionalCount() > 0)
         {
-            return context.getArg(0);
+            return context.get(0);
         }
-        else if (context.getSender() instanceof User)
+        else if (context.getSource() instanceof User)
         {
-            return (User)context.getSender();
+            return (User)context.getSource();
         }
         else
         {

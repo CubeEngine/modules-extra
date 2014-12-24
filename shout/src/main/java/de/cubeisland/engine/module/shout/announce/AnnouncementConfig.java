@@ -20,7 +20,7 @@ package de.cubeisland.engine.module.shout.announce;
 import java.util.Arrays;
 import java.util.List;
 
-import de.cubeisland.engine.reflect.ReflectedYaml;
+import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
 import de.cubeisland.engine.reflect.annotations.Comment;
 import de.cubeisland.engine.reflect.annotations.Name;
 

@@ -51,7 +51,7 @@ public class Border extends Module
         }
         perms = new BorderPerms(this);
         this.getCore().getEventManager().registerListener(this, new BorderListener(this));
-        this.getCore().getCommandManager().registerCommand(new BorderCommands(this));
+        this.getCore().getCommandManager().addCommand(new BorderCommands(this));
 
     }
 

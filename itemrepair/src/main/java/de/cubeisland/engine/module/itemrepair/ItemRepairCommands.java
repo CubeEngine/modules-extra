@@ -28,16 +28,17 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-import de.cubeisland.engine.core.command.context.CubeContext;
-import de.cubeisland.engine.core.command.ContainerCommand;
-import de.cubeisland.engine.core.command.reflected.Command;
+import de.cubeisland.engine.core.command.CommandContainer;
+import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.command.methodic.Command;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.module.itemrepair.repair.RepairBlockManager;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;
 
-public class ItemRepairCommands extends ContainerCommand implements Listener
+@Command(name = "itemrepair", desc = "ItemRepair commands", alias = "ir")
+public class ItemRepairCommands extends CommandContainer implements Listener
 {
     private final Set<UUID> removeRequests;
     private final Set<UUID> addRequests;
@@ -46,8 +47,7 @@ public class ItemRepairCommands extends ContainerCommand implements Listener
 
     public ItemRepairCommands(Itemrepair module)
     {
-        super(module, "itemrepair", "ItemRepair commands");
-        this.registerAlias(new String[]{"ir"},new String[]{});
+        super(module);
 
         this.module = module;
         module.getCore().getEventManager().registerListener(this.module,this);
@@ -57,11 +57,11 @@ public class ItemRepairCommands extends ContainerCommand implements Listener
     }
 
     @Command(desc = "Adds a new RepairBlock")
-    public void add(CubeContext context)
+    public void add(CommandContext context)
     {
-        if (context.getSender() instanceof User)
+        if (context.getSource() instanceof User)
         {
-            User user = (User)context.getSender();
+            User user = (User)context.getSource();
             if (!this.addRequests.contains(user.getUniqueId()))
             {
                 if (!this.removeRequests.contains(user.getUniqueId()))
@@ -86,11 +86,11 @@ public class ItemRepairCommands extends ContainerCommand implements Listener
     }
 
     @Command(desc = "Removes an existing RepairBlock")
-    public void remove(CubeContext context)
+    public void remove(CommandContext context)
     {
-        if (context.getSender() instanceof User)
+        if (context.getSource() instanceof User)
         {
-            User user = (User)context.getSender();
+            User user = (User)context.getSource();
             if (!this.removeRequests.contains(user.getUniqueId()))
             {
                 if (!this.addRequests.contains(user.getUniqueId()))

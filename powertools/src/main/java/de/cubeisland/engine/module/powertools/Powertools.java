@@ -28,7 +28,7 @@ public class Powertools extends Module
     {
         this.perm = new PowertoolsPerm(this);
         PowerToolCommand ptCommands = new PowerToolCommand(this);
-        getCore().getCommandManager().registerCommand(ptCommands);
+        getCore().getCommandManager().addCommand(ptCommands);
         getCore().getEventManager().registerListener(this, ptCommands);
     }
 

@@ -65,7 +65,7 @@ public class Shout extends Module
         }
         this.announcementManager.loadAnnouncements(this.getFolder());
         this.getCore().getEventManager().registerListener(this, new ShoutListener(this));
-        this.getCore().getCommandManager().registerCommand(new ShoutCommand(this));
+        this.getCore().getCommandManager().addCommand(new ShoutCommand(this));
 
         this.announcementManager.initUsers();
     }

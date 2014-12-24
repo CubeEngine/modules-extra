@@ -17,6 +17,7 @@
  */
 package de.cubeisland.engine.module.signmarket;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,17 +32,21 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.permissions.Permissible;
 
-import de.cubeisland.engine.core.command.CommandResult;
-import de.cubeisland.engine.core.command.context.ContextBuilder;
-import de.cubeisland.engine.core.command.context.CubeContext;
+import de.cubeisland.engine.command.CommandInvocation;
+import de.cubeisland.engine.command.CommandSource;
+import de.cubeisland.engine.command.completer.Completer;
+import de.cubeisland.engine.command.methodic.Command;
+import de.cubeisland.engine.command.methodic.Flag;
+import de.cubeisland.engine.command.methodic.Flags;
+import de.cubeisland.engine.command.methodic.Param;
+import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.command.result.CommandResult;
+import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.CommandSender;
 import de.cubeisland.engine.core.command.conversation.ConversationCommand;
-import de.cubeisland.engine.core.command.conversation.ConversationContextFactory;
-import de.cubeisland.engine.core.command.parameterized.CommandFlag;
-import de.cubeisland.engine.core.command.parameterized.CommandParameter;
-import de.cubeisland.engine.core.command.parameterized.Completer;
-import de.cubeisland.engine.core.command.parameterized.completer.ItemCompleter;
-import de.cubeisland.engine.core.command.parameterized.completer.PlayerCompleter;
+import de.cubeisland.engine.core.command.completer.ItemCompleter;
 import de.cubeisland.engine.core.user.User;
 import gnu.trove.map.hash.TLongObjectHashMap;
 
@@ -50,6 +55,7 @@ import static org.bukkit.event.Event.Result.DENY;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_AIR;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;
 
+@Command(name = "MarketSign", desc = "Edit Signmarket signs")
 public class EditModeListener extends ConversationCommand
 {
     private final MarketSignFactory signFactory;
@@ -59,35 +65,7 @@ public class EditModeListener extends ConversationCommand
 
     public EditModeListener(final Signmarket module)
     {
-        super(module, new ConversationContextFactory(
-            ContextBuilder.build()
-                .add(new CommandFlag("exit", "exit"))
-                .add(new CommandFlag("copy", "copy"))
-                .add(new CommandFlag("buy", "buy"))
-                .add(new CommandFlag("sell", "sell"))
-                .add(new CommandFlag("admin", "admin"))
-                .add(new CommandFlag("user", "user"))
-                .add(new CommandFlag("stock", "stock"))
-                .add(new CommandFlag("nodemand", "nodemand"))
-                .add(new CommandParameter("demand", "demand", Integer.class))
-                .add(new CommandParameter("owner", "owner", User.class).setCompleter(new PlayerCompleter()))
-                .add(new CommandParameter("price", "price", String.class))
-                .add(new CommandParameter("amount", "amount", Integer.class))
-                .add(new CommandParameter("item", "item", ItemStack.class).setCompleter(new ItemCompleter()))
-                .add(new CommandParameter("setstock", "setstock", Integer.class))
-                .add(new CommandParameter("size", "size", Integer.class).setCompleter(new Completer()
-                {
-                    @Override
-                    public List<String> complete(CubeContext context, String token)
-                    {
-                        if (module.perms().SIGN_SIZE_INFINITE.isAuthorized(context.getSender()))
-                        {
-                            return Arrays.asList("6", "5", "4", "3", "2", "1", "-1");
-                        }
-                        return Arrays.asList("6", "5", "4", "3", "2", "1");
-                    }
-                })).get()
-        ));
+        super(module);
         this.module = module;
         this.signFactory = module.getMarketSignFactory();
     }
@@ -159,9 +137,44 @@ public class EditModeListener extends ConversationCommand
         }
     }
 
-    public CommandResult run(CubeContext context)
+    /* new ConversationContextFactory(
+            new CtxBuilder()
+                .addFlag(new PermissibleFlag("exit", "exit"))
+                .addFlag(new PermissibleFlag("copy", "copy"))
+                .addFlag(new PermissibleFlag("buy", "buy"))
+                .addFlag(new PermissibleFlag("sell", "sell"))
+                .addFlag(new PermissibleFlag("admin", "admin"))
+                .addFlag(new PermissibleFlag("user", "user"))
+                .addFlag(new PermissibleFlag("stock", "stock"))
+                .addFlag(new PermissibleFlag("nodemand", "nodemand"))
+                .addNamed(new PermissibleNamedParameter("demand", "demand", Integer.class))
+                .addNamed(new PermissibleNamedParameter("owner", "owner", User.class).withCompleter(new PlayerCompleter()))
+                .addNamed(new PermissibleNamedParameter("price", "price", String.class))
+                .addNamed(new PermissibleNamedParameter("amount", "amount", Integer.class))
+                .addNamed(new PermissibleNamedParameter("item", "item", ItemStack.class).withCompleter(new ItemCompleter()))
+                .addNamed(new PermissibleNamedParameter("setstock", "setstock", Integer.class))
+                .addNamed(new PermissibleNamedParameter("size", "size", Integer.class).withCompleter(new Completer<CubeContext>()
+                {
+                })).get()
+        ));*/
+    @Flags({@Flag(name = "exit"),
+            @Flag(name = "copy"),
+            @Flag(name = "buy"),
+            @Flag(name = "sell"),
+            @Flag(name = "admin"),
+            @Flag(name = "user"),
+            @Flag(name = "stock"),
+            @Flag(name = "nodemand")})
+    @Params(nonpositional = {@Param(names = "demand", label = "demand", type = Integer.class),
+                             @Param(names = "owner", label = "owner", type = User.class),
+                             @Param(names = "price", label = "price", type = String.class),
+                             @Param(names = "amount", label = "amount", type = Integer.class),
+                             @Param(names = "item", label = "item", type = ItemStack.class, completer = ItemCompleter.class),
+                             @Param(names = "setstock", label = "setstock", type = Integer.class),
+                             @Param(names = "size", label = "size", type = Integer.class, completer = SignSizeCompleter.class)})
+    public CommandResult run(CommandContext context)
     {
-        User user = (User)context.getSender();
+        User user = (User)context.getSource();
         Location loc = this.currentSignLocation.get(user.getId());
         if (loc == null)
         {
@@ -275,7 +288,7 @@ public class EditModeListener extends ConversationCommand
             }
             else
             {
-                Integer demand = context.getArg("demand", null);
+                Integer demand = context.get("demand", null);
                 if (demand == -1)
                 {
                     marketSign.setNoDemand();
@@ -339,7 +352,7 @@ public class EditModeListener extends ConversationCommand
         {
             if (module.perms().SIGN_CREATE_USER_OTHER.isAuthorized(user))
             {
-                User owner = context.getArg("owner", null);
+                User owner = context.get("owner", null);
                 if (owner == null)
                 {
                     user.sendTranslated(NEGATIVE, "Player {user} not found!", context.getString("owner"));
@@ -413,7 +426,7 @@ public class EditModeListener extends ConversationCommand
             {
                 if (marketSign.hasStock())
                 {
-                    marketSign.setStock(context.getArg("setstock", 0));
+                    marketSign.setStock(context.get("setstock", 0));
                     marketSign.syncOnMe = true;
                 }
                 else
@@ -430,7 +443,7 @@ public class EditModeListener extends ConversationCommand
         }
         if (context.hasNamed("price"))
         {
-            Double dPrice = marketSign.economy.parseFor(context.getString("price"), context.getSender().getLocale());
+            Double dPrice = marketSign.economy.parseFor(context.getString("price"), context.getSource().getLocale());
             if (dPrice == null)
             {
                 user.sendTranslated(NEGATIVE, "Invalid price!");
@@ -449,7 +462,7 @@ public class EditModeListener extends ConversationCommand
         }
         if (context.hasNamed("amount"))
         {
-            Integer amount = context.getArg("amount", null);
+            Integer amount = context.get("amount", null);
             if (amount == null)
             {
                 user.sendTranslated(NEGATIVE, "Invalid amount {input#amount}!", context.getString("amount"));
@@ -467,7 +480,7 @@ public class EditModeListener extends ConversationCommand
         }
         if (context.hasNamed("item"))
         {
-            ItemStack item = context.getArg("item", null);
+            ItemStack item = context.get("item", null);
             if (item == null)
             {
                 user.sendTranslated(NEGATIVE, "Item not found!");
@@ -490,7 +503,7 @@ public class EditModeListener extends ConversationCommand
         {
             if (module.perms().SIGN_SIZE_CHANGE.isAuthorized(user))
             {
-                Integer size = context.getArg("size", null);
+                Integer size = context.get("size", null);
                 if (size == null || size == 0 || size > 6 || size < -1)
                 {
                     context.sendTranslated(NEGATIVE, "Invalid size! Use -1 for infinite OR 1-6 inventory-lines!");
@@ -692,6 +705,24 @@ public class EditModeListener extends ConversationCommand
             {
                 event.setCancelled(true);
             }
+        }
+    }
+
+    private class SignSizeCompleter implements Completer
+    {
+        @Override
+        public List<String> getSuggestions(CommandInvocation invocation)
+        {
+            CommandSource commandSource = invocation.getCommandSource();
+            if (commandSource instanceof CommandSender)
+            {
+                if (module.perms().SIGN_SIZE_INFINITE.isAuthorized((CommandSender)commandSource))
+                {
+                    return Arrays.asList("6", "5", "4", "3", "2", "1", "-1");
+                }
+                return Arrays.asList("6", "5", "4", "3", "2", "1");
+            }
+            return new ArrayList<>();
         }
     }
 }

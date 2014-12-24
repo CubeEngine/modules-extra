@@ -39,7 +39,7 @@ public class Holiday extends Module implements Listener
     public void onEnable()
     {
         this.getCore().getDB().registerTable(TableHoliday.class);
-        this.getCore().getCommandManager().registerCommand(new HolidayCommands(this));
+        this.getCore().getCommandManager().addCommand(new HolidayCommands(this));
         dsl = this.getCore().getDB().getDSL();
         this.getCore().getEventManager().registerListener(this, this);
         this.getCore().getTaskManager().runTimer(this, new Runnable()

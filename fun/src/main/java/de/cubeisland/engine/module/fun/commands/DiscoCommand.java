@@ -23,13 +23,10 @@ import java.util.Map;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 
-import de.cubeisland.engine.core.command.context.CubeContext;
-import de.cubeisland.engine.core.command.reflected.Command;
-import de.cubeisland.engine.core.command.reflected.context.Grouped;
-import de.cubeisland.engine.core.command.reflected.context.IParams;
-import de.cubeisland.engine.core.command.reflected.context.Indexed;
-import de.cubeisland.engine.core.command.reflected.context.NParams;
-import de.cubeisland.engine.core.command.reflected.context.Named;
+import de.cubeisland.engine.command.methodic.Command;
+import de.cubeisland.engine.command.methodic.Param;
+import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.module.fun.Fun;
 import gnu.trove.map.hash.THashMap;
@@ -49,11 +46,11 @@ public class DiscoCommand
     }
 
     @Command(desc = "Rapidly changes from day to night")
-    @IParams(@Grouped(req = false, value = @Indexed(label = "world", type = World.class)))
-    @NParams(@Named(names = {"delay", "d"}, type = Integer.class))
-    public void disco(CubeContext context)
+    @Params(positional = @Param(req = false, label = "world", type = World.class),
+            nonpositional = @Param(names = {"delay", "d"}, type = Integer.class))
+    public void disco(CommandContext context)
     {
-        final CommandSender sender = context.getSender();
+        final CommandSender sender = context.getSource();
 
         World world = null;
         if (sender instanceof User)
@@ -61,9 +58,9 @@ public class DiscoCommand
             world = ((User)sender).getWorld();
         }
 
-        if (context.hasIndexed(0))
+        if (context.hasPositional(0))
         {
-            world = context.getArg(0);
+            world = context.get(0);
             if (world == null)
             {
                 context.sendTranslated(NEGATIVE, "The given world was not found!");
@@ -77,7 +74,7 @@ public class DiscoCommand
             return;
         }
 
-        final int delay = context.getArg("delay", this.module.getConfig().command.disco.defaultDelay);
+        final int delay = context.get("delay", this.module.getConfig().command.disco.defaultDelay);
         if (delay < this.module.getConfig().command.disco.minDelay || delay > this.module.getConfig().command.disco.maxDelay)
         {
             context.sendTranslated(NEGATIVE, "The delay has to be a number between {integer} and {integer}", this.module.getConfig().command.disco.minDelay, this.module.getConfig().command.disco.maxDelay);

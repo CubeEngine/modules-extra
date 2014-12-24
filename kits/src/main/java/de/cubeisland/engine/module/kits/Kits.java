@@ -41,7 +41,7 @@ public class Kits extends Module
         perms = new KitsPerm(this);
         this.kitManager.loadKits();
         this.getCore().getUserManager().addDefaultAttachment(KitsAttachment.class, this);
-        getCore().getCommandManager().registerCommand(new KitCommand(this));
+        getCore().getCommandManager().addCommand(new KitCommand(this));
     }
 
     public KitManager getKitManager()

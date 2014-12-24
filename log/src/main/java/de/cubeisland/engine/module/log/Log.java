@@ -32,7 +32,6 @@ import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import de.cubeisland.engine.module.bigdata.Bigdata;
 import de.cubeisland.engine.module.bigdata.MongoDBCodec;
 import de.cubeisland.engine.core.command.CommandManager;
-import de.cubeisland.engine.core.command.reflected.ReflectedCommand;
 import de.cubeisland.engine.core.module.Inject;
 import de.cubeisland.engine.core.module.Module;
 import de.cubeisland.engine.module.log.action.ActionManager;
@@ -83,8 +82,8 @@ public class Log extends Module implements Listener
         this.actionManager = new ActionManager(this);
 
         final CommandManager cm = this.getCore().getCommandManager();
-        cm.registerCommands(this, new LookupCommands(this), ReflectedCommand.class);
-        cm.registerCommand(new LogCommands(this));
+        cm.addCommands(cm, this, new LookupCommands(this));
+        cm.addCommand(new LogCommands(this));
         try
         {
             Class.forName("com.sk89q.worldedit.WorldEdit");

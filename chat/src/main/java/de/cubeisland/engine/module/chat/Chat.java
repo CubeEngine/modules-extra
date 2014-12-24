@@ -19,7 +19,6 @@ package de.cubeisland.engine.module.chat;
 
 import org.bukkit.event.Listener;
 
-import de.cubeisland.engine.core.command.reflected.ReflectedCommand;
 import de.cubeisland.engine.core.module.Module;
 
 public class Chat extends Module implements Listener
@@ -34,7 +33,7 @@ public class Chat extends Module implements Listener
         this.config = this.loadConfig(ChatConfig.class);
         perms = new ChatPerm(this);
         this.getCore().getEventManager().registerListener(this, this);
-        this.getCore().getCommandManager().registerCommands(this, new ChatCommands(this), ReflectedCommand.class);
+        this.getCore().getCommandManager().addCommands(this.getCore().getCommandManager(), this, new ChatCommands(this));
         if (this.getCore().getModuleManager().getModule("roles") != null)
         {
             this.getCore().getEventManager().registerListener(this, new RoleChatFormatListener(this));

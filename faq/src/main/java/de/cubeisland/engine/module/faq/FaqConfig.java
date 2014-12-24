@@ -20,7 +20,7 @@ package de.cubeisland.engine.module.faq;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.cubeisland.engine.reflect.ReflectedYaml;
+import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
 
 @SuppressWarnings("all")
 public class FaqConfig extends ReflectedYaml

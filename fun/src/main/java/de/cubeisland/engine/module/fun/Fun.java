@@ -18,7 +18,6 @@
 package de.cubeisland.engine.module.fun;
 
 import de.cubeisland.engine.core.command.CommandManager;
-import de.cubeisland.engine.core.command.reflected.ReflectedCommand;
 import de.cubeisland.engine.core.module.Module;
 import de.cubeisland.engine.module.fun.commands.DiscoCommand;
 import de.cubeisland.engine.module.fun.commands.InvasionCommand;
@@ -40,12 +39,12 @@ public class Fun extends Module
         perms = new FunPerm(this);
 
         final CommandManager cm = this.getCore().getCommandManager();
-        cm.registerCommands(this, new ThrowCommands(this), ReflectedCommand.class);
-        cm.registerCommands(this, new NukeCommand(this), ReflectedCommand.class);
-        cm.registerCommands(this, new PlayerCommands(this), ReflectedCommand.class);
-        cm.registerCommands(this, new DiscoCommand(this), ReflectedCommand.class);
-        cm.registerCommands(this, new InvasionCommand(this), ReflectedCommand.class);
-        cm.registerCommands(this, new RocketCommand(this), ReflectedCommand.class);
+        cm.addCommands(cm, this, new ThrowCommands(this));
+        cm.addCommands(cm, this, new NukeCommand(this));
+        cm.addCommands(cm, this, new PlayerCommands(this));
+        cm.addCommands(cm, this, new DiscoCommand(this));
+        cm.addCommands(cm, this, new InvasionCommand(this));
+        cm.addCommands(cm, this, new RocketCommand(this));
     }
 
     public FunConfiguration getConfig()

@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extractor>
+
+    <source language="java">
+
+        <directory>${basedir}/src/main/java</directory>
+
+        <translatables>
+            <method>
+                <name>de.cubeisland.engine.core.command.CommandSender#getTranslation</name>
+                <signature>
+                    <type>de.cubeisland.engine.core.util.formatter.MessageType</type>
+                    <type use-as="singular">java.lang.String</type>
+                    <type>java.lang.Object[]</type>
+                </signature>
+            </method>
+
+            <method>
+                <name>de.cubeisland.engine.core.command.CommandSender#getTranslationN</name>
+                <signature>
+                    <type>de.cubeisland.engine.core.util.formatter.MessageType</type>
+                    <type>int</type>
+                    <type use-as="singular">java.lang.String</type>
+                    <type use-as="plural">java.lang.String</type>
+                    <type>java.lang.Object[]</type>
+                </signature>
+            </method>
+
+            <method>
+                <name>de.cubeisland.engine.core.command.CommandSender#sendTranslated</name>
+                <signature>
+                    <type>de.cubeisland.engine.core.util.formatter.MessageType</type>
+                    <type use-as="singular">java.lang.String</type>
+                    <type>java.lang.Object[]</type>
+                </signature>
+            </method>
+
+            <method>
+                <name>de.cubeisland.engine.core.command.CommandSender#sendTranslatedN</name>
+                <signature>
+                    <type>de.cubeisland.engine.core.util.formatter.MessageType</type>
+                    <type>int</type>
+                    <type use-as="singular">java.lang.String</type>
+                    <type use-as="plural">java.lang.String</type>
+                    <type>java.lang.Object[]</type>
+                </signature>
+            </method>
+
+            <method>
+                <name>de.cubeisland.engine.core.command.context.CubeContext#sendTranslated</name>
+                <signature>
+                    <type>de.cubeisland.engine.core.util.formatter.MessageType</type>
+                    <type use-as="singular">java.lang.String</type>
+                    <type>java.lang.Object[]</type>
+                </signature>
+            </method>
+
+            <method>
+                <name>de.cubeisland.engine.core.command.context.CubeContext#sendTranslatedN</name>
+                <signature>
+                    <type>de.cubeisland.engine.core.util.formatter.MessageType</type>
+                    <type>int</type>
+                    <type use-as="singular">java.lang.String</type>
+                    <type use-as="plural">java.lang.String</type>
+                    <type>java.lang.Object[]</type>
+                </signature>
+            </method>
+
+            <method>
+                <name>de.cubeisland.engine.core.i18n.I18n#translate</name>
+                <signature>
+                    <type>de.cubeisland.engine.core.util.formatter.MessageType</type>
+                    <type use-as="singular">java.lang.String</type>
+                    <type>java.lang.Object[]</type>
+                </signature>
+            </method>
+
+            <method>
+                <name>de.cubeisland.engine.core.i18n.I18n#translate</name>
+                <signature>
+                    <type>java.util.Locale</type>
+                    <type>de.cubeisland.engine.core.util.formatter.MessageType</type>
+                    <type use-as="singular">java.lang.String</type>
+                    <type>java.lang.Object[]</type>
+                </signature>
+            </method>
+
+            <method>
+                <name>de.cubeisland.engine.core.i18n.I18n#translateN</name>
+                <signature>
+                    <type>de.cubeisland.engine.core.util.formatter.MessageType</type>
+                    <type>int</type>
+                    <type use-as="singular">java.lang.String</type>
+                    <type use-as="plural">java.lang.String</type>
+                    <type>java.lang.Object[]</type>
+                </signature>
+            </method>
+
+            <method>
+                <name>de.cubeisland.engine.core.i18n.I18n#translateN</name>
+                <signature>
+                    <type>java.util.Locale</type>
+                    <type>de.cubeisland.engine.core.util.formatter.MessageType</type>
+                    <type>int</type>
+                    <type use-as="singular">java.lang.String</type>
+                    <type use-as="plural">java.lang.String</type>
+                    <type>java.lang.Object[]</type>
+                </signature>
+            </method>
+
+            <method>
+                <name>de.cubeisland.engine.core.user.UserManager#broadcastTranslatedWithPerm</name>
+                <signature>
+                    <type>de.cubeisland.engine.core.util.formatter.MessageType</type>
+                    <type use-as="singular">java.lang.String</type>
+                    <type>de.cubeisland.engine.core.permission.Permission</type>
+                    <type>java.lang.Object[]</type>
+                </signature>
+            </method>
+
+            <method>
+                <name>de.cubeisland.engine.core.user.UserManager#broadcastTranslated</name>
+                <signature>
+                    <type>de.cubeisland.engine.core.util.formatter.MessageType</type>
+                    <type use-as="singular">java.lang.String</type>
+                    <type>java.lang.Object[]</type>
+                </signature>
+            </method>
+
+            <method>
+                <name>de.cubeisland.engine.core.user.UserManager#broadcastTranslatedStatus</name>
+                <signature>
+                    <type>de.cubeisland.engine.core.util.ChatFormat</type>
+                    <type use-as="singular">java.lang.String</type>
+                    <type>de.cubeisland.engine.core.command.CommandSender</type>
+                    <type>java.lang.Object[]</type>
+                </signature>
+            </method>
+
+            <constructor>
+                <name>de.cubeisland.engine.core.command.CubeCommand</name>
+                <signature>
+                    <type>de.cubeisland.engine.core.module.Module</type>
+                    <type>java.lang.String</type>
+                    <type use-as="singular">java.lang.String</type>
+                    <type>de.cubeisland.engine.core.command.context.CubeContextFactory</type>
+                    <type>de.cubeisland.engine.core.permission.Permission</type>
+                    <type>boolean</type>
+                </signature>
+            </constructor>
+
+            <constructor>
+                <name>de.cubeisland.engine.core.command.CubeCommand</name>
+                <signature>
+                    <type>de.cubeisland.engine.core.module.Module</type>
+                    <type>java.lang.String</type>
+                    <type use-as="singular">java.lang.String</type>
+                    <type>de.cubeisland.engine.core.command.context.CubeContextFactory</type>
+                </signature>
+            </constructor>
+
+            <constructor>
+                <name>de.cubeisland.engine.core.command.ContainerCommand</name>
+                <signature>
+                    <type>de.cubeisland.engine.core.module.Module</type>
+                    <type>java.lang.String</type>
+                    <type use-as="singular">java.lang.String</type>
+                </signature>
+            </constructor>
+
+            <constructor>
+                <name>de.cubeisland.engine.core.command.ContainerCommand</name>
+                <signature>
+                    <type>de.cubeisland.engine.core.module.Module</type>
+                    <type>java.lang.Class</type>
+                    <type>java.lang.String</type>
+                    <type use-as="singular">java.lang.String</type>
+                </signature>
+            </constructor>
+
+            <constructor>
+                <name>de.cubeisland.engine.core.command.ContainerCommand</name>
+                <signature>
+                    <type>de.cubeisland.engine.core.module.Module</type>
+                    <type>java.lang.String</type>
+                    <type use-as="singular">java.lang.String</type>
+                    <type>java.util.Set</type>
+                </signature>
+            </constructor>
+
+            <constructor>
+                <name>de.cubeisland.engine.core.command.ContainerCommand</name>
+                <signature>
+                    <type>de.cubeisland.engine.core.module.Module</type>
+                    <type>java.lang.Class</type>
+                    <type>java.lang.String</type>
+                    <type use-as="singular">java.lang.String</type>
+                    <type>java.util.Set</type>
+                </signature>
+            </constructor>
+
+            <annotation>
+                <name>de.cubeisland.engine.command.methodic.Command</name>
+                <fields>
+                    <field>desc</field>
+                </fields>
+            </annotation>
+
+            <annotation>
+                <name>de.cubeisland.engine.core.command.reflected.context.Indexed</name>
+                <fields>
+                    <field>label</field>
+                </fields>
+            </annotation>
+
+            <annotation>
+                <name>de.cubeisland.engine.core.command.reflected.context.Named</name>
+                <fields>
+                    <field>label</field>
+                </fields>
+            </annotation>
+        </translatables>
+
+    </source>
+
+    <catalog format="gettext">
+        <removeUnusedMessages>true</removeUnusedMessages>
+        <createEmptyTemplate>false</createEmptyTemplate>
+        <template>${basedir}/src/main/resources/translations/messages.pot</template>
+        <header>
+            <comments><![CDATA[${resource.load("${rawParentRepo}/header.txt")}]]></comments>
+            <metadata>
+                <entry key="Project-Id-Version">${groupId}:${artifactId}:${version}</entry>
+                <entry key="Report-Msgid-Bugs-To">development@cubeisland.de</entry>
+                <entry key="POT-Creation-Date" variable="true">${date.get('yyyy-MM-dd HH:mm:ssZ')}</entry>
+                <entry key="MIME-Version">1.0</entry>
+                <entry key="Content-Type">text/plain; charset=${sourceEncoding}</entry>
+                <entry key="Content-Transfer-Encoding">8bit</entry>
+                <entry key="Language">en_US</entry>
+                <entry key="Plural-Forms">nplurals=2; plural=(n != 1);</entry>
+            </metadata>
+        </header>
+    </catalog>
+
+</extractor>

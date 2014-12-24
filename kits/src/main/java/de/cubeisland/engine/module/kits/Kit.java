@@ -33,7 +33,7 @@ import org.bukkit.plugin.Plugin;
 import de.cubeisland.engine.core.Core;
 import de.cubeisland.engine.core.command.CommandManager;
 import de.cubeisland.engine.core.command.CommandSender;
-import de.cubeisland.engine.core.command.exception.IncorrectUsageException;
+import de.cubeisland.engine.command.parameter.IncorrectUsageException;
 import de.cubeisland.engine.core.command.exception.PermissionDeniedException;
 import de.cubeisland.engine.core.permission.Permission;
 import de.cubeisland.engine.core.user.User;
@@ -93,7 +93,7 @@ public class Kit
         {
             if (!this.getPermission().isAuthorized(sender))
             {
-                throw new PermissionDeniedException(sender.getTranslation(NEGATIVE, "You are not allowed to give this kit."), getPermission());
+                throw new PermissionDeniedException("You are not allowed to give this kit.", getPermission());
             }
         }
         if (!force)
@@ -104,7 +104,7 @@ public class Kit
                     where(TABLE_KITS.KITNAME.like(this.name), TABLE_KITS.USERID.eq(user.getEntity().getKey())).fetchOne();
                 if (record1 != null && record1.value1() >= this.limitUsagePerPlayer)
                 {
-                    throw new IncorrectUsageException("Kit-limit reached.", false);
+                    throw new IncorrectUsageException(false, "Kit-limit reached.");
                 }
             }
             if (limitUsageDelay != 0)
@@ -112,7 +112,7 @@ public class Kit
                 Long lastUsage = user.get(KitsAttachment.class).getKitUsage(this.name);
                 if (lastUsage != null && System.currentTimeMillis() - lastUsage < limitUsageDelay)
                 {
-                    throw new IncorrectUsageException("This kit isn't available at the moment. Try again later!", false);
+                    throw new IncorrectUsageException(false, "This kit isn't available at the moment. Try again later!");
                 }
             }
         }

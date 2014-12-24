@@ -20,7 +20,7 @@ package de.cubeisland.engine.module.border;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 
-import de.cubeisland.engine.reflect.ReflectedYaml;
+import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
 import de.cubeisland.engine.reflect.Section;
 import de.cubeisland.engine.reflect.annotations.Comment;
 import de.cubeisland.engine.reflect.annotations.Name;

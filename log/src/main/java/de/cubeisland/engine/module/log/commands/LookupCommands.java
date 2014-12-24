@@ -25,18 +25,16 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 
-import de.cubeisland.engine.core.command.context.CubeContext;
-import de.cubeisland.engine.core.command.parameterized.completer.MaterialListCompleter;
-import de.cubeisland.engine.core.command.parameterized.completer.PlayerListCompleter;
-import de.cubeisland.engine.core.command.parameterized.completer.WorldCompleter;
-import de.cubeisland.engine.core.command.reflected.Command;
-import de.cubeisland.engine.core.command.reflected.context.Flag;
-import de.cubeisland.engine.core.command.reflected.context.Flags;
-import de.cubeisland.engine.core.command.reflected.context.Grouped;
-import de.cubeisland.engine.core.command.reflected.context.IParams;
-import de.cubeisland.engine.core.command.reflected.context.Indexed;
-import de.cubeisland.engine.core.command.reflected.context.NParams;
-import de.cubeisland.engine.core.command.reflected.context.Named;
+import de.cubeisland.engine.command.Dispatcher;
+import de.cubeisland.engine.command.methodic.Command;
+import de.cubeisland.engine.command.methodic.Flag;
+import de.cubeisland.engine.command.methodic.Flags;
+import de.cubeisland.engine.command.methodic.Param;
+import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.completer.MaterialListCompleter;
+import de.cubeisland.engine.core.command.completer.PlayerListCompleter;
+import de.cubeisland.engine.core.command.completer.WorldCompleter;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.StringUtils;
 import de.cubeisland.engine.core.util.TimeConversionException;
@@ -64,7 +62,7 @@ public class LookupCommands
         this.actionManager = module.getActionManager();
     }
 
-    private void params(CubeContext context)
+    private void params(CommandContext context)
     {
         if (context.hasNamed("params"))
         {
@@ -93,37 +91,37 @@ public class LookupCommands
     }
 
     @Command(desc = "Queries a lookup in the database\n    Show availiable parameters with /lookup params")
-    @IParams(@Grouped(req = false, value = @Indexed(label = "params")))
-    @NParams({@Named(names = {"action", "a"}, completer = ActionTypeCompleter.class),
-              @Named(names = {"radius", "r"}),//<radius> OR selection|sel OR global|g OR player|p:<radius>
-              @Named(names = {"user", "player", "p"}, completer = PlayerListCompleter.class),
-              @Named(names = {"block", "b"}, completer = MaterialListCompleter.class),
-              @Named(names = {"entity", "e"}),
-              @Named(names = {"since", "time", "t"}), // if not given default since 3d
-              @Named(names = {"before"}),
-              @Named(names = {"world", "w", "in"}, type = World.class, completer = WorldCompleter.class),
-              @Named(names = {"limit", "pagelimit"}, type = Integer.class),
-              @Named(names = {"page"}, type = Integer.class),
-              @Named(names = "params", completer = ActionTypeCompleter.class)})
+    @Params(positional = @Param(req = false, label = "params"),
+            nonpositional = {@Param(names = {"action", "a"}, completer = ActionTypeCompleter.class),
+                              @Param(names = {"radius", "r"}),//<radius> OR selection|sel OR global|g OR player|p:<radius>
+                              @Param(names = {"user", "player", "p"}, completer = PlayerListCompleter.class),
+                              @Param(names = {"block", "b"}, completer = MaterialListCompleter.class),
+                              @Param(names = {"entity", "e"}),
+                              @Param(names = {"since", "time", "t"}), // if not given default since 3d
+                              @Param(names = {"before"}),
+                              @Param(names = {"world", "w", "in"}, type = World.class, completer = WorldCompleter.class),
+                              @Param(names = {"limit", "pagelimit"}, type = Integer.class),
+                              @Param(names = {"page"}, type = Integer.class),
+                              @Param(names = "params", completer = ActionTypeCompleter.class)})
     @Flags({@Flag(longName = "coordinates", name = "coords"),
               @Flag(longName = "detailed", name = "det"),
               @Flag(longName = "nodate", name = "nd"),
               @Flag(longName = "descending", name = "desc")})
     // TODO param for filter / chat / command / signtexts
-    public void lookup(CubeContext context)
+    public void lookup(CommandContext context)
     {
-        if ((context.hasIndexed(0) && "params".equalsIgnoreCase(context.getString(0))) || context.hasNamed(
+        if ((context.hasPositional(0) && "params".equalsIgnoreCase(context.getString(0))) || context.hasNamed(
             "params"))
         {
             this.params(context);
         }
-        else if (context.getSender() instanceof User)
+        else if (context.getSource() instanceof User)
         {
-            if (context.getParams().isEmpty())
+            if (context.hasNamed())
             {
                 try
                 {
-                    context.getCommand().getChild("?").run(context);
+                    ((Dispatcher)context.getCommand()).getCommand("?").execute(context.getInvocation());
                     // TODO show all selected params of last lookup
                 }
                 catch (Exception e)
@@ -132,7 +130,7 @@ public class LookupCommands
                 }
                 return;
             }
-            User user = (User)context.getSender();
+            User user = (User)context.getSource();
             LogAttachment attachment = user.attachOrGet(LogAttachment.class, this.module);
             ShowParameter show = attachment.getLastShowParameter(); // gets last OR new Showparameter
             Lookup lookup = attachment.getLastLookup();
@@ -164,28 +162,28 @@ public class LookupCommands
     }
 
     @Command(desc = "Performs a rollback")
-    @IParams(@Grouped(req = false, value = @Indexed(label = "!params")))
-    @NParams({@Named(names = {"action", "a"}, completer = ActionTypeCompleter.class), @Named(names = {"radius", "r"}),//<radius> OR selection|sel OR global|g OR player|p:<radius>
-              @Named(names = {"user", "player", "p"}, completer = PlayerListCompleter.class), @Named(names = {"block", "b"}, completer = MaterialListCompleter.class), @Named(names = {"entity", "e"}), @Named(names = {"since", "time", "t"}), // if not given default since 3d
-              @Named(names = {"before"}), @Named(names = {"world", "w", "in"}, type = World.class, completer = WorldCompleter.class)})
+    @Params(positional = @Param(req = false, label = "!params"),
+            nonpositional = {@Param(names = {"action", "a"}, completer = ActionTypeCompleter.class), @Param(names = {"radius", "r"}),//<radius> OR selection|sel OR global|g OR player|p:<radius>
+                              @Param(names = {"user", "player", "p"}, completer = PlayerListCompleter.class), @Param(names = {"block", "b"}, completer = MaterialListCompleter.class), @Param(names = {"entity", "e"}), @Param(names = {"since", "time", "t"}), // if not given default since 3d
+                              @Param(names = {"before"}), @Param(names = {"world", "w", "in"}, type = World.class, completer = WorldCompleter.class)})
     @Flags(@Flag(longName = "preview", name = "pre"))
-    public void rollback(CubeContext context)
+    public void rollback(CommandContext context)
     {
-        if (context.hasIndexed(0))
+        if (context.hasPositional(0))
         {
             if ("params".equalsIgnoreCase(context.getString(0)))
             {
                 this.params(context);
             }
         }
-        else if (context.getSender() instanceof User)
+        else if (context.getSource() instanceof User)
         {
             if (!context.hasNamed())
             {
                 context.sendTranslated(NEGATIVE, "You need to define parameters to rollback!");
                 return;
             }
-            User user = (User)context.getSender();
+            User user = (User)context.getSource();
             LogAttachment attachment = user.attachOrGet(LogAttachment.class, this.module);
             Lookup lookup = attachment.createNewCommandLookup();
             QueryParameter params = lookup.getQueryParameter();
@@ -217,28 +215,28 @@ public class LookupCommands
     }
 
     @Command(desc = "Performs a rollback")
-    @IParams(@Grouped(req = false, value = @Indexed(label = "params")))
-    @NParams({@Named(names = {"action", "a"}, completer = ActionTypeCompleter.class), @Named(names = {"radius", "r"}),//<radius> OR selection|sel OR global|g OR player|p:<radius>
-              @Named(names = {"user", "player", "p"}, completer = PlayerListCompleter.class), @Named(names = {"block", "b"}, completer = MaterialListCompleter.class), @Named(names = {"entity", "e"}), @Named(names = {"since", "time", "t"}), // if not given default since 3d
-              @Named(names = {"before"}), @Named(names = {"world", "w", "in"}, type = World.class, completer = WorldCompleter.class)})
+    @Params(positional = @Param(req = false, label = "params"),
+            nonpositional = {@Param(names = {"action", "a"}, completer = ActionTypeCompleter.class), @Param(names = {"radius", "r"}),//<radius> OR selection|sel OR global|g OR player|p:<radius>
+                              @Param(names = {"user", "player", "p"}, completer = PlayerListCompleter.class), @Param(names = {"block", "b"}, completer = MaterialListCompleter.class), @Param(names = {"entity", "e"}), @Param(names = {"since", "time", "t"}), // if not given default since 3d
+                              @Param(names = {"before"}), @Param(names = {"world", "w", "in"}, type = World.class, completer = WorldCompleter.class)})
     @Flags(@Flag(longName = "preview", name = "pre"))
-    public void redo(CubeContext context)
+    public void redo(CommandContext context)
     {
-        if (context.hasIndexed(0))
+        if (context.hasPositional(0))
         {
             if ("params".equalsIgnoreCase(context.getString(0)))
             {
                 this.params(context);
             }
         }
-        else if (context.getSender() instanceof User)
+        else if (context.getSource() instanceof User)
         {
             if (!context.hasNamed())
             {
                 context.sendTranslated(NEGATIVE, "You need to define parameters to redo!");
                 return;
             }
-            User user = (User)context.getSender();
+            User user = (User)context.getSource();
             LogAttachment attachment = user.attachOrGet(LogAttachment.class, this.module);
             Lookup lookup = attachment.createNewCommandLookup();
             QueryParameter params = lookup.getQueryParameter();
@@ -399,7 +397,7 @@ public class LookupCommands
         return true;
     }
 
-    private boolean fillShowOptions(LogAttachment attachment, Lookup lookup, ShowParameter show, CubeContext context)
+    private boolean fillShowOptions(LogAttachment attachment, Lookup lookup, ShowParameter show, CommandContext context)
     {
         show.showCoords = context.hasFlag("coords");
         show.showDate = !context.hasFlag("nd");
@@ -407,7 +405,7 @@ public class LookupCommands
         show.reverseOrder = !context.hasFlag("desc");
         if (context.hasNamed("limit"))
         {
-            Integer limit = context.getArg("limit", null);
+            Integer limit = context.get("limit", null);
             if (limit == null)
             {
                 return false;
@@ -419,7 +417,7 @@ public class LookupCommands
             }
             show.pagelimit = limit;
         }
-        if (context.hasIndexed(0))
+        if (context.hasPositional(0))
         {
             if ("show".equalsIgnoreCase(context.getString(0)))
             {
@@ -440,7 +438,7 @@ public class LookupCommands
         {
             if (lookup != null && lookup.queried())
             {
-                Integer page = context.getArg("page", null);
+                Integer page = context.get("page", null);
                 if (page == null)
                 {
                     context.sendTranslated(NEGATIVE, "Invalid page!");

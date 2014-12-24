@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.smartcardio.ATR;
+
 import org.bukkit.ChatColor;
 
 import de.cubeisland.engine.core.util.StringUtils;
@@ -64,7 +66,7 @@ public class ActionManager
     public ActionManager(Log module)
     {
         this.module = module;
-        ActionTypeCompleter.manager = this;
+        this.module.getCore().getCommandManager().registerDefaultCompleter(new ActionTypeCompleter(this), ActionTypeCompleter.class);
         this.registerLogActionTypes();
     }
 
