@@ -17,9 +17,10 @@
  */
 package de.cubeisland.engine.module.backpack.converter;
 
-import net.minecraft.server.v1_7_R4.NBTTagCompound;
+import net.minecraft.server.v1_8_R1.NBTTagCompound;
 
-import org.bukkit.craftbukkit.v1_7_R4.inventory.CraftItemStack;
+
+import org.bukkit.craftbukkit.v1_8_R1.inventory.CraftItemStack;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -43,7 +44,7 @@ public class NBTItemStackConverter implements Converter<ItemStack>
         item.setExactNode("Count", new IntNode(itemStack.getAmount()));
         item.setExactNode("Damage", new ShortNode(itemStack.getDurability()));
         item.setExactNode("Item", StringNode.of(itemStack.getType().name()));
-        NBTTagCompound tag = CraftItemStack.asNMSCopy(itemStack).tag;
+        NBTTagCompound tag = CraftItemStack.asNMSCopy(itemStack).getTag();
         item.setExactNode("tag", tag == null ? MapNode.emptyMap() : NBTUtils.convertNBTToNode(tag));
         return item;
     }
@@ -66,8 +67,8 @@ public class NBTItemStackConverter implements Converter<ItemStack>
                     ItemStack itemStack = new ItemStack(Material.valueOf(item.asText()));
                     itemStack.setDurability(((ShortNode)damage).getValue());
                     itemStack.setAmount(((IntNode)count).getValue());
-                    net.minecraft.server.v1_7_R4.ItemStack nms = CraftItemStack.asNMSCopy(itemStack);
-                    nms.tag = ((MapNode)tag).isEmpty() ? null : (NBTTagCompound)NBTUtils.convertNodeToNBT(tag);
+                    net.minecraft.server.v1_8_R1.ItemStack nms = CraftItemStack.asNMSCopy(itemStack);
+                    nms.setTag(((MapNode)tag).isEmpty() ? null : (NBTTagCompound)NBTUtils.convertNodeToNBT(tag));
                     return CraftItemStack.asBukkitCopy(nms);
                 }
                 catch (IllegalArgumentException e)
