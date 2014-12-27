@@ -18,8 +18,6 @@
 package de.cubeisland.engine.module.bigdata;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
@@ -33,13 +31,12 @@ import de.cubeisland.engine.module.bigdata.node.ObjectIdNode;
 import de.cubeisland.engine.reflect.Reflected;
 import de.cubeisland.engine.reflect.codec.Codec;
 import de.cubeisland.engine.reflect.exception.CodecIOException;
-import de.cubeisland.engine.reflect.exception.ConversionException;
-import de.cubeisland.engine.reflect.node.ErrorNode;
-import de.cubeisland.engine.reflect.node.ListNode;
-import de.cubeisland.engine.reflect.node.MapNode;
-import de.cubeisland.engine.reflect.node.Node;
-import de.cubeisland.engine.reflect.node.NullNode;
-import de.cubeisland.engine.reflect.node.ParentNode;
+import de.cubeisland.engine.converter.ConversionException;
+import de.cubeisland.engine.converter.node.ListNode;
+import de.cubeisland.engine.converter.node.MapNode;
+import de.cubeisland.engine.converter.node.Node;
+import de.cubeisland.engine.converter.node.NullNode;
+import de.cubeisland.engine.converter.node.ParentNode;
 import org.bson.types.ObjectId;
 
 public class MongoDBCodec extends Codec<DBObject, DBObject>

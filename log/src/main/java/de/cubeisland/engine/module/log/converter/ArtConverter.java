@@ -19,22 +19,21 @@ package de.cubeisland.engine.module.log.converter;
 
 import org.bukkit.Art;
 
-import de.cubeisland.engine.reflect.codec.ConverterManager;
-import de.cubeisland.engine.reflect.codec.converter.Converter;
-import de.cubeisland.engine.reflect.exception.ConversionException;
-import de.cubeisland.engine.reflect.node.Node;
-import de.cubeisland.engine.reflect.node.StringNode;
+import de.cubeisland.engine.converter.ConversionException;
+import de.cubeisland.engine.converter.converter.SimpleConverter;
+import de.cubeisland.engine.converter.node.Node;
+import de.cubeisland.engine.converter.node.StringNode;
 
-public class ArtConverter implements Converter<Art>
+public class ArtConverter extends SimpleConverter<Art>
 {
     @Override
-    public Node toNode(Art object, ConverterManager manager) throws ConversionException
+    public Node toNode(Art object) throws ConversionException
     {
         return StringNode.of(object.name());
     }
 
     @Override
-    public Art fromNode(Node node, ConverterManager manager) throws ConversionException
+    public Art fromNode(Node node) throws ConversionException
     {
         return Art.valueOf(node.asText());
     }

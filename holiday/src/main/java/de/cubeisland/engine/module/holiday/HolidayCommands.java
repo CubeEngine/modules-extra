@@ -29,8 +29,8 @@ import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.converter.DurationConverter;
 import de.cubeisland.engine.module.holiday.storage.HolidayModel;
-import de.cubeisland.engine.reflect.exception.ConversionException;
-import de.cubeisland.engine.reflect.node.StringNode;
+import de.cubeisland.engine.converter.ConversionException;
+import de.cubeisland.engine.converter.node.StringNode;
 import org.jooq.DSLContext;
 
 import static de.cubeisland.engine.command.parameter.Parameter.INFINITE;
@@ -58,7 +58,7 @@ public class HolidayCommands extends CommandContainer
     {
         try
         {
-            Date toDate = new Date(System.currentTimeMillis() + converter.fromNode(StringNode.of(context.getString(0)), null).getMillis());
+            Date toDate = new Date(System.currentTimeMillis() + converter.fromNode(StringNode.of(context.getString(0))).getMillis());
             String reason = context.getStrings(1);
             User sender = (User)context.getSource();
             HolidayModel model = dsl.selectFrom(TABLE_HOLIDAY).where(TABLE_HOLIDAY.USERID.eq(sender.getEntity().getKey())).fetchOne();

@@ -57,7 +57,7 @@ public class Backpack extends Module
     {
         perms = new BackpackPermissions(this);
         this.getCore().getConfigFactory().getCodecManager().getCodec(NBTCodec.class).getConverterManager().
-            registerConverter(ItemStack.class, new NBTItemStackConverter());
+            registerConverter(new NBTItemStackConverter(), ItemStack.class);
         this.singleDir = this.getFolder().resolve("single");
         this.groupedDir = this.getFolder().resolve("grouped");
         this.globalDir = this.getFolder().resolve("global");

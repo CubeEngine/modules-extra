@@ -19,22 +19,21 @@ package de.cubeisland.engine.module.log.converter;
 
 import org.bukkit.Note;
 
-import de.cubeisland.engine.reflect.codec.ConverterManager;
-import de.cubeisland.engine.reflect.codec.converter.Converter;
-import de.cubeisland.engine.reflect.exception.ConversionException;
-import de.cubeisland.engine.reflect.node.ByteNode;
-import de.cubeisland.engine.reflect.node.Node;
+import de.cubeisland.engine.converter.ConversionException;
+import de.cubeisland.engine.converter.converter.SimpleConverter;
+import de.cubeisland.engine.converter.node.ByteNode;
+import de.cubeisland.engine.converter.node.Node;
 
-public class NoteConverter implements Converter<Note>
+public class NoteConverter extends SimpleConverter<Note>
 {
     @Override
-    public Node toNode(Note object, ConverterManager manager) throws ConversionException
+    public Node toNode(Note object) throws ConversionException
     {
         return new ByteNode(object.getId());
     }
 
     @Override
-    public Note fromNode(Node node, ConverterManager manager) throws ConversionException
+    public Note fromNode(Node node) throws ConversionException
     {
         if (node instanceof ByteNode)
         {

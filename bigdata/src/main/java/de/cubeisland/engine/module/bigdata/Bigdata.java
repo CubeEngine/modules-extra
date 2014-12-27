@@ -43,8 +43,9 @@ public class Bigdata extends Module
         }
         MongoDBCodec mongoDBCodec = new MongoDBCodec();
         this.getCore().getConfigFactory().getCodecManager().registerCodec(mongoDBCodec);
-        mongoDBCodec.getConverterManager().registerConverter(Date.class, new DateConverter());
-        mongoDBCodec.getConverterManager().registerConverter(Reference.class, new ReferenceConverter(this.getCore().getConfigFactory()));
+        mongoDBCodec.getConverterManager().registerConverter(new DateConverter(), Date.class);
+        mongoDBCodec.getConverterManager().registerConverter(new ReferenceConverter(this.getCore().getConfigFactory()),
+                                                             Reference.class);
     }
 
     @Override

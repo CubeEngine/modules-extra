@@ -18,14 +18,13 @@
 package de.cubeisland.engine.module.bigdata;
 
 import com.mongodb.DBRefBase;
+import de.cubeisland.engine.converter.converter.SimpleConverter;
 import de.cubeisland.engine.module.bigdata.node.DBRefBaseNode;
 import de.cubeisland.engine.reflect.Reflector;
-import de.cubeisland.engine.reflect.codec.ConverterManager;
-import de.cubeisland.engine.reflect.codec.converter.Converter;
-import de.cubeisland.engine.reflect.exception.ConversionException;
-import de.cubeisland.engine.reflect.node.Node;
+import de.cubeisland.engine.converter.ConversionException;
+import de.cubeisland.engine.converter.node.Node;
 
-public class ReferenceConverter implements Converter<Reference>
+public class ReferenceConverter extends SimpleConverter<Reference>
 {
     private final Reflector reflector;
 
@@ -35,13 +34,13 @@ public class ReferenceConverter implements Converter<Reference>
     }
 
     @Override
-    public Node toNode(Reference object, ConverterManager manager) throws ConversionException
+    public Node toNode(Reference object) throws ConversionException
     {
         return new DBRefBaseNode(object.getDBRef());
     }
 
     @Override
-    public Reference fromNode(Node node, ConverterManager manager) throws ConversionException
+    public Reference fromNode(Node node) throws ConversionException
     {
         if (node instanceof DBRefBaseNode)
         {

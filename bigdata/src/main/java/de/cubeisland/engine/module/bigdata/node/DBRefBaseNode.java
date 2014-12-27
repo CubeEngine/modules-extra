@@ -18,7 +18,7 @@
 package de.cubeisland.engine.module.bigdata.node;
 
 import com.mongodb.DBRefBase;
-import de.cubeisland.engine.reflect.node.Node;
+import de.cubeisland.engine.converter.node.Node;
 
 public class DBRefBaseNode extends Node<DBRefBase>
 {

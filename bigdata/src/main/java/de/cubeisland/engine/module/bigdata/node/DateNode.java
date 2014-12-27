@@ -19,7 +19,7 @@ package de.cubeisland.engine.module.bigdata.node;
 
 import java.util.Date;
 
-import de.cubeisland.engine.reflect.node.Node;
+import de.cubeisland.engine.converter.node.Node;
 
 public class DateNode extends Node<Date>
 {

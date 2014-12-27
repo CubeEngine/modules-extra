@@ -17,7 +17,7 @@
  */
 package de.cubeisland.engine.module.bigdata.node;
 
-import de.cubeisland.engine.reflect.node.Node;
+import de.cubeisland.engine.converter.node.Node;
 import org.bson.types.ObjectId;
 
 public class ObjectIdNode extends Node<ObjectId>

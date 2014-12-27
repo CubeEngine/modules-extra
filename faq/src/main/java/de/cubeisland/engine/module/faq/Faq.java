@@ -34,7 +34,8 @@ public class Faq extends Module implements Listener
     @Override
     public void onEnable()
     {
-        getCore().getConfigFactory().getDefaultConverterManager().registerConverter(Question.class, new QuestionConverter());
+        getCore().getConfigFactory().getDefaultConverterManager().registerConverter(new QuestionConverter(),
+                                                                                    Question.class);
 
         FaqConfig config = this.loadConfig(FaqConfig.class);
         this.questions.addAll(config.questions);

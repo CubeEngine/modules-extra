@@ -33,7 +33,7 @@ public class Itemrepair extends Module
     {
         this.getCore().getDB().registerTable(TableRepairBlock.class);
         this.getCore().getConfigFactory().getDefaultConverterManager().
-            registerConverter(BaseMaterialContainer.class, new BaseMaterialContainerConverter());
+            registerConverter(new BaseMaterialContainerConverter(), BaseMaterialContainer.class);
         this.config = this.loadConfig(ItemrepairConfig.class);
         this.repairBlockManager = new RepairBlockManager(this);
         this.getCore().getEventManager().registerListener(this, new ItemRepairListener(this));
