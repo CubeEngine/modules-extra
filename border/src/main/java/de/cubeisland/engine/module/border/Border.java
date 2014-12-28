@@ -60,7 +60,8 @@ public class Border extends Module
         File worldFile = new File(folder, world.getName() + ".yml");
         BorderConfig worldConfig = this.globalConfig.loadChild(worldFile);
         this.worldConfigs.put(this.wm.getWorldId(world), worldConfig);
-        if (!worldConfig.center.checkCenter(world))
+
+        if (!worldConfig.checkCenter(world))
         {
             this.getLog().warn("The world spawn of {} is not inside the border!", world.getName());
         }

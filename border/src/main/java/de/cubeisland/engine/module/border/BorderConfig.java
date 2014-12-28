@@ -45,38 +45,38 @@ public class BorderConfig extends ReflectedYaml
 
     public Center center;
 
-    public class Center implements Section
+    public void setCenter(Chunk center, boolean isSpawn)
+    {
+        this.center.chunkX = center.getX();
+        this.center.chunkZ = center.getZ();
+        this.center.useSpawn = isSpawn;
+
+        try
+        {
+            this.removeInheritedField(BorderConfig.this.getClass().getField("center"));
+            this.removeInheritedField(this.center.getClass().getField("chunkX"));
+            this.removeInheritedField(this.center.getClass().getField("chunkZ"));
+        }
+        catch (NoSuchFieldException ignored)
+        {}
+        this.save();
+    }
+
+    public boolean checkCenter(World world)
+    {
+        if (center.useSpawn)
+        {
+            setCenter(world.getSpawnLocation().getChunk(), true);
+            return true;
+        }
+        return !BorderListener.isChunkInRange(world.getSpawnLocation().getChunk(), BorderConfig.this);
+    }
+
+    public static class Center implements Section
     {
         @Comment("When set to true the x and z values will be set to the worlds spawn chunk")
         public boolean useSpawn = true;
         public Integer chunkX = null;
         public Integer chunkZ = null;
-
-        public boolean checkCenter(World world)
-        {
-            if (useSpawn)
-            {
-                this.setCenter(world.getSpawnLocation().getChunk(), true);
-                return true;
-            }
-            return !BorderListener.isChunkInRange(world.getSpawnLocation().getChunk(), BorderConfig.this);
-        }
-
-        public void setCenter(Chunk center, boolean isSpawn)
-        {
-            this.chunkX = center.getX();
-            this.chunkZ = center.getZ();
-            this.useSpawn = isSpawn;
-
-            try
-            {
-                BorderConfig.this.removeInheritedField(BorderConfig.this.getClass().getField("center"));
-                BorderConfig.this.removeInheritedField(this.getClass().getField("chunkX"));
-                BorderConfig.this.removeInheritedField(this.getClass().getField("chunkZ"));
-            }
-            catch (NoSuchFieldException ignored)
-            {}
-            BorderConfig.this.save();
-        }
     }
 }
