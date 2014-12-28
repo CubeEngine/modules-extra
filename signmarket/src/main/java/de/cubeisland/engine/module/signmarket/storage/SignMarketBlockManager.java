@@ -18,11 +18,12 @@
 package de.cubeisland.engine.module.signmarket.storage;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.bukkit.Location;
 
 import de.cubeisland.engine.module.signmarket.Signmarket;
-import gnu.trove.map.hash.THashMap;
 import org.jooq.DSLContext;
 import org.jooq.types.UInteger;
 
@@ -30,7 +31,7 @@ import static de.cubeisland.engine.module.signmarket.storage.TableSignBlock.TABL
 
 public class SignMarketBlockManager
 {
-    private THashMap<Location,BlockModel> blockModels;
+    private Map<Location,BlockModel> blockModels;
 
     private final Signmarket module;
     private final DSLContext dsl;
@@ -43,7 +44,7 @@ public class SignMarketBlockManager
 
     public void load()
     {
-        this.blockModels = new THashMap<>();
+        this.blockModels = new HashMap<>();
         for (BlockModel model : this.dsl.selectFrom(TABLE_SIGN_BLOCK).fetch())
         {
             this.blockModels.put(model.getLocation(),model);

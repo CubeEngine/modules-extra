@@ -19,8 +19,10 @@ package de.cubeisland.engine.module.signmarket.storage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.persistence.Transient;
 
 import org.bukkit.Material;
@@ -36,7 +38,6 @@ import de.cubeisland.engine.core.CubeEngine;
 import de.cubeisland.engine.core.storage.database.AsyncRecord;
 import de.cubeisland.engine.core.util.StringUtils;
 import de.cubeisland.engine.module.signmarket.MarketSign;
-import gnu.trove.set.hash.THashSet;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
 
@@ -45,7 +46,7 @@ import static de.cubeisland.engine.module.signmarket.storage.TableSignItem.TABLE
 public class ItemModel extends AsyncRecord<ItemModel> implements InventoryHolder, Cloneable
 {
     @Transient
-    private final THashSet<MarketSign> sharedStockSigns = new THashSet<>();
+    private final Set<MarketSign> sharedStockSigns = new HashSet<>();
     @Transient
     public Inventory inventory;
     @Transient
@@ -201,7 +202,7 @@ public class ItemModel extends AsyncRecord<ItemModel> implements InventoryHolder
         this.inventory = inventory;
     }
 
-    public THashSet<MarketSign> getReferenced()
+    public Set<MarketSign> getReferenced()
     {
         return this.sharedStockSigns;
     }

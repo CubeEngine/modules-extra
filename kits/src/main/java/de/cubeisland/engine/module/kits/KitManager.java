@@ -21,7 +21,9 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import org.bukkit.event.EventHandler;
@@ -31,7 +33,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.StringUtils;
 import de.cubeisland.engine.core.util.matcher.Match;
-import gnu.trove.map.hash.THashMap;
 
 import static de.cubeisland.engine.core.filesystem.FileExtensionFilter.YAML;
 
@@ -62,8 +63,8 @@ public class KitManager implements Listener
         }
     }
 
-    private final THashMap<String, Kit> kitMap = new THashMap<>();
-    private final THashMap<Kit, KitConfiguration> kitConfigMap = new THashMap<>();
+    private final Map<String, Kit> kitMap = new HashMap<>();
+    private final Map<Kit, KitConfiguration> kitConfigMap = new HashMap<>();
 
     public Kit getKit(String name)
     {

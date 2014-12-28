@@ -18,6 +18,7 @@
 package de.cubeisland.engine.module.signmarket;
 
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.Bukkit;
@@ -46,7 +47,6 @@ import de.cubeisland.engine.module.signmarket.exceptions.NoStockException;
 import de.cubeisland.engine.module.signmarket.exceptions.NoTypeException;
 import de.cubeisland.engine.module.signmarket.storage.BlockModel;
 import de.cubeisland.engine.module.signmarket.storage.ItemModel;
-import gnu.trove.map.hash.TLongLongHashMap;
 import org.jooq.DSLContext;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
@@ -72,7 +72,7 @@ public class MarketSign
     public boolean syncOnMe = false;
     private ItemModel itemInfo;
     private WeakReference<User> userOwner;
-    private TLongLongHashMap breakingSign = new TLongLongHashMap();
+    private Map<Long, Long> breakingSign = new HashMap<>();
     private boolean editMode;
     private int inventoryStock;
     private Inventory displayInventory;

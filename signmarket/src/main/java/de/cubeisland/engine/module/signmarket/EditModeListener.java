@@ -19,7 +19,9 @@ package de.cubeisland.engine.module.signmarket;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Location;
 import org.bukkit.block.BlockState;
@@ -48,7 +50,6 @@ import de.cubeisland.engine.core.command.CommandSender;
 import de.cubeisland.engine.core.command.conversation.ConversationCommand;
 import de.cubeisland.engine.core.command.completer.ItemCompleter;
 import de.cubeisland.engine.core.user.User;
-import gnu.trove.map.hash.TLongObjectHashMap;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 import static org.bukkit.event.Event.Result.DENY;
@@ -60,8 +61,8 @@ public class EditModeListener extends ConversationCommand
 {
     private final MarketSignFactory signFactory;
     private final Signmarket module;
-    private final TLongObjectHashMap<Location> currentSignLocation = new TLongObjectHashMap<>();
-    private final TLongObjectHashMap<MarketSign> previousMarketSign = new TLongObjectHashMap<>();
+    private final Map<Long, Location> currentSignLocation = new HashMap<>();
+    private final Map<Long, MarketSign> previousMarketSign = new HashMap<>();
 
     public EditModeListener(final Signmarket module)
     {
@@ -590,7 +591,7 @@ public class EditModeListener extends ConversationCommand
                     Location newLoc = event.getClickedBlock().getLocation();
                     if (!newLoc.equals(this.currentSignLocation.get(user.getId())))
                     {
-                        if (this.currentSignLocation.valueCollection().contains(newLoc))
+                        if (this.currentSignLocation.values().contains(newLoc))
                         {
                             user.sendTranslated(NEGATIVE, "Someone else is editing this sign!");
                             return;

@@ -17,6 +17,7 @@
  */
 package de.cubeisland.engine.module.fun.commands;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -29,7 +30,6 @@ import de.cubeisland.engine.command.methodic.Params;
 import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.module.fun.Fun;
-import gnu.trove.map.hash.THashMap;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
@@ -42,7 +42,7 @@ public class DiscoCommand
     public DiscoCommand(Fun module)
     {
         this.module = module;
-        this.activeTasks = new THashMap<>();
+        this.activeTasks = new HashMap<>();
     }
 
     @Command(desc = "Rapidly changes from day to night")

@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.bukkit.inventory.ItemStack;
 
+import de.cubeisland.engine.command.CommandInvocation;
 import de.cubeisland.engine.command.methodic.Command;
 import de.cubeisland.engine.command.methodic.Flag;
 import de.cubeisland.engine.command.methodic.Flags;
@@ -49,17 +50,16 @@ public class KitCommand extends CommandContainer
         super(module);
         this.module = module;
         this.manager = module.getKitManager();
+    }
 
-/* TODO delegation
-        this.delegateChild(new DelegatingContextFilter()
+    @Override
+    protected boolean selfExecute(CommandInvocation invocation)
+    {
+        if (invocation.tokens().size() - invocation.consumed() >= 1)
         {
-            @Override
-            public String delegateTo(CommandContext context)
-            {
-                return context.hasPositional(0) ? "give" : null;
-            }
-        });
-        */
+            return this.getCommand("give").execute(invocation);
+        }
+        return super.selfExecute(invocation);
     }
 
     @Command(desc = "Creates a new kit with the items in your inventory.")

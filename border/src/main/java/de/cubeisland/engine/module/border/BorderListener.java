@@ -17,6 +17,10 @@
  */
 package de.cubeisland.engine.module.border;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -33,8 +37,6 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.user.UserManager;
 import de.cubeisland.engine.core.util.math.BlockVector2;
-import gnu.trove.map.TObjectLongMap;
-import gnu.trove.map.hash.TObjectLongHashMap;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEUTRAL;
@@ -43,23 +45,23 @@ public class BorderListener implements Listener
 {
     private final UserManager um;
     private final Border module;
-    private final TObjectLongMap<String> lastNotice;
+    private final Map<UUID, Long> lastNotice;
     private static final long NOTICE_DELAY = 1000 * 3;
 
     public BorderListener(Border module)
     {
         this.module = module;
         this.um = module.getCore().getUserManager();
-        this.lastNotice = new TObjectLongHashMap<>();
+        this.lastNotice = new HashMap<>();
     }
 
     private boolean mayNotice(Player player)
     {
         long currentTime = System.currentTimeMillis();
 
-        if (currentTime - this.lastNotice.get(player.getName()) > NOTICE_DELAY)
+        if (currentTime - this.lastNotice.get(player.getUniqueId()) > NOTICE_DELAY)
         {
-            this.lastNotice.put(player.getName(), currentTime);
+            this.lastNotice.put(player.getUniqueId(), currentTime);
             return true;
         }
         return false;
@@ -68,7 +70,7 @@ public class BorderListener implements Listener
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event)
     {
-        this.lastNotice.remove(event.getPlayer().getName());
+        this.lastNotice.remove(event.getPlayer().getUniqueId());
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)

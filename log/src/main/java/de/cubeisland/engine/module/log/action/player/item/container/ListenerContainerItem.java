@@ -45,7 +45,6 @@ import com.mongodb.BasicDBObject;
 import de.cubeisland.engine.core.bukkit.BukkitUtils;
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.action.LogListener;
-import gnu.trove.map.hash.TObjectIntHashMap;
 
 import static de.cubeisland.engine.core.util.InventoryUtil.getMissingSpace;
 import static org.bukkit.Material.*;
@@ -63,7 +62,7 @@ import static org.bukkit.Material.*;
  */
 public class ListenerContainerItem extends LogListener
 {
-    private final Map<UUID, TObjectIntHashMap<ItemData>> inventoryChanges = new HashMap<>();
+    private final Map<UUID, Map<ItemData, Integer>> inventoryChanges = new HashMap<>();
 
     public ListenerContainerItem(Log module)
     {
@@ -75,7 +74,7 @@ public class ListenerContainerItem extends LogListener
     {
         if (event.getPlayer() instanceof Player)
         {
-            TObjectIntHashMap<ItemData> itemDataMap = this.inventoryChanges.get(event.getPlayer().getUniqueId());
+            Map<ItemData, Integer> itemDataMap = this.inventoryChanges.get(event.getPlayer().getUniqueId());
             if (itemDataMap != null)
             {
                 Location location = this.getLocationForHolder(event.getInventory().getHolder());
@@ -152,7 +151,7 @@ public class ListenerContainerItem extends LogListener
                 ContainerType type = new ContainerType(event.getInventory().getHolder());
                 if (!config.container.CONTAINER_ignore.contains(type))
                  */
-                this.inventoryChanges.put(event.getPlayer().getUniqueId(), new TObjectIntHashMap<ItemData>());
+                this.inventoryChanges.put(event.getPlayer().getUniqueId(), new HashMap<ItemData, Integer>());
             }
         }
     }
@@ -444,10 +443,10 @@ public class ListenerContainerItem extends LogListener
 
     private void prepareForLogging(Player player, ItemData itemData, int amount)
     {
-        TObjectIntHashMap<ItemData> itemDataMap = this.inventoryChanges.get(player.getUniqueId());
+        Map<ItemData, Integer> itemDataMap = this.inventoryChanges.get(player.getUniqueId());
         if (itemDataMap == null)
         {
-            itemDataMap = new TObjectIntHashMap<>();
+            itemDataMap = new HashMap<>();
             this.inventoryChanges.put(player.getUniqueId(), itemDataMap);
         }
         int oldAmount = itemDataMap.get(itemData); // if not yet set this returns 0
