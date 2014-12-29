@@ -1,5 +1,5 @@
-CubeEngine
-==========
+CubeEngine - Extra Modules
+==========================
 
 CubeEngine Minecraft module framework
 
