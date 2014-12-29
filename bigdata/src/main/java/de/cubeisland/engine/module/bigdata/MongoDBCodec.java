@@ -29,6 +29,7 @@ import de.cubeisland.engine.module.bigdata.node.DBRefBaseNode;
 import de.cubeisland.engine.module.bigdata.node.DateNode;
 import de.cubeisland.engine.module.bigdata.node.ObjectIdNode;
 import de.cubeisland.engine.reflect.Reflected;
+import de.cubeisland.engine.reflect.Reflector;
 import de.cubeisland.engine.reflect.codec.Codec;
 import de.cubeisland.engine.reflect.exception.CodecIOException;
 import de.cubeisland.engine.converter.ConversionException;
@@ -38,6 +39,8 @@ import de.cubeisland.engine.converter.node.Node;
 import de.cubeisland.engine.converter.node.NullNode;
 import de.cubeisland.engine.converter.node.ParentNode;
 import org.bson.types.ObjectId;
+
+import static de.cubeisland.engine.reflect.Reflector.LOGGER;
 
 public class MongoDBCodec extends Codec<DBObject, DBObject>
 {
@@ -54,7 +57,7 @@ public class MongoDBCodec extends Codec<DBObject, DBObject>
             {
                 throw new CodecIOException("Could not load reflected", ex);
             }
-            reflected.getLogger().warning("Could not load reflected" + ex);
+            LOGGER.warning("Could not load reflected" + ex);
         }
     }
 
@@ -71,7 +74,7 @@ public class MongoDBCodec extends Codec<DBObject, DBObject>
             {
                 throw new CodecIOException("Could not save reflected", ex);
             }
-            reflected.getLogger().warning("Could not save reflected" + ex);
+            LOGGER.warning("Could not save reflected" + ex);
         }
     }
 
