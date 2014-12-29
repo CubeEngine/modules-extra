@@ -17,13 +17,13 @@
  */
 package de.cubeisland.engine.module.log.action.block.player.destroy;
 
-import de.cubeisland.engine.module.bigdata.Reference;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.ActionCategory;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.ReferenceHolder;
 import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock;
+import de.cubeisland.engine.reflect.codec.mongo.Reference;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.BLOCK;

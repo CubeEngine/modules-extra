@@ -23,6 +23,7 @@ import java.util.Date;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import de.cubeisland.engine.core.module.Module;import de.cubeisland.engine.core.module.exception.ModuleLoadError;
+import de.cubeisland.engine.reflect.codec.mongo.MongoDBCodec;
 
 public class Bigdata extends Module
 {
@@ -41,11 +42,7 @@ public class Bigdata extends Module
         {
             throw new ModuleLoadError("Invalid host", e);
         }
-        MongoDBCodec mongoDBCodec = new MongoDBCodec();
-        this.getCore().getConfigFactory().getCodecManager().registerCodec(mongoDBCodec);
-        mongoDBCodec.getConverterManager().registerConverter(new DateConverter(), Date.class);
-        mongoDBCodec.getConverterManager().registerConverter(new ReferenceConverter(this.getCore().getConfigFactory()),
-                                                             Reference.class);
+        this.getCore().getConfigFactory().getCodecManager().registerCodec(new MongoDBCodec());
     }
 
     @Override

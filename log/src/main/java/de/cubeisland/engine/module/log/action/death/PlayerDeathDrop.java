@@ -17,9 +17,9 @@
  */
 package de.cubeisland.engine.module.log.action.death;
 
+import de.cubeisland.engine.reflect.codec.mongo.Reference;
 import org.bukkit.inventory.ItemStack;
 
-import de.cubeisland.engine.module.bigdata.Reference;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;

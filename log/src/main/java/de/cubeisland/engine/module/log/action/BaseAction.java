@@ -25,10 +25,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import de.cubeisland.engine.reflect.codec.mongo.ReflectedDBObject;
 import org.bukkit.Location;
 import org.bukkit.World;
 
-import de.cubeisland.engine.module.bigdata.ReflectedDBObject;
 import de.cubeisland.engine.core.CubeEngine;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.math.BlockVector3;

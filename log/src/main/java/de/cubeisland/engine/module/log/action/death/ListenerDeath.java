@@ -17,6 +17,7 @@
  */
 package de.cubeisland.engine.module.log.action.death;
 
+import de.cubeisland.engine.reflect.codec.mongo.Reference;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Entity;
@@ -35,7 +36,6 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 
-import de.cubeisland.engine.module.bigdata.Reference;
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.action.LogListener;
 import de.cubeisland.engine.module.log.action.block.entity.ActionEntityBlock.EntitySection;
