@@ -8,9 +8,9 @@
   </parent>
 
   <artifactId>holiday</artifactId>
-  <name>holiday</name>
+  <name>Holiday</name>
   <version>1.0.0-SNAPSHOT</version>
-  <description>Marks you as beeing on holiday and prevents deleting your playerdata</description>
+  <description>Marks you as being on holiday and prevents deleting your player data</description>
 
   <dependencies>
     <dependency>
