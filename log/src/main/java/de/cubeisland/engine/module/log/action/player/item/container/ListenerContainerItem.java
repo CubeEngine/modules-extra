@@ -449,8 +449,8 @@ public class ListenerContainerItem extends LogListener
             itemDataMap = new HashMap<>();
             this.inventoryChanges.put(player.getUniqueId(), itemDataMap);
         }
-        int oldAmount = itemDataMap.get(itemData); // if not yet set this returns 0
-        itemDataMap.put(itemData, oldAmount + amount);
+        Integer oldAmount = itemDataMap.get(itemData); // if not yet set this returns 0
+        itemDataMap.put(itemData, oldAmount == null ? 0 : oldAmount + amount);
         //System.out.print((amount < 0 ? "TAKE " : "PUT ") + itemData.material.name()+":"+itemData.dura+" x"+amount);//TODO remove this
     }
 }
