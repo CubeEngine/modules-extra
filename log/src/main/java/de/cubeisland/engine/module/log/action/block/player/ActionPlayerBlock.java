@@ -23,6 +23,7 @@ import org.bukkit.entity.Player;
 
 import de.cubeisland.engine.module.log.action.ActionCategory;
 import de.cubeisland.engine.module.log.action.block.ActionBlock;
+import de.cubeisland.engine.reflect.NullSection;
 import de.cubeisland.engine.reflect.Section;
 
 /**
@@ -42,7 +43,7 @@ public abstract class ActionPlayerBlock extends ActionBlock
         this.player = new PlayerSection(player);
     }
 
-    public static class PlayerSection implements Section
+    public static class PlayerSection implements NullSection
     {
         public UUID uuid;
         public String name;
