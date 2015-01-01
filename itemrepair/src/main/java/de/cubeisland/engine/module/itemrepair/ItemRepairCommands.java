@@ -28,9 +28,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
+import de.cubeisland.engine.command.methodic.Command;
 import de.cubeisland.engine.core.command.CommandContainer;
 import de.cubeisland.engine.core.command.CommandContext;
-import de.cubeisland.engine.command.methodic.Command;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.module.itemrepair.repair.RepairBlockManager;
 

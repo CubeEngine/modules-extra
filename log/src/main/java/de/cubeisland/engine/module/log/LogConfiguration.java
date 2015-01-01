@@ -20,9 +20,9 @@ package de.cubeisland.engine.module.log;
 import java.util.concurrent.TimeUnit;
 
 import de.cubeisland.engine.reflect.Section;
-import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
 import de.cubeisland.engine.reflect.annotations.Comment;
 import de.cubeisland.engine.reflect.annotations.Name;
+import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
 import org.joda.time.Duration;
 
 @SuppressWarnings("all")

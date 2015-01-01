@@ -22,11 +22,10 @@ import java.net.UnknownHostException;
 
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
-import com.mongodb.MongoClientException;
 import com.mongodb.MongoClientOptions;
-import com.mongodb.MongoTimeoutException;
 import com.mongodb.ServerAddress;
-import de.cubeisland.engine.core.module.Module;import de.cubeisland.engine.core.module.exception.ModuleLoadError;
+import de.cubeisland.engine.core.module.Module;
+import de.cubeisland.engine.core.module.exception.ModuleLoadError;
 import de.cubeisland.engine.reflect.codec.mongo.MongoDBCodec;
 
 public class Bigdata extends Module

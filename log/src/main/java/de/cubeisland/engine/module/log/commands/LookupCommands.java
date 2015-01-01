@@ -49,6 +49,7 @@ import de.cubeisland.engine.module.log.storage.Lookup;
 import de.cubeisland.engine.module.log.storage.QueryParameter;
 import de.cubeisland.engine.module.log.storage.ShowParameter;
 
+import static de.cubeisland.engine.command.parameter.property.Requirement.OPTIONAL;
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 
 public class LookupCommands
@@ -91,7 +92,7 @@ public class LookupCommands
     }
 
     @Command(desc = "Queries a lookup in the database\n    Show availiable parameters with /lookup params")
-    @Params(positional = @Param(req = false, label = "params"),
+    @Params(positional = @Param(req = OPTIONAL, label = "params"),
             nonpositional = {@Param(names = {"action", "a"}, completer = ActionTypeCompleter.class),
                               @Param(names = {"radius", "r"}),//<radius> OR selection|sel OR global|g OR player|p:<radius>
                               @Param(names = {"user", "player", "p"}, completer = PlayerListCompleter.class),
@@ -162,7 +163,7 @@ public class LookupCommands
     }
 
     @Command(desc = "Performs a rollback")
-    @Params(positional = @Param(req = false, label = "!params"),
+    @Params(positional = @Param(req = OPTIONAL, label = "!params"),
             nonpositional = {@Param(names = {"action", "a"}, completer = ActionTypeCompleter.class), @Param(names = {"radius", "r"}),//<radius> OR selection|sel OR global|g OR player|p:<radius>
                               @Param(names = {"user", "player", "p"}, completer = PlayerListCompleter.class), @Param(names = {"block", "b"}, completer = MaterialListCompleter.class), @Param(names = {"entity", "e"}), @Param(names = {"since", "time", "t"}), // if not given default since 3d
                               @Param(names = {"before"}), @Param(names = {"world", "w", "in"}, type = World.class, completer = WorldCompleter.class)})
@@ -215,7 +216,7 @@ public class LookupCommands
     }
 
     @Command(desc = "Performs a rollback")
-    @Params(positional = @Param(req = false, label = "params"),
+    @Params(positional = @Param(req = OPTIONAL, label = "params"),
             nonpositional = {@Param(names = {"action", "a"}, completer = ActionTypeCompleter.class), @Param(names = {"radius", "r"}),//<radius> OR selection|sel OR global|g OR player|p:<radius>
                               @Param(names = {"user", "player", "p"}, completer = PlayerListCompleter.class), @Param(names = {"block", "b"}, completer = MaterialListCompleter.class), @Param(names = {"entity", "e"}), @Param(names = {"since", "time", "t"}), // if not given default since 3d
                               @Param(names = {"before"}), @Param(names = {"world", "w", "in"}, type = World.class, completer = WorldCompleter.class)})

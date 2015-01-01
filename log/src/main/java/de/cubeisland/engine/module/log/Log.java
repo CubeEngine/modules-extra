@@ -17,7 +17,6 @@
  */
 package de.cubeisland.engine.module.log;
 
-import de.cubeisland.engine.reflect.codec.mongo.MongoDBCodec;
 import org.bukkit.Art;
 import org.bukkit.Note;
 import org.bukkit.block.BlockFace;
@@ -30,10 +29,13 @@ import org.bukkit.inventory.ItemStack;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import de.cubeisland.engine.module.bigdata.Bigdata;
+import de.cubeisland.engine.converter.ConverterManager;
 import de.cubeisland.engine.core.command.CommandManager;
 import de.cubeisland.engine.core.module.Inject;
 import de.cubeisland.engine.core.module.Module;
+import de.cubeisland.engine.messagecompositor.macro.example.DateFormatter;
+import de.cubeisland.engine.messagecompositor.macro.example.DateFormatter.DateReader;
+import de.cubeisland.engine.module.bigdata.Bigdata;
 import de.cubeisland.engine.module.log.action.ActionManager;
 import de.cubeisland.engine.module.log.action.block.player.worldedit.LogEditSessionFactory;
 import de.cubeisland.engine.module.log.action.player.item.container.ContainerType;
@@ -48,9 +50,7 @@ import de.cubeisland.engine.module.log.converter.ItemStackConverter;
 import de.cubeisland.engine.module.log.converter.NoteConverter;
 import de.cubeisland.engine.module.log.storage.LogManager;
 import de.cubeisland.engine.module.log.tool.ToolListener;
-import de.cubeisland.engine.messagecompositor.macro.example.DateFormatter;
-import de.cubeisland.engine.messagecompositor.macro.example.DateFormatter.DateReader;
-import de.cubeisland.engine.converter.ConverterManager;
+import de.cubeisland.engine.reflect.codec.mongo.MongoDBCodec;
 
 public class Log extends Module implements Listener
 {

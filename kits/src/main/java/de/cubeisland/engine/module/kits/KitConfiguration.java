@@ -22,10 +22,10 @@ import java.util.LinkedList;
 import java.util.List;
 import javax.persistence.Transient;
 
-import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
+import de.cubeisland.engine.core.util.StringUtils;
 import de.cubeisland.engine.reflect.annotations.Comment;
 import de.cubeisland.engine.reflect.annotations.Name;
-import de.cubeisland.engine.core.util.StringUtils;
+import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
 import org.joda.time.Duration;
 
 @SuppressWarnings("all")

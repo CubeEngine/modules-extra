@@ -17,8 +17,8 @@
  */
 package de.cubeisland.engine.module.shout;
 
-import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
 import de.cubeisland.engine.reflect.annotations.Comment;
+import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
 
 @SuppressWarnings("all")
 public class ShoutConfiguration extends ReflectedYaml

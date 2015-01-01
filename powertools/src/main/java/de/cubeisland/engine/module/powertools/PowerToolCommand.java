@@ -30,6 +30,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import de.cubeisland.engine.command.alias.Alias;
 import de.cubeisland.engine.command.methodic.Command;
 import de.cubeisland.engine.command.methodic.Flag;
 import de.cubeisland.engine.command.methodic.Flags;
@@ -38,12 +39,12 @@ import de.cubeisland.engine.command.methodic.Params;
 import de.cubeisland.engine.core.command.CommandContainer;
 import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.command.CommandSender;
-import de.cubeisland.engine.command.alias.Alias;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.ChatFormat;
 import de.cubeisland.engine.core.util.matcher.Match;
 
 import static de.cubeisland.engine.command.parameter.Parameter.INFINITE;
+import static de.cubeisland.engine.command.parameter.property.Requirement.OPTIONAL;
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 
 /**
@@ -118,7 +119,7 @@ public class PowerToolCommand extends CommandContainer implements Listener
 
     @Alias(value = "ptr")
     @Command(alias = {"del", "delete", "rm"}, desc = "Removes a command from your powertool")
-    @Params(positional = @Param(req = false, label = "command", greed = INFINITE))
+    @Params(positional = @Param(req = OPTIONAL, label = "command", greed = INFINITE))
     @Flags(@Flag(longName = "chat", name = "c"))
     public void remove(CommandContext context)
     {

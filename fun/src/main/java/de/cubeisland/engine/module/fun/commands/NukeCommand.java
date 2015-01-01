@@ -47,6 +47,7 @@ import de.cubeisland.engine.core.util.math.shape.Shape;
 import de.cubeisland.engine.core.util.math.shape.Sphere;
 import de.cubeisland.engine.module.fun.Fun;
 
+import static de.cubeisland.engine.command.parameter.property.Requirement.OPTIONAL;
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
 
@@ -64,9 +65,9 @@ public class NukeCommand
     }
 
     @Command(desc = "Makes a carpet of TNT fall on a player or where you're looking")
-   @Params(positional = {@Param(req = false, label = "param1", type = Integer.class),
-                          @Param(req = false, label = "param2", type = Integer.class),
-                          @Param(req = false, label = "param3", type = Integer.class)},
+   @Params(positional = {@Param(req = OPTIONAL, label = "param1", type = Integer.class),
+                          @Param(req = OPTIONAL, label = "param2", type = Integer.class),
+                          @Param(req = OPTIONAL, label = "param3", type = Integer.class)},
             nonpositional = {@Param(names = {"player", "p"}, type = User.class),
                               @Param(names = {"height", "h"}, type = Integer.class),
                               @Param(names = {"range", "r"}, type = Integer.class),

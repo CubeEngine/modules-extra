@@ -51,6 +51,7 @@ import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.matcher.Match;
 import de.cubeisland.engine.module.fun.Fun;
 
+import static de.cubeisland.engine.command.parameter.property.Requirement.OPTIONAL;
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 
 public class ThrowCommands
@@ -79,7 +80,7 @@ public class ThrowCommands
 
     @Command(name = "throw", desc = "Throw something!")
     @Params(positional = {@Param(label = "material"),
-                   @Param(req = false, label = "amount")},
+                   @Param(req = OPTIONAL, label = "amount")},
             nonpositional = @Param(names = { "delay", "d" }, type = Integer.class))
     @Flags(@Flag(longName = "unsafe", name = "u"))
     public void throwCommand(CommandContext context)

@@ -34,7 +34,6 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.permissions.Permissible;
 
 import de.cubeisland.engine.command.CommandInvocation;
 import de.cubeisland.engine.command.CommandSource;
@@ -47,8 +46,8 @@ import de.cubeisland.engine.command.methodic.Params;
 import de.cubeisland.engine.command.result.CommandResult;
 import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.command.CommandSender;
-import de.cubeisland.engine.core.command.conversation.ConversationCommand;
 import de.cubeisland.engine.core.command.completer.ItemCompleter;
+import de.cubeisland.engine.core.command.conversation.ConversationCommand;
 import de.cubeisland.engine.core.user.User;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;

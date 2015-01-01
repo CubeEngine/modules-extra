@@ -39,6 +39,7 @@ import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.user.UserManager;
 import de.cubeisland.engine.module.fun.Fun;
 
+import static de.cubeisland.engine.command.parameter.property.Requirement.OPTIONAL;
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
 
 public class RocketCommand
@@ -59,7 +60,7 @@ public class RocketCommand
     }
 
     @Command(desc = "Shoots a player upwards with a cool smoke effect")
-    @Params(positional = @Param(req = false, label = "height", type = Integer.class),
+    @Params(positional = @Param(req = OPTIONAL, label = "height", type = Integer.class),
             nonpositional = @Param(names = {"player", "p"}, type = User.class))
     public void rocket(CommandContext context)
     {

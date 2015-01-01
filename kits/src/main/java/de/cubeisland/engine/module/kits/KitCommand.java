@@ -23,6 +23,7 @@ import java.util.List;
 import org.bukkit.inventory.ItemStack;
 
 import de.cubeisland.engine.command.CommandInvocation;
+import de.cubeisland.engine.command.alias.Alias;
 import de.cubeisland.engine.command.methodic.Command;
 import de.cubeisland.engine.command.methodic.Flag;
 import de.cubeisland.engine.command.methodic.Flags;
@@ -30,10 +31,10 @@ import de.cubeisland.engine.command.methodic.Param;
 import de.cubeisland.engine.command.methodic.Params;
 import de.cubeisland.engine.core.command.CommandContainer;
 import de.cubeisland.engine.core.command.CommandContext;
-import de.cubeisland.engine.command.alias.Alias;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.FileUtil;
 
+import static de.cubeisland.engine.command.parameter.property.Requirement.OPTIONAL;
 import static de.cubeisland.engine.core.util.ChatFormat.WHITE;
 import static de.cubeisland.engine.core.util.ChatFormat.YELLOW;
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
@@ -140,7 +141,7 @@ public class KitCommand extends CommandContainer
 
     @Command(desc = "Gives a set of items.")
     @Params(positional = {@Param(label = "kitname"),
-                          @Param(req = false, label = "player", type = User.class)})
+                          @Param(req = OPTIONAL, label = "player", type = User.class)})
     @Flags({@Flag(longName = "all", name = "a"),
             @Flag(longName = "force", name = "f")})
     public void give(CommandContext context)

@@ -36,6 +36,7 @@ import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.matcher.Match;
 import de.cubeisland.engine.module.fun.Fun;
 
+import static de.cubeisland.engine.command.parameter.property.Requirement.OPTIONAL;
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 import static org.bukkit.Material.AIR;
 
@@ -52,7 +53,7 @@ public class PlayerCommands
     }
     
     @Command(desc = "Gives a player a hat")
-    @Params(positional = @Param(req = false, label = "item"),
+    @Params(positional = @Param(req = OPTIONAL, label = "item"),
             nonpositional = @Param(names = {"player", "p"}, type = User.class))
     @Flags(@Flag(longName = "quiet", name = "q"))
     public void hat(CommandContext context)
@@ -302,7 +303,7 @@ public class PlayerCommands
 
     @Command(desc = "Slaps a player")
     @Params(positional = {@Param(label = "player", type = User.class),
-                          @Param(req = false, label = "damage", type = Integer.class)})
+                          @Param(req = OPTIONAL, label = "damage", type = Integer.class)})
     public void slap(CommandContext context)
     {
         User user = context.get(0);
@@ -321,7 +322,7 @@ public class PlayerCommands
 
     @Command(desc = "Burns a player")
     @Params(positional = {@Param(label = "player", type = User.class),
-              @Param(req = false, label = "seconds", type = Integer.class)})
+              @Param(req = OPTIONAL, label = "seconds", type = Integer.class)})
     @Flags(@Flag(longName = "unset", name = "u"))
     public void burn(CommandContext context)
     {

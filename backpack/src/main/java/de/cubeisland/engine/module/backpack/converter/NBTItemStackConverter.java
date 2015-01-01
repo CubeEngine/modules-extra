@@ -18,8 +18,6 @@
 package de.cubeisland.engine.module.backpack.converter;
 
 import net.minecraft.server.v1_8_R1.NBTTagCompound;
-
-
 import org.bukkit.craftbukkit.v1_8_R1.inventory.CraftItemStack;
 
 import org.bukkit.Material;
