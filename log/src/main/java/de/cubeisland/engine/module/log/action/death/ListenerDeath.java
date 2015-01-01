@@ -70,6 +70,7 @@ public class ListenerDeath extends LogListener
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEntityDeath(EntityDeathEvent event)
     {
+        // TODO handle when there is no reference on lookup of dependent actions
         DeathKill killAction = this.newAction(DeathKill.class, event.getEntity().getWorld());
         if (killAction != null)
         {
