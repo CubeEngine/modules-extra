@@ -151,6 +151,7 @@ public class SpawnCommands
     @Flags(@Flag(longName = "force", name = "f"))
     public void spawn(CommandContext context)
     {
+        // TODO spawning to world spawn
         if (!(context.getSource() instanceof User || context.hasPositional(0)))
         {
             context.sendTranslated(NEGATIVE, "{text:Pro Tip}: Teleport does not work IRL!");
@@ -289,7 +290,11 @@ public class SpawnCommands
         }
         // else no user specified
         User user = (User)context.getSource();
-        if (role == null)
+        if (role != null)
+        {
+            context.sendTranslated(POSITIVE, "You are now standing at the spawn of {name#role} in {world}!", role.getName(), world);
+        }
+        else
         {
             RolesAttachment rolesAttachment = user.get(RolesAttachment.class);
             if (rolesAttachment == null)
@@ -317,10 +322,6 @@ public class SpawnCommands
                 }
                 context.sendTranslated(POSITIVE, "You are now standing at your role's spawn!");
             }
-        }
-        else
-        {
-            context.sendTranslated(POSITIVE, "You are now standing at the spawn of {name#role} in {world}!", role.getName(), world);
         }
         this.tpToSpawn(user, spawnLocation, force);
     }
