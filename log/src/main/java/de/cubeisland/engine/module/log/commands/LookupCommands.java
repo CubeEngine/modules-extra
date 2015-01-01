@@ -117,7 +117,7 @@ public class LookupCommands
         }
         else if (context.getSource() instanceof User)
         {
-            if (context.hasNamed())
+            if (!context.hasNamed())
             {
                 try
                 {

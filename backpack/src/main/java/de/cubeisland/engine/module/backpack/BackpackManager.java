@@ -153,7 +153,8 @@ public class BackpackManager implements Listener
         }
     }
 
-    public void modifyBackpack(CommandSender sender, User forUser, String name, World forWorld, Integer pages, Boolean blockInput, Integer size)
+    public void modifyBackpack(CommandSender sender, User forUser, String name, World forWorld, Boolean blockInput,
+                               Integer pages, Integer size)
     {
         BackpackAttachment attachment = forUser.attachOrGet(BackpackAttachment.class, module);
         attachment.loadBackpacks(forWorld);

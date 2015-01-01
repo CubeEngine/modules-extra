@@ -47,6 +47,7 @@
           <artifactSet>
             <includes>
               <include>org.mongodb:mongo-java-driver</include>
+              <include>de.cubeisland.engine:reflect-mongo</include>
             </includes>
           </artifactSet>
         </configuration>

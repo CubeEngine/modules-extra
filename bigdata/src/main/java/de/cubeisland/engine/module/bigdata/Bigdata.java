@@ -18,7 +18,6 @@
 package de.cubeisland.engine.module.bigdata;
 
 import java.net.UnknownHostException;
-import java.util.Date;
 
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
