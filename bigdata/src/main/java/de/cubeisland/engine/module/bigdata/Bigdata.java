@@ -17,10 +17,13 @@
  */
 package de.cubeisland.engine.module.bigdata;
 
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
+import com.mongodb.ServerAddress;
 import de.cubeisland.engine.core.module.Module;import de.cubeisland.engine.core.module.exception.ModuleLoadError;
 import de.cubeisland.engine.reflect.codec.mongo.MongoDBCodec;
 
@@ -35,7 +38,12 @@ public class Bigdata extends Module
         this.config = this.loadConfig(MongoDBConfiguration.class);
         try
         {
-            this.pool = new MongoClient(this.config.host, this.config.port);
+            ServerAddress address = new ServerAddress(InetAddress.getByName(this.config.host), this.config.port);
+            MongoClientOptions options = MongoClientOptions
+                .builder()
+                .connectTimeout(this.config.connectionTimeout)
+                .build();
+            this.pool = new MongoClient(address, options);
         }
         catch (UnknownHostException e)
         {
