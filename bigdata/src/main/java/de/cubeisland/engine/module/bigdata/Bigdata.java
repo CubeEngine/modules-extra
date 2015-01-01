@@ -22,7 +22,9 @@ import java.net.UnknownHostException;
 
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientException;
 import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoTimeoutException;
 import com.mongodb.ServerAddress;
 import de.cubeisland.engine.core.module.Module;import de.cubeisland.engine.core.module.exception.ModuleLoadError;
 import de.cubeisland.engine.reflect.codec.mongo.MongoDBCodec;
@@ -44,6 +46,15 @@ public class Bigdata extends Module
                 .connectTimeout(this.config.connectionTimeout)
                 .build();
             this.pool = new MongoClient(address, options);
+            try
+            {
+                // verifies the connection by trying to access it
+                this.pool.getDatabaseNames();
+            }
+            catch (RuntimeException e)
+            {
+                throw new ModuleLoadError("Failed to connect to the your MongoDB instance!", e);
+            }
         }
         catch (UnknownHostException e)
         {
