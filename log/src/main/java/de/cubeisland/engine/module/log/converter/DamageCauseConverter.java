@@ -19,22 +19,21 @@ package de.cubeisland.engine.module.log.converter;
 
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
-import de.cubeisland.engine.reflect.codec.ConverterManager;
-import de.cubeisland.engine.reflect.codec.converter.Converter;
-import de.cubeisland.engine.reflect.exception.ConversionException;
-import de.cubeisland.engine.reflect.node.Node;
-import de.cubeisland.engine.reflect.node.StringNode;
+import de.cubeisland.engine.converter.ConversionException;
+import de.cubeisland.engine.converter.converter.SimpleConverter;
+import de.cubeisland.engine.converter.node.Node;
+import de.cubeisland.engine.converter.node.StringNode;
 
-public class DamageCauseConverter implements Converter<DamageCause>
+public class DamageCauseConverter extends SimpleConverter<DamageCause>
 {
     @Override
-    public Node toNode(DamageCause object, ConverterManager manager) throws ConversionException
+    public Node toNode(DamageCause object) throws ConversionException
     {
         return StringNode.of(object.name());
     }
 
     @Override
-    public DamageCause fromNode(Node node, ConverterManager manager) throws ConversionException
+    public DamageCause fromNode(Node node) throws ConversionException
     {
         return DamageCause.valueOf(node.asText());
     }

@@ -128,7 +128,7 @@ public class ListenerPlayerBlock extends LogListener
 
         if (blockState.getType() == OBSIDIAN) // portal?
         {
-            // TODO better & getSuggestions
+            // TODO better & complete
             Block block = blockState.getBlock();
             for (BlockFace face : BLOCK_FACES)
             {

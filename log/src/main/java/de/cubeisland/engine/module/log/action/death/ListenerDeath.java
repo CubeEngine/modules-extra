@@ -35,11 +35,11 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 
-import de.cubeisland.engine.module.bigdata.Reference;
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.action.LogListener;
 import de.cubeisland.engine.module.log.action.block.entity.ActionEntityBlock.EntitySection;
 import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock.PlayerSection;
+import de.cubeisland.engine.reflect.codec.mongo.Reference;
 
 /**
  * A Listener for Death related Actions
@@ -70,6 +70,7 @@ public class ListenerDeath extends LogListener
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEntityDeath(EntityDeathEvent event)
     {
+        // TODO handle when there is no reference on lookup of dependent actions
         DeathKill killAction = this.newAction(DeathKill.class, event.getEntity().getWorld());
         if (killAction != null)
         {

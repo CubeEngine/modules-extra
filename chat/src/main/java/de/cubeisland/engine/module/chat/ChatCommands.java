@@ -26,6 +26,7 @@ import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.user.User;
 
 import static de.cubeisland.engine.command.parameter.Parameter.INFINITE;
+import static de.cubeisland.engine.command.parameter.property.Requirement.OPTIONAL;
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
 
@@ -46,7 +47,7 @@ public class ChatCommands
 
     @Command(desc = "Changes your display name")
     @Params(positional = {@Param(label = "name"), // TODO static values , staticValues = {"-r", "-reset"}
-                          @Param(req = false, label = "player", type = User.class)})
+                          @Param(req = OPTIONAL, label = "player", type = User.class)})
     public void nick(CommandContext context)
     {
         User forUser;

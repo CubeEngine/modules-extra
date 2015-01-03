@@ -17,10 +17,13 @@
  */
 package de.cubeisland.engine.module.bigdata;
 
+import de.cubeisland.engine.reflect.annotations.Comment;
 import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
 
 public class MongoDBConfiguration extends ReflectedYaml
 {
     public String host = "localhost";
     public int port = 27017;
+    @Comment("The timeout is specified in milliseconds")
+    public int connectionTimeout = 5000;
 }

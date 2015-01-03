@@ -19,22 +19,21 @@ package de.cubeisland.engine.module.log.converter;
 
 import org.bukkit.entity.EntityType;
 
-import de.cubeisland.engine.reflect.codec.ConverterManager;
-import de.cubeisland.engine.reflect.codec.converter.Converter;
-import de.cubeisland.engine.reflect.exception.ConversionException;
-import de.cubeisland.engine.reflect.node.Node;
-import de.cubeisland.engine.reflect.node.StringNode;
+import de.cubeisland.engine.converter.ConversionException;
+import de.cubeisland.engine.converter.converter.SimpleConverter;
+import de.cubeisland.engine.converter.node.Node;
+import de.cubeisland.engine.converter.node.StringNode;
 
-public class EntityTypeConverter implements Converter<EntityType>
+public class EntityTypeConverter extends SimpleConverter<EntityType>
 {
     @Override
-    public Node toNode(EntityType object, ConverterManager manager) throws ConversionException
+    public Node toNode(EntityType object) throws ConversionException
     {
         return StringNode.of(object.name());
     }
 
     @Override
-    public EntityType fromNode(Node node, ConverterManager manager) throws ConversionException
+    public EntityType fromNode(Node node) throws ConversionException
     {
         return EntityType.valueOf(node.asText());
     }

@@ -17,10 +17,13 @@
  */
 package de.cubeisland.engine.module.border;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
+import de.cubeisland.engine.core.module.exception.ModuleLoadError;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
@@ -34,7 +37,7 @@ public class Border extends Module
     private BorderConfig globalConfig;
     private Map<UInteger, BorderConfig> worldConfigs;
     private WorldManager wm;
-    private File folder;
+    private Path folder;
     private BorderPerms perms;
 
     @Override
@@ -42,8 +45,15 @@ public class Border extends Module
     {
         wm = this.getCore().getWorldManager();
         this.globalConfig = this.getCore().getConfigFactory().load(BorderConfig.class, this.getFolder().resolve("globalconfig.yml").toFile());
-        folder = this.getFolder().resolve("worlds").toFile();
-        folder.mkdir();
+        folder = this.getFolder().resolve("worlds");
+        try
+        {
+            Files.createDirectories(folder);
+        }
+        catch (IOException e)
+        {
+            throw new ModuleLoadError("Could not create the worlds folder", e);
+        }
         this.worldConfigs = new HashMap<>();
         for (World world : Bukkit.getWorlds())
         {
@@ -57,10 +67,10 @@ public class Border extends Module
 
     private BorderConfig loadConfig(World world)
     {
-        File worldFile = new File(folder, world.getName() + ".yml");
-        BorderConfig worldConfig = this.globalConfig.loadChild(worldFile);
+        BorderConfig worldConfig = this.globalConfig.loadChild(folder.resolve(world.getName() + ".yml").toFile());
         this.worldConfigs.put(this.wm.getWorldId(world), worldConfig);
-        if (!worldConfig.center.checkCenter(world))
+
+        if (!worldConfig.checkCenter(world))
         {
             this.getLog().warn("The world spawn of {} is not inside the border!", world.getName());
         }

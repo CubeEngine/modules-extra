@@ -19,15 +19,15 @@ package de.cubeisland.engine.module.faq;
 
 import java.util.Map;
 
-import de.cubeisland.engine.reflect.codec.ConverterManager;
-import de.cubeisland.engine.reflect.codec.converter.Converter;
-import de.cubeisland.engine.reflect.exception.ConversionException;
-import de.cubeisland.engine.reflect.node.ListNode;
-import de.cubeisland.engine.reflect.node.MapNode;
-import de.cubeisland.engine.reflect.node.Node;
-import de.cubeisland.engine.reflect.node.StringNode;
+import de.cubeisland.engine.converter.ConversionException;
+import de.cubeisland.engine.converter.ConverterManager;
+import de.cubeisland.engine.converter.converter.SingleClassConverter;
+import de.cubeisland.engine.converter.node.ListNode;
+import de.cubeisland.engine.converter.node.MapNode;
+import de.cubeisland.engine.converter.node.Node;
+import de.cubeisland.engine.converter.node.StringNode;
 
-public class QuestionConverter implements Converter<Question>
+public class QuestionConverter extends SingleClassConverter<Question>
 {
     @Override
     public Node toNode(Question object, ConverterManager manager) throws ConversionException

@@ -41,6 +41,7 @@ import de.cubeisland.engine.module.roles.role.Role;
 import de.cubeisland.engine.module.roles.role.RolesAttachment;
 import de.cubeisland.engine.module.roles.role.RolesManager;
 
+import static de.cubeisland.engine.command.parameter.property.Requirement.OPTIONAL;
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 
 public class SpawnCommands
@@ -59,11 +60,11 @@ public class SpawnCommands
     }
 
     @Command(desc = "Changes the respawnpoint")
-    @Params(positional = {@Param(req = false, label = "role", desc = "The role or \"global\""), // TODO staticValue "global"
-                          @Param(req = false, label = "x"),
-                          @Param(req = false, label = "y"),
-                          @Param(req = false, label = "z"),
-                          @Param(req = false, label = "world")})
+    @Params(positional = {@Param(req = OPTIONAL, label = "role", desc = "The role or \"global\""), // TODO staticValue "global"
+                          @Param(req = OPTIONAL, label = "x"),
+                          @Param(req = OPTIONAL, label = "y"),
+                          @Param(req = OPTIONAL, label = "z"),
+                          @Param(req = OPTIONAL, label = "world")})
     public void setSpawn(CommandContext context)
     {
         if (!(context.getSource() instanceof User) && context.hasPositional(4))
@@ -144,12 +145,13 @@ public class SpawnCommands
     }
 
     @Command(desc = "Teleport directly to the worlds spawn.")
-    @Params(positional = @Param(label = "players", type = UserList.class, req = false, desc = "The players to teleport or * for all players"),
+    @Params(positional = @Param(label = "players", type = UserList.class, req = OPTIONAL, desc = "The players to teleport or * for all players"),
             nonpositional = {@Param(names = {"world", "w", "in"}, type = World.class),
                              @Param(names = {"role", "r"}, completer = RoleCompleter.class)})
     @Flags(@Flag(longName = "force", name = "f"))
     public void spawn(CommandContext context)
     {
+        // TODO spawning to world spawn
         if (!(context.getSource() instanceof User || context.hasPositional(0)))
         {
             context.sendTranslated(NEGATIVE, "{text:Pro Tip}: Teleport does not work IRL!");
@@ -288,7 +290,11 @@ public class SpawnCommands
         }
         // else no user specified
         User user = (User)context.getSource();
-        if (role == null)
+        if (role != null)
+        {
+            context.sendTranslated(POSITIVE, "You are now standing at the spawn of {name#role} in {world}!", role.getName(), world);
+        }
+        else
         {
             RolesAttachment rolesAttachment = user.get(RolesAttachment.class);
             if (rolesAttachment == null)
@@ -316,10 +322,6 @@ public class SpawnCommands
                 }
                 context.sendTranslated(POSITIVE, "You are now standing at your role's spawn!");
             }
-        }
-        else
-        {
-            context.sendTranslated(POSITIVE, "You are now standing at the spawn of {name#role} in {world}!", role.getName(), world);
         }
         this.tpToSpawn(user, spawnLocation, force);
     }

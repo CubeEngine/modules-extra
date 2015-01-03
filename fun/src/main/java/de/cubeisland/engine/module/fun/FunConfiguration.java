@@ -18,9 +18,9 @@
 package de.cubeisland.engine.module.fun;
 
 import de.cubeisland.engine.reflect.Section;
-import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
 import de.cubeisland.engine.reflect.annotations.Comment;
 import de.cubeisland.engine.reflect.annotations.Name;
+import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
 
 @SuppressWarnings("all")
 public class FunConfiguration extends ReflectedYaml

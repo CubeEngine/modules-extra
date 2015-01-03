@@ -19,6 +19,7 @@ package de.cubeisland.engine.module.fun.commands;
 
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -49,9 +50,8 @@ import de.cubeisland.engine.core.permission.Permission;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.matcher.Match;
 import de.cubeisland.engine.module.fun.Fun;
-import gnu.trove.map.hash.THashMap;
-import gnu.trove.set.hash.THashSet;
 
+import static de.cubeisland.engine.command.parameter.property.Requirement.OPTIONAL;
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 
 public class ThrowCommands
@@ -68,7 +68,7 @@ public class ThrowCommands
     public ThrowCommands(Fun module)
     {
         this.module = module;
-        this.thrownItems = new THashMap<>();
+        this.thrownItems = new HashMap<>();
         this.throwListener = new ThrowListener();
         module.getCore().getEventManager().registerListener(module, this.throwListener);
         for (EntityType type : EntityType.values()) // TODO only entities that can be thrown
@@ -80,7 +80,7 @@ public class ThrowCommands
 
     @Command(name = "throw", desc = "Throw something!")
     @Params(positional = {@Param(label = "material"),
-                   @Param(req = false, label = "amount")},
+                   @Param(req = OPTIONAL, label = "amount")},
             nonpositional = @Param(names = { "delay", "d" }, type = Integer.class))
     @Flags(@Flag(longName = "unsafe", name = "u"))
     public void throwCommand(CommandContext context)
@@ -309,7 +309,7 @@ public class ThrowCommands
 
         public ThrowListener()
         {
-            this.entities = new THashSet<>();
+            this.entities = new HashSet<>();
             this.removal = null;
         }
 

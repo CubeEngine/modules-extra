@@ -19,22 +19,21 @@ package de.cubeisland.engine.module.log.converter;
 
 import org.bukkit.block.BlockFace;
 
-import de.cubeisland.engine.reflect.codec.ConverterManager;
-import de.cubeisland.engine.reflect.codec.converter.Converter;
-import de.cubeisland.engine.reflect.exception.ConversionException;
-import de.cubeisland.engine.reflect.node.Node;
-import de.cubeisland.engine.reflect.node.StringNode;
+import de.cubeisland.engine.converter.ConversionException;
+import de.cubeisland.engine.converter.converter.SimpleConverter;
+import de.cubeisland.engine.converter.node.Node;
+import de.cubeisland.engine.converter.node.StringNode;
 
-public class BlockFaceConverter implements Converter<BlockFace>
+public class BlockFaceConverter extends SimpleConverter<BlockFace>
 {
     @Override
-    public Node toNode(BlockFace object, ConverterManager manager) throws ConversionException
+    public Node toNode(BlockFace object) throws ConversionException
     {
         return StringNode.of(object.name());
     }
 
     @Override
-    public BlockFace fromNode(Node node, ConverterManager manager) throws ConversionException
+    public BlockFace fromNode(Node node) throws ConversionException
     {
         return BlockFace.valueOf(node.asText());
     }

@@ -22,15 +22,16 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import de.cubeisland.engine.command.alias.Alias;
+import de.cubeisland.engine.command.filter.Restricted;
 import de.cubeisland.engine.command.methodic.Command;
 import de.cubeisland.engine.command.methodic.Flag;
-import de.cubeisland.engine.command.methodic.Flags;
-import de.cubeisland.engine.command.methodic.Param;
-import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.command.methodic.parametric.Default;
+import de.cubeisland.engine.command.methodic.parametric.Label;
+import de.cubeisland.engine.command.methodic.parametric.Named;
+import de.cubeisland.engine.command.methodic.parametric.Optional;
 import de.cubeisland.engine.core.command.CommandContainer;
 import de.cubeisland.engine.core.command.CommandContext;
-import de.cubeisland.engine.core.command.completer.WorldCompleter;
-import de.cubeisland.engine.command.alias.Alias;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.ChatFormat;
 import de.cubeisland.engine.core.util.StringUtils;
@@ -55,193 +56,105 @@ public class BackpackCommands extends CommandContainer
 
     @Alias(value = "openbp")
     @Command(desc = "opens a backpack")
-    @Params(positional = {@Param(label = "name"),
-                          @Param(req = false, label = "user", type = User.class)},
-            nonpositional = @Param(names = {"world", "for", "in", "w"}, completer = WorldCompleter.class, type = World.class))
-    public void open(CommandContext context)
+    @Restricted(value = User.class, msg = "You cannot open a inventory in console!")
+    public void open(CommandContext context,
+                     @Label("name") String name,
+                     @Default @Optional @Label("player") User forUser,
+                     @Named({"world", "for", "in", "w"}) @Label("world") World forWorld)
     {
-        if (context.getSource() instanceof User)
+        if (forWorld == null)
         {
-            User forUser = (User)context.getSource();
-            if (context.hasPositional(1))
-            {
-                forUser = context.get(1);
-            }
-            World forWorld = forUser.getWorld();
-            if (context.hasNamed("w"))
-            {
-                forWorld = context.get("w", null);
-                if (forWorld == null)
-                {
-                    context.sendTranslated(NEGATIVE, "Unknown World {input#world}!", context.getString("w"));
-                    return;
-                }
-            }
-            if (context.getSource() != forUser && !module.perms().OPEN_OTHER_USER.isAuthorized(context.getSource()))
-            {
-                context.sendTranslated(NEGATIVE, "You are not allowed to open the backpacks of other users!");
-                return;
-            }
-            if (forUser.getWorld() != forWorld && ! module.perms().OPEN_OTHER_WORLDS.isAuthorized(context.getSource()))
-            {
-                context.sendTranslated(NEGATIVE, "You are not allowed to open backpacks from an other world!");
-                return;
-            }
-            manager.openBackpack((User)context.getSource(), forUser, forWorld, context.getString(0));
+            forWorld = forUser.getWorld();
+        }
+        if (context.getSource() != forUser && !module.perms().OPEN_OTHER_USER.isAuthorized(context.getSource()))
+        {
+            context.sendTranslated(NEGATIVE, "You are not allowed to open the backpacks of other users!");
             return;
         }
-        context.sendTranslated(NEGATIVE, "You cannot open a inventory in console!"); // TODO perhaps save inventory to yml
+        if (forUser.getWorld() != forWorld && !module.perms().OPEN_OTHER_WORLDS.isAuthorized(context.getSource()))
+        {
+            context.sendTranslated(NEGATIVE, "You are not allowed to open backpacks from an other world!");
+            return;
+        }
+        manager.openBackpack((User)context.getSource(), forUser, forWorld, name);
     }
 
     @Alias(value = "createbp")
     @Command(desc = "creates a new backpack")
-    @Params(positional = {@Param(label = "name"),
-                          @Param(req = false, label = "user", type = User.class)},
-            nonpositional = {@Param(names = {"w", "world", "for", "in"}, completer = WorldCompleter.class, type = World.class),
-                             @Param(names = {"p", "pages"}, type = Integer.class),
-                             @Param(names = {"s","size"}, type = Integer.class)})
-    @Flags({@Flag(name = "g", longName = "global"), // TODO OR flags
-            @Flag(name = "s", longName = "single"),
-            @Flag(name = "b", longName = "blockinput")})
-    public void create(CommandContext context)
+    public void create(CommandContext context,
+                       @Label("name") String name,
+                       @Default @Optional @Label("player") User forUser,
+                       @Named({"w", "world", "for", "in"}) @Label("world") World forWorld,
+                       @Named({"p", "pages"}) Integer pages,
+                       @Named({"s","size"}) Integer size,
+                       @Flag(name = "g", longName = "global") boolean global,
+                       @Flag(name = "s", longName = "single") boolean single,
+                       @Flag(name = "b", longName = "blockinput") boolean blockInput)
     {
-        User forUser = null;
-        World forWorld = null;
-        if (context.hasNamed("w"))
+        if (forWorld == null && !global)
         {
-            forWorld = context.get("w", null);
-            if (forWorld == null)
+            if (!(context.getSource() instanceof User))
             {
-                context.sendTranslated(NEGATIVE, "Unknown World {input#world}!", context.getString("w"));
+                context.sendTranslated(POSITIVE, "You have to specify a world for non global backpacks!");
                 return;
             }
-        }
-        else if (context.getSource() instanceof User)
-        {
-            forUser = (User)context.getSource();
             forWorld = ((User)context.getSource()).getWorld();
         }
-        else if (!context.hasFlag("g"))
-        {
-            context.sendTranslated(POSITIVE, "You have to specify a world for non global backpacks!");
-            return;
-        }
-        if (context.hasPositional(1))
-        {
-            forUser = context.get(1);
-        }
-        else if (!(context.getSource() instanceof User))
-        {
-            context.sendTranslated(NEGATIVE, "You need to specify a user");
-            return;
-        }
-        manager.createBackpack(context.getSource(), forUser, context.getString(0), forWorld,
-                               context.hasFlag("g"), context.hasFlag("s"), context.hasFlag("b"),
-                               context.get("p", 1), context.get("s", 6));
+        manager.createBackpack(context.getSource(), forUser, name, forWorld, global, single, blockInput, pages, size);
     }
 
     @Alias(value = "modifybp")
     @Command(desc = "modifies a backpack")
-    @Params(positional = {@Param(label = "name"),
-                          @Param(req = false, label = "user", type = User.class)},
-            nonpositional = {@Param(names = {"pages","p"}, type = Integer.class),
-                             @Param(names = {"size","s"}, type = Integer.class),
-                             @Param(names = {"blockinput","b"}, type = Boolean.class, label = "true|false"),
-                             @Param(names = {"world", "for", "in", "w"}, completer = WorldCompleter.class, type = World.class)})
-    public void modify(CommandContext context)
+    public void modify(CommandContext context,
+                       @Label("name") String name,
+                       @Default @Optional @Label("player") User forUser,
+                       @Named({"w", "world", "for", "in"}) @Label("world") World forWorld,
+                       @Named({"p", "pages"}) Integer pages,
+                       @Named({"s","size"}) Integer size,
+                       @Flag(name = "b", longName = "blockinput") boolean blockInput)
     {
-        User forUser = null;
-        World forWorld = null;
-        if (context.getSource() instanceof User)
+        if (forWorld == null && (context.getSource() instanceof User))
         {
-            forUser = (User)context.getSource();
             forWorld = ((User)context.getSource()).getWorld();
         }
-        else if (context.hasNamed("w"))
-        {
-            forWorld = context.get("w", null);
-            if (forWorld == null)
-            {
-                context.sendTranslated(NEGATIVE, "Unknown World {input#world}!", context.getString("w"));
-                return;
-            }
-        }
-        else if (!context.hasFlag("g"))
-        {
-            context.sendTranslated(POSITIVE, "You have to specify a world for non global backpacks!");
-            return;
-        }
-        if (context.hasPositional(1))
-        {
-            forUser = context.get(1);
-        }
-        else if (!(context.getSource() instanceof User))
-        {
-            context.sendTranslated(NEGATIVE, "You need to specify a user");
-            return;
-        }
-        manager.modifyBackpack(context.getSource(), forUser, context.getString(0), forWorld,
-                               (Integer)context.get("p", null),
-                               (Boolean)context.get("b", null),
-                               (Integer)context.get("s", null));
+        manager.modifyBackpack(context.getSource(), forUser, name, forWorld, blockInput, pages, size);
     }
 
     @Alias(value = "givebp")
     @Command(desc = "Puts items into a backpack")
-    @Params(positional = {@Param(label = "name"),
-                          @Param(req = false, label = "user", type = User.class)},
-            nonpositional ={@Param(names = {"item","i"}, req = true, label = "item[:data]"),
-                            @Param(names = {"name","n"}),
-                            @Param(names = {"lore","l"}, label = "lorelines..."),
-                            @Param(names = {"amount","a"}, type = Integer.class),
-                            @Param(names = {"ench", "enchantments","e"}, label = "enchs..."),
-                            @Param(names = {"world", "for", "in", "w"}, completer = WorldCompleter.class, type = World.class)})
     // /givebp premium Faithcaio item diamondpick:1500 name "broken pick" lore "A broken\npick" "ench unbreaking:1,effi:3"
-    public void give(CommandContext context)
+    public void give(CommandContext context,
+                     @Label("name") String backpackName,
+                     @Default @Optional @Label("player") User forUser,
+                     @Named({"item","i"}) @Label("item[:data]") String itemString, // TODO Required flag // TODO group parameter for ItemMeta
+                     @Named({"name","n"}) @Label("name") String displayName,
+                     @Named({"lore","l"}) @Label("lorelines...") String lore,
+                     @Named({"amount","a"}) Integer amount,
+                     @Named({"ench", "enchantments","e"}) @Label("enchs...") String enchantments,
+                     @Named({"w", "world", "for", "in"}) @Label("world") World forWorld)
     {
-        User forUser = null;
-        World forWorld = null;
-        if (context.getSource() instanceof User)
+        if (forWorld == null && (context.getSource() instanceof User))
         {
-            forUser = (User)context.getSource();
             forWorld = ((User)context.getSource()).getWorld();
         }
-        else if (context.hasNamed("w"))
-        {
-            forWorld = context.get("w", null);
-            if (forWorld == null)
-            {
-                context.sendTranslated(NEGATIVE, "Unknown World {input#world}!", context.getString("w"));
-                return;
-            }
-        }
-        if (context.hasPositional(1))
-        {
-            forUser = context.get(1);
-        }
-        else if (!(context.getSource() instanceof User))
-        {
-            context.sendTranslated(NEGATIVE, "You need to specify a user");
-            return;
-        }
-        ItemStack matchedItem = Match.material().itemStack(context.getString("i"));
+        ItemStack matchedItem = Match.material().itemStack(itemString);
         if (matchedItem == null)
         {
-            context.sendTranslated(NEGATIVE, "Item {input#name} not found!", context.getString("i"));
+            context.sendTranslated(NEGATIVE, "Item {input#name} not found!", itemString);
             return;
         }
         ItemMeta itemMeta = matchedItem.getItemMeta();
-        if (context.hasNamed("n"))
+        if (displayName != null)
         {
-            itemMeta.setDisplayName(ChatFormat.parseFormats(context.getString("n")));
+            itemMeta.setDisplayName(ChatFormat.parseFormats(displayName));
         }
-        if (context.hasNamed("l"))
+        if (lore != null)
         {
-            itemMeta.setLore(asList(StringUtils.explode("\\n", ChatFormat.parseFormats(context.getString("l")))));
+            itemMeta.setLore(asList(StringUtils.explode("\\n", ChatFormat.parseFormats(lore))));
         }
-        if (context.hasNamed("e"))
+        if (enchantments != null)
         {
-            String[] enchs = StringUtils.explode(",", context.getString("e"));
+            String[] enchs = StringUtils.explode(",", enchantments);
             for (String ench : enchs)
             {
                 Enchantment enchantment;
@@ -270,17 +183,11 @@ public class BackpackCommands extends CommandContainer
             }
         }
         matchedItem.setItemMeta(itemMeta);
-        Integer amount = matchedItem.getMaxStackSize();
-        if (context.hasNamed("a"))
+        if (amount == null)
         {
-            amount = context.get("a", null);
-            if (amount == null)
-            {
-                context.sendTranslated(NEGATIVE, "Invalid amount {input#amount}", context.getString("a"));
-                return;
-            }
+            amount = matchedItem.getMaxStackSize();
         }
         matchedItem.setAmount(amount);
-        this.manager.giveItem(context.getSource(), forUser, forWorld, context.getString(0), matchedItem);
+        this.manager.giveItem(context.getSource(), forUser, forWorld, backpackName, matchedItem);
     }
 }

@@ -24,18 +24,19 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import de.cubeisland.engine.command.alias.Alias;
 import de.cubeisland.engine.command.methodic.Command;
 import de.cubeisland.engine.command.methodic.Param;
 import de.cubeisland.engine.command.methodic.Params;
 import de.cubeisland.engine.core.command.CommandContainer;
 import de.cubeisland.engine.core.command.CommandContext;
-import de.cubeisland.engine.command.alias.Alias;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.ChatFormat;
 import de.cubeisland.engine.core.util.matcher.Match;
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.LogAttachment;
 
+import static de.cubeisland.engine.command.parameter.property.Requirement.OPTIONAL;
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
 import static org.bukkit.Material.WOOD_AXE;
@@ -215,7 +216,7 @@ public class LogCommands extends CommandContainer
         "player: Shows player-interacions only\n" +
         "kills: Shows kill-interactions only\n" +
         "block: Shows block-changes only")
-    @Params(positional = @Param(req = false, label = "log-type"))
+    @Params(positional = @Param(req = OPTIONAL, label = "log-type"))
     public void block(CommandContext context)
     {
         //TODO tabcompleter for logBlockTypes (waiting for CE-389)
@@ -246,7 +247,7 @@ public class LogCommands extends CommandContainer
         "player: Shows player-interacions only\n" +
         "kills: Shows kill-interactions only\n" +
         "block: Shows block-changes only")
-    @Params(positional = @Param(req = false, label = "log-type"))
+    @Params(positional = @Param(req = OPTIONAL, label = "log-type"))
     public void tool(CommandContext context)
     {
         //TODO tabcompleter for logToolTypes (waiting for CE-389)

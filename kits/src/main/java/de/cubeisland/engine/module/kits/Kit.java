@@ -30,10 +30,10 @@ import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.Plugin;
 
+import de.cubeisland.engine.command.parameter.IncorrectUsageException;
 import de.cubeisland.engine.core.Core;
 import de.cubeisland.engine.core.command.CommandManager;
 import de.cubeisland.engine.core.command.CommandSender;
-import de.cubeisland.engine.command.parameter.IncorrectUsageException;
 import de.cubeisland.engine.core.command.exception.PermissionDeniedException;
 import de.cubeisland.engine.core.permission.Permission;
 import de.cubeisland.engine.core.user.User;
@@ -43,7 +43,6 @@ import org.joda.time.Duration;
 import org.jooq.DSLContext;
 import org.jooq.Record1;
 
-import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
 import static de.cubeisland.engine.module.kits.TableKitsGiven.TABLE_KITS;
 
 /**

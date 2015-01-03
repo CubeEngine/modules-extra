@@ -29,11 +29,13 @@ import org.bukkit.inventory.ItemStack;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import de.cubeisland.engine.module.bigdata.Bigdata;
-import de.cubeisland.engine.module.bigdata.MongoDBCodec;
+import de.cubeisland.engine.converter.ConverterManager;
 import de.cubeisland.engine.core.command.CommandManager;
 import de.cubeisland.engine.core.module.Inject;
 import de.cubeisland.engine.core.module.Module;
+import de.cubeisland.engine.messagecompositor.macro.example.DateFormatter;
+import de.cubeisland.engine.messagecompositor.macro.example.DateFormatter.DateReader;
+import de.cubeisland.engine.module.bigdata.Bigdata;
 import de.cubeisland.engine.module.log.action.ActionManager;
 import de.cubeisland.engine.module.log.action.block.player.worldedit.LogEditSessionFactory;
 import de.cubeisland.engine.module.log.action.player.item.container.ContainerType;
@@ -48,9 +50,7 @@ import de.cubeisland.engine.module.log.converter.ItemStackConverter;
 import de.cubeisland.engine.module.log.converter.NoteConverter;
 import de.cubeisland.engine.module.log.storage.LogManager;
 import de.cubeisland.engine.module.log.tool.ToolListener;
-import de.cubeisland.engine.messagecompositor.macro.example.DateFormatter;
-import de.cubeisland.engine.messagecompositor.macro.example.DateFormatter.DateReader;
-import de.cubeisland.engine.reflect.codec.ConverterManager;
+import de.cubeisland.engine.reflect.codec.mongo.MongoDBCodec;
 
 public class Log extends Module implements Listener
 {
@@ -70,14 +70,14 @@ public class Log extends Module implements Listener
         this.getCore().getI18n().getCompositor().registerReader(DateFormatter.class, "format", new DateReader());
         this.config = this.loadConfig(LogConfiguration.class);
         ConverterManager cMan = this.getCore().getConfigFactory().getDefaultConverterManager();
-        cMan.registerConverter(ContainerType.class, new ContainerTypeConverter());
-        cMan.registerConverter(EntityType.class, new EntityTypeConverter());
-        cMan.registerConverter(DamageCause.class, new DamageCauseConverter());
-        cMan.registerConverter(BlockFace.class, new BlockFaceConverter());
-        cMan.registerConverter(Art.class, new ArtConverter());
-        cMan.registerConverter(Note.class, new NoteConverter());
+        cMan.registerConverter(new ContainerTypeConverter(), ContainerType.class);
+        cMan.registerConverter(new EntityTypeConverter(), EntityType.class);
+        cMan.registerConverter(new DamageCauseConverter(), DamageCause.class);
+        cMan.registerConverter(new BlockFaceConverter(), BlockFace.class);
+        cMan.registerConverter(new ArtConverter(), Art.class);
+        cMan.registerConverter(new NoteConverter(), Note.class);
         this.getCore().getConfigFactory().getCodecManager().getCodec(MongoDBCodec.class).
-            getConverterManager().registerConverter(ItemStack.class, new ItemStackConverter());
+            getConverterManager().registerConverter(new ItemStackConverter(), ItemStack.class);
         this.logManager = new LogManager(this, bigdata);
         this.actionManager = new ActionManager(this);
 

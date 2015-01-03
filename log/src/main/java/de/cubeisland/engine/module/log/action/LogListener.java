@@ -26,9 +26,9 @@ import org.bukkit.material.Bed;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
-import de.cubeisland.engine.module.bigdata.Reference;
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
+import de.cubeisland.engine.reflect.codec.mongo.Reference;
 
 
 public class LogListener implements Listener

@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 
+import de.cubeisland.engine.command.alias.Alias;
 import de.cubeisland.engine.command.methodic.Command;
 import de.cubeisland.engine.command.methodic.Flag;
 import de.cubeisland.engine.command.methodic.Flags;
@@ -32,11 +33,11 @@ import de.cubeisland.engine.core.command.CommandContainer;
 import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.command.CommandSender;
 import de.cubeisland.engine.core.command.completer.WorldCompleter;
-import de.cubeisland.engine.command.alias.Alias;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.Triplet;
 import org.jooq.types.UInteger;
 
+import static de.cubeisland.engine.command.parameter.property.Requirement.OPTIONAL;
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
 
@@ -61,8 +62,8 @@ public class BorderCommands extends CommandContainer
     private boolean running = false;
 
     @Command(desc = "Sets the center of the border")
-    @Params(positional = {@Param(req = false, label = "chunkX"),
-                          @Param(req = false, label = "chunkZ")},
+    @Params(positional = {@Param(req = OPTIONAL, label = "chunkX"),
+                          @Param(req = OPTIONAL, label = "chunkZ")},
             nonpositional = @Param(names = {"in", "world", "w"}, label = "world", type = World.class, completer = WorldCompleter.class))
     @Flags(@Flag(longName = "spawn", name = "s"))
     public void setCenter(CommandContext context)
@@ -84,7 +85,7 @@ public class BorderCommands extends CommandContainer
         Chunk center;
         if (context.hasFlag("s"))
         {
-            this.module.getConfig(world).center.setCenter(world.getSpawnLocation().getChunk(), true);
+            this.module.getConfig(world).setCenter(world.getSpawnLocation().getChunk(), true);
             context.sendTranslated(POSITIVE, "Center for Border in {world} set to world spawn!", world);
             return;
         }
@@ -108,7 +109,7 @@ public class BorderCommands extends CommandContainer
             context.sendTranslated(NEGATIVE, "You need to specify the chunk coordinates or use the -spawn flag");
             return;
         }
-        this.module.getConfig(world).center.setCenter(center, false);
+        this.module.getConfig(world).setCenter(center, false);
         context.sendTranslated(POSITIVE, "Center for Border in {world} set!", world);
     }
 

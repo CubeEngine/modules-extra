@@ -44,7 +44,7 @@ public class Spawn extends Module
     @Override
     public void onDisable()
     {
-        // TODO if not getSuggestions shutdown reregister basics commands OR do not unregister simply override (let CommandManager handle it)
+        // TODO if not complete shutdown reregister basics commands OR do not unregister simply override (let CommandManager handle it)
     }
 
     public SpawnConfig getConfiguration()

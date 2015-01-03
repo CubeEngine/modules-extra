@@ -18,12 +18,16 @@
 package de.cubeisland.engine.module.rulebook.bookManagement;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
+import de.cubeisland.engine.command.alias.Alias;
 import de.cubeisland.engine.command.methodic.Command;
 import de.cubeisland.engine.command.methodic.Flag;
 import de.cubeisland.engine.command.methodic.Flags;
@@ -32,16 +36,13 @@ import de.cubeisland.engine.command.methodic.Params;
 import de.cubeisland.engine.core.command.CommandContainer;
 import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.command.annotation.CommandPermission;
-import de.cubeisland.engine.command.alias.Alias;
 import de.cubeisland.engine.core.permission.Permission;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.ChatFormat;
 import de.cubeisland.engine.i18n.language.Language;
 import de.cubeisland.engine.module.rulebook.Rulebook;
-import gnu.trove.iterator.TIntIterator;
-import gnu.trove.set.TIntSet;
-import gnu.trove.set.hash.TIntHashSet;
 
+import static de.cubeisland.engine.command.parameter.property.Requirement.OPTIONAL;
 import static de.cubeisland.engine.core.permission.PermDefault.TRUE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 import static org.bukkit.Material.BOOK_AND_QUILL;
@@ -66,7 +67,7 @@ public class RulebookCommands extends CommandContainer
 
     @Alias(value = {"getrules", "rules"})
     @Command(desc = "gets the player the rulebook in the inventory")
-    @Params(positional = @Param(req = false, label = "language"),
+    @Params(positional = @Param(req = OPTIONAL, label = "language"),
             nonpositional = @Param(names = {"player", "p"}, label = "name", type = User.class))
     @CommandPermission(permDefault = TRUE)
     public void getRuleBook(CommandContext context)
@@ -135,9 +136,9 @@ public class RulebookCommands extends CommandContainer
             }
         }
 
-        TIntSet books = this.inventoryRulebookSearching(user.getInventory(), locale);
+        Set<Integer> books = this.inventoryRulebookSearching(user.getInventory(), locale);
 
-        TIntIterator iter = books.iterator();
+        Iterator<Integer> iter = books.iterator();
         while(iter.hasNext())
         {
             user.getInventory().clear(iter.next());
@@ -299,9 +300,9 @@ public class RulebookCommands extends CommandContainer
         }
     }
 
-    private TIntSet inventoryRulebookSearching(PlayerInventory inventory, Locale locale)
+    private Set<Integer> inventoryRulebookSearching(PlayerInventory inventory, Locale locale)
     {
-        TIntSet books = new TIntHashSet();
+        Set<Integer> books = new HashSet<>();
 
         for(int i = 0; i < inventory.getSize(); i++)
         {

@@ -28,7 +28,6 @@ import java.util.concurrent.TimeUnit;
 import org.bukkit.Location;
 import org.bukkit.World;
 
-import de.cubeisland.engine.module.bigdata.ReflectedDBObject;
 import de.cubeisland.engine.core.CubeEngine;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.math.BlockVector3;
@@ -36,6 +35,7 @@ import de.cubeisland.engine.core.world.ConfigWorld;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.storage.ShowParameter;
 import de.cubeisland.engine.reflect.Section;
+import de.cubeisland.engine.reflect.codec.mongo.ReflectedDBObject;
 import org.bson.types.ObjectId;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.NONE;
@@ -114,6 +114,7 @@ public abstract class BaseAction extends ReflectedDBObject implements Comparable
         String time = "";
         if (show.showDate)
         {
+            String cDate = dateOnly.format(new Date());
             if (this.hasAttached())
             {
                 Date first = this.date;
@@ -123,29 +124,35 @@ public abstract class BaseAction extends ReflectedDBObject implements Comparable
                     first = last;
                     last = this.date;
                 }
-                //private static final SimpleDateFormat timeOnly = new SimpleDateFormat("HH:mm:ss");
-
 
                 String fDate = dateOnly.format(first);
-                if (dateOnly.format(last).equals(fDate)) // Same day
+                String lDate = dateOnly.format(last);
+                if (lDate.equals(fDate)) // Same day
                 {
-                    time = GRAY + user.getTranslation(NONE, " {date#without time:format=yy-MM-dd} {date#time from:format=HH\\:mm\\:ss} - {date#time to:format=HH\\:mm\\:ss}: ", first, first, last);
+                    if (fDate.equals(cDate) && lDate.equals(cDate))
+                    {
+                        time = GRAY + user.getTranslation(NONE, "{date#time from:format=HH\\:mm\\:ss} - {date#time to:format=HH\\:mm\\:ss}: ", first, last);
+                    }
+                    else
+                    {
+                        time = GRAY + user.getTranslation(NONE, "{date#without time:format=yy-MM-dd} {date#time from:format=HH\\:mm\\:ss} - {date#time to:format=HH\\:mm\\:ss}: ", first, first, last);
+                    }
                 }
                 else
                 {
-                    time = GRAY + user.getTranslation(NONE, " {date#without time:format=yy-MM-dd} {date#time from:format=HH\\:mm\\:ss} - {date#without time:format=yy-MM-dd} {date#time to:format=HH\\:mm\\:ss}:", first, first, last, last) + "\n";
+                    time = GRAY + user.getTranslation(NONE, "{date#without time:format=yy-MM-dd} {date#time from:format=HH\\:mm\\:ss} - {date#without time:format=yy-MM-dd} {date#time to:format=HH\\:mm\\:ss}:", first, first, last, last) + "\n";
                 }
             }
             else
             {
-                if (dateOnly.format(this.date).equals(dateOnly.format(new Date())))
+                if (dateOnly.format(this.date).equals(cDate))
                 {
                     // Same day
                     time = GRAY + user.getTranslation(NONE, "{date#time from:format=HH\\:mm\\:ss}: ", this.date);
                 }
                 else
                 {
-                    time = GRAY + user.getTranslation(NONE, " {date#without time:yy-MM-dd} {date#time from:format=HH\\:mm\\:ss}: ", this.date, this.date);
+                    time = GRAY + user.getTranslation(NONE, "{date#without time:yy-MM-dd} {date#time from:format=HH\\:mm\\:ss}: ", this.date, this.date);
                 }
             }
         }

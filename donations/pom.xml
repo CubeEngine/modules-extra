@@ -8,7 +8,7 @@
   </parent>
 
   <artifactId>donations</artifactId>
-  <name>donations</name>
+  <name>Donations</name>
   <version>1.0.0-SNAPSHOT</version>
   <description>Provides WebAPI to handle donations</description>
 

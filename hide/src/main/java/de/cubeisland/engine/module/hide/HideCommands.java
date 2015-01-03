@@ -27,6 +27,7 @@ import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.command.CommandSender;
 import de.cubeisland.engine.core.user.User;
 
+import static de.cubeisland.engine.command.parameter.property.Requirement.OPTIONAL;
 import static de.cubeisland.engine.core.util.ChatFormat.YELLOW;
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 
@@ -40,7 +41,7 @@ public class HideCommands
     }
 
     @Command(desc = "Hides a player.")
-    @Params(positional = @Param(req = false, label = "player", type = User.class))
+    @Params(positional = @Param(req = OPTIONAL, label = "player", type = User.class))
     public void hide(CommandContext context)
     {
         CommandSender sender = context.getSource();
@@ -76,7 +77,7 @@ public class HideCommands
     }
 
     @Command(desc = "Unhides a player.")
-    @Params(positional = @Param(req = false, label = "player", type = User.class))
+    @Params(positional = @Param(req = OPTIONAL, label = "player", type = User.class))
     public void unhide(CommandContext context)
     {
         CommandSender sender = context.getSource();
@@ -112,7 +113,7 @@ public class HideCommands
     }
 
     @Command(desc = "Checks whether a player is hidden.")
-    @Params(positional = @Param(req = false, label = "player", type = User.class))
+    @Params(positional = @Param(req = OPTIONAL, label = "player", type = User.class))
     public void hidden(CommandContext context)
     {
         CommandSender sender = context.getSource();
@@ -163,7 +164,7 @@ public class HideCommands
     }
 
     @Command(desc = "Toggles the ability to see hidden players.")
-    @Params(positional = @Param(req = false, label = "player", type = User.class))
+    @Params(positional = @Param(req = OPTIONAL, label = "player", type = User.class))
     public void seehiddens(CommandContext context)
     {
         CommandSender sender = context.getSource();
@@ -200,7 +201,7 @@ public class HideCommands
     }
 
     @Command(desc = "Checks whether a player can see hidden players.")
-    @Params(positional = @Param(req = false, label = "player", type = User.class))
+    @Params(positional = @Param(req = OPTIONAL, label = "player", type = User.class))
     public void canseehiddens(CommandContext context)
     {
         CommandSender sender = context.getSource();

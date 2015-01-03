@@ -17,40 +17,38 @@
  */
 package de.cubeisland.engine.module.backpack.converter;
 
-import net.minecraft.server.v1_7_R4.NBTTagCompound;
-
-import org.bukkit.craftbukkit.v1_7_R4.inventory.CraftItemStack;
+import net.minecraft.server.v1_8_R1.NBTTagCompound;
+import org.bukkit.craftbukkit.v1_8_R1.inventory.CraftItemStack;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import de.cubeisland.engine.reflect.codec.ConverterManager;
-import de.cubeisland.engine.reflect.codec.converter.Converter;
-import de.cubeisland.engine.reflect.exception.ConversionException;
-import de.cubeisland.engine.reflect.node.IntNode;
-import de.cubeisland.engine.reflect.node.MapNode;
-import de.cubeisland.engine.reflect.node.Node;
-import de.cubeisland.engine.reflect.node.ShortNode;
-import de.cubeisland.engine.reflect.node.StringNode;
+import de.cubeisland.engine.converter.ConversionException;
+import de.cubeisland.engine.converter.converter.SimpleConverter;
+import de.cubeisland.engine.converter.node.IntNode;
+import de.cubeisland.engine.converter.node.MapNode;
+import de.cubeisland.engine.converter.node.Node;
+import de.cubeisland.engine.converter.node.ShortNode;
+import de.cubeisland.engine.converter.node.StringNode;
 import de.cubeisland.engine.core.bukkit.NBTUtils;
 
-public class NBTItemStackConverter implements Converter<ItemStack>
+public class NBTItemStackConverter extends SimpleConverter<ItemStack>
 {
     @Override
-    public Node toNode(ItemStack itemStack, ConverterManager converterManager) throws ConversionException
+    public Node toNode(ItemStack itemStack) throws ConversionException
     {
         MapNode item = MapNode.emptyMap();
         item.setExactNode("Count", new IntNode(itemStack.getAmount()));
         item.setExactNode("Damage", new ShortNode(itemStack.getDurability()));
         item.setExactNode("Item", StringNode.of(itemStack.getType().name()));
-        NBTTagCompound tag = CraftItemStack.asNMSCopy(itemStack).tag;
+        NBTTagCompound tag = CraftItemStack.asNMSCopy(itemStack).getTag();
         item.setExactNode("tag", tag == null ? MapNode.emptyMap() : NBTUtils.convertNBTToNode(tag));
         return item;
     }
 
 
     @Override
-    public ItemStack fromNode(Node node, ConverterManager converterManager) throws ConversionException
+    public ItemStack fromNode(Node node) throws ConversionException
     {
         if (node instanceof MapNode)
         {
@@ -66,8 +64,8 @@ public class NBTItemStackConverter implements Converter<ItemStack>
                     ItemStack itemStack = new ItemStack(Material.valueOf(item.asText()));
                     itemStack.setDurability(((ShortNode)damage).getValue());
                     itemStack.setAmount(((IntNode)count).getValue());
-                    net.minecraft.server.v1_7_R4.ItemStack nms = CraftItemStack.asNMSCopy(itemStack);
-                    nms.tag = ((MapNode)tag).isEmpty() ? null : (NBTTagCompound)NBTUtils.convertNodeToNBT(tag);
+                    net.minecraft.server.v1_8_R1.ItemStack nms = CraftItemStack.asNMSCopy(itemStack);
+                    nms.setTag(((MapNode)tag).isEmpty() ? null : (NBTTagCompound)NBTUtils.convertNodeToNBT(tag));
                     return CraftItemStack.asBukkitCopy(nms);
                 }
                 catch (IllegalArgumentException e)

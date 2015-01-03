@@ -17,8 +17,8 @@
  */
 package de.cubeisland.engine.module.fly;
 
-import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
 import de.cubeisland.engine.reflect.annotations.Name;
+import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
 
 @SuppressWarnings("all")
 public class FlyConfig extends ReflectedYaml

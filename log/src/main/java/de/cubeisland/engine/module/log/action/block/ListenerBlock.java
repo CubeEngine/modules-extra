@@ -51,8 +51,8 @@ import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock;
 import de.cubeisland.engine.module.log.action.block.player.PlayerBlockGrow;
 import de.cubeisland.engine.module.log.action.block.player.destroy.PlayerBlockBreak;
 import de.cubeisland.engine.module.log.action.block.player.destroy.PlayerSignBreak;
-import de.cubeisland.engine.module.log.action.hanging.HangingPreBreakEvent;
 import de.cubeisland.engine.module.log.action.hanging.HangingBreak;
+import de.cubeisland.engine.module.log.action.hanging.HangingPreBreakEvent;
 
 import static org.bukkit.Material.*;
 import static org.bukkit.block.BlockFace.DOWN;

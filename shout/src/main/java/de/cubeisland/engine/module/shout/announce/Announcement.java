@@ -18,6 +18,7 @@
 package de.cubeisland.engine.module.shout.announce;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -32,7 +33,6 @@ import de.cubeisland.engine.i18n.language.ClonedLanguage;
 import de.cubeisland.engine.i18n.language.Language;
 import de.cubeisland.engine.i18n.language.NormalLanguage;
 import de.cubeisland.engine.module.shout.Shout;
-import gnu.trove.map.hash.THashMap;
 
 /**
  * Class to represent an announcement.
@@ -53,7 +53,7 @@ public class Announcement
         this.name = acm.name;
         this.permission = acm.permission;
         this.worlds = new ArrayList<>(acm.getWorlds());
-        this.messages = new THashMap<>(acm.messages);
+        this.messages = new HashMap<>(acm.messages);
         this.delay = acm.delay;
         this.fixedCycle = acm.fixedCycle;
     }

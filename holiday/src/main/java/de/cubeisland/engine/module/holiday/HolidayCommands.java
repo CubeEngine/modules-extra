@@ -20,17 +20,20 @@ package de.cubeisland.engine.module.holiday;
 import java.sql.Date;
 import java.text.DateFormat;
 
+import de.cubeisland.engine.command.filter.Restricted;
 import de.cubeisland.engine.command.methodic.Command;
 import de.cubeisland.engine.command.methodic.Param;
 import de.cubeisland.engine.command.methodic.Params;
-import de.cubeisland.engine.command.filter.Restricted;
+import de.cubeisland.engine.command.methodic.parametric.Greed;
+import de.cubeisland.engine.command.methodic.parametric.Label;
+import de.cubeisland.engine.command.methodic.parametric.Optional;
+import de.cubeisland.engine.converter.ConversionException;
+import de.cubeisland.engine.converter.node.StringNode;
 import de.cubeisland.engine.core.command.CommandContainer;
 import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.converter.DurationConverter;
 import de.cubeisland.engine.module.holiday.storage.HolidayModel;
-import de.cubeisland.engine.reflect.exception.ConversionException;
-import de.cubeisland.engine.reflect.node.StringNode;
 import org.jooq.DSLContext;
 
 import static de.cubeisland.engine.command.parameter.Parameter.INFINITE;
@@ -51,15 +54,12 @@ public class HolidayCommands extends CommandContainer
     }
 
     @Command(name = "for", desc = "Starts your holiday and kicks you from the server")
-    @Params(positional = {@Param(label = "duration"),
-                          @Param(label = "reason", req = false, greed = INFINITE)})
     @Restricted(User.class)
-    public void forCommand(CommandContext context)
+    public void forCommand(CommandContext context, @Label("duration") String duration, @Optional @Greed(INFINITE) @Label("reason") String reason)
     {
         try
         {
-            Date toDate = new Date(System.currentTimeMillis() + converter.fromNode(StringNode.of(context.getString(0)), null).getMillis());
-            String reason = context.getStrings(1);
+            Date toDate = new Date(System.currentTimeMillis() + converter.fromNode(StringNode.of(duration)).getMillis());
             User sender = (User)context.getSource();
             HolidayModel model = dsl.selectFrom(TABLE_HOLIDAY).where(TABLE_HOLIDAY.USERID.eq(sender.getEntity().getKey())).fetchOne();
             if (model == null)
@@ -85,11 +85,9 @@ public class HolidayCommands extends CommandContainer
 
     @Command(desc = "Checks the holiday status of a player")
     @Params(positional = @Param(label = "player", type = User.class))
-    public void check(CommandContext context)
+    public void check(CommandContext context, @Label("player") User user)
     {
-        User user = context.get(0);
-        HolidayModel model = dsl.selectFrom(TABLE_HOLIDAY).where(TABLE_HOLIDAY.USERID.eq(
-            user.getEntity().getKey())).fetchOne();
+        HolidayModel model = dsl.selectFrom(TABLE_HOLIDAY).where(TABLE_HOLIDAY.USERID.eq(user.getEntity().getKey())).fetchOne();
         if (model == null)
         {
             context.sendTranslated(NEUTRAL, "{user} is not on holiday!", user);

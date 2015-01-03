@@ -17,12 +17,16 @@
  */
 package de.cubeisland.engine.module.bigdata;
 
+import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Date;
 
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
-import de.cubeisland.engine.core.module.Module;import de.cubeisland.engine.core.module.exception.ModuleLoadError;
+import com.mongodb.MongoClientOptions;
+import com.mongodb.ServerAddress;
+import de.cubeisland.engine.core.module.Module;
+import de.cubeisland.engine.core.module.exception.ModuleLoadError;
+import de.cubeisland.engine.reflect.codec.mongo.MongoDBCodec;
 
 public class Bigdata extends Module
 {
@@ -35,16 +39,27 @@ public class Bigdata extends Module
         this.config = this.loadConfig(MongoDBConfiguration.class);
         try
         {
-            this.pool = new MongoClient(this.config.host, this.config.port);
+            ServerAddress address = new ServerAddress(InetAddress.getByName(this.config.host), this.config.port);
+            MongoClientOptions options = MongoClientOptions
+                .builder()
+                .connectTimeout(this.config.connectionTimeout)
+                .build();
+            this.pool = new MongoClient(address, options);
+            try
+            {
+                // verifies the connection by trying to access it
+                this.pool.getDatabaseNames();
+            }
+            catch (RuntimeException e)
+            {
+                throw new ModuleLoadError("Failed to connect to the your MongoDB instance!", e);
+            }
         }
         catch (UnknownHostException e)
         {
             throw new ModuleLoadError("Invalid host", e);
         }
-        MongoDBCodec mongoDBCodec = new MongoDBCodec();
-        this.getCore().getConfigFactory().getCodecManager().registerCodec(mongoDBCodec);
-        mongoDBCodec.getConverterManager().registerConverter(Date.class, new DateConverter());
-        mongoDBCodec.getConverterManager().registerConverter(Reference.class, new ReferenceConverter(this.getCore().getConfigFactory()));
+        this.getCore().getConfigFactory().getCodecManager().registerCodec(new MongoDBCodec());
     }
 
     @Override

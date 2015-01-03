@@ -35,7 +35,7 @@ public class Kits extends Module
     {
         getCore().getDB().registerTable(TableKitsGiven.class);
         this.getCore().getConfigFactory().getDefaultConverterManager().
-            registerConverter(KitItem.class, new KitItemConverter());
+            registerConverter(new KitItemConverter(), KitItem.class);
 
         this.kitManager = new KitManager(this);
         perms = new KitsPerm(this);
