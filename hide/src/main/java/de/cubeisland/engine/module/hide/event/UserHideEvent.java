@@ -26,6 +26,7 @@ import de.cubeisland.engine.core.user.UserEvent;
 public class UserHideEvent extends UserEvent
 {
     private static final HandlerList handlers = new HandlerList();
+    private final boolean alreadyOnline;
 
     public HandlerList getHandlers()
     {
@@ -37,8 +38,14 @@ public class UserHideEvent extends UserEvent
         return handlers;
     }
 
-    public UserHideEvent(Core core, User user)
+    public UserHideEvent(Core core, User user, boolean alreadyOnline)
     {
         super(core, user);
+        this.alreadyOnline = alreadyOnline;
+    }
+
+    public boolean isAlreadyOnline()
+    {
+        return alreadyOnline;
     }
 }

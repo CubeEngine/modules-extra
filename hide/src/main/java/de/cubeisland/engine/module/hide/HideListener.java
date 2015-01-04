@@ -94,7 +94,7 @@ public class HideListener implements Listener
         if (module.perms().AUTO_HIDE.isAuthorized(user))
         {
             event.setJoinMessage(null);
-            this.module.hidePlayer(user);
+            this.module.hidePlayer(user, false);
 
             user.sendTranslated(POSITIVE, "You were automatically hidden!");
         }
@@ -142,7 +142,10 @@ public class HideListener implements Listener
                 um.getExactUser(canSeeHidden).sendTranslated(POSITIVE, "Player {user} is now hidden!", event.getUser());
             }
         }
-        um.broadcastTranslated(NEUTRAL, "{user:color=YELLOW} left the game", event.getUser()); // TODO do we want/need translation here?
+        if (event.isAlreadyOnline())
+        {
+            um.broadcastTranslated(NEUTRAL, "{user:color=YELLOW} left the game", event.getUser()); // TODO do we want/need translation here?
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

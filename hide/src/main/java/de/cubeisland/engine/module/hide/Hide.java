@@ -85,9 +85,14 @@ public class Hide extends Module implements Reloadable
 
     public void hidePlayer(final User user)
     {
+        this.hidePlayer(user, true);
+    }
+
+    public void hidePlayer(final User user, boolean printMessage)
+    {
         this.hiddenUsers.add(user.getUniqueId());
 
-        getCore().getEventManager().fireEvent(new UserHideEvent(user.getCore(), user));
+        getCore().getEventManager().fireEvent(new UserHideEvent(user.getCore(), user, printMessage));
 
         for (User onlineUser : getCore().getUserManager().getOnlineUsers())
         {
