@@ -22,7 +22,24 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.UUID;
+import de.cubeisland.engine.command.CommandInvocation;
+import de.cubeisland.engine.command.CommandSource;
+import de.cubeisland.engine.command.completer.Completer;
+import de.cubeisland.engine.command.filter.Restricted;
+import de.cubeisland.engine.command.methodic.Command;
+import de.cubeisland.engine.command.methodic.Flag;
+import de.cubeisland.engine.command.methodic.Flags;
+import de.cubeisland.engine.command.methodic.Param;
+import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.command.methodic.parametric.Label;
+import de.cubeisland.engine.command.parameter.IncorrectUsageException;
+import de.cubeisland.engine.command.result.CommandResult;
+import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.CommandSender;
+import de.cubeisland.engine.core.command.completer.ItemCompleter;
+import de.cubeisland.engine.core.command.conversation.ConversationCommand;
+import de.cubeisland.engine.core.user.User;
 import org.bukkit.Location;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
@@ -35,21 +52,6 @@ import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
-import de.cubeisland.engine.command.CommandInvocation;
-import de.cubeisland.engine.command.CommandSource;
-import de.cubeisland.engine.command.completer.Completer;
-import de.cubeisland.engine.command.methodic.Command;
-import de.cubeisland.engine.command.methodic.Flag;
-import de.cubeisland.engine.command.methodic.Flags;
-import de.cubeisland.engine.command.methodic.Param;
-import de.cubeisland.engine.command.methodic.Params;
-import de.cubeisland.engine.command.result.CommandResult;
-import de.cubeisland.engine.core.command.CommandContext;
-import de.cubeisland.engine.core.command.CommandSender;
-import de.cubeisland.engine.core.command.completer.ItemCompleter;
-import de.cubeisland.engine.core.command.conversation.ConversationCommand;
-import de.cubeisland.engine.core.user.User;
-
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 import static org.bukkit.event.Event.Result.DENY;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_AIR;
@@ -60,66 +62,14 @@ public class EditModeListener extends ConversationCommand
 {
     private final MarketSignFactory signFactory;
     private final Signmarket module;
-    private final Map<Long, Location> currentSignLocation = new HashMap<>();
-    private final Map<Long, MarketSign> previousMarketSign = new HashMap<>();
+    private final Map<UUID, Location> currentSignLocation = new HashMap<>();
+    private final Map<UUID, MarketSign> previousMarketSign = new HashMap<>();
 
     public EditModeListener(final Signmarket module)
     {
         super(module);
         this.module = module;
         this.signFactory = module.getMarketSignFactory();
-    }
-
-    private boolean setEditingSign(User user, MarketSign marketSign)
-    {
-        if (marketSign == null) return true;
-        Location previous = this.currentSignLocation.put(user.getId(), marketSign.getLocation());
-        if (!marketSign.getLocation().equals(previous))
-        {
-            MarketSign previousSign = this.signFactory.getSignAt(previous);
-            if (previousSign != null)
-            {
-                this.previousMarketSign.put(user.getId(), previousSign);
-                previousSign.exitEditMode(user);
-            }
-            if (!checkAllowedEditing(marketSign, user)) return true;
-            marketSign.enterEditMode();
-            user.sendTranslated(POSITIVE, "Changed active sign!");
-            return true;
-        }
-        if (!checkAllowedEditing(marketSign, user)) return true;
-        marketSign.enterEditMode();
-        return false;
-    }
-
-    private boolean checkAllowedEditing(MarketSign marketSign, User user)
-    {
-        if (marketSign.isAdminSign() && !module.perms().SIGN_CREATE_ADMIN_CREATE.isAuthorized(user))
-        {
-            user.sendTranslated(NEGATIVE, "You are not allowed to edit admin signs!");
-            this.currentSignLocation.remove(user.getId());
-            return false;
-        }
-        else if (!marketSign.isAdminSign() && !module.perms().SIGN_CREATE_USER_CREATE.isAuthorized(user))
-        {
-            user.sendTranslated(NEGATIVE, "You are not allowed to edit player signs!");
-            this.currentSignLocation.remove(user.getId());
-            return false;
-        }
-        if (!marketSign.isAdminSign() && !marketSign.isOwner(user) && !module.perms().SIGN_CREATE_USER_OTHER.isAuthorized(user))
-        {
-            user.sendTranslated(NEGATIVE, "You are not allowed to edit Signs of other players!");
-            this.currentSignLocation.remove(user.getId());
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public void removeUser(User user)
-    {
-        super.removeUser(user);
-        user.sendTranslated(POSITIVE, "Exiting edit mode.");
     }
 
     @EventHandler
@@ -132,579 +82,565 @@ public class EditModeListener extends ConversationCommand
             {
                 user.sendTranslated(NEUTRAL, "MarketSigns are disabled in the configuration for this world!");
                 this.removeUser(user);
-                this.currentSignLocation.remove(user.getId());
+                this.currentSignLocation.remove(user.getUniqueId());
             }
         }
     }
 
-    /* new ConversationContextFactory(
-            new CtxBuilder()
-                .addFlag(new PermissibleFlag("exit", "exit"))
-                .addFlag(new PermissibleFlag("copy", "copy"))
-                .addFlag(new PermissibleFlag("buy", "buy"))
-                .addFlag(new PermissibleFlag("sell", "sell"))
-                .addFlag(new PermissibleFlag("admin", "admin"))
-                .addFlag(new PermissibleFlag("user", "user"))
-                .addFlag(new PermissibleFlag("stock", "stock"))
-                .addFlag(new PermissibleFlag("nodemand", "nodemand"))
-                .addNamed(new PermissibleNamedParameter("demand", "demand", Integer.class))
-                .addNamed(new PermissibleNamedParameter("owner", "owner", User.class).withCompleter(new PlayerCompleter()))
-                .addNamed(new PermissibleNamedParameter("price", "price", String.class))
-                .addNamed(new PermissibleNamedParameter("amount", "amount", Integer.class))
-                .addNamed(new PermissibleNamedParameter("item", "item", ItemStack.class).withCompleter(new ItemCompleter()))
-                .addNamed(new PermissibleNamedParameter("setstock", "setstock", Integer.class))
-                .addNamed(new PermissibleNamedParameter("size", "size", Integer.class).withCompleter(new Completer<CubeContext>()
-                {
-                })).get()
-        ));*/
-    @Flags({@Flag(name = "exit"),
-            @Flag(name = "copy"),
-            @Flag(name = "buy"),
-            @Flag(name = "sell"),
-            @Flag(name = "admin"),
-            @Flag(name = "user"),
-            @Flag(name = "stock"),
-            @Flag(name = "nodemand")})
-    @Params(nonpositional = {@Param(names = "demand", label = "demand", type = Integer.class),
-                             @Param(names = "owner", label = "owner", type = User.class),
-                             @Param(names = "price", label = "price", type = String.class),
-                             @Param(names = "amount", label = "amount", type = Integer.class),
-                             @Param(names = "item", label = "item", type = ItemStack.class, completer = ItemCompleter.class),
-                             @Param(names = "setstock", label = "setstock", type = Integer.class),
-                             @Param(names = "size", label = "size", type = Integer.class, completer = SignSizeCompleter.class)})
-    public CommandResult run(CommandContext context)
+    @Override
+    public void removeUser(User user)
     {
-        User user = (User)context.getSource();
-        Location loc = this.currentSignLocation.get(user.getId());
+        super.removeUser(user);
+        user.sendTranslated(POSITIVE, "Exiting edit mode.");
+    }
+
+    @Restricted(User.class)
+    @Command(desc = "Exits the Editmode")
+    public void exit(CommandContext context)
+    {
+        this.removeUser((User)context.getSource());
+    }
+
+    @Restricted(User.class)
+    @Command(desc = "Copies the settings from the previous sign")
+    public void copy(CommandContext context)
+    {
+        MarketSign sign = getSign((User)context.getSource());
+        MarketSign prevSign = this.previousMarketSign.get(context.getSource().getUniqueId());
+        if (prevSign == null)
+        {
+            context.sendTranslated(NEGATIVE, "No market sign at previous position.");
+            return;
+        }
+        if (prevSign.isAdminSign() && !module.perms().SIGN_CREATE_ADMIN_CREATE.isAuthorized(context.getSource()))
+        {
+            context.sendTranslated(NEGATIVE, "You are not allowed to copy admin signs!");
+            return;
+        }
+        else if (!prevSign.isAdminSign() && !module.perms().SIGN_CREATE_USER_CREATE.isAuthorized(context.getSource()))
+        {
+            context.sendTranslated(NEGATIVE, "You are not allowed to copy player signs!");
+            return;
+        }
+        sign.copyValuesFrom(prevSign);
+        showInfoAndUpdate(sign, (User)context.getSource());
+    }
+
+    private MarketSign getSign(User user)
+    {
+        UUID uuid = user.getUniqueId();
+        Location loc = this.currentSignLocation.get(uuid);
         if (loc == null)
         {
-            if (context.hasFlag("exit"))
-            {
-                this.removeUser(user);
-                return null;
-            }
-            user.sendTranslated(NEGATIVE, "Please select a sign to edit.");
-            return null;
+            throw new IncorrectUsageException("Please select a sign to edit.");
         }
-        MarketSign marketSign = this.signFactory.getSignAt(loc);
+        MarketSign signAt = this.signFactory.getSignAt(loc);
+        if (signAt == null)
+        {
+            throw new IncorrectUsageException("No market sign at position! This should not happen!");
+        }
+        this.setEditingSign(user, signAt);
+        return signAt;
+    }
+
+    private boolean setEditingSign(User user, MarketSign marketSign)
+    {
         if (marketSign == null)
         {
-            user.sendTranslated(CRITICAL, "No market sign at position! This should not happen!");
-            return null;
+            return true;
         }
-        this.setEditingSign(user, marketSign);
-        if (context.hasFlag("copy"))
+        Location previous = this.currentSignLocation.put(user.getUniqueId(), marketSign.getLocation());
+        if (!marketSign.getLocation().equals(previous))
         {
-            MarketSign prevMarketSign = this.previousMarketSign.get(user.getId());
-            if (prevMarketSign == null)
+            MarketSign previousSign = this.signFactory.getSignAt(previous);
+            if (previousSign != null)
             {
-                user.sendTranslated(NEGATIVE, "No market sign at previous position.");
-                return null;
+                this.previousMarketSign.put(user.getUniqueId(), previousSign);
+                previousSign.exitEditMode(user);
             }
-            else
+            if (!checkAllowedEditing(marketSign, user))
             {
-                if (prevMarketSign.isAdminSign() && !module.perms().SIGN_CREATE_ADMIN_CREATE.isAuthorized(user))
-                {
-                    user.sendTranslated(NEGATIVE, "You are not allowed to copy admin signs!");
-                    return null;
-                }
-                else if (!prevMarketSign.isAdminSign() && !module.perms().SIGN_CREATE_USER_CREATE.isAuthorized(user))
-                {
-                    user.sendTranslated(NEGATIVE, "You are not allowed to copy player signs!");
-                    return null;
-                }
-                marketSign.copyValuesFrom(prevMarketSign);
+                return true;
             }
+            marketSign.enterEditMode();
+            user.sendTranslated(POSITIVE, "Changed active sign!");
+            return true;
         }
-        if (context.hasFlag("buy"))
+        if (!checkAllowedEditing(marketSign, user))
         {
-            if (marketSign.isAdminSign())
-            {
-                if (module.perms().SIGN_CREATE_ADMIN_BUY.isAuthorized(user))
-                {
-                    marketSign.setTypeBuy();
-                }
-                else
-                {
-                    context.sendTranslated(NEGATIVE, "You are not allowed to create admin buy signs!");
-                    return null;
-                }
-            }
-            else
-            {
-                if (module.perms().SIGN_CREATE_USER_BUY.isAuthorized(user))
-                {
-                    marketSign.setTypeBuy();
-                }
-                else
-                {
-                    context.sendTranslated(NEGATIVE, "You are not allowed to create player buy signs!");
-                    return null;
-                }
-            }
+            return true;
         }
-        if (context.hasFlag("sell"))
+        marketSign.enterEditMode();
+        return false;
+    }
+
+    private boolean checkAllowedEditing(MarketSign marketSign, User user)
+    {
+        if (marketSign.isAdminSign() && !module.perms().SIGN_CREATE_ADMIN_CREATE.isAuthorized(user))
         {
-            if (marketSign.isAdminSign())
-            {
-                if (module.perms().SIGN_CREATE_ADMIN_SELL.isAuthorized(user))
-                {
-                    marketSign.setTypeSell();
-                }
-                else
-                {
-                    context.sendTranslated(NEGATIVE, "You are not allowed to create admin sell signs!");
-                    return null;
-                }
-            }
-            else
-            {
-                if (module.perms().SIGN_CREATE_USER_SELL.isAuthorized(user))
-                {
-                    marketSign.setTypeSell();
-                }
-                else
-                {
-                    context.sendTranslated(NEGATIVE, "You are not allowed to create player sell signs!");
-                    return null;
-                }
-            }
+            user.sendTranslated(NEGATIVE, "You are not allowed to edit admin signs!");
+            this.currentSignLocation.remove(user.getUniqueId());
+            return false;
         }
-        if (context.hasNamed("demand"))
+        else if (!marketSign.isAdminSign() && !module.perms().SIGN_CREATE_USER_CREATE.isAuthorized(user))
         {
-            if (!marketSign.hasType())
-            {
-                marketSign.setTypeSell();
-            }
-            if (marketSign.isTypeBuy())
-            {
-                user.sendTranslated(NEGATIVE, "Buy signs cannot have a demand!");
-                return null;
-            }
-            else if (marketSign.isAdminSign())
-            {
-                user.sendTranslated(NEGATIVE, "Admin signs cannot have a demand!");
-                return null;
-            }
-            else
-            {
-                Integer demand = context.get("demand", null);
-                if (demand == -1)
-                {
-                    marketSign.setNoDemand();
-                }
-                else if (demand != null && demand > 0)
-                {
-                    if (module.perms().SIGN_CREATE_USER_DEMAND.isAuthorized(user))
-                    {
-                        marketSign.setDemand(demand);
-                    }
-                    else
-                    {
-                        context.sendTranslated(NEGATIVE, "You are not allowed to set a demand!");
-                        return null;
-                    }
-                }
-                else
-                {
-                    context.sendTranslated(NEGATIVE, "Invalid demand amount!");
-                    return null;
-                }
-            }
+            user.sendTranslated(NEGATIVE, "You are not allowed to edit player signs!");
+            this.currentSignLocation.remove(user.getUniqueId());
+            return false;
         }
-        if (context.hasFlag("noDemand"))
+        if (!marketSign.isAdminSign() && !marketSign.isOwner(user)
+            && !module.perms().SIGN_CREATE_USER_OTHER.isAuthorized(user))
         {
-            marketSign.setNoDemand();
+            user.sendTranslated(NEGATIVE, "You are not allowed to edit Signs of other players!");
+            this.currentSignLocation.remove(user.getUniqueId());
+            return false;
         }
-        if (context.hasFlag("admin"))
+        return true;
+    }
+
+    @Restricted(User.class)
+    @Command(desc = "Changes the sign to a buy-sign")
+    public void buy(CommandContext context)
+    {
+        MarketSign sign = getSign((User)context.getSource());
+        if (sign.isAdminSign() && !module.perms().SIGN_CREATE_ADMIN_BUY.isAuthorized(context.getSource()))
         {
-            if (module.perms().SIGN_CREATE_ADMIN_CREATE.isAuthorized(user))
-            {
-                marketSign.setAdminSign();
-                if (this.module.getConfig().maxAdminStock != -1 && (marketSign.hasInfiniteSize() || marketSign.getChestSize() > this.module.getConfig().maxAdminStock))
-                {
-                    marketSign.setSize(this.module.getConfig().maxAdminStock);
-                }
-            }
-            else
-            {
-                context.sendTranslated(NEGATIVE, "You are not allowed to create admin signs");
-                return null;
-            }
+            context.sendTranslated(NEGATIVE, "You are not allowed to create admin buy signs!");
+            return;
         }
-        if (context.hasFlag("user"))
+        if (!sign.isAdminSign() && !module.perms().SIGN_CREATE_USER_BUY.isAuthorized(context.getSource()))
         {
-            if (module.perms().SIGN_CREATE_USER_CREATE.isAuthorized(user))
-            {
-                marketSign.setOwner(user);
-                if (this.module.getConfig().maxUserStock != -1 && (marketSign.hasInfiniteSize() || marketSign.getChestSize() > this.module.getConfig().maxUserStock))
-                {
-                    marketSign.setSize(this.module.getConfig().maxUserStock);
-                }
-            }
-            else
-            {
-                context.sendTranslated(NEGATIVE, "You are not allowed to create player signs");
-                return null;
-            }
+            context.sendTranslated(NEGATIVE, "You are not allowed to create player buy signs!");
+            return;
         }
-        if (context.hasNamed("owner"))
+        sign.setTypeBuy();
+        showInfoAndUpdate(sign, (User)context.getSource());
+    }
+
+    @Restricted(User.class)
+    @Command(desc = "Changes the sign to a sell-sign")
+    public void sell(CommandContext context)
+    {
+        MarketSign sign = getSign((User)context.getSource());
+        if (sign.isAdminSign() && !module.perms().SIGN_CREATE_ADMIN_SELL.isAuthorized(context.getSource()))
         {
-            if (module.perms().SIGN_CREATE_USER_OTHER.isAuthorized(user))
-            {
-                User owner = context.get("owner", null);
-                if (owner == null)
-                {
-                    user.sendTranslated(NEGATIVE, "Player {user} not found!", context.getString("owner"));
-                    return null;
-                }
-                else
-                {
-                    marketSign.setOwner(owner);
-                }
-            }
-            else
-            {
-                context.sendTranslated(NEGATIVE, "You are not allowed to create player signs for other players");
-                return null;
-            }
+            context.sendTranslated(NEGATIVE, "You are not allowed to create admin sell signs!");
+            return;
         }
-        if (context.hasFlag("stock"))
+        if (!sign.isAdminSign() && !module.perms().SIGN_CREATE_USER_SELL.isAuthorized(context.getSource()))
         {
-            if (marketSign.isAdminSign())
-            {
-                if (marketSign.hasStock())
-                {
-                    if (this.module.getConfig().allowAdminNoStock)
-                    {
-                        if (module.perms().SIGN_CREATE_ADMIN_NOSTOCK.isAuthorized(user))
-                        {
-                            marketSign.setNoStock();
-                        }
-                        else
-                        {
-                            context.sendTranslated(NEGATIVE, "You are not allowed to create admin-signs with no stock");
-                            return null;
-                        }
-                    }
-                    else
-                    {
-                        context.sendTranslated(NEGATIVE, "Admin-signs without stock are not allowed!");
-                        return null;
-                    }
-                }
-                else
-                {
-                    if (this.module.getConfig().allowAdminStock)
-                    {
-                        if (module.perms().SIGN_CREATE_ADMIN_STOCK.isAuthorized(user))
-                        {
-                            marketSign.setStock(0);
-                        }
-                        else
-                        {
-                            context.sendTranslated(NEGATIVE, "You are not allowed to create admin-signs with stock");
-                            return null;
-                        }
-                    }
-                    else
-                    {
-                        context.sendTranslated(NEGATIVE, "Admin-signs with stock are not allowed!");
-                        return null;
-                    }
-                }
-            }
-            else
-            {
-                context.sendTranslated(NEGATIVE, "User signs cannot have no stock!");
-                return null;
-            }
+            context.sendTranslated(NEGATIVE, "You are not allowed to create player sell signs!");
+            return;
         }
-        if (context.hasNamed("setstock"))
+        sign.setTypeSell();
+        showInfoAndUpdate(sign, (User)context.getSource());
+    }
+
+    @Restricted(User.class)
+    @Command(desc = "Changes the demand of a sign")
+    public void demand(CommandContext context, @Label("demand") Integer demand)
+    {
+        MarketSign sign = getSign((User)context.getSource());
+        if (!module.perms().SIGN_CREATE_USER_DEMAND.isAuthorized(context.getSource()))
         {
-            if (module.perms().SIGN_SETSTOCK.isAuthorized(user))
-            {
-                if (marketSign.hasStock())
-                {
-                    marketSign.setStock(context.get("setstock", 0));
-                    marketSign.syncOnMe = true;
-                }
-                else
-                {
-                    context.sendTranslated(NEGATIVE, "This sign has no stock! Use \"stock\" first to enable it!");
-                    return null;
-                }
-            }
-            else
-            {
-                context.sendTranslated(NEGATIVE, "You are not allowed to set the stock!");
-                return null;
-            }
+            context.sendTranslated(NEGATIVE, "You are not allowed to set a demand!");
+            return;
         }
-        if (context.hasNamed("price"))
+        if (!sign.hasType())
         {
-            Double dPrice = marketSign.economy.parseFor(context.getString("price"), context.getSource().getLocale());
-            if (dPrice == null)
-            {
-                user.sendTranslated(NEGATIVE, "Invalid price!");
-                marketSign.setPrice(0);
-                return null;
-            }
-            else if (dPrice < 0)
-            {
-                user.sendTranslated(NEGATIVE, "A negative price!? Are you serious?");
-                return null;
-            }
-            else
-            {
-                marketSign.setPrice((long)(dPrice * marketSign.economy.fractionalDigitsFactor()));
-            }
+            sign.setTypeSell();
         }
-        if (context.hasNamed("amount"))
+        if (sign.isTypeBuy())
         {
-            Integer amount = context.get("amount", null);
-            if (amount == null)
-            {
-                user.sendTranslated(NEGATIVE, "Invalid amount {input#amount}!", context.getString("amount"));
-                return null;
-            }
-            else if (amount < 0)
-            {
-                user.sendTranslated(NEGATIVE, "Negative amounts could be unfair! Just sayin'");
-                return null;
-            }
-            else
-            {
-                marketSign.setAmount(amount);
-            }
+            context.sendTranslated(NEGATIVE, "Buy signs cannot have a demand!");
+            return;
         }
-        if (context.hasNamed("item"))
+        if (sign.isAdminSign())
         {
-            ItemStack item = context.get("item", null);
-            if (item == null)
-            {
-                user.sendTranslated(NEGATIVE, "Item not found!");
-            }
-            else if (marketSign.isAdminSign())
-            {
-                marketSign.setItemStack(item, false);
-            }
-            else if (marketSign.hasStock() && marketSign.getStock() != 0)
-            {
-                user.sendTranslated(NEGATIVE, "You have to take all items out of the market-sign to be able to change the item in it!");
-                return null;
-            }
-            else
-            {
-                marketSign.setItemStack(item, false);
-            }
+            context.sendTranslated(NEGATIVE, "Admin signs cannot have a demand!");
+            return;
         }
-        if (context.hasNamed("size"))
+        if (demand == -1)
         {
-            if (module.perms().SIGN_SIZE_CHANGE.isAuthorized(user))
-            {
-                Integer size = context.get("size", null);
-                if (size == null || size == 0 || size > 6 || size < -1)
-                {
-                    context.sendTranslated(NEGATIVE, "Invalid size! Use -1 for infinite OR 1-6 inventory-lines!");
-                    return null;
-                }
-                else
-                {
-                    if (size == -1 && !module.perms().SIGN_SIZE_INFINITE.isAuthorized(user))
-                    {
-                        context.sendTranslated(NEGATIVE, "You are not allowed to set infinite inventories!");
-                        return null;
-                    }
-                    else
-                    {
-                        if (marketSign.isAdminSign())
-                        {
-                            int maxAdmin = this.module.getConfig().maxAdminStock;
-                            if (maxAdmin != -1 && (size > maxAdmin || size == -1))
-                            {
-                                context.sendTranslated(NEGATIVE, "The maximum size of admin-signs is set to {amount}!", maxAdmin);
-                                return null;
-                            }
-                            else
-                            {
-                                marketSign.setSize(size);
-                                marketSign.syncOnMe = true;
-                            }
-                        }
-                        else // user-sign
-                        {
-                            int maxUser = this.module.getConfig().maxUserStock;
-                            if (maxUser != -1 && (size > maxUser || size == -1))
-                            {
-                                context.sendTranslated(NEGATIVE, "The maximum size of player signs is set to {amount}!", maxUser);
-                                return null;
-                            }
-                            else
-                            {
-                                marketSign.setSize(size);
-                                marketSign.syncOnMe = true;
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                context.sendTranslated(NEGATIVE, "You are not allowed to change the sign inventory-size.");
-                return null;
-            }
+            sign.setNoDemand();
         }
-        if (context.hasFlag("exit"))
+        else
         {
-            this.removeUser(user);
-            this.previousMarketSign.put(user.getId(), marketSign);
-            this.currentSignLocation.remove(user.getId());
-            marketSign.exitEditMode(user);
-            return null;
+            sign.setDemand(demand);
         }
-        marketSign.showInfo(user);
-        marketSign.updateSignText();
-        return null;
+        showInfoAndUpdate(sign, (User)context.getSource());
+    }
+
+    @Restricted(User.class)
+    @Command(desc = "Changes the demand of a sign")
+    public void nodemand(CommandContext context)
+    {
+        MarketSign sign = getSign((User)context.getSource());
+        sign.setNoDemand();
+        showInfoAndUpdate(sign, (User)context.getSource());
+    }
+
+    @Restricted(User.class)
+    @Command(desc = "Changes the sign to an admin-sign")
+    public void admin(CommandContext context)
+    {
+        MarketSign sign = getSign((User)context.getSource());
+        if (!module.perms().SIGN_CREATE_ADMIN_CREATE.isAuthorized(context.getSource()))
+        {
+            context.sendTranslated(NEGATIVE, "You are not allowed to create admin signs");
+            return;
+        }
+        sign.setAdminSign();
+        if (this.module.getConfig().maxAdminStock != -1 && (sign.hasInfiniteSize()
+            || sign.getChestSize() > this.module.getConfig().maxAdminStock))
+        {
+            sign.setSize(this.module.getConfig().maxAdminStock);
+        }
+        showInfoAndUpdate(sign, (User)context.getSource());
+    }
+
+    @Restricted(User.class)
+    @Command(desc = "Changes the sign to an player-sign")
+    public void player(CommandContext context)
+    {
+        MarketSign sign = getSign((User)context.getSource());
+        if (!module.perms().SIGN_CREATE_USER_CREATE.isAuthorized(context.getSource()))
+        {
+            context.sendTranslated(NEGATIVE, "You are not allowed to create player signs");
+            return;
+        }
+        sign.setOwner((User)context.getSource());
+        if (this.module.getConfig().maxUserStock != -1 && (sign.hasInfiniteSize()
+            || sign.getChestSize() > this.module.getConfig().maxUserStock))
+        {
+            sign.setSize(this.module.getConfig().maxUserStock);
+        }
+        showInfoAndUpdate(sign, (User)context.getSource());
+    }
+
+    @Restricted(User.class)
+    @Command(desc = "Changes the signs owner")
+    public void owner(CommandContext context, @Label("owner") User owner)
+    {
+        MarketSign sign = getSign((User)context.getSource());
+        if (!module.perms().SIGN_CREATE_USER_OTHER.isAuthorized(context.getSource()))
+        {
+            context.sendTranslated(NEGATIVE, "You are not allowed to create player signs for other players");
+            return;
+        }
+        sign.setOwner(owner);
+        showInfoAndUpdate(sign, (User)context.getSource());
+    }
+
+    @Restricted(User.class)
+    @Command(desc = "Changes whether the sign has stock")
+    public void stock(CommandContext context)
+    {
+        MarketSign sign = getSign((User)context.getSource());
+        if (!sign.isAdminSign())
+        {
+            context.sendTranslated(NEGATIVE, "User signs cannot have no stock!");
+            return;
+        }
+        if (sign.hasStock())
+        {
+            if (!this.module.getConfig().allowAdminNoStock)
+            {
+                context.sendTranslated(NEGATIVE, "Admin-signs without stock are not allowed!");
+                return;
+            }
+            if (!module.perms().SIGN_CREATE_ADMIN_NOSTOCK.isAuthorized(context.getSource()))
+            {
+                context.sendTranslated(NEGATIVE, "You are not allowed to create admin-signs with no stock");
+                return;
+            }
+            sign.setNoStock();
+            showInfoAndUpdate(sign, (User)context.getSource());
+            return;
+        }
+        if (!this.module.getConfig().allowAdminStock)
+        {
+            context.sendTranslated(NEGATIVE, "Admin-signs with stock are not allowed!");
+            return;
+        }
+        if (!module.perms().SIGN_CREATE_ADMIN_STOCK.isAuthorized(context.getSource()))
+        {
+            context.sendTranslated(NEGATIVE, "You are not allowed to create admin-signs with stock");
+            return;
+        }
+        sign.setStock(0);
+        showInfoAndUpdate(sign, (User)context.getSource());
+    }
+
+    @Restricted(User.class)
+    @Command(desc = "Sets the signs stock")
+    public void setstock(CommandContext context, @Label("amount") Integer amount)
+    {
+        MarketSign sign = getSign((User)context.getSource());
+        if (!module.perms().SIGN_SETSTOCK.isAuthorized(context.getSource()))
+        {
+            context.sendTranslated(NEGATIVE, "You are not allowed to set the stock!");
+            return;
+        }
+        if (!sign.hasStock())
+        {
+            context.sendTranslated(NEGATIVE, "This sign has no stock! Use \"stock\" first to enable it!");
+            return;
+        }
+        sign.setStock(amount);
+        sign.syncOnMe = true;
+        showInfoAndUpdate(sign, (User)context.getSource());
+    }
+
+    @Restricted(User.class)
+    @Command(desc = "Sets the price")
+    public void price(CommandContext context, @Label("price") Double price)
+    {
+        MarketSign sign = getSign((User)context.getSource());
+        if (price < 0)
+        {
+            context.sendTranslated(NEGATIVE, "A negative price!? Are you serious?");
+            return;
+        }
+        sign.setPrice((long)(price * sign.economy.fractionalDigitsFactor()));
+        showInfoAndUpdate(sign, (User)context.getSource());
+    }
+
+    @Restricted(User.class)
+    @Command(desc = "Sets the amount")
+    public void amount(CommandContext context, @Label("amount") Integer amount)
+    {
+        MarketSign sign = getSign((User)context.getSource());
+        if (amount < 0)
+        {
+            context.sendTranslated(NEGATIVE, "Negative amounts could be unfair! Just sayin'");
+            return;
+        }
+        sign.setAmount(amount);
+        showInfoAndUpdate(sign, (User)context.getSource());
+    }
+
+    @Restricted(User.class)
+    @Command(desc = "Sets the item")
+    public void item(CommandContext context, @Label("item") ItemStack item)
+    {
+        MarketSign sign = getSign((User)context.getSource());
+        if (sign.isAdminSign())
+        {
+            sign.setItemStack(item, false);
+            showInfoAndUpdate(sign, (User)context.getSource());
+            return;
+        }
+        if (sign.hasStock() && sign.getStock() != 0)
+        {
+            context.sendTranslated(NEGATIVE,
+                                   "You have to take all items out of the market-sign to be able to change the item in it!");
+            return;
+        }
+        sign.setItemStack(item, false);
+        showInfoAndUpdate(sign, (User)context.getSource());
+    }
+
+    @Restricted(User.class)
+    @Command(desc = "Sets the signs inventory size")
+    public void size(CommandContext context, @Label("size") Integer size)
+    {
+        MarketSign sign = getSign((User)context.getSource());
+        if (!module.perms().SIGN_SIZE_CHANGE.isAuthorized(context.getSource()))
+        {
+            context.sendTranslated(NEGATIVE, "You are not allowed to change the sign inventory-size.");
+            return;
+        }
+        if (size == 0 || size > 6 || size < -1)
+        {
+            context.sendTranslated(NEGATIVE, "Invalid size! Use -1 for infinite OR 1-6 inventory-lines!");
+            return;
+        }
+        if (size == -1 && !module.perms().SIGN_SIZE_INFINITE.isAuthorized(context.getSource()))
+        {
+            context.sendTranslated(NEGATIVE, "You are not allowed to set infinite inventories!");
+            return;
+        }
+        if (sign.isAdminSign())
+        {
+            int maxAdmin = this.module.getConfig().maxAdminStock;
+            if (maxAdmin != -1 && (size > maxAdmin || size == -1))
+            {
+                context.sendTranslated(NEGATIVE, "The maximum size of admin-signs is set to {amount}!", maxAdmin);
+                return;
+            }
+        }
+        else // user-sign
+        {
+            int maxUser = this.module.getConfig().maxUserStock;
+            if (maxUser != -1 && (size > maxUser || size == -1))
+            {
+                context.sendTranslated(NEGATIVE, "The maximum size of player signs is set to {amount}!", maxUser);
+                return;
+            }
+        }
+        sign.setSize(size);
+        sign.syncOnMe = true;
+        showInfoAndUpdate(sign, (User)context.getSource());
+    }
+
+    private void showInfoAndUpdate(MarketSign sign, User user)
+    {
+        sign.showInfo(user);
+        sign.updateSignText();
     }
 
     @EventHandler(priority = EventPriority.LOW)
     public void onClick(PlayerInteractEvent event)
     {
-        if (event.useItemInHand().equals(DENY)) return;
+        if (event.useItemInHand().equals(DENY))
+        {
+            return;
+        }
 
         User user = this.getModule().getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
-        if (this.hasUser(user))
+        if (!this.hasUser(user))
         {
-            if (this.module.getConfig().disableInWorlds.contains(event.getPlayer().getWorld().getName()))
+            return;
+        }
+        if (this.module.getConfig().disableInWorlds.contains(event.getPlayer().getWorld().getName()))
+        {
+            user.sendTranslated(NEUTRAL, "MarketSigns are disabled in the configuration for this world!");
+            return;
+        }
+        if (event.getAction().equals(Action.LEFT_CLICK_BLOCK))
+        {
+            if (!(event.getClickedBlock().getState() instanceof Sign))
             {
-                user.sendTranslated(NEUTRAL, "MarketSigns are disabled in the configuration for this world!");
                 return;
             }
-            if (event.getAction().equals(Action.LEFT_CLICK_BLOCK))
+            event.setCancelled(true);
+            event.setUseItemInHand(DENY);
+            Location newLoc = event.getClickedBlock().getLocation();
+            if (!newLoc.equals(this.currentSignLocation.get(user.getUniqueId()))
+                && this.currentSignLocation.values().contains(newLoc))
             {
-                if (event.getClickedBlock().getState() instanceof Sign)
-                {
-                    event.setCancelled(true);
-                    event.setUseItemInHand(DENY);
-                    Location newLoc = event.getClickedBlock().getLocation();
-                    if (!newLoc.equals(this.currentSignLocation.get(user.getId())))
-                    {
-                        if (this.currentSignLocation.values().contains(newLoc))
-                        {
-                            user.sendTranslated(NEGATIVE, "Someone else is editing this sign!");
-                            return;
-                        }
-                    }
-                    MarketSign curSign = this.signFactory.getSignAt(newLoc);
-                    if (curSign == null)
-                    {
-                        if (!user.isSneaking())
-                        {
-                            user.sendTranslated(NEGATIVE, "That is not a market sign!");
-                            user.sendTranslated(NEUTRAL, "Use shift leftclick to convert the sign.");
-                            return;
-                        }
-                        curSign = this.signFactory.createSignAt(user, newLoc);
-                        this.setEditingSign(user, curSign);
-                        return;
-                    }
-                    if (curSign.isInEditMode())
-                    {
-                        if (curSign.tryBreak(user))
-                        {
-                            this.previousMarketSign.put(user.getId(), curSign);
-                            this.currentSignLocation.remove(user.getId());
-                        }
-                        return;
-                    }
-                    this.setEditingSign(user, curSign);
-                }
+                user.sendTranslated(NEGATIVE, "Someone else is editing this sign!");
+                return;
             }
-            else
+            MarketSign curSign = this.signFactory.getSignAt(newLoc);
+            if (curSign == null)
             {
-                if (event.getPlayer().isSneaking()) return;
-                BlockState signFound = null;
-                if (event.getAction() == RIGHT_CLICK_AIR)
+                if (!user.isSneaking())
                 {
-                    if (event.getPlayer().getItemInHand() != null && event.getPlayer().getItemInHand().getTypeId() != 0)
-                    {
-                        signFound = MarketSignListener.getTargettedSign(event.getPlayer());
-                    }
+                    user.sendTranslated(NEGATIVE, "That is not a market sign!");
+                    user.sendTranslated(NEUTRAL, "Use shift leftclick to convert the sign.");
+                    return;
                 }
-                else if (event.getAction() == RIGHT_CLICK_BLOCK && event.getClickedBlock().getState() instanceof Sign)
-                {
-                    signFound = event.getClickedBlock().getState();
-                }
-                if (signFound == null) return;
-                event.setCancelled(true);
-                event.setUseItemInHand(DENY);
-                Location curLoc = signFound.getLocation();
-                MarketSign curSign = this.signFactory.getSignAt(curLoc);
-                if (curSign == null)
-                {
-                    user.sendTranslated(NEUTRAL, "This sign is not a market-sign!");
-                    return; // not a market-sign
-                }
-                if (!this.setEditingSign(user, curSign))
-                {
-                    if (user.getItemInHand() == null || user.getItemInHand().getTypeId() == 0) return;
-                    if (!curSign.isAdminSign() && curSign.hasStock() && curSign.getStock() != 0)
-                    {
-                        user.sendTranslated(NEGATIVE, "You have to take all items out of the market sign to be able to change the item in it!");
-                        return;
-                    }
-                    curSign.setItemStack(user.getItemInHand(), true);
-                    curSign.updateSignText();
-                    user.sendTranslated(POSITIVE, "Item in sign updated!");
-                }
+                curSign = this.signFactory.createSignAt(user, newLoc);
+                this.setEditingSign(user, curSign);
+                return;
             }
+            if (curSign.isInEditMode())
+            {
+                if (curSign.tryBreak(user))
+                {
+                    this.previousMarketSign.put(user.getUniqueId(), curSign);
+                    this.currentSignLocation.remove(user.getUniqueId());
+                }
+                return;
+            }
+            this.setEditingSign(user, curSign);
+            return;
+        }
+        // else:
+        if (event.getPlayer().isSneaking())
+        {
+            return;
+        }
+        BlockState signFound = null;
+        if (event.getAction() == RIGHT_CLICK_AIR)
+        {
+            if (event.getPlayer().getItemInHand() != null && event.getPlayer().getItemInHand().getTypeId() != 0)
+            {
+                signFound = MarketSignListener.getTargettedSign(event.getPlayer());
+            }
+        }
+        else if (event.getAction() == RIGHT_CLICK_BLOCK && event.getClickedBlock().getState() instanceof Sign)
+        {
+            signFound = event.getClickedBlock().getState();
+        }
+        if (signFound == null)
+        {
+            return;
+        }
+        event.setCancelled(true);
+        event.setUseItemInHand(DENY);
+        Location curLoc = signFound.getLocation();
+        MarketSign curSign = this.signFactory.getSignAt(curLoc);
+        if (curSign == null)
+        {
+            user.sendTranslated(NEUTRAL, "This sign is not a market-sign!");
+            return; // not a market-sign
+        }
+        if (!this.setEditingSign(user, curSign))
+        {
+            if (user.getItemInHand() == null || user.getItemInHand().getTypeId() == 0)
+            {
+                return;
+            }
+            if (!curSign.isAdminSign() && curSign.hasStock() && curSign.getStock() != 0)
+            {
+                user.sendTranslated(NEGATIVE, "You have to take all items out of the market sign to be able to change the item in it!");
+                return;
+            }
+            curSign.setItemStack(user.getItemInHand(), true);
+            curSign.updateSignText();
+            user.sendTranslated(POSITIVE, "Item in sign updated!");
         }
     }
 
     @EventHandler
     public void onSignPlace(BlockPlaceEvent event)
     {
-        if (event.getBlockPlaced().getState() instanceof Sign)
+        if (!(event.getBlockPlaced().getState() instanceof Sign))
         {
-            User user = this.getModule().getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
-            if (this.hasUser(user))
+            return;
+        }
+        User user = this.getModule().getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
+        if (!this.hasUser(user))
+        {
+            return;
+        }
+        if (this.module.getConfig().disableInWorlds.contains(event.getPlayer().getWorld().getName()))
+        {
+            user.sendTranslated(NEUTRAL, "MarketSigns are disabled in the configuration for this world!");
+            return;
+        }
+        if (!module.perms().SIGN_CREATE_ADMIN_CREATE.isAuthorized(user))
+        {
+            if (!module.perms().SIGN_CREATE_USER_CREATE.isAuthorized(user))
             {
-                if (this.module.getConfig().disableInWorlds.contains(event.getPlayer().getWorld().getName()))
-                {
-                    user.sendTranslated(NEUTRAL, "MarketSigns are disabled in the configuration for this world!");
-                    return;
-                }
-                if (!module.perms().SIGN_CREATE_ADMIN_CREATE.isAuthorized(user))
-                {
-                    if (!module.perms().SIGN_CREATE_USER_CREATE.isAuthorized(user))
-                    {
-                        user.sendTranslated(NEGATIVE, "You are not allowed to create market signs!");
-                        event.setCancelled(true);
-                        return;
-                    }
-                }
-                this.setEditingSign(user, this.signFactory.createSignAt(user, event.getBlockPlaced().getLocation()));
+                user.sendTranslated(NEGATIVE, "You are not allowed to create market signs!");
+                event.setCancelled(true);
+                return;
             }
         }
+        this.setEditingSign(user, this.signFactory.createSignAt(user, event.getBlockPlaced().getLocation()));
     }
 
     @EventHandler
     public void onSignChange(SignChangeEvent event)
     {
         User user = this.getModule().getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
-        if (this.hasUser(user))
+        if (!this.hasUser(user))
         {
-            if (this.module.getConfig().disableInWorlds.contains(event.getPlayer().getWorld().getName()))
-            {
-                user.sendTranslated(NEUTRAL, "MarketSigns are disabled in the configuration for this world!");
-                return;
-            }
-            Location loc = event.getBlock().getLocation();
-            if (loc.equals(this.currentSignLocation.get(user.getId())))
-            {
-                event.setCancelled(true);
-            }
+            return;
+        }
+        if (this.module.getConfig().disableInWorlds.contains(event.getPlayer().getWorld().getName()))
+        {
+            user.sendTranslated(NEUTRAL, "MarketSigns are disabled in the configuration for this world!");
+            return;
+        }
+        Location loc = event.getBlock().getLocation();
+        if (loc.equals(this.currentSignLocation.get(user.getUniqueId())))
+        {
+            event.setCancelled(true);
         }
     }
 
