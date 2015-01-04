@@ -22,7 +22,6 @@ import java.util.Map;
 import de.cubeisland.engine.converter.ConversionException;
 import de.cubeisland.engine.converter.ConverterManager;
 import de.cubeisland.engine.converter.converter.SingleClassConverter;
-import de.cubeisland.engine.converter.node.ListNode;
 import de.cubeisland.engine.converter.node.MapNode;
 import de.cubeisland.engine.converter.node.Node;
 import de.cubeisland.engine.converter.node.StringNode;
@@ -33,9 +32,9 @@ public class QuestionConverter extends SingleClassConverter<Question>
     public Node toNode(Question object, ConverterManager manager) throws ConversionException
     {
         MapNode node = MapNode.emptyMap();
-        node.setExactNode("question", new StringNode(object.getQuestion()));
-        node.setExactNode("answer", new StringNode(object.getAnswer()));
-        node.setExactNode("keywords", new ListNode(object.getKeywords()));
+        node.set("question", new StringNode(object.getQuestion()));
+        node.set("answer", new StringNode(object.getAnswer()));
+        node.set("keywords", manager.convertToNode(object.getKeywords()));
         return node;
     }
 

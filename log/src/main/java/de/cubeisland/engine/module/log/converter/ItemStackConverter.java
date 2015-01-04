@@ -44,9 +44,9 @@ public class ItemStackConverter extends SimpleConverter<ItemStack>
         }
 
         MapNode item = MapNode.emptyMap();
-        item.setExactNode("Count", new IntNode(itemStack.getAmount()));
-        item.setExactNode("Damage", new IntNode(itemStack.getDurability()));
-        item.setExactNode("Item", StringNode.of(itemStack.getType().name()));
+        item.set("Count", new IntNode(itemStack.getAmount()));
+        item.set("Damage", new IntNode(itemStack.getDurability()));
+        item.set("Item", StringNode.of(itemStack.getType().name()));
         net.minecraft.server.v1_8_R1.ItemStack nmsCopy = CraftItemStack.asNMSCopy(itemStack);
         if (nmsCopy == null)
         {
@@ -54,7 +54,7 @@ public class ItemStackConverter extends SimpleConverter<ItemStack>
             return null;
         }
         NBTTagCompound tag = nmsCopy.getTag();
-        item.setExactNode("tag", tag == null ? MapNode.emptyMap() : NBTUtils.convertNBTToNode(tag));
+        item.set("tag", tag == null ? MapNode.emptyMap() : NBTUtils.convertNBTToNode(tag));
         return item;
     }
 
@@ -64,10 +64,10 @@ public class ItemStackConverter extends SimpleConverter<ItemStack>
     {
         if (node instanceof MapNode)
         {
-            Node count = ((MapNode)node).getExactNode("Count");
-            Node damage = ((MapNode)node).getExactNode("Damage");
-            Node item = ((MapNode)node).getExactNode("Item");
-            Node tag = ((MapNode)node).getExactNode("tag");
+            Node count = ((MapNode)node).get("Count");
+            Node damage = ((MapNode)node).get("Damage");
+            Node item = ((MapNode)node).get("Item");
+            Node tag = ((MapNode)node).get("tag");
             if (count instanceof IntNode && damage instanceof IntNode &&
                 item instanceof StringNode && (tag instanceof MapNode))
             {

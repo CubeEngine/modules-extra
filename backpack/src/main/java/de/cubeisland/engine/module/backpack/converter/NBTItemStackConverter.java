@@ -38,11 +38,11 @@ public class NBTItemStackConverter extends SimpleConverter<ItemStack>
     public Node toNode(ItemStack itemStack) throws ConversionException
     {
         MapNode item = MapNode.emptyMap();
-        item.setExactNode("Count", new IntNode(itemStack.getAmount()));
-        item.setExactNode("Damage", new ShortNode(itemStack.getDurability()));
-        item.setExactNode("Item", StringNode.of(itemStack.getType().name()));
+        item.set("Count", new IntNode(itemStack.getAmount()));
+        item.set("Damage", new ShortNode(itemStack.getDurability()));
+        item.set("Item", StringNode.of(itemStack.getType().name()));
         NBTTagCompound tag = CraftItemStack.asNMSCopy(itemStack).getTag();
-        item.setExactNode("tag", tag == null ? MapNode.emptyMap() : NBTUtils.convertNBTToNode(tag));
+        item.set("tag", tag == null ? MapNode.emptyMap() : NBTUtils.convertNBTToNode(tag));
         return item;
     }
 
@@ -52,10 +52,10 @@ public class NBTItemStackConverter extends SimpleConverter<ItemStack>
     {
         if (node instanceof MapNode)
         {
-            Node count = ((MapNode)node).getExactNode("Count");
-            Node damage = ((MapNode)node).getExactNode("Damage");
-            Node item = ((MapNode)node).getExactNode("Item");
-            Node tag = ((MapNode)node).getExactNode("tag");
+            Node count = ((MapNode)node).get("Count");
+            Node damage = ((MapNode)node).get("Damage");
+            Node item = ((MapNode)node).get("Item");
+            Node tag = ((MapNode)node).get("tag");
             if (count instanceof IntNode && damage instanceof ShortNode &&
                 item instanceof StringNode && (tag instanceof MapNode))
             {

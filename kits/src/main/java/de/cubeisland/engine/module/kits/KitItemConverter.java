@@ -50,9 +50,9 @@ public class KitItemConverter extends SingleClassConverter<KitItem>
         else
         {
             MapNode mapNode = MapNode.emptyMap();
-            mapNode.setNode(StringNode.of(object.amount + "*" + object.mat.name() + ":" + object.dura +
-                                              (object.customName == null ? "" : " " + object.customName)),
-                            manager.convertToNode(object.enchs));
+            mapNode.set(object.amount + "*" + object.mat.name() + ":" + object.dura +
+                            (object.customName == null ? "" : " " + object.customName), manager.convertToNode(
+                            object.enchs));
             return mapNode;
         }
     }
@@ -103,7 +103,7 @@ public class KitItemConverter extends SingleClassConverter<KitItem>
                 Map<Enchantment, Integer> enchs = new HashMap<>();
                 if (node instanceof MapNode)
                 {
-                    MapNode subNode= (MapNode)((MapNode)node).getExactNode(((MapNode)node).getFirstKey());
+                    MapNode subNode= (MapNode)((MapNode)node).get(((MapNode)node).getFirstKey());
                     for (Entry<String, Node> enchNode : subNode.getValue().entrySet())
                     {
                         int lv;

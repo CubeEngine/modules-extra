@@ -63,7 +63,7 @@ public class BaseMaterialContainerConverter extends SingleClassConverter<BaseMat
         {
             result.put(baseMaterial.getMaterial(),baseMaterial.getPrice());
         }
-        return new MapNode(result);
+        return manager.convertToNode(result);
     }
 
     @Override
