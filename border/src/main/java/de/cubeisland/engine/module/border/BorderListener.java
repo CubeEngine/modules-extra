@@ -59,7 +59,12 @@ public class BorderListener implements Listener
     {
         long currentTime = System.currentTimeMillis();
 
-        if (currentTime - this.lastNotice.get(player.getUniqueId()) > NOTICE_DELAY)
+        Long last = this.lastNotice.get(player.getUniqueId());
+        if (last == null)
+        {
+            last = 0L;
+        }
+        if (currentTime - last > NOTICE_DELAY)
         {
             this.lastNotice.put(player.getUniqueId(), currentTime);
             return true;
