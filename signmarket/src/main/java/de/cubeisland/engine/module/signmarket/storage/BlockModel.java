@@ -82,6 +82,9 @@ public class BlockModel extends AsyncRecord<BlockModel>
 
     /**
      * Returns true if given user is the owner
+     *
+     * @param user the user
+     * @return whether the user is owner
      */
     public boolean isOwner(User user)
     {

@@ -20,7 +20,6 @@ package de.cubeisland.engine.module.log.storage;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
-
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.LogAttachment;
@@ -40,7 +39,11 @@ public class Lookup implements Cloneable
     }
 
     /**
-     * Lookup excluding nothing
+     * Creates a Lookup excluding nothing
+     *
+     * @param module the module
+     *
+     * @return the new Lookup
      */
     public static Lookup general(Log module)
     {
@@ -52,7 +55,11 @@ public class Lookup implements Cloneable
     }
 
     /**
-     * Lookup only including container-actions
+     * Creates a Lookup only including container-actions
+     *
+     * @param module the module
+     *
+     * @return the new Lookup
      */
     public static Lookup container(Log module)
     {
@@ -64,7 +71,11 @@ public class Lookup implements Cloneable
     }
 
     /**
-     * Lookup only including kill-actions
+     * Creates a Lookup only including kill-actions
+     *
+     * @param module the module
+     *
+     * @return the new Lookup
      */
     public static Lookup kills(Log module)
     {
@@ -76,7 +87,11 @@ public class Lookup implements Cloneable
     }
 
     /**
-     * Lookup only including player-actions
+     * Creates a Lookup only including player-actions
+     *
+     * @param module the module
+     *
+     * @return the new Lookup
      */
     public static Lookup player(Log module)
     {
@@ -88,7 +103,11 @@ public class Lookup implements Cloneable
     }
 
     /**
-     * Lookup only including block-actions
+     * Creates a Lookup only including block-actions
+     *
+     * @param module the module
+     *
+     * @return the Lookup
      */
     public static Lookup block(Log module)
     {

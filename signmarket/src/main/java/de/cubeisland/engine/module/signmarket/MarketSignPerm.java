@@ -99,7 +99,7 @@ public class MarketSignPerm extends PermissionContainer<Signmarket>
     public final Permission SIGN_SIZE_INFINITE = SIGN_SIZE.child("infinite");
 
     /**
-     * Detached perm / allows to create & edit signs of an other user
+     * Detached perm: allows to create and edit signs of an other user
      */
     public final Permission SIGN_CREATE_USER_OTHER = SIGN_CREATE_USER.newPerm("other");
 

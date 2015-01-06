@@ -162,6 +162,9 @@ public class MarketSign
 
     /**
      * Sets the itemstack to buy/sell
+     *
+     * @param itemStack the itemstack
+     * @param setAmount the amount
      */
     public void setItemStack(ItemStack itemStack, boolean setAmount)
     {
@@ -287,11 +290,14 @@ public class MarketSign
     }
 
     /**
-     * Tries to execute the appropriate action
-     * <p>on right-click: use the sign (buy/sell) / if owner take out of stock
-     * <p>on left-click: BUY-sign: if correct item in hand & owner of sign -> refill stock
-     * <p>on shift left-click: open sign-inventory OR if correct item in hand & owner put all in stock
-     * <p>on shift right-click: inspect the sign, shows all information saved
+     * Tries to execute the appropriate action <br>
+     * on right-click: use the sign (buy and sell) if owner take out of stock<br>
+     * on left-click: BUY-sign: if correct item in hand and owner of sign: refill stock<br>
+     * on shift left-click: open sign-inventory OR if correct item in hand and owner put all in stock<br>
+     * on shift right-click: inspect the sign, shows all information saved<br>
+     *
+     * @param user the user
+     * @param type the type
      */
     public void executeAction(User user, Action type)
     {
@@ -610,9 +616,11 @@ public class MarketSign
 
     /**
      * Returns true if both item-models share the same item and are not infinite item-sources
-     * <p>in addition to this the market-signs have to share their owner too!
+     * <br>in addition to this the market-signs have to share their owner too!
+     *
      *
      * @param model the model to compare to
+     * @return true if the sign can be sycned to this one
      */
     public boolean canSync(MarketSign model)
     {
@@ -623,6 +631,8 @@ public class MarketSign
 
     /**
      * Returns the size of the display-chest
+     *
+     * @return the size
      */
     public int getChestSize()
     {
@@ -946,7 +956,8 @@ public class MarketSign
 
     /**
      * Sets the owner of this market-sign to given user.
-     * <p>Sets stock to 0 if null before
+     * <br>Sets stock to 0 if null before
+     * @param user the user
      */
     public void setOwner(User user)
     {
@@ -1272,6 +1283,7 @@ public class MarketSign
 
     /**
      * Sets the amount to buy/sell with each click
+     * @param amount the amount
      */
     public void setAmount(int amount)
     {
@@ -1349,7 +1361,7 @@ public class MarketSign
 
     /**
      * Returns whether this sign does have a demand or not
-     * <p>Only sell signs can have a demand
+     * <br>Only sell signs can have a demand
      *
      * @return true if this sign has a demand set
      */
@@ -1421,6 +1433,7 @@ public class MarketSign
 
     /**
      * Sets the price to buy/sell the specified amount of items with each click
+     * @param price the price
      */
     public void setPrice(long price)
     {

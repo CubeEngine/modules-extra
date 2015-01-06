@@ -99,6 +99,7 @@ public abstract class ActionBlock extends BaseAction implements Rollbackable, Re
 
         /**
          * Returns true if this BlockSection is one of given materials
+         * @return true or false
          */
         public boolean is(Material... materials)
         {
