@@ -17,12 +17,12 @@
  */
 package de.cubeisland.engine.module.kits;
 
-import de.cubeisland.engine.core.storage.database.AsyncRecord;
 import de.cubeisland.engine.core.user.User;
+import org.jooq.impl.UpdatableRecordImpl;
 
 import static de.cubeisland.engine.module.kits.TableKitsGiven.TABLE_KITS;
 
-public class KitsGiven extends AsyncRecord<KitsGiven>
+public class KitsGiven extends UpdatableRecordImpl<KitsGiven>
 {
     public KitsGiven()
     {

@@ -20,12 +20,12 @@ package de.cubeisland.engine.module.itemrepair.repair.storage;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 
-import de.cubeisland.engine.core.storage.database.AsyncRecord;
 import de.cubeisland.engine.core.world.WorldManager;
+import org.jooq.impl.UpdatableRecordImpl;
 
 import static de.cubeisland.engine.module.itemrepair.repair.storage.TableRepairBlock.TABLE_REPAIR_BLOCK;
 
-public class RepairBlockModel extends AsyncRecord<RepairBlockModel>
+public class RepairBlockModel extends UpdatableRecordImpl<RepairBlockModel>
 {
     public RepairBlockModel()
     {

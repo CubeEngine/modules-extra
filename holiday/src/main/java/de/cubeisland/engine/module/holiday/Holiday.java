@@ -61,7 +61,7 @@ public class Holiday extends Module implements Listener
             {
                 User user = this.getCore().getUserManager().getUser(model.getValue(TABLE_HOLIDAY.USERID));
                 user.getEntity().setValue(TABLE_USER.NOGC, false);
-                user.getEntity().asyncUpdate();
+                user.getEntity().update();
             }
         }
     }
@@ -73,10 +73,10 @@ public class Holiday extends Module implements Listener
         HolidayModel existing = dsl.selectFrom(TABLE_HOLIDAY).where(TABLE_HOLIDAY.USERID.eq(user.getEntity().getKey())).fetchOne();
         if (existing != null)
         {
-            existing.asyncDelete();
+            existing.delete();
             user.sendTranslated(POSITIVE, "Welcome back!");
             user.getEntity().setValue(TABLE_USER.NOGC, false);
-            user.getEntity().asyncUpdate();
+            user.getEntity().delete();
         }
     }
 }
