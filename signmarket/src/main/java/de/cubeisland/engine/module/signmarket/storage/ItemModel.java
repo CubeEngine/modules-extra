@@ -99,6 +99,8 @@ public class ItemModel extends UpdatableRecordImpl<ItemModel> implements Invento
 
     /**
      * Returns the ItemStack of the item saved in this sign with amount 0.
+     *
+     * @return the itemstack
      */
     public ItemStack getItemStack()
     {

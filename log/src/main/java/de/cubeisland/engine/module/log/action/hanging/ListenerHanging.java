@@ -58,10 +58,10 @@ import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock;
  * {@link PaintingPlace}
  * {@link ItemFrameItemRemove}
  * <p>External Actions:
- * TODO {@link OtherHangingBreak}
- * TODO {@link OtherPaintingBreak}
- * TODO {@link OtherItemframeBreak}
- * TODO {@link OtherItemFrameItemRemove}
+ * TODO @link OtherHangingBreak}
+ * TODO @link OtherPaintingBreak}
+ * TODO @link OtherItemframeBreak}
+ * TODO @link OtherItemFrameItemRemove}
  */
 public class ListenerHanging extends LogListener
 {
