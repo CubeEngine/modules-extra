@@ -62,17 +62,17 @@ public class SignMarketBlockManager
         this.blockModels.remove(model.getLocation());
         UInteger key = model.getValue(TABLE_SIGN_BLOCK.KEY);
         if (key == null || key.longValue() == 0) return; // unsaved model
-        model.delete();
+        model.asyncDelete();
     }
 
     public void store(BlockModel blockModel)
     {
         this.blockModels.put(blockModel.getLocation(),blockModel);
-        blockModel.insert();
+        blockModel.asyncInsert();
     }
 
     public void update(BlockModel blockItemModel)
     {
-        blockItemModel.update();
+        blockItemModel.asyncUpdate();
     }
 }

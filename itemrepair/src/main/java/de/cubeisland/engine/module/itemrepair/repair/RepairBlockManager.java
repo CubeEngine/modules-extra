@@ -91,14 +91,14 @@ public class RepairBlockManager implements Listener
                 {
                     this.module.getLog().info("Deleting saved RepairBlock that is no longer a RepairBlock at {}:{}:{} in {}",
                                               block.getX(), block.getY(), block.getZ(), block.getWorld().getName());
-                    model.delete();
+                    model.asyncDelete();
                 }
             }
             else
             {
                 this.module.getLog().info("Deleting saved RepairBlock that does not correspond to block at {}:{}:{} in {}",
                                           block.getX(), block.getY(), block.getZ(), block.getWorld().getName());
-                model.delete();
+                model.asyncDelete();
             }
         }
     }

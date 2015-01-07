@@ -62,7 +62,7 @@ public class Vote extends Module implements Listener
             if (voteModel == null)
             {
                 voteModel = this.dsl.newRecord(TABLE_VOTE).newVote(user);
-                voteModel.insert();
+                voteModel.asyncInsert();
             }
             else
             {
@@ -75,7 +75,7 @@ public class Vote extends Module implements Listener
                     voteModel.setValue(TABLE_VOTE.VOTEAMOUNT, UShort.valueOf(voteModel.getValue(TABLE_VOTE.VOTEAMOUNT).intValue() + 1));
                 }
                 voteModel.setValue(TABLE_VOTE.LASTVOTE, new Timestamp(System.currentTimeMillis()));
-                voteModel.update();
+                voteModel.asyncUpdate();
             }
             economy.createAccount(user.getUniqueId());
             int voteamount = voteModel.getValue(TABLE_VOTE.VOTEAMOUNT).intValue();

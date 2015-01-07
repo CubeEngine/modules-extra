@@ -73,7 +73,7 @@ public class HolidayCommands extends CommandContainer
             model.store();
 
             sender.getEntity().setValue(TABLE_USER.NOGC, false);
-            sender.getEntity().update();
+            sender.getEntity().asyncUpdate();
 
             sender.kickPlayer(sender.getTranslation(NEUTRAL, "You are now on holiday. See you later!"));
         }

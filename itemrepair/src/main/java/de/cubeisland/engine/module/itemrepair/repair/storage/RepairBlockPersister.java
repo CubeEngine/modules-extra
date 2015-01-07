@@ -46,7 +46,7 @@ public class RepairBlockPersister
         RepairBlockModel repairBlockModel = this.models.remove(block);
         if (repairBlockModel != null)
         {
-            repairBlockModel.delete();
+            repairBlockModel.asyncDelete();
         }
         else
         {
@@ -66,7 +66,7 @@ public class RepairBlockPersister
 
     public void storeBlock(Block block, RepairBlockModel repairBlockModel)
     {
-        repairBlockModel.insert();
+        repairBlockModel.asyncInsert();
         this.models.put(block,repairBlockModel);
     }
 }
