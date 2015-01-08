@@ -198,10 +198,6 @@ public class ListenerContainerItem extends LogListener
             InventoryHolder holder = inventory.getHolder();
             ItemStack inventoryItem = event.getCurrentItem();
             ItemStack cursorItem = event.getCursor();
-            //System.out.print(user.getName()+"------------Click Event----------- in "+holder);
-            //System.out.print("Cursor: "+ cursorItem + " | Inventory: "+ inventoryItem);
-            //System.out.print((event.getRawSlot() < event.getView().getTopInventory().getSize() ? "TOP " : "BOT ")
-            //+ (event.isShiftClick() ? "SHIFT-" : "") + (event.isRightClick() ? "RIGHT" : "LEFT"));
             if ((inventoryItem == null || inventoryItem.getType() == AIR) && (cursorItem == null
                 || cursorItem.getType() == AIR))
             {
@@ -451,6 +447,5 @@ public class ListenerContainerItem extends LogListener
         }
         Integer oldAmount = itemDataMap.get(itemData); // if not yet set this returns 0
         itemDataMap.put(itemData, oldAmount == null ? 0 : oldAmount + amount);
-        //System.out.print((amount < 0 ? "TAKE " : "PUT ") + itemData.material.name()+":"+itemData.dura+" x"+amount);//TODO remove this
     }
 }
