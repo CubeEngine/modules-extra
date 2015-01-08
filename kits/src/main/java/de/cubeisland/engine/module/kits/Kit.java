@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 import org.bukkit.Server;
 import org.bukkit.inventory.ItemStack;
@@ -42,6 +43,8 @@ import de.cubeisland.engine.core.util.formatter.MessageType;
 import org.joda.time.Duration;
 import org.jooq.DSLContext;
 import org.jooq.Record1;
+import org.jooq.ResultQuery;
+import org.jooq.exception.DataAccessException;
 
 import static de.cubeisland.engine.module.kits.TableKitsGiven.TABLE_KITS;
 
@@ -50,6 +53,7 @@ import static de.cubeisland.engine.module.kits.TableKitsGiven.TABLE_KITS;
  */
 public class Kit
 {
+    private final Kits module;
     private String name;
     private List<KitItem> items;
 
@@ -68,6 +72,7 @@ public class Kit
 
     public Kit(Kits module, final String name, boolean giveKitOnFirstJoin, int limitUsagePerPlayer, long limitUsageDelay, boolean usePermission, String customMessage, List<String> commands, List<KitItem> items)
     {
+        this.module = module;
         this.dsl = module.getCore().getDB().getDSL();
         this.name = name;
         this.items = items;
@@ -118,20 +123,33 @@ public class Kit
         List<ItemStack> list = this.getItems();
         if (InventoryUtil.giveItemsToUser(user, list.toArray(new ItemStack[list.size()])))
         {
-            KitsGiven kitsGiven = this.dsl.selectFrom(TABLE_KITS).where(TABLE_KITS.USERID.eq(user.getEntity().getKey())).and(TABLE_KITS.KITNAME.eq(this.getKitName())).fetchOne();
-            if (kitsGiven == null)
+            ResultQuery<KitsGiven> q = dsl.selectFrom(TABLE_KITS).where(TABLE_KITS.USERID.eq(user.getEntity().getKey())).and(TABLE_KITS.KITNAME.eq(this.getKitName()));
+            try
             {
-                this.dsl.newRecord(TABLE_KITS).newKitsGiven(user, this).insertAsync();
+                module.getCore().getDB().queryOne(q).thenAcceptAsync(kitsGiven -> {
+                    if (kitsGiven == null)
+                    {
+                        this.dsl.newRecord(TABLE_KITS).newKitsGiven(user, this).insert();
+                    }
+                    else
+                    {
+                        kitsGiven.setValue(TABLE_KITS.AMOUNT, kitsGiven.getValue(TABLE_KITS.AMOUNT) + 1);
+                        kitsGiven.update();
+                    }
+                    this.executeCommands(user);
+                    if (limitUsageDelay != 0)
+                    {
+                        user.get(KitsAttachment.class).setKitUsage(this.name);
+                    }
+                }).get();
             }
-            else
+            catch (InterruptedException e)
             {
-                kitsGiven.setValue(TABLE_KITS.AMOUNT, kitsGiven.getValue(TABLE_KITS.AMOUNT) + 1);
-                kitsGiven.updateAsync();
+                Thread.currentThread().interrupt();
             }
-            this.executeCommands(user);
-            if (limitUsageDelay != 0)
+            catch (ExecutionException e)
             {
-                user.get(KitsAttachment.class).setKitUsage(this.name);
+                throw new DataAccessException(e.getMessage(), e);
             }
             return true;
         }
