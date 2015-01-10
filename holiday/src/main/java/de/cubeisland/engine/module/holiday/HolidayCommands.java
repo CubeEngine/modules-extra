@@ -55,7 +55,7 @@ public class HolidayCommands extends CommandContainer
 
     @Command(name = "for", desc = "Starts your holiday and kicks you from the server")
     @Restricted(User.class)
-    public void forCommand(CommandContext context, @Label("duration") String duration, @Optional @Greed(INFINITE) @Label("reason") String reason)
+    public void forCommand(CommandContext context, String duration, @Optional @Greed(INFINITE) String reason)
     {
         try
         {
@@ -85,12 +85,13 @@ public class HolidayCommands extends CommandContainer
 
     @Command(desc = "Checks the holiday status of a player")
     @Params(positional = @Param(label = "player", type = User.class))
-    public void check(CommandContext context, @Label("player") User user)
+    public void check(CommandContext context, User player)
     {
-        HolidayModel model = dsl.selectFrom(TABLE_HOLIDAY).where(TABLE_HOLIDAY.USERID.eq(user.getEntity().getKey())).fetchOne();
+        HolidayModel model = dsl.selectFrom(TABLE_HOLIDAY).where(TABLE_HOLIDAY.USERID.eq(
+            player.getEntity().getKey())).fetchOne();
         if (model == null)
         {
-            context.sendTranslated(NEUTRAL, "{user} is not on holiday!", user);
+            context.sendTranslated(NEUTRAL, "{user} is not on holiday!", player);
             return;
         }
         DateFormat df = DateFormat.getDateInstance(DateFormat.DEFAULT, context.getSource().getLocale());
@@ -98,11 +99,11 @@ public class HolidayCommands extends CommandContainer
         String dateFrom = df.format(model.getValue(TABLE_HOLIDAY.FROM));
         if (model.getValue(TABLE_HOLIDAY.TO).getTime() >= System.currentTimeMillis())
         {
-            context.sendTranslated(POSITIVE, "{user} is on holiday from {input#date} to {input#date}", user, dateFrom, dateTo);
+            context.sendTranslated(POSITIVE, "{user} is on holiday from {input#date} to {input#date}", player, dateFrom, dateTo);
         }
         else
         {
-            context.sendTranslated(POSITIVE, "{user} was on holiday from {input#date} to {input#date}", user, dateFrom, dateTo);
+            context.sendTranslated(POSITIVE, "{user} was on holiday from {input#date} to {input#date}", player, dateFrom, dateTo);
         }
         String reason = model.getValue(TABLE_HOLIDAY.REASON);
         if (reason != null)

@@ -238,7 +238,7 @@ public class EditModeListener extends ConversationCommand
 
     @Restricted(User.class)
     @Command(desc = "Changes the demand of a sign")
-    public void demand(CommandContext context, @Label("demand") Integer demand)
+    public void demand(CommandContext context, Integer demand)
     {
         MarketSign sign = getSign((User)context.getSource());
         if (!module.perms().SIGN_CREATE_USER_DEMAND.isAuthorized(context.getSource()))
@@ -320,7 +320,7 @@ public class EditModeListener extends ConversationCommand
 
     @Restricted(User.class)
     @Command(desc = "Changes the signs owner")
-    public void owner(CommandContext context, @Label("owner") User owner)
+    public void owner(CommandContext context, User owner)
     {
         MarketSign sign = getSign((User)context.getSource());
         if (!module.perms().SIGN_CREATE_USER_OTHER.isAuthorized(context.getSource()))
@@ -374,7 +374,7 @@ public class EditModeListener extends ConversationCommand
 
     @Restricted(User.class)
     @Command(desc = "Sets the signs stock")
-    public void setstock(CommandContext context, @Label("amount") Integer amount)
+    public void setstock(CommandContext context, Integer amount)
     {
         MarketSign sign = getSign((User)context.getSource());
         if (!module.perms().SIGN_SETSTOCK.isAuthorized(context.getSource()))
@@ -394,7 +394,7 @@ public class EditModeListener extends ConversationCommand
 
     @Restricted(User.class)
     @Command(desc = "Sets the price")
-    public void price(CommandContext context, @Label("price") Double price)
+    public void price(CommandContext context, Double price)
     {
         MarketSign sign = getSign((User)context.getSource());
         if (price < 0)
@@ -408,7 +408,7 @@ public class EditModeListener extends ConversationCommand
 
     @Restricted(User.class)
     @Command(desc = "Sets the amount")
-    public void amount(CommandContext context, @Label("amount") Integer amount)
+    public void amount(CommandContext context, Integer amount)
     {
         MarketSign sign = getSign((User)context.getSource());
         if (amount < 0)
@@ -422,7 +422,7 @@ public class EditModeListener extends ConversationCommand
 
     @Restricted(User.class)
     @Command(desc = "Sets the item")
-    public void item(CommandContext context, @Label("item") ItemStack item)
+    public void item(CommandContext context, ItemStack item)
     {
         MarketSign sign = getSign((User)context.getSource());
         if (sign.isAdminSign())
@@ -433,8 +433,7 @@ public class EditModeListener extends ConversationCommand
         }
         if (sign.hasStock() && sign.getStock() != 0)
         {
-            context.sendTranslated(NEGATIVE,
-                                   "You have to take all items out of the market-sign to be able to change the item in it!");
+            context.sendTranslated(NEGATIVE, "You have to take all items out of the market-sign to be able to change the item in it!");
             return;
         }
         sign.setItemStack(item, false);
@@ -443,7 +442,7 @@ public class EditModeListener extends ConversationCommand
 
     @Restricted(User.class)
     @Command(desc = "Sets the signs inventory size")
-    public void size(CommandContext context, @Label("size") Integer size)
+    public void size(CommandContext context, Integer size)
     {
         MarketSign sign = getSign((User)context.getSource());
         if (!module.perms().SIGN_SIZE_CHANGE.isAuthorized(context.getSource()))

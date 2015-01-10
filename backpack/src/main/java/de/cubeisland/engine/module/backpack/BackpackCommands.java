@@ -58,84 +58,84 @@ public class BackpackCommands extends CommandContainer
     @Command(desc = "opens a backpack")
     @Restricted(value = User.class, msg = "You cannot open a inventory in console!")
     public void open(CommandContext context,
-                     @Label("name") String name,
-                     @Default @Optional @Label("player") User forUser,
-                     @Named({"world", "for", "in", "w"}) @Label("world") World forWorld)
+                     String name,
+                     @Default User player,
+                     @Named({"world", "for", "in", "w"}) World world)
     {
-        if (forWorld == null)
+        if (world == null)
         {
-            forWorld = forUser.getWorld();
+            world = player.getWorld();
         }
-        if (context.getSource() != forUser && !module.perms().OPEN_OTHER_USER.isAuthorized(context.getSource()))
+        if (context.getSource() != player && !module.perms().OPEN_OTHER_USER.isAuthorized(context.getSource()))
         {
             context.sendTranslated(NEGATIVE, "You are not allowed to open the backpacks of other users!");
             return;
         }
-        if (forUser.getWorld() != forWorld && !module.perms().OPEN_OTHER_WORLDS.isAuthorized(context.getSource()))
+        if (player.getWorld() != world && !module.perms().OPEN_OTHER_WORLDS.isAuthorized(context.getSource()))
         {
             context.sendTranslated(NEGATIVE, "You are not allowed to open backpacks from an other world!");
             return;
         }
-        manager.openBackpack((User)context.getSource(), forUser, forWorld, name);
+        manager.openBackpack((User)context.getSource(), player, world, name);
     }
 
     @Alias(value = "createbp")
     @Command(desc = "creates a new backpack")
     public void create(CommandContext context,
-                       @Label("name") String name,
-                       @Default @Optional @Label("player") User forUser,
-                       @Named({"w", "world", "for", "in"}) @Label("world") World forWorld,
+                       String name,
+                       @Default @Optional User player,
+                       @Named({"w", "world", "for", "in"}) World world,
                        @Named({"p", "pages"}) Integer pages,
                        @Named({"s","size"}) Integer size,
                        @Flag(name = "g", longName = "global") boolean global,
                        @Flag(name = "s", longName = "single") boolean single,
                        @Flag(name = "b", longName = "blockinput") boolean blockInput)
     {
-        if (forWorld == null && !global)
+        if (world == null && !global)
         {
             if (!(context.getSource() instanceof User))
             {
                 context.sendTranslated(POSITIVE, "You have to specify a world for non global backpacks!");
                 return;
             }
-            forWorld = ((User)context.getSource()).getWorld();
+            world = ((User)context.getSource()).getWorld();
         }
-        manager.createBackpack(context.getSource(), forUser, name, forWorld, global, single, blockInput, pages, size);
+        manager.createBackpack(context.getSource(), player, name, world, global, single, blockInput, pages, size);
     }
 
     @Alias(value = "modifybp")
     @Command(desc = "modifies a backpack")
     public void modify(CommandContext context,
-                       @Label("name") String name,
-                       @Default @Optional @Label("player") User forUser,
-                       @Named({"w", "world", "for", "in"}) @Label("world") World forWorld,
+                       String name,
+                       @Default User player,
+                       @Named({"w", "world", "for", "in"}) World world,
                        @Named({"p", "pages"}) Integer pages,
                        @Named({"s","size"}) Integer size,
                        @Flag(name = "b", longName = "blockinput") boolean blockInput)
     {
-        if (forWorld == null && (context.getSource() instanceof User))
+        if (world == null && (context.getSource() instanceof User))
         {
-            forWorld = ((User)context.getSource()).getWorld();
+            world = ((User)context.getSource()).getWorld();
         }
-        manager.modifyBackpack(context.getSource(), forUser, name, forWorld, blockInput, pages, size);
+        manager.modifyBackpack(context.getSource(), player, name, world, blockInput, pages, size);
     }
 
     @Alias(value = "givebp")
     @Command(desc = "Puts items into a backpack")
     // /givebp premium Faithcaio item diamondpick:1500 name "broken pick" lore "A broken\npick" "ench unbreaking:1,effi:3"
     public void give(CommandContext context,
-                     @Label("name") String backpackName,
-                     @Default @Optional @Label("player") User forUser,
+                     String name,
+                     @Default User player,
                      @Named({"item","i"}) @Label("item[:data]") String itemString, // TODO Required flag // TODO group parameter for ItemMeta
                      @Named({"name","n"}) @Label("name") String displayName,
                      @Named({"lore","l"}) @Label("lorelines...") String lore,
                      @Named({"amount","a"}) Integer amount,
                      @Named({"ench", "enchantments","e"}) @Label("enchs...") String enchantments,
-                     @Named({"w", "world", "for", "in"}) @Label("world") World forWorld)
+                     @Named({"w", "world", "for", "in"}) World world)
     {
-        if (forWorld == null && (context.getSource() instanceof User))
+        if (world == null && (context.getSource() instanceof User))
         {
-            forWorld = ((User)context.getSource()).getWorld();
+            world = ((User)context.getSource()).getWorld();
         }
         ItemStack matchedItem = Match.material().itemStack(itemString);
         if (matchedItem == null)
@@ -188,6 +188,6 @@ public class BackpackCommands extends CommandContainer
             amount = matchedItem.getMaxStackSize();
         }
         matchedItem.setAmount(amount);
-        this.manager.giveItem(context.getSource(), forUser, forWorld, backpackName, matchedItem);
+        this.manager.giveItem(context.getSource(), player, world, name, matchedItem);
     }
 }
