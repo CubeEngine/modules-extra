@@ -57,10 +57,7 @@ public class BackpackCommands extends CommandContainer
     @Alias(value = "openbp")
     @Command(desc = "opens a backpack")
     @Restricted(value = User.class, msg = "You cannot open a inventory in console!")
-    public void open(CommandContext context,
-                     String name,
-                     @Default User player,
-                     @Named({"world", "for", "in", "w"}) World world)
+    public void open(CommandContext context, String name, @Default User player, @Named({"world", "for", "in", "w"}) World world)
     {
         if (world == null)
         {
@@ -81,15 +78,14 @@ public class BackpackCommands extends CommandContainer
 
     @Alias(value = "createbp")
     @Command(desc = "creates a new backpack")
-    public void create(CommandContext context,
-                       String name,
+    public void create(CommandContext context, String name,
                        @Default @Optional User player,
                        @Named({"w", "world", "for", "in"}) World world,
                        @Named({"p", "pages"}) Integer pages,
                        @Named({"s","size"}) Integer size,
-                       @Flag(name = "g", longName = "global") boolean global,
-                       @Flag(name = "s", longName = "single") boolean single,
-                       @Flag(name = "b", longName = "blockinput") boolean blockInput)
+                       @Flag boolean global,
+                       @Flag boolean single,
+                       @Flag boolean blockinput)
     {
         if (world == null && !global)
         {
@@ -100,32 +96,28 @@ public class BackpackCommands extends CommandContainer
             }
             world = ((User)context.getSource()).getWorld();
         }
-        manager.createBackpack(context.getSource(), player, name, world, global, single, blockInput, pages, size);
+        manager.createBackpack(context.getSource(), player, name, world, global, single, blockinput, pages, size);
     }
 
     @Alias(value = "modifybp")
     @Command(desc = "modifies a backpack")
-    public void modify(CommandContext context,
-                       String name,
-                       @Default User player,
+    public void modify(CommandContext context, String name, @Default User player,
                        @Named({"w", "world", "for", "in"}) World world,
                        @Named({"p", "pages"}) Integer pages,
                        @Named({"s","size"}) Integer size,
-                       @Flag(name = "b", longName = "blockinput") boolean blockInput)
+                       @Flag boolean blockinput)
     {
         if (world == null && (context.getSource() instanceof User))
         {
             world = ((User)context.getSource()).getWorld();
         }
-        manager.modifyBackpack(context.getSource(), player, name, world, blockInput, pages, size);
+        manager.modifyBackpack(context.getSource(), player, name, world, blockinput, pages, size);
     }
 
     @Alias(value = "givebp")
     @Command(desc = "Puts items into a backpack")
     // /givebp premium Faithcaio item diamondpick:1500 name "broken pick" lore "A broken\npick" "ench unbreaking:1,effi:3"
-    public void give(CommandContext context,
-                     String name,
-                     @Default User player,
+    public void give(CommandContext context, String name, @Default User player,
                      @Named({"item","i"}) @Label("item[:data]") String itemString, // TODO Required flag // TODO group parameter for ItemMeta
                      @Named({"name","n"}) @Label("name") String displayName,
                      @Named({"lore","l"}) @Label("lorelines...") String lore,

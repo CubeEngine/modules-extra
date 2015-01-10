@@ -154,61 +154,57 @@ public class RulebookCommands extends CommandContainer
 
     @Alias(value = "listrules")
     @Command(desc = "list all available languages of the rulebooks.")
-    @Flags(@Flag(longName = "supported", name = "s"))
     @CommandPermission(permDefault = TRUE)
-    public void list(CommandContext context)
+    public void list(CommandContext context, @Flag boolean supported)
     {
-        if(!context.hasFlag("s"))
-        {
-            if(this.rulebookManager.getLocales().isEmpty())
-            {
-                context.sendTranslated(NEUTRAL, "No rulebook available at the moment");
-            }
-            else
-            {
-                context.sendTranslated(NEUTRAL, "available languages:");
-                for(Locale locale : this.rulebookManager.getLocales())
-                {
-                    context.sendMessage(ChatFormat.YELLOW + "* " + locale.getDisplayLanguage(context.getSource().getLocale()));
-                }
-            }
-        }
-        else
+        if (supported)
         {
             context.sendTranslated(NEUTRAL, "supported languages:");
             for(Language language : this.module.getCore().getI18n().getLanguages())
             {
                 context.sendMessage(ChatFormat.YELLOW +  "* " + language.getLocale().getDisplayLanguage(context.getSource().getLocale()));
             }
+            return;
+        }
+        if (this.rulebookManager.getLocales().isEmpty())
+        {
+            context.sendTranslated(NEUTRAL, "No rulebook available at the moment");
+            return;
+        }
+        context.sendTranslated(NEUTRAL, "available languages:");
+        for (Locale locale : this.rulebookManager.getLocales())
+        {
+            context.sendMessage(ChatFormat.YELLOW + "* " + locale.getDisplayLanguage(
+                context.getSource().getLocale()));
         }
     }
 
     @Alias(value = "removerules")
     @Command(desc = "removes the declared language and languagefiles!")
-    @Params(positional = @Param(label = "language"))
-    public void remove(CommandContext context)
+    public void remove(CommandContext context, String language)
     {
-        Language language = this.rulebookManager.getLanguage(context.getString(0));
+        Language lang = this.rulebookManager.getLanguage(language);
 
-        if(language == null)
+        if(lang == null)
         {
-            context.sendTranslated(NEGATIVE, "More than one or no language is matched with {input}", context.get(0));
+            context.sendTranslated(NEGATIVE, "More than one or no language is matched with {input}", language);
             return;
         }
-        if(!this.rulebookManager.contains(language.getLocale()))
+        if(!this.rulebookManager.contains(lang.getLocale()))
         {
-            context.sendTranslated(POSITIVE, "The languagefile of {input} doesn't exist at the moment", language.getLocale().getDisplayLanguage(context.getSource().getLocale()));
+            context.sendTranslated(POSITIVE, "The languagefile of {input} doesn't exist at the moment", lang.getLocale().getDisplayLanguage(context.getSource().getLocale()));
             return;
         }
         
         try
         {
-            this.rulebookManager.removeBook(language.getLocale());
-            context.sendTranslated(POSITIVE, "The languagefiles of {input} was deleted", language.getLocale().getDisplayLanguage(context.getSource().getLocale()));
+            this.rulebookManager.removeBook(lang.getLocale());
+            context.sendTranslated(POSITIVE, "The languagefiles of {input} was deleted", lang.getLocale().getDisplayLanguage(context.getSource().getLocale()));
         }
         catch(IOException ex)
         {
-            context.sendTranslated(NEGATIVE, "The language file of {input} couldn't be deleted", language.getLocale().getDisplayLanguage(context.getSource().getLocale()));
+            context.sendTranslated(NEGATIVE, "The language file of {input} couldn't be deleted",
+                                   lang.getLocale().getDisplayLanguage(context.getSource().getLocale()));
             this.module.getLog().error(ex, "Error when deleting the files!");
         }
 
@@ -216,8 +212,7 @@ public class RulebookCommands extends CommandContainer
 
     @Alias(value = "modifyrules")
     @Command(desc = "modified the rulebook of the declared language with the book in hand")
-    @Params(positional = @Param(label = "language"))
-    public void modify(CommandContext context)
+    public void modify(CommandContext context, String language)
     {
         if(!(context.getSource() instanceof User))
         {
@@ -233,39 +228,36 @@ public class RulebookCommands extends CommandContainer
             return;
         }
 
-        Language language = this.rulebookManager.getLanguage(context.getString(0));
-        if(language == null)
+        Language lang = this.rulebookManager.getLanguage(language);
+        if(lang == null)
         {
-            context.sendTranslated(NEGATIVE, "More than one or no language is matched with {input}", context.get(0));
+            context.sendTranslated(NEGATIVE, "More than one or no language is matched with {input}", language);
             return;
         }
-        Locale locale = language.getLocale();
+        Locale locale = lang.getLocale();
 
-        if(this.rulebookManager.contains(locale))
-        {
-            try
-            {
-                this.rulebookManager.removeBook(locale);
-                this.rulebookManager.addBook(item, locale);
-                context.sendTranslated(POSITIVE, "The rulebook {name} was succesful modified.", locale
-                    .getDisplayLanguage(context.getSource().getLocale()));
-            }
-            catch(IOException ex)
-            {
-                context.sendTranslated(NEUTRAL, "An error ocurred while deleting the old rulebook");
-                this.module.getLog().error(ex, "Error when deleting the files!");
-            }
-        }
-        else
+        if (!this.rulebookManager.contains(locale))
         {
             context.sendTranslated(NEGATIVE, "You can't modify a non-existent book.");
+            return;
+        }
+        try
+        {
+            this.rulebookManager.removeBook(locale);
+            this.rulebookManager.addBook(item, locale);
+            context.sendTranslated(POSITIVE, "The rulebook {name} was succesful modified.", locale
+                .getDisplayLanguage(context.getSource().getLocale()));
+        }
+        catch(IOException ex)
+        {
+            context.sendTranslated(NEUTRAL, "An error ocurred while deleting the old rulebook");
+            this.module.getLog().error(ex, "Error when deleting the files!");
         }
     }
 
     @Alias(value = "addrules")
     @Command(desc = "adds the book in hand as rulebook of the declared language")
-    @Params(positional = @Param(label = "language"))
-    public void add(CommandContext context)
+    public void add(CommandContext context, String language)
     {
         if(!(context.getSource() instanceof User))
         {
@@ -281,23 +273,22 @@ public class RulebookCommands extends CommandContainer
             return;
         }
 
-        Language language = this.rulebookManager.getLanguage(context.getString(0));
-        if(language == null)
+        Language lang = this.rulebookManager.getLanguage(language);
+        if(lang == null)
         {
-            context.sendTranslated(NEGATIVE, "More than one or no language is matched with {input}", context.get(0));
+            context.sendTranslated(NEGATIVE, "More than one or no language is matched with {input}", language);
             return;
         }
-        Locale locale = language.getLocale();
+        Locale locale = lang.getLocale();
 
-        if(!this.rulebookManager.contains(locale))
-        {
-            this.rulebookManager.addBook(item, locale);
-            context.sendTranslated(POSITIVE, "Rulebook for the language {input} was added succesfully", language.getLocale().getDisplayLanguage(context.getSource().getLocale()));
-        }
-        else
+        if (this.rulebookManager.contains(locale))
         {
             context.sendTranslated(NEUTRAL, "There is already a book in that language.");
+            return;
         }
+        this.rulebookManager.addBook(item, locale);
+        context.sendTranslated(POSITIVE, "Rulebook for the language {input} was added succesfully",
+                               lang.getLocale().getDisplayLanguage(context.getSource().getLocale()));
     }
 
     private Set<Integer> inventoryRulebookSearching(PlayerInventory inventory, Locale locale)
