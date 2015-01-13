@@ -122,7 +122,7 @@ public class LookupCommands
             {
                 try
                 {
-                    ((Dispatcher)context.getCommand()).getCommand("?").execute(context.getInvocation());
+                    //((Dispatcher)context.getCommand()).getCommand("?").execute(context.getInvocation());
                     // TODO show all selected params of last lookup
                 }
                 catch (Exception e)
