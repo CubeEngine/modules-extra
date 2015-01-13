@@ -159,7 +159,7 @@ public class HideCommands
         context.sendTranslated(POSITIVE, "The following users are hidden:");
         for (UUID name : hiddens)
         {
-            context.sendMessage(" - " + YELLOW + context.getCore().getUserManager().getExactUser(name).getDisplayName());
+            context.sendMessage(" - " + YELLOW + module.getCore().getUserManager().getExactUser(name).getDisplayName());
         }
     }
 
@@ -246,7 +246,7 @@ public class HideCommands
         context.sendTranslated(POSITIVE, "The following players can see hidden players:");
         for (UUID canSee : canSeeHiddens)
         {
-            context.sendMessage(" - " + YELLOW + context.getCore().getUserManager().getExactUser(canSee).getDisplayName());
+            context.sendMessage(" - " + YELLOW + module.getCore().getUserManager().getExactUser(canSee).getDisplayName());
         }
     }
 
