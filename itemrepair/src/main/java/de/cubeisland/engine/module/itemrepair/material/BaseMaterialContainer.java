@@ -20,7 +20,6 @@ package de.cubeisland.engine.module.itemrepair.material;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import org.bukkit.Material;
 
 public class BaseMaterialContainer

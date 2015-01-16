@@ -22,11 +22,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.bukkit.World;
-
 import de.cubeisland.engine.core.user.UserAttachment;
 import de.cubeisland.engine.core.util.StringUtils;
+import org.bukkit.World;
 
 import static de.cubeisland.engine.core.filesystem.FileExtensionFilter.DAT;
 

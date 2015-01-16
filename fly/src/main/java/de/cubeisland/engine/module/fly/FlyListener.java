@@ -18,7 +18,10 @@
 package de.cubeisland.engine.module.fly;
 
 import java.util.HashMap;
-
+import de.cubeisland.engine.core.permission.Permission;
+import de.cubeisland.engine.core.task.Task;
+import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.core.user.UserManager;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -28,11 +31,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
-
-import de.cubeisland.engine.core.permission.Permission;
-import de.cubeisland.engine.core.task.Task;
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.core.user.UserManager;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 

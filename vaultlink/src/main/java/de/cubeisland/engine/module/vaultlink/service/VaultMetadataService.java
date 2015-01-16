@@ -18,12 +18,10 @@
 package de.cubeisland.engine.module.vaultlink.service;
 
 import java.util.concurrent.atomic.AtomicReference;
-
-import org.bukkit.World;
-
 import de.cubeisland.engine.core.module.service.Metadata;
 import de.cubeisland.engine.core.user.User;
 import net.milkbowl.vault.chat.Chat;
+import org.bukkit.World;
 
 public class VaultMetadataService implements Metadata
 {

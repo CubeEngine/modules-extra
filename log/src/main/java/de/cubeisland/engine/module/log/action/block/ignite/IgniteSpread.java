@@ -17,11 +17,10 @@
  */
 package de.cubeisland.engine.module.log.action.block.ignite;
 
-import org.bukkit.Location;
-
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
+import org.bukkit.Location;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
 

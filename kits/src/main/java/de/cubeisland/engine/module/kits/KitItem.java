@@ -18,7 +18,6 @@
 package de.cubeisland.engine.module.kits;
 
 import java.util.Map;
-
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;

@@ -17,10 +17,9 @@
  */
 package de.cubeisland.engine.module.log.action.block.entity.explosion;
 
-import org.bukkit.entity.Player;
-
 import de.cubeisland.engine.module.log.action.block.entity.ActionEntityBlock;
 import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock.PlayerSection;
+import org.bukkit.entity.Player;
 
 import static de.cubeisland.engine.module.log.action.ActionCategory.EXPLODE;
 

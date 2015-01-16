@@ -17,6 +17,8 @@
  */
 package de.cubeisland.engine.module.log.action.player.item;
 
+import de.cubeisland.engine.module.log.Log;
+import de.cubeisland.engine.module.log.action.player.ListenerPlayerLog;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -26,9 +28,6 @@ import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
-
-import de.cubeisland.engine.module.log.Log;
-import de.cubeisland.engine.module.log.action.player.ListenerPlayerLog;
 
 import static org.bukkit.Material.FIREWORK;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;

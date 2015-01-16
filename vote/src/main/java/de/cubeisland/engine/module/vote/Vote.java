@@ -18,10 +18,6 @@
 package de.cubeisland.engine.module.vote;
 
 import java.sql.Timestamp;
-
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-
 import com.vexsoftware.votifier.model.VotifierEvent;
 import de.cubeisland.engine.core.module.Module;
 import de.cubeisland.engine.core.module.service.Economy;
@@ -29,6 +25,8 @@ import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.ChatFormat;
 import de.cubeisland.engine.module.vote.storage.TableVote;
 import de.cubeisland.engine.module.vote.storage.VoteModel;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.jooq.DSLContext;
 import org.jooq.types.UShort;
 

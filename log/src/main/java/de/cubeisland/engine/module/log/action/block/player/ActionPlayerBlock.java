@@ -18,13 +18,10 @@
 package de.cubeisland.engine.module.log.action.block.player;
 
 import java.util.UUID;
-
-import org.bukkit.entity.Player;
-
 import de.cubeisland.engine.module.log.action.ActionCategory;
 import de.cubeisland.engine.module.log.action.block.ActionBlock;
 import de.cubeisland.engine.reflect.NullSection;
-import de.cubeisland.engine.reflect.Section;
+import org.bukkit.entity.Player;
 
 /**
  * Represents a player changing a block

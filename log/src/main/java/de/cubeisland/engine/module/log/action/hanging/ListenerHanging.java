@@ -19,7 +19,10 @@ package de.cubeisland.engine.module.log.action.hanging;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
+import de.cubeisland.engine.module.log.Log;
+import de.cubeisland.engine.module.log.action.BaseAction;
+import de.cubeisland.engine.module.log.action.LogListener;
+import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Hanging;
@@ -35,11 +38,6 @@ import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.projectiles.ProjectileSource;
-
-import de.cubeisland.engine.module.log.Log;
-import de.cubeisland.engine.module.log.action.BaseAction;
-import de.cubeisland.engine.module.log.action.LogListener;
-import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock;
 
 /**
  * A Listener for PlayerHanging Actions

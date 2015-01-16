@@ -17,11 +17,10 @@
  */
 package de.cubeisland.engine.module.log.action.player;
 
-import org.bukkit.entity.Player;
-
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.LogListener;
+import org.bukkit.entity.Player;
 
 public abstract class ListenerPlayerLog extends LogListener
 {

@@ -21,15 +21,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
-
 import de.cubeisland.engine.core.module.service.Economy;
 import de.cubeisland.engine.core.permission.Permission;
 import de.cubeisland.engine.core.user.User;
@@ -40,6 +31,13 @@ import de.cubeisland.engine.module.itemrepair.material.RepairItem;
 import de.cubeisland.engine.module.itemrepair.material.RepairItemContainer;
 import de.cubeisland.engine.module.itemrepair.repair.RepairBlockManager;
 import de.cubeisland.engine.module.itemrepair.repair.RepairRequest;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 import static org.bukkit.Effect.GHAST_SHRIEK;

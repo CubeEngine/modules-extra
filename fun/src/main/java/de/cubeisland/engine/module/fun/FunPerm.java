@@ -18,13 +18,11 @@
 package de.cubeisland.engine.module.fun;
 
 import java.util.Locale;
-
-import org.bukkit.entity.EntityType;
-
 import de.cubeisland.engine.core.permission.PermDefault;
 import de.cubeisland.engine.core.permission.Permission;
 import de.cubeisland.engine.core.permission.PermissionContainer;
 import de.cubeisland.engine.core.permission.PermissionManager;
+import org.bukkit.entity.EntityType;
 
 @SuppressWarnings("all")
 public class FunPerm extends PermissionContainer<Fun>

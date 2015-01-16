@@ -18,15 +18,13 @@
 package de.cubeisland.engine.module.chopchop;
 
 import java.util.Arrays;
-
+import de.cubeisland.engine.core.bukkit.BukkitCore;
+import de.cubeisland.engine.core.module.Module;
+import de.cubeisland.engine.core.util.ChatFormat;
 import org.bukkit.Server;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
-
-import de.cubeisland.engine.core.bukkit.BukkitCore;
-import de.cubeisland.engine.core.module.Module;
-import de.cubeisland.engine.core.util.ChatFormat;
 
 import static org.bukkit.Material.DIAMOND_AXE;
 import static org.bukkit.Material.LOG;

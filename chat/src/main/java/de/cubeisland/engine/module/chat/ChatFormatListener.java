@@ -20,16 +20,14 @@ package de.cubeisland.engine.module.chat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
-
+import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.core.util.ChatFormat;
+import de.cubeisland.engine.core.util.MacroProcessor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.core.util.ChatFormat;
-import de.cubeisland.engine.core.util.MacroProcessor;
 
 
 public class ChatFormatListener implements Listener

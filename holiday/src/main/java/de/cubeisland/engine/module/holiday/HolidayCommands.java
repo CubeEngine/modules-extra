@@ -19,18 +19,17 @@ package de.cubeisland.engine.module.holiday;
 
 import java.sql.Date;
 import java.text.DateFormat;
-
 import de.cubeisland.engine.command.filter.Restricted;
 import de.cubeisland.engine.command.methodic.Command;
 import de.cubeisland.engine.command.methodic.Param;
 import de.cubeisland.engine.command.methodic.Params;
 import de.cubeisland.engine.command.methodic.parametric.Greed;
-import de.cubeisland.engine.command.methodic.parametric.Label;
 import de.cubeisland.engine.command.methodic.parametric.Optional;
 import de.cubeisland.engine.converter.ConversionException;
 import de.cubeisland.engine.converter.node.StringNode;
 import de.cubeisland.engine.core.command.CommandContainer;
 import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.CommandSender;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.converter.DurationConverter;
 import de.cubeisland.engine.module.holiday.storage.HolidayModel;
@@ -55,27 +54,26 @@ public class HolidayCommands extends CommandContainer
 
     @Command(name = "for", desc = "Starts your holiday and kicks you from the server")
     @Restricted(User.class)
-    public void forCommand(CommandContext context, String duration, @Optional @Greed(INFINITE) String reason)
+    public void forCommand(User context, String duration, @Optional @Greed(INFINITE) String reason)
     {
         try
         {
             Date toDate = new Date(System.currentTimeMillis() + converter.fromNode(StringNode.of(duration)).getMillis());
-            User sender = (User)context.getSource();
-            HolidayModel model = dsl.selectFrom(TABLE_HOLIDAY).where(TABLE_HOLIDAY.USERID.eq(sender.getEntity().getKey())).fetchOne();
+            HolidayModel model = dsl.selectFrom(TABLE_HOLIDAY).where(TABLE_HOLIDAY.USERID.eq(context.getEntity().getKey())).fetchOne();
             if (model == null)
             {
                 model = dsl.newRecord(TABLE_HOLIDAY);
-                model.setValue(TABLE_HOLIDAY.USERID, sender.getEntity().getKey());
+                model.setValue(TABLE_HOLIDAY.USERID, context.getEntity().getKey());
             }
             model.setValue(TABLE_HOLIDAY.FROM, new Date(System.currentTimeMillis()));
             model.setValue(TABLE_HOLIDAY.TO, toDate);
             model.setValue(TABLE_HOLIDAY.REASON, reason);
             model.store();
 
-            sender.getEntity().setValue(TABLE_USER.NOGC, false);
-            sender.getEntity().updateAsync();
+            context.getEntity().setValue(TABLE_USER.NOGC, false);
+            context.getEntity().updateAsync();
 
-            sender.kickPlayer(sender.getTranslation(NEUTRAL, "You are now on holiday. See you later!"));
+            context.kickPlayer(context.getTranslation(NEUTRAL, "You are now on holiday. See you later!"));
         }
         catch (ConversionException e)
         {
@@ -84,8 +82,7 @@ public class HolidayCommands extends CommandContainer
     }
 
     @Command(desc = "Checks the holiday status of a player")
-    @Params(positional = @Param(label = "player", type = User.class))
-    public void check(CommandContext context, User player)
+    public void check(CommandSender context, User player)
     {
         HolidayModel model = dsl.selectFrom(TABLE_HOLIDAY).where(TABLE_HOLIDAY.USERID.eq(
             player.getEntity().getKey())).fetchOne();
@@ -94,7 +91,7 @@ public class HolidayCommands extends CommandContainer
             context.sendTranslated(NEUTRAL, "{user} is not on holiday!", player);
             return;
         }
-        DateFormat df = DateFormat.getDateInstance(DateFormat.DEFAULT, context.getSource().getLocale());
+        DateFormat df = DateFormat.getDateInstance(DateFormat.DEFAULT, context.getLocale());
         String dateTo = df.format(model.getValue(TABLE_HOLIDAY.TO));
         String dateFrom = df.format(model.getValue(TABLE_HOLIDAY.FROM));
         if (model.getValue(TABLE_HOLIDAY.TO).getTime() >= System.currentTimeMillis())

@@ -17,11 +17,10 @@
  */
 package de.cubeisland.engine.module.spawn;
 
-import org.bukkit.Bukkit;
-
 import de.cubeisland.engine.core.CubeEngine;
 import de.cubeisland.engine.core.world.ConfigWorld;
 import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
+import org.bukkit.Bukkit;
 
 @SuppressWarnings("all")
 public class SpawnConfig extends ReflectedYaml

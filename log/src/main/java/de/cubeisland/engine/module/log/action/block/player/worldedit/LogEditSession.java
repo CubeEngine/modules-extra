@@ -17,9 +17,6 @@
  */
 package de.cubeisland.engine.module.log.action.block.player.worldedit;
 
-import org.bukkit.World;
-import org.bukkit.block.BlockState;
-
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.LocalPlayer;
 import com.sk89q.worldedit.LocalWorld;
@@ -30,6 +27,8 @@ import com.sk89q.worldedit.bukkit.BukkitPlayer;
 import com.sk89q.worldedit.bukkit.BukkitWorld;
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.action.LogListener;
+import org.bukkit.World;
+import org.bukkit.block.BlockState;
 
 public class LogEditSession extends EditSession
 {

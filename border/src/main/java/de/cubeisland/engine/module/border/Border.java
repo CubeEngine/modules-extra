@@ -22,14 +22,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-
-import de.cubeisland.engine.core.module.exception.ModuleLoadError;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
-
 import de.cubeisland.engine.core.module.Module;
+import de.cubeisland.engine.core.module.exception.ModuleLoadError;
 import de.cubeisland.engine.core.world.WorldManager;
 import de.cubeisland.engine.module.portals.Portals;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.jooq.types.UInteger;
 
 public class Border extends Module

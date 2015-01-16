@@ -17,6 +17,9 @@
  */
 package de.cubeisland.engine.module.log.action.block.flow;
 
+import de.cubeisland.engine.module.log.Log;
+import de.cubeisland.engine.module.log.action.LogListener;
+import de.cubeisland.engine.module.log.action.block.ActionBlock;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -24,10 +27,6 @@ import org.bukkit.block.BlockState;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockFromToEvent;
-
-import de.cubeisland.engine.module.log.Log;
-import de.cubeisland.engine.module.log.action.LogListener;
-import de.cubeisland.engine.module.log.action.block.ActionBlock;
 
 import static de.cubeisland.engine.core.util.BlockUtil.*;
 import static org.bukkit.Material.*;

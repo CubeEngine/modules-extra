@@ -23,24 +23,25 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
-
 import de.cubeisland.engine.command.alias.Alias;
 import de.cubeisland.engine.command.methodic.Command;
 import de.cubeisland.engine.command.methodic.Flag;
-import de.cubeisland.engine.command.methodic.Flags;
 import de.cubeisland.engine.command.methodic.Param;
 import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.command.methodic.parametric.Default;
+import de.cubeisland.engine.command.methodic.parametric.Named;
+import de.cubeisland.engine.command.methodic.parametric.Optional;
 import de.cubeisland.engine.core.command.CommandContainer;
 import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.CommandSender;
 import de.cubeisland.engine.core.command.annotation.CommandPermission;
 import de.cubeisland.engine.core.permission.Permission;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.ChatFormat;
 import de.cubeisland.engine.i18n.language.Language;
 import de.cubeisland.engine.module.rulebook.Rulebook;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
 import static de.cubeisland.engine.command.parameter.property.Requirement.OPTIONAL;
 import static de.cubeisland.engine.core.permission.PermDefault.TRUE;
@@ -67,36 +68,19 @@ public class RulebookCommands extends CommandContainer
 
     @Alias(value = {"getrules", "rules"})
     @Command(desc = "gets the player the rulebook in the inventory")
-    @Params(positional = @Param(req = OPTIONAL, label = "language"),
-            nonpositional = @Param(names = {"player", "p"}, label = "name", type = User.class))
     @CommandPermission(permDefault = TRUE)
-    public void getRuleBook(CommandContext context)
+    public void getRuleBook(CommandSender context, @Optional String language, @Default @Named({"player", "p"}) User player)
     {
-        if(!(context.getSource() instanceof User) && !context.hasNamed("player"))
-        {
-            context.sendTranslated(NEGATIVE, "The post office will give you your book!");
-            return;
-        }
-        
+        // console msg /wo player: context.sendTranslated(NEGATIVE, "The post office will give you your book!");
+
         Locale locale;
-        User user;
-        if(context.hasNamed("player"))
+        if (!context.equals(player))
         {
-            if(!getPermission.isAuthorized(context.getSource()))
+            if(!getPermission.isAuthorized(context))
             {
                 context.sendTranslated(NEGATIVE, "You do not have the permissions to add the rulebook to the inventory of an other player");
                 return;
             }
-            user = context.get("player");
-            if(user == null)
-            {
-                context.sendTranslated(NEGATIVE, "The given user was not found!");
-                return;
-            }
-        }
-        else
-        {
-            user = (User) context.getSource();
         }
 
         if(this.rulebookManager.getLocales().isEmpty())
@@ -104,28 +88,24 @@ public class RulebookCommands extends CommandContainer
             context.sendTranslated(NEUTRAL, "It does not exist a rulebook yet");
             return;
         }
-
-        if(context.hasPositional(0))
+        if (language != null)
         {
-            Language language = this.rulebookManager.getLanguage(context.getString(0));
-
-            if(language == null)
+            Language l = this.rulebookManager.getLanguage(language);
+            if(l == null)
             {
                 context.sendTranslated(NEGATIVE, "Can't match the language");
                 return;
             }
-            
-            locale = language.getLocale();
-            
+            locale = l.getLocale();
             if(!this.rulebookManager.contains(locale))
             {
-                context.sendTranslated(NEUTRAL, "The language {name} is not supported yet.", language.getLocale().getDisplayLanguage(context.getSource().getLocale()));
+                context.sendTranslated(NEUTRAL, "The language {name} is not supported yet.", locale.getDisplayLanguage(context.getLocale()));
                 return;
             }
         }
         else
         {
-            locale = user.getLocale();
+            locale = player.getLocale();
             if(!this.rulebookManager.contains(locale))
             {
                 locale = this.module.getCore().getI18n().getDefaultLanguage().getLocale();
@@ -135,20 +115,19 @@ public class RulebookCommands extends CommandContainer
                 }
             }
         }
-
-        Set<Integer> books = this.inventoryRulebookSearching(user.getInventory(), locale);
+        Set<Integer> books = this.inventoryRulebookSearching(player.getInventory(), locale);
 
         Iterator<Integer> iter = books.iterator();
         while(iter.hasNext())
         {
-            user.getInventory().clear(iter.next());
+            player.getInventory().clear(iter.next());
         }
 
-        user.getInventory().addItem(this.rulebookManager.getBook(locale));
-        user.sendTranslated(POSITIVE, "Lots of fun with your rulebook.");
+        player.getInventory().addItem(this.rulebookManager.getBook(locale));
+        player.sendTranslated(POSITIVE, "Lots of fun with your rulebook.");
         if(!books.isEmpty())
         {
-            user.sendTranslated(POSITIVE, "Your old rulebook was removed");
+            player.sendTranslated(POSITIVE, "Your old rulebook was removed");
         }
     }
 

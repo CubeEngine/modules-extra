@@ -21,7 +21,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
-
+import com.mongodb.BasicDBObject;
+import de.cubeisland.engine.core.bukkit.BukkitUtils;
+import de.cubeisland.engine.module.log.Log;
+import de.cubeisland.engine.module.log.action.LogListener;
 import org.bukkit.Location;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.BrewingStand;
@@ -40,11 +43,6 @@ import org.bukkit.inventory.FurnaceInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-
-import com.mongodb.BasicDBObject;
-import de.cubeisland.engine.core.bukkit.BukkitUtils;
-import de.cubeisland.engine.module.log.Log;
-import de.cubeisland.engine.module.log.action.LogListener;
 
 import static de.cubeisland.engine.core.util.InventoryUtil.getMissingSpace;
 import static org.bukkit.Material.*;

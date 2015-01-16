@@ -19,11 +19,6 @@ package de.cubeisland.engine.module.log;
 
 import java.util.LinkedList;
 import java.util.Queue;
-
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.BlockState;
-
 import de.cubeisland.engine.core.module.service.Selector;
 import de.cubeisland.engine.core.user.UserAttachment;
 import de.cubeisland.engine.core.util.math.shape.Cuboid;
@@ -31,6 +26,9 @@ import de.cubeisland.engine.core.util.math.shape.Shape;
 import de.cubeisland.engine.module.log.storage.Lookup;
 import de.cubeisland.engine.module.log.storage.QueryParameter;
 import de.cubeisland.engine.module.log.storage.ShowParameter;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.BlockState;
 
 public class LogAttachment extends UserAttachment
 {

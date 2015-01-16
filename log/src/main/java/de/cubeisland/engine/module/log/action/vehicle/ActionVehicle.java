@@ -17,12 +17,11 @@
  */
 package de.cubeisland.engine.module.log.action.vehicle;
 
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.block.entity.ActionEntityBlock.EntitySection;
 import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock.PlayerSection;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 
 import static de.cubeisland.engine.module.log.action.ActionCategory.VEHICLE;
 

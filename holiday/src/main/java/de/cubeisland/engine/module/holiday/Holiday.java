@@ -17,14 +17,13 @@
  */
 package de.cubeisland.engine.module.holiday;
 
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
-
 import de.cubeisland.engine.core.module.Module;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.module.holiday.storage.HolidayModel;
 import de.cubeisland.engine.module.holiday.storage.TableHoliday;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.jooq.DSLContext;
 
 import static de.cubeisland.engine.core.user.TableUser.TABLE_USER;

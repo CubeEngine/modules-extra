@@ -19,11 +19,9 @@ package de.cubeisland.engine.module.backpack;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import org.bukkit.inventory.ItemStack;
-
 import de.cubeisland.engine.core.config.codec.NBTCodec;
 import de.cubeisland.engine.reflect.ReflectedFile;
+import org.bukkit.inventory.ItemStack;
 
 public class BackpackData extends ReflectedFile<NBTCodec>
 {

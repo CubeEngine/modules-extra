@@ -19,7 +19,6 @@ package de.cubeisland.engine.module.donations;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.cubeisland.engine.core.command.CommandManager;

@@ -18,11 +18,9 @@
 package de.cubeisland.engine.module.itemrepair.repair;
 
 import java.util.Map;
-
-import org.bukkit.inventory.ItemStack;
-
 import de.cubeisland.engine.module.itemrepair.repair.blocks.RepairBlock;
 import de.cubeisland.engine.module.itemrepair.repair.blocks.RepairBlock.RepairBlockInventory;
+import org.bukkit.inventory.ItemStack;
 
 public class RepairRequest
 {

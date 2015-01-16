@@ -17,6 +17,10 @@
  */
 package de.cubeisland.engine.module.log.action.block.player.interact;
 
+import de.cubeisland.engine.module.log.Log;
+import de.cubeisland.engine.module.log.action.LogListener;
+import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock;
+import de.cubeisland.engine.module.log.action.vehicle.VehiclePrePlaceEvent;
 import org.bukkit.Location;
 import org.bukkit.Note;
 import org.bukkit.Note.Tone;
@@ -39,11 +43,6 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.material.Openable;
 import org.bukkit.material.PressurePlate;
 import org.bukkit.material.Rails;
-
-import de.cubeisland.engine.module.log.Log;
-import de.cubeisland.engine.module.log.action.LogListener;
-import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock;
-import de.cubeisland.engine.module.log.action.vehicle.VehiclePrePlaceEvent;
 
 import static org.bukkit.DyeColor.WHITE;
 import static org.bukkit.GameMode.CREATIVE;

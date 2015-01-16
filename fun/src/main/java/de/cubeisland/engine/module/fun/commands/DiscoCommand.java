@@ -20,16 +20,14 @@ package de.cubeisland.engine.module.fun.commands;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.bukkit.World;
-import org.bukkit.command.CommandSender;
-
 import de.cubeisland.engine.command.methodic.Command;
 import de.cubeisland.engine.command.methodic.Param;
 import de.cubeisland.engine.command.methodic.Params;
 import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.module.fun.Fun;
+import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 
 import static de.cubeisland.engine.command.parameter.property.Requirement.OPTIONAL;
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;

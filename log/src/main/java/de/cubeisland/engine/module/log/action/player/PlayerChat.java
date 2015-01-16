@@ -18,7 +18,6 @@
 package de.cubeisland.engine.module.log.action.player;
 
 import java.util.concurrent.TimeUnit;
-
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;

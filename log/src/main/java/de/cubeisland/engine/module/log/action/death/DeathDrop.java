@@ -17,14 +17,13 @@
  */
 package de.cubeisland.engine.module.log.action.death;
 
-import org.bukkit.inventory.ItemStack;
-
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.ReferenceHolder;
 import de.cubeisland.engine.module.log.action.player.item.ItemDrop;
 import de.cubeisland.engine.reflect.codec.mongo.Reference;
+import org.bukkit.inventory.ItemStack;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.DEATH;

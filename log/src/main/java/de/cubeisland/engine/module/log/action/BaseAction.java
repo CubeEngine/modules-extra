@@ -24,10 +24,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-
-import org.bukkit.Location;
-import org.bukkit.World;
-
 import de.cubeisland.engine.core.CubeEngine;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.math.BlockVector3;
@@ -37,6 +33,8 @@ import de.cubeisland.engine.module.log.storage.ShowParameter;
 import de.cubeisland.engine.reflect.Section;
 import de.cubeisland.engine.reflect.codec.mongo.ReflectedDBObject;
 import org.bson.types.ObjectId;
+import org.bukkit.Location;
+import org.bukkit.World;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.NONE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;

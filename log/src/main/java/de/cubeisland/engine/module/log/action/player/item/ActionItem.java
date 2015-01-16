@@ -17,10 +17,9 @@
  */
 package de.cubeisland.engine.module.log.action.player.item;
 
-import org.bukkit.inventory.ItemStack;
-
 import de.cubeisland.engine.module.log.action.ActionCategory;
 import de.cubeisland.engine.module.log.action.player.ActionPlayer;
+import org.bukkit.inventory.ItemStack;
 
 public abstract class ActionItem extends ActionPlayer
 {

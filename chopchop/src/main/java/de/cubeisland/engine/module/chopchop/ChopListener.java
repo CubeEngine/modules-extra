@@ -20,7 +20,6 @@ package de.cubeisland.engine.module.chopchop;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
-
 import org.bukkit.Location;
 import org.bukkit.TreeSpecies;
 import org.bukkit.block.Block;

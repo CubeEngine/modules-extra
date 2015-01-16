@@ -17,13 +17,12 @@
  */
 package de.cubeisland.engine.module.log.action.hanging;
 
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-
 import de.cubeisland.engine.module.log.action.ActionCategory;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.block.entity.ActionEntityBlock.EntitySection;
 import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock.PlayerSection;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 
 public abstract class ActionHanging extends BaseAction
 {

@@ -17,6 +17,9 @@
  */
 package de.cubeisland.engine.module.log.action;
 
+import de.cubeisland.engine.module.log.Log;
+import de.cubeisland.engine.module.log.LoggingConfiguration;
+import de.cubeisland.engine.module.log.action.player.item.container.ContainerType;
 import org.bukkit.Location;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.DoubleChest;
@@ -25,10 +28,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
-
-import de.cubeisland.engine.module.log.Log;
-import de.cubeisland.engine.module.log.LoggingConfiguration;
-import de.cubeisland.engine.module.log.action.player.item.container.ContainerType;
 
 /**
  * A Listener for Player Actions with Items

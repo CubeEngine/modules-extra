@@ -17,6 +17,8 @@
  */
 package de.cubeisland.engine.module.log.action.block.entity;
 
+import de.cubeisland.engine.module.log.Log;
+import de.cubeisland.engine.module.log.action.LogListener;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Entity;
@@ -25,9 +27,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.EntityBlockFormEvent;
 import org.bukkit.event.entity.EntityBreakDoorEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
-
-import de.cubeisland.engine.module.log.Log;
-import de.cubeisland.engine.module.log.action.LogListener;
 
 import static org.bukkit.Material.AIR;
 import static org.bukkit.entity.EntityType.SHEEP;

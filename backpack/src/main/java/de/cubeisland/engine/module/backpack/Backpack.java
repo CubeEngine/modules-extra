@@ -26,10 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
-
-import org.bukkit.World;
-import org.bukkit.inventory.ItemStack;
-
 import de.cubeisland.engine.core.config.codec.NBTCodec;
 import de.cubeisland.engine.core.module.Module;
 import de.cubeisland.engine.core.module.exception.ModuleLoadError;
@@ -37,6 +33,8 @@ import de.cubeisland.engine.core.util.McUUID;
 import de.cubeisland.engine.module.backpack.converter.NBTItemStackConverter;
 import de.cubeisland.engine.module.worlds.Multiverse;
 import de.cubeisland.engine.module.worlds.Worlds;
+import org.bukkit.World;
+import org.bukkit.inventory.ItemStack;
 
 public class Backpack extends Module
 {

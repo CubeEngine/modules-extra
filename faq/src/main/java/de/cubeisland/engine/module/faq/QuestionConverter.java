@@ -18,7 +18,6 @@
 package de.cubeisland.engine.module.faq;
 
 import java.util.Map;
-
 import de.cubeisland.engine.converter.ConversionException;
 import de.cubeisland.engine.converter.ConverterManager;
 import de.cubeisland.engine.converter.converter.SingleClassConverter;

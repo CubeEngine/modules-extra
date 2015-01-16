@@ -17,9 +17,8 @@
  */
 package de.cubeisland.engine.module.log.action.hanging;
 
-import org.bukkit.Art;
-
 import de.cubeisland.engine.core.user.User;
+import org.bukkit.Art;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
 

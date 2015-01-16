@@ -21,15 +21,13 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
-
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.user.UserManager;
 import de.cubeisland.engine.core.world.WorldManager;
 import de.cubeisland.engine.module.vaultlink.Vaultlink;
 import net.milkbowl.vault.permission.Permission;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
 
 public class CubePermissionService extends Permission
 {

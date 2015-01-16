@@ -17,12 +17,11 @@
  */
 package de.cubeisland.engine.module.log.converter;
 
-import org.bukkit.Note;
-
 import de.cubeisland.engine.converter.ConversionException;
 import de.cubeisland.engine.converter.converter.SimpleConverter;
 import de.cubeisland.engine.converter.node.ByteNode;
 import de.cubeisland.engine.converter.node.Node;
+import org.bukkit.Note;
 
 public class NoteConverter extends SimpleConverter<Note>
 {

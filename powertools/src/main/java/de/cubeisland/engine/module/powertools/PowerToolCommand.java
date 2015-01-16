@@ -19,7 +19,22 @@ package de.cubeisland.engine.module.powertools;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import de.cubeisland.engine.command.CommandInvocation;
+import de.cubeisland.engine.command.alias.Alias;
+import de.cubeisland.engine.command.filter.Restricted;
+import de.cubeisland.engine.command.methodic.Command;
+import de.cubeisland.engine.command.methodic.Flag;
+import de.cubeisland.engine.command.methodic.Flags;
+import de.cubeisland.engine.command.methodic.Param;
+import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.command.methodic.parametric.Greed;
+import de.cubeisland.engine.command.methodic.parametric.Optional;
+import de.cubeisland.engine.core.command.CommandContainer;
+import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.CommandSender;
+import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.core.util.ChatFormat;
+import de.cubeisland.engine.core.util.matcher.Match;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -30,22 +45,10 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import de.cubeisland.engine.command.alias.Alias;
-import de.cubeisland.engine.command.methodic.Command;
-import de.cubeisland.engine.command.methodic.Flag;
-import de.cubeisland.engine.command.methodic.Flags;
-import de.cubeisland.engine.command.methodic.Param;
-import de.cubeisland.engine.command.methodic.Params;
-import de.cubeisland.engine.core.command.CommandContainer;
-import de.cubeisland.engine.core.command.CommandContext;
-import de.cubeisland.engine.core.command.CommandSender;
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.core.util.ChatFormat;
-import de.cubeisland.engine.core.util.matcher.Match;
-
 import static de.cubeisland.engine.command.parameter.Parameter.INFINITE;
 import static de.cubeisland.engine.command.parameter.property.Requirement.OPTIONAL;
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
+import static org.bukkit.Material.AIR;
 
 /**
  * The PowerTool commands allow binding commands and/or chat-macros to a specific item.
@@ -61,84 +64,59 @@ public class PowerToolCommand extends CommandContainer implements Listener
     {
         super(module);
         this.module = module;
-        /* TODO delegation
-        this.delegateChild(new DelegatingContextFilter()
-        {
-            @Override
-            public String delegateTo(CommandContext context)
-            {
-                return context.hasPositional(0) ? "add" : "clear";
-            }
+    }
 
-            @Override
-            public CommandContext filterContext(CommandContext context, String child)
-            {
-                Set<String> flagSet = context.getFlags();
-                if (child.equals("add"))
-                {
-                    flagSet.add("r");
-                }
-                // TODO read context before passing
-                return new CommandContext(context.getRawArgs(), context.getRawIndexed(), context.getRawNamed(), flagSet, context.getCommand(), context.getLabels(), context.getSource());
-            }
-        });
-         */
+    @Override
+    protected boolean selfExecute(CommandInvocation invocation)
+    {
+        if ("?".equals(invocation.currentToken()))
+        {
+            return super.selfExecute(invocation);
+        }
+        if (invocation.tokens().size() - invocation.consumed() > 0)
+        {
+            return this.getCommand("add").execute(invocation); // TODO add replace flag
+        }
+        return this.getCommand("clear").execute(invocation);
     }
 
     @Alias(value = "ptc")
     @Command(desc = "Removes all commands from your powertool")
-    @Flags(@Flag(longName = "all", name = "a"))
-    public void clear(CommandContext context)
+    @Restricted(value = User.class, msg = "No more power for you!")
+    public void clear(User context, @Flag boolean all)
     {
-        CommandSender sender = context.getSource();
-        if (sender instanceof User)
+        if (all)
         {
-            User user = (User)sender;
-            if (context.hasFlag("a"))
+            for (ItemStack item : context.getInventory().getContents())
             {
-                for (ItemStack item : user.getInventory().getContents())
-                {
-                    this.setPowerTool(item, null);
-                }
-                context.sendTranslated(POSITIVE, "Removed all commands bound to items in your inventory!");
+                this.setPowerTool(item, null);
             }
-            else
-            {
-                if (user.getItemInHand().getTypeId() == 0)
-                {
-                    context.sendTranslated(NEUTRAL, "You are not holding any item in your hand.");
-                    return;
-                }
-                this.setPowerTool(user.getItemInHand(), null);
-                context.sendTranslated(POSITIVE, "Removed all commands bound to the item in your hand!");
-            }
+            context.sendTranslated(POSITIVE, "Removed all commands bound to items in your inventory!");
             return;
         }
-        context.sendTranslated(NEUTRAL, "No more power for you!");
+        if (context.getItemInHand().getType() == AIR)
+        {
+            context.sendTranslated(NEUTRAL, "You are not holding any item in your hand.");
+            return;
+        }
+        this.setPowerTool(context.getItemInHand(), null);
+        context.sendTranslated(POSITIVE, "Removed all commands bound to the item in your hand!");
     }
 
     @Alias(value = "ptr")
     @Command(alias = {"del", "delete", "rm"}, desc = "Removes a command from your powertool")
-    @Params(positional = @Param(req = OPTIONAL, label = "command", greed = INFINITE))
-    @Flags(@Flag(longName = "chat", name = "c"))
-    public void remove(CommandContext context)
+    @Restricted(value = User.class, msg = "No more power for you!")
+    public void remove(User context, @Optional @Greed(INFINITE) String command, @Flag boolean chat)
     {
-        if (context.getSource() instanceof User)
+        if (context.getItemInHand().getTypeId() == 0)
         {
-            User sender = (User)context.getSource();
-            if (sender.getItemInHand().getTypeId() == 0)
-            {
-                context.sendTranslated(NEUTRAL, "You are not holding any item in your hand.");
-                return;
-            }
-            String cmd = context.getStrings(0);
-            this.remove(context, sender.getItemInHand(), cmd, !context.hasFlag("c"));
+            context.sendTranslated(NEUTRAL, "You are not holding any item in your hand.");
             return;
         }
-        context.sendTranslated(NEUTRAL, "No more power for you!");
+        this.remove(context, context.getItemInHand(), command, !chat);
     }
 
-    private void remove(CommandContext context, ItemStack item, String cmd, boolean isCommand)
+    private void remove(User context, ItemStack item, String cmd, boolean isCommand)
     {
         List<String> powertools = this.getPowerTools(item);
         if (cmd == null || cmd.isEmpty())
@@ -178,80 +156,65 @@ public class PowerToolCommand extends CommandContainer implements Listener
 
     @Alias(value = "pta")
     @Command(desc = "Adds a command to your powertool")
-    @Params(positional = @Param(label = "commandstring", greed = INFINITE))
-    @Flags({@Flag(longName = "chat", name = "c"),
-           @Flag(longName = "replace", name = "r")})
-    public void add(CommandContext context)
+    @Restricted(value = User.class, msg = "You already have enough power!")
+    public void add(User context, @Greed(INFINITE) String commandString, @Flag boolean chat, @Flag boolean replace)
     {
-        CommandSender sender = context.getSource();
-        if (sender instanceof User)
+        if (context.getItemInHand().getType() == AIR)
         {
-            User user = (User)sender;
-            String cmd = context.getStrings(0);
-            if (user.getItemInHand().getType().equals(Material.AIR))
-            {
-                user.sendTranslated(NEUTRAL, "You do not have an item in your hand to bind the command to!");
-                return;
-            }
-            if (!context.hasFlag("c"))
-            {
-                cmd = "/" + cmd;
-            }
-            List<String> powerTools;
-            if (context.hasFlag("r"))
-            {
-                powerTools = new ArrayList<>(1);
-            }
-            else
-            {
-                powerTools = this.getPowerTools(user.getItemInHand());
-            }
-            powerTools.add(cmd);
-            this.setPowerTool(user.getItemInHand(), powerTools);
+            context.sendTranslated(NEUTRAL, "You do not have an item in your hand to bind the command to!");
             return;
         }
-        context.sendTranslated(NEUTRAL, "You already have enough power!");
+        if (!chat)
+        {
+            commandString = "/" + commandString;
+        }
+        List<String> powerTools;
+        if (replace)
+        {
+            powerTools = new ArrayList<>(1);
+        }
+        else
+        {
+            powerTools = this.getPowerTools(context.getItemInHand());
+        }
+        powerTools.add(commandString);
+        this.setPowerTool(context.getItemInHand(), powerTools);
     }
 
     @Alias(value = "ptl")
     @Command(desc = "Lists your powertool-bindings.")
-    @Flags(@Flag(longName = "all", name = "a"))
-    public void list(CommandContext context)
+    @Restricted(value = User.class, msg = "You already have enough power!")
+    public void list(User context, @Flag boolean all)
     {
-        if (context.getSource() instanceof User)
+        if (all)
         {
-            User sender = (User)context.getSource();
-            if (context.hasFlag("a"))
+            for (ItemStack item : context.getInventory().getContents())
             {
-                for (ItemStack item : sender.getInventory().getContents())
+                String itemName = item.getItemMeta().getDisplayName();
+                if (itemName == null)
                 {
-                    String itemName = item.getItemMeta().getDisplayName();
-                    if (itemName == null)
-                    {
-                        sender.sendMessage(ChatFormat.GOLD + Match.material().getNameFor(item) + ChatFormat.GOLD + ":");
-                    }
-                    else
-                    {
-                        sender.sendMessage(ChatFormat.GOLD + itemName + ChatFormat.GOLD + ":");
-                    }
-                    this.showPowerToolList(context, this.getPowerTools(item), false, false);
+                    context.sendMessage(ChatFormat.GOLD + Match.material().getNameFor(item) + ChatFormat.GOLD + ":");
                 }
-                return;
-            }
-            if (sender.getItemInHand().getType().equals(Material.AIR))
-            {
-                context.sendTranslated(NEUTRAL, "You do not have an item in your hand.");
-            }
-            else
-            {
-                this.showPowerToolList(context, this.getPowerTools(sender.getItemInHand()), false, true);
+                else
+                {
+                    context.sendMessage(ChatFormat.GOLD + itemName + ChatFormat.GOLD + ":");
+                }
+                this.showPowerToolList(context, this.getPowerTools(item), false, false);
             }
             return;
         }
-        context.sendTranslated(NEUTRAL, "You already have enough power!");
+        if (context.getItemInHand().getType().equals(AIR))
+        {
+            context.sendTranslated(NEUTRAL, "You do not have an item in your hand.");
+        }
+        else
+        {
+            this.showPowerToolList(context, this.getPowerTools(context.getItemInHand()), false, true);
+        }
+        return;
     }
 
-    private void showPowerToolList(CommandContext context, List<String> powertools, boolean lastAsNew, boolean showIfEmpty)
+    private void showPowerToolList(User context, List<String> powertools, boolean lastAsNew, boolean showIfEmpty)
     {
         if ((powertools == null || powertools.isEmpty()))
         {
@@ -337,7 +300,7 @@ public class PowerToolCommand extends CommandContainer implements Listener
         if (event.getAction().equals(Action.LEFT_CLICK_AIR) || event.getAction().equals(Action.LEFT_CLICK_BLOCK))
         {
             Player player = event.getPlayer();
-            if (!player.getItemInHand().getType().equals(Material.AIR)
+            if (!player.getItemInHand().getType().equals(AIR)
                     && module.perms().POWERTOOL_USE.isAuthorized(event.getPlayer()))
             {
                 List<String> powerTool = this.getPowerTools(player.getItemInHand());

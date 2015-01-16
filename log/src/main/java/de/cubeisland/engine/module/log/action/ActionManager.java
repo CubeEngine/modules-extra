@@ -24,9 +24,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.bukkit.ChatColor;
-
 import de.cubeisland.engine.core.util.StringUtils;
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
@@ -47,6 +44,7 @@ import de.cubeisland.engine.module.log.action.player.entity.ListenerPlayerEntity
 import de.cubeisland.engine.module.log.action.player.item.ListenerItem;
 import de.cubeisland.engine.module.log.action.player.item.container.ListenerContainerItem;
 import de.cubeisland.engine.module.log.action.vehicle.ListenerVehicle;
+import org.bukkit.ChatColor;
 
 public class ActionManager
 {

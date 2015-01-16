@@ -19,7 +19,6 @@ package de.cubeisland.engine.module.bigdata;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;

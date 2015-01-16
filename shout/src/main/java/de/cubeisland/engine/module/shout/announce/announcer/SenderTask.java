@@ -18,7 +18,6 @@
 package de.cubeisland.engine.module.shout.announce.announcer;
 
 import java.util.concurrent.Callable;
-
 import de.cubeisland.engine.module.shout.announce.receiver.Receiver;
 
 class SenderTask implements Callable<Void>

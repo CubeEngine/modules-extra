@@ -19,10 +19,6 @@ package de.cubeisland.engine.module.border;
 
 import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
-
-import org.bukkit.Chunk;
-import org.bukkit.World;
-
 import de.cubeisland.engine.command.alias.Alias;
 import de.cubeisland.engine.command.methodic.Command;
 import de.cubeisland.engine.command.methodic.Flag;
@@ -35,6 +31,8 @@ import de.cubeisland.engine.core.command.CommandSender;
 import de.cubeisland.engine.core.command.completer.WorldCompleter;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.Triplet;
+import org.bukkit.Chunk;
+import org.bukkit.World;
 import org.jooq.types.UInteger;
 
 import static de.cubeisland.engine.command.parameter.property.Requirement.OPTIONAL;

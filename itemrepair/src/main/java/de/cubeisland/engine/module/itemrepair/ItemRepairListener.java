@@ -20,7 +20,11 @@ package de.cubeisland.engine.module.itemrepair;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
+import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.module.itemrepair.repair.RepairBlockManager;
+import de.cubeisland.engine.module.itemrepair.repair.RepairRequest;
+import de.cubeisland.engine.module.itemrepair.repair.blocks.RepairBlock;
+import de.cubeisland.engine.module.itemrepair.repair.blocks.RepairBlock.RepairBlockInventory;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -28,12 +32,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.module.itemrepair.repair.RepairBlockManager;
-import de.cubeisland.engine.module.itemrepair.repair.RepairRequest;
-import de.cubeisland.engine.module.itemrepair.repair.blocks.RepairBlock;
-import de.cubeisland.engine.module.itemrepair.repair.blocks.RepairBlock.RepairBlockInventory;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEUTRAL;

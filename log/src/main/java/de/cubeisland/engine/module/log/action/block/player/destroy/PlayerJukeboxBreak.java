@@ -17,9 +17,8 @@
  */
 package de.cubeisland.engine.module.log.action.block.player.destroy;
 
-import org.bukkit.Material;
-
 import de.cubeisland.engine.core.user.User;
+import org.bukkit.Material;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
 

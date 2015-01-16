@@ -24,13 +24,6 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-
-import org.bukkit.Server;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.permissions.PermissionAttachment;
-import org.bukkit.permissions.PermissionAttachmentInfo;
-import org.bukkit.plugin.Plugin;
-
 import de.cubeisland.engine.command.parameter.IncorrectUsageException;
 import de.cubeisland.engine.core.Core;
 import de.cubeisland.engine.core.command.CommandManager;
@@ -40,6 +33,11 @@ import de.cubeisland.engine.core.permission.Permission;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.InventoryUtil;
 import de.cubeisland.engine.core.util.formatter.MessageType;
+import org.bukkit.Server;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.permissions.PermissionAttachment;
+import org.bukkit.permissions.PermissionAttachmentInfo;
+import org.bukkit.plugin.Plugin;
 import org.joda.time.Duration;
 import org.jooq.DSLContext;
 import org.jooq.Record1;

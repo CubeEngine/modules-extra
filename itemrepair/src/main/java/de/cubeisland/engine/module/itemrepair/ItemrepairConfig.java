@@ -19,7 +19,6 @@ package de.cubeisland.engine.module.itemrepair;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import de.cubeisland.engine.module.itemrepair.material.BaseMaterialContainer;
 import de.cubeisland.engine.module.itemrepair.repair.blocks.RepairBlockConfig;
 import de.cubeisland.engine.reflect.Section;

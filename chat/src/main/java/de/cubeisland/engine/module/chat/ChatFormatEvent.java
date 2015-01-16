@@ -20,11 +20,9 @@ package de.cubeisland.engine.module.chat;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-
+import de.cubeisland.engine.core.user.User;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-
-import de.cubeisland.engine.core.user.User;
 
 public class ChatFormatEvent extends Event
 {

@@ -18,7 +18,9 @@
 package de.cubeisland.engine.module.log.action.block.entity.explosion;
 
 import java.util.List;
-
+import de.cubeisland.engine.core.bukkit.BukkitUtils;
+import de.cubeisland.engine.module.log.Log;
+import de.cubeisland.engine.module.log.action.LogListener;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -35,10 +37,6 @@ import org.bukkit.entity.WitherSkull;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityExplodeEvent;
-
-import de.cubeisland.engine.core.bukkit.BukkitUtils;
-import de.cubeisland.engine.module.log.Log;
-import de.cubeisland.engine.module.log.action.LogListener;
 
 import static de.cubeisland.engine.module.log.action.block.ListenerBlock.logAttachedBlocks;
 import static de.cubeisland.engine.module.log.action.block.ListenerBlock.logFallingBlocks;

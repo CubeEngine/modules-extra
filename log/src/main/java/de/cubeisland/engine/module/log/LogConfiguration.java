@@ -18,7 +18,6 @@
 package de.cubeisland.engine.module.log;
 
 import java.util.concurrent.TimeUnit;
-
 import de.cubeisland.engine.reflect.Section;
 import de.cubeisland.engine.reflect.annotations.Comment;
 import de.cubeisland.engine.reflect.annotations.Name;

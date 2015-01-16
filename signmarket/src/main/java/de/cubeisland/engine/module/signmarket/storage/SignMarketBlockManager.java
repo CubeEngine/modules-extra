@@ -20,10 +20,8 @@ package de.cubeisland.engine.module.signmarket.storage;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.bukkit.Location;
-
 import de.cubeisland.engine.module.signmarket.Signmarket;
+import org.bukkit.Location;
 import org.jooq.DSLContext;
 import org.jooq.types.UInteger;
 

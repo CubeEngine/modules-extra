@@ -17,11 +17,10 @@
  */
 package de.cubeisland.engine.module.log.action.death;
 
-import org.bukkit.entity.Entity;
-
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.block.entity.ActionEntityBlock.EntitySection;
+import org.bukkit.entity.Entity;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.DEATH;

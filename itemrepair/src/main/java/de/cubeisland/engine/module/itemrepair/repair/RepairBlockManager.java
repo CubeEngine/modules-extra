@@ -22,7 +22,13 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
+import de.cubeisland.engine.module.itemrepair.Itemrepair;
+import de.cubeisland.engine.module.itemrepair.material.RepairItemContainer;
+import de.cubeisland.engine.module.itemrepair.repair.blocks.RepairBlock;
+import de.cubeisland.engine.module.itemrepair.repair.blocks.RepairBlock.RepairBlockInventory;
+import de.cubeisland.engine.module.itemrepair.repair.blocks.RepairBlockConfig;
+import de.cubeisland.engine.module.itemrepair.repair.storage.RepairBlockModel;
+import de.cubeisland.engine.module.itemrepair.repair.storage.RepairBlockPersister;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -32,14 +38,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.ItemStack;
-
-import de.cubeisland.engine.module.itemrepair.Itemrepair;
-import de.cubeisland.engine.module.itemrepair.material.RepairItemContainer;
-import de.cubeisland.engine.module.itemrepair.repair.blocks.RepairBlock;
-import de.cubeisland.engine.module.itemrepair.repair.blocks.RepairBlock.RepairBlockInventory;
-import de.cubeisland.engine.module.itemrepair.repair.blocks.RepairBlockConfig;
-import de.cubeisland.engine.module.itemrepair.repair.storage.RepairBlockModel;
-import de.cubeisland.engine.module.itemrepair.repair.storage.RepairBlockPersister;
 import org.jooq.DSLContext;
 
 import static de.cubeisland.engine.module.itemrepair.repair.storage.TableRepairBlock.TABLE_REPAIR_BLOCK;

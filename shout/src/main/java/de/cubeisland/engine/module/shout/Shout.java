@@ -20,7 +20,6 @@ package de.cubeisland.engine.module.shout;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import de.cubeisland.engine.core.module.Module;
 import de.cubeisland.engine.core.permission.Permission;
 import de.cubeisland.engine.module.shout.announce.AnnouncementManager;

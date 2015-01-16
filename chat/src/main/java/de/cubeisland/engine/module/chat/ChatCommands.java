@@ -18,9 +18,6 @@
 package de.cubeisland.engine.module.chat;
 
 import de.cubeisland.engine.command.methodic.Command;
-import de.cubeisland.engine.command.methodic.Param;
-import de.cubeisland.engine.command.methodic.Params;
-import de.cubeisland.engine.command.methodic.parametric.Default;
 import de.cubeisland.engine.command.methodic.parametric.Greed;
 import de.cubeisland.engine.command.methodic.parametric.Label;
 import de.cubeisland.engine.command.methodic.parametric.Optional;
@@ -28,7 +25,6 @@ import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.user.User;
 
 import static de.cubeisland.engine.command.parameter.Parameter.INFINITE;
-import static de.cubeisland.engine.command.parameter.property.Requirement.OPTIONAL;
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
 

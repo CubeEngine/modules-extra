@@ -17,6 +17,15 @@
  */
 package de.cubeisland.engine.module.log.action.block.player;
 
+import de.cubeisland.engine.module.log.Log;
+import de.cubeisland.engine.module.log.action.LogListener;
+import de.cubeisland.engine.module.log.action.block.BlockFall;
+import de.cubeisland.engine.module.log.action.block.BlockPreFallEvent;
+import de.cubeisland.engine.module.log.action.block.player.destroy.PlayerBlockBreak;
+import de.cubeisland.engine.module.log.action.block.player.destroy.PlayerContainerBreak;
+import de.cubeisland.engine.module.log.action.block.player.destroy.PlayerJukeboxBreak;
+import de.cubeisland.engine.module.log.action.block.player.destroy.PlayerNoteBlockBreak;
+import de.cubeisland.engine.module.log.action.block.player.destroy.PlayerSignBreak;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -30,16 +39,6 @@ import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.InventoryHolder;
-
-import de.cubeisland.engine.module.log.Log;
-import de.cubeisland.engine.module.log.action.LogListener;
-import de.cubeisland.engine.module.log.action.block.BlockFall;
-import de.cubeisland.engine.module.log.action.block.BlockPreFallEvent;
-import de.cubeisland.engine.module.log.action.block.player.destroy.PlayerBlockBreak;
-import de.cubeisland.engine.module.log.action.block.player.destroy.PlayerContainerBreak;
-import de.cubeisland.engine.module.log.action.block.player.destroy.PlayerJukeboxBreak;
-import de.cubeisland.engine.module.log.action.block.player.destroy.PlayerNoteBlockBreak;
-import de.cubeisland.engine.module.log.action.block.player.destroy.PlayerSignBreak;
 
 import static de.cubeisland.engine.core.util.BlockUtil.BLOCK_FACES;
 import static de.cubeisland.engine.module.log.action.block.ListenerBlock.logAttachedBlocks;

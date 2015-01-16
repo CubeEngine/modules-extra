@@ -17,6 +17,13 @@
  */
 package de.cubeisland.engine.module.spawn;
 
+import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.core.user.UserManager;
+import de.cubeisland.engine.core.util.StringUtils;
+import de.cubeisland.engine.core.world.WorldManager;
+import de.cubeisland.engine.module.roles.Roles;
+import de.cubeisland.engine.module.roles.role.RolesAttachment;
+import de.cubeisland.engine.module.roles.role.resolved.ResolvedMetadata;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
@@ -25,14 +32,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
-
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.core.user.UserManager;
-import de.cubeisland.engine.core.util.StringUtils;
-import de.cubeisland.engine.core.world.WorldManager;
-import de.cubeisland.engine.module.roles.Roles;
-import de.cubeisland.engine.module.roles.role.RolesAttachment;
-import de.cubeisland.engine.module.roles.role.resolved.ResolvedMetadata;
 
 public class SpawnListener implements Listener
 {

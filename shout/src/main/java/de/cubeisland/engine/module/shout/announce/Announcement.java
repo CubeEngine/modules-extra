@@ -22,9 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import org.bukkit.permissions.Permissible;
-
 import de.cubeisland.engine.core.CubeEngine;
 import de.cubeisland.engine.core.i18n.I18n;
 import de.cubeisland.engine.core.permission.PermDefault;
@@ -33,6 +30,7 @@ import de.cubeisland.engine.i18n.language.ClonedLanguage;
 import de.cubeisland.engine.i18n.language.Language;
 import de.cubeisland.engine.i18n.language.NormalLanguage;
 import de.cubeisland.engine.module.shout.Shout;
+import org.bukkit.permissions.Permissible;
 
 /**
  * Class to represent an announcement.

@@ -18,12 +18,10 @@
 package de.cubeisland.engine.module.signmarket.storage;
 
 import javax.persistence.Transient;
-
-import org.bukkit.Location;
-
 import de.cubeisland.engine.core.CubeEngine;
 import de.cubeisland.engine.core.storage.database.AsyncRecord;
 import de.cubeisland.engine.core.user.User;
+import org.bukkit.Location;
 import org.jooq.types.UInteger;
 
 import static de.cubeisland.engine.module.signmarket.storage.TableSignBlock.TABLE_SIGN_BLOCK;

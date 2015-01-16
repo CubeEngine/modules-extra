@@ -17,9 +17,12 @@
  */
 package de.cubeisland.engine.module.writer;
 
-import java.util.Map;
-import java.util.Map.Entry;
-
+import de.cubeisland.engine.command.filter.Restricted;
+import de.cubeisland.engine.command.methodic.Command;
+import de.cubeisland.engine.command.methodic.parametric.Label;
+import de.cubeisland.engine.command.methodic.parametric.Named;
+import de.cubeisland.engine.core.module.Module;
+import de.cubeisland.engine.core.user.User;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -27,15 +30,10 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
-import de.cubeisland.engine.command.methodic.Command;
-import de.cubeisland.engine.command.methodic.Param;
-import de.cubeisland.engine.command.methodic.Params;
-import de.cubeisland.engine.core.command.CommandContext;
-import de.cubeisland.engine.core.module.Module;
-import de.cubeisland.engine.core.user.User;
-
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
+import static org.bukkit.Material.SIGN_POST;
+import static org.bukkit.Material.WALL_SIGN;
 
 /**
  * A module to edit signs and/or unsign written books
@@ -49,30 +47,26 @@ public class Writer extends Module
     }
 
     @Command(alias = "rewrite", desc = "Edit a sign or unsign a book")
-    @Params(nonpositional = {@Param(names ={"1", "Line1"}, label = "1st line"),
-                             @Param(names ={"2", "Line2"}, label = "2nd line"),
-                             @Param(names ={"3", "Line3"}, label = "3rd line"),
-                             @Param(names ={"4", "Line4"}, label = "4th line")})
-    public void edit(CommandContext context)
+    @Restricted(value = User.class, msg = "Edit what?")
+    public void edit(User context,
+                     @Named({"1", "Line1"}) @Label("1st line") String line1,
+                     @Named({"2", "Line2"}) @Label("2st line") String line2,
+                     @Named({"3", "Line3"}) @Label("3st line") String line3,
+                     @Named({"4", "Line4"}) @Label("4st line") String line4)
+
     {
-        if (!(context.getSource() instanceof User))
+        if (!this.unsignBook(context))
         {
-            context.sendTranslated(NEGATIVE, "Edit what?");
-            return;
-        }
-        User user = (User)context.getSource();
-        if (!this.unsignBook(user))
-        {
-            Map<String, String> params = context.getRawNamed();
-            if (params.size() < 1)
+            if (line1 == null && line2 == null && line3 == null && line4 == null)
             {
                 context.sendTranslated(NEGATIVE, "You need to specify at least one parameter to edit a sign!");
                 context.sendTranslated(NEGATIVE, "Or hold a signed book in your hand to edit it.");
                 return;
             }
-            if (!this.editSignInSight(user, params))
+            if (!this.editSignInSight(context, line1, line2, line3, line4))
             {
-                user.sendTranslated(NEGATIVE, "You need to have a signed book in hand or be looking at a sign less than 10 blocks away!");
+                context.sendTranslated(NEGATIVE,
+                                    "You need to have a signed book in hand or be looking at a sign less than 10 blocks away!");
             }
         }
     }
@@ -81,24 +75,24 @@ public class Writer extends Module
      * Edits the sign the user is looking at
      *
      * @param user the user
-     * @param params the parameters (only 1-4 are allowed as key)
-     * @return false of there is no sign
-     *
-     * @throws java.lang.NumberFormatException when the parameter keys are not numbers
-     * @throws java.lang.ArrayIndexOutOfBoundsException when the parameter keys are other numbers than 1-4
+     * @param line1 the 1st line
+     * @param line2 the 2nd line
+     * @param line3 the 3rd line
+     * @param line4 the 4th line
+     * @return false if there is no sign
      */
-    public boolean editSignInSight(User user, Map<String, String> params)
+    public boolean editSignInSight(User user, String line1, String line2, String line3, String line4)
     {
         Block target = user.getTargetBlock(null, 10);
-        if (target.getType() == Material.WALL_SIGN || target.getType() == Material.SIGN_POST)
+        if (target.getType() == WALL_SIGN || target.getType() == SIGN_POST)
         {
             Sign sign = (Sign)target.getState();
             String[] lines = sign.getLines();
-            for (Entry<String, String> entry : params.entrySet())
-            {
-                lines[Integer.parseInt(entry.getKey()) - 1] = entry.getValue();
-            }
-            SignChangeEvent event = new SignChangeEvent(sign.getBlock(), user, sign.getLines());
+            lines[0] = line1 == null ? lines[0] : line1;
+            lines[1] = line2 == null ? lines[1] : line2;
+            lines[2] = line3 == null ? lines[2] : line3;
+            lines[3] = line4 == null ? lines[3] : line4;
+            SignChangeEvent event = new SignChangeEvent(sign.getBlock(), user, lines);
             user.getCore().getEventManager().fireEvent(event);
             if (event.isCancelled())
             {

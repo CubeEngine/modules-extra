@@ -17,11 +17,10 @@
  */
 package de.cubeisland.engine.module.hide;
 
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-
 import de.cubeisland.engine.module.hide.event.UserHideEvent;
 import de.cubeisland.engine.module.hide.event.UserShowEvent;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.dynmap.DynmapAPI;
 
 public class DynmapListener implements Listener

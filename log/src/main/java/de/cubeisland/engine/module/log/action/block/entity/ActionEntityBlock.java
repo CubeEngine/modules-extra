@@ -20,14 +20,12 @@ package de.cubeisland.engine.module.log.action.block.entity;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-
 import de.cubeisland.engine.module.log.action.ActionCategory;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.block.ActionBlock;
 import de.cubeisland.engine.reflect.Section;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 
 /**
  * Represents an Entity changing a block

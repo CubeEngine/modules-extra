@@ -19,7 +19,8 @@ package de.cubeisland.engine.module.log.action.vehicle;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
+import de.cubeisland.engine.module.log.Log;
+import de.cubeisland.engine.module.log.action.LogListener;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -31,9 +32,6 @@ import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.projectiles.ProjectileSource;
-
-import de.cubeisland.engine.module.log.Log;
-import de.cubeisland.engine.module.log.action.LogListener;
 
 /**
  * A Listener for Player Actions with Items

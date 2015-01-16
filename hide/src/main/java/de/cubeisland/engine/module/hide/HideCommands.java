@@ -19,10 +19,11 @@ package de.cubeisland.engine.module.hide;
 
 import java.util.Set;
 import java.util.UUID;
-
 import de.cubeisland.engine.command.methodic.Command;
 import de.cubeisland.engine.command.methodic.Param;
 import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.command.methodic.parametric.Default;
+import de.cubeisland.engine.command.methodic.parametric.Optional;
 import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.command.CommandSender;
 import de.cubeisland.engine.core.user.User;
@@ -41,110 +42,70 @@ public class HideCommands
     }
 
     @Command(desc = "Hides a player.")
-    @Params(positional = @Param(req = OPTIONAL, label = "player", type = User.class))
-    public void hide(CommandContext context)
+    public void hide(CommandSender context, @Default User player)
     {
-        CommandSender sender = context.getSource();
-        User target = getTargetUser(context);
-        if (target == null)
+        if (!this.module.isHidden(player))
         {
+            this.module.hidePlayer(player);
+            if (context.equals(player))
+            {
+                player.sendTranslated(POSITIVE, "You are now hidden!");
+                return;
+            }
+            player.sendTranslated(POSITIVE, "You were hidden by {sender}!", context);
+            context.sendTranslated(POSITIVE, "{user} is now hidden!", player);
             return;
         }
-        if (!this.module.isHidden(target))
+        if (context.equals(player))
         {
-            this.module.hidePlayer(target);
-            if (target == sender)
-            {
-                target.sendTranslated(POSITIVE, "You are now hidden!");
-            }
-            else
-            {
-                target.sendTranslated(POSITIVE, "You were hidden by {sender}!", sender);
-                sender.sendTranslated(POSITIVE, "{user} is now hidden!", target);
-            }
+            player.sendTranslated(NEUTRAL, "You are already hidden!");
+            return;
         }
-        else
-        {
-            if (target == sender)
-            {
-                target.sendTranslated(NEUTRAL, "You are already hidden!");
-            }
-            else
-            {
-                sender.sendTranslated(NEUTRAL, "{user} is already hidden!", target);
-            }
-        }
+        context.sendTranslated(NEUTRAL, "{user} is already hidden!", player);
     }
 
     @Command(desc = "Unhides a player.")
-    @Params(positional = @Param(req = OPTIONAL, label = "player", type = User.class))
-    public void unhide(CommandContext context)
+    public void unhide(CommandSender context, @Default User player)
     {
-        CommandSender sender = context.getSource();
-        User target = getTargetUser(context);
-        if (target == null)
+        if (this.module.isHidden(player))
         {
+            this.module.showPlayer(player);
+            if (context.equals(player))
+            {
+                player.sendTranslated(POSITIVE, "You are now visible!");
+                return;
+            }
+            player.sendTranslated(POSITIVE, "You were unhidden by {sender}!", context);
+            context.sendTranslated(POSITIVE, "{user} is now visible!", player);
             return;
         }
-        if (this.module.isHidden(target))
+        if (context.equals(player))
         {
-            this.module.showPlayer(target);
-            if (target == sender)
-            {
-                target.sendTranslated(POSITIVE, "You are now visible!");
-            }
-            else
-            {
-                target.sendTranslated(POSITIVE, "You were unhidden by {sender}!", sender);
-                sender.sendTranslated(POSITIVE, "{user} is now visible!", target);
-            }
+            player.sendTranslated(NEUTRAL, "You are already visible!");
+            return;
         }
-        else
-        {
-            if (target == sender)
-            {
-                target.sendTranslated(NEUTRAL, "You are already visible!");
-            }
-            else
-            {
-                sender.sendTranslated(NEUTRAL, "{user} is already visible!", target);
-            }
-        }
+        context.sendTranslated(NEUTRAL, "{user} is already visible!", player);
     }
 
     @Command(desc = "Checks whether a player is hidden.")
-    @Params(positional = @Param(req = OPTIONAL, label = "player", type = User.class))
-    public void hidden(CommandContext context)
+    public void hidden(CommandSender context, @Default User player)
     {
-        CommandSender sender = context.getSource();
-        User target = getTargetUser(context);
-        if (target == null)
+        if (this.module.isHidden(player))
         {
-            return;
-        }
-        if (this.module.isHidden(target))
-        {
-            if (target == sender)
+            if (context.equals(player))
             {
                 context.sendTranslated(POSITIVE, "You are currently hidden!");
+                return;
             }
-            else
-            {
-                context.sendTranslated(POSITIVE, "{user} is currently hidden!", target.getDisplayName());
-            }
+            context.sendTranslated(POSITIVE, "{user} is currently hidden!", player.getDisplayName());
+            return;
         }
-        else
+        if (context.equals(player))
         {
-            if (target == sender)
-            {
-                context.sendTranslated(NEUTRAL, "You are currently visible!");
-            }
-            else
-            {
-                context.sendTranslated(NEUTRAL, "{user} is currently visible!", target.getDisplayName());
-            }
+            context.sendTranslated(NEUTRAL, "You are currently visible!");
+            return;
         }
-        this.module.getHiddenUsers().contains(target.getUniqueId());
+        context.sendTranslated(NEUTRAL, "{user} is currently visible!", player.getDisplayName());
     }
 
     @Command(desc = "Lists all hidden players.")
@@ -164,74 +125,47 @@ public class HideCommands
     }
 
     @Command(desc = "Toggles the ability to see hidden players.")
-    @Params(positional = @Param(req = OPTIONAL, label = "player", type = User.class))
-    public void seehiddens(CommandContext context)
+    public void seehiddens(CommandSender context, @Default User player)
     {
-        CommandSender sender = context.getSource();
-        User target = getTargetUser(context);
-        if (target == null)
+        if (this.module.toggleCanSeeHiddens(player))
         {
-            return;
-        }
-
-        if (this.module.toggleCanSeeHiddens(target))
-        {
-            if (target == sender)
+            if (context.equals(player))
             {
                 context.sendTranslated(POSITIVE, "You can now see hidden users!");
+                return;
             }
-            else
-            {
-                target.sendTranslated(POSITIVE, "You can now see hidden users! (Enabled by {sender})", sender);
-                context.sendTranslated(NEUTRAL, "{user} can now see hidden users!", target);
-            }
+            player.sendTranslated(POSITIVE, "You can now see hidden users! (Enabled by {sender})", context);
+            context.sendTranslated(NEUTRAL, "{user} can now see hidden users!", player);
+            return;
         }
-        else
+        if (context.equals(player))
         {
-            if (target == sender)
-            {
-                context.sendTranslated(POSITIVE, "You can no longer see hidden users!");
-            }
-            else
-            {
-                target.sendTranslated(POSITIVE, "You can no longer see hidden users! (Disabled by {sender})", sender);
-                context.sendTranslated(NEUTRAL, "{user} can no longer see hidden users!", target);
-            }
+            context.sendTranslated(POSITIVE, "You can no longer see hidden users!");
+            return;
         }
+        player.sendTranslated(POSITIVE, "You can no longer see hidden users! (Disabled by {sender})", context);
+        context.sendTranslated(NEUTRAL, "{user} can no longer see hidden users!", player);
     }
 
     @Command(desc = "Checks whether a player can see hidden players.")
-    @Params(positional = @Param(req = OPTIONAL, label = "player", type = User.class))
-    public void canseehiddens(CommandContext context)
+    public void canseehiddens(CommandSender context, @Default User player)
     {
-        CommandSender sender = context.getSource();
-        User target = getTargetUser(context);
-        if (target == null)
+        if (this.module.canSeeHiddens(player))
         {
-            return;
-        }
-        if (this.module.canSeeHiddens(target))
-        {
-            if (target == sender)
+            if (context.equals(player))
             {
                 context.sendTranslated(POSITIVE, "You can currently see hidden users!");
+                return;
             }
-            else
-            {
-                context.sendTranslated(POSITIVE, "{user} can currently see hidden users!", target);
-            }
+            context.sendTranslated(POSITIVE, "{user} can currently see hidden users!", player);
+            return;
         }
-        else
+        if (context.equals(player))
         {
-            if (target == sender)
-            {
-                context.sendTranslated(NEUTRAL, "You can't see hidden players!");
-            }
-            else
-            {
-                context.sendTranslated(NEUTRAL, "{user} can't see hidden players!", target);
-            }
+            context.sendTranslated(NEUTRAL, "You can't see hidden players!");
+            return;
         }
+        context.sendTranslated(NEUTRAL, "{user} can't see hidden players!", player);
     }
 
     @Command(desc = "Lists all players who can see hidden players.")
@@ -247,23 +181,6 @@ public class HideCommands
         for (UUID canSee : canSeeHiddens)
         {
             context.sendMessage(" - " + YELLOW + module.getCore().getUserManager().getExactUser(canSee).getDisplayName());
-        }
-    }
-
-    private static User getTargetUser(CommandContext context)
-    {
-        if (context.getPositionalCount() > 0)
-        {
-            return context.get(0);
-        }
-        else if (context.getSource() instanceof User)
-        {
-            return (User)context.getSource();
-        }
-        else
-        {
-            context.sendTranslated(NEGATIVE, "No player specified!");
-            return null;
         }
     }
 }

@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import de.cubeisland.engine.module.signmarket.Signmarket;
 import org.jooq.DSLContext;
 import org.jooq.types.UInteger;

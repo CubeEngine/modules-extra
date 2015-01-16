@@ -17,16 +17,6 @@
  */
 package de.cubeisland.engine.module.log;
 
-import org.bukkit.Art;
-import org.bukkit.Note;
-import org.bukkit.block.BlockFace;
-import org.bukkit.entity.EntityType;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.server.PluginEnableEvent;
-import org.bukkit.inventory.ItemStack;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import de.cubeisland.engine.converter.ConverterManager;
@@ -51,6 +41,15 @@ import de.cubeisland.engine.module.log.converter.NoteConverter;
 import de.cubeisland.engine.module.log.storage.LogManager;
 import de.cubeisland.engine.module.log.tool.ToolListener;
 import de.cubeisland.engine.reflect.codec.mongo.MongoDBCodec;
+import org.bukkit.Art;
+import org.bukkit.Note;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.EntityType;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.server.PluginEnableEvent;
+import org.bukkit.inventory.ItemStack;
 
 public class Log extends Module implements Listener
 {

@@ -19,7 +19,6 @@ package de.cubeisland.engine.module.log.action.player.item.container;
 
 import java.util.List;
 import java.util.Map;
-
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;

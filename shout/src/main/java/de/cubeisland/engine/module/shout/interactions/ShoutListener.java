@@ -17,15 +17,14 @@
  */
 package de.cubeisland.engine.module.shout.interactions;
 
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerQuitEvent;
-
 import de.cubeisland.engine.core.bukkit.AfterJoinEvent;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.module.shout.Shout;
 import de.cubeisland.engine.module.shout.announce.AnnouncementManager;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 public class ShoutListener implements Listener
 {

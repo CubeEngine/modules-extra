@@ -23,7 +23,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-
+import de.cubeisland.engine.core.bukkit.BukkitCore;
+import de.cubeisland.engine.core.module.Module;
+import de.cubeisland.engine.core.util.ChatFormat;
 import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.entity.Boat;
@@ -37,10 +39,6 @@ import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
-
-import de.cubeisland.engine.core.bukkit.BukkitCore;
-import de.cubeisland.engine.core.module.Module;
-import de.cubeisland.engine.core.util.ChatFormat;
 
 import static org.bukkit.Material.BOAT;
 import static org.bukkit.Material.LOG;

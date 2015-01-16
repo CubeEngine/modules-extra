@@ -17,11 +17,10 @@
  */
 package de.cubeisland.engine.module.chat;
 
-import org.bukkit.event.EventHandler;
-
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.ChatFormat;
 import de.cubeisland.engine.module.roles.role.RolesAttachment;
+import org.bukkit.event.EventHandler;
 
 public class RoleChatFormatListener extends ChatFormatListener
 {

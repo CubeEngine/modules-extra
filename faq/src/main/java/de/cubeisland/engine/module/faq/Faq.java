@@ -18,14 +18,12 @@
 package de.cubeisland.engine.module.faq;
 
 import java.util.PriorityQueue;
-
+import de.cubeisland.engine.core.module.Module;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-
-import de.cubeisland.engine.core.module.Module;
 
 public class Faq extends Module implements Listener
 {

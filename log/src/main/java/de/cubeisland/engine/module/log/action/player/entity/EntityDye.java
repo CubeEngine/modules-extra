@@ -17,11 +17,10 @@
  */
 package de.cubeisland.engine.module.log.action.player.entity;
 
-import org.bukkit.DyeColor;
-
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
+import org.bukkit.DyeColor;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.ENTITY;

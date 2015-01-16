@@ -19,7 +19,16 @@ package de.cubeisland.engine.module.log.action.block;
 
 import java.util.HashMap;
 import java.util.Map;
-
+import de.cubeisland.engine.core.bukkit.EventManager;
+import de.cubeisland.engine.core.util.BlockUtil;
+import de.cubeisland.engine.module.log.Log;
+import de.cubeisland.engine.module.log.action.LogListener;
+import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock;
+import de.cubeisland.engine.module.log.action.block.player.PlayerBlockGrow;
+import de.cubeisland.engine.module.log.action.block.player.destroy.PlayerBlockBreak;
+import de.cubeisland.engine.module.log.action.block.player.destroy.PlayerSignBreak;
+import de.cubeisland.engine.module.log.action.hanging.HangingBreak;
+import de.cubeisland.engine.module.log.action.hanging.HangingPreBreakEvent;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -42,17 +51,6 @@ import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.material.Attachable;
 import org.bukkit.material.PistonExtensionMaterial;
-
-import de.cubeisland.engine.core.bukkit.EventManager;
-import de.cubeisland.engine.core.util.BlockUtil;
-import de.cubeisland.engine.module.log.Log;
-import de.cubeisland.engine.module.log.action.LogListener;
-import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock;
-import de.cubeisland.engine.module.log.action.block.player.PlayerBlockGrow;
-import de.cubeisland.engine.module.log.action.block.player.destroy.PlayerBlockBreak;
-import de.cubeisland.engine.module.log.action.block.player.destroy.PlayerSignBreak;
-import de.cubeisland.engine.module.log.action.hanging.HangingBreak;
-import de.cubeisland.engine.module.log.action.hanging.HangingPreBreakEvent;
 
 import static org.bukkit.Material.*;
 import static org.bukkit.block.BlockFace.DOWN;

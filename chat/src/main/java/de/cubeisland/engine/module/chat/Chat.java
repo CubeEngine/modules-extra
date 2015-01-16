@@ -17,9 +17,8 @@
  */
 package de.cubeisland.engine.module.chat;
 
-import org.bukkit.event.Listener;
-
 import de.cubeisland.engine.core.module.Module;
+import org.bukkit.event.Listener;
 
 public class Chat extends Module implements Listener
 {

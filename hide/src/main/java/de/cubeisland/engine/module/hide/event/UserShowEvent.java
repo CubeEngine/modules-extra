@@ -17,11 +17,10 @@
  */
 package de.cubeisland.engine.module.hide.event;
 
-import org.bukkit.event.HandlerList;
-
 import de.cubeisland.engine.core.Core;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.user.UserEvent;
+import org.bukkit.event.HandlerList;
 
 /**
  *

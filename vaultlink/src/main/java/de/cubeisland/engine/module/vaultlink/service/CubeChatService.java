@@ -18,9 +18,6 @@
 package de.cubeisland.engine.module.vaultlink.service;
 
 import java.util.concurrent.atomic.AtomicReference;
-
-import org.bukkit.World;
-
 import de.cubeisland.engine.core.module.service.Metadata;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.user.UserManager;
@@ -28,6 +25,7 @@ import de.cubeisland.engine.core.world.WorldManager;
 import de.cubeisland.engine.module.vaultlink.Vaultlink;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.permission.Permission;
+import org.bukkit.World;
 
 public class CubeChatService extends Chat
 {

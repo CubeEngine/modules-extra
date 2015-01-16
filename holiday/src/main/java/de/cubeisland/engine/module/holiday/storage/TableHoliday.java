@@ -18,7 +18,6 @@
 package de.cubeisland.engine.module.holiday.storage;
 
 import java.sql.Date;
-
 import de.cubeisland.engine.core.storage.database.Table;
 import de.cubeisland.engine.core.util.Version;
 import org.jooq.TableField;

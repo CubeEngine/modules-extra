@@ -17,12 +17,11 @@
  */
 package de.cubeisland.engine.module.log.converter;
 
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-
 import de.cubeisland.engine.converter.ConversionException;
 import de.cubeisland.engine.converter.converter.SimpleConverter;
 import de.cubeisland.engine.converter.node.Node;
 import de.cubeisland.engine.converter.node.StringNode;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 public class DamageCauseConverter extends SimpleConverter<DamageCause>
 {

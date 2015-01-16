@@ -17,6 +17,8 @@
  */
 package de.cubeisland.engine.module.signmarket;
 
+import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.core.util.BlockUtil;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -31,9 +33,6 @@ import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.material.Sign;
 import org.bukkit.util.BlockIterator;
-
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.core.util.BlockUtil;
 
 import static org.bukkit.Material.AIR;
 import static org.bukkit.event.Event.Result.DENY;

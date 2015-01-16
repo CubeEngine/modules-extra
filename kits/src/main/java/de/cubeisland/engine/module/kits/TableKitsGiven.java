@@ -19,7 +19,6 @@ package de.cubeisland.engine.module.kits;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-
 import de.cubeisland.engine.core.storage.database.Table;
 import de.cubeisland.engine.core.storage.database.TableUpdateCreator;
 import de.cubeisland.engine.core.util.Version;

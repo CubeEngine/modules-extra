@@ -19,20 +19,21 @@ package de.cubeisland.engine.module.kits;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.bukkit.inventory.ItemStack;
-
 import de.cubeisland.engine.command.CommandInvocation;
 import de.cubeisland.engine.command.alias.Alias;
+import de.cubeisland.engine.command.filter.Restricted;
 import de.cubeisland.engine.command.methodic.Command;
 import de.cubeisland.engine.command.methodic.Flag;
 import de.cubeisland.engine.command.methodic.Flags;
 import de.cubeisland.engine.command.methodic.Param;
 import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.command.methodic.parametric.Default;
 import de.cubeisland.engine.core.command.CommandContainer;
 import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.CommandSender;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.FileUtil;
+import org.bukkit.inventory.ItemStack;
 
 import static de.cubeisland.engine.command.parameter.property.Requirement.OPTIONAL;
 import static de.cubeisland.engine.core.util.ChatFormat.WHITE;
@@ -64,24 +65,13 @@ public class KitCommand extends CommandContainer
     }
 
     @Command(desc = "Creates a new kit with the items in your inventory.")
-    @Params(positional = @Param(label = "kitname"))
-    @Flags(@Flag(longName = "toolbar", name = "t"))
-    public void create(CommandContext context)
+    @Restricted(value = User.class, msg = "Just log in or use the config!")
+    public void create(User context, String kitname, @Flag boolean toolbar)
     {
-        User sender = null;
-        if (context.getSource() instanceof User)
-        {
-            sender = (User)context.getSource();
-        }
-        if (sender == null)
-        {
-            context.sendTranslated(NEGATIVE, "Just log in or use the config!");
-            return;
-        }
         List<KitItem> itemList = new ArrayList<>();
-        if (context.hasFlag("t"))
+        if (toolbar)
         {
-            ItemStack[] items = sender.getInventory().getContents();
+            ItemStack[] items = context.getInventory().getContents();
             for (int i = 0; i <= 8; ++i)
             {
                 if (items[i] == null || items[i].getType() == AIR)
@@ -98,7 +88,7 @@ public class KitCommand extends CommandContainer
         }
         else
         {
-            for (ItemStack item : sender.getInventory().getContents())
+            for (ItemStack item : context.getInventory().getContents())
             {
                 if (item == null || item.getTypeId() == 0)
                 {
@@ -112,7 +102,7 @@ public class KitCommand extends CommandContainer
                             item.getEnchantments()));
             }
         }
-        Kit kit = new Kit(module, context.getString(0), false, 0, -1, true, "", new ArrayList<String>(), itemList);
+        Kit kit = new Kit(module, kitname, false, 0, -1, true, "", new ArrayList<>(), itemList);
         if (!FileUtil.isValidFileName(kit.getKitName()))
         {
             context.sendTranslated(NEGATIVE, "{name#kit} is is not a valid name! Do not use characters like *, | or ?", kit.getKitName());
@@ -140,26 +130,17 @@ public class KitCommand extends CommandContainer
     }
 
     @Command(desc = "Gives a set of items.")
-    @Params(positional = {@Param(label = "kitname"),
-                          @Param(req = OPTIONAL, label = "player", type = User.class)})
-    @Flags({@Flag(longName = "all", name = "a"),
-            @Flag(longName = "force", name = "f")})
-    public void give(CommandContext context)
+    public void give(CommandSender context, String kitname, @Default User player, @Flag boolean all, @Flag boolean force)
     {
-        String kitname = context.get(0);
-        User user;
         Kit kit = manager.getKit(kitname);
-        boolean force = false;
-        if (context.hasFlag("f") && module.perms().COMMAND_KIT_GIVE_FORCE.isAuthorized(context.getSource()))
-        {
-            force = true;
-        }
+        force = force && module.perms().COMMAND_KIT_GIVE_FORCE.isAuthorized(context);
         if (kit == null)
         {
             context.sendTranslated(NEGATIVE, "Kit {input} not found!", kitname);
             return;
         }
-        if (context.hasFlag("a"))
+        // TODO extract to giveall cmd
+        if (all)
         {
             boolean gaveKit = false;
             int kitNotreceived = 0;
@@ -167,9 +148,9 @@ public class KitCommand extends CommandContainer
             {
                 try
                 {
-                    if (kit.give(context.getSource(), receiver, force))
+                    if (kit.give(context, receiver, force))
                     {
-                        if (receiver.equals(context.getSource()))
+                        if (receiver.equals(context))
                         {
                             context.sendTranslated(POSITIVE, "Received the {name#kit} kit!", kit.getKitName());
                         }
@@ -194,71 +175,55 @@ public class KitCommand extends CommandContainer
             {
                 context.sendTranslated(NEGATIVE, "{amount} players did not receive a kit!", kitNotreceived); // TODO Have a string for if there is only one player, so non-plural
             }
+            return;
+        }
+        boolean other = false;
+        User user;
+        if (player != null)
+        {
+            user = player;
+            other = true;
+        }
+        else if (context instanceof User)
+        {
+            user = (User)context;
         }
         else
         {
-            boolean other = false;
-            if (context.hasPositional(1))
-            {
-                user = context.get(1);
-                other = true;
-            }
-            else if (context.getSource() instanceof User)
-            {
-                user = (User)context.getSource();
-            }
-            else
-            {
-                context.sendTranslated(NEGATIVE, "You need to specify a player!");
-                return;
-            }
-            if (user == null)
-            {
-                context.sendTranslated(NEGATIVE, "Player {user} not found!", context.get(1));
-                return;
-            }
-            if (!user.isOnline())
-            {
-                context.sendTranslated(NEGATIVE, "{user} is not online!", user.getDisplayName());
-                return;
-            }
-            if (kit.give(context.getSource(), user, force))
-            {
-                if (!other)
-                {
-                    if (kit.getCustomMessage().equals(""))
-                    {
-                        context.sendTranslated(POSITIVE, "Received the {name#kit} kit. Enjoy.", kit.getKitName());
-                    }
-                    else
-                    {
-                        context.sendMessage(kit.getCustomMessage());
-                    }
-                }
-                else
-                {
-                    context.sendTranslated(POSITIVE, "You gave {user} the {name#kit} kit!", user, kit.getKitName());
-                    if (kit.getCustomMessage().equals(""))
-                    {
-                        user.sendTranslated(POSITIVE, "Received the {name#kit} kit. Enjoy.", kit.getKitName());
-                    }
-                    else
-                    {
-                        user.sendMessage(kit.getCustomMessage());
-                    }
-                }
-            }
-            else
-            {
-                if (other)
-                {
-                    context.sendTranslated(NEUTRAL, "{user} has not enough space in your inventory for this kit!", user);
-                }
-                else
-                {
-                    context.sendTranslated(NEUTRAL, "You don't have enough space in your inventory for this kit!");
-                }
-            }
+            context.sendTranslated(NEGATIVE, "You need to specify a player!");
+            return;
         }
+        if (!user.isOnline())
+        {
+            context.sendTranslated(NEGATIVE, "{user} is not online!", user.getDisplayName());
+            return;
+        }
+        if (kit.give(context, user, force))
+        {
+            if (other)
+            {
+                context.sendTranslated(POSITIVE, "You gave {user} the {name#kit} kit!", user, kit.getKitName());
+                if (kit.getCustomMessage().isEmpty())
+                {
+                    user.sendTranslated(POSITIVE, "Received the {name#kit} kit. Enjoy.", kit.getKitName());
+                    return;
+                }
+                user.sendMessage(kit.getCustomMessage());
+                return;
+            }
+            if (kit.getCustomMessage().isEmpty())
+            {
+                context.sendTranslated(POSITIVE, "Received the {name#kit} kit. Enjoy.", kit.getKitName());
+                return;
+            }
+            context.sendMessage(kit.getCustomMessage());
+            return;
+        }
+        if (other)
+        {
+            context.sendTranslated(NEUTRAL, "{user} has not enough space in your inventory for this kit!", user);
+            return;
+        }
+        context.sendTranslated(NEUTRAL, "You don't have enough space in your inventory for this kit!");
     }
 }

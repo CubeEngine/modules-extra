@@ -17,13 +17,12 @@
  */
 package de.cubeisland.engine.module.border;
 
-import org.bukkit.Chunk;
-import org.bukkit.World;
-
 import de.cubeisland.engine.reflect.Section;
 import de.cubeisland.engine.reflect.annotations.Comment;
 import de.cubeisland.engine.reflect.annotations.Name;
 import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
+import org.bukkit.Chunk;
+import org.bukkit.World;
 
 @SuppressWarnings("all")
 public class BorderConfig extends ReflectedYaml

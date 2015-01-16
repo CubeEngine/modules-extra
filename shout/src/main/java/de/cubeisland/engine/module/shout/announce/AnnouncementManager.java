@@ -37,7 +37,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
 import de.cubeisland.engine.core.CubeEngine;
 import de.cubeisland.engine.core.filesystem.FileUtil;
 import de.cubeisland.engine.core.i18n.I18n;
@@ -536,7 +535,6 @@ public class AnnouncementManager
     /**
      * Create an announcement folder structure with the params specified.
      * This will not load the announcement into the plugin
-     *
      */
     public Announcement createAnnouncement(String name, Locale locale, String message, String delay, String world, String permName, boolean fc) throws IOException, IllegalArgumentException
     {

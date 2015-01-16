@@ -19,15 +19,13 @@ package de.cubeisland.engine.module.customcommands;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import de.cubeisland.engine.core.util.StringUtils;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.server.ServerCommandEvent;
-
-import de.cubeisland.engine.core.util.StringUtils;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.NONE;
 import static java.util.Locale.ENGLISH;

@@ -17,12 +17,11 @@
  */
 package de.cubeisland.engine.module.selector;
 
+import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import de.cubeisland.engine.core.module.Module;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginEnableEvent;
-
-import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import de.cubeisland.engine.core.module.Module;
 
 public class Selector extends Module implements Listener
 {

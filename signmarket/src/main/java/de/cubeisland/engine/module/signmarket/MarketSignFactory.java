@@ -21,14 +21,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import org.bukkit.Location;
-
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.module.signmarket.storage.BlockModel;
 import de.cubeisland.engine.module.signmarket.storage.ItemModel;
 import de.cubeisland.engine.module.signmarket.storage.SignMarketBlockManager;
 import de.cubeisland.engine.module.signmarket.storage.SignMarketItemManager;
+import org.bukkit.Location;
 import org.jooq.types.UInteger;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;

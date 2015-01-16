@@ -18,15 +18,13 @@
 package de.cubeisland.engine.module.rulebook;
 
 import java.util.Locale;
-
+import de.cubeisland.engine.core.bukkit.AfterJoinEvent;
+import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.module.rulebook.bookManagement.RulebookManager;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
-
-import de.cubeisland.engine.core.bukkit.AfterJoinEvent;
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.module.rulebook.bookManagement.RulebookManager;
 
 class RulebookListener implements Listener
 {

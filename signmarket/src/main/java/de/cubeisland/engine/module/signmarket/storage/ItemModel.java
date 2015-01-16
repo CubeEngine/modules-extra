@@ -24,7 +24,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.persistence.Transient;
-
+import de.cubeisland.engine.core.CubeEngine;
+import de.cubeisland.engine.core.storage.database.AsyncRecord;
+import de.cubeisland.engine.core.util.StringUtils;
+import de.cubeisland.engine.module.signmarket.MarketSign;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.Inventory;
@@ -33,11 +36,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.Repairable;
-
-import de.cubeisland.engine.core.CubeEngine;
-import de.cubeisland.engine.core.storage.database.AsyncRecord;
-import de.cubeisland.engine.core.util.StringUtils;
-import de.cubeisland.engine.module.signmarket.MarketSign;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
 

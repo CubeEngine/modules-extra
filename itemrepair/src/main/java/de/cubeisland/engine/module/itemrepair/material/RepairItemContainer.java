@@ -20,7 +20,6 @@ package de.cubeisland.engine.module.itemrepair.material;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;

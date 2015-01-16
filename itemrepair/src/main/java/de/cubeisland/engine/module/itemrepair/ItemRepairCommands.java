@@ -20,19 +20,17 @@ package de.cubeisland.engine.module.itemrepair;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-
+import de.cubeisland.engine.command.methodic.Command;
+import de.cubeisland.engine.core.command.CommandContainer;
+import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.module.itemrepair.repair.RepairBlockManager;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-
-import de.cubeisland.engine.command.methodic.Command;
-import de.cubeisland.engine.core.command.CommandContainer;
-import de.cubeisland.engine.core.command.CommandContext;
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.module.itemrepair.repair.RepairBlockManager;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;

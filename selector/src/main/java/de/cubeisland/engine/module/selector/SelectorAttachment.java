@@ -17,9 +17,6 @@
  */
 package de.cubeisland.engine.module.selector;
 
-import org.bukkit.Location;
-import org.bukkit.World;
-
 import com.sk89q.worldedit.LocalSession;
 import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEdit;
@@ -30,6 +27,8 @@ import de.cubeisland.engine.core.user.UserAttachment;
 import de.cubeisland.engine.core.util.math.Vector3;
 import de.cubeisland.engine.core.util.math.shape.Cuboid;
 import de.cubeisland.engine.core.util.math.shape.Shape;
+import org.bukkit.Location;
+import org.bukkit.World;
 
 public class SelectorAttachment extends UserAttachment
 {

@@ -17,11 +17,10 @@
  */
 package de.cubeisland.engine.module.log.action.hanging;
 
+import de.cubeisland.engine.module.log.action.BaseAction;
 import org.bukkit.Location;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-
-import de.cubeisland.engine.module.log.action.BaseAction;
 
 public class HangingPreBreakEvent extends Event
 {

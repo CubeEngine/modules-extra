@@ -19,7 +19,10 @@ package de.cubeisland.engine.module.hide;
 
 import java.util.Set;
 import java.util.UUID;
-
+import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.core.user.UserManager;
+import de.cubeisland.engine.module.hide.event.UserHideEvent;
+import de.cubeisland.engine.module.hide.event.UserShowEvent;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Result;
@@ -33,11 +36,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.core.user.UserManager;
-import de.cubeisland.engine.module.hide.event.UserHideEvent;
-import de.cubeisland.engine.module.hide.event.UserShowEvent;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEUTRAL;
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;

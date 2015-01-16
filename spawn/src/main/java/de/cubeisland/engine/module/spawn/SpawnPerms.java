@@ -30,10 +30,6 @@ public class SpawnPerms extends PermissionContainer<Spawn>
     }
     private final Permission COMMAND_SPAWN = getBasePerm().childWildcard("command").childWildcard("spawn");
     /**
-     * Allows to teleport all online players to the spawn of the main world
-     */
-    public final Permission COMMAND_SPAWN_ALL = COMMAND_SPAWN.child("all");
-    /**
      * Prevents from being teleported to spawn by someone else
      */
     public final Permission COMMAND_SPAWN_PREVENT = COMMAND_SPAWN.child("prevent");

@@ -18,19 +18,6 @@
 package de.cubeisland.engine.module.log.action.block;
 
 import java.lang.reflect.Constructor;
-
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.Jukebox;
-import org.bukkit.block.NoteBlock;
-import org.bukkit.block.Sign;
-import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.material.Attachable;
-import org.bukkit.material.Bed;
-import org.bukkit.material.MaterialData;
-
 import de.cubeisland.engine.core.util.BlockUtil;
 import de.cubeisland.engine.module.log.LogAttachment;
 import de.cubeisland.engine.module.log.action.ActionCategory;
@@ -42,6 +29,17 @@ import de.cubeisland.engine.module.log.action.block.player.destroy.PlayerJukebox
 import de.cubeisland.engine.module.log.action.block.player.destroy.PlayerNoteBlockBreak;
 import de.cubeisland.engine.module.log.action.block.player.destroy.PlayerSignBreak;
 import de.cubeisland.engine.reflect.Section;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Jukebox;
+import org.bukkit.block.NoteBlock;
+import org.bukkit.block.Sign;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.material.Attachable;
+import org.bukkit.material.Bed;
+import org.bukkit.material.MaterialData;
 
 import static org.bukkit.Material.*;
 import static org.bukkit.block.BlockFace.UP;

@@ -17,15 +17,14 @@
  */
 package de.cubeisland.engine.module.log.action.entityspawn;
 
+import de.cubeisland.engine.module.log.Log;
+import de.cubeisland.engine.module.log.action.LogListener;
 import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-
-import de.cubeisland.engine.module.log.Log;
-import de.cubeisland.engine.module.log.action.LogListener;
 
 import static org.bukkit.Material.MONSTER_EGG;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;

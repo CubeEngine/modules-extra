@@ -17,6 +17,7 @@
  */
 package de.cubeisland.engine.module.log.action.player;
 
+import de.cubeisland.engine.module.log.Log;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -26,8 +27,6 @@ import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-
-import de.cubeisland.engine.module.log.Log;
 
 /**
  * A Listener for Player Actions

@@ -20,15 +20,13 @@ package de.cubeisland.engine.module.hide;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
-
 import de.cubeisland.engine.core.module.Module;
 import de.cubeisland.engine.core.module.Reloadable;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.module.hide.event.UserHideEvent;
 import de.cubeisland.engine.module.hide.event.UserShowEvent;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 import org.dynmap.DynmapAPI;
 
 public class Hide extends Module implements Reloadable

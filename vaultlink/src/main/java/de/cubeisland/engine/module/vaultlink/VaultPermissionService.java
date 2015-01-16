@@ -18,13 +18,11 @@
 package de.cubeisland.engine.module.vaultlink;
 
 import java.util.concurrent.atomic.AtomicReference;
-
+import de.cubeisland.engine.core.command.CommandSender;
+import net.milkbowl.vault.permission.Permission;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-
-import de.cubeisland.engine.core.command.CommandSender;
-import net.milkbowl.vault.permission.Permission;
 
 public class VaultPermissionService implements de.cubeisland.engine.core.module.service.Permission
 {

@@ -21,15 +21,13 @@ import java.lang.reflect.Type;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
-
-import org.bukkit.Material;
-
 import de.cubeisland.engine.converter.ConversionException;
 import de.cubeisland.engine.converter.ConverterManager;
 import de.cubeisland.engine.converter.converter.SingleClassConverter;
 import de.cubeisland.engine.converter.node.MapNode;
 import de.cubeisland.engine.converter.node.Node;
 import de.cubeisland.engine.converter.node.NullNode;
+import org.bukkit.Material;
 
 public class BaseMaterialContainerConverter extends SingleClassConverter<BaseMaterialContainer>
 {

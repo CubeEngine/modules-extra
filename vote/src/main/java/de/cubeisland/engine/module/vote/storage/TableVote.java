@@ -18,7 +18,6 @@
 package de.cubeisland.engine.module.vote.storage;
 
 import java.sql.Timestamp;
-
 import de.cubeisland.engine.core.storage.database.Table;
 import de.cubeisland.engine.core.util.Version;
 import org.jooq.TableField;

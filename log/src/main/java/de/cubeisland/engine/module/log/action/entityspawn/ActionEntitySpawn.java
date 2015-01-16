@@ -17,11 +17,10 @@
  */
 package de.cubeisland.engine.module.log.action.entityspawn;
 
-import org.bukkit.entity.Entity;
-
 import de.cubeisland.engine.module.log.action.ActionCategory;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.block.entity.ActionEntityBlock.EntitySection;
+import org.bukkit.entity.Entity;
 
 public abstract class ActionEntitySpawn extends BaseAction
 {

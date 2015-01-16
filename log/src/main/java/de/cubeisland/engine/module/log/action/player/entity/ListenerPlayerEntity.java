@@ -17,6 +17,8 @@
  */
 package de.cubeisland.engine.module.log.action.player.entity;
 
+import de.cubeisland.engine.module.log.Log;
+import de.cubeisland.engine.module.log.action.player.ListenerPlayerLog;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.MushroomCow;
@@ -29,9 +31,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
 import org.bukkit.material.Dye;
-
-import de.cubeisland.engine.module.log.Log;
-import de.cubeisland.engine.module.log.action.player.ListenerPlayerLog;
 
 import static org.bukkit.Material.*;
 

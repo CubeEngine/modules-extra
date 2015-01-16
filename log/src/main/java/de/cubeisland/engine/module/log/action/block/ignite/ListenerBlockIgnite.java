@@ -17,6 +17,10 @@
  */
 package de.cubeisland.engine.module.log.action.block.ignite;
 
+import de.cubeisland.engine.core.bukkit.BukkitUtils;
+import de.cubeisland.engine.module.log.Log;
+import de.cubeisland.engine.module.log.action.LogListener;
+import de.cubeisland.engine.module.log.action.block.ActionBlock;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
@@ -29,11 +33,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.projectiles.ProjectileSource;
-
-import de.cubeisland.engine.core.bukkit.BukkitUtils;
-import de.cubeisland.engine.module.log.Log;
-import de.cubeisland.engine.module.log.action.LogListener;
-import de.cubeisland.engine.module.log.action.block.ActionBlock;
 
 import static org.bukkit.Material.FIRE;
 

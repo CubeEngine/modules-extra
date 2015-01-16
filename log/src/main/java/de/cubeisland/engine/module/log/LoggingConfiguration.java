@@ -21,13 +21,11 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.bukkit.Material;
-
 import de.cubeisland.engine.module.log.action.player.item.container.ContainerType;
 import de.cubeisland.engine.reflect.Section;
 import de.cubeisland.engine.reflect.annotations.Comment;
 import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
+import org.bukkit.Material;
 
 @SuppressWarnings("all")
 public class LoggingConfiguration extends ReflectedYaml

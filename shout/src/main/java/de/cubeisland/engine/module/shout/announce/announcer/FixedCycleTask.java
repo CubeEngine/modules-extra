@@ -19,11 +19,6 @@ package de.cubeisland.engine.module.shout.announce.announcer;
 
 import java.util.Locale;
 import java.util.Queue;
-
-import org.bukkit.Bukkit;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-
 import de.cubeisland.engine.core.task.TaskManager;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.user.UserManager;
@@ -32,6 +27,9 @@ import de.cubeisland.engine.core.util.Pair;
 import de.cubeisland.engine.module.shout.announce.Announcement;
 import de.cubeisland.engine.module.shout.announce.MessageOfTheDay;
 import de.cubeisland.engine.module.shout.announce.receiver.Receiver;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
 
 public class FixedCycleTask implements Runnable
 {
