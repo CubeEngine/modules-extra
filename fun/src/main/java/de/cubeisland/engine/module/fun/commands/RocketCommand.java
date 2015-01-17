@@ -24,6 +24,8 @@ import java.util.UUID;
 import de.cubeisland.engine.command.methodic.Command;
 import de.cubeisland.engine.command.methodic.Param;
 import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.command.methodic.parametric.Default;
+import de.cubeisland.engine.command.methodic.parametric.Optional;
 import de.cubeisland.engine.core.CubeEngine;
 import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.user.User;
@@ -58,34 +60,12 @@ public class RocketCommand
     }
 
     @Command(desc = "Shoots a player upwards with a cool smoke effect")
-    @Params(positional = @Param(req = OPTIONAL, label = "height", type = Integer.class),
-            nonpositional = @Param(names = {"player", "p"}, type = User.class))
-    public void rocket(CommandContext context)
+    public void rocket(CommandContext context, @Default User player, @Optional Integer height)
     {
-        int height = context.get(0, 10);
-        User user;
-        if (context.hasNamed("player"))
-        {
-            user = context.get("player");
-            if (user == null)
-            {
-                context.sendTranslated(NEGATIVE, "Player {user} not found!", context.getString("player"));
-                return;
-            }
-        }
-        else
-        {
-            if (!(context.getSource() instanceof User))
-            {
-                context.sendTranslated(NEGATIVE, "You have to specify a player!");
-                return;
-            }
-            user = (User)context.getSource();
-        }
-
+        height = height == null ? 10 : height;
         if (height > this.module.getConfig().command.rocket.maxHeight)
         {
-            context.sendTranslated(NEGATIVE, "Do you never wanna see {user} again?", user);
+            context.sendTranslated(NEGATIVE, "Do you never wanna see {user} again?", player);
             return;
         }
         else if (height < 0)
@@ -94,7 +74,7 @@ public class RocketCommand
             return;
         }
 
-        rocketListener.addInstance(user, height);
+        rocketListener.addInstance(player, height);
     }
 
     public class RocketListener implements Listener, Runnable

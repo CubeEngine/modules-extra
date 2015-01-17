@@ -25,7 +25,12 @@ import de.cubeisland.engine.command.methodic.Flag;
 import de.cubeisland.engine.command.methodic.Flags;
 import de.cubeisland.engine.command.methodic.Param;
 import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.command.methodic.parametric.Complete;
+import de.cubeisland.engine.command.methodic.parametric.Label;
+import de.cubeisland.engine.command.methodic.parametric.Named;
+import de.cubeisland.engine.command.methodic.parametric.Optional;
 import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.CommandSender;
 import de.cubeisland.engine.core.command.completer.MaterialListCompleter;
 import de.cubeisland.engine.core.command.completer.PlayerListCompleter;
 import de.cubeisland.engine.core.command.completer.WorldCompleter;
@@ -60,11 +65,10 @@ public class LookupCommands
         this.actionManager = module.getActionManager();
     }
 
-    private void params(CommandContext context)
+    private void params(CommandSender context, String params)
     {
-        if (context.hasNamed("params"))
+        if (params != null)
         {
-            String param = context.getString("params");
             context.sendMessage("NOT YET DONE");
             // TODO show description
             return;
@@ -84,41 +88,40 @@ public class LookupCommands
         context.sendTranslated(NEUTRAL, " - world <world> default is your current world");
 
         context.sendMessage("");
-        context
-            .sendTranslated(NEUTRAL, "Use {text:!} to exclude the parameters instead of including them.");
+        context.sendTranslated(NEUTRAL, "Use {text:!} to exclude the parameters instead of including them.");
     }
 
     @Command(desc = "Queries a lookup in the database\n    Show availiable parameters with /lookup params")
-    @Params(positional = @Param(req = OPTIONAL, label = "params"),
-            nonpositional = {@Param(names = {"action", "a"}, completer = ActionTypeCompleter.class),
-                              @Param(names = {"radius", "r"}),//<radius> OR selection|sel OR global|g OR player|p:<radius>
-                              @Param(names = {"user", "player", "p"}, completer = PlayerListCompleter.class),
-                              @Param(names = {"block", "b"}, completer = MaterialListCompleter.class),
-                              @Param(names = {"entity", "e"}),
-                              @Param(names = {"since", "time", "t"}), // if not given default since 3d
-                              @Param(names = {"before"}),
-                              @Param(names = {"world", "w", "in"}, type = World.class, completer = WorldCompleter.class),
-                              @Param(names = {"limit", "pagelimit"}, type = Integer.class),
-                              @Param(names = {"page"}, type = Integer.class),
-                              @Param(names = "params", completer = ActionTypeCompleter.class)})
-    @Flags({@Flag(longName = "coordinates", name = "coords"),
-              @Flag(longName = "detailed", name = "det"),
-              @Flag(longName = "nodate", name = "nd"),
-              @Flag(longName = "descending", name = "desc")})
     // TODO param for filter / chat / command / signtexts
-    public void lookup(CommandContext context)
+    public void lookup(CommandContext context, @Label("params") @Optional String action,
+                       @Named({"action", "a"}) @Complete(ActionTypeCompleter.class) String actions,
+                       @Named({"radius", "r"}) String radius,
+                       @Named({"player", "p"}) @Complete(PlayerListCompleter.class) String players,
+                       @Named({"block", "b"}) @Complete(MaterialListCompleter.class) String blocks,
+                       @Named({"entity", "e"}) String entities,
+                       @Named({"since", "time", "t"}) String since,
+                       @Named({"before"}) String before,
+                       @Named({"world", "w", "in"}) @Complete(WorldCompleter.class) String world,
+                       @Named({"limit", "pagelimit"}) Integer limit,
+                       @Named({"page"}) Integer page,
+                       @Named("params") @Complete(ActionTypeCompleter.class) String params,
+                       @Flag(longName = "coordinates", name = "coords") boolean showCoord,
+                       @Flag(longName = "detailed", name = "det") boolean detailed,
+                       @Flag(longName = "nodate", name = "nd") boolean nodate,
+                       @Flag(longName = "descending", name = "desc") boolean descending)
     {
-        if ((context.hasPositional(0) && "params".equalsIgnoreCase(context.getString(0))) || context.hasNamed(
-            "params"))
+        if ("params".equalsIgnoreCase(action) || params != null)
         {
-            this.params(context);
+            this.params(context.getSource(), params);
+            return;
         }
-        else if (context.getSource() instanceof User)
+        if (context.getSource() instanceof User)
         {
             if (!context.hasNamed())
             {
                 try
                 {
+                    context.sendTranslated(NEGATIVE, "You have to provide parameters");
                     //((Dispatcher)context.getCommand()).getCommand("?").execute(context.getInvocation());
                     // TODO show all selected params of last lookup
                 }
@@ -132,20 +135,20 @@ public class LookupCommands
             LogAttachment attachment = user.attachOrGet(LogAttachment.class, this.module);
             ShowParameter show = attachment.getLastShowParameter(); // gets last OR new Showparameter
             Lookup lookup = attachment.getLastLookup();
-            if (!this.fillShowOptions(attachment, lookup, show, context)) // /lookup show / page <page>
+            if (!this.fillShowOptions(attachment, lookup, show, context.getSource(), showCoord, nodate, detailed, descending, limit, page, action)) // /lookup show / page <page>
             {
                 return;
             }
             lookup = attachment.createNewCommandLookup();
-            QueryParameter params = lookup.getQueryParameter();
-            if (!(this.readActions(params, context.getString("action"), user) && this
-                .readRadius(params, context.getString("radius"), user) && this
-                .readUser(params, context.getString("user"), user) && this
-                .readBlocks(params, context.getString("block"), user) && this
-                .readEntities(params, context.getString("entity"), user) && this
-                .readWorld(params, context.getString("world"), context.hasNamed("radius"), user) && this
-                .readTimeSince(params, context.getString("since"), user) && this
-                .readTimeBefore(params, context.getString("before"), user)))
+            QueryParameter parameters = lookup.getQueryParameter();
+            if (!(readActions(parameters, actions, user) &&
+                readRadius(parameters, radius, user) &&
+                readUser(parameters, players, user) &&
+                readBlocks(parameters, blocks, user) &&
+                readEntities(parameters, entities, user) &&
+                readWorld(parameters, world, radius != null, user) &&
+                readTimeSince(parameters, since, user) &&
+                readTimeBefore(parameters, before, user)))
             {
                 return;
             }
@@ -160,18 +163,22 @@ public class LookupCommands
     }
 
     @Command(desc = "Performs a rollback")
-    @Params(positional = @Param(req = OPTIONAL, label = "!params"),
-            nonpositional = {@Param(names = {"action", "a"}, completer = ActionTypeCompleter.class), @Param(names = {"radius", "r"}),//<radius> OR selection|sel OR global|g OR player|p:<radius>
-                              @Param(names = {"user", "player", "p"}, completer = PlayerListCompleter.class), @Param(names = {"block", "b"}, completer = MaterialListCompleter.class), @Param(names = {"entity", "e"}), @Param(names = {"since", "time", "t"}), // if not given default since 3d
-                              @Param(names = {"before"}), @Param(names = {"world", "w", "in"}, type = World.class, completer = WorldCompleter.class)})
-    @Flags(@Flag(longName = "preview", name = "pre"))
-    public void rollback(CommandContext context)
+    public void rollback(CommandContext context, @Label("params") @Optional String action,
+                         @Named({"action", "a"}) @Complete(ActionTypeCompleter.class) String actions,
+                         @Named({"radius", "r"}) String radius, //<radius> OR selection|sel OR global|g OR player|p:<radius>
+                         @Named({"player", "p"}) @Complete(PlayerListCompleter.class) String players,
+                         @Named({"block", "b"}) @Complete(MaterialListCompleter.class) String blocks,
+                         @Named({"entity", "e"}) String entities,
+                         @Named({"since", "time", "t"}) String since, // def 3d
+                         @Named({"before"}) String before,
+                         @Named({"world", "w", "in"}) @Complete(WorldCompleter.class) String world,
+                         @Flag(longName = "preview", name = "pre") boolean doPreview)
     {
-        if (context.hasPositional(0))
+        if (action != null)
         {
-            if ("params".equalsIgnoreCase(context.getString(0)))
+            if ("params".equalsIgnoreCase(action))
             {
-                this.params(context);
+                this.params(context.getSource(), action);
             }
         }
         else if (context.getSource() instanceof User)
@@ -185,18 +192,18 @@ public class LookupCommands
             LogAttachment attachment = user.attachOrGet(LogAttachment.class, this.module);
             Lookup lookup = attachment.createNewCommandLookup();
             QueryParameter params = lookup.getQueryParameter();
-            if (!(this.readActions(params, context.getString("action"), user) && this
-                .readRadius(params, context.getString("radius"), user) && this
-                .readUser(params, context.getString("user"), user) && this
-                .readBlocks(params, context.getString("block"), user) && this
-                .readEntities(params, context.getString("entity"), user) && this
-                .readWorld(params, context.getString("world"), context.hasNamed("radius"), user) && this
-                .readTimeSince(params, context.getString("since"), user) && this
-                .readTimeBefore(params, context.getString("before"), user)))
+            if (!(this.readActions(params, actions, user) && this
+                .readRadius(params, radius, user) && this
+                .readUser(params, players, user) && this
+                .readBlocks(params, blocks, user) && this
+                .readEntities(params, entities, user) && this
+                .readWorld(params, world, radius != null, user) && this
+                .readTimeSince(params, since, user) && this
+                .readTimeBefore(params, before, user)))
             {
                 return;
             }
-            if (context.hasFlag("pre"))
+            if (doPreview)
             {
                 this.module.getLogManager().fillLookupAndPreviewRollback(lookup, user);
             }
@@ -213,18 +220,22 @@ public class LookupCommands
     }
 
     @Command(desc = "Performs a rollback")
-    @Params(positional = @Param(req = OPTIONAL, label = "params"),
-            nonpositional = {@Param(names = {"action", "a"}, completer = ActionTypeCompleter.class), @Param(names = {"radius", "r"}),//<radius> OR selection|sel OR global|g OR player|p:<radius>
-                              @Param(names = {"user", "player", "p"}, completer = PlayerListCompleter.class), @Param(names = {"block", "b"}, completer = MaterialListCompleter.class), @Param(names = {"entity", "e"}), @Param(names = {"since", "time", "t"}), // if not given default since 3d
-                              @Param(names = {"before"}), @Param(names = {"world", "w", "in"}, type = World.class, completer = WorldCompleter.class)})
-    @Flags(@Flag(longName = "preview", name = "pre"))
-    public void redo(CommandContext context)
+    public void redo(CommandContext context, @Label("params") @Optional String action,
+                     @Named({"action", "a"}) @Complete(ActionTypeCompleter.class) String actions,
+                     @Named({"radius", "r"}) String radius, //<radius> OR selection|sel OR global|g OR player|p:<radius>
+                     @Named({"player", "p"}) @Complete(PlayerListCompleter.class) String players,
+                     @Named({"block", "b"}) @Complete(MaterialListCompleter.class) String blocks,
+                     @Named({"entity", "e"}) String entities,
+                     @Named({"since", "time", "t"}) String since, // def 3d
+                     @Named({"before"}) String before,
+                     @Named({"world", "w", "in"}) @Complete(WorldCompleter.class) String world,
+                     @Flag(longName = "preview", name = "pre") boolean doPreview)
     {
-        if (context.hasPositional(0))
+        if (action != null)
         {
-            if ("params".equalsIgnoreCase(context.getString(0)))
+            if ("params".equalsIgnoreCase(action))
             {
-                this.params(context);
+                this.params(context.getSource(), action);
             }
         }
         else if (context.getSource() instanceof User)
@@ -238,18 +249,18 @@ public class LookupCommands
             LogAttachment attachment = user.attachOrGet(LogAttachment.class, this.module);
             Lookup lookup = attachment.createNewCommandLookup();
             QueryParameter params = lookup.getQueryParameter();
-            if (!(this.readActions(params, context.getString("action"), user) && this
-                .readRadius(params, context.getString("radius"), user) && this
-                .readUser(params, context.getString("user"), user) && this
-                .readBlocks(params, context.getString("block"), user) && this
-                .readEntities(params, context.getString("entity"), user) && this
-                .readWorld(params, context.getString("world"), context.hasNamed("radius"), user) && this
-                .readTimeSince(params, context.getString("since"), user) && this
-                .readTimeBefore(params, context.getString("before"), user)))
+            if (!(this.readActions(params, actions, user) && this
+                .readRadius(params, radius, user) && this
+                .readUser(params, players, user) && this
+                .readBlocks(params, blocks, user) && this
+                .readEntities(params, entities, user) && this
+                .readWorld(params, world, radius != null, user) && this
+                .readTimeSince(params, since, user) && this
+                .readTimeBefore(params, before, user)))
             {
                 return;
             }
-            if (context.hasFlag("pre"))
+            if (doPreview)
             {
                 this.module.getLogManager().fillLookupAndPreviewRedo(lookup, user);
             }
@@ -395,19 +406,16 @@ public class LookupCommands
         return true;
     }
 
-    private boolean fillShowOptions(LogAttachment attachment, Lookup lookup, ShowParameter show, CommandContext context)
+    private boolean fillShowOptions(LogAttachment attachment, Lookup lookup, ShowParameter show, CommandSender context,
+                                    boolean showCoords, boolean nodate, boolean detailed, boolean descending, Integer limit, Integer page,
+                                    String action)
     {
-        show.showCoords = context.hasFlag("coords");
-        show.showDate = !context.hasFlag("nd");
-        show.compress = !context.hasFlag("det");
-        show.reverseOrder = !context.hasFlag("desc");
-        if (context.hasNamed("limit"))
+        show.showCoords = showCoords;
+        show.showDate = !nodate;
+        show.compress = !detailed;
+        show.reverseOrder = !descending;
+        if (limit != null)
         {
-            Integer limit = context.get("limit", null);
-            if (limit == null)
-            {
-                return false;
-            }
             if (limit > 100)
             {
                 context.sendTranslated(NEUTRAL, "Your page-limit is to high! Showing 100 logs per page.");
@@ -415,9 +423,9 @@ public class LookupCommands
             }
             show.pagelimit = limit;
         }
-        if (context.hasPositional(0))
+        if (action != null)
         {
-            if ("show".equalsIgnoreCase(context.getString(0)))
+            if ("show".equalsIgnoreCase(action))
             {
                 if (lookup != null && lookup.queried())
                 {
@@ -432,16 +440,10 @@ public class LookupCommands
             }
             return false;
         }
-        if (context.hasNamed("page"))
+        if (page != null)
         {
             if (lookup != null && lookup.queried())
             {
-                Integer page = context.get("page", null);
-                if (page == null)
-                {
-                    context.sendTranslated(NEGATIVE, "Invalid page!");
-                    return false;
-                }
                 show.page = page;
                 attachment.queueShowParameter(show);
                 lookup.show(attachment.getHolder());

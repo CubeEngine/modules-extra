@@ -20,11 +20,13 @@ package de.cubeisland.engine.module.log.commands;
 import java.util.Arrays;
 import java.util.HashMap;
 import de.cubeisland.engine.command.alias.Alias;
+import de.cubeisland.engine.command.filter.Restricted;
 import de.cubeisland.engine.command.methodic.Command;
-import de.cubeisland.engine.command.methodic.Param;
-import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.command.methodic.parametric.Label;
+import de.cubeisland.engine.command.methodic.parametric.Optional;
 import de.cubeisland.engine.core.command.CommandContainer;
 import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.CommandSender;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.ChatFormat;
 import de.cubeisland.engine.core.util.matcher.Match;
@@ -34,7 +36,6 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import static de.cubeisland.engine.command.parameter.property.Requirement.OPTIONAL;
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
 import static org.bukkit.Material.WOOD_AXE;
@@ -100,7 +101,7 @@ public class LogCommands extends CommandContainer
     //TODO loghand (cmd hand) -> toggles general lookup with bare hands
 
     @Command(desc = "Shows the current queue-size.")
-    public void queuesize(CommandContext context)
+    public void queuesize(CommandSender context)
     {
         int size = module.getLogManager().getQueueSize();
         if (size == 0)
@@ -214,28 +215,17 @@ public class LogCommands extends CommandContainer
         "player: Shows player-interacions only\n" +
         "kills: Shows kill-interactions only\n" +
         "block: Shows block-changes only")
-    @Params(positional = @Param(req = OPTIONAL, label = "log-type"))
-    public void block(CommandContext context)
+    @Restricted(value = User.class, msg = "Why don't you check in your log-file? You won't need a block there!")
+    public void block(User context, @Optional @Label("log-type") String logType)
     {
         //TODO tabcompleter for logBlockTypes (waiting for CE-389)
-        if (context.getSource() instanceof User)
+        Material blockMaterial = this.matchType(logType, true);
+        if (blockMaterial == null)
         {
-            Material blockMaterial = this.matchType(context.getString(0), true);
-            if (blockMaterial == null)
-            {
-                context
-                    .sendTranslated(NEGATIVE, "{input} is not a valid log-type. Use chest, container, player, block or kills instead!", context
-                        .get(0));
-                return;
-            }
-            User user = (User)context.getSource();
-            this.findLogTool(user, blockMaterial);
+            context.sendTranslated(NEGATIVE, "{input} is not a valid log-type. Use chest, container, player, block or kills instead!", logType);
+            return;
         }
-        else
-        {
-            context
-                .sendTranslated(NEGATIVE, "Why don't you check in your log-file? You won't need a block there!");
-        }
+        this.findLogTool(context, blockMaterial);
     }
 
     @Alias(value = "lt")
@@ -245,26 +235,17 @@ public class LogCommands extends CommandContainer
         "player: Shows player-interacions only\n" +
         "kills: Shows kill-interactions only\n" +
         "block: Shows block-changes only")
-    @Params(positional = @Param(req = OPTIONAL, label = "log-type"))
-    public void tool(CommandContext context)
+    @Restricted(value = User.class, msg = "Why don't you check in your log-file? You won't need a block there!")
+    public void tool(User context, @Optional @Label("log-type") String logType)
     {
         //TODO tabcompleter for logToolTypes (waiting for CE-389)
-        if (context.getSource() instanceof User)
+        Material blockMaterial = this.matchType(logType, false);
+        if (blockMaterial == null)
         {
-            Material blockMaterial = this.matchType(context.getString(0), false);
-            if (blockMaterial == null)
-            {
-                context.sendTranslated(NEGATIVE, "{input} is not a valid log-type. Use chest, container, player, block or kills instead!", context.get(
-                    0));
-                return;
-            }
-            User user = (User)context.getSource();
-            this.findLogTool(user, blockMaterial);
+            context.sendTranslated(NEGATIVE, "{input} is not a valid log-type. Use chest, container, player, block or kills instead!", logType);
+            return;
         }
-        else
-        {
-            context.sendTranslated(NEGATIVE, "Why don't you check in your log-file? You won't need a block there!");
-        }
+        this.findLogTool(context, blockMaterial);
     }
 
     @Command(desc = "Gives you a item to select a region with.")

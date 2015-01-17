@@ -18,8 +18,6 @@
 package de.cubeisland.engine.module.fun.commands;
 
 import de.cubeisland.engine.command.methodic.Command;
-import de.cubeisland.engine.command.methodic.Param;
-import de.cubeisland.engine.command.methodic.Params;
 import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.util.matcher.Match;
 import de.cubeisland.engine.module.fun.Fun;
@@ -41,13 +39,12 @@ public class InvasionCommand
     }
 
     @Command(desc = "Spawns a mob next to every player on the server")
-    @Params(positional = @Param(label = "mob"))
-    public void invasion(CommandContext context)
+    public void invasion(CommandContext context, String mob)
     {
-        EntityType entityType = Match.entity().mob(context.getString(0, null));
+        EntityType entityType = Match.entity().mob(mob);
         if (entityType == null)
         {
-            context.sendTranslated(NEGATIVE, "EntityType {input} not found", context.get(0));
+            context.sendTranslated(NEGATIVE, "EntityType {input} not found", mob);
             return;
         }
         final Location helperLocation = new Location(null, 0, 0, 0);

@@ -25,6 +25,9 @@ import de.cubeisland.engine.command.methodic.Flag;
 import de.cubeisland.engine.command.methodic.Flags;
 import de.cubeisland.engine.command.methodic.Param;
 import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.command.methodic.parametric.Default;
+import de.cubeisland.engine.command.methodic.parametric.Named;
+import de.cubeisland.engine.command.methodic.parametric.Optional;
 import de.cubeisland.engine.core.command.CommandContainer;
 import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.command.CommandSender;
@@ -60,47 +63,23 @@ public class BorderCommands extends CommandContainer
     private boolean running = false;
 
     @Command(desc = "Sets the center of the border")
-    @Params(positional = {@Param(req = OPTIONAL, label = "chunkX"),
-                          @Param(req = OPTIONAL, label = "chunkZ")},
-            nonpositional = @Param(names = {"in", "world", "w"}, label = "world", type = World.class, completer = WorldCompleter.class))
-    @Flags(@Flag(longName = "spawn", name = "s"))
-    public void setCenter(CommandContext context)
+    public void setCenter(CommandSender context, @Optional Integer chunkX, @Optional Integer chunkZ,
+                          @Default @Named({"in", "world", "w"}) World world, @Flag boolean spawn)
     {
-        World world;
-        if (context.hasNamed("in"))
-        {
-            world = context.get("in");
-        }
-        else if (!(context.getSource() instanceof User))
-        {
-            context.sendTranslated(NEGATIVE, "You need to specify a world!");
-            return;
-        }
-        else
-        {
-            world = ((User)context.getSource()).getWorld();
-        }
         Chunk center;
-        if (context.hasFlag("s"))
+        if (spawn)
         {
             this.module.getConfig(world).setCenter(world.getSpawnLocation().getChunk(), true);
             context.sendTranslated(POSITIVE, "Center for Border in {world} set to world spawn!", world);
             return;
         }
-        else if (context.hasPositional(1))
+        else if (chunkZ != null)
         {
-            Integer x = context.get(0, null);
-            Integer z = context.get(0, null);
-            if (x == null || z == null)
-            {
-                context.sendTranslated(NEGATIVE, "Invalid Chunk coordinates!");
-                return;
-            }
-            center = world.getChunkAt(x, z);
+            center = world.getChunkAt(chunkX, chunkZ);
         }
-        else if (context.getSource() instanceof User)
+        else if (context instanceof User)
         {
-            center = ((User)context.getSource()).getLocation().getChunk();
+            center = ((User)context).getLocation().getChunk();
         }
         else
         {
@@ -113,35 +92,33 @@ public class BorderCommands extends CommandContainer
 
     @Alias(value = "generateBorder")
     @Command(desc = "Generates the chunks located in the border")
-    @Params(positional = @Param(label = "world"))
-    public void generate(CommandContext context)
+    public void generate(CommandSender context, String world)
     {
         if (running)
         {
             context.sendTranslated(NEGATIVE, "Chunk generation is already running!");
             return;
         }
-        String worldName = context.get(0);
         this.chunksToGenerate = new LinkedList<>();
         this.chunksToUnload = new LinkedList<>();
-        if (worldName.equals("*"))
+        if ("*".equals(world))
         {
-            for (World world : this.module.getCore().getWorldManager().getWorlds())
+            for (World w : this.module.getCore().getWorldManager().getWorlds())
             {
-                this.addChunksToGenerate(world, context.getSource());
+                this.addChunksToGenerate(w, context);
             }
         }
         else
         {
-            World world = this.module.getCore().getWorldManager().getWorld(worldName);
-            if (world == null)
+            World w = this.module.getCore().getWorldManager().getWorld(world);
+            if (w == null)
             {
-                context.sendTranslated(NEGATIVE, "World {input} not found!", worldName);
+                context.sendTranslated(NEGATIVE, "World {input} not found!", world);
                 return;
             }
-            this.addChunksToGenerate(world, context.getSource());
+            this.addChunksToGenerate(w, context);
         }
-        this.sender = context.getSource();
+        this.sender = context;
         this.total = this.chunksToGenerate.size();
         this.totalDone = 0;
         this.lastNotify = System.currentTimeMillis();

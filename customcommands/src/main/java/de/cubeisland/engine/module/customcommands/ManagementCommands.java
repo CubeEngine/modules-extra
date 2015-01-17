@@ -28,9 +28,12 @@ import de.cubeisland.engine.command.methodic.Flag;
 import de.cubeisland.engine.command.methodic.Flags;
 import de.cubeisland.engine.command.methodic.Param;
 import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.command.methodic.parametric.Complete;
+import de.cubeisland.engine.command.methodic.parametric.Greed;
 import de.cubeisland.engine.command.result.CommandResult;
 import de.cubeisland.engine.core.command.CommandContainer;
 import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.CommandSender;
 import de.cubeisland.engine.core.command.ModuleProvider;
 import de.cubeisland.engine.core.command.result.paginated.PaginatedResult;
 import de.cubeisland.engine.core.command.result.paginated.PaginationIterator;
@@ -54,27 +57,17 @@ public class ManagementCommands extends CommandContainer
     }
 
     @Command(desc = "Adds a custom chat command.")
-    @Params(positional = {@Param(label = "name"),
-                          @Param(label = "message", greed = INFINITE)})
-    @Flags({@Flag(name = "force"),
-            @Flag(name = "global")})
-    public void add(CommandContext context)
+    public void add(CommandSender context, String name, @Greed(INFINITE) String message, @Flag boolean force, @Flag boolean global)
     {
-        String name = context.get(0);
-        String message = context.getStrings(1);
-
         if (config.commands.containsKey(name))
         {
-            if (context.hasFlag("force"))
-            {
-                config.commands.put(name, message);
-                context.sendTranslated(POSITIVE, "Custom command {input} has successfully been replaced.", "!" + name);
-            }
-            else
+            if (!force)
             {
                 context.sendTranslated(NEGATIVE, "Custom command {input} already exists. Set the flag {text:-force} if you want to replace the message.", "!" + name);
                 return;
             }
+            config.commands.put(name, message);
+            context.sendTranslated(POSITIVE, "Custom command {input} has successfully been replaced.", "!" + name);
         }
         else
         {
@@ -85,12 +78,8 @@ public class ManagementCommands extends CommandContainer
     }
 
     @Command(desc = "Deletes a custom chat command.")
-    @Params(positional = @Param(label = "name", completer = CustomCommandCompleter.class))
-    @Flags(@Flag(name = "global"))
-    public void delete(CommandContext context)
+    public void delete(CommandSender context, @Complete(CustomCommandCompleter.class)String name, @Flag boolean global)
     {
-        String name = context.get(0);
-
         if (config.commands.containsKey(name))
         {
             config.commands.remove(name.toLowerCase(ENGLISH));

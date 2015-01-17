@@ -23,11 +23,11 @@ import java.util.Map;
 import de.cubeisland.engine.command.methodic.Command;
 import de.cubeisland.engine.command.methodic.Param;
 import de.cubeisland.engine.command.methodic.Params;
-import de.cubeisland.engine.core.command.CommandContext;
-import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.command.methodic.parametric.Default;
+import de.cubeisland.engine.command.methodic.parametric.Optional;
+import de.cubeisland.engine.core.command.CommandSender;
 import de.cubeisland.engine.module.fun.Fun;
 import org.bukkit.World;
-import org.bukkit.command.CommandSender;
 
 import static de.cubeisland.engine.command.parameter.property.Requirement.OPTIONAL;
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
@@ -45,35 +45,9 @@ public class DiscoCommand
     }
 
     @Command(desc = "Rapidly changes from day to night")
-    @Params(positional = @Param(req = OPTIONAL, label = "world", type = World.class),
-            nonpositional = @Param(names = {"delay", "d"}, type = Integer.class))
-    public void disco(CommandContext context)
+    public void disco(CommandSender context, @Default World world, @Optional Integer delay)
     {
-        final CommandSender sender = context.getSource();
-
-        World world = null;
-        if (sender instanceof User)
-        {
-            world = ((User)sender).getWorld();
-        }
-
-        if (context.hasPositional(0))
-        {
-            world = context.get(0);
-            if (world == null)
-            {
-                context.sendTranslated(NEGATIVE, "The given world was not found!");
-                return;
-            }
-        }
-
-        if (world == null)
-        {
-            context.sendTranslated(NEGATIVE, "No world has been specified!");
-            return;
-        }
-
-        final int delay = context.get("delay", this.module.getConfig().command.disco.defaultDelay);
+        delay = delay == null ? this.module.getConfig().command.disco.defaultDelay : delay;
         if (delay < this.module.getConfig().command.disco.minDelay || delay > this.module.getConfig().command.disco.maxDelay)
         {
             context.sendTranslated(NEGATIVE, "The delay has to be a number between {integer} and {integer}", this.module.getConfig().command.disco.minDelay, this.module.getConfig().command.disco.maxDelay);
@@ -93,19 +67,17 @@ public class DiscoCommand
                 }
             }
             context.sendTranslated(POSITIVE, "The disco has been stopped!");
+            return;
+        }
+        task = new DiscoTask(world, delay);
+        if (task.start())
+        {
+            this.activeTasks.put(world.getName(), task);
+            context.sendTranslated(POSITIVE, "The disco started!");
         }
         else
         {
-            task = new DiscoTask(world, delay);
-            if (task.start())
-            {
-                this.activeTasks.put(world.getName(), task);
-                context.sendTranslated(POSITIVE, "The disco started!");
-            }
-            else
-            {
-                context.sendTranslated(NEGATIVE, "The disco can't be started!");
-            }
+            context.sendTranslated(NEGATIVE, "The disco can't be started!");
         }
     }
 

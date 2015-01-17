@@ -24,11 +24,14 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import de.cubeisland.engine.command.filter.Restricted;
 import de.cubeisland.engine.command.methodic.Command;
 import de.cubeisland.engine.command.methodic.Flag;
 import de.cubeisland.engine.command.methodic.Flags;
 import de.cubeisland.engine.command.methodic.Param;
 import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.command.methodic.parametric.Named;
+import de.cubeisland.engine.command.methodic.parametric.Optional;
 import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.permission.Permission;
 import de.cubeisland.engine.core.user.User;
@@ -77,28 +80,20 @@ public class ThrowCommands
     }
 
     @Command(name = "throw", desc = "Throw something!")
-    @Params(positional = {@Param(label = "material"),
-                   @Param(req = OPTIONAL, label = "amount")},
-            nonpositional = @Param(names = { "delay", "d" }, type = Integer.class))
-    @Flags(@Flag(longName = "unsafe", name = "u"))
-    public void throwCommand(CommandContext context)
+    @Restricted(value = User.class, msg = "This command can only be used by a player!")
+    public void throwCommand(User context, String material, @Optional Integer amount,
+                             @Named({ "delay", "d" }) Integer delay, @Flag boolean unsafe)
     {
-        if (!(context.getSource() instanceof User))
-        {
-            context.sendTranslated(NEGATIVE, "This command can only be used by a player!");
-            return;
-        }
-        
-        User user = (User)context.getSource();
         EntityType type = null;
         boolean showNotification = true;
-        boolean unsafe = context.hasFlag("u");
 
-        ThrowTask task = this.thrownItems.remove(user.getUniqueId());
+        ThrowTask task = this.thrownItems.remove(context.getUniqueId());
         if (task != null)
         {
-            if (!context.hasPositional(0) || (type = Match.entity().any(context.getString(0))) == task.getType() && task.getInterval() == context.get(
-                "delay", task.getInterval()) && task.getPreventDamage() != unsafe && !context.hasPositional(1))
+            int aDelay = delay == null ? task.getInterval() : delay;
+            if (material == null || (type = Match.entity().any(material)) == task.getType()
+                && task.getInterval() == aDelay
+                && task.getPreventDamage() != unsafe && delay == null)
             {
                 task.stop(true);
                 return;
@@ -106,36 +101,29 @@ public class ThrowCommands
             task.stop(showNotification = false);
         }
 
-        if (context.getPositionalCount() == 0)
-        {
-            context.sendTranslated(NEGATIVE, "You have to specify the material you want to throw.");
-            return;
-        }
-
-        int amount = context.get(1, -1);
+        amount = amount == null ? -1 : 1;
         if ((amount > this.module.getConfig().command.throwSection.maxAmount || amount < 1) && amount != -1)
         {
             context.sendTranslated(NEGATIVE, "The amount must be a number from 1 to {integer}", this.module.getConfig().command.throwSection.maxAmount);
             return;
         }
 
-        int delay = context.get("delay", 3);
+        delay = delay == null ? 3 : delay;
         if (delay > this.module.getConfig().command.throwSection.maxDelay || delay < 0)
         {
             context.sendTranslated(NEGATIVE, "The delay must be a number from 0 to {integer}", this.module.getConfig().command.throwSection.maxDelay);
             return;
         }
         
-        if(unsafe && !module.perms().COMMAND_THROW_UNSAFE.isAuthorized( context.getSource() ) )
+        if(unsafe && !module.perms().COMMAND_THROW_UNSAFE.isAuthorized( context ) )
         {
             context.sendTranslated(NEGATIVE, "You are not allowed to execute this command in unsafe mode.");
             return;
         }
 
-        String object = context.get(0);
         if (type == null)
         {
-            type = Match.entity().any(object);
+            type = Match.entity().any(material);
         }
         if (type == null)
         {
@@ -144,11 +132,11 @@ public class ThrowCommands
         }
         if (!type.isSpawnable())
         {
-            context.sendTranslated(NEGATIVE, "The Item {name#item} is not supported!", object);
+            context.sendTranslated(NEGATIVE, "The Item {name#item} is not supported!", material);
             return;
         }
 
-        if (!perms.get(type).isAuthorized(user))
+        if (!perms.get(type).isAuthorized(context))
         {
             context.sendTranslated(NEGATIVE, "You are not allowed to throw this.");
             return;
@@ -160,10 +148,10 @@ public class ThrowCommands
             return;
         }
 
-        task = new ThrowTask(user, type, amount, delay, !unsafe);
+        task = new ThrowTask(context, type, amount, delay, !unsafe);
         if (task.start(showNotification))
         {
-            this.thrownItems.put(user.getUniqueId(), task);
+            this.thrownItems.put(context.getUniqueId(), task);
         }
         else
         {

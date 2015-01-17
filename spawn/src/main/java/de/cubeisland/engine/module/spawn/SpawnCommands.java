@@ -150,7 +150,7 @@ public class SpawnCommands
             }
             r = rolesAttachment.getDataHolder(world);
         }
-        roleSpawn = r.getRawMetadata().get("rolespawn");
+        roleSpawn = r.getMetadata().get("rolespawn").getValue();
         if (roleSpawn == null)
         {
             context.sendTranslated(NEGATIVE, "No spawn point for {name} in {world}!", r.getName(), world);
@@ -170,7 +170,7 @@ public class SpawnCommands
             context.sendTranslated(NEGATIVE, "You cannot teleport an offline player to spawn!");
             return;
         }
-        if (!force && module.perms().COMMAND_SPAWN_PREVENT.isAuthorized(player))
+        if (!context.equals(player) && !force && module.perms().COMMAND_SPAWN_PREVENT.isAuthorized(player))
         {
             context.sendTranslated(NEGATIVE, "You are not allowed to spawn {user}!", player);
             return;
