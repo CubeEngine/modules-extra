@@ -25,7 +25,11 @@ import de.cubeisland.engine.command.methodic.Flag;
 import de.cubeisland.engine.command.methodic.Flags;
 import de.cubeisland.engine.command.methodic.Param;
 import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.command.methodic.parametric.Default;
+import de.cubeisland.engine.command.methodic.parametric.Named;
+import de.cubeisland.engine.command.methodic.parametric.Optional;
 import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.CommandSender;
 import de.cubeisland.engine.core.task.TaskManager;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.math.Vector3;
@@ -63,104 +67,92 @@ public class NukeCommand
     }
 
     @Command(desc = "Makes a carpet of TNT fall on a player or where you're looking")
-   @Params(positional = {@Param(req = OPTIONAL, label = "param1", type = Integer.class),
-                          @Param(req = OPTIONAL, label = "param2", type = Integer.class),
-                          @Param(req = OPTIONAL, label = "param3", type = Integer.class)},
-            nonpositional = {@Param(names = {"player", "p"}, type = User.class),
-                              @Param(names = {"height", "h"}, type = Integer.class),
-                              @Param(names = {"range", "r"}, type = Integer.class),
-                              @Param(names = {"shape", "s"}, type = String.class)})
-    @Flags({@Flag(longName = "unsafe", name = "u"),
-            @Flag(longName = "quiet", name = "q")})
-    public void nuke(CommandContext context)
+    public void nuke(CommandSender context,
+                     @Optional Integer param1,
+                     @Optional Integer param2,
+                     @Optional Integer param3,
+                     @Named({"player", "p"}) User player,
+                     @Named({"height", "h"}) Integer height,
+                     @Named({"range", "r"}) Integer range,
+                     @Named({"shape", "s"}) String shape,
+                     @Flag boolean unsafe,
+                     @Flag boolean quiet)
     {
         Location location;
-        User user = null;
+        range = range == null ? 4 : range;
+        height = height == null ? 5 : height;
 
-        int explosionRange = context.get("range", 4);
-        int height = context.get("height", 5);
-
-        if(explosionRange != 4 && !module.perms().COMMAND_NUKE_CHANGE_RANGE.isAuthorized(context.getSource()))
+        if(range != 4 && !module.perms().COMMAND_NUKE_CHANGE_RANGE.isAuthorized(context))
         {
             context.sendTranslated(NEGATIVE, "You are not allowed to change the explosion range of the nuke carpet!");
             return;
         }
-        if(explosionRange < 0 || explosionRange > this.module.getConfig().command.nuke.maxExplosionRange)
+        if(range < 0 || range > this.module.getConfig().command.nuke.maxExplosionRange)
         {
             context.sendTranslated(NEGATIVE, "The explosion range can't be less than 0 or greater than {integer}", this.module.getConfig().command.nuke.maxExplosionRange);
             return;
         }
 
-        if(context.hasNamed("player"))
+        if(player != null)
         {
-            if(!module.perms().COMMAND_NUKE_OTHER.isAuthorized(context.getSource()))
+            if (!context.equals(player) && !module.perms().COMMAND_NUKE_OTHER.isAuthorized(context))
             {
                 context.sendTranslated(NEGATIVE, "You are not allowed to specify a player!");
                 return;
             }
-
-            user = context.get("player");
-            if(user == null)
-            {
-                context.sendTranslated(NEGATIVE, "Player not found");
-                return;
-            }
-            location = user.getLocation();
+            location = ((User)context).getLocation();
         }
         else
         {
-            if(context.getSource() instanceof User)
-            {
-                user = (User) context.getSource();
-            }
-            if(user == null)
+            if(!(context instanceof User))
             {
                 context.sendTranslated(NEGATIVE, "This command can only be used by a player!");
                 return;
             }
-            location = user.getTargetBlock(null, this.module.getConfig().command.nuke.distance).getLocation();
+            location = ((User)context).getTargetBlock(null, this.module.getConfig().command.nuke.distance).getLocation();
         }
 
-        Shape shape = this.getShape(context, location, height);
-        if(shape == null)
+        Shape aShape = this.getShape(context, shape, location, height, param1, param2, param3);
+        if(aShape == null)
         {
             return;
         }
 
-        int blockAmount = this.spawnNuke(shape, user.getWorld(), explosionRange, context.hasFlag("u"));
+        int blockAmount = this.spawnNuke(aShape, location.getWorld(), range, unsafe);
 
-        if(!context.hasFlag("q"))
+        if(!quiet)
         {
             context.sendTranslated(POSITIVE, "You spawned {integer} blocks of tnt.", blockAmount);
         }
     }
 
-    private Shape getShape(CommandContext context, Location location, int locationHeight)
+    private Shape getShape(CommandSender context, String shape, Location location, int locationHeight, Integer param1,
+                           Integer param2, Integer param3)
     {
-        String shapeName = context.getString("shape", "cylinder");
+        shape = shape == null ? "cylinder" : shape;
 
-        switch (shapeName)
+        switch (shape)
         {
         case "cylinder":
             location = this.getSpawnLocation(location, locationHeight);
-            int radiusX = context.get(0, 1);
-            return new Cylinder(new Vector3(location.getX(), location.getY(), location.getZ()), radiusX, context
-                .get(2, radiusX), context.get(1, 1));
+            int radiusX = param1 == null ? 1 : param1;
+            return new Cylinder(new Vector3(location.getX(), location.getY(), location.getZ()), radiusX,
+                        param3 == null ? radiusX : param2, radiusX);
         case "cube":
         case "cuboid":
-            int width = context.get(0, 1);
-            int height = shapeName.equals("cube") ? width : context.get(1, width);
-            int depth = shapeName.equals("cube") ? width : context.get(2, width);
+            int width = param1 == null ? 1 : param1;
+            int height = shape.equals("cube") ? width : param2 == null ? width : param2;
+            int depth = shape.equals("cube") ? width : param3 == null ? width : param3;
 
             location = location.subtract(width / 2d, 0, depth / 2d);
             location = this.getSpawnLocation(location, locationHeight);
             return new Cuboid(new Vector3(location.getX(), location.getY(), location.getZ()), width, height, depth);
         case "sphere":
-            int radius = context.get(0, 1);
+            int radius = param1 == null ? 1 : param1;
             location = this.getSpawnLocation(location, locationHeight);
             return new Sphere(new Vector3(location.getX(), location.getY(), location.getZ()), radius);
         default:
-            context.sendTranslated(NEGATIVE, "The shape {input} was not found!", shapeName);
+            context.sendTranslated(NEGATIVE, "The shape {input} was not found!", shape);
             break;
         }
         return null;

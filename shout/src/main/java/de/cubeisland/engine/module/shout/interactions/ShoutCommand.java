@@ -22,15 +22,19 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import javax.xml.ws.RequestWrapper;
 import de.cubeisland.engine.command.alias.Alias;
 import de.cubeisland.engine.command.methodic.Command;
 import de.cubeisland.engine.command.methodic.Flag;
 import de.cubeisland.engine.command.methodic.Flags;
 import de.cubeisland.engine.command.methodic.Param;
 import de.cubeisland.engine.command.methodic.Params;
+import de.cubeisland.engine.command.methodic.parametric.Label;
+import de.cubeisland.engine.command.methodic.parametric.Named;
 import de.cubeisland.engine.command.result.CommandResult;
 import de.cubeisland.engine.core.command.CommandContainer;
 import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.CommandSender;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.ChatFormat;
 import de.cubeisland.engine.i18n.I18nUtil;
@@ -119,44 +123,42 @@ public class ShoutCommand extends CommandContainer
     }
 
     @Command(desc = "Creates a new announcement")
-    @Params(positional = @Param(label = "name"),
-            nonpositional = {@Param(names ={"message", "m"}),
-                             @Param(names ={"delay", "d"}, label = "<x> minutes|hours|days"),
-                             @Param(names ={"world", "w"}),
-                             @Param(names = {"permission", "p"}, label = "permission node"),
-                             @Param(names ={"group", "g"}),
-                             @Param(names ={"locale", "l"})})
-    @Flags(@Flag(name = "fc", longName = "fixed-cycle"))
-    public void create(CommandContext context)
+    public void create(CommandSender context, String name,
+                       @Named({"message", "m"}) String message,
+                       @Named({"delay", "d"}) @Label("<x> minutes|hours|days") String delay,
+                       @Named({"world", "w"}) String world,
+                       @Named({"permission", "p"}) String permission,
+                       @Named({"group", "g"}) String group,
+                       @Named({"locale", "l"}) String locale,
+                       @Flag(name = "fc", longName = "fixed-cycle") boolean fixedCycle)
     {
-        if (!context.hasNamed("message"))
+        if (message == null)
         {
             context.sendTranslated(NEUTRAL, "You have to include a message!");
             return;
         }
 
-        String message = context.getString("message");
-        Locale locale = context.getSource().getLocale();
-        if (context.hasNamed("locale"))
+        Locale aLocale = context.getLocale();
+        if (locale != null)
         {
-            locale = I18nUtil.stringToLocale(context.getString("locale"));
+            aLocale = I18nUtil.stringToLocale(locale);
         }
-        if (locale == null)
+        if (aLocale == null)
         {
-            context.sendTranslated(NEGATIVE, "{input#locale} isn't a valid locale!", context.getString("locale"));
+            context.sendTranslated(NEGATIVE, "{input#locale} isn't a valid locale!", locale);
         }
 
         try
         {
             this.module.getAnnouncementManager().addAnnouncement(
                 this.module.getAnnouncementManager().createAnnouncement(
-                    context.getString(0),
-                    locale,
                     message,
-                    context.getString("delay", "10 minutes"),
-                    context.getString("world", "*"),
-                    context.getString("permission", "*"),
-                    context.hasFlag("fc")));
+                    aLocale,
+                    message,
+                    delay == null ? "10 minutes" : delay,
+                    world == null ? "*" : world,
+                    permission == null ? "*" : permission,
+                    fixedCycle));
         }
         catch (IllegalArgumentException ex)
         {
