@@ -152,7 +152,7 @@ public class ShoutCommand extends CommandContainer
         {
             this.module.getAnnouncementManager().addAnnouncement(
                 this.module.getAnnouncementManager().createAnnouncement(
-                    message,
+                    name,
                     aLocale,
                     message,
                     delay == null ? "10 minutes" : delay,
