@@ -89,9 +89,13 @@ public class EditModeListener extends ConversationCommand
 
     @Restricted(User.class)
     @Command(desc = "Exits the Editmode")
-    public void exit(CommandContext context)
+    public void exit(User context)
     {
-        this.removeUser((User)context.getSource());
+        MarketSign marketSign = getSign(context);
+        this.removeUser(context);
+        this.previousMarketSign.put(context.getUniqueId(), marketSign);
+        this.currentSignLocation.remove(context.getUniqueId());
+        marketSign.exitEditMode(context);
     }
 
     @Restricted(User.class)
