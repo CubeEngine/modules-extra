@@ -24,14 +24,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import de.cubeisland.engine.command.alias.Alias;
-import de.cubeisland.engine.command.methodic.Command;
-import de.cubeisland.engine.command.methodic.Flag;
-import de.cubeisland.engine.command.methodic.Param;
-import de.cubeisland.engine.command.methodic.Params;
-import de.cubeisland.engine.command.methodic.parametric.Default;
-import de.cubeisland.engine.command.methodic.parametric.Named;
-import de.cubeisland.engine.command.methodic.parametric.Optional;
-import de.cubeisland.engine.core.command.CommandContainer;
+import de.cubeisland.engine.command.parametric.Command;
+import de.cubeisland.engine.command.parametric.Flag;
+import de.cubeisland.engine.command.parametric.Default;
+import de.cubeisland.engine.command.parametric.Named;
+import de.cubeisland.engine.command.parametric.Optional;
+import de.cubeisland.engine.core.command.ContainerCommand;
 import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.command.CommandSender;
 import de.cubeisland.engine.core.command.annotation.CommandPermission;
@@ -43,14 +41,13 @@ import de.cubeisland.engine.module.rulebook.Rulebook;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
-import static de.cubeisland.engine.command.parameter.property.Requirement.OPTIONAL;
 import static de.cubeisland.engine.core.permission.PermDefault.TRUE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 import static org.bukkit.Material.BOOK_AND_QUILL;
 import static org.bukkit.Material.WRITTEN_BOOK;
 
 @Command(name = "rulebook", desc = "Shows all commands of the rulebook module")
-public class RulebookCommands extends CommandContainer
+public class RulebookCommands extends ContainerCommand
 {
     private final RulebookManager rulebookManager;
     private final Rulebook module;

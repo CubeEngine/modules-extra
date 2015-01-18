@@ -20,15 +20,12 @@ package de.cubeisland.engine.module.holiday;
 import java.sql.Date;
 import java.text.DateFormat;
 import de.cubeisland.engine.command.filter.Restricted;
-import de.cubeisland.engine.command.methodic.Command;
-import de.cubeisland.engine.command.methodic.Param;
-import de.cubeisland.engine.command.methodic.Params;
-import de.cubeisland.engine.command.methodic.parametric.Greed;
-import de.cubeisland.engine.command.methodic.parametric.Optional;
+import de.cubeisland.engine.command.parametric.Command;
+import de.cubeisland.engine.command.parametric.Greed;
+import de.cubeisland.engine.command.parametric.Optional;
 import de.cubeisland.engine.converter.ConversionException;
 import de.cubeisland.engine.converter.node.StringNode;
-import de.cubeisland.engine.core.command.CommandContainer;
-import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.command.ContainerCommand;
 import de.cubeisland.engine.core.command.CommandSender;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.converter.DurationConverter;
@@ -41,7 +38,7 @@ import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 import static de.cubeisland.engine.module.holiday.storage.TableHoliday.TABLE_HOLIDAY;
 
 @Command(name = "holiday", desc = "Manages your holiday ")
-public class HolidayCommands extends CommandContainer
+public class HolidayCommands extends ContainerCommand
 {
     private final DurationConverter converter = new DurationConverter();
     private final DSLContext dsl;

@@ -20,8 +20,8 @@ package de.cubeisland.engine.module.itemrepair;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import de.cubeisland.engine.command.methodic.Command;
-import de.cubeisland.engine.core.command.CommandContainer;
+import de.cubeisland.engine.command.parametric.Command;
+import de.cubeisland.engine.core.command.ContainerCommand;
 import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.module.itemrepair.repair.RepairBlockManager;
@@ -36,7 +36,7 @@ import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;
 
 @Command(name = "itemrepair", desc = "ItemRepair commands", alias = "ir")
-public class ItemRepairCommands extends CommandContainer implements Listener
+public class ItemRepairCommands extends ContainerCommand implements Listener
 {
     private final Set<UUID> removeRequests;
     private final Set<UUID> addRequests;

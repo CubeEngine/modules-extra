@@ -20,30 +20,24 @@ package de.cubeisland.engine.module.border;
 import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
 import de.cubeisland.engine.command.alias.Alias;
-import de.cubeisland.engine.command.methodic.Command;
-import de.cubeisland.engine.command.methodic.Flag;
-import de.cubeisland.engine.command.methodic.Flags;
-import de.cubeisland.engine.command.methodic.Param;
-import de.cubeisland.engine.command.methodic.Params;
-import de.cubeisland.engine.command.methodic.parametric.Default;
-import de.cubeisland.engine.command.methodic.parametric.Named;
-import de.cubeisland.engine.command.methodic.parametric.Optional;
-import de.cubeisland.engine.core.command.CommandContainer;
-import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.command.parametric.Command;
+import de.cubeisland.engine.command.parametric.Flag;
+import de.cubeisland.engine.command.parametric.Default;
+import de.cubeisland.engine.command.parametric.Named;
+import de.cubeisland.engine.command.parametric.Optional;
+import de.cubeisland.engine.core.command.ContainerCommand;
 import de.cubeisland.engine.core.command.CommandSender;
-import de.cubeisland.engine.core.command.completer.WorldCompleter;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.Triplet;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.jooq.types.UInteger;
 
-import static de.cubeisland.engine.command.parameter.property.Requirement.OPTIONAL;
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
 
 @Command(name = "border", desc = "border commands")
-public class BorderCommands extends CommandContainer
+public class BorderCommands extends ContainerCommand
 {
     private final Border module;
 

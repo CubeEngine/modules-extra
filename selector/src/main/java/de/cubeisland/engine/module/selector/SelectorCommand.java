@@ -18,7 +18,7 @@
 package de.cubeisland.engine.module.selector;
 
 import java.util.HashMap;
-import de.cubeisland.engine.command.methodic.Command;
+import de.cubeisland.engine.command.parametric.Command;
 import de.cubeisland.engine.command.result.CommandResult;
 import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.user.User;

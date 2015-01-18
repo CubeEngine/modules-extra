@@ -23,18 +23,14 @@ import java.util.List;
 import java.util.Map.Entry;
 import de.cubeisland.engine.command.CommandInvocation;
 import de.cubeisland.engine.command.completer.Completer;
-import de.cubeisland.engine.command.methodic.Command;
-import de.cubeisland.engine.command.methodic.Flag;
-import de.cubeisland.engine.command.methodic.Flags;
-import de.cubeisland.engine.command.methodic.Param;
-import de.cubeisland.engine.command.methodic.Params;
-import de.cubeisland.engine.command.methodic.parametric.Complete;
-import de.cubeisland.engine.command.methodic.parametric.Greed;
+import de.cubeisland.engine.command.parametric.Command;
+import de.cubeisland.engine.command.parametric.Flag;
+import de.cubeisland.engine.command.parametric.Complete;
+import de.cubeisland.engine.command.parametric.Greed;
 import de.cubeisland.engine.command.result.CommandResult;
-import de.cubeisland.engine.core.command.CommandContainer;
+import de.cubeisland.engine.core.command.ContainerCommand;
 import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.command.CommandSender;
-import de.cubeisland.engine.core.command.ModuleProvider;
 import de.cubeisland.engine.core.command.result.paginated.PaginatedResult;
 import de.cubeisland.engine.core.command.result.paginated.PaginationIterator;
 
@@ -44,7 +40,7 @@ import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
 import static java.util.Locale.ENGLISH;
 
 @Command(name = "customcommands", desc = "Commands to modify custom commands.")
-public class ManagementCommands extends CommandContainer
+public class ManagementCommands extends ContainerCommand
 {
     private final Customcommands module;
     private final CustomCommandsConfig config;
@@ -54,6 +50,8 @@ public class ManagementCommands extends CommandContainer
         super(module);
         this.module = module;
         this.config = module.getConfig();
+
+        module.getCore().getCommandManager().registerDefaultCompleter(new CustomCommandCompleter(module));
     }
 
     @Command(desc = "Adds a custom chat command.")
@@ -143,11 +141,18 @@ public class ManagementCommands extends CommandContainer
 
     public static class CustomCommandCompleter implements Completer
     {
+        private Customcommands module;
+
+        public CustomCommandCompleter(Customcommands module)
+        {
+            this.module = module;
+        }
+
         @Override
         public List<String> getSuggestions(CommandInvocation invocation)
         {
             ArrayList<String> list = new ArrayList<>();
-            for (String item : ((Customcommands)invocation.valueFor(ModuleProvider.class)).getConfig().commands.keySet()) // TODO instead pass module via constuctor and register as default for readertype
+            for (String item : module.getConfig().commands.keySet())
             {
                 if (item.startsWith(invocation.currentToken().toLowerCase(ENGLISH)))
                 {

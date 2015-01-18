@@ -200,7 +200,7 @@
             </constructor>
 
             <annotation>
-                <name>de.cubeisland.engine.command.methodic.Command</name>
+                <name>de.cubeisland.engine.command.parametric.Command</name>
                 <fields>
                     <field>desc</field>
                 </fields>

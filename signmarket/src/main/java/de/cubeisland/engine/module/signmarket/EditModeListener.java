@@ -27,7 +27,7 @@ import de.cubeisland.engine.command.CommandInvocation;
 import de.cubeisland.engine.command.CommandSource;
 import de.cubeisland.engine.command.completer.Completer;
 import de.cubeisland.engine.command.filter.Restricted;
-import de.cubeisland.engine.command.methodic.Command;
+import de.cubeisland.engine.command.parametric.Command;
 import de.cubeisland.engine.command.parameter.IncorrectUsageException;
 import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.command.CommandSender;

@@ -19,13 +19,13 @@ package de.cubeisland.engine.module.backpack;
 
 import de.cubeisland.engine.command.alias.Alias;
 import de.cubeisland.engine.command.filter.Restricted;
-import de.cubeisland.engine.command.methodic.Command;
-import de.cubeisland.engine.command.methodic.Flag;
-import de.cubeisland.engine.command.methodic.parametric.Default;
-import de.cubeisland.engine.command.methodic.parametric.Label;
-import de.cubeisland.engine.command.methodic.parametric.Named;
-import de.cubeisland.engine.command.methodic.parametric.Optional;
-import de.cubeisland.engine.core.command.CommandContainer;
+import de.cubeisland.engine.command.parametric.Command;
+import de.cubeisland.engine.command.parametric.Flag;
+import de.cubeisland.engine.command.parametric.Default;
+import de.cubeisland.engine.command.parametric.Label;
+import de.cubeisland.engine.command.parametric.Named;
+import de.cubeisland.engine.command.parametric.Optional;
+import de.cubeisland.engine.core.command.ContainerCommand;
 import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.ChatFormat;
@@ -41,7 +41,7 @@ import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
 import static java.util.Arrays.asList;
 
 @Command(name = "backpack", desc = "The Backpack commands", alias = "bp")
-public class BackpackCommands extends CommandContainer
+public class BackpackCommands extends ContainerCommand
 {
     private final Backpack module;
     private final BackpackManager manager;

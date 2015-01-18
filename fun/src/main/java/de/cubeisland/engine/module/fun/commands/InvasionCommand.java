@@ -17,7 +17,7 @@
  */
 package de.cubeisland.engine.module.fun.commands;
 
-import de.cubeisland.engine.command.methodic.Command;
+import de.cubeisland.engine.command.parametric.Command;
 import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.util.matcher.Match;
 import de.cubeisland.engine.module.fun.Fun;
