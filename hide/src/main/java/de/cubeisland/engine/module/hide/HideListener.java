@@ -17,6 +17,7 @@
  */
 package de.cubeisland.engine.module.hide;
 
+import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
 import de.cubeisland.engine.core.user.User;
@@ -36,6 +37,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.server.ServerListPingEvent;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEUTRAL;
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
@@ -203,6 +205,19 @@ public class HideListener implements Listener
         if (event.getAction() == PHYSICAL && hiddens.contains(event.getPlayer().getUniqueId()))
         {
             event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onServerPingList(ServerListPingEvent event)
+    {
+        Iterator<Player> it = event.iterator();
+        while (it.hasNext())
+        {
+            if (hiddens.contains(it.next().getUniqueId()))
+            {
+                it.remove();
+            }
         }
     }
 }
