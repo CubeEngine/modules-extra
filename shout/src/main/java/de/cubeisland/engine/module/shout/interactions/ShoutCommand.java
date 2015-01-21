@@ -19,9 +19,11 @@ package de.cubeisland.engine.module.shout.interactions;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import de.cubeisland.engine.command.CommandInvocation;
 import de.cubeisland.engine.command.alias.Alias;
 import de.cubeisland.engine.command.parametric.Command;
 import de.cubeisland.engine.command.parametric.Flag;
@@ -54,24 +56,35 @@ public class ShoutCommand extends ContainerCommand
         this.module = module;
     }
 
-    public CommandResult run(CommandContext context)
+    @Override
+    protected boolean selfExecute(CommandInvocation invocation)
     {
-        Announcement announcement = this.module.getAnnouncementManager().getAnnouncement(context.getString(0));
-        if (announcement == null)
+        if (invocation.tokens().size() - invocation.consumed() == 1)
         {
-            context.sendTranslated(NEGATIVE, "{input#announcement} was not found!", context.get(0));
-            return null;
+            return getCommand("show").execute(invocation);
+        }
+        return super.selfExecute(invocation);
+    }
+
+    @Command(desc = "Displays an announcement")
+    public void show(CommandContext context, String announcement)
+    {
+        Announcement toShow = this.module.getAnnouncementManager().getAnnouncement(announcement);
+        if (toShow == null)
+        {
+            context.sendTranslated(NEGATIVE, "{input#announcement} was not found!", announcement);
+            return;
         }
         List<Player> players;
 
-        if (announcement.getFirstWorld().equals("*"))
+        if ("*".equals(toShow.getFirstWorld()))
         {
             players = new ArrayList<>(Bukkit.getOnlinePlayers());
         }
         else
         {
             players = new ArrayList<>();
-            for (String world : announcement.getWorlds())
+            for (String world : toShow.getWorlds())
             {
                 World w = Bukkit.getWorld(world);
                 if (w != null)
@@ -84,7 +97,7 @@ public class ShoutCommand extends ContainerCommand
         for (Player player : players)
         {
             User u = this.module.getCore().getUserManager().getExactUser(player.getUniqueId());
-            String[] message = announcement.getMessage(u.getLocale());
+            String[] message = toShow.getMessage(u.getLocale());
             if (message != null)
             {
                 u.sendMessage("");
@@ -95,26 +108,23 @@ public class ShoutCommand extends ContainerCommand
                 u.sendMessage("");
             }
         }
-        context.sendTranslated(POSITIVE, "The announcement {name} has been announced!", announcement.getName());
-        return null;
+        context.sendTranslated(POSITIVE, "The announcement {name} has been announced!", toShow.getName());
     }
 
     @Alias(value = {"announcements"})
     @Command(alias = "announcements", desc = "List all announcements")
-    public void list(CommandContext context)
+    public void list(CommandSender context)
     {
-        Iterator<Announcement> iter = this.module.getAnnouncementManager().getAllAnnouncements().iterator();
-        if (iter.hasNext())
-        {
-            context.sendTranslated(POSITIVE, "Here is the list of announcements:");
-            while (iter.hasNext())
-            {
-                context.sendMessage(" - " + iter.next().getName());
-            }
-        }
-        else
+        Collection<Announcement> list = this.module.getAnnouncementManager().getAllAnnouncements();
+        if (list.isEmpty())
         {
             context.sendTranslated(NEGATIVE, "There are no announcements loaded!");
+            return;
+        }
+        context.sendTranslated(POSITIVE, "Here is the list of announcements:");
+        for (Announcement announcement : list)
+        {
+            context.sendMessage(" - " + announcement.getName());
         }
     }
 
