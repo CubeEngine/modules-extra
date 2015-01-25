@@ -150,16 +150,17 @@ public class SpawnCommands
             }
             r = rolesAttachment.getDataHolder(world);
         }
+        String roleName = r.getMetadata().get("rolespawn").getOrigin().getName();
         roleSpawn = r.getMetadata().get("rolespawn").getValue();
         if (roleSpawn == null)
         {
-            context.sendTranslated(NEGATIVE, "No spawn point for {name} in {world}!", r.getName(), world);
+            context.sendTranslated(NEGATIVE, "No spawn point for {name} in {world}!", roleName, world);
             return;
         }
         Location spawnLocation = this.getSpawnLocation(roleSpawn);
         if (spawnLocation == null)
         {
-            context.sendTranslated(CRITICAL, "Invalid spawn location for {name} in {world}!", r.getName(), world);
+            context.sendTranslated(CRITICAL, "Invalid spawn location for {name} in {world}!", roleName, world);
             context.sendMessage(roleSpawn);
         }
 
@@ -182,7 +183,7 @@ public class SpawnCommands
         }
         if (!context.equals(player))
         {
-            context.sendTranslated(POSITIVE, "Teleported {user} to the spawn of the role {name#role} in {world}", player, r.getName(), world);
+            context.sendTranslated(POSITIVE, "Teleported {user} to the spawn of the role {name#role} in {world}", player, roleName, world);
         }
         else if (role == null)
         {
@@ -190,7 +191,7 @@ public class SpawnCommands
         }
         else
         {
-            context.sendTranslated(POSITIVE, "You are now standing at the spawn of {name#role} in {world}!", r.getName(), world);
+            context.sendTranslated(POSITIVE, "You are now standing at the spawn of {name#role} in {world}!", roleName, world);
         }
     }
 
