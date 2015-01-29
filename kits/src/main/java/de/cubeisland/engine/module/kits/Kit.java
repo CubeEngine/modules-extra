@@ -89,6 +89,11 @@ public class Kit
         this.limitUsageDelay = limitUsageDelay;
     }
 
+    public boolean give(User user, boolean force)
+    {
+        return this.give(null, user, force);
+    }
+
     public boolean give(CommandSender sender, User user, boolean force)
     {
         if (!force && this.getPermission() != null)

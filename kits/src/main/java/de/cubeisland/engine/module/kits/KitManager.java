@@ -26,6 +26,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.core.user.UserLoadedEvent;
 import de.cubeisland.engine.core.util.StringUtils;
 import de.cubeisland.engine.core.util.matcher.Match;
 import org.bukkit.event.EventHandler;
@@ -44,20 +45,12 @@ public class KitManager implements Listener
         this.module.getCore().getEventManager().registerListener(module, this);
     }
 
-    @SuppressWarnings("unused")
-    @EventHandler(ignoreCancelled = true)
-    public void onJoin(PlayerJoinEvent event)
+    @EventHandler
+    public void onJoin(UserLoadedEvent event)
     {
-        if (!event.getPlayer().hasPlayedBefore())
+        if (!event.getUser().hasPlayedBefore())
         {
-            for (Kit kit : kitMap.values())
-            {
-                if (kit.isGiveKitOnFirstJoin())
-                {
-                    User user = module.getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
-                    kit.give(null, user, true);
-                }
-            }
+            kitMap.values().stream().filter(Kit::isGiveKitOnFirstJoin).forEach(kit -> kit.give(event.getUser(), true));
         }
     }
 
