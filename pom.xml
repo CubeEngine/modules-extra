@@ -52,6 +52,7 @@
     <module>chopchop</module>
     <module>holiday</module>
     <module>unbreakableboat</module>
+    <module>namehistory</module>
   </modules>
 
   <build>
