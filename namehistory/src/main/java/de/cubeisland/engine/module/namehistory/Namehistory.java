@@ -86,7 +86,7 @@ public class Namehistory extends Module implements Listener
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     @Command(desc = "Shows the namehistory of a player")
-    public void nameHistory(CommandSender context, @Default User player)
+    public void namehistory(CommandSender context, @Default User player)
     {
         ResultQuery<NameHistoryEntry> query = getCore().getDB().getDSL().selectFrom(TABLE_NAMEHISTORY).where(
             TABLE_NAMEHISTORY.USERID.eq(player.getEntity().getKey())).orderBy(TABLE_NAMEHISTORY.CHANGED_AT.desc());
