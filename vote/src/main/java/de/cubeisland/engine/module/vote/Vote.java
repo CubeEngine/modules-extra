@@ -32,11 +32,13 @@ import org.jooq.types.UShort;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.NONE;
 import static de.cubeisland.engine.module.vote.storage.TableVote.TABLE_VOTE;
+import static java.lang.Math.pow;
 
 public class Vote extends Module implements Listener
 {
     private VoteConfiguration config;
-    protected DSLContext dsl;
+    DSLContext dsl;
+    private Economy economy;
 
     @Override
     public void onEnable()
@@ -46,6 +48,7 @@ public class Vote extends Module implements Listener
         this.getCore().getEventManager().registerListener(this, this);
         this.getCore().getCommandManager().addCommands(this.getCore().getCommandManager(), this, new VoteCommands(this));
         this.dsl = this.getCore().getDB().getDSL();
+        this.economy = getCore().getModuleManager().getServiceManager().getServiceImplementation(Economy.class);
     }
 
     @EventHandler
@@ -54,8 +57,7 @@ public class Vote extends Module implements Listener
         final com.vexsoftware.votifier.model.Vote vote = event.getVote();
         if (this.getCore().getUserManager().findExactUser(vote.getUsername()) != null)
         {
-            User user = this.getCore().getUserManager().findExactUser(vote.getUsername());
-            Economy economy = this.getCore().getModuleManager().getServiceManager().getServiceImplementation(Economy.class);
+            User user = getCore().getUserManager().findExactUser(vote.getUsername());
             VoteModel voteModel = this.dsl.selectFrom(TABLE_VOTE).where(TABLE_VOTE.USERID.eq(user.getEntity().getKey())).fetchOne();
             if (voteModel == null)
             {
@@ -76,20 +78,20 @@ public class Vote extends Module implements Listener
                 voteModel.updateAsync();
             }
             economy.createAccount(user.getUniqueId());
-            int voteamount = voteModel.getValue(TABLE_VOTE.VOTEAMOUNT).intValue();
-            double money = this.config.voteReward * (Math.pow(1+1.5/voteamount, voteamount-1));
+            final int voteAmount = voteModel.getValue(TABLE_VOTE.VOTEAMOUNT).intValue();
+            double money = this.config.voteReward * pow(1 + 1.5 / voteAmount, voteAmount - 1);
             economy.deposit(user.getUniqueId(), money);
             String moneyFormat = economy.format(money);
-            this.getCore().getUserManager().broadcastMessage(NONE, this.config.voteBroadcast.replace("{PLAYER}",
-                vote.getUsername()).replace("{MONEY}",
-                moneyFormat).replace("{AMOUNT}",
-                String.valueOf(voteamount)).replace("{VOTEURL}",
-                this.config.voteUrl));
-            user.sendMessage(ChatFormat.parseFormats(this.config.voteMessage.
-                replace("{PLAYER}", vote.getUsername()).
-                replace("{MONEY}", moneyFormat).
-                replace("{AMOUNT}", String.valueOf(voteamount)).
-                replace("{VOTEURL}", this.config.voteUrl)));
+            this.getCore().getUserManager().broadcastMessage(NONE, this.config.voteBroadcast
+                .replace("{PLAYER}", vote.getUsername())
+                .replace("{MONEY}", moneyFormat)
+                .replace("{AMOUNT}", String.valueOf(voteAmount))
+                .replace("{VOTEURL}", this.config.voteUrl));
+            user.sendMessage(ChatFormat.parseFormats(this.config.voteMessage
+                .replace("{PLAYER}", vote.getUsername())
+                .replace("{MONEY}", moneyFormat)
+                .replace("{AMOUNT}", String.valueOf(voteAmount))
+                .replace("{VOTEURL}", this.config.voteUrl)));
         }
         else if (vote.getUsername() == null || vote.getUsername().trim().isEmpty())
         {
