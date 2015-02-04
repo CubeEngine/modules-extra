@@ -59,7 +59,8 @@ public class Namehistory extends Module implements Listener
             where(TABLE_NAMEHISTORY.USERID.eq(user.getEntity().getKey())).
             orderBy(TABLE_NAMEHISTORY.CHANGED_AT.desc()).limit(1);
         getCore().getDB().queryOne(query).thenAccept(entry -> {
-            if (entry == null || entry.getValue(TABLE_NAMEHISTORY.CHANGED_AT).getTime() > user.getLastPlayed())
+            if (entry == null || entry.getValue(TABLE_NAMEHISTORY.CHANGED_AT).getTime() > user.getLastPlayed()
+                  || !entry.getValue(TABLE_NAMEHISTORY.NAME).equals(user.getName()))
             {
                 NameEntry[] nameHistory = McUUID.getNameHistory(user.getUniqueId());
                 for (NameEntry nameEntry : nameHistory)
@@ -77,8 +78,7 @@ public class Namehistory extends Module implements Listener
 
             if (entry.getValue(TABLE_NAMEHISTORY.CHANGED_AT).getTime() > user.getLastPlayed())
             {
-                getCore().getUserManager().broadcastMessage(POSITIVE, "{name} was renamed to {user}", entry.getValue(
-                    TABLE_NAMEHISTORY.NAME), user);
+                getCore().getUserManager().broadcastMessage(POSITIVE, "{name} was renamed to {user}", entry.getValue(TABLE_NAMEHISTORY.NAME), user);
             }
         });
     }
