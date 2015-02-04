@@ -16,39 +16,31 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: de.cubeisland.engine.module:spawner:1.0.0-SNAPSHOT\n"
+"Project-Id-Version: de.cubeisland.engine.module:namehistory:1.0.0-SNAPSHOT\n"
 "Report-Msgid-Bugs-To: development@cubeisland.de\n"
-"POT-Creation-Date: 2015-02-05 00:05:28+0100\n"
+"POT-Creation-Date: 2015-02-05 00:05:29+0100\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: en_US\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: de/cubeisland/engine/module/spawner/Spawner.java:147
-msgid "Invalid SpawnEgg!"
+#: de/cubeisland/engine/module/namehistory/Namehistory.java:104
+msgid " - {user} since {input}"
 msgstr ""
 
-#: de/cubeisland/engine/module/spawner/Spawner.java:102
-msgid "Dropped inactive Monster Spawner!"
+#: de/cubeisland/engine/module/namehistory/Namehistory.java:97
+msgid "No NameHistory available for {user}"
 msgstr ""
 
-#: de/cubeisland/engine/module/spawner/Spawner.java:118
-msgid "Inactive Monster Spawner placed!"
+#: de/cubeisland/engine/module/namehistory/Namehistory.java:89
+msgid "Shows the namehistory of a player"
 msgstr ""
 
-#: de/cubeisland/engine/module/spawner/Spawner.java:168
-msgid "Monster Spawner activated!"
+#: de/cubeisland/engine/module/namehistory/Namehistory.java:100
+msgid "The following names were known for {user}"
 msgstr ""
 
-#: de/cubeisland/engine/module/spawner/Spawner.java:151
-msgid "You are not allowed to change Monster Spawner to this EntityType!"
-msgstr ""
-
-#: de/cubeisland/engine/module/spawner/Spawner.java:138
-msgid "You can only change inactive Monster Spawner!"
-msgstr ""
-
-#: de/cubeisland/engine/module/spawner/Spawner.java:98
-msgid "Inactive Monster Spawner"
+#: de/cubeisland/engine/module/namehistory/Namehistory.java:105
+msgid "account creation"
 msgstr ""

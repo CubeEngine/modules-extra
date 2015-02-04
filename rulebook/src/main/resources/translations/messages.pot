@@ -18,141 +18,59 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de.cubeisland.engine.module:rulebook:1.0.0-SNAPSHOT\n"
 "Report-Msgid-Bugs-To: development@cubeisland.de\n"
-"POT-Creation-Date: 2014-09-21 03:27:47+0200\n"
+"POT-Creation-Date: 2015-02-05 00:04:50+0100\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: en_US\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:267
+#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:235
 msgid "adds the book in hand as rulebook of the declared language"
 msgstr ""
 
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:70
+#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:67
 msgid "gets the player the rulebook in the inventory"
 msgstr ""
 
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:157
+#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:132
 msgid "list all available languages of the rulebooks."
 msgstr ""
 
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:219
+#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:190
 msgid "modified the rulebook of the declared language with the book in hand"
 msgstr ""
 
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:188
+#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:159
 msgid "removes the declared language and languagefiles!"
 msgstr ""
 
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:256
-msgid "An error ocurred while deleting the old rulebook"
-msgstr ""
-
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:273
-msgid "Are you illiterate?"
-msgstr ""
-
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:115
+#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:93
 msgid "Can't match the language"
 msgstr ""
 
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:233
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:281
-msgid "I would try it with a book as item in hand"
-msgstr ""
-
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:105
+#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:85
 msgid "It does not exist a rulebook yet"
 msgstr ""
 
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:149
+#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:124
 msgid "Lots of fun with your rulebook."
 msgstr ""
 
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:196
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:240
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:288
-msgid "More than one or no language is matched with {input}"
-msgstr ""
-
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:166
-msgid "No rulebook available at the moment"
-msgstr ""
-
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:296
-msgid "Rulebook for the language {input} was added succesfully"
-msgstr ""
-
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:94
-msgid "The given user was not found!"
-msgstr ""
-
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:212
-msgid "The language file of {input} couldn't be deleted"
-msgstr ""
-
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:123
+#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:99
 msgid "The language {name} is not supported yet."
 msgstr ""
 
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:201
-msgid "The languagefile of {input} doesn't exist at the moment"
-msgstr ""
-
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:208
-msgid "The languagefiles of {input} was deleted"
-msgstr ""
-
 #: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:78
-msgid "The post office will give you your book!"
-msgstr ""
-
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:251
-msgid "The rulebook {name} was succesful modified."
-msgstr ""
-
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:300
-msgid "There is already a book in that language."
-msgstr ""
-
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:262
-msgid "You can't modify a non-existent book."
-msgstr ""
-
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:88
 msgid ""
 "You do not have the permissions to add the rulebook to the inventory of an "
 "other player"
 msgstr ""
 
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:225
-msgid "You're able to write, right?"
-msgstr ""
-
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:152
+#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:127
 msgid "Your old rulebook was removed"
 msgstr ""
 
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:170
-msgid "available languages:"
-msgstr ""
-
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:179
-msgid "supported languages:"
-msgstr ""
-
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:71
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:189
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:220
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:268
-msgid "language"
-msgstr ""
-
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:72
-msgid "name"
-msgstr ""
-
-#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:62
-msgid "shows all commands of the rulebook module"
+#: de/cubeisland/engine/module/rulebook/bookManagement/RulebookCommands.java:49
+msgid "Shows all commands of the rulebook module"
 msgstr ""

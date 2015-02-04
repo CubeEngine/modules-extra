@@ -18,86 +18,66 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de.cubeisland.engine.module:hide:1.0.0-SNAPSHOT\n"
 "Report-Msgid-Bugs-To: development@cubeisland.de\n"
-"POT-Creation-Date: 2014-09-21 03:27:51+0200\n"
+"POT-Creation-Date: 2015-02-05 00:05:24+0100\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: en_US\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:212
+#: de/cubeisland/engine/module/hide/HideCommands.java:146
 msgid "Checks whether a player can see hidden players."
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:124
+#: de/cubeisland/engine/module/hide/HideCommands.java:86
 msgid "Checks whether a player is hidden."
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:52
+#: de/cubeisland/engine/module/hide/HideCommands.java:40
 msgid "Hides a player."
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:159
+#: de/cubeisland/engine/module/hide/HideCommands.java:107
 msgid "Lists all hidden players."
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:246
+#: de/cubeisland/engine/module/hide/HideCommands.java:167
 msgid "Lists all players who can see hidden players."
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:175
+#: de/cubeisland/engine/module/hide/HideCommands.java:123
 msgid "Toggles the ability to see hidden players."
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:88
+#: de/cubeisland/engine/module/hide/HideCommands.java:63
 msgid "Unhides a player."
-msgstr ""
-
-#: de/cubeisland/engine/module/hide/HideCommands.java:274
-msgid "No player specified!"
-msgstr ""
-
-#: de/cubeisland/engine/module/hide/HideCommands.java:252
-msgid "No users can currently see hidden users!"
 msgstr ""
 
 #: de/cubeisland/engine/module/hide/HideListener.java:84
 msgid "Player {user} is now visible"
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:255
-msgid "The following players can see hidden players:"
-msgstr ""
-
-#: de/cubeisland/engine/module/hide/HideCommands.java:168
-msgid "The following users are hidden:"
-msgstr ""
-
-#: de/cubeisland/engine/module/hide/HideCommands.java:165
-msgid "There are no hidden users!"
-msgstr ""
-
-#: de/cubeisland/engine/module/hide/HideCommands.java:79
+#: de/cubeisland/engine/module/hide/HideCommands.java:57
 msgid "You are already hidden!"
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:115
+#: de/cubeisland/engine/module/hide/HideCommands.java:80
 msgid "You are already visible!"
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:138
+#: de/cubeisland/engine/module/hide/HideCommands.java:93
 msgid "You are currently hidden!"
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:149
+#: de/cubeisland/engine/module/hide/HideCommands.java:101
 msgid "You are currently visible!"
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:67
+#: de/cubeisland/engine/module/hide/HideCommands.java:48
 msgid "You are now hidden!"
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:103
+#: de/cubeisland/engine/module/hide/HideCommands.java:71
 msgid "You are now visible!"
 msgstr ""
 
@@ -105,27 +85,27 @@ msgstr ""
 msgid "You can automatically see hidden players!"
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:226
+#: de/cubeisland/engine/module/hide/HideCommands.java:153
 msgid "You can currently see hidden users!"
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:202
+#: de/cubeisland/engine/module/hide/HideCommands.java:139
 msgid "You can no longer see hidden users!"
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:206
+#: de/cubeisland/engine/module/hide/HideCommands.java:142
 msgid "You can no longer see hidden users! (Disabled by {sender})"
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:190
+#: de/cubeisland/engine/module/hide/HideCommands.java:130
 msgid "You can now see hidden users!"
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:194
+#: de/cubeisland/engine/module/hide/HideCommands.java:133
 msgid "You can now see hidden users! (Enabled by {sender})"
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:237
+#: de/cubeisland/engine/module/hide/HideCommands.java:161
 msgid "You can't see hidden players!"
 msgstr ""
 
@@ -133,51 +113,51 @@ msgstr ""
 msgid "You were automatically hidden!"
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:71
+#: de/cubeisland/engine/module/hide/HideCommands.java:51
 msgid "You were hidden by {sender}!"
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:107
+#: de/cubeisland/engine/module/hide/HideCommands.java:74
 msgid "You were unhidden by {sender}!"
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:230
+#: de/cubeisland/engine/module/hide/HideCommands.java:156
 msgid "{user} can currently see hidden users!"
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:207
+#: de/cubeisland/engine/module/hide/HideCommands.java:143
 msgid "{user} can no longer see hidden users!"
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:195
+#: de/cubeisland/engine/module/hide/HideCommands.java:134
 msgid "{user} can now see hidden users!"
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:241
+#: de/cubeisland/engine/module/hide/HideCommands.java:164
 msgid "{user} can't see hidden players!"
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:83
+#: de/cubeisland/engine/module/hide/HideCommands.java:60
 msgid "{user} is already hidden!"
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:119
+#: de/cubeisland/engine/module/hide/HideCommands.java:83
 msgid "{user} is already visible!"
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:142
+#: de/cubeisland/engine/module/hide/HideCommands.java:96
 msgid "{user} is currently hidden!"
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:153
+#: de/cubeisland/engine/module/hide/HideCommands.java:104
 msgid "{user} is currently visible!"
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:72
+#: de/cubeisland/engine/module/hide/HideCommands.java:52
 msgid "{user} is now hidden!"
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:108
+#: de/cubeisland/engine/module/hide/HideCommands.java:75
 msgid "{user} is now visible!"
 msgstr ""
 
@@ -185,18 +165,10 @@ msgstr ""
 msgid "Player {user} is now hidden!"
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideCommands.java:53
-#: de/cubeisland/engine/module/hide/HideCommands.java:89
-#: de/cubeisland/engine/module/hide/HideCommands.java:125
-#: de/cubeisland/engine/module/hide/HideCommands.java:176
-#: de/cubeisland/engine/module/hide/HideCommands.java:213
-msgid "player"
-msgstr ""
-
 #: de/cubeisland/engine/module/hide/HideListener.java:87
 msgid "{user:color=YELLOW} joined the game"
 msgstr ""
 
-#: de/cubeisland/engine/module/hide/HideListener.java:145
+#: de/cubeisland/engine/module/hide/HideListener.java:147
 msgid "{user:color=YELLOW} left the game"
 msgstr ""
