@@ -25,6 +25,7 @@ import de.cubeisland.engine.core.CubeEngine;
 import de.cubeisland.engine.core.command.CommandManager;
 import de.cubeisland.engine.core.command.CommandSender;
 import de.cubeisland.engine.core.module.Module;
+import de.cubeisland.engine.core.user.TableUser;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.user.UserLoadedEvent;
 import de.cubeisland.engine.core.util.McUUID;
@@ -76,7 +77,7 @@ public class Namehistory extends Module implements Listener
                 return;
             }
 
-            if (entry.getValue(TABLE_NAMEHISTORY.CHANGED_AT).getTime() > user.getLastPlayed())
+            if (entry.getValue(TABLE_NAMEHISTORY.CHANGED_AT).getTime() > user.getEntity().getValue(TableUser.TABLE_USER.LASTSEEN).getTime())
             {
                 getCore().getUserManager().broadcastMessage(POSITIVE, "{name} was renamed to {user}", entry.getValue(TABLE_NAMEHISTORY.NAME), user);
             }
