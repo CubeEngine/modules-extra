@@ -14,12 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
 # Translators:
+# Larson März <lmaerz@emailn.de>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: CubeEngine\n"
 "Report-Msgid-Bugs-To: development@cubeisland.de\n"
-"POT-Creation-Date: 2014-09-21 03:27:51+0200\n"
-"PO-Revision-Date: 2014-09-21 01:49+0000\n"
+"POT-Creation-Date: 2015-02-05 00:05:25+0100\n"
+"PO-Revision-Date: 2015-02-04 23:05+0000\n"
 "Last-Translator: Cube Island Development <development@cubeisland.de>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/cubeengine/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -28,129 +29,86 @@ msgstr ""
 "Language: de\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: de/cubeisland/engine/module/backpack/BackpackCommands.java:195
+#: de/cubeisland/engine/module/backpack/BackpackCommands.java:117
 msgid "Puts items into a backpack"
-msgstr ""
+msgstr "Legt Items in einen Rucksack"
+
+#: de/cubeisland/engine/module/backpack/BackpackCommands.java:79
+msgid "creates a new backpack"
+msgstr "Erstellt einen neuen Rucksack"
 
 #: de/cubeisland/engine/module/backpack/BackpackCommands.java:102
-msgid "creates a new backpack"
-msgstr ""
-
-#: de/cubeisland/engine/module/backpack/BackpackCommands.java:149
 msgid "modifies a backpack"
-msgstr ""
+msgstr "Bearbeitet einen Rucksack"
 
-#: de/cubeisland/engine/module/backpack/BackpackCommands.java:62
+#: de/cubeisland/engine/module/backpack/BackpackCommands.java:57
 msgid "opens a backpack"
-msgstr ""
+msgstr "Öffnet einen Rucksack"
 
-#: de/cubeisland/engine/module/backpack/BackpackManager.java:94
+#: de/cubeisland/engine/module/backpack/BackpackManager.java:92
 msgid "A backpack named {input#backpack} already exists in {world}"
-msgstr ""
+msgstr "Ein Rucksack namens {input#backpack} existiert bereits in {world}"
 
-#: de/cubeisland/engine/module/backpack/BackpackManager.java:175
+#: de/cubeisland/engine/module/backpack/BackpackManager.java:174
 msgid "Could not change page amount! Not enough space!"
-msgstr ""
+msgstr "Konnte die Seitenzahl nicht ändern! Nicht genügend Platz!"
 
-#: de/cubeisland/engine/module/backpack/BackpackManager.java:197
+#: de/cubeisland/engine/module/backpack/BackpackManager.java:196
 msgid "Could not change page size! Not enough space!"
-msgstr ""
+msgstr "Konnte die Seitengröße nicht ändern! Nicht genügend Platz!"
 
-#: de/cubeisland/engine/module/backpack/BackpackManager.java:77
+#: de/cubeisland/engine/module/backpack/BackpackManager.java:75
 msgid "Created global backpack {input#backpack} for {user}"
-msgstr ""
+msgstr "Globalen Rucksack  {input#backpack} für {user} erstellt"
 
-#: de/cubeisland/engine/module/backpack/BackpackManager.java:87
+#: de/cubeisland/engine/module/backpack/BackpackManager.java:85
 msgid "Created grouped backpack {input#backpack} in {world} for {user}"
-msgstr ""
+msgstr "Gruppierten Rucksack {input#backpack} in {world} für {user} erstellt"
 
-#: de/cubeisland/engine/module/backpack/BackpackManager.java:82
+#: de/cubeisland/engine/module/backpack/BackpackManager.java:80
 msgid "Created singleworld backpack {input#backpack} in {world} for {user}"
-msgstr ""
+msgstr "Lokalen Rucksack {input#backpack} in {world} für {user} erstellt"
 
-#: de/cubeisland/engine/module/backpack/BackpackCommands.java:285
-msgid "Invalid amount {input#amount}"
-msgstr ""
-
-#: de/cubeisland/engine/module/backpack/BackpackManager.java:149
+#: de/cubeisland/engine/module/backpack/BackpackManager.java:147
 msgid "Item added to backpack!"
-msgstr ""
+msgstr "Item in Rucksack gelegt!"
 
-#: de/cubeisland/engine/module/backpack/BackpackCommands.java:236
-msgid "Item {input#name} not found!"
-msgstr ""
-
-#: de/cubeisland/engine/module/backpack/BackpackManager.java:224
+#: de/cubeisland/engine/module/backpack/BackpackManager.java:223
 msgid "Items are allowed to go in!"
-msgstr ""
+msgstr "Items dürfen hinzugefügt werden!"
 
-#: de/cubeisland/engine/module/backpack/BackpackManager.java:220
+#: de/cubeisland/engine/module/backpack/BackpackManager.java:219
 msgid "Items are not allowed to go in!"
-msgstr ""
+msgstr "Items dürfen nicht hinzugefügt werden!"
 
-#: de/cubeisland/engine/module/backpack/BackpackManager.java:212
+#: de/cubeisland/engine/module/backpack/BackpackManager.java:211
 msgid "Page-size changed!"
-msgstr ""
+msgstr "Seitengröße geändert!"
 
-#: de/cubeisland/engine/module/backpack/BackpackManager.java:190
+#: de/cubeisland/engine/module/backpack/BackpackManager.java:189
 msgid "Pages changed!"
-msgstr ""
+msgstr "Seiten geändert!"
 
-#: de/cubeisland/engine/module/backpack/BackpackCommands.java:260
-#: de/cubeisland/engine/module/backpack/BackpackCommands.java:270
-msgid "Unknown Enchantment {input#enchant}"
-msgstr ""
-
-#: de/cubeisland/engine/module/backpack/BackpackCommands.java:81
-#: de/cubeisland/engine/module/backpack/BackpackCommands.java:120
-#: de/cubeisland/engine/module/backpack/BackpackCommands.java:170
-#: de/cubeisland/engine/module/backpack/BackpackCommands.java:220
-msgid "Unknown World {input#world}!"
-msgstr ""
-
-#: de/cubeisland/engine/module/backpack/BackpackCommands.java:92
-msgid "You are not allowed to open backpacks from an other world!"
-msgstr ""
-
-#: de/cubeisland/engine/module/backpack/BackpackCommands.java:87
-msgid "You are not allowed to open the backpacks of other users!"
-msgstr ""
-
-#: de/cubeisland/engine/module/backpack/BackpackCommands.java:98
-msgid "You cannot open a inventory in console!"
-msgstr ""
-
-#: de/cubeisland/engine/module/backpack/BackpackManager.java:61
-#: de/cubeisland/engine/module/backpack/BackpackManager.java:145
-#: de/cubeisland/engine/module/backpack/BackpackManager.java:168
+#: de/cubeisland/engine/module/backpack/BackpackManager.java:59
+#: de/cubeisland/engine/module/backpack/BackpackManager.java:143
+#: de/cubeisland/engine/module/backpack/BackpackManager.java:167
 msgid "You don't have a backpack named {input#backpack} in this world!"
-msgstr ""
+msgstr "Du hast keinen Rucksack namens {input#backpack} in dieser Welt!"
 
-#: de/cubeisland/engine/module/backpack/BackpackCommands.java:131
-#: de/cubeisland/engine/module/backpack/BackpackCommands.java:176
-msgid "You have to specify a world for non global backpacks!"
-msgstr ""
-
-#: de/cubeisland/engine/module/backpack/BackpackCommands.java:140
-#: de/cubeisland/engine/module/backpack/BackpackCommands.java:185
-#: de/cubeisland/engine/module/backpack/BackpackCommands.java:230
-msgid "You need to specify a user"
-msgstr ""
-
-#: de/cubeisland/engine/module/backpack/BackpackManager.java:152
+#: de/cubeisland/engine/module/backpack/BackpackManager.java:150
 msgid "You received items in your backpack {input#backpack}"
-msgstr ""
+msgstr "Du hast Gegenstände in deinem Rucksack erhalten {input#backpack}"
 
-#: de/cubeisland/engine/module/backpack/BackpackManager.java:98
+#: de/cubeisland/engine/module/backpack/BackpackManager.java:96
 msgid "{user} already had a backpack named {input#backpack} in {world}"
-msgstr ""
+msgstr "{user} hat bereits einen Rucksack namens {input#backpack} in {world}"
 
-#: de/cubeisland/engine/module/backpack/BackpackManager.java:58
-#: de/cubeisland/engine/module/backpack/BackpackManager.java:142
-#: de/cubeisland/engine/module/backpack/BackpackManager.java:165
+#: de/cubeisland/engine/module/backpack/BackpackManager.java:56
+#: de/cubeisland/engine/module/backpack/BackpackManager.java:140
+#: de/cubeisland/engine/module/backpack/BackpackManager.java:164
 msgid "{user} does not have a backpack named {input#backpack} in this world!"
-msgstr ""
+msgstr "{user} hat keinen Rucksack namens {input#backpack} in dieser Welt!"
 
-#: de/cubeisland/engine/module/backpack/BackpackCommands.java:55
+#: de/cubeisland/engine/module/backpack/BackpackCommands.java:43
 msgid "The Backpack commands"
-msgstr ""
+msgstr "Die Rucksack-Befehle"
