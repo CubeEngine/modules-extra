@@ -35,6 +35,7 @@ import org.bukkit.event.Listener;
 import org.jooq.DSLContext;
 import org.jooq.ResultQuery;
 import org.jooq.SelectOffsetStep;
+import org.jooq.SelectSeekStep1;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 import static de.cubeisland.engine.module.namehistory.TableNameHistory.TABLE_NAMEHISTORY;
@@ -56,20 +57,20 @@ public class Namehistory extends Module implements Listener
     {
         DSLContext dsl = getCore().getDB().getDSL();
         User user = event.getUser();
-        SelectOffsetStep<NameHistoryEntry> query = dsl.selectFrom(TABLE_NAMEHISTORY).
-            where(TABLE_NAMEHISTORY.USERID.eq(user.getEntity().getKey())).
-            orderBy(TABLE_NAMEHISTORY.CHANGED_AT.desc()).limit(1);
-        getCore().getDB().queryOne(query).thenAccept(entry -> {
+        SelectSeekStep1<NameHistoryEntry, Date> query = dsl.selectFrom(TABLE_NAMEHISTORY)
+                   .where(TABLE_NAMEHISTORY.USERID.eq(user.getEntity().getKey()))
+                   .orderBy(TABLE_NAMEHISTORY.CHANGED_AT.desc());
+        getCore().getDB().queryOne(query.limit(1)).thenAccept(entry -> {
             if (entry == null || entry.getValue(TABLE_NAMEHISTORY.CHANGED_AT).getTime() > user.getLastPlayed()
                   || !entry.getValue(TABLE_NAMEHISTORY.NAME).equals(user.getName()))
             {
                 NameEntry[] nameHistory = McUUID.getNameHistory(user.getUniqueId());
                 for (NameEntry nameEntry : nameHistory)
                 {
-                    dsl.insertInto(TABLE_NAMEHISTORY).values(user.getEntity().getKey(), nameEntry.name, new Date(
-                        nameEntry.changedToAt)).onDuplicateKeyIgnore().execute();
+                    dsl.insertInto(TABLE_NAMEHISTORY).values(user.getEntity().getKey(), nameEntry.name, new Date(nameEntry.changedToAt))
+                       .onDuplicateKeyIgnore().execute();
                 }
-                entry = query.fetchOne();
+                entry = query.limit(1).fetchOne();
             }
             if (entry == null)
             {
@@ -79,6 +80,7 @@ public class Namehistory extends Module implements Listener
 
             if (entry.getValue(TABLE_NAMEHISTORY.CHANGED_AT).getTime() > user.getEntity().getValue(TableUser.TABLE_USER.LASTSEEN).getTime())
             {
+                entry = query.limit(1, 1).fetchOne();
                 getCore().getUserManager().broadcastMessage(POSITIVE, "{name} was renamed to {user}", entry.getValue(TABLE_NAMEHISTORY.NAME), user);
             }
         });
