@@ -41,7 +41,7 @@ public class ChatCommands
     @Command(desc = "Allows you to emote")
     public void me(CommandSender context, @Greed(INFINITE) String message)
     {
-        this.module.getCore().getUserManager().broadcastStatus(message, context);
+        this.module.getCore().getUserManager().broadcastStatus(message, context);  // TODO message can be null somehow
     }
 
     @Command(desc = "Changes your display name")

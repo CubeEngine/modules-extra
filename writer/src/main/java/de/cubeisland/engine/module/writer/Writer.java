@@ -17,6 +17,7 @@
  */
 package de.cubeisland.engine.module.writer;
 
+import java.util.Collections;
 import de.cubeisland.engine.command.filter.Restricted;
 import de.cubeisland.engine.command.parametric.Command;
 import de.cubeisland.engine.command.parametric.Label;
@@ -83,7 +84,7 @@ public class Writer extends Module
      */
     public boolean editSignInSight(User user, String line1, String line2, String line3, String line4)
     {
-        Block target = user.getTargetBlock(null, 10);
+        Block target = user.getTargetBlock(Collections.<Material>emptySet(), 10);
         if (target.getType() == WALL_SIGN || target.getType() == SIGN_POST)
         {
             Sign sign = (Sign)target.getState();
