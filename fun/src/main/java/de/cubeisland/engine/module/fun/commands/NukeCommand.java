@@ -17,6 +17,7 @@
  */
 package de.cubeisland.engine.module.fun.commands;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -103,7 +104,7 @@ public class NukeCommand
                 context.sendTranslated(NEGATIVE, "This command can only be used by a player!");
                 return;
             }
-            location = ((User)context).getTargetBlock(null, this.module.getConfig().command.nuke.distance).getLocation();
+            location = ((User)context).getTargetBlock(Collections.<Material>emptySet(), this.module.getConfig().command.nuke.distance).getLocation();
         }
 
         Shape aShape = this.getShape(context, shape, location, height, param1, param2, param3);

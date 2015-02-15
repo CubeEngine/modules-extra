@@ -17,6 +17,7 @@
  */
 package de.cubeisland.engine.module.fun.commands;
 
+import java.util.Collections;
 import de.cubeisland.engine.command.parametric.Command;
 import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.util.matcher.Match;
@@ -50,7 +51,8 @@ public class InvasionCommand
         final Location helperLocation = new Location(null, 0, 0, 0);
         for (Player player : Bukkit.getOnlinePlayers())
         {
-            Location location = player.getTargetBlock(null, this.module.getConfig().command.invasion.distance).getLocation(helperLocation);
+            Location location = player.getTargetBlock(Collections.<Material>emptySet(), this.module.getConfig().command.invasion.distance).getLocation(
+                helperLocation);
             if (location.getBlock().getType() != Material.AIR)
             {
                 location = location.clone();

@@ -17,6 +17,7 @@
  */
 package de.cubeisland.engine.module.fun.commands;
 
+import java.util.Collections;
 import de.cubeisland.engine.command.parametric.Command;
 import de.cubeisland.engine.command.parametric.Flag;
 import de.cubeisland.engine.command.parametric.Named;
@@ -26,6 +27,7 @@ import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.matcher.Match;
 import de.cubeisland.engine.module.fun.Fun;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -179,7 +181,7 @@ public class PlayerCommands
                 context.sendTranslated(NEGATIVE, "This command can only be used by a player!");
                 return;
             }
-            loc = ((User)context).getTargetBlock(null, this.module.getConfig().command.explosion.distance).getLocation();
+            loc = ((User)context).getTargetBlock(Collections.<Material>emptySet(), this.module.getConfig().command.explosion.distance).getLocation();
         }
 
         if (!module.perms().COMMAND_EXPLOSION_BLOCK_DAMAGE.isAuthorized(context) && (blockDamage || unsafe))
@@ -245,7 +247,7 @@ public class PlayerCommands
                 context.sendTranslated(NEGATIVE, "This command can only be used by a player!");
                 return;
             }
-            location = ((User)context).getTargetBlock(null, this.module.getConfig().command.lightning.distance).getLocation();
+            location = ((User)context).getTargetBlock(Collections.emptySet(), this.module.getConfig().command.lightning.distance).getLocation();
         }
 
         if (unsafe)
