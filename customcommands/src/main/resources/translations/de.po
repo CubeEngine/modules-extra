@@ -1,0 +1,66 @@
+# This file is part of CubeEngine.
+# CubeEngine is licensed under the GNU General Public License Version 3.
+# 
+# CubeEngine is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# CubeEngine is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: CubeEngine\n"
+"Report-Msgid-Bugs-To: development@cubeisland.de\n"
+"POT-Creation-Date: 2015-02-05 00:04:38+0100\n"
+"PO-Revision-Date: 2015-02-18 23:00+0000\n"
+"Language-Team: German (http://www.transifex.com/projects/p/cubeengine/language/de/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: de\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: de/cubeisland/engine/module/customcommands/ManagementCommands.java:57
+msgid "Adds a custom chat command."
+msgstr ""
+
+#: de/cubeisland/engine/module/customcommands/ManagementCommands.java:64
+msgid ""
+"Custom command {input} already exists. Set the flag {text:-force} if you "
+"want to replace the message."
+msgstr ""
+
+#: de/cubeisland/engine/module/customcommands/ManagementCommands.java:90
+msgid "Custom command {input} has not been found."
+msgstr ""
+
+#: de/cubeisland/engine/module/customcommands/ManagementCommands.java:73
+msgid "Custom command {input} has successfully been added."
+msgstr ""
+
+#: de/cubeisland/engine/module/customcommands/ManagementCommands.java:86
+msgid "Custom command {input} has successfully been deleted."
+msgstr ""
+
+#: de/cubeisland/engine/module/customcommands/ManagementCommands.java:68
+msgid "Custom command {input} has successfully been replaced."
+msgstr ""
+
+#: de/cubeisland/engine/module/customcommands/ManagementCommands.java:78
+msgid "Deletes a custom chat command."
+msgstr ""
+
+#: de/cubeisland/engine/module/customcommands/ManagementCommands.java:95
+msgid "Prints out all the custom chat commands."
+msgstr ""
+
+#: de/cubeisland/engine/module/customcommands/ManagementCommands.java:42
+msgid "Commands to modify custom commands."
+msgstr ""
