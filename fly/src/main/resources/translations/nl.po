@@ -1,0 +1,44 @@
+# This file is part of CubeEngine.
+# CubeEngine is licensed under the GNU General Public License Version 3.
+# 
+# CubeEngine is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# CubeEngine is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
+# Translators:
+msgid ""
+msgstr ""
+"Project-Id-Version: CubeEngine\n"
+"Report-Msgid-Bugs-To: development@cubeisland.de\n"
+"POT-Creation-Date: 2015-02-05 00:04:37+0100\n"
+"PO-Revision-Date: 2013-11-30 15:24+0000\n"
+"Language-Team: Dutch (http://www.transifex.com/projects/p/cubeengine/language/nl/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: nl\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: de/cubeisland/engine/module/fly/FlyListener.java:74
+msgid "You dont have permission to use this!"
+msgstr ""
+
+#: de/cubeisland/engine/module/fly/FlyListener.java:82
+msgid "You are not allowed to fly now!"
+msgstr ""
+
+#: de/cubeisland/engine/module/fly/FlyListener.java:95
+msgid "You can now fly!"
+msgstr ""
+
+#: de/cubeisland/engine/module/fly/FlyListener.java:127
+msgid "You cannot fly anymore!"
+msgstr ""
