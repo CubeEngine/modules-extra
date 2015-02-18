@@ -336,7 +336,7 @@ public class EditModeListener extends ConversationCommand
         MarketSign sign = getSign((User)context.getSource());
         if (!sign.isAdminSign())
         {
-            context.sendTranslated(NEGATIVE, "User signs cannot have no stock!");
+            context.sendTranslated(NEGATIVE, "Player signs cannot have no stock!");
             return;
         }
         if (sign.hasStock())
