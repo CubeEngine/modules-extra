@@ -14,13 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
 # Translators:
-# Auge59 <Auge59@gmx.de>, 2013
-# Auge59 <Auge59@gmx.de>, 2013
-# jeti83 <jeti83@hotmail.de>, 2014
-# Larson März <lmaerz@emailn.de>, 2014
-# Phillip Schichtel, 2014
-# Sebastian Raupach <s.raupach92@googlemail.com>, 2014
-# Sebastian Raupach <s.raupach92@googlemail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: CubeEngine\n"
@@ -28,41 +21,41 @@ msgstr ""
 "POT-Creation-Date: 2015-02-05 00:05:21+0100\n"
 "PO-Revision-Date: 2015-02-18 23:04+0000\n"
 "Last-Translator: Cube Island Development <development@cubeisland.de>\n"
-"Language-Team: German (http://www.transifex.com/projects/p/cubeengine/language/de/)\n"
+"Language-Team: Dutch (http://www.transifex.com/projects/p/cubeengine/language/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: de\n"
+"Language: nl\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: de/cubeisland/engine/module/spawn/SpawnCommands.java:58
 msgid "Changes the respawnpoint"
-msgstr "Verschiebt den Respawn-Punkt"
+msgstr ""
 
 #: de/cubeisland/engine/module/spawn/SpawnCommands.java:79
 #: de/cubeisland/engine/module/spawn/SpawnCommands.java:139
 msgid "Could not find the role {input} in {world}!"
-msgstr "Rolle {input} wurde in {world} nicht gefunden!"
+msgstr ""
 
 #: de/cubeisland/engine/module/spawn/SpawnCommands.java:176
 msgid "You are not allowed to spawn {user}!"
-msgstr "Du darfst {user} nicht spawnen!"
+msgstr ""
 
 #: de/cubeisland/engine/module/spawn/SpawnCommands.java:128
 msgid "You are now standing at the spawn in {world}!"
-msgstr "Du stehst jetzt am Spawn in {world}!"
+msgstr ""
 
 #: de/cubeisland/engine/module/spawn/SpawnCommands.java:194
 msgid "You are now standing at the spawn of {name#role} in {world}!"
-msgstr "Du stehst jetzt am Spawn von {name#role} in {world}!"
+msgstr ""
 
 #: de/cubeisland/engine/module/spawn/SpawnCommands.java:171
 msgid "You cannot teleport an offline player to spawn!"
-msgstr "Du kannst keinen Offline-Spieler an den Spawn teleportieren!"
+msgstr ""
 
 #: de/cubeisland/engine/module/spawn/SpawnCommands.java:83
 msgid "The spawn in {world} for the role {name#role} is now set to {vector}"
-msgstr "Der Spawn in {world} für die Rolle {name#role} liegt nun bei {vector}"
+msgstr ""
 
 #: de/cubeisland/engine/module/spawn/SpawnCommands.java:163
 msgid "Invalid spawn location for {name} in {world}!"

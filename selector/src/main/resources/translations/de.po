@@ -14,13 +14,14 @@
 # You should have received a copy of the GNU General Public License
 # along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
 # Translators:
+# Faithcaio <Faithcaio@cubeisland.de>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: CubeEngine\n"
 "Report-Msgid-Bugs-To: development@cubeisland.de\n"
-"POT-Creation-Date: 2014-03-29 12:20:50+0100\n"
-"PO-Revision-Date: 2014-03-29 23:01+0000\n"
-"Last-Translator: Phillip Schichtel\n"
+"POT-Creation-Date: 2015-02-05 00:05:26+0100\n"
+"PO-Revision-Date: 2015-02-18 23:04+0000\n"
+"Last-Translator: Cube Island Development <development@cubeisland.de>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/cubeengine/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -28,22 +29,22 @@ msgstr ""
 "Language: de\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: de/cubeisland/engine/selector/CuboidSelector.java:106
+#: de/cubeisland/engine/module/selector/CuboidSelector.java:107
 msgid "First position set to ({integer}, {integer}, {integer})."
-msgstr ""
+msgstr "Erste Position gesetzt ({integer}, {integer}, {integer})."
 
-#: de/cubeisland/engine/selector/CuboidSelector.java:111
+#: de/cubeisland/engine/module/selector/CuboidSelector.java:112
 msgid "Second position set to ({integer}, {integer}, {integer})."
-msgstr ""
+msgstr "Zweite Position gesetzt ({integer}, {integer}, {integer})."
 
-#: de/cubeisland/engine/selector/SelectorCommand.java:56
-msgid "You cannot hold a selection tool!"
-msgstr ""
-
-#: de/cubeisland/engine/selector/SelectorCommand.java:98
+#: de/cubeisland/engine/module/selector/SelectorCommand.java:74
 msgid "Found a region selector tool in your inventory!"
-msgstr ""
+msgstr "Selektionstool im Inventar gefunden!"
 
-#: de/cubeisland/engine/selector/SelectorCommand.java:90
+#: de/cubeisland/engine/module/selector/SelectorCommand.java:66
 msgid "Received a new region selector tool"
+msgstr "Neues Selektionstool erhalten"
+
+#: de/cubeisland/engine/module/selector/SelectorCommand.java:77
+msgid "Provides you with a wand to select a cuboid"
 msgstr ""

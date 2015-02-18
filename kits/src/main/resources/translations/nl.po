@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
 # Translators:
-# jeti83 <jeti83@hotmail.de>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: CubeEngine\n"
@@ -22,20 +21,20 @@ msgstr ""
 "POT-Creation-Date: 2015-02-05 00:05:27+0100\n"
 "PO-Revision-Date: 2015-02-18 23:04+0000\n"
 "Last-Translator: Cube Island Development <development@cubeisland.de>\n"
-"Language-Team: German (http://www.transifex.com/projects/p/cubeengine/language/de/)\n"
+"Language-Team: Dutch (http://www.transifex.com/projects/p/cubeengine/language/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: de\n"
+"Language: nl\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: de/cubeisland/engine/module/kits/KitCommand.java:63
 msgid "Creates a new kit with the items in your inventory."
-msgstr "Erstellt mit den Items aus deinem Inventar ein neues Kit."
+msgstr ""
 
 #: de/cubeisland/engine/module/kits/KitCommand.java:117
 msgid "Lists all currently available kits."
-msgstr "Listet alle derzeit verfügbare Kits auf."
+msgstr ""
 
 #: de/cubeisland/engine/module/kits/KitCommand.java:128
 msgid "Gives a set of items."
@@ -43,19 +42,19 @@ msgstr ""
 
 #: de/cubeisland/engine/module/kits/KitCommand.java:112
 msgid "Created the {name#kit} kit!"
-msgstr "Kit {name#kit} erstellt!"
+msgstr ""
 
 #: de/cubeisland/engine/module/kits/KitCommand.java:135
 msgid "Kit {input} not found!"
-msgstr "Kit {input} nicht gefunden!"
+msgstr ""
 
 #: de/cubeisland/engine/module/kits/KitCommand.java:168
 msgid "No one received the kit!"
-msgstr "Keiner hat das Kit erhalten!"
+msgstr ""
 
 #: de/cubeisland/engine/module/kits/KitCommand.java:151
 msgid "Received the {name#kit} kit!"
-msgstr "Kit {name#kit} erhalten!"
+msgstr ""
 
 #: de/cubeisland/engine/module/kits/KitCommand.java:156
 #: de/cubeisland/engine/module/kits/KitCommand.java:204
@@ -70,7 +69,7 @@ msgstr ""
 #: de/cubeisland/engine/module/kits/KitCommand.java:155
 #: de/cubeisland/engine/module/kits/KitCommand.java:201
 msgid "You gave {user} the {name#kit} kit!"
-msgstr "Du hast {user} das Kit {name#kit} gegeben!"
+msgstr ""
 
 #: de/cubeisland/engine/module/kits/KitCommand.java:189
 msgid "You need to specify a player!"
@@ -78,12 +77,12 @@ msgstr ""
 
 #: de/cubeisland/engine/module/kits/KitCommand.java:172
 msgid "{amount} players did not receive a kit!"
-msgstr "{amount} Spieler haben kein Kit erhalten!"
+msgstr ""
 
 #: de/cubeisland/engine/module/kits/KitCommand.java:104
 msgid ""
 "{name#kit} is is not a valid name! Do not use characters like *, | or ?"
-msgstr "{name#kit} ist ist kein gültiger Name! Benutze keine Sonderzeichen (*, | , ?)"
+msgstr ""
 
 #: de/cubeisland/engine/module/kits/KitCommand.java:220
 msgid "{user} has not enough space in your inventory for this kit!"
@@ -91,7 +90,7 @@ msgstr ""
 
 #: de/cubeisland/engine/module/kits/KitCommand.java:194
 msgid "{user} is not online!"
-msgstr "{user} ist nicht online!"
+msgstr ""
 
 #: de/cubeisland/engine/module/kits/KitCommand.java:40
 msgid "Manages item-kits"

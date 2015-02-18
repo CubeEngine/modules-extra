@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
 # Translators:
-# Faithcaio <Faithcaio@cubeisland.de>, 2013,2015
-# Sebastian Raupach <s.raupach92@googlemail.com>, 2013
 msgid ""
 msgstr ""
 "Project-Id-Version: CubeEngine\n"
@@ -23,180 +21,180 @@ msgstr ""
 "POT-Creation-Date: 2015-02-05 00:05:19+0100\n"
 "PO-Revision-Date: 2015-02-18 23:04+0000\n"
 "Last-Translator: Cube Island Development <development@cubeisland.de>\n"
-"Language-Team: German (http://www.transifex.com/projects/p/cubeengine/language/de/)\n"
+"Language-Team: Dutch (http://www.transifex.com/projects/p/cubeengine/language/nl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: de\n"
+"Language: nl\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: de/cubeisland/engine/module/signmarket/SignMarketCommands.java:40
 msgid "Enters the editmode allowing to change market signs easily"
-msgstr "Startet den Editiermodus und erlaubt Schilder einfach zu editieren"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:499
 msgid "-- {text:Sign Market:color=PURPLE} - {text:Edit Mode:color=PURPLE} --"
-msgstr "-- {text:Sign Market:color=PURPLE} - {text:Editiermodus:color=PURPLE} --"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:504
 msgid "--------- {text:Sign Market} ---------"
-msgstr "--------- {text:Sign Market} ---------"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:334
 msgid "Added all ({amount}) {name#material} to the stock!"
-msgstr "Alle ({amount}) {name#material} zum Vorrat hinzugefügt!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:375
 msgid "Added {amount}x {input#material} to the stock!"
-msgstr "{amount}x {input#material} zum Vorrat hinzugefügt!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:588
 msgid "Book-Enchantments:"
-msgstr "Buch Verzauberungen:"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/EditModeListener.java:163
 msgid "Changed active sign!"
-msgstr "Aktives Schild geändert!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:769
 msgid "Double click to break the sign!"
-msgstr "Doppelklicke um das Schild abzureissen!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:577
 msgid "Enchantments:"
-msgstr "Verzauberungen:"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/EditModeListener.java:87
 msgid "Exiting edit mode."
-msgstr "Editiermodus verlassen."
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:609
 msgid "In stock: {amount}/{amount#max}"
-msgstr "Auf Vorrat: [amount}/{amount#max}"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:601
 msgid "In stock: {amount}/{text:Infinite}"
-msgstr "Auf Vorrat: {amount}/{text:Unendlich}"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:605
 msgid "In stock: {amount}/{text:Unknown:color=RED}"
-msgstr "Auf Vorrat: {amount}/{text:Unbekannt:color=RED}"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:988
 msgid "Invalid amount!"
-msgstr "Ungültige Menge!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:996
 msgid "Invalid price!"
-msgstr "Ungültiger Preis!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:348
 msgid "Invalid sign!"
-msgstr "Ungültiges Schild!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/EditModeListener.java:590
 msgid "Item in sign updated!"
-msgstr "Item in Schild a aktualisiert!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:765
 msgid "MarketSign destroyed!"
-msgstr "Marktschild zerstört!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/EditModeListener.java:76
 #: de/cubeisland/engine/module/signmarket/EditModeListener.java:504
 #: de/cubeisland/engine/module/signmarket/EditModeListener.java:608
 #: de/cubeisland/engine/module/signmarket/EditModeListener.java:633
 msgid "MarketSigns are disabled in the configuration for this world!"
-msgstr "Marktschild sind in dieser Welt deaktiviert!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:1004
 msgid "No item given!"
-msgstr "Kein Item gegeben!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:980
 msgid "No sign-type given!"
-msgstr "Kein Schildtyp gegeben!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/EditModeListener.java:519
 msgid "Someone else is editing this sign!"
-msgstr "Jemand anderes bearbeitet dieses Schild bereits!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/EditModeListener.java:527
 msgid "That is not a market sign!"
-msgstr "Das ist kein Marktschild!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:687
 msgid "The market sign cannot hold all your items!"
-msgstr "Das Marktschild kann nicht all deine Items fassen!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:684
 msgid "The market sign inventory is full!"
-msgstr "Dieses Marktschild hat ein volles Inventar!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:907
 msgid "The owner cannot afford the money to acquire your items!"
-msgstr "Der Besitzer kann sich diese Items nicht leisten!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:733
 msgid "There are no more items stored in the sign!"
-msgstr "Es gibt keine Items mehr in diesem Schild!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:854
 msgid "This market sign is {text:Sold Out:color=DARK_RED}!"
-msgstr "Dieses Marktschild ist {text:Ausverkauft:color=DARK_RED}!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:901
 msgid ""
 "This market sign is {text:full:color=DARK_RED}! You can no longer sell items"
 " to it."
-msgstr "Dieses Marktschild ist {text:voll:color=DARK_RED}! Weiterer Verkauf ist nicht möglich."
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:895
 msgid ""
 "This market sign is {text:satisfied:color=DARK_RED}! You can no longer sell "
 "items to it."
-msgstr "Die Nachfrage dieses Marktschildes ist {text:getstillt:color=DARK_RED}! Weiterer Verkauf ist nicht möglich."
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:314
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:473
 msgid "This sign is being edited right now!"
-msgstr "Dieses Schild wird gerade bearbeitet!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/EditModeListener.java:574
 msgid "This sign is not a market-sign!"
-msgstr "Dies ist kein Marktschild!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:328
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:359
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:369
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:480
 msgid "This signs inventory is being edited right now!"
-msgstr "Schildinventar wird gerade bearbeitet!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/EditModeListener.java:528
 msgid "Use shift leftclick to convert the sign."
-msgstr "Nutze Umschalt + Linksklick um das Schild zu konvertieren."
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:383
 msgid "Use your bare hands to break the sign!"
-msgstr "Freie Hände zum Abbauen des Schildes benötigt!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:409
 msgid "You are not allowed to break admin market signs!"
-msgstr "Fehlende Berechtigung um Admin Schilder abzubauen!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:435
 msgid "You are not allowed to break admin signs!"
-msgstr "Fehlende Berechtigung um Admin Schilder abzubauen!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:420
 msgid "You are not allowed to break others market signs!"
-msgstr "Fehlende Berechtigung um Marktschilder von Anderen abzubauen!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:398
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:446
 msgid "You are not allowed to break your own market signs!"
-msgstr "Fehlende Berechtigung um eigene Marktschilder abzubauen!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSignFactory.java:108
 msgid "You are not allowed to create Admin or User MarketSigns!"
@@ -204,85 +202,85 @@ msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/EditModeListener.java:615
 msgid "You are not allowed to create market signs!"
-msgstr "Fehlende Berechtigung um Marktschilder zu erstellen!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:458
 msgid "You are not allowed to destroy others market signs!"
-msgstr "Fehlende Berechtigung um andere Schilder abzubauen!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/EditModeListener.java:191
 msgid "You are not allowed to edit Signs of other players!"
-msgstr "Fehlende Berechtigung um Schilder von anderen Spielern zu bearbeiten!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/EditModeListener.java:178
 msgid "You are not allowed to edit admin signs!"
-msgstr "Fehlende Berechtigung um Adminschilder zu bearbeiten!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/EditModeListener.java:184
 msgid "You are not allowed to edit player signs!"
-msgstr "Fehlende Berechtigung um Schilder zu bearbeiten!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:343
 msgid "You are not allowed to see the market signs inventories"
-msgstr "Fehlende Berechtigung um Marktschild Inventare zu sehen"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:832
 msgid "You are not allowed to use buy market signs!"
-msgstr "Fehlende Berechtigung um Kaufschilder zu nutzen!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:840
 msgid "You are not allowed to use sell market signs!"
-msgstr "Fehlende Berechtigung um Verkaufschilder zu nutzen!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:886
 msgid "You bought {amount}x {input#item} for {input#price}."
-msgstr "{amount}x {input#item} für {input#price} gekauft."
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:860
 msgid "You can't afford these items!"
-msgstr "Geldmittel unzureichend!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:913
 msgid "You do not have enough items to sell!"
-msgstr "Nicht genug Items zum verkaufen im Inventar!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:890
 msgid "You don't have enough space in your inventory for these items!"
-msgstr "Nicht genug Platz im Inventar für diese Items!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/EditModeListener.java:585
 msgid ""
 "You have to take all items out of the market sign to be able to change the "
 "item in it!"
-msgstr "Es müssen alle Items aus dem Schild genommen werden um das Item des Schilds zu ändern!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:931
 msgid "You sold {amount}x {input#item} for {input#price}."
-msgstr "{amount}x {input#item} für {input#price} verkauft."
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:747
 msgid "Your inventory is full!"
-msgstr "Inventar ist voll!"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:515
 msgid ""
 "{text:Buy:color=DARK_BLUE}: {amount} for {input#price} from {input#owner}"
-msgstr "{text:Kaufen:color=DARK_BLUE}: {amount} für {input#price} von {input#owner}"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:520
 msgid ""
 "{text:Buy:color=DARK_BLUE}: {amount} for {input#price} from {user#owner}"
-msgstr "{text:Kaufen:color=DARK_BLUE}: {amount} für {input#price} von {user#owner}"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:528
 msgid ""
 "{text:Sell:color=DARK_BLUE}: {amount} for {input#price} to {input#owner}"
-msgstr "{text:Verkaufen:color=DARK_BLUE}: {amount} für {input#price} von {input#owner}"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/MarketSign.java:533
 msgid ""
 "{text:Sell:color=DARK_BLUE}: {amount} for {input#price} to {user#owner}"
-msgstr "{text:Verkaufen:color=DARK_BLUE}: {amount} für {input#price} von {user#owner}"
+msgstr ""
 
 #: de/cubeisland/engine/module/signmarket/SignMarketCommands.java:28
 msgid "MarketSign-Commands"
