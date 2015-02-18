@@ -17,11 +17,6 @@ file_filter = chat/src/main/resources/translations/<lang>.po
 source_file = chat/src/main/resources/translations/messages.pot
 source_lang = en_US
 
-[cubeengine.chopchop]
-file_filter = chopchop/src/main/resources/translations/<lang>.po
-source_file = chopchop/src/main/resources/translations/messages.pot
-source_lang = en_US
-
 [cubeengine.customcommands]
 file_filter = customcommands/src/main/resources/translations/<lang>.po
 source_file = customcommands/src/main/resources/translations/messages.pot
