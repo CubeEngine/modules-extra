@@ -17,8 +17,8 @@
  */
 package de.cubeisland.engine.module.vote;
 
-import java.sql.Timestamp;
 import com.vexsoftware.votifier.model.VotifierEvent;
+import de.cubeisland.engine.core.command.CommandManager;
 import de.cubeisland.engine.core.module.Module;
 import de.cubeisland.engine.core.module.service.Economy;
 import de.cubeisland.engine.core.user.User;
@@ -28,12 +28,14 @@ import de.cubeisland.engine.module.vote.storage.VoteModel;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.jooq.DSLContext;
-import org.jooq.types.UShort;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.NONE;
 import static de.cubeisland.engine.module.vote.storage.TableVote.TABLE_VOTE;
 import static java.lang.Math.pow;
 
+/**
+ * A module to handle Votes coming from a {@link VotifierEvent}
+ */
 public class Vote extends Module implements Listener
 {
     private VoteConfiguration config;
@@ -46,7 +48,8 @@ public class Vote extends Module implements Listener
         this.getCore().getDB().registerTable(TableVote.class);
         this.config = this.loadConfig(VoteConfiguration.class);
         this.getCore().getEventManager().registerListener(this, this);
-        this.getCore().getCommandManager().addCommands(this.getCore().getCommandManager(), this, new VoteCommands(this));
+        CommandManager cm = this.getCore().getCommandManager();
+        cm.addCommands(cm, this, new VoteCommands(this));
         this.dsl = this.getCore().getDB().getDSL();
         this.economy = getCore().getModuleManager().getServiceManager().getServiceImplementation(Economy.class);
     }
@@ -55,48 +58,48 @@ public class Vote extends Module implements Listener
     private void onVote(VotifierEvent event)
     {
         final com.vexsoftware.votifier.model.Vote vote = event.getVote();
-        if (this.getCore().getUserManager().findExactUser(vote.getUsername()) != null)
+        User user = getCore().getUserManager().findExactUser(vote.getUsername());
+        if (user == null)
         {
-            User user = getCore().getUserManager().findExactUser(vote.getUsername());
-            VoteModel voteModel = this.dsl.selectFrom(TABLE_VOTE).where(TABLE_VOTE.USERID.eq(user.getEntity().getKey())).fetchOne();
-            if (voteModel == null)
+            if (vote.getUsername() == null || vote.getUsername().trim().isEmpty())
             {
-                voteModel = this.dsl.newRecord(TABLE_VOTE).newVote(user);
-                voteModel.insertAsync();
+                this.getLog().info("{} voted but is not known to the server!", vote.getUsername());
+            }
+            return;
+        }
+        VoteModel voteModel = this.dsl.selectFrom(TABLE_VOTE).where(TABLE_VOTE.USERID.eq(user.getEntity().getKey())).fetchOne();
+        if (voteModel != null)
+        {
+            if (voteModel.timePassed(config.voteBonusTime.getMillis()))
+            {
+                voteModel.setVotes(1);
             }
             else
             {
-                if (System.currentTimeMillis() - voteModel.getValue(TABLE_VOTE.LASTVOTE).getTime() > this.config.voteBonusTime.getMillis())
-                {
-                    voteModel.setValue(TABLE_VOTE.VOTEAMOUNT, UShort.valueOf(1));
-                }
-                else
-                {
-                    voteModel.setValue(TABLE_VOTE.VOTEAMOUNT, UShort.valueOf(voteModel.getValue(TABLE_VOTE.VOTEAMOUNT).intValue() + 1));
-                }
-                voteModel.setValue(TABLE_VOTE.LASTVOTE, new Timestamp(System.currentTimeMillis()));
-                voteModel.updateAsync();
+                voteModel.addVote();
             }
-            economy.createAccount(user.getUniqueId());
-            final int voteAmount = voteModel.getValue(TABLE_VOTE.VOTEAMOUNT).intValue();
-            double money = this.config.voteReward * pow(1 + 1.5 / voteAmount, voteAmount - 1);
-            economy.deposit(user.getUniqueId(), money);
-            String moneyFormat = economy.format(money);
-            this.getCore().getUserManager().broadcastMessage(NONE, this.config.voteBroadcast
-                .replace("{PLAYER}", vote.getUsername())
-                .replace("{MONEY}", moneyFormat)
-                .replace("{AMOUNT}", String.valueOf(voteAmount))
-                .replace("{VOTEURL}", this.config.voteUrl));
-            user.sendMessage(ChatFormat.parseFormats(this.config.voteMessage
-                .replace("{PLAYER}", vote.getUsername())
-                .replace("{MONEY}", moneyFormat)
-                .replace("{AMOUNT}", String.valueOf(voteAmount))
-                .replace("{VOTEURL}", this.config.voteUrl)));
+            voteModel.updateAsync();
         }
-        else if (vote.getUsername() == null || vote.getUsername().trim().isEmpty())
+        else
         {
-            this.getLog().info("{} voted but is not known to the server!", vote.getUsername());
+            voteModel = this.dsl.newRecord(TABLE_VOTE).newVote(user);
+            voteModel.insertAsync();
         }
+        economy.createAccount(user.getUniqueId());
+        final int voteAmount = voteModel.getVotes();
+        double money = this.config.voteReward * pow(1 + 1.5 / voteAmount, voteAmount - 1);
+        economy.deposit(user.getUniqueId(), money);
+        String moneyFormat = economy.format(money);
+        this.getCore().getUserManager().broadcastMessage(NONE, this.config.voteBroadcast
+            .replace("{PLAYER}", vote.getUsername())
+            .replace("{MONEY}", moneyFormat)
+            .replace("{AMOUNT}", String.valueOf(voteAmount))
+            .replace("{VOTEURL}", this.config.voteUrl));
+        user.sendMessage(ChatFormat.parseFormats(this.config.voteMessage
+            .replace("{PLAYER}", vote.getUsername())
+            .replace("{MONEY}", moneyFormat)
+            .replace("{AMOUNT}", String.valueOf(voteAmount))
+            .replace("{VOTEURL}", this.config.voteUrl)));
     }
 
     public VoteConfiguration getConfig()

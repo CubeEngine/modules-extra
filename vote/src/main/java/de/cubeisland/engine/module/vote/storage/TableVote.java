@@ -23,9 +23,9 @@ import de.cubeisland.engine.core.util.Version;
 import org.jooq.TableField;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
-import org.jooq.util.mysql.MySQLDataType;
 
 import static de.cubeisland.engine.core.user.TableUser.TABLE_USER;
+import static org.jooq.util.mysql.MySQLDataType.DATETIME;
 
 public class TableVote extends Table<VoteModel>
 {
@@ -41,7 +41,7 @@ public class TableVote extends Table<VoteModel>
     }
 
     public final TableField<VoteModel, UInteger> USERID = createField("userid", U_INTEGER.nullable(false), this);
-    public final TableField<VoteModel, Timestamp> LASTVOTE = createField("lastvote", MySQLDataType.DATETIME.nullable(false), this);
+    public final TableField<VoteModel, Timestamp> LASTVOTE = createField("lastvote", DATETIME.nullable(false), this);
     public final TableField<VoteModel, UShort> VOTEAMOUNT = createField("voteamount", U_SMALLINT.nullable(false), this);
 
     @Override

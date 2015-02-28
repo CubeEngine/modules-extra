@@ -38,4 +38,35 @@ public class VoteModel extends AsyncRecord<VoteModel>
         this.setValue(TABLE_VOTE.VOTEAMOUNT, UShort.valueOf(1));
         return this;
     }
+
+    public void setLastNow()
+    {
+        setValue(TABLE_VOTE.LASTVOTE, new Timestamp(System.currentTimeMillis()));
+    }
+
+    public void setVotes(int amount)
+    {
+        setValue(TABLE_VOTE.VOTEAMOUNT, UShort.valueOf(amount));
+        setLastNow();
+    }
+
+    public int getVotes()
+    {
+        return getValue(TABLE_VOTE.VOTEAMOUNT).intValue();
+    }
+
+    public void addVote()
+    {
+        setVotes(getVotes() + 1);
+    }
+
+    public boolean timePassed(long duration)
+    {
+        return System.currentTimeMillis() - getLastVote() > duration;
+    }
+
+    public long getLastVote()
+    {
+        return getValue(TABLE_VOTE.LASTVOTE).getTime();
+    }
 }

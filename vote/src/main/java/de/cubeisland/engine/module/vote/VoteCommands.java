@@ -30,6 +30,7 @@ import org.joda.time.format.PeriodFormatterBuilder;
 import static de.cubeisland.engine.core.util.formatter.MessageType.NEUTRAL;
 import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.vote.storage.TableVote.TABLE_VOTE;
+import static java.util.concurrent.TimeUnit.DAYS;
 
 public class VoteCommands
 {
@@ -39,52 +40,51 @@ public class VoteCommands
     public VoteCommands(Vote module)
     {
         this.module = module;
-        this.formatter = new PeriodFormatterBuilder().appendWeeks().appendSuffix(" week"," weeks").appendSeparator(" ")
-                                                     .appendDays().appendSuffix(" day", " days").appendSeparator(" ")
-                                                     .appendHours().appendSuffix(" hour"," hours").appendSeparator(" ")
-                                                     .appendMinutes().appendSuffix(" minute", " minutes").appendSeparator(" ")
-                                                     .appendSeconds().appendSuffix(" second", " seconds").appendSeparator(" ")
-                                                     .appendMillis().appendSuffix(" ms").toFormatter();
+        this.formatter = new PeriodFormatterBuilder()
+            .appendWeeks().appendSuffix(" week"," weeks").appendSeparator(" ")
+            .appendDays().appendSuffix(" day", " days").appendSeparator(" ")
+            .appendHours().appendSuffix(" hour"," hours").appendSeparator(" ")
+            .appendMinutes().appendSuffix(" minute", " minutes").appendSeparator(" ")
+            .appendSeconds().appendSuffix(" second", " seconds").appendSeparator(" ")
+            .appendMillis().appendSuffix(" ms").toFormatter();
     }
 
-    @Command(desc = "shows your current vote situation")
+    @Command(desc = "Shows your current vote situation")
     public void vote(CommandContext context)
     {
-        if (context.getSource() instanceof User)
+        if (!(context.getSource() instanceof User))
         {
-            VoteModel voteModel = module.dsl.selectFrom(TABLE_VOTE)
-                          .where(TABLE_VOTE.USERID.eq(((User)context.getSource()).getEntity().getKey()))
-                        .fetchOne();
-            if (voteModel == null)
+            context.sendTranslated(NEUTRAL, "Well you wont get any rewards.");
+            if (!module.getConfig().voteUrl.isEmpty())
             {
-                context.sendTranslated(NEUTRAL, "Sorry but you do not have any registered votes on this server!");
-            }
-            else
-            {
-                context.sendTranslated(POSITIVE, "You current vote-count is {amount}", voteModel.getValue(TABLE_VOTE.VOTEAMOUNT).intValue());
-                if (System.currentTimeMillis() - voteModel.getValue(TABLE_VOTE.LASTVOTE).getTime() >= module.getConfig().voteBonusTime.getMillis())
-                {
-                    context.sendTranslated(NEUTRAL, "Sadly you did not vote in the last {input#time} so your vote-count will be reset to 1", this.formatter.print(module.getConfig().voteBonusTime.toPeriod()));
-                }
-                else if (System.currentTimeMillis() - voteModel.getValue(TABLE_VOTE.LASTVOTE).getTime() < TimeUnit.DAYS.toMillis(1))
-                {
-                    context.sendTranslated(POSITIVE, "You voted {input#time} so you will probably not be able to vote again already!", TimeUtil.format(context.getSource().getLocale(), new Date(voteModel.getValue(TABLE_VOTE.LASTVOTE).getTime())));
-                }
-                else
-                {
-                    context.sendTranslated(NEUTRAL, "Voting now will increase your consecutive votes and result in higher reward!");
-                }
-                if (!module.getConfig().voteUrl.isEmpty())
-                {
-                    context.sendTranslated(POSITIVE, "You can vote here now: {name#voteurl}", module.getConfig().voteUrl);
-                }
+                context.sendTranslated(NEUTRAL, "But here go vote anyways: {name#voteurl}", module.getConfig().voteUrl);
             }
             return;
         }
-        context.sendTranslated(NEUTRAL, "Well you wont get any rewards.");
+        VoteModel voteModel = module.dsl.selectFrom(TABLE_VOTE).where(TABLE_VOTE.USERID.eq(((User)context.getSource()).getEntity().getKey())).fetchOne();
+        if (voteModel == null)
+        {
+            context.sendTranslated(NEUTRAL, "Sorry but you do not have any registered votes on this server!");
+            return;
+        }
+        context.sendTranslated(POSITIVE, "You current vote-count is {amount}", voteModel.getVotes());
+        if (voteModel.timePassed(module.getConfig().voteBonusTime.getMillis()))
+        {
+            context.sendTranslated(NEUTRAL, "Sadly you did not vote in the last {input#time} so your vote-count will be reset to 1",
+                                   this.formatter.print(module.getConfig().voteBonusTime.toPeriod()));
+        }
+        else if (voteModel.timePassed(DAYS.toMillis(1)))
+        {
+            context.sendTranslated(NEUTRAL, "Voting now will increase your consecutive votes and result in higher reward!");
+        }
+        else
+        {
+            context.sendTranslated(POSITIVE, "You voted {input#time} so you will probably not be able to vote again already!",
+                                   TimeUtil.format(context.getSource().getLocale(), new Date(voteModel.getLastVote())));
+        }
         if (!module.getConfig().voteUrl.isEmpty())
         {
-            context.sendTranslated(NEUTRAL, "But here go vote anyways: {name#voteurl}", module.getConfig().voteUrl);
+            context.sendTranslated(POSITIVE, "You can vote here now: {name#voteurl}", module.getConfig().voteUrl);
         }
     }
 }
