@@ -87,8 +87,9 @@ public class Spawner extends Module implements Listener
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockBreak(BlockBreakEvent event)
     {
-        if (event.getPlayer().getItemInHand() != null &&
-            event.getPlayer().getItemInHand().containsEnchantment(SILK_TOUCH) &&
+        ItemStack inHand = event.getPlayer().getItemInHand();
+        if (inHand != null &&
+            inHand.containsEnchantment(SILK_TOUCH) &&
             event.getBlock().getType() == MOB_SPAWNER)
         {
             User user = this.getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
@@ -108,15 +109,13 @@ public class Spawner extends Module implements Listener
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockPlace(BlockPlaceEvent event)
     {
-        if (event.getBlockPlaced().getType() == MOB_SPAWNER)
+        if (event.getBlockPlaced().getType() == MOB_SPAWNER &&
+            event.getPlayer().getItemInHand().getEnchantmentLevel(LURE) == 1)
         {
-            if (event.getPlayer().getItemInHand().getEnchantmentLevel(LURE) == 1)
-            {
-                CreatureSpawner spawner = (CreatureSpawner)event.getBlock().getState();
-                spawner.setSpawnedType(SNOWBALL);
-                User user = this.getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
-                user.sendTranslated(POSITIVE, "Inactive Monster Spawner placed!");
-            }
+            CreatureSpawner spawner = (CreatureSpawner)event.getBlock().getState();
+            spawner.setSpawnedType(SNOWBALL);
+            User user = this.getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
+            user.sendTranslated(POSITIVE, "Inactive Monster Spawner placed!");
         }
     }
 
@@ -145,27 +144,24 @@ public class Spawner extends Module implements Listener
         if (perm == null && !this.eggPerms.isAuthorized(user))
         {
             user.sendTranslated(NEGATIVE, "Invalid SpawnEgg!");
+            return;
         }
-        else if (perm != null && !perm.isAuthorized(user))
+        if (perm != null && !perm.isAuthorized(user))
         {
             user.sendTranslated(NEGATIVE, "You are not allowed to change Monster Spawner to this EntityType!");
+            return;
         }
-        else
+        spawner.setSpawnedType(egg.getSpawnedType());
+        spawner.update();
+        if (user.getGameMode() != CREATIVE)
         {
-            spawner.setSpawnedType(egg.getSpawnedType());
-            spawner.update();
-            if (user.getGameMode() != CREATIVE)
+            int amount = user.getItemInHand().getAmount() - 1;
+            user.getItemInHand().setAmount(amount);
+            if (amount == 0)
             {
-                if (user.getItemInHand().getAmount() - 1 == 0)
-                {
-                    user.setItemInHand(null);
-                }
-                else
-                {
-                    user.getItemInHand().setAmount(user.getItemInHand().getAmount() - 1);
-                }
+                user.setItemInHand(null);
             }
-            user.sendTranslated(POSITIVE, "Monster Spawner activated!");
         }
+        user.sendTranslated(POSITIVE, "Monster Spawner activated!");
     }
 }

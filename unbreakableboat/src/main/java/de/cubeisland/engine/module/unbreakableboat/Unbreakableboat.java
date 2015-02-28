@@ -46,6 +46,9 @@ import static org.bukkit.block.BlockFace.UP;
 import static org.bukkit.enchantments.Enchantment.DURABILITY;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;
 
+/**
+ * A module providing a recipe for an (almost) unbreakable boat
+ */
 public class Unbreakableboat extends Module implements Listener
 {
     private Map<Location, Player> prePlanned = new HashMap<>();
@@ -70,26 +73,24 @@ public class Unbreakableboat extends Module implements Listener
     public void onVehicleBreak(VehicleDestroyEvent event)
     {
         Vehicle vehicle = event.getVehicle();
-        if (vehicle instanceof Boat)
+        if (!(vehicle instanceof Boat))
         {
-            if (event.getAttacker() instanceof Player)
+            return;
+        }
+        if (event.getAttacker() instanceof Player)
+        {
+            if (this.unbreakable.remove(vehicle.getUniqueId()))
             {
-
-                if (this.unbreakable.remove(vehicle.getUniqueId()))
-                {
-                    Location location = vehicle.getLocation();
-                    location.getWorld().dropItemNaturally(location, boat.clone());
-                    vehicle.remove();
-                    event.setCancelled(true);
-                    return;
-                }
-                return;
-            }
-            if (this.unbreakable.contains(vehicle.getUniqueId()))
-            {
+                Location location = vehicle.getLocation();
+                location.getWorld().dropItemNaturally(location, boat.clone());
+                vehicle.remove();
                 event.setCancelled(true);
-                return;
             }
+            return;
+        }
+        if (this.unbreakable.contains(vehicle.getUniqueId()))
+        {
+            event.setCancelled(true);
         }
     }
 
@@ -108,12 +109,12 @@ public class Unbreakableboat extends Module implements Listener
     @EventHandler
     public void onBoatPreplace(PlayerInteractEvent event)
     {
-        if (event.getAction() == RIGHT_CLICK_BLOCK && event.getPlayer().getItemInHand().getType() == BOAT)
+        ItemStack inHand = event.getPlayer().getItemInHand();
+        if (event.getAction() == RIGHT_CLICK_BLOCK
+         && inHand.getType() == BOAT
+         && inHand.getEnchantmentLevel(DURABILITY) == 5)
         {
-            if (event.getPlayer().getItemInHand().getEnchantmentLevel(DURABILITY) == 5)
-            {
-                this.prePlanned.put(event.getClickedBlock().getRelative(UP).getLocation(), event.getPlayer());
-            }
+            this.prePlanned.put(event.getClickedBlock().getRelative(UP).getLocation(), event.getPlayer());
         }
     }
 }
