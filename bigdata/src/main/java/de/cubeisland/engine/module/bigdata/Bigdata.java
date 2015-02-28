@@ -59,7 +59,14 @@ public class Bigdata extends Module
 
     public void releaseClient()
     {
-        this.mongoClient.close();
+        try
+        {
+            this.mongoClient.close();
+        }
+        finally
+        {
+            this.mongoClient = null;
+        }
     }
 
     @Override
