@@ -26,4 +26,13 @@ public class MongoDBConfiguration extends ReflectedYaml
     public int port = 27017;
     @Comment("The timeout is specified in milliseconds")
     public int connectionTimeout = 5000;
+
+    public Authentication authentication;
+
+    public static class Authentication
+    {
+        public String database = "cubeengine";
+        public String username;
+        public String password;
+    }
 }

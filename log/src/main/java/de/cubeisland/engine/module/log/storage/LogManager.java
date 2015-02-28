@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import de.cubeisland.engine.core.bukkit.BukkitCore;
 import de.cubeisland.engine.core.user.User;
@@ -46,15 +45,13 @@ public class LogManager
     private final Map<World, LoggingConfiguration> worldConfigs = new HashMap<>();
 
     private final QueryManager queryManager;
-    private DB db;
     private DBCollection collection;
 
     public LogManager(Log module, Bigdata bigdata)
     {
         this.module = module;
         this.bigdata = bigdata;
-        this.db = bigdata.getDatabae("cubeengine");
-        this.collection = this.db.getCollection("log");
+        this.collection = bigdata.getDatabase().getCollection("log");
         this.collection.ensureIndex(new BasicDBObject("coord.vector.y", 1).append("coord.vector.x", 1).append("coord.vector.z", 1));
         this.collection.ensureIndex(new BasicDBObject("coord.world-uuid", 1));
         this.collection.ensureIndex(new BasicDBObject("action", 1));
@@ -152,11 +149,6 @@ public class LogManager
     public QueryManager getQueryManager()
     {
         return this.queryManager;
-    }
-
-    public DB getDB()
-    {
-        return db;
     }
 
     public DBCollection getCollection()
