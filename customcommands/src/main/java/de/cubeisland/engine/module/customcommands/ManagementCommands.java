@@ -51,7 +51,7 @@ public class ManagementCommands extends ContainerCommand
         this.module = module;
         this.config = module.getConfig();
 
-        module.getCore().getCommandManager().registerDefaultCompleter(new CustomCommandCompleter(module));
+        module.getCore().getCommandManager().getProviderManager().register(module, new CustomCommandCompleter(module));
     }
 
     @Command(desc = "Adds a custom chat command.")

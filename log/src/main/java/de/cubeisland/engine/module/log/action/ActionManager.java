@@ -62,7 +62,7 @@ public class ActionManager
     public ActionManager(Log module)
     {
         this.module = module;
-        this.module.getCore().getCommandManager().registerDefaultCompleter(new ActionTypeCompleter(this), ActionTypeCompleter.class);
+        this.module.getCore().getCommandManager().getProviderManager().register(module, new ActionTypeCompleter(this), ActionTypeCompleter.class);
         this.registerLogActionTypes();
     }
 
