@@ -26,9 +26,9 @@ import de.cubeisland.engine.converter.node.NullNode;
 import de.cubeisland.engine.converter.node.StringNode;
 import de.cubeisland.engine.core.CubeEngine;
 import de.cubeisland.engine.core.bukkit.NBTUtils;
-import net.minecraft.server.v1_8_R1.NBTTagCompound;
+import net.minecraft.server.v1_8_R2.NBTTagCompound;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_8_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_8_R2.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
 public class ItemStackConverter extends SimpleConverter<ItemStack>
@@ -45,7 +45,7 @@ public class ItemStackConverter extends SimpleConverter<ItemStack>
         item.set("Count", new IntNode(itemStack.getAmount()));
         item.set("Damage", new IntNode(itemStack.getDurability()));
         item.set("Item", StringNode.of(itemStack.getType().name()));
-        net.minecraft.server.v1_8_R1.ItemStack nmsCopy = CraftItemStack.asNMSCopy(itemStack);
+        net.minecraft.server.v1_8_R2.ItemStack nmsCopy = CraftItemStack.asNMSCopy(itemStack);
         if (nmsCopy == null)
         {
             CubeEngine.getLog().error("NMSCopy is unexpectedly null! " + itemStack);
@@ -74,7 +74,7 @@ public class ItemStackConverter extends SimpleConverter<ItemStack>
                     ItemStack itemStack = new ItemStack(Material.valueOf(item.asText()));
                     itemStack.setDurability(((IntNode)damage).getValue().shortValue());
                     itemStack.setAmount(((IntNode)count).getValue());
-                    net.minecraft.server.v1_8_R1.ItemStack nms = CraftItemStack.asNMSCopy(itemStack);
+                    net.minecraft.server.v1_8_R2.ItemStack nms = CraftItemStack.asNMSCopy(itemStack);
                     nms.setTag(((MapNode)tag).isEmpty() ? null : (NBTTagCompound)NBTUtils.convertNodeToNBT(tag));
                     return CraftItemStack.asBukkitCopy(nms);
                 }

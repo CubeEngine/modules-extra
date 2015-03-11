@@ -25,9 +25,9 @@ import de.cubeisland.engine.converter.node.Node;
 import de.cubeisland.engine.converter.node.ShortNode;
 import de.cubeisland.engine.converter.node.StringNode;
 import de.cubeisland.engine.core.bukkit.NBTUtils;
-import net.minecraft.server.v1_8_R1.NBTTagCompound;
+import net.minecraft.server.v1_8_R2.NBTTagCompound;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_8_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_8_R2.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
 public class NBTItemStackConverter extends SimpleConverter<ItemStack>
@@ -62,7 +62,7 @@ public class NBTItemStackConverter extends SimpleConverter<ItemStack>
                     ItemStack itemStack = new ItemStack(Material.valueOf(item.asText()));
                     itemStack.setDurability(((ShortNode)damage).getValue());
                     itemStack.setAmount(((IntNode)count).getValue());
-                    net.minecraft.server.v1_8_R1.ItemStack nms = CraftItemStack.asNMSCopy(itemStack);
+                    net.minecraft.server.v1_8_R2.ItemStack nms = CraftItemStack.asNMSCopy(itemStack);
                     nms.setTag(((MapNode)tag).isEmpty() ? null : (NBTTagCompound)NBTUtils.convertNodeToNBT(tag));
                     return CraftItemStack.asBukkitCopy(nms);
                 }
