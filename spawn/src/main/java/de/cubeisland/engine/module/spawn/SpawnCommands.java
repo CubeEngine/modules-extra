@@ -34,6 +34,7 @@ import de.cubeisland.engine.module.roles.role.ResolvedDataHolder;
 import de.cubeisland.engine.module.roles.role.Role;
 import de.cubeisland.engine.module.roles.role.RolesAttachment;
 import de.cubeisland.engine.module.roles.role.RolesManager;
+import de.cubeisland.engine.module.roles.role.resolved.ResolvedMetadata;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
@@ -150,13 +151,14 @@ public class SpawnCommands
             }
             r = rolesAttachment.getDataHolder(world);
         }
-        String roleName = r.getMetadata().get("rolespawn").getOrigin().getName();
-        roleSpawn = r.getMetadata().get("rolespawn").getValue();
-        if (roleSpawn == null)
+        ResolvedMetadata rolespawn = r.getMetadata().get("rolespawn");
+        String roleName = rolespawn == null ? r.getName() : rolespawn.getOrigin().getName();
+        if (rolespawn == null || rolespawn.getValue() == null)
         {
             context.sendTranslated(NEGATIVE, "No spawn point for {name} in {world}!", roleName, world);
             return;
         }
+        roleSpawn = rolespawn.getValue();
         Location spawnLocation = this.getSpawnLocation(roleSpawn);
         if (spawnLocation == null)
         {
