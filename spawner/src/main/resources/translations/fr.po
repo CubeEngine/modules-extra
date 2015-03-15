@@ -18,7 +18,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: CubeEngine\n"
 "Report-Msgid-Bugs-To: development@cubeisland.de\n"
-"POT-Creation-Date: 2014-03-27 03:00:13+0100\n"
+"POT-Creation-Date: 2015-02-05 00:05:28+0100\n"
 "PO-Revision-Date: 2014-03-26 09:35+0000\n"
 "Last-Translator: Phillip Schichtel\n"
 "Language-Team: French (http://www.transifex.com/projects/p/cubeengine/language/fr/)\n"
@@ -28,30 +28,30 @@ msgstr ""
 "Language: fr\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: de/cubeisland/engine/spawner/Spawner.java:150
+#: de/cubeisland/engine/module/spawner/Spawner.java:147
 msgid "Invalid SpawnEgg!"
 msgstr ""
 
-#: de/cubeisland/engine/spawner/Spawner.java:107
+#: de/cubeisland/engine/module/spawner/Spawner.java:102
 msgid "Dropped inactive Monster Spawner!"
 msgstr ""
 
-#: de/cubeisland/engine/spawner/Spawner.java:121
+#: de/cubeisland/engine/module/spawner/Spawner.java:118
 msgid "Inactive Monster Spawner placed!"
 msgstr ""
 
-#: de/cubeisland/engine/spawner/Spawner.java:171
+#: de/cubeisland/engine/module/spawner/Spawner.java:168
 msgid "Monster Spawner activated!"
 msgstr ""
 
-#: de/cubeisland/engine/spawner/Spawner.java:154
+#: de/cubeisland/engine/module/spawner/Spawner.java:151
 msgid "You are not allowed to change Monster Spawner to this EntityType!"
 msgstr ""
 
-#: de/cubeisland/engine/spawner/Spawner.java:141
+#: de/cubeisland/engine/module/spawner/Spawner.java:138
 msgid "You can only change inactive Monster Spawner!"
 msgstr ""
 
-#: de/cubeisland/engine/spawner/Spawner.java:103
+#: de/cubeisland/engine/module/spawner/Spawner.java:98
 msgid "Inactive Monster Spawner"
 msgstr ""

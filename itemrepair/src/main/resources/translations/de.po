@@ -23,8 +23,8 @@ msgstr ""
 "Project-Id-Version: CubeEngine\n"
 "Report-Msgid-Bugs-To: development@cubeisland.de\n"
 "POT-Creation-Date: 2015-02-05 00:05:21+0100\n"
-"PO-Revision-Date: 2015-02-18 23:04+0000\n"
-"Last-Translator: Cube Island Development <development@cubeisland.de>\n"
+"PO-Revision-Date: 2015-02-25 11:58+0000\n"
+"Last-Translator: Faithcaio <Faithcaio@cubeisland.de>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/cubeengine/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -134,4 +134,4 @@ msgstr "{text:Linksklicke} erneut um all deine beschädigten Items zu reparieren
 
 #: de/cubeisland/engine/module/itemrepair/ItemRepairCommands.java:38
 msgid "ItemRepair commands"
-msgstr ""
+msgstr "ItemRepair Befehle"

@@ -14,13 +14,14 @@
 # You should have received a copy of the GNU General Public License
 # along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
 # Translators:
+# Faithcaio <Faithcaio@cubeisland.de>, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: CubeEngine\n"
 "Report-Msgid-Bugs-To: development@cubeisland.de\n"
 "POT-Creation-Date: 2015-02-05 00:04:44+0100\n"
-"PO-Revision-Date: 2015-02-18 23:04+0000\n"
-"Last-Translator: Cube Island Development <development@cubeisland.de>\n"
+"PO-Revision-Date: 2015-02-19 12:13+0000\n"
+"Last-Translator: Faithcaio <Faithcaio@cubeisland.de>\n"
 "Language-Team: German (http://www.transifex.com/projects/p/cubeengine/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -35,16 +36,16 @@ msgstr ""
 #: de/cubeisland/engine/module/log/commands/LookupCommands.java:161
 #: de/cubeisland/engine/module/log/commands/LookupCommands.java:218
 msgid "Performs a rollback"
-msgstr ""
+msgstr "Führt einen Rollback aus"
 
 #: de/cubeisland/engine/module/log/commands/LogCommands.java:103
 msgid "Shows the current queue-size."
-msgstr ""
+msgstr "Zeigt die Größe der Warteschlange an."
 
 #: de/cubeisland/engine/module/log/action/BaseAction.java:198
 #: de/cubeisland/engine/module/log/action/BaseAction.java:207
 msgid "   at {vector} in {world}"
-msgstr ""
+msgstr "bei {vector} in {world}"
 
 #: de/cubeisland/engine/module/log/commands/LookupCommands.java:77
 msgid " - action <actionType> like a block-break (See full list above)"
@@ -80,11 +81,11 @@ msgstr ""
 
 #: de/cubeisland/engine/module/log/storage/QueryResults.java:105
 msgid "Compressed into {amount} logs!"
-msgstr ""
+msgstr "In {amount} Logeinträge zusammengefasst!"
 
 #: de/cubeisland/engine/module/log/storage/QueryResults.java:100
 msgid "Compressed into {amount} logs! ({amount} pages)"
-msgstr ""
+msgstr "In {amount} Logeinträge zusammengefasst! ({amount} Seiten)"
 
 #: de/cubeisland/engine/module/log/storage/QueryResults.java:311
 msgid "Could not Redo:"
@@ -96,11 +97,11 @@ msgstr ""
 
 #: de/cubeisland/engine/module/log/commands/LogCommands.java:208
 msgid "Found a Log-Tool in your inventory!"
-msgstr ""
+msgstr "Logging Tool in Inventar gefunden!"
 
 #: de/cubeisland/engine/module/log/commands/LogCommands.java:93
 msgid "Found a Region-Selector Tool in your inventory!"
-msgstr ""
+msgstr "Tool für Regionsselektierung im Inventar gefunden!"
 
 #: de/cubeisland/engine/module/log/commands/LogCommands.java:212
 msgid ""
@@ -113,11 +114,11 @@ msgstr ""
 
 #: de/cubeisland/engine/module/log/storage/QueryResults.java:159
 msgid "Internal Error! Could not show LogEntry"
-msgstr ""
+msgstr "Interner Fehler! Konnte Logeintrag nicht anzeigenq"
 
 #: de/cubeisland/engine/module/log/commands/LookupCommands.java:512
 msgid "Invalid BlockData: {name#block}"
-msgstr ""
+msgstr "Ungültige Blockdaten: {name#block}"
 
 #: de/cubeisland/engine/module/log/tool/ToolListener.java:66
 msgid "Invalid LoggingTool-Block!"
@@ -126,11 +127,11 @@ msgstr ""
 #: de/cubeisland/engine/module/log/commands/LookupCommands.java:375
 #: de/cubeisland/engine/module/log/commands/LookupCommands.java:395
 msgid "Invalid radius/location selection"
-msgstr ""
+msgstr "Ungültiger Radius oder Selektion"
 
 #: de/cubeisland/engine/module/log/commands/LogCommands.java:109
 msgid "Logging-queue is currently empty!"
-msgstr ""
+msgstr "Warteschlange ist leer!"
 
 #: de/cubeisland/engine/module/log/commands/LookupCommands.java:75
 msgid "Lookup/Rollback/Redo-Parameters:"
@@ -142,23 +143,23 @@ msgstr ""
 
 #: de/cubeisland/engine/module/log/storage/QueryParameter.java:239
 msgid "No logs found at {vector} in {world}!"
-msgstr ""
+msgstr "Keine Logeinträge bei {vector} in {world} gefunden!"
 
 #: de/cubeisland/engine/module/log/storage/QueryParameter.java:256
 msgid "No logs found for your given parameters"
-msgstr ""
+msgstr "Keine Logeinträge für gegebene Parameter gefunden"
 
 #: de/cubeisland/engine/module/log/storage/QueryParameter.java:245
 msgid "No logs found in a radius of {amount} around you!"
-msgstr ""
+msgstr "Keine Logeinträge im Radius {amount} um aktuelle Position gefunden!"
 
 #: de/cubeisland/engine/module/log/storage/QueryParameter.java:249
 msgid "No logs found in a radius of {amount} around {vector} in {world}!"
-msgstr ""
+msgstr "Keine Logeinträge im Radius {amount} um {vector} in {world} gefunden!"
 
 #: de/cubeisland/engine/module/log/storage/QueryParameter.java:233
 msgid "No logs found in between {vector} and {vector} in {world}!"
-msgstr ""
+msgstr "Keine Logeinträge in der Selektion {vector} bis {vector} in {world}!"
 
 #: de/cubeisland/engine/module/log/commands/LookupCommands.java:90
 msgid ""
@@ -168,7 +169,7 @@ msgstr ""
 
 #: de/cubeisland/engine/module/log/commands/LogCommands.java:197
 msgid "Received a new Log-Tool!"
-msgstr ""
+msgstr "Neues Logging Toll erhalten!"
 
 #: de/cubeisland/engine/module/log/commands/LogCommands.java:85
 msgid "Received a new Region-Selector Tool"
@@ -176,42 +177,42 @@ msgstr ""
 
 #: de/cubeisland/engine/module/log/commands/LookupCommands.java:72
 msgid "Registered ActionTypes:"
-msgstr ""
+msgstr "Registrierte Aktionstypen:"
 
 #: de/cubeisland/engine/module/log/storage/QueryResults.java:133
 msgid "Showing {integer} logs (Page {integer}):"
-msgstr ""
+msgstr "Zeige {integer} Logeinträge (Seite {integer}):"
 
 #: de/cubeisland/engine/module/log/storage/QueryResults.java:129
 msgid "Showing {integer} most recent logs:"
-msgstr ""
+msgstr "Zeige die {integer} neusten Logeinträge:"
 
 #: de/cubeisland/engine/module/log/commands/LookupCommands.java:376
 #: de/cubeisland/engine/module/log/commands/LookupCommands.java:396
 msgid ""
 "The radius parameter can be: <radius> | selection | global | "
 "<player>[:<radius>]"
-msgstr ""
+msgstr "Der Radius Parameter kann <Radius> | selection | global <Spieler>[:<Radius>] sein"
 
 #: de/cubeisland/engine/module/log/storage/QueryManager.java:513
 msgid "This action is not possible while cleaning up the database!"
-msgstr ""
+msgstr "Diese Aktion ist nicht möglich währden die Datenbank gesäubert wird!"
 
 #: de/cubeisland/engine/module/log/commands/LookupCommands.java:554
 msgid "Unknown EntityType: {name#entity}"
-msgstr ""
+msgstr "Unbekannter EntityTyp: {name#entity}"
 
 #: de/cubeisland/engine/module/log/commands/LookupCommands.java:520
 msgid "Unknown Material: {name#material}"
-msgstr ""
+msgstr "Unbekanntes Material: {name#material}"
 
 #: de/cubeisland/engine/module/log/commands/LookupCommands.java:587
 msgid "Unknown action-type: {name#action}"
-msgstr ""
+msgstr "Unbekannter Aktionstyp: {name#action}"
 
 #: de/cubeisland/engine/module/log/commands/LookupCommands.java:330
 msgid "Unknown world: {input#world}"
-msgstr ""
+msgstr "Unbekannte Welt: {input#world}"
 
 #: de/cubeisland/engine/module/log/commands/LookupCommands.java:355
 msgid "Use this selection wand."
@@ -219,7 +220,7 @@ msgstr ""
 
 #: de/cubeisland/engine/module/log/commands/LookupCommands.java:351
 msgid "Use worldedit to select a cuboid region!"
-msgstr ""
+msgstr "Nutze WorldEdit um einen Kuboid zu selektieren!"
 
 #: de/cubeisland/engine/module/log/commands/LookupCommands.java:87
 msgid "Use {text:!} to exclude the parameters instead of including them."
@@ -236,7 +237,7 @@ msgstr ""
 #: de/cubeisland/engine/module/log/commands/LookupCommands.java:433
 #: de/cubeisland/engine/module/log/commands/LookupCommands.java:449
 msgid "You have to do a query first!"
-msgstr ""
+msgstr "Es muss erst eine Abfrage getätigt werden!"
 
 #: de/cubeisland/engine/module/log/commands/LookupCommands.java:348
 msgid "You have to select a region first!"
