@@ -19,11 +19,10 @@ package de.cubeisland.engine.module.backpack;
 
 import java.util.HashMap;
 import java.util.Map;
-import de.cubeisland.engine.core.config.codec.NBTCodec;
-import de.cubeisland.engine.reflect.ReflectedFile;
+import de.cubeisland.engine.reflect.codec.nbt.ReflectedNBT;
 import org.bukkit.inventory.ItemStack;
 
-public class BackpackData extends ReflectedFile<NBTCodec>
+public class BackpackData extends ReflectedNBT
 {
     public boolean allowItemsIn = true;
     public int pages = 1;
