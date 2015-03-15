@@ -90,7 +90,7 @@ public class Vote extends Module implements Listener
         double money = this.config.voteReward * pow(1 + 1.5 / voteAmount, voteAmount - 1);
         economy.deposit(user.getUniqueId(), money);
         String moneyFormat = economy.format(money);
-        this.getCore().getUserManager().broadcastMessage(NONE, this.config.voteBroadcast
+        this.getCore().getUserManager().broadcastMessage(NONE, ChatFormat.parseFormats(this.config.voteBroadcast)
             .replace("{PLAYER}", vote.getUsername())
             .replace("{MONEY}", moneyFormat)
             .replace("{AMOUNT}", String.valueOf(voteAmount))
