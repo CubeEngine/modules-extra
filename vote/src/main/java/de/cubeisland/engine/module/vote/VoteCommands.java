@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import de.cubeisland.engine.command.parametric.Command;
 import de.cubeisland.engine.core.command.CommandContext;
+import de.cubeisland.engine.core.storage.database.Database;
 import de.cubeisland.engine.core.user.User;
 import de.cubeisland.engine.core.util.TimeUtil;
 import de.cubeisland.engine.module.vote.storage.VoteModel;
@@ -61,7 +62,8 @@ public class VoteCommands
             }
             return;
         }
-        VoteModel voteModel = module.dsl.selectFrom(TABLE_VOTE).where(TABLE_VOTE.USERID.eq(((User)context.getSource()).getEntity().getKey())).fetchOne();
+        Database db = module.getCore().getDB();
+        VoteModel voteModel = db.getDSL().selectFrom(TABLE_VOTE).where(TABLE_VOTE.USERID.eq(((User)context.getSource()).getEntity().getKey())).fetchOne();
         if (voteModel == null)
         {
             context.sendTranslated(NEUTRAL, "Sorry but you do not have any registered votes on this server!");
