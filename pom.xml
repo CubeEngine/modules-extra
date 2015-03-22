@@ -90,7 +90,6 @@
         <configuration>
           <strictCheck>true</strictCheck>
           <header>header.txt</header>
-          <strictCheck>true</strictCheck>
           <includes>
             <include>**/*.java</include>
           </includes>
