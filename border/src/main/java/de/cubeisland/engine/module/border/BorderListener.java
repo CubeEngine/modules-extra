@@ -76,7 +76,7 @@ public class BorderListener implements Listener
         this.lastNotice.remove(event.getPlayer().getUniqueId());
     }
 
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerMove(PlayerMoveEvent event)
     {
         if (event.getFrom().getChunk() == event.getTo().getChunk())
@@ -122,7 +122,7 @@ public class BorderListener implements Listener
         }
     }
 
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerTeleport(PlayerTeleportEvent event)
     {
         this.onPlayerMove(event);
