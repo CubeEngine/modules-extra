@@ -19,12 +19,12 @@ package de.cubeisland.engine.module.kits;
 
 import java.util.ArrayList;
 import java.util.List;
-import de.cubeisland.engine.command.CommandInvocation;
-import de.cubeisland.engine.command.alias.Alias;
-import de.cubeisland.engine.command.filter.Restricted;
-import de.cubeisland.engine.command.parametric.Command;
-import de.cubeisland.engine.command.parametric.Flag;
-import de.cubeisland.engine.command.parametric.Default;
+import de.cubeisland.engine.butler.CommandInvocation;
+import de.cubeisland.engine.butler.alias.Alias;
+import de.cubeisland.engine.butler.filter.Restricted;
+import de.cubeisland.engine.butler.parametric.Command;
+import de.cubeisland.engine.butler.parametric.Flag;
+import de.cubeisland.engine.butler.parametric.Default;
 import de.cubeisland.engine.core.command.ContainerCommand;
 import de.cubeisland.engine.core.command.CommandContext;
 import de.cubeisland.engine.core.command.CommandSender;

@@ -19,9 +19,8 @@ package de.cubeisland.engine.module.namehistory;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
-import de.cubeisland.engine.command.parametric.Command;
-import de.cubeisland.engine.command.parametric.Default;
-import de.cubeisland.engine.core.CubeEngine;
+import de.cubeisland.engine.butler.parametric.Command;
+import de.cubeisland.engine.butler.parametric.Default;
 import de.cubeisland.engine.core.command.CommandManager;
 import de.cubeisland.engine.core.command.CommandSender;
 import de.cubeisland.engine.core.module.Module;
@@ -34,7 +33,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.jooq.DSLContext;
 import org.jooq.ResultQuery;
-import org.jooq.SelectOffsetStep;
 import org.jooq.SelectSeekStep1;
 
 import static de.cubeisland.engine.core.util.formatter.MessageType.*;

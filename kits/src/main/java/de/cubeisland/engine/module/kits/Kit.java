@@ -24,7 +24,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-import de.cubeisland.engine.command.parameter.IncorrectUsageException;
+import de.cubeisland.engine.butler.parameter.IncorrectUsageException;
 import de.cubeisland.engine.core.Core;
 import de.cubeisland.engine.core.command.CommandManager;
 import de.cubeisland.engine.core.command.CommandSender;
