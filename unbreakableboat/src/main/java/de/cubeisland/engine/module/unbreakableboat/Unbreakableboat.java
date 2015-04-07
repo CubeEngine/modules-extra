@@ -97,12 +97,19 @@ public class Unbreakableboat extends Module implements Listener
     @EventHandler
     public void onVehiclePlace(VehicleCreateEvent event)
     {
-        Location location = event.getVehicle().getLocation();
+        // TODO waiting for https://hub.spigotmc.org/jira/browse/SPIGOT-694 to remove this ugly hack
+        final Vehicle vehicle = event.getVehicle();
+        getCore().getTaskManager().runTask(this, () -> onVehiclePlace0(vehicle));
+    }
+
+    private void onVehiclePlace0(Vehicle vehicle)
+    {
+        Location location = vehicle.getLocation();
         location.getBlock().getLocation(location);
         Player player = this.prePlanned.remove(location);
         if (player != null)
         {
-            this.unbreakable.add(event.getVehicle().getUniqueId());
+            this.unbreakable.add(vehicle.getUniqueId());
         }
     }
 
@@ -114,6 +121,7 @@ public class Unbreakableboat extends Module implements Listener
          && inHand.getType() == BOAT
          && inHand.getEnchantmentLevel(DURABILITY) == 5)
         {
+            System.out.println("pre" + event.getClickedBlock().getRelative(UP).getLocation());
             this.prePlanned.put(event.getClickedBlock().getRelative(UP).getLocation(), event.getPlayer());
         }
     }
