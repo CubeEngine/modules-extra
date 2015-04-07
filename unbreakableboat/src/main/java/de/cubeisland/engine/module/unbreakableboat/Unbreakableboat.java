@@ -121,7 +121,6 @@ public class Unbreakableboat extends Module implements Listener
          && inHand.getType() == BOAT
          && inHand.getEnchantmentLevel(DURABILITY) == 5)
         {
-            System.out.println("pre" + event.getClickedBlock().getRelative(UP).getLocation());
             this.prePlanned.put(event.getClickedBlock().getRelative(UP).getLocation(), event.getPlayer());
         }
     }
