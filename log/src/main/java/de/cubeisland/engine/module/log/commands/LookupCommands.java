@@ -434,6 +434,7 @@ public class LookupCommands
                 }
                 return false;
             }
+            context.sendTranslated(NEGATIVE, "Unknown action: {}", action);
             return false;
         }
         if (page != null)

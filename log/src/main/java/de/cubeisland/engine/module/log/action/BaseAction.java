@@ -150,7 +150,7 @@ public abstract class BaseAction extends ReflectedDBObject implements Comparable
                 }
                 else
                 {
-                    time = GRAY + user.getTranslation(NONE, "{date#without time:yy-MM-dd} {date#time from:format=HH\\:mm\\:ss}: ", this.date, this.date);
+                    time = GRAY + user.getTranslation(NONE, "{date#without time:format=yy-MM-dd} {date#time from:format=HH\\:mm\\:ss}: ", this.date, this.date);
                 }
             }
         }
