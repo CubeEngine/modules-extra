@@ -21,27 +21,24 @@ import java.util.Collection;
 import java.util.HashMap;
 import de.cubeisland.engine.module.service.command.CommandSender;
 import de.cubeisland.engine.module.service.user.User;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryType.SlotType;
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.event.Subscribe;
+import org.spongepowered.api.event.inventory.InventoryClickEvent;
+import org.spongepowered.api.event.inventory.InventoryCloseEvent;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.world.World;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 
-public class BackpackManager implements Listener
+public class BackpackManager
 {
     private final Backpack module;
 
     public BackpackManager(Backpack module)
     {
         this.module = module;
-        this.module.getCore().getCommandManager().addCommand(new BackpackCommands(module, this));
-        this.module.getCore().getEventManager().registerListener(module, this);
+        cm.addCommand(new BackpackCommands(module, this));
+        em.registerListener(module, this);
     }
 
     public void openBackpack(User sender, User forUser, World forWorld, String name)
@@ -98,7 +95,7 @@ public class BackpackManager implements Listener
         }
     }
 
-    @EventHandler
+    @Subscribe
     public void onInventoryClick(InventoryClickEvent event)
     {
         if (event.getWhoClicked() instanceof Player
@@ -118,7 +115,7 @@ public class BackpackManager implements Listener
         }
     }
 
-    @EventHandler
+    @Subscribe
     public void onInventoryClose(InventoryCloseEvent event)
     {
         if (event.getPlayer() instanceof Player

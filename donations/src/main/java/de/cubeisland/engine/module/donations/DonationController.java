@@ -23,23 +23,31 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.cubeisland.engine.module.service.command.CommandManager;
 import de.cubeisland.engine.module.core.util.formatter.MessageType;
-import de.cubeisland.engine.module.core.webapi.Action;
-import de.cubeisland.engine.module.core.webapi.ApiRequest;
-import de.cubeisland.engine.module.core.webapi.ApiResponse;
-import de.cubeisland.engine.module.core.webapi.Method;
-import de.cubeisland.engine.module.core.webapi.RequestMethod;
 import de.cubeisland.engine.module.donations.DonationsConfig.DonationGoal;
+import de.cubeisland.engine.module.service.task.TaskManager;
+import de.cubeisland.engine.module.service.user.UserManager;
+import de.cubeisland.engine.module.webapi.Action;
+import de.cubeisland.engine.module.webapi.ApiRequest;
+import de.cubeisland.engine.module.webapi.ApiResponse;
+import de.cubeisland.engine.module.webapi.Method;
+import de.cubeisland.engine.module.webapi.RequestMethod;
 
 public class DonationController
 {
     private ObjectMapper mapper = new ObjectMapper();
     private Donations module;
     private DonationsConfig config;
+    private CommandManager cm;
+    private TaskManager tm;
+    private UserManager um;
 
-    public DonationController(Donations module, DonationsConfig config)
+    public DonationController(Donations module, DonationsConfig config, CommandManager cm, TaskManager tm, UserManager um)
     {
         this.module = module;
         this.config = config;
+        this.cm = cm;
+        this.tm = tm;
+        this.um = um;
     }
 
     @Action
@@ -54,25 +62,19 @@ public class DonationController
             final String userName = user.asText();
             this.broadcastDonation(userName);
 
-            module.getCore().getTaskManager().runTask(module, new Runnable()
-            {
-                @Override
-                public void run()
+            tm.runTask(module, (Runnable)() -> {
+                for (String cmd : config.forUser)
                 {
-                    CommandManager cmdMan = module.getCore().getCommandManager();
-                    for (String cmd : config.forUser)
+                    if (cmd.contains("{NAME}"))
                     {
-                        if (cmd.contains("{NAME}"))
+                        if (userName == null)
                         {
-                            if (userName == null)
-                            {
-                                continue;
-                            }
-                            cmd = cmd.replace("{NAME}", userName);
+                            continue;
                         }
-                        cmd = cmd.replace("{TOTAL}", String.format("%.2f", newTotal));
-                        cmdMan.runCommand(cmdMan.getConsoleSender(), cmd);
+                        cmd = cmd.replace("{NAME}", userName);
                     }
+                    cmd = cmd.replace("{TOTAL}", String.format("%.2f", newTotal));
+                    cm.runCommand(cm.getConsoleSender(), cmd);
                 }
             });
         }
@@ -88,7 +90,7 @@ public class DonationController
 
     private void broadcastDonation(String user)
     {
-        module.getCore().getUserManager().broadcastTranslated(MessageType.POSITIVE, "New Donation! Thank you {user}!", user);
+        um.broadcastTranslated(MessageType.POSITIVE, "New Donation! Thank you {user}!", user);
     }
 
     private void updateDonation(final double newTotal, final String user)
@@ -116,25 +118,19 @@ public class DonationController
                 }
             }
         }
-        module.getCore().getTaskManager().runTask(module, new Runnable()
-        {
-            @Override
-            public void run()
+        tm.runTask(module, () -> {
+            for (String cmd : cmds)
             {
-                CommandManager cmdMan = module.getCore().getCommandManager();
-                for (String cmd : cmds)
+                if (cmd.contains("{NAME}"))
                 {
-                    if (cmd.contains("{NAME}"))
+                    if (user == null)
                     {
-                        if (user == null)
-                        {
-                            continue;
-                        }
-                        cmd = cmd.replace("{NAME}", user);
+                        continue;
                     }
-                    cmd = cmd.replace("{TOTAL}", String.format("%.2f", newTotal));
-                    cmdMan.runCommand(cmdMan.getConsoleSender(), cmd);
+                    cmd = cmd.replace("{NAME}", user);
                 }
+                cmd = cmd.replace("{TOTAL}", String.format("%.2f", newTotal));
+                cm.runCommand(cm.getConsoleSender(), cmd);
             }
         });
 

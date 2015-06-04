@@ -25,25 +25,36 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import javax.inject.Inject;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
+import de.cubeisland.engine.modularity.asm.marker.Disable;
+import de.cubeisland.engine.modularity.asm.marker.Enable;
+import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
+import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.module.core.filesystem.FileManager;
 import de.cubeisland.engine.module.core.module.Module;
 import de.cubeisland.engine.module.core.module.exception.ModuleLoadError;
 import de.cubeisland.engine.module.bigdata.MongoDBConfiguration.Authentication;
+import de.cubeisland.engine.reflect.Reflector;
 import de.cubeisland.engine.reflect.codec.mongo.MongoDBCodec;
 
+@ModuleInfo(name = "BigData", description = "Provides serialization to a MongoDB")
 public class Bigdata extends Module
 {
     private MongoClient mongoClient;
     private MongoDBConfiguration config;
 
-    @Override
+    @Inject private FileManager fm;
+    @Inject private Reflector reflector;
+
+    @Enable
     public void onLoad()
     {
-        this.config = this.loadConfig(MongoDBConfiguration.class);
+        this.config = fm.loadConfig(this, MongoDBConfiguration.class);
         try
         {
             getDatabase();
@@ -54,7 +65,7 @@ public class Bigdata extends Module
             throw new ModuleLoadError("Failed to connect to the your MongoDB instance!", e);
         }
 
-        this.getCore().getConfigFactory().getCodecManager().registerCodec(new MongoDBCodec());
+        reflector.getCodecManager().registerCodec(new MongoDBCodec());
     }
 
     public void releaseClient()
@@ -69,7 +80,7 @@ public class Bigdata extends Module
         }
     }
 
-    @Override
+    @Disable
     public void onDisable()
     {
         this.releaseClient();

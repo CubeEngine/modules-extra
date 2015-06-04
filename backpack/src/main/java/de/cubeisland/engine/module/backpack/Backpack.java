@@ -26,16 +26,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
-import de.cubeisland.engine.module.core.module.Module;
-import de.cubeisland.engine.module.core.module.exception.ModuleLoadError;
-import de.cubeisland.engine.module.core.util.McUUID;
+import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
+import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.module.backpack.converter.NBTItemStackConverter;
+import de.cubeisland.engine.module.core.util.McUUID;
 import de.cubeisland.engine.module.worlds.Multiverse;
 import de.cubeisland.engine.module.worlds.Worlds;
 import de.cubeisland.engine.reflect.codec.nbt.NBTCodec;
-import org.bukkit.World;
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.world.World;
 
+@ModuleInfo(name = "Backpack", description = "Expand your inventory")
 public class Backpack extends Module
 {
     protected Path singleDir;

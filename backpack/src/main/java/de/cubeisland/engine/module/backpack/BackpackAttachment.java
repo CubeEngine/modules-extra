@@ -24,8 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 import de.cubeisland.engine.module.service.user.UserAttachment;
 import de.cubeisland.engine.module.core.util.StringUtils;
+import org.spongepowered.api.world.World;
 
-import de.cubeisland.engine.module.core.filesystem.FileExtensionFilter.DAT;
 
 public class BackpackAttachment extends UserAttachment
 {
@@ -132,7 +132,7 @@ public class BackpackAttachment extends UserAttachment
                 for (Path path : Files.newDirectoryStream(playerDir, DAT.getExtention()))
                 {
                     String name = StringUtils.stripFileExtension(path.getFileName().toString());
-                    BackpackData load = this.getModule().getCore().getConfigFactory().load(BackpackData.class, path.toFile());
+                    BackpackData load = reflector.load(BackpackData.class, path.toFile());
                     BackpackInventories bpInv = map.get(name);
                     if (bpInv == null)
                     {
@@ -198,7 +198,7 @@ public class BackpackAttachment extends UserAttachment
     public void createGroupedBackpack(String name, World forWorld, boolean blockIn, Integer pages, Integer size)
     {
         Path path = this.getGroupedBackpack(name, forWorld.getName());
-        BackpackData data = this.getModule().getCore().getConfigFactory().create(BackpackData.class);
+        BackpackData data = reflector.create(BackpackData.class);
         data.allowItemsIn = !blockIn;
         data.pages = pages;
         data.size = size;
@@ -216,7 +216,7 @@ public class BackpackAttachment extends UserAttachment
     public void createGlobalBackpack(String name, boolean blockIn, Integer pages, Integer size)
     {
         Path file = this.getGlobalBackpack(name);
-        BackpackData data = this.getModule().getCore().getConfigFactory().create(BackpackData.class);
+        BackpackData data = reflector.create(BackpackData.class);
         data.allowItemsIn = !blockIn;
         data.pages = pages;
         data.size = size;

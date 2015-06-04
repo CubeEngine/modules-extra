@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import de.cubeisland.engine.reflect.codec.nbt.ReflectedNBT;
 import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStack;
 
 public class BackpackData extends ReflectedNBT
 {

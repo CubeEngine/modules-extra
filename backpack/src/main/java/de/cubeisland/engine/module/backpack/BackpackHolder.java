@@ -17,10 +17,6 @@
  */
 package de.cubeisland.engine.module.backpack;
 
-import org.bukkit.Bukkit;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
-
 public class BackpackHolder implements InventoryHolder
 {
     public final int index;

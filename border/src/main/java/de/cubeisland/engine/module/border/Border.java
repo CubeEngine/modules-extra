@@ -22,27 +22,40 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import javax.inject.Inject;
+import de.cubeisland.engine.logscribe.Log;
+import de.cubeisland.engine.modularity.asm.marker.Enable;
+import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
+import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.module.core.module.Module;
 import de.cubeisland.engine.module.core.module.exception.ModuleLoadError;
+import de.cubeisland.engine.module.core.sponge.EventManager;
+import de.cubeisland.engine.module.service.command.CommandManager;
 import de.cubeisland.engine.module.service.world.WorldManager;
 import de.cubeisland.engine.module.portals.Portals;
+import de.cubeisland.engine.reflect.Reflector;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.jooq.types.UInteger;
+import org.spongepowered.api.world.World;
 
+@ModuleInfo(name = "Border", description = "Limiting the world size")
 public class Border extends Module
 {
     private BorderConfig globalConfig;
     private Map<UInteger, BorderConfig> worldConfigs;
-    private WorldManager wm;
+    @Inject private WorldManager wm;
+    @Inject private Reflector reflector;
+    @Inject private EventManager em;
+    @Inject private CommandManager cm;
+    @Inject private Log logger;
     private Path folder;
     private BorderPerms perms;
 
-    @Override
+    @Enable
     public void onEnable()
     {
-        wm = this.getCore().getWorldManager();
-        this.globalConfig = this.getCore().getConfigFactory().load(BorderConfig.class, this.getFolder().resolve("globalconfig.yml").toFile());
+        this.globalConfig = reflector.load(BorderConfig.class, this.getFolder().resolve("globalconfig.yml").toFile());
         folder = this.getFolder().resolve("worlds");
         try
         {
@@ -53,13 +66,10 @@ public class Border extends Module
             throw new ModuleLoadError("Could not create the worlds folder", e);
         }
         this.worldConfigs = new HashMap<>();
-        for (World world : Bukkit.getWorlds())
-        {
-            this.loadConfig(world);
-        }
+        wm.getWorlds().forEach(this::loadConfig);
         perms = new BorderPerms(this);
-        this.getCore().getEventManager().registerListener(this, new BorderListener(this));
-        this.getCore().getCommandManager().addCommand(new BorderCommands(this));
+        em.registerListener(this, new BorderListener(this));
+        cm.addCommand(new BorderCommands(this));
 
     }
 
@@ -70,7 +80,7 @@ public class Border extends Module
 
         if (!worldConfig.checkCenter(world))
         {
-            this.getLog().warn("The world spawn of {} is not inside the border!", world.getName());
+            logger.warn("The world spawn of {} is not inside the border!", world.getName());
         }
         if (this.getCore().getModuleManager().getModule("portals") != null)
         {

@@ -17,14 +17,29 @@
  */
 package de.cubeisland.engine.module.donations;
 
-import de.cubeisland.engine.module.core.module.Module;
+import javax.inject.Inject;
+import de.cubeisland.engine.modularity.asm.marker.Enable;
+import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
+import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.module.core.filesystem.FileManager;
+import de.cubeisland.engine.module.service.command.CommandManager;
+import de.cubeisland.engine.module.service.task.TaskManager;
+import de.cubeisland.engine.module.service.user.UserManager;
+import de.cubeisland.engine.module.webapi.ApiServer;
 
+@ModuleInfo(name = "Donations", description = "Provides WebAPI to handle donations")
 public class Donations extends Module
 {
-    @Override
+    @Inject private FileManager fm;
+    @Inject private CommandManager cm;
+    @Inject private TaskManager tm;
+    @Inject private UserManager um;
+    @Inject private ApiServer apiServer;
+
+    @Enable
     public void onEnable()
     {
-        DonationController controller = new DonationController(this, this.loadConfig(DonationsConfig.class));
-        this.getCore().getApiServer().registerApiHandlers(this, controller);
+        DonationController controller = new DonationController(this, fm.loadConfig(this, DonationsConfig.class), cm, tm, um);
+        apiServer.registerApiHandlers(this, controller);
     }
 }

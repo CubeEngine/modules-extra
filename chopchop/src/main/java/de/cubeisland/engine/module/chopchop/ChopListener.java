@@ -39,7 +39,7 @@ import static org.bukkit.TreeSpecies.*;
 import static org.bukkit.block.BlockFace.*;
 import static org.bukkit.enchantments.Enchantment.ARROW_KNOCKBACK;
 
-public class ChopListener implements Listener
+public class ChopListener
 {
     private static final Set<BlockFace> dir8 = EnumSet.of(NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST,
                                                           NORTH_WEST);
