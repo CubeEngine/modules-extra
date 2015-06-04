@@ -17,33 +17,55 @@
  */
 package de.cubeisland.engine.module.selector;
 
+import javax.inject.Inject;
+import com.google.common.base.Optional;
+import de.cubeisland.engine.modularity.asm.marker.Enable;
+import de.cubeisland.engine.modularity.asm.marker.ServiceImpl;
+import de.cubeisland.engine.module.core.sponge.EventManager;
+import de.cubeisland.engine.module.core.util.formatter.MessageType;
 import de.cubeisland.engine.module.service.Selector;
+import de.cubeisland.engine.module.service.command.CommandManager;
 import de.cubeisland.engine.module.service.permission.Permission;
+import de.cubeisland.engine.module.service.permission.PermissionManager;
 import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.core.util.ChatFormat;
 import de.cubeisland.engine.module.core.util.math.shape.Shape;
-import org.bukkit.Location;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerInteractEvent;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
-import static org.bukkit.event.Event.Result.DENY;
-import static org.bukkit.event.block.Action.LEFT_CLICK_BLOCK;
-import static org.bukkit.event.block.Action.PHYSICAL;
+import de.cubeisland.engine.module.service.user.UserManager;
+import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.data.manipulator.DisplayNameData;
+import org.spongepowered.api.entity.EntityInteractionType;
+import org.spongepowered.api.entity.EntityInteractionTypes;
+import org.spongepowered.api.event.Subscribe;
+import org.spongepowered.api.event.entity.player.PlayerInteractBlockEvent;
+import org.spongepowered.api.event.entity.player.PlayerInteractEvent;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.Texts;
+import org.spongepowered.api.text.format.TextColor;
+import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.world.Location;
 
-public class CuboidSelector implements Selector, Listener
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+
+
+@ServiceImpl(Selector.class)
+public class CuboidSelector implements Selector
 {
-    private final de.cubeisland.engine.module.selector.Selector module;
-    private final Permission selectPerm;
+    @Inject private de.cubeisland.engine.module.selector.Selector module;
+    @Inject private EventManager em;
+    @Inject private CommandManager cm;
+    @Inject private PermissionManager pm;
+    @Inject private UserManager um;
+    private Permission selectPerm;
 
-    public CuboidSelector(de.cubeisland.engine.module.selector.Selector module)
+    @Enable
+    public void onEnable()
     {
-        this.module = module;
-        this.module.getCore().getEventManager().registerListener(module, this);
-        this.module.getCore().getCommandManager().addCommands(this.module.getCore().getCommandManager(), this.module, new SelectorCommand());
-        this.selectPerm = module.getBasePermission().child("use-wand");
-        this.module.getCore().getPermissionManager().registerPermission(module, selectPerm);
+        em.registerListener(module, this);
+        cm.addCommands(cm, module, new SelectorCommand());
+        selectPerm = module.getProvided(Permission.class).child("use-wand");
+        pm.registerPermission(module, selectPerm);
     }
 
     @Override
@@ -84,36 +106,35 @@ public class CuboidSelector implements Selector, Listener
         return attachment.getPoint(index);
     }
 
-    public static final String SELECTOR_TOOL_NAME = ChatFormat.INDIGO + "Selector-Tool";
+    public static final Text SELECTOR_TOOL_NAME = Texts.of(TextColors.BLUE,"Selector-Tool");
 
-    @EventHandler
-    public void onInteract(PlayerInteractEvent event)
+    @Subscribe
+    public void onInteract(PlayerInteractBlockEvent event)
     {
-        if (module.hasWorldEdit()) return;
-        if (event.getAction() == PHYSICAL) return;
-        if (!selectPerm.isAuthorized(event.getPlayer())) return;
-        if (event.getClickedBlock() != null)
+        EntityInteractionType type = event.getInteractionType();
+        Location block = event.getBlock();
+        if (block.getType() == BlockTypes.AIR || !event.getUser().hasPermission(selectPerm.getFullName()))
         {
-            if (event.getPlayer().getItemInHand().hasItemMeta()
-                && event.getPlayer().getInventory().getItemInHand().getItemMeta().hasDisplayName()
-                && event.getPlayer().getInventory().getItemInHand().getItemMeta().getDisplayName().equals(SELECTOR_TOOL_NAME))
-            {
-                User user = this.module.getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
-                SelectorAttachment logAttachment = user.attachOrGet(SelectorAttachment.class, this.module);
-                Location clicked = event.getClickedBlock().getLocation();
-                if (event.getAction() == LEFT_CLICK_BLOCK)
-                {
-                    logAttachment.setPoint(0, clicked);
-                    user.sendTranslated(POSITIVE, "First position set to ({integer}, {integer}, {integer}).", clicked.getBlockX(), clicked.getBlockY(), clicked.getBlockZ());
-                }
-                else
-                {
-                    logAttachment.setPoint(1, clicked);
-                    user.sendTranslated(POSITIVE, "Second position set to ({integer}, {integer}, {integer}).", clicked.getBlockX(), clicked.getBlockY(), clicked.getBlockZ());
-                }
-                event.setCancelled(true);
-                event.setUseItemInHand(DENY);
-            }
+            return;
         }
+        Optional<ItemStack> itemInHand = event.getUser().getItemInHand();
+        if (!itemInHand.isPresent() || !SELECTOR_TOOL_NAME.equals(itemInHand.get().getOrCreate(
+            DisplayNameData.class).get().getDisplayName()))
+        {
+            return;
+        }
+        User user = um.getExactUser(event.getUser().getUniqueId());
+        SelectorAttachment logAttachment = user.attachOrGet(SelectorAttachment.class, this.module);
+        if (EntityInteractionTypes.ATTACK == type)
+        {
+            logAttachment.setPoint(0, block);
+            user.sendTranslated(POSITIVE, "First position set to ({integer}, {integer}, {integer}).", block.getBlockX(), block.getBlockY(), block.getBlockZ());
+        }
+        else if (EntityInteractionTypes.USE == type)
+        {
+            logAttachment.setPoint(1, block);
+            user.sendTranslated(POSITIVE, "Second position set to ({integer}, {integer}, {integer}).", block.getBlockX(), block.getBlockY(), block.getBlockZ());
+        }
+        event.setCancelled(true);
     }
 }

@@ -17,42 +17,8 @@
  */
 package de.cubeisland.engine.module.selector;
 
-import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import de.cubeisland.engine.module.core.module.Module;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.server.PluginEnableEvent;
+import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
+import de.cubeisland.engine.modularity.core.Module;
 
-public class Selector extends Module implements Listener
-{
-    @Override
-    public void onEnable()
-    {
-        this.getCore().getModuleManager().getServiceManager().registerService(this, de.cubeisland.engine.core.module.service.Selector.class, new CuboidSelector(this));
-        try
-        {
-            Class.forName("com.sk89q.worldedit.WorldEdit");
-            this.getCore().getEventManager().registerListener(this, this); // only register if worldEdit is available
-        }
-        catch (ClassNotFoundException ignored)
-        {
-            this.getLog().warn("WorldEdit not found!");
-        }
-    }
-
-    private boolean worldEditFound = false;
-
-    @EventHandler
-    public void onWorldEditEnable(PluginEnableEvent event)
-    {
-        if (event.getPlugin() instanceof WorldEditPlugin)
-        {
-            worldEditFound = true;
-        }
-    }
-
-    public boolean hasWorldEdit()
-    {
-        return worldEditFound;
-    }
-}
+@ModuleInfo(name = "Selector", description = "Select Areas")
+public class Selector extends Module{}

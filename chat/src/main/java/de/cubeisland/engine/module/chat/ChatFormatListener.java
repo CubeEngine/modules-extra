@@ -165,12 +165,12 @@ public class ChatFormatListener
             }
             if (nextColor != null)
             {
-                partBuilder.color(((TextColor)nextColor));
+                partBuilder.color(nextColor);
                 nextColor = null;
             }
             if (nextStyle != null)
             {
-                partBuilder.style(((TextStyle)nextStyle));
+                partBuilder.style(nextStyle);
                 nextStyle = null;
             }
 

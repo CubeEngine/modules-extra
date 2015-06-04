@@ -17,18 +17,12 @@
  */
 package de.cubeisland.engine.module.selector;
 
-import com.sk89q.worldedit.LocalSession;
-import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.WorldEdit;
-import com.sk89q.worldedit.bukkit.BukkitUtil;
-import com.sk89q.worldedit.regions.CuboidRegion;
-import com.sk89q.worldedit.regions.RegionSelector;
-import de.cubeisland.engine.module.service.user.UserAttachment;
+import com.sk89q.worldedit.foundation.World;
 import de.cubeisland.engine.module.core.util.math.Vector3;
 import de.cubeisland.engine.module.core.util.math.shape.Cuboid;
 import de.cubeisland.engine.module.core.util.math.shape.Shape;
-import org.bukkit.Location;
-import org.bukkit.World;
+import de.cubeisland.engine.module.service.user.UserAttachment;
+import org.spongepowered.api.world.Location;
 
 public class SelectorAttachment extends UserAttachment
 {
@@ -57,7 +51,7 @@ public class SelectorAttachment extends UserAttachment
     public void setPoint(int index, Location location)
     {
         this.points[index] = location;
-        this.lastPointWorld = location.getWorld();
+        this.lastPointWorld = ((World)location.getExtent());
     }
 
     public int addPoint(Location location)
@@ -77,17 +71,13 @@ public class SelectorAttachment extends UserAttachment
 
     public Shape getSelection()
     {
-        if (((Selector)this.getModule()).hasWorldEdit())
-        {
-            return this.getWESelection();
-        }
         for (Location point : this.points)
         {
             if (point == null) // missing point
             {
                 return null;
             }
-            if (lastPointWorld != point.getWorld()) // points are in different worlds
+            if (lastPointWorld != ((World)point.getExtent())) // points are in different worlds
             {
                 return null;
             }
@@ -97,30 +87,6 @@ public class SelectorAttachment extends UserAttachment
             return null;
         }
         return this.getSelection0();
-    }
-
-    private Shape getWESelection()
-    {
-        LocalSession session = WorldEdit.getInstance().getSession(this.getHolder().getName());
-        if (session == null)
-        {
-            return null;
-        }
-        RegionSelector selector = session.getRegionSelector(BukkitUtil.getLocalWorld(this.getHolder().getWorld()));
-        try
-        {
-            if (selector.getRegion() instanceof CuboidRegion)
-            {
-                Vector pos1 = ((CuboidRegion)selector.getRegion()).getPos1();
-                Vector pos2 = ((CuboidRegion)selector.getRegion()).getPos2();
-                this.points[0] = new Location(this.getHolder().getWorld(), pos1.getX(), pos1.getY(), pos1.getZ());
-                this.points[1] = new Location(this.getHolder().getWorld(), pos2.getX(), pos2.getY(), pos2.getZ());
-                return this.getSelection0();
-            }
-        }
-        catch (Exception ignored)
-        {}
-        return null;
     }
 
     private Shape getSelection0()

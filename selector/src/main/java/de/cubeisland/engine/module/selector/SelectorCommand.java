@@ -17,60 +17,78 @@
  */
 package de.cubeisland.engine.module.selector;
 
-import java.util.HashMap;
+import com.google.common.base.Optional;
 import de.cubeisland.engine.butler.parametric.Command;
 import de.cubeisland.engine.butler.result.CommandResult;
+import de.cubeisland.engine.module.core.util.formatter.MessageType;
 import de.cubeisland.engine.module.service.command.CommandContext;
 import de.cubeisland.engine.module.service.user.User;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
+import org.spongepowered.api.Game;
+import org.spongepowered.api.data.manipulator.DisplayNameData;
+import org.spongepowered.api.data.manipulator.item.LoreData;
+import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.inventory.Inventory;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.text.Texts;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.selector.CuboidSelector.SELECTOR_TOOL_NAME;
-import static java.util.Arrays.asList;
-import static org.bukkit.Material.WOOD_AXE;
 
 public class SelectorCommand
 {
-    // TODO add //wand alias when WE is not found
+    private Game game;
 
-    @SuppressWarnings("deprecation")
-    public static void giveSelectionTool(User user)
+    public SelectorCommand(Game game)
+    {
+        this.game = game;
+    }
+
+    public void giveSelectionTool(User user)
     {
         ItemStack found = null;
-        for (ItemStack item : user.getInventory().getContents())
+        Inventory axes = user.getInventory().query(ItemTypes.WOODEN_AXE);
+        for (Inventory slot : axes.slots())
         {
-            if (item != null && item.getType() == WOOD_AXE && item.hasItemMeta() && item.getItemMeta().hasDisplayName()
-                && item.getItemMeta().getDisplayName().equals(SELECTOR_TOOL_NAME))
+            ItemStack itemStack = slot.peek().get();
+            if (itemStack.getData(DisplayNameData.class).isPresent())
             {
-                found = item;
-                break;
+                if (SELECTOR_TOOL_NAME.equals(itemStack.getData(DisplayNameData.class).get().getDisplayName()))
+                {
+                    found = itemStack;
+                    slot.clear();
+                    break;
+                }
             }
         }
+        Optional<ItemStack> itemInHand = user.getItemInHand();
         if (found == null)
         {
-            found = new ItemStack(WOOD_AXE, 1);
-            ItemMeta meta = found.getItemMeta();
-            meta.setDisplayName(SELECTOR_TOOL_NAME);
-            meta.setLore(asList("created by " + user.getDisplayName()));
-            found.setItemMeta(meta);
-            ItemStack oldItemInHand = user.getItemInHand();
+            found = game.getRegistry().getItemBuilder().itemType(ItemTypes.WOODEN_AXE).quantity(1).build();
+            DisplayNameData display = found.getOrCreate(DisplayNameData.class).get();
+            display.setDisplayName(SELECTOR_TOOL_NAME);
+            found.offer(display);
+            LoreData lore = found.getOrCreate(LoreData.class).get();
+            lore.set(Texts.of("created by ", user.getDisplayName()));
+            found.offer(lore);
+
             user.setItemInHand(found);
-            HashMap<Integer, ItemStack> tooMuch = user.getInventory().addItem(oldItemInHand);
-            for (ItemStack item : tooMuch.values())
+            if (itemInHand.isPresent())
             {
-                user.getWorld().dropItemNaturally(user.getLocation(), item);
+                if (!user.getInventory().offer(itemInHand.get()))
+                {
+                    // TODO drop item
+                }
             }
-            user.updateInventory();
             user.sendTranslated(POSITIVE, "Received a new region selector tool");
             return;
         }
-        user.getInventory().removeItem(found);
-        ItemStack oldItemInHand = user.getItemInHand();
+
         user.setItemInHand(found);
-        user.getInventory().addItem(oldItemInHand);
-        user.updateInventory();
+        if (itemInHand.isPresent())
+        {
+            user.getInventory().offer(itemInHand.get());
+        }
         user.sendTranslated(POSITIVE, "Found a region selector tool in your inventory!");
     }
 

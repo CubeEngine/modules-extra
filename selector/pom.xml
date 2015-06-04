@@ -27,12 +27,5 @@
       <scope>provided</scope>
       <type>jar</type>
     </dependency>
-    <dependency>
-      <groupId>com.sk89q</groupId>
-      <artifactId>worldedit</artifactId>
-      <version>5.5.8</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
   </dependencies>
 </project>
