@@ -17,31 +17,48 @@
  */
 package de.cubeisland.engine.module.chat;
 
-import de.cubeisland.engine.core.module.Module;
-import org.bukkit.event.Listener;
+import javax.inject.Inject;
+import de.cubeisland.engine.modularity.asm.marker.Disable;
+import de.cubeisland.engine.modularity.asm.marker.Enable;
+import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
+import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.module.core.filesystem.FileManager;
+import de.cubeisland.engine.module.core.i18n.I18n;
+import de.cubeisland.engine.module.core.sponge.EventManager;
+import de.cubeisland.engine.module.service.command.CommandManager;
+import de.cubeisland.engine.module.service.permission.PermissionManager;
+import de.cubeisland.engine.module.service.user.UserManager;
+import org.spongepowered.api.Game;
 
-public class Chat extends Module implements Listener
+@ModuleInfo(name = "Chat", description = "Chat formatting")
+public class Chat extends Module
 {
-
     private ChatConfig config;
     private ChatPerm perms;
 
-    @Override
+    @Inject private UserManager um;
+    @Inject private FileManager fm;
+    @Inject private EventManager em;
+    @Inject private CommandManager cm;
+    @Inject private PermissionManager pm;
+    @Inject private I18n i18n;
+    @Inject private Game game;
+
+    @Enable
     public void onEnable()
     {
-        this.config = this.loadConfig(ChatConfig.class);
-        perms = new ChatPerm(this);
-        this.getCore().getEventManager().registerListener(this, this);
-        this.getCore().getCommandManager().addCommands(this.getCore().getCommandManager(), this, new ChatCommands(this));
-        if (this.getCore().getModuleManager().getModule("roles") != null)
-        {
-            this.getCore().getEventManager().registerListener(this, new RoleChatFormatListener(this));
-        }
-        else
-        {
-            this.getCore().getEventManager().registerListener(this, new ChatFormatListener(this));
-            this.getLog().info("No Roles Module found!");
-        }
+        this.config = fm.loadConfig(this, ChatConfig.class);
+        this.perms = new ChatPerm(this);
+        cm.addCommands(cm, this, new ChatCommands(this, um));
+        em.registerListener(this, new ChatFormatListener(this, game, i18n));
+    }
+
+    @Disable
+    public void onDisable()
+    {
+        em.removeListeners(this);
+        cm.removeCommands(this);
+        pm.removePermissions(this);
     }
 
     protected ChatConfig getConfig()

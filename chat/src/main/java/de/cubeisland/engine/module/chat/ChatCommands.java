@@ -21,26 +21,29 @@ import de.cubeisland.engine.butler.parametric.Command;
 import de.cubeisland.engine.butler.parametric.Greed;
 import de.cubeisland.engine.butler.parametric.Label;
 import de.cubeisland.engine.butler.parametric.Optional;
-import de.cubeisland.engine.core.command.CommandSender;
-import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.module.service.command.CommandSender;
+import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.module.service.user.UserManager;
 
 import static de.cubeisland.engine.butler.parameter.Parameter.INFINITE;
-import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
-import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 
 public class ChatCommands
 {
     private final Chat module;
+    private UserManager um;
 
-    public ChatCommands(Chat module)
+    public ChatCommands(Chat module, UserManager um)
     {
         this.module = module;
+        this.um = um;
     }
 
     @Command(desc = "Allows you to emote")
     public void me(CommandSender context, @Greed(INFINITE) String message)
     {
-        this.module.getCore().getUserManager().broadcastStatus(message, context);  // TODO message can be null somehow
+        um.broadcastStatus(message, context);  // TODO message can be null somehow
     }
 
     @Command(desc = "Changes your display name")
@@ -68,7 +71,7 @@ public class ChatCommands
             context.sendTranslated(POSITIVE, "Display name reset to {user}", context);
             return;
         }
-        if (module.getCore().getUserManager().findExactUser(name) != null && !module.perms().COMMAND_NICK_OFOTHER.isAuthorized(context))
+        if (um.findExactUser(name) != null && !module.perms().COMMAND_NICK_OFOTHER.isAuthorized(context))
         {
             context.sendTranslated(NEGATIVE, "This name has been taken by another player!");
             return;

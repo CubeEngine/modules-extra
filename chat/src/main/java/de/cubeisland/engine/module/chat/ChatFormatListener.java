@@ -17,178 +17,170 @@
  */
 package de.cubeisland.engine.module.chat;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.core.util.ChatFormat;
-import de.cubeisland.engine.core.util.MacroProcessor;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import de.cubeisland.engine.module.core.i18n.I18n;
+import de.cubeisland.engine.module.core.util.ChatFormat;
+import org.spongepowered.api.Game;
+import org.spongepowered.api.data.manipulator.DisplayNameData;
+import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.Subscribe;
+import org.spongepowered.api.event.entity.player.PlayerChatEvent;
+import org.spongepowered.api.event.entity.player.PlayerJoinEvent;
+import org.spongepowered.api.service.permission.PermissionService;
+import org.spongepowered.api.service.permission.Subject;
+import org.spongepowered.api.service.permission.option.OptionSubject;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.Text.Translatable;
+import org.spongepowered.api.text.TextBuilder;
+import org.spongepowered.api.text.Texts;
+import org.spongepowered.api.text.action.HoverAction.ShowText;
+import org.spongepowered.api.text.format.BaseFormatting;
+import org.spongepowered.api.text.format.TextColor;
+import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.format.TextStyle;
+import org.spongepowered.api.text.format.TextStyle.Base;
+import org.spongepowered.api.text.translation.Translation;
+
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.NEUTRAL;
+import static org.spongepowered.api.text.Texts.toPlain;
 
 
-public class ChatFormatListener implements Listener
+public class ChatFormatListener
 {
-    private static final String DEFAULT_FORMAT = new AsyncPlayerChatEvent(true, null, null, null).getFormat();
-    protected final Chat module;
+    private final Chat module;
+    private final Game game;
+    private final I18n i18n;
+    private static final Pattern chatColors = Pattern.compile("&[0123456789aAbBcCdDeEfFgkKlLmMnNoOrR]");
 
-    public ChatFormatListener(Chat module)
+    public ChatFormatListener(Chat module, Game game, I18n i18n)
     {
         this.module = module;
+        this.game = game;
+        this.i18n = i18n;
     }
 
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onPlayerChat(AsyncPlayerChatEvent event)
+    @Subscribe
+    public void onPlayerJoin(PlayerJoinEvent event)
     {
-        // don't overwrite other plugins
-        if (!DEFAULT_FORMAT.equals(event.getFormat()))
+        event.getUser().setMessageSink(new CubeMessageSink());
+    }
+
+    @Subscribe(order = Order.EARLY)
+    public void onPlayerChat(PlayerChatEvent event)
+    {
+        if (!(event.getMessage() instanceof Translatable))
         {
             return;
         }
-        User user = this.module.getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
+        String msg = toPlain((Text)((Translatable)event.getMessage()).getArguments().get(1));
         if (module.getConfig().allowColors)
         {
-            if (module.perms().COLOR.isAuthorized(user))
+            if (!event.getUser().hasPermission(module.perms().COLOR.getFullName()))
             {
-                event.setMessage(ChatFormat.parseFormats(event.getMessage()));
+                msg = chatColors.matcher(msg).replaceAll("");
             }
-            else
+        }
+
+        Subject subject = game.getServiceManager().provideUnchecked(PermissionService.class).getUserSubjects().get(
+            event.getUser().getUniqueId().toString());
+
+        Map<String, Text> replacements = new HashMap<>();
+        String name = event.getUser().getName();
+        replacements.put("{NAME}", Texts.of(name));
+        Text displayName = event.getUser().getData(DisplayNameData.class).isPresent() ?
+            event.getUser().getDisplayNameData().getDisplayName() : Texts.of(name);
+        if (!Texts.toPlain(displayName).equals(name))
+        {
+            Translation translation = i18n.getTranslation(NEUTRAL, null, "Actual name: {user}", name);
+            displayName = Texts.builder().append(displayName).onHover(new ShowText(Texts.of(translation))).build();
+        }
+        replacements.put("{DISPLAY_NAME}", displayName);
+        replacements.put("{WORLD}", Texts.of(event.getUser().getWorld().getName()));
+        replacements.put("{MESSAGE}", fromLegacy(msg));
+        if (subject instanceof OptionSubject)
+        {
+            replacements.put("{PREFIX}", fromLegacy(((OptionSubject)subject).getOption("chat-prefix").or("")));
+            replacements.put("{SUFFIX}", fromLegacy(((OptionSubject)subject).getOption("chat-suffix").or("")));
+        }
+
+        event.setNewMessage(fromLegacy(this.getFormat(subject), replacements));
+    }
+
+
+
+    protected String getFormat(Subject subject)
+    {
+        String format = this.module.getConfig().format;
+        if (subject instanceof OptionSubject)
+        {
+            format = ((OptionSubject)subject).getOption("chat-format").or(format);
+        }
+        return format;
+    }
+
+    private Text fromLegacy(String string, Map<String, Text> replacements)
+    {
+        String[] parts = string.split(
+            "((?<=&[0123456789aAbBcCdDeEfFgkKlLmMnNoOrR])|(?=&[0123456789aAbBcCdDeEfFgkKlLmMnNoOrR]))");
+        TextBuilder builder = Texts.builder();
+        TextColor nextColor = null;
+        TextStyle nextStyle = null;
+        for (String part : parts)
+        {
+            if (part.matches("&[0123456789aAbBcCdDeEfFg]"))
             {
-                String message = this.stripFormat(event.getMessage(), user);
-                if (message.trim().isEmpty())
+                nextColor = ((TextColor)ChatFormat.getByChar(part.charAt(1)).getBase());
+                continue;
+            }
+            if (part.matches("&[kKlLmMnNoOrR]"))
+            {
+                TextStyle newStyle = (TextStyle)ChatFormat.getByChar(part.charAt(1)).getBase();
+                if (nextStyle == null)
                 {
-                    event.setCancelled(true);
-                    return;
+                    nextStyle = newStyle;
                 }
-                event.setMessage(message);
+                else
+                {
+                    nextStyle = nextStyle.and(newStyle);
+                }
+                continue;
             }
+
+            TextBuilder partBuilder = Texts.builder();
+            String[] toReplace = part.split("((?<=\\{[A-Z_]{0,50}\\})|(?=\\{[A-Z_]{0,50}\\}))");
+            for (String r : toReplace)
+            {
+                Text text = replacements.get(r);
+                if (text != null)
+                {
+                    partBuilder.append(text);
+                }
+                else if (!r.matches("\\{.+\\}"))
+                {
+                    partBuilder.append(Texts.of(r));
+                }
+            }
+            if (nextColor != null)
+            {
+                partBuilder.color(((TextColor)nextColor));
+                nextColor = null;
+            }
+            if (nextStyle != null)
+            {
+                partBuilder.style(((TextStyle)nextStyle));
+                nextStyle = null;
+            }
+
+            builder.append(partBuilder.build());
         }
-        MacroProcessor processor = new MacroProcessor();
-        Map<String, String> args = new HashMap<>();
-
-        args.put("NAME", user.getName());
-        // set the placeholder instead of the actual value to allow other plugins to change the value
-        args.put("DISPLAY_NAME", "%1$s");
-        args.put("WORLD", user.getWorld().getName());
-        // set the placeholder instead of the actual value to allow other plugins to change the value
-        args.put("MESSAGE", "%2$s");
-
-        String format = this.getFormat(user);
-        if (module.getConfig().allowColors)
-        {
-            format = ChatFormat.parseFormats(format);
-        }
-
-        ChatFormatEvent formatEvent = new ChatFormatEvent(user, event.getMessage(), format, event.isAsynchronous());
-
-        this.module.getCore().getEventManager().fireEvent(formatEvent);
-
-        args.putAll(formatEvent.variables);
-
-        event.setFormat(processor.process(format, args));
+        return builder.build();
     }
 
-    protected String getFormat(User user)
+    private Text fromLegacy(String string)
     {
-        return this.module.getConfig().format;
-    }
-
-    private String stripFormat(String message, Player player)
-    {
-        String toStrip = "";
-        if( !module.perms().COLOR_BLACK.isAuthorized(player))
-        {
-            toStrip += "0";
-        }
-        if( !module.perms().COLOR_DARK_BLUE.isAuthorized(player))
-        {
-            toStrip += "1";
-        }
-        if( !module.perms().COLOR_DARK_GREEN.isAuthorized(player))
-        {
-            toStrip += "2";
-        }
-        if( !module.perms().COLOR_DARK_AQUA.isAuthorized(player))
-        {
-            toStrip += "3";
-        }
-        if( !module.perms().COLOR_DARK_RED.isAuthorized(player))
-        {
-            toStrip += "4";
-        }
-        if( !module.perms().COLOR_DARK_PURPLE.isAuthorized(player))
-        {
-            toStrip += "5";
-        }
-        if( !module.perms().COLOR_GOLD.isAuthorized(player))
-        {
-            toStrip += "6";
-        }
-        if( !module.perms().COLOR_GRAY.isAuthorized(player))
-        {
-            toStrip += "7";
-        }
-        if( !module.perms().COLOR_DARK_GRAY.isAuthorized(player))
-        {
-            toStrip += "8";
-        }
-        if( !module.perms().COLOR_BLUE.isAuthorized(player))
-        {
-            toStrip += "9";
-        }
-        if( !module.perms().COLOR_GREEN.isAuthorized(player))
-        {
-            toStrip += "aA";
-        }
-        if( !module.perms().COLOR_AQUA.isAuthorized(player))
-        {
-            toStrip += "bB";
-        }
-        if( !module.perms().COLOR_RED.isAuthorized(player))
-        {
-            toStrip += "cC";
-        }
-        if( !module.perms().COLOR_LIGHT_PURPLE.isAuthorized(player))
-        {
-            toStrip += "dD";
-        }
-        if( !module.perms().COLOR_YELLOW.isAuthorized(player))
-        {
-            toStrip += "eE";
-        }
-        if( !module.perms().COLOR_WHITE.isAuthorized(player))
-        {
-            toStrip += "fF";
-        }
-        if( !module.perms().COLOR_OBFUSCATED.isAuthorized(player))
-        {
-            toStrip += "kK";
-        }
-        if( !module.perms().COLOR_BOLD.isAuthorized(player))
-        {
-            toStrip += "lL";
-        }
-        if( !module.perms().COLOR_STRIKE.isAuthorized(player))
-        {
-            toStrip += "mM";
-        }
-        if( !module.perms().COLOR_UNDERLINE.isAuthorized(player))
-        {
-            toStrip += "nN";
-        }
-        if( !module.perms().COLOR_ITALIC.isAuthorized(player))
-        {
-            toStrip += "oO";
-        }
-        if( !module.perms().COLOR_RESET.isAuthorized(player))
-        {
-            toStrip += "rR";
-        }
-        if (toStrip.isEmpty()) return message;
-        Pattern stripFormats = Pattern.compile("&[" + toStrip + "]");
-        return stripFormats.matcher(message).replaceAll("");
+        return fromLegacy(string, Collections.emptyMap());
     }
 }
