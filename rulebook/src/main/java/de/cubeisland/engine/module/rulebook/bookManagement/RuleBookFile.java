@@ -28,9 +28,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import de.cubeisland.engine.core.CubeEngine;
-import de.cubeisland.engine.core.filesystem.FileUtil;
-import de.cubeisland.engine.core.util.StringUtils;
+import de.cubeisland.engine.module.core.CubeEngine;
+import de.cubeisland.engine.module.core.filesystem.FileUtil;
+import de.cubeisland.engine.module.core.util.StringUtils;
 import de.cubeisland.engine.i18n.I18nUtil;
 import de.cubeisland.engine.i18n.language.Language;
 
@@ -52,7 +52,7 @@ public class RuleBookFile
             for (Path file : directoryStream)
             {
                 String localeString = StringUtils.stripFileExtension(file.getFileName().toString());
-                Language language = CubeEngine.getI18n().getLanguage(I18nUtil.stringToLocale(localeString));
+                Language language = i18n.getLanguage(I18nUtil.stringToLocale(localeString));
                 if (language != null)
                 {
                     files.add(file);

@@ -24,10 +24,10 @@ import de.cubeisland.engine.butler.parametric.Default;
 import de.cubeisland.engine.butler.parametric.Named;
 import de.cubeisland.engine.butler.parametric.Optional;
 import de.cubeisland.engine.butler.parameter.TooFewArgumentsException;
-import de.cubeisland.engine.core.command.CommandSender;
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.core.util.StringUtils;
-import de.cubeisland.engine.core.util.math.BlockVector3;
+import de.cubeisland.engine.module.service.command.CommandSender;
+import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.module.core.util.StringUtils;
+import de.cubeisland.engine.module.core.util.math.BlockVector3;
 import de.cubeisland.engine.module.roles.RoleCompleter;
 import de.cubeisland.engine.module.roles.Roles;
 import de.cubeisland.engine.module.roles.role.ResolvedDataHolder;
@@ -38,8 +38,6 @@ import de.cubeisland.engine.module.roles.role.resolved.ResolvedMetadata;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
-
-import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 
 public class SpawnCommands
 {

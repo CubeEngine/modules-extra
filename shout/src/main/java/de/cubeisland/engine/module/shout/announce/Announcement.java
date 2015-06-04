@@ -22,10 +22,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import de.cubeisland.engine.core.CubeEngine;
-import de.cubeisland.engine.core.i18n.I18n;
-import de.cubeisland.engine.core.permission.PermDefault;
-import de.cubeisland.engine.core.permission.Permission;
+import de.cubeisland.engine.module.core.CubeEngine;
+import de.cubeisland.engine.module.core.i18n.I18n;
+import de.cubeisland.engine.module.service.permission.PermDefault;
+import de.cubeisland.engine.module.service.permission.Permission;
 import de.cubeisland.engine.i18n.language.ClonedLanguage;
 import de.cubeisland.engine.i18n.language.Language;
 import de.cubeisland.engine.i18n.language.NormalLanguage;
@@ -102,7 +102,7 @@ public class Announcement
             return messages.get(locale);
         }
 
-        final I18n i18n = CubeEngine.getI18n();
+        final I18n i18n = i18n;
         Language lang = i18n.getLanguage(locale);
         if (lang != null)
         {

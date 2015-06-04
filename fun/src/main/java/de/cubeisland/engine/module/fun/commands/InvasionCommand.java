@@ -19,8 +19,8 @@ package de.cubeisland.engine.module.fun.commands;
 
 import java.util.Collections;
 import de.cubeisland.engine.butler.parametric.Command;
-import de.cubeisland.engine.core.command.CommandContext;
-import de.cubeisland.engine.core.util.matcher.Match;
+import de.cubeisland.engine.module.service.command.CommandContext;
+import de.cubeisland.engine.module.core.util.matcher.Match;
 import de.cubeisland.engine.module.fun.Fun;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -28,7 +28,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
-import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
+import de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
 
 public class InvasionCommand
 {

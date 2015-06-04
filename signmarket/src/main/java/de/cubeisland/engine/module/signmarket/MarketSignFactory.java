@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.signmarket.storage.BlockModel;
 import de.cubeisland.engine.module.signmarket.storage.ItemModel;
 import de.cubeisland.engine.module.signmarket.storage.SignMarketBlockManager;
@@ -29,7 +29,7 @@ import de.cubeisland.engine.module.signmarket.storage.SignMarketItemManager;
 import org.bukkit.Location;
 import org.jooq.types.UInteger;
 
-import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
+import de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
 import static de.cubeisland.engine.module.signmarket.storage.TableSignBlock.TABLE_SIGN_BLOCK;
 import static de.cubeisland.engine.module.signmarket.storage.TableSignItem.TABLE_SIGN_ITEM;
 

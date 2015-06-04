@@ -19,10 +19,10 @@ package de.cubeisland.engine.module.spawner;
 
 import java.util.HashMap;
 import java.util.Map;
-import de.cubeisland.engine.core.module.Module;
-import de.cubeisland.engine.core.permission.Permission;
-import de.cubeisland.engine.core.permission.PermissionManager;
-import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.module.core.module.Module;
+import de.cubeisland.engine.module.service.permission.Permission;
+import de.cubeisland.engine.module.service.permission.PermissionManager;
+import de.cubeisland.engine.module.service.user.User;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
@@ -35,7 +35,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.SpawnEgg;
 
-import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 import static org.bukkit.GameMode.CREATIVE;
 import static org.bukkit.Material.MOB_SPAWNER;
 import static org.bukkit.Material.MONSTER_EGG;

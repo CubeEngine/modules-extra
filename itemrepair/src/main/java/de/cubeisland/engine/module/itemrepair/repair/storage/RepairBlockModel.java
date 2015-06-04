@@ -17,8 +17,9 @@
  */
 package de.cubeisland.engine.module.itemrepair.repair.storage;
 
-import de.cubeisland.engine.core.storage.database.AsyncRecord;
-import de.cubeisland.engine.core.world.WorldManager;
+import de.cubeisland.engine.module.service.database.AsyncRecord;
+import de.cubeisland.engine.module.core.storage.database.AsyncRecord;
+import de.cubeisland.engine.module.service.world.WorldManager;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 

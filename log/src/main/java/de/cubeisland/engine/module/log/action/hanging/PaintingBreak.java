@@ -17,11 +17,11 @@
  */
 package de.cubeisland.engine.module.log.action.hanging;
 
-import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import org.bukkit.Art;
 
-import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
+import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 
 /**
  * Represents a player breaking an image

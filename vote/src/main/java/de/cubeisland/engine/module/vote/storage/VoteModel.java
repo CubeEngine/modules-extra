@@ -18,8 +18,8 @@
 package de.cubeisland.engine.module.vote.storage;
 
 import java.sql.Timestamp;
-import de.cubeisland.engine.core.storage.database.AsyncRecord;
-import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.module.core.storage.database.AsyncRecord;
+import de.cubeisland.engine.module.service.user.User;
 import org.jooq.types.UShort;
 
 import static de.cubeisland.engine.module.vote.storage.TableVote.TABLE_VOTE;

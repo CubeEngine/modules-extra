@@ -18,33 +18,35 @@
 package de.cubeisland.engine.module.writer;
 
 import java.util.Set;
+import javax.inject.Inject;
 import de.cubeisland.engine.butler.filter.Restricted;
 import de.cubeisland.engine.butler.parametric.Command;
 import de.cubeisland.engine.butler.parametric.Label;
 import de.cubeisland.engine.butler.parametric.Named;
-import de.cubeisland.engine.core.command.CommandManager;
-import de.cubeisland.engine.core.module.Module;
-import de.cubeisland.engine.core.user.User;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.Sign;
-import org.bukkit.event.block.SignChangeEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BookMeta;
+import de.cubeisland.engine.modularity.asm.marker.Enable;
+import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
+import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.module.core.util.formatter.MessageType;
+import de.cubeisland.engine.module.service.command.CommandManager;
+import de.cubeisland.engine.module.service.user.User;
+import org.spongepowered.api.Game;
+import org.spongepowered.api.item.inventory.ItemStack;
 
-import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
-import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
-import static org.bukkit.Material.*;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 
 /**
  * A module to edit signs and signed books
  */
+@ModuleInfo(name = "Writer", description = "Edit signs and books")
 public class Writer extends Module
 {
-    @Override
+    @Inject private CommandManager cm;
+    @Inject private Game game;
+
+    @Enable
     public void onEnable()
     {
-        CommandManager cm = this.getCore().getCommandManager();
         cm.addCommands(cm, this, this);
     }
 

@@ -24,10 +24,10 @@ import java.util.UUID;
 import de.cubeisland.engine.butler.parametric.Command;
 import de.cubeisland.engine.butler.parametric.Default;
 import de.cubeisland.engine.butler.parametric.Optional;
-import de.cubeisland.engine.core.CubeEngine;
-import de.cubeisland.engine.core.command.CommandContext;
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.core.user.UserManager;
+import de.cubeisland.engine.module.core.CubeEngine;
+import de.cubeisland.engine.module.service.command.CommandContext;
+import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.module.service.user.UserManager;
 import de.cubeisland.engine.module.fun.Fun;
 import org.bukkit.Effect;
 import org.bukkit.Location;
@@ -37,7 +37,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.util.Vector;
 
-import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
+import de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
 
 public class RocketCommand
 {

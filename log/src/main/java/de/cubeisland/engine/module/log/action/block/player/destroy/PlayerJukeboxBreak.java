@@ -17,10 +17,10 @@
  */
 package de.cubeisland.engine.module.log.action.block.player.destroy;
 
-import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.module.service.user.User;
 import org.bukkit.Material;
 
-import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
+import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 
 /**
  * Represents a player breaking a jukebox

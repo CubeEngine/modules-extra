@@ -26,15 +26,15 @@ import de.cubeisland.engine.butler.parametric.Complete;
 import de.cubeisland.engine.butler.parametric.Label;
 import de.cubeisland.engine.butler.parametric.Named;
 import de.cubeisland.engine.butler.parametric.Optional;
-import de.cubeisland.engine.core.command.CommandContext;
-import de.cubeisland.engine.core.command.CommandSender;
-import de.cubeisland.engine.core.command.completer.MaterialListCompleter;
-import de.cubeisland.engine.core.command.completer.PlayerListCompleter;
-import de.cubeisland.engine.core.command.completer.WorldCompleter;
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.core.util.StringUtils;
-import de.cubeisland.engine.core.util.TimeConversionException;
-import de.cubeisland.engine.core.util.matcher.Match;
+import de.cubeisland.engine.module.service.command.CommandContext;
+import de.cubeisland.engine.module.service.command.CommandSender;
+import de.cubeisland.engine.module.service.command.completer.MaterialListCompleter;
+import de.cubeisland.engine.module.service.command.completer.PlayerListCompleter;
+import de.cubeisland.engine.module.service.command.completer.WorldCompleter;
+import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.module.core.util.StringUtils;
+import de.cubeisland.engine.module.core.util.TimeConversionException;
+import de.cubeisland.engine.module.core.util.matcher.Match;
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.LogAttachment;
 import de.cubeisland.engine.module.log.action.ActionManager;
@@ -47,8 +47,7 @@ import de.cubeisland.engine.module.log.storage.ShowParameter;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
-
-import static de.cubeisland.engine.core.util.formatter.MessageType.*;
+import org.spongepowered.api.entity.EntityType;
 
 public class LookupCommands
 {
@@ -549,7 +548,7 @@ public class LookupCommands
             {
                 name = name.substring(1);
             }
-            EntityType entityType = Match.entity().living(name);
+            EntityType entityType = Match.entity().mob(name);
             if (entityType == null)
             {
                 user.sendTranslated(NEGATIVE, "Unknown EntityType: {name#entity}", name);

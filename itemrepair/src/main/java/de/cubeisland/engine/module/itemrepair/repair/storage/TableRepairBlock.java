@@ -17,12 +17,13 @@
  */
 package de.cubeisland.engine.module.itemrepair.repair.storage;
 
-import de.cubeisland.engine.core.storage.database.AutoIncrementTable;
-import de.cubeisland.engine.core.util.Version;
+import de.cubeisland.engine.module.service.database.AutoIncrementTable;
+import de.cubeisland.engine.module.service.database.Database;
+import de.cubeisland.engine.module.core.util.Version;
 import org.jooq.TableField;
 import org.jooq.types.UInteger;
 
-import static de.cubeisland.engine.core.world.TableWorld.TABLE_WORLD;
+import static de.cubeisland.engine.module.service.world.TableWorld.TABLE_WORLD;
 import static org.jooq.impl.SQLDataType.INTEGER;
 import static org.jooq.impl.SQLDataType.VARCHAR;
 
@@ -36,9 +37,9 @@ public class TableRepairBlock extends AutoIncrementTable<RepairBlockModel, UInte
     public final TableField<RepairBlockModel, Integer> Z = createField("z", INTEGER.nullable(false), this);
     public final TableField<RepairBlockModel, String> TYPE = createField("type", VARCHAR.length(64).nullable(false), this);
 
-    public TableRepairBlock(String prefix)
+    public TableRepairBlock(String prefix, Database database)
     {
-        super(prefix + "repairblocks", new Version(1));
+        super(prefix + "repairblocks", new Version(1), database);
         this.setAIKey(ID);
         this.addUniqueKey(WORLD, X, Y, Z);
         this.addForeignKey(TABLE_WORLD.getPrimaryKey(), WORLD);

@@ -19,7 +19,7 @@ package de.cubeisland.engine.module.log.action.block.ignite;
 
 
 import java.util.UUID;
-import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock.PlayerSection;
@@ -27,7 +27,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
-import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
+import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static org.bukkit.entity.EntityType.GHAST;
 import static org.bukkit.entity.EntityType.PLAYER;
 

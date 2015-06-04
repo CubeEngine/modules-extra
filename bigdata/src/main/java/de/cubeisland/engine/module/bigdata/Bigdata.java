@@ -30,8 +30,8 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
-import de.cubeisland.engine.core.module.Module;
-import de.cubeisland.engine.core.module.exception.ModuleLoadError;
+import de.cubeisland.engine.module.core.module.Module;
+import de.cubeisland.engine.module.core.module.exception.ModuleLoadError;
 import de.cubeisland.engine.module.bigdata.MongoDBConfiguration.Authentication;
 import de.cubeisland.engine.reflect.codec.mongo.MongoDBCodec;
 

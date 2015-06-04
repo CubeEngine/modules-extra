@@ -18,13 +18,13 @@
 package de.cubeisland.engine.module.namehistory;
 
 import java.sql.Date;
-import de.cubeisland.engine.core.storage.database.Table;
-import de.cubeisland.engine.core.storage.database.TableUpdateCreator;
-import de.cubeisland.engine.core.util.Version;
+import de.cubeisland.engine.module.core.storage.database.Table;
+import de.cubeisland.engine.module.core.storage.database.TableUpdateCreator;
+import de.cubeisland.engine.module.core.util.Version;
 import org.jooq.TableField;
 import org.jooq.types.UInteger;
 
-import static de.cubeisland.engine.core.user.TableUser.TABLE_USER;
+import de.cubeisland.engine.module.service.user.TableUser.TABLE_USER;
 import static org.jooq.impl.SQLDataType.DATE;
 import static org.jooq.impl.SQLDataType.VARCHAR;
 

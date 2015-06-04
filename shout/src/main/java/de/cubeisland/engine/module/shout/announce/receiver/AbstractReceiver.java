@@ -18,7 +18,7 @@
 package de.cubeisland.engine.module.shout.announce.receiver;
 
 import java.util.Queue;
-import de.cubeisland.engine.core.util.Pair;
+import de.cubeisland.engine.module.core.util.Pair;
 import de.cubeisland.engine.module.shout.announce.Announcement;
 import de.cubeisland.engine.module.shout.announce.AnnouncementManager;
 import de.cubeisland.engine.module.shout.announce.MessageOfTheDay;

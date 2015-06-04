@@ -21,9 +21,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
-import de.cubeisland.engine.core.module.service.Economy;
-import de.cubeisland.engine.core.permission.Permission;
-import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.module.service.Economy;
+import de.cubeisland.engine.module.service.permission.Permission;
+import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.itemrepair.Itemrepair;
 import de.cubeisland.engine.module.itemrepair.material.BaseMaterial;
 import de.cubeisland.engine.module.itemrepair.material.BaseMaterialContainer;
@@ -38,8 +38,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.spongepowered.api.effect.sound.SoundTypes;
+import org.spongepowered.api.item.inventory.ItemStack;
 
-import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 import static org.bukkit.Effect.GHAST_SHRIEK;
 import static org.bukkit.Sound.ANVIL_BREAK;
 import static org.bukkit.Sound.BURP;
@@ -270,7 +271,7 @@ public class RepairBlock
                 else
                 {
                     itemsBroken = true;
-                    amount = item.getAmount();
+                    amount = item.getQuantity();
                     if (amount == 1)
                     {
                         inventory.inventory.clear(entry.getKey());
@@ -295,7 +296,7 @@ public class RepairBlock
             if (looseEnch)
             {
                 user.sendTranslated(NEGATIVE, "Oh no! Some of your items lost their magical power.");
-                user.playEffect(user.getLocation(), GHAST_SHRIEK, 0);
+                user.playSound(SoundTypes.GHAST_SCREAM, user.getLocation().getPosition(), 1);
             }
             user.sendTranslated(POSITIVE, "You paid {input#amount} to repair your items!", economy.format(price));
             if (this.config.costPercentage > 100)

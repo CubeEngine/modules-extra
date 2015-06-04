@@ -17,11 +17,11 @@
  */
 package de.cubeisland.engine.module.log.action.player.item.container;
 
-import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.player.item.ActionItem;
 
-import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
+import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.ITEM;
 
 public abstract class ActionContainerItem extends ActionItem
@@ -44,7 +44,7 @@ public abstract class ActionContainerItem extends ActionItem
     @Override
     public String translateAction(User user)
     {
-        int amount = this.item.getAmount();
+        int amount = this.item.getQuantity();
         if (this instanceof ItemRemove)
         {
             amount *= -1;
@@ -55,11 +55,11 @@ public abstract class ActionContainerItem extends ActionItem
             {
                 if (action instanceof ItemInsert)
                 {
-                    amount += ((ItemInsert)action).item.getAmount();
+                    amount += ((ItemInsert)action).item.getQuantity();
                 }
                 else if (action instanceof ItemRemove)
                 {
-                    amount -= ((ItemRemove)action).item.getAmount();
+                    amount -= ((ItemRemove)action).item.getQuantity();
                 }
             }
         }

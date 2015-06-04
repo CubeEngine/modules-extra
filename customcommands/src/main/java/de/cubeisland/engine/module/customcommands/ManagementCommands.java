@@ -28,15 +28,15 @@ import de.cubeisland.engine.butler.parametric.Flag;
 import de.cubeisland.engine.butler.parametric.Complete;
 import de.cubeisland.engine.butler.parametric.Greed;
 import de.cubeisland.engine.butler.result.CommandResult;
-import de.cubeisland.engine.core.command.ContainerCommand;
-import de.cubeisland.engine.core.command.CommandContext;
-import de.cubeisland.engine.core.command.CommandSender;
-import de.cubeisland.engine.core.command.result.paginated.PaginatedResult;
-import de.cubeisland.engine.core.command.result.paginated.PaginationIterator;
+import de.cubeisland.engine.module.service.command.ContainerCommand;
+import de.cubeisland.engine.module.service.command.CommandContext;
+import de.cubeisland.engine.module.service.command.CommandSender;
+import de.cubeisland.engine.module.service.command.result.paginated.PaginatedResult;
+import de.cubeisland.engine.module.service.command.result.paginated.PaginationIterator;
 
 import static de.cubeisland.engine.butler.parameter.Parameter.INFINITE;
-import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
-import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
+import de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
+import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static java.util.Locale.ENGLISH;
 
 @Command(name = "customcommands", desc = "Commands to modify custom commands.")

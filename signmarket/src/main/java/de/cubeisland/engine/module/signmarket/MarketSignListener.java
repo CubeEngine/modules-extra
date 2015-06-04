@@ -17,8 +17,8 @@
  */
 package de.cubeisland.engine.module.signmarket;
 
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.core.util.BlockUtil;
+import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.module.core.util.BlockUtil;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;

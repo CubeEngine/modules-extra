@@ -17,7 +17,7 @@
  */
 package de.cubeisland.engine.module.fly;
 
-import de.cubeisland.engine.core.filesystem.Resource;
+import de.cubeisland.engine.module.core.filesystem.Resource;
 
 public enum FlyResource implements Resource
 {

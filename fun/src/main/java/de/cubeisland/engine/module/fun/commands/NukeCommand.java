@@ -25,14 +25,14 @@ import de.cubeisland.engine.butler.parametric.Command;
 import de.cubeisland.engine.butler.parametric.Flag;
 import de.cubeisland.engine.butler.parametric.Named;
 import de.cubeisland.engine.butler.parametric.Optional;
-import de.cubeisland.engine.core.command.CommandSender;
-import de.cubeisland.engine.core.task.TaskManager;
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.core.util.math.Vector3;
-import de.cubeisland.engine.core.util.math.shape.Cuboid;
-import de.cubeisland.engine.core.util.math.shape.Cylinder;
-import de.cubeisland.engine.core.util.math.shape.Shape;
-import de.cubeisland.engine.core.util.math.shape.Sphere;
+import de.cubeisland.engine.module.service.command.CommandSender;
+import de.cubeisland.engine.module.service.task.TaskManager;
+import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.module.core.util.math.Vector3;
+import de.cubeisland.engine.module.core.util.math.shape.Cuboid;
+import de.cubeisland.engine.module.core.util.math.shape.Cylinder;
+import de.cubeisland.engine.module.core.util.math.shape.Shape;
+import de.cubeisland.engine.module.core.util.math.shape.Sphere;
 import de.cubeisland.engine.module.fun.Fun;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -45,8 +45,8 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.util.Vector;
 
-import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
-import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
+import de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
+import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 
 public class NukeCommand
 {

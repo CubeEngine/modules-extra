@@ -24,7 +24,7 @@ import de.cubeisland.engine.converter.node.MapNode;
 import de.cubeisland.engine.converter.node.Node;
 import de.cubeisland.engine.converter.node.ShortNode;
 import de.cubeisland.engine.converter.node.StringNode;
-import de.cubeisland.engine.core.bukkit.NBTUtils;
+import de.cubeisland.engine.module.core.sponge.NBTUtils;
 import net.minecraft.server.v1_8_R2.NBTTagCompound;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_8_R2.inventory.CraftItemStack;

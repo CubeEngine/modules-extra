@@ -40,7 +40,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.InventoryHolder;
 
-import static de.cubeisland.engine.core.util.BlockUtil.BLOCK_FACES;
+import de.cubeisland.engine.module.core.util.BlockUtil.BLOCK_FACES;
 import static de.cubeisland.engine.module.log.action.block.ListenerBlock.logAttachedBlocks;
 import static de.cubeisland.engine.module.log.action.block.ListenerBlock.logFallingBlocks;
 import static org.bukkit.Material.*;

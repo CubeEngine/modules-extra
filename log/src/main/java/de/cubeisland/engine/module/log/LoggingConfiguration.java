@@ -254,7 +254,7 @@ public class LoggingConfiguration extends ReflectedYaml
         public boolean drop_onEntityDeath = false;
         @Comment("Items picked up by a player")
         public boolean pickup = false;
-        //TODO CE-343 Log Zombies picking up items (waiting for bukkit)
+        //TODO CE-343 Log Zombies picking up items (waiting for sponge)
         @Comment("Players enchanting an item")
         public boolean enchant = true;
         @Comment("Players crafting an item")

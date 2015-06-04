@@ -18,12 +18,12 @@
 package de.cubeisland.engine.module.vaultlink;
 
 import java.util.concurrent.atomic.AtomicReference;
-import de.cubeisland.engine.core.Core;
-import de.cubeisland.engine.core.bukkit.BukkitCore;
-import de.cubeisland.engine.core.bukkit.BukkitServiceManager;
-import de.cubeisland.engine.core.module.Module;
-import de.cubeisland.engine.core.module.service.Metadata;
-import de.cubeisland.engine.core.module.service.ServiceManager;
+import de.cubeisland.engine.module.core.Core;
+import de.cubeisland.engine.module.core.sponge.SpongeCore;
+import de.cubeisland.engine.module.core.sponge.SpongeServiceManager;
+import de.cubeisland.engine.module.core.module.Module;
+import de.cubeisland.engine.module.service.Metadata;
+import de.cubeisland.engine.module.core.module.service.ServiceManager;
 import de.cubeisland.engine.module.vaultlink.service.CubeChatService;
 import de.cubeisland.engine.module.vaultlink.service.CubeEconomyService;
 import de.cubeisland.engine.module.vaultlink.service.CubePermissionService;
@@ -50,12 +50,12 @@ public class Vaultlink extends Module implements Listener
     private final AtomicReference<Permission> vaultPermRef = new AtomicReference<>();
     private final AtomicReference<Chat> vaultChatRef = new AtomicReference<>();
     private final AtomicReference<Economy> vaultEconRef = new AtomicReference<>();
-    private BukkitServiceManager bukkitServiceManager;
+    private SpongeServiceManager bukkitServiceManager;
 
     @Override
     public void onLoad()
     {
-        this.bukkitServiceManager = ((BukkitCore)this.getCore()).getModuleManager().getServiceManager();
+        this.bukkitServiceManager = ((SpongeCore)this.getCore()).getModuleManager().getServiceManager();
 
         // Permission & Metadata/Chat
         vaultPermRef.set(new CubePermissionService(this, permRef));

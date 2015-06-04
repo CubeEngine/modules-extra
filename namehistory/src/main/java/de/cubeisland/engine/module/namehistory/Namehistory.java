@@ -21,21 +21,20 @@ import java.sql.Date;
 import java.text.SimpleDateFormat;
 import de.cubeisland.engine.butler.parametric.Command;
 import de.cubeisland.engine.butler.parametric.Default;
-import de.cubeisland.engine.core.command.CommandManager;
-import de.cubeisland.engine.core.command.CommandSender;
-import de.cubeisland.engine.core.module.Module;
-import de.cubeisland.engine.core.user.TableUser;
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.core.user.UserLoadedEvent;
-import de.cubeisland.engine.core.util.McUUID;
-import de.cubeisland.engine.core.util.McUUID.NameEntry;
+import de.cubeisland.engine.module.service.command.CommandManager;
+import de.cubeisland.engine.module.service.command.CommandSender;
+import de.cubeisland.engine.module.core.module.Module;
+import de.cubeisland.engine.module.service.user.TableUser;
+import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.module.service.user.UserLoadedEvent;
+import de.cubeisland.engine.module.core.util.McUUID;
+import de.cubeisland.engine.module.core.util.McUUID.NameEntry;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.jooq.DSLContext;
 import org.jooq.ResultQuery;
 import org.jooq.SelectSeekStep1;
 
-import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 import static de.cubeisland.engine.module.namehistory.TableNameHistory.TABLE_NAMEHISTORY;
 
 public class Namehistory extends Module implements Listener

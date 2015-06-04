@@ -17,7 +17,7 @@
  */
 package de.cubeisland.engine.module.holiday.storage;
 
-import de.cubeisland.engine.core.storage.database.AsyncRecord;
+import de.cubeisland.engine.module.core.storage.database.AsyncRecord;
 
 import static de.cubeisland.engine.module.holiday.storage.TableHoliday.TABLE_HOLIDAY;
 

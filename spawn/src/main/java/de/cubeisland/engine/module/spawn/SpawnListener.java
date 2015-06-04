@@ -17,10 +17,10 @@
  */
 package de.cubeisland.engine.module.spawn;
 
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.core.user.UserManager;
-import de.cubeisland.engine.core.util.StringUtils;
-import de.cubeisland.engine.core.world.WorldManager;
+import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.module.service.user.UserManager;
+import de.cubeisland.engine.module.core.util.StringUtils;
+import de.cubeisland.engine.module.service.world.WorldManager;
 import de.cubeisland.engine.module.roles.Roles;
 import de.cubeisland.engine.module.roles.role.RolesAttachment;
 import de.cubeisland.engine.module.roles.role.resolved.ResolvedMetadata;

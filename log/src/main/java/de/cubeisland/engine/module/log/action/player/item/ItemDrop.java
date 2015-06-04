@@ -17,13 +17,13 @@
  */
 package de.cubeisland.engine.module.log.action.player.item;
 
-import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.block.entity.ActionEntityBlock.EntitySection;
 import org.bukkit.entity.Item;
 
-import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
+import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.ITEM;
 
 /**
@@ -48,12 +48,12 @@ public class ItemDrop extends ActionItem
     @Override
     public String translateAction(User user)
     {
-        int amount = this.item.getAmount();
+        int amount = this.item.getQuantity();
         if (this.hasAttached())
         {
             for (BaseAction action : this.getAttached())
             {
-                amount += ((ItemDrop)action).item.getAmount();
+                amount += ((ItemDrop)action).item.getQuantity();
             }
         }
         return user.getTranslation(POSITIVE, "{user} dropped {name#item} x{amount}", this.player.name,

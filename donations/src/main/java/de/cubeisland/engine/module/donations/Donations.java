@@ -17,7 +17,7 @@
  */
 package de.cubeisland.engine.module.donations;
 
-import de.cubeisland.engine.core.module.Module;
+import de.cubeisland.engine.module.core.module.Module;
 
 public class Donations extends Module
 {

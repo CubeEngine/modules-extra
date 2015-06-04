@@ -19,8 +19,8 @@ package de.cubeisland.engine.module.shout.announce.receiver;
 
 import java.util.Locale;
 import java.util.Queue;
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.core.util.ChatFormat;
+import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.module.core.util.ChatFormat;
 import de.cubeisland.engine.module.shout.announce.Announcement;
 import de.cubeisland.engine.module.shout.announce.AnnouncementManager;
 

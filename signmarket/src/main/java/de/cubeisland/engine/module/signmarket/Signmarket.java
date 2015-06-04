@@ -17,9 +17,9 @@
  */
 package de.cubeisland.engine.module.signmarket;
 
-import de.cubeisland.engine.core.module.Module;
-import de.cubeisland.engine.core.module.Reloadable;
-import de.cubeisland.engine.core.storage.database.Database;
+import de.cubeisland.engine.module.core.module.Module;
+import de.cubeisland.engine.module.core.module.Reloadable;
+import de.cubeisland.engine.module.core.storage.database.Database;
 import de.cubeisland.engine.module.signmarket.storage.TableSignBlock;
 import de.cubeisland.engine.module.signmarket.storage.TableSignItem;
 

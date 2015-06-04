@@ -21,12 +21,11 @@ import java.util.Set;
 import java.util.UUID;
 import de.cubeisland.engine.butler.parametric.Command;
 import de.cubeisland.engine.butler.parametric.Default;
-import de.cubeisland.engine.core.command.CommandContext;
-import de.cubeisland.engine.core.command.CommandSender;
-import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.module.service.command.CommandContext;
+import de.cubeisland.engine.module.service.command.CommandSender;
+import de.cubeisland.engine.module.service.user.User;
 
-import static de.cubeisland.engine.core.util.ChatFormat.YELLOW;
-import static de.cubeisland.engine.core.util.formatter.MessageType.*;
+import de.cubeisland.engine.module.core.util.ChatFormat.YELLOW;
 
 public class HideCommands
 {

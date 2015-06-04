@@ -20,8 +20,8 @@ package de.cubeisland.engine.module.hide;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.core.user.UserManager;
+import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.module.service.user.UserManager;
 import de.cubeisland.engine.module.hide.event.UserHideEvent;
 import de.cubeisland.engine.module.hide.event.UserShowEvent;
 import org.bukkit.entity.Entity;
@@ -39,8 +39,8 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 
-import static de.cubeisland.engine.core.util.formatter.MessageType.NEUTRAL;
-import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
+import de.cubeisland.engine.module.core.util.formatter.MessageType.NEUTRAL;
+import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static org.bukkit.event.block.Action.PHYSICAL;
 
 public class HideListener implements Listener

@@ -18,8 +18,8 @@
 package de.cubeisland.engine.module.rulebook;
 
 import java.util.Locale;
-import de.cubeisland.engine.core.bukkit.AfterJoinEvent;
-import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.module.core.sponge.AfterJoinEvent;
+import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.rulebook.bookManagement.RulebookManager;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;

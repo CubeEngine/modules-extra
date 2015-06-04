@@ -20,7 +20,7 @@ package de.cubeisland.engine.module.itemrepair.repair.storage;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import de.cubeisland.engine.core.module.Module;
+import de.cubeisland.engine.module.core.module.Module;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.jooq.DSLContext;

@@ -20,13 +20,13 @@ package de.cubeisland.engine.module.signmarket;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
-import de.cubeisland.engine.core.CubeEngine;
-import de.cubeisland.engine.core.module.service.Economy;
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.core.util.InventoryGuardFactory;
-import de.cubeisland.engine.core.util.RomanNumbers;
-import de.cubeisland.engine.core.util.formatter.MessageType;
-import de.cubeisland.engine.core.util.matcher.Match;
+import de.cubeisland.engine.module.core.CubeEngine;
+import de.cubeisland.engine.module.service.Economy;
+import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.module.core.util.InventoryGuardFactory;
+import de.cubeisland.engine.module.core.util.RomanNumbers;
+import de.cubeisland.engine.module.core.util.formatter.MessageType;
+import de.cubeisland.engine.module.core.util.matcher.Match;
 import de.cubeisland.engine.module.signmarket.exceptions.NoDemandException;
 import de.cubeisland.engine.module.signmarket.exceptions.NoOwnerException;
 import de.cubeisland.engine.module.signmarket.exceptions.NoStockException;
@@ -49,9 +49,6 @@ import org.jooq.DSLContext;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
 
-import static de.cubeisland.engine.core.util.ChatFormat.*;
-import static de.cubeisland.engine.core.util.InventoryUtil.*;
-import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 import static de.cubeisland.engine.module.signmarket.storage.TableSignBlock.TABLE_SIGN_BLOCK;
 import static de.cubeisland.engine.module.signmarket.storage.TableSignItem.TABLE_SIGN_ITEM;
 import static org.bukkit.event.inventory.InventoryType.DISPENSER;
@@ -144,7 +141,7 @@ public class MarketSign
         ItemStack item = this.itemInfo.getItemStack().clone();
         item.setAmount(this.itemInfo.getValue(TABLE_SIGN_ITEM.STOCK).intValue());
         this.itemInfo.setValue(TABLE_SIGN_ITEM.STOCK, UInteger.valueOf(0)); // just to be sure no items are duped
-        if (item.getAmount() > item.getMaxStackSize() * 5400
+        if (item.getQuantity() > item.getMaxStackSize() * 5400
             // prevent lag from throwing huge amount of items out of the sign
             // amount of 100 DoubleChest full with given item
             || this.module.getConfig().allowOverStackedOutOfSign)

@@ -25,8 +25,8 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
-import de.cubeisland.engine.core.bukkit.BukkitCore;
-import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.module.core.sponge.SpongeCore;
+import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.bigdata.Bigdata;
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
@@ -69,7 +69,7 @@ public class LogManager
         }
         this.globalConfig = this.module.getCore().getConfigFactory().
             load(LoggingConfiguration.class, module.getFolder().resolve("globalconfig.yml").toFile());
-        for (World world : ((BukkitCore)module.getCore()).getServer().getWorlds())
+        for (World world : ((SpongeCore)module.getCore()).getServer().getWorlds())
         {
             this.initWorldConfig(world);
         }

@@ -17,30 +17,13 @@
  */
 package de.cubeisland.engine.module.log.action.block.entity.explosion;
 
-import java.util.List;
-import de.cubeisland.engine.core.bukkit.BukkitUtils;
+import de.cubeisland.engine.module.core.sponge.BukkitUtils;
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.action.LogListener;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Creeper;
-import org.bukkit.entity.EnderDragon;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Fireball;
-import org.bukkit.entity.Ghast;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.TNTPrimed;
-import org.bukkit.entity.Wither;
-import org.bukkit.entity.WitherSkull;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.entity.EntityExplodeEvent;
+import org.spongepowered.api.entity.projectile.explosive.fireball.Fireball;
 
 import static de.cubeisland.engine.module.log.action.block.ListenerBlock.logAttachedBlocks;
 import static de.cubeisland.engine.module.log.action.block.ListenerBlock.logFallingBlocks;
-import static org.bukkit.Material.AIR;
 
 /**
  * A Listener for {@link ExplosionAction}
@@ -115,6 +98,7 @@ public class ListenerExplode extends LogListener
             actionClazz = ExplodeFireball.class;
             if (((Fireball)entity).getShooter() instanceof Ghast)
             {
+                // TODO TargetLivingData should give this
                 LivingEntity target = BukkitUtils.getTarget((Ghast)((Fireball)entity).getShooter());
                 if (target != null && target instanceof Player)
                 {
@@ -125,6 +109,7 @@ public class ListenerExplode extends LogListener
         else if (entity instanceof EnderDragon)
         {
             actionClazz = ExplodeEnderdragon.class;
+            // TODO TargetLivingData should give this
             LivingEntity target = BukkitUtils.getTarget((LivingEntity)entity);
             if (target != null && target instanceof Player)
             {

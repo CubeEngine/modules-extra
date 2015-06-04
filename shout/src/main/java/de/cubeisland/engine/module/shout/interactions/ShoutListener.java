@@ -17,8 +17,8 @@
  */
 package de.cubeisland.engine.module.shout.interactions;
 
-import de.cubeisland.engine.core.bukkit.AfterJoinEvent;
-import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.module.core.sponge.AfterJoinEvent;
+import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.shout.Shout;
 import de.cubeisland.engine.module.shout.announce.AnnouncementManager;
 import org.bukkit.event.EventHandler;

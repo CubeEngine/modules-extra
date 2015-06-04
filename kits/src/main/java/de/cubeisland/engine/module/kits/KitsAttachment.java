@@ -19,7 +19,7 @@ package de.cubeisland.engine.module.kits;
 
 import java.util.HashMap;
 import java.util.Map;
-import de.cubeisland.engine.core.user.UserAttachment;
+import de.cubeisland.engine.module.service.user.UserAttachment;
 
 public class KitsAttachment extends UserAttachment
 {

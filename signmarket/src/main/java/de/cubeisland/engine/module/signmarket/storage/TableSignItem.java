@@ -17,8 +17,10 @@
  */
 package de.cubeisland.engine.module.signmarket.storage;
 
-import de.cubeisland.engine.core.storage.database.AutoIncrementTable;
-import de.cubeisland.engine.core.util.Version;
+import de.cubeisland.engine.module.service.database.AutoIncrementTable;
+import de.cubeisland.engine.module.service.database.Database;
+import de.cubeisland.engine.module.core.storage.database.AutoIncrementTable;
+import de.cubeisland.engine.module.core.util.Version;
 import org.jooq.TableField;
 import org.jooq.impl.SQLDataType;
 import org.jooq.types.UInteger;
@@ -38,9 +40,9 @@ public class TableSignItem extends AutoIncrementTable<ItemModel, UInteger>
     public final TableField<ItemModel, String> ENCHANTMENTS = createField("enchantments",VARCHAR.length(255),this);
     public final TableField<ItemModel, Byte> SIZE = createField("size", SQLDataType.TINYINT.nullable(false),this);
 
-    public TableSignItem(String prefix)
+    public TableSignItem(String prefix, Database database)
     {
-        super(prefix + "signmarketitem", new Version(1));
+        super(prefix + "signmarketitem", new Version(1), database);
         this.setAIKey(KEY);
         this.addFields(KEY, STOCK, ITEM, DAMAGEVALUE, CUSTOMNAME, LORE, ENCHANTMENTS, SIZE);
         TABLE_SIGN_ITEM = this;

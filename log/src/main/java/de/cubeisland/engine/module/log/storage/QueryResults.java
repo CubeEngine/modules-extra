@@ -25,17 +25,15 @@ import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
-import de.cubeisland.engine.core.CubeEngine;
-import de.cubeisland.engine.core.module.Module;
-import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.module.core.CubeEngine;
+import de.cubeisland.engine.module.core.module.Module;
+import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.log.LogAttachment;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.BaseAction.Coordinate;
 import de.cubeisland.engine.module.log.action.Redoable;
 import de.cubeisland.engine.module.log.action.Rollbackable;
 import de.cubeisland.engine.module.log.action.death.DeathMonster;
-
-import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 
 public class QueryResults
 {

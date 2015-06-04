@@ -24,10 +24,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import de.cubeisland.engine.core.CubeEngine;
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.core.util.math.BlockVector3;
-import de.cubeisland.engine.core.world.ConfigWorld;
+import de.cubeisland.engine.module.core.CubeEngine;
+import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.module.core.util.math.BlockVector3;
+import de.cubeisland.engine.module.service.world.ConfigWorld;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.storage.ShowParameter;
 import de.cubeisland.engine.reflect.Section;
@@ -36,8 +36,8 @@ import org.bson.types.ObjectId;
 import org.bukkit.Location;
 import org.bukkit.World;
 
-import static de.cubeisland.engine.core.util.formatter.MessageType.NONE;
-import static de.cubeisland.engine.core.util.formatter.MessageType.POSITIVE;
+import de.cubeisland.engine.module.core.util.formatter.MessageType.NONE;
+import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static org.bukkit.ChatColor.GRAY;
 
 /**

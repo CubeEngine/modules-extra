@@ -23,9 +23,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import de.cubeisland.engine.core.bukkit.BukkitCore;
-import de.cubeisland.engine.core.module.Module;
-import de.cubeisland.engine.core.util.ChatFormat;
+import de.cubeisland.engine.module.core.sponge.SpongeCore;
+import de.cubeisland.engine.module.core.module.Module;
+import de.cubeisland.engine.module.core.util.ChatFormat;
 import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.entity.Boat;
@@ -65,7 +65,7 @@ public class Unbreakableboat extends Module implements Listener
         itemMeta.setLore(Arrays.asList(ChatFormat.parseFormats("&eCan take a lot!")));
         boat.setItemMeta(itemMeta);
         ShapedRecipe recipe = new ShapedRecipe(boat).shape("l l", "lll").setIngredient('l', LOG);
-        Server server = ((BukkitCore)this.getCore()).getServer();
+        Server server = ((SpongeCore)this.getCore()).getServer();
         server.addRecipe(recipe);
     }
 

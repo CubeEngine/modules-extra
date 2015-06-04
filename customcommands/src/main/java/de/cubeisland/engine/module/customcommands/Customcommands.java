@@ -17,7 +17,7 @@
  */
 package de.cubeisland.engine.module.customcommands;
 
-import de.cubeisland.engine.core.module.Module;
+import de.cubeisland.engine.module.core.module.Module;
 
 public class Customcommands extends Module
 {

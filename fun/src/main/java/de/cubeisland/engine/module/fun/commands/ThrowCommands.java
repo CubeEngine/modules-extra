@@ -29,9 +29,9 @@ import de.cubeisland.engine.butler.parametric.Command;
 import de.cubeisland.engine.butler.parametric.Flag;
 import de.cubeisland.engine.butler.parametric.Named;
 import de.cubeisland.engine.butler.parametric.Optional;
-import de.cubeisland.engine.core.permission.Permission;
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.core.util.matcher.Match;
+import de.cubeisland.engine.module.service.permission.Permission;
+import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.module.core.util.matcher.Match;
 import de.cubeisland.engine.module.fun.Fun;
 import org.bukkit.Location;
 import org.bukkit.entity.Arrow;
@@ -48,12 +48,10 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.util.Vector;
 
-import static de.cubeisland.engine.core.util.formatter.MessageType.*;
-
 public class ThrowCommands
 {
     private final Map<UUID, ThrowTask> thrownItems;
-    // entities that can't be safe due to bukkit flaws
+    // entities that can't be safe due to sponge flaws
     private final EnumSet<EntityType> BUGGED_ENTITIES = EnumSet.of(EntityType.SMALL_FIREBALL, EntityType.FIREBALL);
 
     private final Fun module;

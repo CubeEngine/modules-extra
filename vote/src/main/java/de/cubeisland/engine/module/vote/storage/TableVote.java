@@ -18,13 +18,13 @@
 package de.cubeisland.engine.module.vote.storage;
 
 import java.sql.Timestamp;
-import de.cubeisland.engine.core.storage.database.Table;
-import de.cubeisland.engine.core.util.Version;
+import de.cubeisland.engine.module.core.storage.database.Table;
+import de.cubeisland.engine.module.core.util.Version;
 import org.jooq.TableField;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
 
-import static de.cubeisland.engine.core.user.TableUser.TABLE_USER;
+import de.cubeisland.engine.module.service.user.TableUser.TABLE_USER;
 import static org.jooq.util.mysql.MySQLDataType.DATETIME;
 
 public class TableVote extends Table<VoteModel>

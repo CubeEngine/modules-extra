@@ -19,13 +19,13 @@ package de.cubeisland.engine.module.kits;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import de.cubeisland.engine.core.storage.database.Table;
-import de.cubeisland.engine.core.storage.database.TableUpdateCreator;
-import de.cubeisland.engine.core.util.Version;
+import de.cubeisland.engine.module.core.storage.database.Table;
+import de.cubeisland.engine.module.core.storage.database.TableUpdateCreator;
+import de.cubeisland.engine.module.core.util.Version;
 import org.jooq.TableField;
 import org.jooq.types.UInteger;
 
-import static de.cubeisland.engine.core.user.TableUser.TABLE_USER;
+import de.cubeisland.engine.module.service.user.TableUser.TABLE_USER;
 import static org.jooq.impl.SQLDataType.INTEGER;
 import static org.jooq.impl.SQLDataType.VARCHAR;
 

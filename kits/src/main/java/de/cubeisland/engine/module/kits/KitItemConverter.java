@@ -29,7 +29,7 @@ import de.cubeisland.engine.converter.node.IntNode;
 import de.cubeisland.engine.converter.node.MapNode;
 import de.cubeisland.engine.converter.node.Node;
 import de.cubeisland.engine.converter.node.StringNode;
-import de.cubeisland.engine.core.util.matcher.Match;
+import de.cubeisland.engine.module.core.util.matcher.Match;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 

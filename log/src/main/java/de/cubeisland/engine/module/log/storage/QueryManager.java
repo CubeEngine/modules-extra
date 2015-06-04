@@ -41,17 +41,17 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import de.cubeisland.engine.core.CubeEngine;
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.core.util.Profiler;
-import de.cubeisland.engine.core.util.math.BlockVector3;
+import de.cubeisland.engine.module.core.CubeEngine;
+import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.module.core.util.Profiler;
+import de.cubeisland.engine.module.core.util.math.BlockVector3;
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.ReferenceHolder;
 import de.cubeisland.engine.module.log.action.block.ActionBlock.BlockSection;
 
-import static de.cubeisland.engine.core.util.formatter.MessageType.NEGATIVE;
-import static de.cubeisland.engine.core.util.formatter.MessageType.NEUTRAL;
+import de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
+import de.cubeisland.engine.module.core.util.formatter.MessageType.NEUTRAL;
 
 public class QueryManager
 {

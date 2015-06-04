@@ -18,9 +18,9 @@
 package de.cubeisland.engine.module.namehistory;
 
 import java.sql.Date;
-import de.cubeisland.engine.core.storage.database.AsyncRecord;
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.core.util.McUUID.NameEntry;
+import de.cubeisland.engine.module.core.storage.database.AsyncRecord;
+import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.module.core.util.McUUID.NameEntry;
 
 import static de.cubeisland.engine.module.namehistory.TableNameHistory.TABLE_NAMEHISTORY;
 

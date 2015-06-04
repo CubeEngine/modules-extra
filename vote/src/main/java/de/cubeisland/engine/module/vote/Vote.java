@@ -18,17 +18,17 @@
 package de.cubeisland.engine.module.vote;
 
 import com.vexsoftware.votifier.model.VotifierEvent;
-import de.cubeisland.engine.core.command.CommandManager;
-import de.cubeisland.engine.core.module.Module;
-import de.cubeisland.engine.core.module.service.Economy;
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.core.util.ChatFormat;
+import de.cubeisland.engine.module.service.command.CommandManager;
+import de.cubeisland.engine.module.core.module.Module;
+import de.cubeisland.engine.module.service.Economy;
+import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.module.core.util.ChatFormat;
 import de.cubeisland.engine.module.vote.storage.TableVote;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.jooq.DSLContext;
 
-import static de.cubeisland.engine.core.util.formatter.MessageType.NONE;
+import de.cubeisland.engine.module.core.util.formatter.MessageType.NONE;
 import static de.cubeisland.engine.module.vote.storage.TableVote.TABLE_VOTE;
 import static java.lang.Math.pow;
 

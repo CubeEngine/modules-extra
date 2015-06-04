@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 import com.mongodb.BasicDBObject;
-import de.cubeisland.engine.core.bukkit.BukkitUtils;
+import de.cubeisland.engine.module.core.sponge.BukkitUtils;
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.action.LogListener;
 import org.bukkit.Location;
@@ -42,9 +42,8 @@ import org.bukkit.inventory.BrewerInventory;
 import org.bukkit.inventory.FurnaceInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.event.inventory.InventoryClickEvent;
 
-import static de.cubeisland.engine.core.util.InventoryUtil.getMissingSpace;
 import static org.bukkit.Material.*;
 
 /**
@@ -194,7 +193,7 @@ public class ListenerContainerItem extends LogListener
             }
             Inventory inventory = event.getInventory();
             InventoryHolder holder = inventory.getHolder();
-            ItemStack inventoryItem = event.getCurrentItem();
+            org.spongepowered.api.item.inventory.ItemStack inventoryItem = event.getCurrentItem();
             ItemStack cursorItem = event.getCursor();
             if ((inventoryItem == null || inventoryItem.getType() == AIR) && (cursorItem == null
                 || cursorItem.getType() == AIR))
@@ -210,7 +209,7 @@ public class ListenerContainerItem extends LogListener
                         return;
                     }
                     int missingSpace = getMissingSpace(event.getView().getTopInventory(), inventoryItem);
-                    int amountTake = inventoryItem.getAmount() - missingSpace;
+                    int amountTake = inventoryitem.getQuantity() - missingSpace;
                     if (amountTake > 0)
                     {
                         this.prepareForLogging(player, new ItemData(inventoryItem), -amountTake);
@@ -220,13 +219,13 @@ public class ListenerContainerItem extends LogListener
                 {
                     if (cursorItem == null || cursorItem.getType() == AIR) // remove items
                     {
-                        int remove = event.isLeftClick() ? inventoryItem.getAmount() :
-                                     (inventoryItem.getAmount() + 1) / 2;
+                        int remove = event.isLeftClick() ? inventoryitem.getQuantity() :
+                                     (inventoryitem.getQuantity() + 1) / 2;
                         this.prepareForLogging(player, new ItemData(inventoryItem), -remove);
                     }
                     else if (inventoryItem == null || inventoryItem.getType() == AIR) // put items
                     {
-                        int put = event.isLeftClick() ? cursorItem.getAmount() : 1;
+                        int put = event.isLeftClick() ? cursoritem.getQuantity() : 1;
                         if (holder instanceof BrewingStand) // handle BrewingStands separatly
                         {
                             if (event.getRawSlot() == 3)
@@ -252,11 +251,11 @@ public class ListenerContainerItem extends LogListener
                     {
                         if (inventoryItem.isSimilar(cursorItem))
                         {
-                            int put = event.isLeftClick() ? inventoryItem.getAmount() : 1;
-                            if (put > inventoryItem.getMaxStackSize() - inventoryItem.getAmount()) //if stack to big
+                            int put = event.isLeftClick() ? inventoryitem.getQuantity() : 1;
+                            if (put > inventoryItem.getMaxStackSize() - inventoryitem.getQuantity()) //if stack to big
                             {
                                 put = inventoryItem.getMaxStackSize()
-                                    - inventoryItem.getAmount(); //set to missing to fill
+                                    - inventoryitem.getQuantity(); //set to missing to fill
                             }
                             if (put == 0)
                             {
@@ -278,7 +277,7 @@ public class ListenerContainerItem extends LogListener
                                 else if (cursorItem.getType() == POTION
                                     || cursorItem.getType() == GLASS_BOTTLE) // bottle slot
                                 {
-                                    if (cursorItem.getAmount() > 1)
+                                    if (cursoritem.getQuantity() > 1)
                                     {
                                         return; // nothing happens when more than 1
                                     }
@@ -289,8 +288,8 @@ public class ListenerContainerItem extends LogListener
                                     return;
                                 }
                             }
-                            this.prepareForLogging(player, new ItemData(cursorItem), cursorItem.getAmount());
-                            this.prepareForLogging(player, new ItemData(inventoryItem), -inventoryItem.getAmount());
+                            this.prepareForLogging(player, new ItemData(cursorItem), cursoritem.getQuantity());
+                            this.prepareForLogging(player, new ItemData(inventoryItem), -inventoryitem.getQuantity());
                         }
                     }
                 }
@@ -309,10 +308,10 @@ public class ListenerContainerItem extends LogListener
                         if (inventoryItem.isSimilar(brewerInventory.getIngredient())) // could fit into inventory
                         {
                             ItemStack brewerItem = brewerInventory.getIngredient();
-                            int amountPutIn = inventoryItem.getAmount();
-                            if (brewerItem.getAmount() + inventoryItem.getAmount() > inventoryItem.getMaxStackSize())
+                            int amountPutIn = inventoryitem.getQuantity();
+                            if (breweritem.getQuantity() + inventoryitem.getQuantity() > inventoryItem.getMaxStackSize())
                             {
-                                amountPutIn = inventoryItem.getMaxStackSize() - brewerItem.getAmount();
+                                amountPutIn = inventoryItem.getMaxStackSize() - breweritem.getQuantity();
                                 if (amountPutIn <= 0)
                                 {
                                     return;
@@ -328,7 +327,7 @@ public class ListenerContainerItem extends LogListener
                             ItemStack item = brewerInventory.getItem(i);
                             if (item == null) // space for a potion?
                             {
-                                this.prepareForLogging(player, new ItemData(inventoryItem), inventoryItem.getAmount());
+                                this.prepareForLogging(player, new ItemData(inventoryItem), inventoryitem.getQuantity());
                                 return;
                             }
                             // else no space found
@@ -343,13 +342,13 @@ public class ListenerContainerItem extends LogListener
                             ItemStack item = brewerInventory.getItem(i);
                             if (item == null) // space for the stack ?
                             {
-                                this.prepareForLogging(player, new ItemData(inventoryItem), inventoryItem.getAmount());
+                                this.prepareForLogging(player, new ItemData(inventoryItem), inventoryitem.getQuantity());
                                 return;
                             }
                             else if (item.getType() == GLASS_BOTTLE)
                             {
                                 bottleSlots++;
-                                bottlesFound += item.getAmount();
+                                bottlesFound += item.getQuantity();
                             }
                         }
                         if (bottleSlots > 0)
@@ -359,7 +358,7 @@ public class ListenerContainerItem extends LogListener
                             {
                                 return;
                             }
-                            int putInto = inventoryItem.getAmount();
+                            int putInto = inventoryitem.getQuantity();
                             if (putInto > space)
                             {
                                 putInto = space;
@@ -377,37 +376,37 @@ public class ListenerContainerItem extends LogListener
                         ItemStack item = furnaceInventory.getSmelting();
                         if (item == null)
                         {
-                            putInto = inventoryItem.getAmount();
+                            putInto = inventoryitem.getQuantity();
                         }
                         else if (inventoryItem.isSimilar(item))
                         {
-                            int space = inventoryItem.getMaxStackSize() - item.getAmount();
+                            int space = inventoryItem.getMaxStackSize() - item.getQuantity();
                             if (space <= 0)
                             {
                                 return;
                             }
-                            putInto = inventoryItem.getAmount();
+                            putInto = inventoryitem.getQuantity();
                             if (putInto > space)
                             {
                                 putInto = space;
                             }
                         }
                     }
-                    else if (BukkitUtils.isFuel(inventoryItem))
+                    else if (inventoryItem.getItem().getDefaultProperty(BurningFuelProperty.class).isPresent())
                     {
                         ItemStack item = furnaceInventory.getFuel();
                         if (item == null)
                         {
-                            putInto = inventoryItem.getAmount();
+                            putInto = inventoryitem.getQuantity();
                         }
                         else if (inventoryItem.isSimilar(item))
                         {
-                            int space = inventoryItem.getMaxStackSize() - item.getAmount();
+                            int space = inventoryItem.getMaxStackSize() - item.getQuantity();
                             if (space <= 0)
                             {
                                 return;
                             }
-                            putInto = inventoryItem.getAmount();
+                            putInto = inventoryitem.getQuantity();
                             if (putInto > space)
                             {
                                 putInto = space;
@@ -425,7 +424,7 @@ public class ListenerContainerItem extends LogListener
                     event.getView().getTopInventory().getContents();
 
                     int missingSpace = getMissingSpace(event.getView().getTopInventory(), inventoryItem);
-                    int amountPut = inventoryItem.getAmount() - missingSpace;
+                    int amountPut = inventoryitem.getQuantity() - missingSpace;
                     if (amountPut > 0)
                     {
                         this.prepareForLogging(player, new ItemData(inventoryItem), amountPut);

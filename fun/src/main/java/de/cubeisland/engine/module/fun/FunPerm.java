@@ -18,10 +18,10 @@
 package de.cubeisland.engine.module.fun;
 
 import java.util.Locale;
-import de.cubeisland.engine.core.permission.PermDefault;
-import de.cubeisland.engine.core.permission.Permission;
-import de.cubeisland.engine.core.permission.PermissionContainer;
-import de.cubeisland.engine.core.permission.PermissionManager;
+import de.cubeisland.engine.module.service.permission.PermDefault;
+import de.cubeisland.engine.module.service.permission.Permission;
+import de.cubeisland.engine.module.service.permission.PermissionContainer;
+import de.cubeisland.engine.module.service.permission.PermissionManager;
 import org.bukkit.entity.EntityType;
 
 @SuppressWarnings("all")

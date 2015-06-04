@@ -18,8 +18,8 @@
 package de.cubeisland.engine.module.vaultlink.service;
 
 import java.util.concurrent.atomic.AtomicReference;
-import de.cubeisland.engine.core.module.service.Metadata;
-import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.module.service.Metadata;
+import de.cubeisland.engine.module.service.user.User;
 import net.milkbowl.vault.chat.Chat;
 import org.bukkit.World;
 

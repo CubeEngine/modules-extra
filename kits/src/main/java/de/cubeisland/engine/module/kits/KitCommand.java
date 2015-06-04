@@ -25,16 +25,15 @@ import de.cubeisland.engine.butler.filter.Restricted;
 import de.cubeisland.engine.butler.parametric.Command;
 import de.cubeisland.engine.butler.parametric.Flag;
 import de.cubeisland.engine.butler.parametric.Default;
-import de.cubeisland.engine.core.command.ContainerCommand;
-import de.cubeisland.engine.core.command.CommandContext;
-import de.cubeisland.engine.core.command.CommandSender;
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.core.util.FileUtil;
+import de.cubeisland.engine.module.service.command.ContainerCommand;
+import de.cubeisland.engine.module.service.command.CommandContext;
+import de.cubeisland.engine.module.service.command.CommandSender;
+import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.module.core.util.FileUtil;
 import org.bukkit.inventory.ItemStack;
 
-import static de.cubeisland.engine.core.util.ChatFormat.WHITE;
-import static de.cubeisland.engine.core.util.ChatFormat.YELLOW;
-import static de.cubeisland.engine.core.util.formatter.MessageType.*;
+import de.cubeisland.engine.module.core.util.ChatFormat.WHITE;
+import de.cubeisland.engine.module.core.util.ChatFormat.YELLOW;
 import static org.bukkit.Material.AIR;
 
 @Command(name = "kit", desc = "Manages item-kits")
@@ -93,7 +92,7 @@ public class KitCommand extends ContainerCommand
                 itemList.add(
                         new KitItem(item.getType(),
                             item.getDurability(),
-                            item.getAmount(),
+                            item.getQuantity(),
                             item.getItemMeta().getDisplayName(),
                             item.getEnchantments()));
             }

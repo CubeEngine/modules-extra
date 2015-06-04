@@ -14,7 +14,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>de.cubeisland.engine</groupId>
+      <groupId>de.cubeisland.engine.module</groupId>
       <artifactId>core</artifactId>
       <version>1.0.0-SNAPSHOT</version>
       <scope>provided</scope>

@@ -17,8 +17,8 @@
  */
 package de.cubeisland.engine.module.rulebook;
 
-import de.cubeisland.engine.core.module.Module;
-import de.cubeisland.engine.core.permission.Permission;
+import de.cubeisland.engine.module.core.module.Module;
+import de.cubeisland.engine.module.service.permission.Permission;
 import de.cubeisland.engine.module.rulebook.bookManagement.RulebookCommands;
 import de.cubeisland.engine.module.rulebook.bookManagement.RulebookManager;
 

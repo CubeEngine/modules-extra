@@ -22,11 +22,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import de.cubeisland.engine.core.user.UserAttachment;
-import de.cubeisland.engine.core.util.StringUtils;
-import org.bukkit.World;
+import de.cubeisland.engine.module.service.user.UserAttachment;
+import de.cubeisland.engine.module.core.util.StringUtils;
 
-import static de.cubeisland.engine.core.filesystem.FileExtensionFilter.DAT;
+import de.cubeisland.engine.module.core.filesystem.FileExtensionFilter.DAT;
 
 public class BackpackAttachment extends UserAttachment
 {

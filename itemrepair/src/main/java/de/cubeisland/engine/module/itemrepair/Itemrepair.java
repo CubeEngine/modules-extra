@@ -17,7 +17,7 @@
  */
 package de.cubeisland.engine.module.itemrepair;
 
-import de.cubeisland.engine.core.module.Module;
+import de.cubeisland.engine.module.core.module.Module;
 import de.cubeisland.engine.module.itemrepair.material.BaseMaterialContainer;
 import de.cubeisland.engine.module.itemrepair.material.BaseMaterialContainerConverter;
 import de.cubeisland.engine.module.itemrepair.repair.RepairBlockManager;

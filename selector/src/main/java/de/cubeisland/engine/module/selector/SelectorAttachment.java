@@ -23,10 +23,10 @@ import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.BukkitUtil;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.RegionSelector;
-import de.cubeisland.engine.core.user.UserAttachment;
-import de.cubeisland.engine.core.util.math.Vector3;
-import de.cubeisland.engine.core.util.math.shape.Cuboid;
-import de.cubeisland.engine.core.util.math.shape.Shape;
+import de.cubeisland.engine.module.service.user.UserAttachment;
+import de.cubeisland.engine.module.core.util.math.Vector3;
+import de.cubeisland.engine.module.core.util.math.shape.Cuboid;
+import de.cubeisland.engine.module.core.util.math.shape.Shape;
 import org.bukkit.Location;
 import org.bukkit.World;
 

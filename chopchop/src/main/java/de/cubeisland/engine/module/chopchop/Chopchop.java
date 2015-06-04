@@ -18,9 +18,9 @@
 package de.cubeisland.engine.module.chopchop;
 
 import java.util.Arrays;
-import de.cubeisland.engine.core.bukkit.BukkitCore;
-import de.cubeisland.engine.core.module.Module;
-import de.cubeisland.engine.core.util.ChatFormat;
+import de.cubeisland.engine.module.core.sponge.SpongeCore;
+import de.cubeisland.engine.module.core.module.Module;
+import de.cubeisland.engine.module.core.util.ChatFormat;
 import org.bukkit.Server;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
@@ -47,7 +47,7 @@ public class Chopchop extends Module
         ShapedRecipe heavyAxe = new ShapedRecipe(axe).shape("aa", "la", "l ").
             setIngredient('a', DIAMOND_AXE).setIngredient('l', LOG);
 
-        Server server = ((BukkitCore)this.getCore()).getServer();
+        Server server = ((SpongeCore)this.getCore()).getServer();
         server.addRecipe(heavyAxe);
     }
 }

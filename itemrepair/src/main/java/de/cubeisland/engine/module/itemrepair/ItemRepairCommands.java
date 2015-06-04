@@ -21,9 +21,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import de.cubeisland.engine.butler.parametric.Command;
-import de.cubeisland.engine.core.command.ContainerCommand;
-import de.cubeisland.engine.core.command.CommandContext;
-import de.cubeisland.engine.core.user.User;
+import de.cubeisland.engine.module.service.command.ContainerCommand;
+import de.cubeisland.engine.module.service.command.CommandContext;
+import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.itemrepair.repair.RepairBlockManager;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
@@ -32,7 +32,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;
 
 @Command(name = "itemrepair", desc = "ItemRepair commands", alias = "ir")

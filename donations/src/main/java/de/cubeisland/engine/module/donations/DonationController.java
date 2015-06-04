@@ -21,13 +21,13 @@ import java.util.ArrayList;
 import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.cubeisland.engine.core.command.CommandManager;
-import de.cubeisland.engine.core.util.formatter.MessageType;
-import de.cubeisland.engine.core.webapi.Action;
-import de.cubeisland.engine.core.webapi.ApiRequest;
-import de.cubeisland.engine.core.webapi.ApiResponse;
-import de.cubeisland.engine.core.webapi.Method;
-import de.cubeisland.engine.core.webapi.RequestMethod;
+import de.cubeisland.engine.module.service.command.CommandManager;
+import de.cubeisland.engine.module.core.util.formatter.MessageType;
+import de.cubeisland.engine.module.core.webapi.Action;
+import de.cubeisland.engine.module.core.webapi.ApiRequest;
+import de.cubeisland.engine.module.core.webapi.ApiResponse;
+import de.cubeisland.engine.module.core.webapi.Method;
+import de.cubeisland.engine.module.core.webapi.RequestMethod;
 import de.cubeisland.engine.module.donations.DonationsConfig.DonationGoal;
 
 public class DonationController

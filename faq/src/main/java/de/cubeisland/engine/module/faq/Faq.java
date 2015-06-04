@@ -18,7 +18,7 @@
 package de.cubeisland.engine.module.faq;
 
 import java.util.PriorityQueue;
-import de.cubeisland.engine.core.module.Module;
+import de.cubeisland.engine.module.core.module.Module;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;

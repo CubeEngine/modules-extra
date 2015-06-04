@@ -18,7 +18,7 @@
 package de.cubeisland.engine.module.vaultlink;
 
 import java.util.concurrent.atomic.AtomicReference;
-import de.cubeisland.engine.core.command.CommandSender;
+import de.cubeisland.engine.module.service.command.CommandSender;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;

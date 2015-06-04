@@ -28,11 +28,11 @@ import de.cubeisland.engine.butler.parametric.Command;
 import de.cubeisland.engine.butler.parametric.Flag;
 import de.cubeisland.engine.butler.parametric.Label;
 import de.cubeisland.engine.butler.parametric.Named;
-import de.cubeisland.engine.core.command.ContainerCommand;
-import de.cubeisland.engine.core.command.CommandContext;
-import de.cubeisland.engine.core.command.CommandSender;
-import de.cubeisland.engine.core.user.User;
-import de.cubeisland.engine.core.util.ChatFormat;
+import de.cubeisland.engine.module.service.command.ContainerCommand;
+import de.cubeisland.engine.module.service.command.CommandContext;
+import de.cubeisland.engine.module.service.command.CommandSender;
+import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.module.core.util.ChatFormat;
 import de.cubeisland.engine.i18n.I18nUtil;
 import de.cubeisland.engine.module.shout.Shout;
 import de.cubeisland.engine.module.shout.announce.Announcement;
@@ -40,8 +40,6 @@ import de.cubeisland.engine.module.shout.announce.MessageOfTheDay;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-
-import static de.cubeisland.engine.core.util.formatter.MessageType.*;
 
 @Command(name = "shout", desc = "Announce a message to players on the server", alias = "announce")
 public class ShoutCommand extends ContainerCommand
