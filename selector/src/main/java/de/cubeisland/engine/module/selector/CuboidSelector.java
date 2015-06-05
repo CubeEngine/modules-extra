@@ -32,6 +32,7 @@ import de.cubeisland.engine.module.core.util.ChatFormat;
 import de.cubeisland.engine.module.core.util.math.shape.Shape;
 
 import de.cubeisland.engine.module.service.user.UserManager;
+import org.spongepowered.api.Game;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.manipulator.DisplayNameData;
 import org.spongepowered.api.entity.EntityInteractionType;
@@ -57,13 +58,14 @@ public class CuboidSelector implements Selector
     @Inject private CommandManager cm;
     @Inject private PermissionManager pm;
     @Inject private UserManager um;
+    @Inject private Game game;
     private Permission selectPerm;
 
     @Enable
     public void onEnable()
     {
         em.registerListener(module, this);
-        cm.addCommands(cm, module, new SelectorCommand());
+        cm.addCommands(cm, module, new SelectorCommand(game));
         selectPerm = module.getProvided(Permission.class).child("use-wand");
         pm.registerPermission(module, selectPerm);
     }
