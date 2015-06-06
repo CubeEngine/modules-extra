@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import com.google.common.base.Optional;
 import de.cubeisland.engine.modularity.asm.marker.Enable;
 import de.cubeisland.engine.modularity.asm.marker.ServiceImpl;
+import de.cubeisland.engine.modularity.asm.marker.Version;
 import de.cubeisland.engine.module.core.sponge.EventManager;
 import de.cubeisland.engine.module.core.util.formatter.MessageType;
 import de.cubeisland.engine.module.service.Selector;
@@ -51,6 +52,7 @@ import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITI
 
 
 @ServiceImpl(Selector.class)
+@Version(1)
 public class CuboidSelector implements Selector
 {
     @Inject private de.cubeisland.engine.module.selector.Selector module;
@@ -108,19 +110,21 @@ public class CuboidSelector implements Selector
         return attachment.getPoint(index);
     }
 
-    public static final Text SELECTOR_TOOL_NAME = Texts.of(TextColors.BLUE,"Selector-Tool");
-
     @Subscribe
     public void onInteract(PlayerInteractBlockEvent event)
     {
         EntityInteractionType type = event.getInteractionType();
         Location block = event.getBlock();
+        if ((int)block.getPosition().length() == 0)
+        {
+            return;
+        }
         if (block.getType() == BlockTypes.AIR || !event.getUser().hasPermission(selectPerm.getFullName()))
         {
             return;
         }
         Optional<ItemStack> itemInHand = event.getUser().getItemInHand();
-        if (!itemInHand.isPresent() || !SELECTOR_TOOL_NAME.equals(itemInHand.get().getOrCreate(
+        if (!itemInHand.isPresent() || !Texts.of(TextColors.BLUE, "Selector-Tool").equals(itemInHand.get().getOrCreate(
             DisplayNameData.class).get().getDisplayName()))
         {
             return;

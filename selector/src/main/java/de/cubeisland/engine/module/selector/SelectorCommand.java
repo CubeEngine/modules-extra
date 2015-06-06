@@ -20,20 +20,17 @@ package de.cubeisland.engine.module.selector;
 import com.google.common.base.Optional;
 import de.cubeisland.engine.butler.parametric.Command;
 import de.cubeisland.engine.butler.result.CommandResult;
-import de.cubeisland.engine.module.core.util.formatter.MessageType;
 import de.cubeisland.engine.module.service.command.CommandContext;
 import de.cubeisland.engine.module.service.user.User;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.data.manipulator.DisplayNameData;
-import org.spongepowered.api.data.manipulator.item.LoreData;
 import org.spongepowered.api.item.ItemTypes;
-import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Texts;
+import org.spongepowered.api.text.format.TextColors;
 
 import static de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
 import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
-import static de.cubeisland.engine.module.selector.CuboidSelector.SELECTOR_TOOL_NAME;
 
 public class SelectorCommand
 {
@@ -47,6 +44,8 @@ public class SelectorCommand
     public void giveSelectionTool(User user)
     {
         ItemStack found = null;
+        // TODO wait for implemented InventoryAPI
+        /*
         Inventory axes = user.getInventory().query(ItemTypes.WOODEN_AXE);
         for (Inventory slot : axes.slots())
         {
@@ -61,16 +60,19 @@ public class SelectorCommand
                 }
             }
         }
+        */
         Optional<ItemStack> itemInHand = user.getItemInHand();
         if (found == null)
         {
             found = game.getRegistry().getItemBuilder().itemType(ItemTypes.WOODEN_AXE).quantity(1).build();
             DisplayNameData display = found.getOrCreate(DisplayNameData.class).get();
-            display.setDisplayName(SELECTOR_TOOL_NAME);
+            display.setDisplayName(Texts.of(TextColors.BLUE, "Selector-Tool"));
             found.offer(display);
+            /* TODO wait for impl
             LoreData lore = found.getOrCreate(LoreData.class).get();
             lore.set(Texts.of("created by ", user.getDisplayName()));
             found.offer(lore);
+            */
 
             user.setItemInHand(found);
             if (itemInHand.isPresent())
