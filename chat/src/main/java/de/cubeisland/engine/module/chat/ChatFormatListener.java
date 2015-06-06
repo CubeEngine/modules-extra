@@ -17,7 +17,6 @@
  */
 package de.cubeisland.engine.module.chat;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -34,16 +33,11 @@ import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.option.OptionSubject;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Text.Translatable;
-import org.spongepowered.api.text.TextBuilder;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.action.HoverAction.ShowText;
-import org.spongepowered.api.text.format.BaseFormatting;
-import org.spongepowered.api.text.format.TextColor;
-import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.text.format.TextStyle;
-import org.spongepowered.api.text.format.TextStyle.Base;
 import org.spongepowered.api.text.translation.Translation;
 
+import static de.cubeisland.engine.module.core.util.ChatFormat.fromLegacy;
 import static de.cubeisland.engine.module.core.util.formatter.MessageType.NEUTRAL;
 import static org.spongepowered.api.text.Texts.toPlain;
 
@@ -109,8 +103,6 @@ public class ChatFormatListener
         event.setNewMessage(fromLegacy(this.getFormat(subject), replacements));
     }
 
-
-
     protected String getFormat(Subject subject)
     {
         String format = this.module.getConfig().format;
@@ -119,68 +111,5 @@ public class ChatFormatListener
             format = ((OptionSubject)subject).getOption("chat-format").or(format);
         }
         return format;
-    }
-
-    private Text fromLegacy(String string, Map<String, Text> replacements)
-    {
-        String[] parts = string.split(
-            "((?<=&[0123456789aAbBcCdDeEfFgkKlLmMnNoOrR])|(?=&[0123456789aAbBcCdDeEfFgkKlLmMnNoOrR]))");
-        TextBuilder builder = Texts.builder();
-        TextColor nextColor = null;
-        TextStyle nextStyle = null;
-        for (String part : parts)
-        {
-            if (part.matches("&[0123456789aAbBcCdDeEfFg]"))
-            {
-                nextColor = ((TextColor)ChatFormat.getByChar(part.charAt(1)).getBase());
-                continue;
-            }
-            if (part.matches("&[kKlLmMnNoOrR]"))
-            {
-                TextStyle newStyle = (TextStyle)ChatFormat.getByChar(part.charAt(1)).getBase();
-                if (nextStyle == null)
-                {
-                    nextStyle = newStyle;
-                }
-                else
-                {
-                    nextStyle = nextStyle.and(newStyle);
-                }
-                continue;
-            }
-
-            TextBuilder partBuilder = Texts.builder();
-            String[] toReplace = part.split("((?<=\\{[A-Z_]{0,50}\\})|(?=\\{[A-Z_]{0,50}\\}))");
-            for (String r : toReplace)
-            {
-                Text text = replacements.get(r);
-                if (text != null)
-                {
-                    partBuilder.append(text);
-                }
-                else if (!r.matches("\\{.+\\}"))
-                {
-                    partBuilder.append(Texts.of(r));
-                }
-            }
-            if (nextColor != null)
-            {
-                partBuilder.color(nextColor);
-                nextColor = null;
-            }
-            if (nextStyle != null)
-            {
-                partBuilder.style(nextStyle);
-                nextStyle = null;
-            }
-
-            builder.append(partBuilder.build());
-        }
-        return builder.build();
-    }
-
-    private Text fromLegacy(String string)
-    {
-        return fromLegacy(string, Collections.emptyMap());
     }
 }
