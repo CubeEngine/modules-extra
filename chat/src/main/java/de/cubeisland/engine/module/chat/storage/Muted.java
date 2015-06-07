@@ -15,25 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.cubeisland.engine.module.kits;
+package de.cubeisland.engine.module.chat.storage;
 
-import de.cubeisland.engine.module.core.storage.database.AsyncRecord;
+import de.cubeisland.engine.module.service.database.AsyncRecord;
 import de.cubeisland.engine.module.service.user.User;
 
-import static de.cubeisland.engine.module.kits.TableKitsGiven.TABLE_KITS;
+import static de.cubeisland.engine.module.chat.storage.TableMuted.TABLE_MUTED;
 
-public class KitsGiven extends AsyncRecord<KitsGiven>
+public class Muted extends AsyncRecord<Muted>
 {
-    public KitsGiven()
+    public Muted()
     {
-        super(TABLE_KITS);
+        super(TABLE_MUTED);
     }
 
-    public KitsGiven newKitsGiven(User user, Kit kit)
+    public Muted newMuted(User user)
     {
-        this.setValue(TABLE_KITS.USERID, user.getEntity().getId());
-        this.setValue(TABLE_KITS.KITNAME, kit.getKitName());
-        this.setValue(TABLE_KITS.AMOUNT, 1);
+        this.setValue(TABLE_MUTED.ID, user.getEntity().getId());
         return this;
     }
 }

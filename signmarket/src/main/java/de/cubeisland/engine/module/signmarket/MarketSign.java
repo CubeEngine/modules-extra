@@ -86,7 +86,7 @@ public class MarketSign
         this.setItemInfo(dsl.newRecord(TABLE_SIGN_ITEM));
         this.msFactory = module.getMarketSignFactory();
 
-        this.blockInfo.setValue(TABLE_SIGN_BLOCK.OWNER, owner == null ? null : owner.getEntity().getKey());
+        this.blockInfo.setValue(TABLE_SIGN_BLOCK.OWNER, owner == null ? null : owner.getEntity().getId());
         if (owner != null)
         {
             this.userOwner = new WeakReference<>(owner);
@@ -960,7 +960,7 @@ public class MarketSign
         {
             throw new IllegalArgumentException("Use setAdminSign() instead!");
         }
-        this.blockInfo.setValue(TABLE_SIGN_BLOCK.OWNER, user.getEntity().getKey());
+        this.blockInfo.setValue(TABLE_SIGN_BLOCK.OWNER, user.getEntity().getId());
         if (!this.hasStock())
         {
             this.setStock(0);

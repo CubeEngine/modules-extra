@@ -20,6 +20,8 @@ package de.cubeisland.engine.module.chat;
 import de.cubeisland.engine.module.service.permission.Permission;
 import de.cubeisland.engine.module.service.permission.PermissionContainer;
 
+import static de.cubeisland.engine.module.service.permission.PermDefault.FALSE;
+
 @SuppressWarnings("all")
 public class ChatPerm extends PermissionContainer<Chat>
 {
@@ -29,10 +31,30 @@ public class ChatPerm extends PermissionContainer<Chat>
         this.registerAllPermissions();
     }
 
+    public final Permission COMMAND = getBasePerm().childWildcard("command");
+
     public final Permission COLOR = getBasePerm().child("color");
     public final Permission COMMAND_NICK_OTHER = getBasePerm().childWildcard("command").childWildcard("nick").child("other");
     /**
      * Allows to set the nickname to a players name that plays on this server
      */
     public final Permission COMMAND_NICK_OFOTHER = getBasePerm().childWildcard("command").childWildcard("nick").child("of-other");
+
+    private final Permission COMMAND_AFK = COMMAND.childWildcard("afk");
+    private final Permission COMMAND_AFK_PREVENT = COMMAND_AFK.newWildcard("prevent");
+    /**
+     * Prevents from being displayed as no longer afk automatically unless using chat
+     */
+    public final Permission PREVENT_AUTOUNAFK = COMMAND_AFK_PREVENT.child("autounafk", FALSE);
+    /**
+     * Prevents from being displayed as afk automatically
+     */
+    public final Permission PREVENT_AUTOAFK = COMMAND_AFK_PREVENT.child("autoafk", FALSE);
+
+    /**
+     * Allows to set or unset the afk status of other players
+     */
+    public final Permission COMMAND_AFK_OTHER = COMMAND_AFK.child("other");
+
+    public final Permission COMMAND_IGNORE_PREVENT = COMMAND.childWildcard("ignore").child("prevent", FALSE);
 }

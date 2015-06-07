@@ -106,7 +106,7 @@ public class Kit
             {
                 Record1<Integer> record1 = this.dsl.select(TABLE_KITS.AMOUNT).from(TABLE_KITS).
                     where(TABLE_KITS.KITNAME.like(this.name), TABLE_KITS.USERID.eq(
-                        user.getEntity().getKey())).fetchOne();
+                        user.getEntity().getId())).fetchOne();
                 if (record1 != null && record1.value1() >= this.limitUsagePerPlayer)
                 {
                     throw new IncorrectUsageException(false, "Kit-limit reached.");
@@ -126,7 +126,7 @@ public class Kit
         if (InventoryUtil.giveItemsToUser(user, list.toArray(new ItemStack[list.size()])))
         {
             ResultQuery<KitsGiven> q = dsl.selectFrom(TABLE_KITS).where(TABLE_KITS.USERID.eq(
-                user.getEntity().getKey())).and(TABLE_KITS.KITNAME.eq(this.getKitName()));
+                user.getEntity().getId())).and(TABLE_KITS.KITNAME.eq(this.getKitName()));
             try
             {
                 module.getCore().getDB().queryOne(q).thenAcceptAsync(kitsGiven -> {

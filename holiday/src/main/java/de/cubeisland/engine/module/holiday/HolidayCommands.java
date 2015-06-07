@@ -55,11 +55,11 @@ public class HolidayCommands extends ContainerCommand
         try
         {
             Date toDate = new Date(System.currentTimeMillis() + converter.fromNode(StringNode.of(duration)).getMillis());
-            HolidayModel model = dsl.selectFrom(TABLE_HOLIDAY).where(TABLE_HOLIDAY.USERID.eq(context.getEntity().getKey())).fetchOne();
+            HolidayModel model = dsl.selectFrom(TABLE_HOLIDAY).where(TABLE_HOLIDAY.USERID.eq(context.getEntity().getId())).fetchOne();
             if (model == null)
             {
                 model = dsl.newRecord(TABLE_HOLIDAY);
-                model.setValue(TABLE_HOLIDAY.USERID, context.getEntity().getKey());
+                model.setValue(TABLE_HOLIDAY.USERID, context.getEntity().getId());
             }
             model.setValue(TABLE_HOLIDAY.FROM, new Date(System.currentTimeMillis()));
             model.setValue(TABLE_HOLIDAY.TO, toDate);
@@ -81,7 +81,7 @@ public class HolidayCommands extends ContainerCommand
     public void check(CommandSender context, User player)
     {
         HolidayModel model = dsl.selectFrom(TABLE_HOLIDAY).where(TABLE_HOLIDAY.USERID.eq(
-            player.getEntity().getKey())).fetchOne();
+            player.getEntity().getId())).fetchOne();
         if (model == null)
         {
             context.sendTranslated(NEUTRAL, "{user} is not on holiday!", player);

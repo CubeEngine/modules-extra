@@ -33,7 +33,7 @@ public class VoteModel extends AsyncRecord<VoteModel>
 
     public VoteModel newVote(User user)
     {
-        this.setValue(TABLE_VOTE.USERID, user.getEntity().getKey());
+        this.setValue(TABLE_VOTE.USERID, user.getEntity().getId());
         this.setValue(TABLE_VOTE.LASTVOTE, new Timestamp(System.currentTimeMillis()));
         this.setValue(TABLE_VOTE.VOTEAMOUNT, UShort.valueOf(1));
         return this;

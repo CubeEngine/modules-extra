@@ -55,7 +55,7 @@ public class Namehistory extends Module implements Listener
         DSLContext dsl = getCore().getDB().getDSL();
         User user = event.getUser();
         SelectSeekStep1<NameHistoryEntry, Date> query = dsl.selectFrom(TABLE_NAMEHISTORY)
-                   .where(TABLE_NAMEHISTORY.USERID.eq(user.getEntity().getKey()))
+                   .where(TABLE_NAMEHISTORY.USERID.eq(user.getEntity().getId()))
                    .orderBy(TABLE_NAMEHISTORY.CHANGED_AT.desc());
         getCore().getDB().queryOne(query.limit(1)).thenAccept(entry -> {
             if (entry == null || entry.getValue(TABLE_NAMEHISTORY.CHANGED_AT).getTime() > user.getLastPlayed()
@@ -64,7 +64,7 @@ public class Namehistory extends Module implements Listener
                 NameEntry[] nameHistory = McUUID.getNameHistory(user.getUniqueId());
                 for (NameEntry nameEntry : nameHistory)
                 {
-                    dsl.insertInto(TABLE_NAMEHISTORY).values(user.getEntity().getKey(), nameEntry.name, new Date(nameEntry.changedToAt))
+                    dsl.insertInto(TABLE_NAMEHISTORY).values(user.getEntity().getId(), nameEntry.name, new Date(nameEntry.changedToAt))
                        .onDuplicateKeyIgnore().execute();
                 }
                 entry = query.limit(1).fetchOne();
@@ -89,7 +89,7 @@ public class Namehistory extends Module implements Listener
     public void namehistory(CommandSender context, @Default User player)
     {
         ResultQuery<NameHistoryEntry> query = getCore().getDB().getDSL().selectFrom(TABLE_NAMEHISTORY).where(
-            TABLE_NAMEHISTORY.USERID.eq(player.getEntity().getKey())).orderBy(TABLE_NAMEHISTORY.CHANGED_AT.desc());
+            TABLE_NAMEHISTORY.USERID.eq(player.getEntity().getId())).orderBy(TABLE_NAMEHISTORY.CHANGED_AT.desc());
         getCore().getDB().query(query).thenAccept(result -> {
             if (result.isEmpty())
             {

@@ -22,11 +22,22 @@ import de.cubeisland.engine.modularity.asm.marker.Disable;
 import de.cubeisland.engine.modularity.asm.marker.Enable;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.module.chat.command.AfkCommand;
+import de.cubeisland.engine.module.chat.command.ChatCommands;
+import de.cubeisland.engine.module.chat.command.IgnoreCommands;
+import de.cubeisland.engine.module.chat.command.MuteCommands;
+import de.cubeisland.engine.module.chat.listener.AfkListener;
+import de.cubeisland.engine.module.chat.listener.ChatFormatListener;
+import de.cubeisland.engine.module.chat.listener.MuteListener;
+import de.cubeisland.engine.module.chat.storage.TableIgnorelist;
+import de.cubeisland.engine.module.chat.storage.TableMuted;
 import de.cubeisland.engine.module.core.filesystem.FileManager;
 import de.cubeisland.engine.module.core.i18n.I18n;
 import de.cubeisland.engine.module.core.sponge.EventManager;
 import de.cubeisland.engine.module.service.command.CommandManager;
+import de.cubeisland.engine.module.service.database.Database;
 import de.cubeisland.engine.module.service.permission.PermissionManager;
+import de.cubeisland.engine.module.service.task.TaskManager;
 import de.cubeisland.engine.module.service.user.UserManager;
 import org.spongepowered.api.Game;
 
@@ -43,14 +54,35 @@ public class Chat extends Module
     @Inject private PermissionManager pm;
     @Inject private I18n i18n;
     @Inject private Game game;
+    @Inject private Database db;
+    @Inject private TaskManager tm;
 
     @Enable
     public void onEnable()
     {
         this.config = fm.loadConfig(this, ChatConfig.class);
         this.perms = new ChatPerm(this);
-        cm.addCommands(cm, this, new ChatCommands(this, um));
+        db.registerTable(TableMuted.class);
+        db.registerTable(TableIgnorelist.class);
+        cm.addCommands(this, new MuteCommands(this));
+        IgnoreCommands ignoreCmd = new IgnoreCommands(this, db);
+        cm.addCommands(this, new ChatCommands(this, um, cm));
+        cm.addCommands(this, ignoreCmd);
         em.registerListener(this, new ChatFormatListener(this, game, i18n));
+        em.registerListener(this, new MuteListener(this, ignoreCmd, um));
+
+        final long autoAfk = config.autoAfk.after.getMillis();
+        final long afkCheck = config.autoAfk.check.getMillis();
+        AfkListener afkListener = new AfkListener(this, um, autoAfk, afkCheck);
+        if (afkCheck > 0)
+        {
+            em.registerListener(this, afkListener);
+            if (autoAfk > 0)
+            {
+                tm.runTimer(this, afkListener, 20, afkCheck / 50); // this is in ticks so /50
+            }
+        }
+        cm.addCommands(this, new AfkCommand(this, afkListener, um));
     }
 
     @Disable
@@ -61,7 +93,7 @@ public class Chat extends Module
         pm.removePermissions(this);
     }
 
-    protected ChatConfig getConfig()
+    public ChatConfig getConfig()
     {
         return config;
     }

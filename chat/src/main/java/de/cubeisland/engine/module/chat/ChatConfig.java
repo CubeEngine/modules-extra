@@ -17,8 +17,12 @@
  */
 package de.cubeisland.engine.module.chat;
 
+import de.cubeisland.engine.reflect.Section;
 import de.cubeisland.engine.reflect.annotations.Comment;
+import de.cubeisland.engine.reflect.annotations.Name;
 import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
+import org.joda.time.Duration;
+import org.joda.time.Period;
 
 @SuppressWarnings("all")
 public class ChatConfig extends ReflectedYaml
@@ -35,4 +39,19 @@ public class ChatConfig extends ReflectedYaml
 
     @Comment("This also counts for the format string!")
     public boolean allowColors = true;
+
+    @Name("mute.default-mute-time")
+    public Duration defaultMuteTime = new Duration(0);
+
+    public AfkSection autoAfk;
+
+    public class AfkSection implements Section
+    {
+        @Comment("Players will be automatically displayed as afk after this amount of time")
+        public Duration after = Period.minutes(5).toStandardDuration();
+
+        @Comment({"How often the server will check for afk players",
+                  "Set to 0 to disable auto-afk"})
+        public Duration check = Period.seconds(1).toStandardDuration();
+    }
 }

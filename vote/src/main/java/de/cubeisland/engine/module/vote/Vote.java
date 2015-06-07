@@ -65,7 +65,7 @@ public class Vote extends Module implements Listener
             return;
         }
         final DSLContext dsl = getCore().getDB().getDSL();
-        getCore().getDB().queryOne(dsl.selectFrom(TABLE_VOTE).where(TABLE_VOTE.USERID.eq(user.getEntity().getKey()))).thenAcceptAsync((voteModel) -> {
+        getCore().getDB().queryOne(dsl.selectFrom(TABLE_VOTE).where(TABLE_VOTE.USERID.eq(user.getEntity().getId()))).thenAcceptAsync((voteModel) -> {
             if (voteModel != null)
             {
                 if (voteModel.timePassed(config.voteBonusTime.getMillis()))

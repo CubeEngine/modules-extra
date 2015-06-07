@@ -67,7 +67,7 @@ public class CuboidSelector implements Selector
     public void onEnable()
     {
         em.registerListener(module, this);
-        cm.addCommands(cm, module, new SelectorCommand(game));
+        cm.addCommands(module, new SelectorCommand(game));
         selectPerm = module.getProvided(Permission.class).child("use-wand");
         pm.registerPermission(module, selectPerm);
     }

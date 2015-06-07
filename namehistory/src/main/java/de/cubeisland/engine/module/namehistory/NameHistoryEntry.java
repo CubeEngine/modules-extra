@@ -34,7 +34,7 @@ public class NameHistoryEntry extends AsyncRecord<NameHistoryEntry>
     public NameHistoryEntry newEntry(User user, NameEntry entry)
     {
         this.setValue(TABLE_NAMEHISTORY.NAME, entry.name);
-        this.setValue(TABLE_NAMEHISTORY.USERID, user.getEntity().getKey());
+        this.setValue(TABLE_NAMEHISTORY.USERID, user.getEntity().getId());
         this.setValue(TABLE_NAMEHISTORY.CHANGED_AT, new Date(entry.changedToAt));
         return this;
     }

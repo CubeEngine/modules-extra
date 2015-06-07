@@ -15,11 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.cubeisland.engine.module.chat;
+package de.cubeisland.engine.module.chat.listener;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
+import de.cubeisland.engine.module.chat.Chat;
+import de.cubeisland.engine.module.chat.CubeMessageSink;
 import de.cubeisland.engine.module.core.i18n.I18n;
 import de.cubeisland.engine.module.core.util.ChatFormat;
 import org.spongepowered.api.Game;

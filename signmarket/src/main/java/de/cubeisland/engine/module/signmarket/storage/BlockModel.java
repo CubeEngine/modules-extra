@@ -92,6 +92,6 @@ public class BlockModel extends AsyncRecord<BlockModel>
         {
             return user == null;
         }
-        return user != null && user.getEntity().getKey().equals(owner);
+        return user != null && user.getEntity().getId().equals(owner);
     }
 }

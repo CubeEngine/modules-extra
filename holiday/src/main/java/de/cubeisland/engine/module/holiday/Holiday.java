@@ -69,7 +69,7 @@ public class Holiday extends Module implements Listener
     public void onJoin(PlayerJoinEvent event)
     {
         User user = this.getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
-        HolidayModel existing = dsl.selectFrom(TABLE_HOLIDAY).where(TABLE_HOLIDAY.USERID.eq(user.getEntity().getKey())).fetchOne();
+        HolidayModel existing = dsl.selectFrom(TABLE_HOLIDAY).where(TABLE_HOLIDAY.USERID.eq(user.getEntity().getId())).fetchOne();
         if (existing != null)
         {
             existing.deleteAsync();

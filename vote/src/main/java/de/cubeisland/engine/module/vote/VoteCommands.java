@@ -62,7 +62,7 @@ public class VoteCommands
             return;
         }
         Database db = module.getCore().getDB();
-        VoteModel voteModel = db.getDSL().selectFrom(TABLE_VOTE).where(TABLE_VOTE.USERID.eq(((User)context.getSource()).getEntity().getKey())).fetchOne();
+        VoteModel voteModel = db.getDSL().selectFrom(TABLE_VOTE).where(TABLE_VOTE.USERID.eq(((User)context.getSource()).getEntity().getId())).fetchOne();
         if (voteModel == null)
         {
             context.sendTranslated(NEUTRAL, "Sorry but you do not have any registered votes on this server!");

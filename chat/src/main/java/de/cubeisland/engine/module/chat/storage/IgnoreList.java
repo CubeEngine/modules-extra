@@ -15,25 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.cubeisland.engine.module.kits;
+package de.cubeisland.engine.module.chat.storage;
 
-import de.cubeisland.engine.module.core.storage.database.AsyncRecord;
+import de.cubeisland.engine.module.service.database.AsyncRecord;
 import de.cubeisland.engine.module.service.user.User;
 
-import static de.cubeisland.engine.module.kits.TableKitsGiven.TABLE_KITS;
+import static de.cubeisland.engine.module.chat.storage.TableIgnorelist.TABLE_IGNORE_LIST;
 
-public class KitsGiven extends AsyncRecord<KitsGiven>
+public class IgnoreList extends AsyncRecord<IgnoreList>
 {
-    public KitsGiven()
+    public IgnoreList()
     {
-        super(TABLE_KITS);
+        super(TABLE_IGNORE_LIST);
     }
 
-    public KitsGiven newKitsGiven(User user, Kit kit)
+    public IgnoreList newIgnore(User user, User ignore)
     {
-        this.setValue(TABLE_KITS.USERID, user.getEntity().getId());
-        this.setValue(TABLE_KITS.KITNAME, kit.getKitName());
-        this.setValue(TABLE_KITS.AMOUNT, 1);
+        this.setValue(TABLE_IGNORE_LIST.ID, user.getEntity().getId());
+        this.setValue(TABLE_IGNORE_LIST.ID, ignore.getEntity().getId());
         return this;
     }
 }
