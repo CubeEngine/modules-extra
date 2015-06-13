@@ -23,7 +23,6 @@ import java.util.regex.Pattern;
 import de.cubeisland.engine.module.chat.Chat;
 import de.cubeisland.engine.module.chat.CubeMessageSink;
 import de.cubeisland.engine.module.core.i18n.I18n;
-import de.cubeisland.engine.module.core.util.ChatFormat;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.data.manipulator.DisplayNameData;
 import org.spongepowered.api.event.Order;
@@ -37,7 +36,6 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Text.Translatable;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.action.HoverAction.ShowText;
-import org.spongepowered.api.text.translation.Translation;
 
 import static de.cubeisland.engine.module.core.util.ChatFormat.fromLegacy;
 import static de.cubeisland.engine.module.core.util.formatter.MessageType.NEUTRAL;
@@ -95,16 +93,16 @@ public class ChatFormatListener
         }
         replacements.put("{DISPLAY_NAME}", displayName);
         replacements.put("{WORLD}", Texts.of(event.getUser().getWorld().getName()));
-        replacements.put("{MESSAGE}", fromLegacy(msg));
+        replacements.put("{MESSAGE}", fromLegacy(msg, '&'));
         replacements.put("{PREFIX}", Texts.of());
         replacements.put("{SUFFIX}", Texts.of());
         if (subject instanceof OptionSubject)
         {
-            replacements.put("{PREFIX}", fromLegacy(((OptionSubject)subject).getOption("chat-prefix").or("")));
-            replacements.put("{SUFFIX}", fromLegacy(((OptionSubject)subject).getOption("chat-suffix").or("")));
+            replacements.put("{PREFIX}", fromLegacy(((OptionSubject)subject).getOption("chat-prefix").or(""), '&'));
+            replacements.put("{SUFFIX}", fromLegacy(((OptionSubject)subject).getOption("chat-suffix").or(""), '&'));
         }
 
-        event.setNewMessage(fromLegacy(this.getFormat(subject), replacements));
+        event.setNewMessage(fromLegacy(this.getFormat(subject), replacements, '&'));
     }
 
     protected String getFormat(Subject subject)
