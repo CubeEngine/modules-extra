@@ -19,20 +19,19 @@ package de.cubeisland.engine.module.log.action.player.item.container;
 
 import java.util.List;
 import java.util.Map;
-import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
+import org.spongepowered.api.item.Enchantment;
+import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.inventory.ItemStack;
 
 public class ItemData
 {
-    public Material material;
+    public ItemType material;
     public short dura;
     public String displayName;
     public List<String> lore;
     public Map<Enchantment, Integer> enchantments;
 
-    public ItemData(Material material, short dura, String displayName, List<String> lore,
+    public ItemData(ItemType material, short dura, String displayName, List<String> lore,
                     Map<Enchantment, Integer> enchantments)
     {
         this.material = material;
@@ -44,7 +43,7 @@ public class ItemData
 
     public ItemData(ItemStack itemStack)
     {
-        this.material = itemStack.getType();
+        this.material = itemStack.getItem();
         this.dura = itemStack.getDurability();
         if (itemStack.hasItemMeta())
         {

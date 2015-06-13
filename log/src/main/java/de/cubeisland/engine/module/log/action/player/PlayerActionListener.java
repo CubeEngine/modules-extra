@@ -18,7 +18,7 @@
 package de.cubeisland.engine.module.log.action.player;
 
 import de.cubeisland.engine.module.log.Log;
-import org.bukkit.Location;
+import org.spongepowered.api.world.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.AsyncPlayerChatEvent;

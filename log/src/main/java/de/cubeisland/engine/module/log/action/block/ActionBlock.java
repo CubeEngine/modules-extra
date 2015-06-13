@@ -29,7 +29,8 @@ import de.cubeisland.engine.module.log.action.block.player.destroy.PlayerJukebox
 import de.cubeisland.engine.module.log.action.block.player.destroy.PlayerNoteBlockBreak;
 import de.cubeisland.engine.module.log.action.block.player.destroy.PlayerSignBreak;
 import de.cubeisland.engine.reflect.Section;
-import org.bukkit.Location;
+import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.world.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -64,19 +65,19 @@ public abstract class ActionBlock extends BaseAction implements Rollbackable, Re
         this.newBlock = new BlockSection(state);
     }
 
-    public void setOldBlock(Material mat)
+    public void setOldBlock(BlockType mat)
     {
         this.oldBlock = new BlockSection(mat);
     }
 
-    public void setNewBlock(Material mat)
+    public void setNewBlock(BlockType mat)
     {
         this.newBlock = new BlockSection(mat);
     }
 
     public static class BlockSection implements Section
     {
-        public Material material;
+        public BlockType material;
         public Byte data;
 
         public BlockSection()
@@ -89,7 +90,7 @@ public abstract class ActionBlock extends BaseAction implements Rollbackable, Re
             this.data = state.getRawData();
         }
 
-        public BlockSection(Material material)
+        public BlockSection(BlockType material)
         {
             this.material = material;
             this.data = 0;
@@ -99,9 +100,9 @@ public abstract class ActionBlock extends BaseAction implements Rollbackable, Re
          * Returns true if this BlockSection is one of given materials
          * @return true or false
          */
-        public boolean is(Material... materials)
+        public boolean is(BlockType... materials)
         {
-            for (Material mat : materials)
+            for (BlockType mat : materials)
             {
                 if (this.material == mat)
                 {

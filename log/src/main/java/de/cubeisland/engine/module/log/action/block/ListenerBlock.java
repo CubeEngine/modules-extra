@@ -29,13 +29,13 @@ import de.cubeisland.engine.module.log.action.block.player.destroy.PlayerBlockBr
 import de.cubeisland.engine.module.log.action.block.player.destroy.PlayerSignBreak;
 import de.cubeisland.engine.module.log.action.hanging.HangingBreak;
 import de.cubeisland.engine.module.log.action.hanging.HangingPreBreakEvent;
-import org.bukkit.Location;
+import org.spongepowered.api.world.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
-import org.bukkit.entity.Entity;
+import org.spongepowered.api.entity.Entity;
 import org.bukkit.entity.Hanging;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;

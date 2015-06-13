@@ -22,9 +22,9 @@ import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.block.entity.ActionEntityBlock.EntitySection;
 import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock.PlayerSection;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.spongepowered.api.text.Text;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.DEATH;
 
 /**
@@ -81,7 +81,7 @@ public class DeathKill extends BaseAction
     }
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         int count = this.countAttached();
         if (this.isPlayerKiller())

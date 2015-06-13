@@ -17,12 +17,13 @@
  */
 package de.cubeisland.engine.module.log.action.block.ignite;
 
-import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
-import org.bukkit.Location;
+import de.cubeisland.engine.module.service.user.User;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.world.Location;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 
 /**
  * Represents lava setting a block on fire
@@ -43,7 +44,7 @@ public class IgniteLava extends ActionBlockIgnite
     }
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         int count = this.countAttached();
         return user.getTranslationN(POSITIVE, count, "A fire got set by lava", "{amount} fires got set by lava", count);

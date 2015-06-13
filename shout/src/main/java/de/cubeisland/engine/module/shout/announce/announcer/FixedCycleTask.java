@@ -29,7 +29,7 @@ import de.cubeisland.engine.module.shout.announce.MessageOfTheDay;
 import de.cubeisland.engine.module.shout.announce.receiver.Receiver;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
+import org.spongepowered.api.entity.player.Player;
 
 public class FixedCycleTask implements Runnable
 {

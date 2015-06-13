@@ -32,7 +32,7 @@ import de.cubeisland.engine.i18n.language.Language;
 import de.cubeisland.engine.module.rulebook.Rulebook;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 
 public final class RulebookManager

@@ -24,10 +24,10 @@ import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock.Pla
 import de.cubeisland.engine.reflect.codec.mongo.Reference;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.EnderDragon;
-import org.bukkit.entity.Entity;
+import org.spongepowered.api.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
-import org.bukkit.entity.Player;
+import org.spongepowered.api.entity.player.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Tameable;
 import org.bukkit.entity.Villager;
@@ -38,7 +38,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStack;
 
 /**
  * A Listener for Death related Actions

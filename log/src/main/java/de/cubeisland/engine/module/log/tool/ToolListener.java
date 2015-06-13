@@ -24,14 +24,14 @@ import de.cubeisland.engine.module.log.LogAttachment;
 import de.cubeisland.engine.module.log.commands.LogCommands;
 import de.cubeisland.engine.module.log.storage.Lookup;
 import de.cubeisland.engine.module.log.storage.ShowParameter;
-import org.bukkit.Location;
+import org.spongepowered.api.world.Location;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStack;
 
 import de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
 

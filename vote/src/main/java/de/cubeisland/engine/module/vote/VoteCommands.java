@@ -19,16 +19,16 @@ package de.cubeisland.engine.module.vote;
 
 import java.util.Date;
 import de.cubeisland.engine.butler.parametric.Command;
-import de.cubeisland.engine.module.service.command.CommandContext;
-import de.cubeisland.engine.module.core.storage.database.Database;
-import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.core.util.TimeUtil;
+import de.cubeisland.engine.module.service.command.CommandContext;
+import de.cubeisland.engine.module.service.database.Database;
+import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.vote.storage.VoteModel;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.NEUTRAL;
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.NEUTRAL;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.vote.storage.TableVote.TABLE_VOTE;
 import static java.util.concurrent.TimeUnit.DAYS;
 
@@ -36,10 +36,12 @@ public class VoteCommands
 {
     private final PeriodFormatter formatter;
     private final Vote module;
+    private Database db;
 
-    public VoteCommands(Vote module)
+    public VoteCommands(Vote module, Database db)
     {
         this.module = module;
+        this.db = db;
         this.formatter = new PeriodFormatterBuilder()
             .appendWeeks().appendSuffix(" week"," weeks").appendSeparator(" ")
             .appendDays().appendSuffix(" day", " days").appendSeparator(" ")
@@ -61,7 +63,6 @@ public class VoteCommands
             }
             return;
         }
-        Database db = module.getCore().getDB();
         VoteModel voteModel = db.getDSL().selectFrom(TABLE_VOTE).where(TABLE_VOTE.USERID.eq(((User)context.getSource()).getEntity().getId())).fetchOne();
         if (voteModel == null)
         {

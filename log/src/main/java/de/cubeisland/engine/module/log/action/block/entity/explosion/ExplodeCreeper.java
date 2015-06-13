@@ -20,8 +20,9 @@ package de.cubeisland.engine.module.log.action.block.entity.explosion;
 import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
+import org.spongepowered.api.text.Text;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 
 /**
  * Represents a creeper blowing up blocks
@@ -43,7 +44,7 @@ public class ExplodeCreeper extends ExplosionAction
     }
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         int count = this.countAttached();
         if (this.player == null)

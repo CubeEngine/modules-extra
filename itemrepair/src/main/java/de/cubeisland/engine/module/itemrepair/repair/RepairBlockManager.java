@@ -29,15 +29,15 @@ import de.cubeisland.engine.module.itemrepair.repair.blocks.RepairBlock.RepairBl
 import de.cubeisland.engine.module.itemrepair.repair.blocks.RepairBlockConfig;
 import de.cubeisland.engine.module.itemrepair.repair.storage.RepairBlockModel;
 import de.cubeisland.engine.module.itemrepair.repair.storage.RepairBlockPersister;
-import org.bukkit.Location;
+import org.spongepowered.api.world.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
+import org.spongepowered.api.entity.player.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStack;
 import org.jooq.DSLContext;
 
 import static de.cubeisland.engine.module.itemrepair.repair.storage.TableRepairBlock.TABLE_REPAIR_BLOCK;

@@ -19,9 +19,10 @@ package de.cubeisland.engine.module.log.action.hanging;
 
 import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.log.action.BaseAction;
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.text.Text;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 
 /**
  * Represents a player breaking an itemframe
@@ -38,7 +39,7 @@ public class ItemframeBreak extends HangingBreak
     }
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         // TODO indirect
         if (this.hasAttached())
@@ -54,7 +55,7 @@ public class ItemframeBreak extends HangingBreak
         else
         {
             return user.getTranslation(POSITIVE, "{user} broke an {text:item-frame} containing {name#item}",
-                                       this.player.name, this.item.getType().name());
+                                       this.player.name, this.item.getItem().getName());
         }
     }
 }

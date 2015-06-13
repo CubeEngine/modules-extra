@@ -33,11 +33,11 @@ import de.cubeisland.engine.module.core.util.matcher.Match;
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.LogAttachment;
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static org.bukkit.Material.WOOD_AXE;
 
 @Command(name = "log", desc = "log-module commands.")

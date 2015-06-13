@@ -22,8 +22,10 @@ import de.cubeisland.engine.module.core.util.ChatFormat;
 import de.cubeisland.engine.module.core.util.StringUtils;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.Texts;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.SIGN;
 
 /**
@@ -46,7 +48,7 @@ public class SignChange extends ActionPlayerBlock
     }
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         String delim = ChatFormat.GREY + " | " + ChatFormat.GOLD;
         if (oldLines == null || oldLines.length == 0)
@@ -54,10 +56,10 @@ public class SignChange extends ActionPlayerBlock
             return user.getTranslation(POSITIVE, "{user} wrote {input#signtext} on a sign", this.player.name,
                                        StringUtils.implode(delim, newLines));
         }
-        return user.getTranslation(POSITIVE, "{user} wrote {input#signtext} on a sign", this.player.name,
-                                   StringUtils.implode(delim, newLines)) + "\n" +
+        return Texts.of(user.getTranslation(POSITIVE, "{user} wrote {input#signtext} on a sign", this.player.name,
+                                   StringUtils.implode(delim, newLines)) , "\n" ,
             user.getTranslation(POSITIVE, "    The old signtext was {input#signtext}", StringUtils.implode(delim,
-                                                                                                           oldLines));
+                                                                                                           oldLines)));
     }
 
     public void setNewLines(String[] newLines)

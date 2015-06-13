@@ -28,7 +28,7 @@ import de.cubeisland.engine.module.fun.Fun;
 import org.bukkit.World;
 
 import de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 
 public class DiscoCommand
 {

@@ -18,9 +18,10 @@
 package de.cubeisland.engine.module.log.action.hanging;
 
 import de.cubeisland.engine.module.service.user.User;
-import org.bukkit.Art;
+import org.spongepowered.api.data.type.Art;
+import org.spongepowered.api.text.Text;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 
 /**
  * Represents a player placing a painting
@@ -30,7 +31,7 @@ public class PaintingPlace extends HangingPlace
     public Art art;
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         int count = this.countAttached();
         return user.getTranslationN(POSITIVE, count, "{text:A painting} got hung up by {user}", // TODO art singular

@@ -23,12 +23,12 @@ import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.LogListener;
 import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock;
-import org.bukkit.Location;
-import org.bukkit.entity.Entity;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.entity.Entity;
 import org.bukkit.entity.Hanging;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Painting;
-import org.bukkit.entity.Player;
+import org.spongepowered.api.entity.player.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -36,7 +36,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStack;
 import org.bukkit.projectiles.ProjectileSource;
 
 /**

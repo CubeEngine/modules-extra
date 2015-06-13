@@ -22,8 +22,10 @@ import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.block.entity.ActionEntityBlock.EntitySection;
 import org.bukkit.entity.Item;
+import org.spongepowered.api.entity.Item;
+import org.spongepowered.api.text.Text;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.ITEM;
 
 /**
@@ -60,7 +62,7 @@ public class ItemPickup extends ActionItem
     }
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         int amount = item.getQuantity();
         if (this.hasAttached())
@@ -71,7 +73,7 @@ public class ItemPickup extends ActionItem
                 // Drop / Pickup Pair
                 return user.getTranslation(POSITIVE,
                                            "{user} dropped {name#item} x{amount} and {user} picked it up again",
-                                           dropAction.player.name, this.item.getType().name(), amount,
+                                           dropAction.player.name, this.item.getItem().getName(), amount,
                                            this.player.name);
             }
             for (BaseAction action : this.getAttached())
@@ -80,12 +82,12 @@ public class ItemPickup extends ActionItem
             }
         }
         return user.getTranslation(POSITIVE, "{user} picked up {name#item} x{amount}", this.player.name,
-                                   this.item.getType().name(), amount);
+                                   this.item.getItem().getName(), amount);
     }
 
     public void setItem(Item item)
     {
-        this.setItemstack(item.getItemStack());
+        this.setItemstack(item.getItemData().getValue());
         this.entity = new EntitySection(item);
     }
 

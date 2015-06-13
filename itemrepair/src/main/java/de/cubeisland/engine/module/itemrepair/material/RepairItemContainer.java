@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStack;
 
 import static org.bukkit.Material.*;
 

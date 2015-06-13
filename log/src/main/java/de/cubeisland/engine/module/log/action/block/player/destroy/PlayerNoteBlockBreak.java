@@ -17,7 +17,7 @@
  */
 package de.cubeisland.engine.module.log.action.block.player.destroy;
 
-import org.bukkit.Note;
+import org.spongepowered.api.block.tileentity.Note;
 
 /**
  * Represents a player breaking a noteblock

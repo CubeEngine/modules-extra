@@ -24,8 +24,9 @@ import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.NoteBlock;
+import org.spongepowered.api.text.Text;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.USE;
 
 /**
@@ -48,7 +49,7 @@ public class UseNoteblock extends ActionPlayerBlock
     }
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         byte newNote = (byte)(this.note + 1);
         if (this.hasAttached())

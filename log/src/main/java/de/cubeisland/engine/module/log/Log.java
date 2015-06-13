@@ -17,12 +17,16 @@
  */
 package de.cubeisland.engine.module.log;
 
+import javax.inject.Inject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import de.cubeisland.engine.converter.ConverterManager;
+import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
+import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.module.core.filesystem.FileManager;
+import de.cubeisland.engine.module.core.i18n.I18n;
+import de.cubeisland.engine.module.core.sponge.EventManager;
 import de.cubeisland.engine.module.service.command.CommandManager;
-import de.cubeisland.engine.module.core.module.Inject;
-import de.cubeisland.engine.module.core.module.Module;
 import de.cubeisland.engine.messagecompositor.macro.example.DateFormatter;
 import de.cubeisland.engine.messagecompositor.macro.example.DateFormatter.DateReader;
 import de.cubeisland.engine.module.bigdata.Bigdata;
@@ -40,18 +44,12 @@ import de.cubeisland.engine.module.log.converter.ItemStackConverter;
 import de.cubeisland.engine.module.log.converter.NoteConverter;
 import de.cubeisland.engine.module.log.storage.LogManager;
 import de.cubeisland.engine.module.log.tool.ToolListener;
+import de.cubeisland.engine.reflect.Reflector;
 import de.cubeisland.engine.reflect.codec.mongo.MongoDBCodec;
-import org.bukkit.Art;
-import org.bukkit.Note;
-import org.bukkit.block.BlockFace;
-import org.bukkit.entity.EntityType;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.server.PluginEnableEvent;
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStack;
 
-public class Log extends Module implements Listener
+@ModuleInfo(name = "Log", description = "Log everything you want")
+public class Log extends Module
 {
     private LogManager logManager;
     private LogConfiguration config;
@@ -59,41 +57,45 @@ public class Log extends Module implements Listener
     private ActionManager actionManager;
     private boolean worldEditFound = false;
 
-    @Inject
-    private Bigdata bigdata;
+    @Inject private Bigdata bigdata;
+    @Inject private I18n i18n;
+    @Inject private FileManager fm;
+    @Inject private EventManager em;
+    @Inject private Reflector reflector;
+    @Inject private CommandManager cm;
+    @Inject private de.cubeisland.engine.logscribe.Log logger;
 
     @Override
     public void onEnable()
     {
-        this.getCore().getI18n().getCompositor().registerMacro(new DateFormatter());
-        this.getCore().getI18n().getCompositor().registerReader(DateFormatter.class, "format", new DateReader());
-        this.config = this.loadConfig(LogConfiguration.class);
-        ConverterManager cMan = this.getCore().getConfigFactory().getDefaultConverterManager();
+        i18n.getCompositor().registerMacro(new DateFormatter());
+        i18n.getCompositor().registerReader(DateFormatter.class, "format", new DateReader());
+        this.config = fm.loadConfig(this, LogConfiguration.class);
+        ConverterManager cMan = reflector.getDefaultConverterManager();
         cMan.registerConverter(new ContainerTypeConverter(), ContainerType.class);
         cMan.registerConverter(new EntityTypeConverter(), EntityType.class);
         cMan.registerConverter(new DamageCauseConverter(), DamageCause.class);
         cMan.registerConverter(new BlockFaceConverter(), BlockFace.class);
         cMan.registerConverter(new ArtConverter(), Art.class);
         cMan.registerConverter(new NoteConverter(), Note.class);
-        this.getCore().getConfigFactory().getCodecManager().getCodec(MongoDBCodec.class).
+        reflector.getCodecManager().getCodec(MongoDBCodec.class).
             getConverterManager().registerConverter(new ItemStackConverter(), ItemStack.class);
         this.logManager = new LogManager(this, bigdata);
-        this.actionManager = new ActionManager(this);
+        this.actionManager = new ActionManager(this, cm, em);
 
-        final CommandManager cm = this.getCore().getCommandManager();
         cm.addCommands(cm, this, new LookupCommands(this));
         cm.addCommand(new LogCommands(this));
         try
         {
             Class.forName("com.sk89q.worldedit.WorldEdit");
             LogEditSessionFactory.initialize(this);
-            this.getCore().getEventManager().registerListener(this, this); // only register if worldEdit is available
+            em.registerListener(this, this); // only register if worldEdit is available
         }
         catch (ClassNotFoundException ignored)
         {
-            this.getLog().warn("No WorldEdit found!");
+            logger.warn("No WorldEdit found!");
         }
-        this.getCore().getEventManager().registerListener(this, new ToolListener(this));
+        em.registerListener(this, new ToolListener(this));
     }
 
     @EventHandler

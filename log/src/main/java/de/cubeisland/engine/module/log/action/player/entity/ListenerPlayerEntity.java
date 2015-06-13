@@ -19,10 +19,10 @@ package de.cubeisland.engine.module.log.action.player.entity;
 
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.action.player.ListenerPlayerLog;
-import org.bukkit.entity.Entity;
+import org.spongepowered.api.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.MushroomCow;
-import org.bukkit.entity.Player;
+import org.spongepowered.api.entity.player.Player;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Wolf;
 import org.bukkit.entity.minecart.PoweredMinecart;

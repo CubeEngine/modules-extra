@@ -35,7 +35,7 @@ import de.cubeisland.engine.module.roles.role.Role;
 import de.cubeisland.engine.module.roles.role.RolesAttachment;
 import de.cubeisland.engine.module.roles.role.RolesManager;
 import de.cubeisland.engine.module.roles.role.resolved.ResolvedMetadata;
-import org.bukkit.Location;
+import org.spongepowered.api.world.Location;
 import org.bukkit.World;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 

@@ -23,9 +23,10 @@ import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.ReferenceHolder;
 import de.cubeisland.engine.module.log.action.player.item.ItemDrop;
 import de.cubeisland.engine.reflect.codec.mongo.Reference;
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.text.Text;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.DEATH;
 
 /**
@@ -49,7 +50,7 @@ public class DeathDrop extends BaseAction implements ReferenceHolder
     }
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         int amount = this.item.getQuantity();
         if (this.hasAttached())
@@ -60,7 +61,7 @@ public class DeathDrop extends BaseAction implements ReferenceHolder
             }
         }
         return user.getTranslation(POSITIVE, "{name#entity} dropped {name#item} x{amount} upon death", this.death.fetch(
-            EntityDeathAction.class).killed.name(), this.item.getType().name(), amount); // TODO this wont work as EntityDeathAction is abstract
+            EntityDeathAction.class).killed.name(), this.item.getItem().getName(), amount); // TODO this wont work as EntityDeathAction is abstract
     }
 
     @Override

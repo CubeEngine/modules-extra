@@ -20,9 +20,10 @@ package de.cubeisland.engine.module.log.action.hanging;
 import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.text.Text;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.ITEM;
 
 /**
@@ -45,12 +46,12 @@ public class ItemFrameItemRemove extends ActionHanging
     }
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         int count = this.countAttached();
         return user.getTranslationN(POSITIVE, count, "{user} removed {name#item} from an itemframe",
                                     "{user} removed {2:amount} items from itemframes", this.player.name,
-                                    this.item.getType().name(), count);
+                                    this.item.getItem().getName(), count);
     }
 
     // TODO redo/rollback

@@ -22,8 +22,9 @@ import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock;
 import org.bukkit.material.Cake;
+import org.spongepowered.api.text.Text;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.USE;
 
 /**
@@ -43,7 +44,7 @@ public class UseCake extends ActionPlayerBlock
     }
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         int piecesLeft = this.newBlock.as(Cake.class).getSlicesRemaining();
         if (piecesLeft == 0)

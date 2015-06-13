@@ -18,29 +18,30 @@
 package de.cubeisland.engine.module.log.action.block.player.destroy;
 
 import de.cubeisland.engine.module.service.user.User;
-import org.bukkit.Material;
+import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.text.Text;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 
 /**
  * Represents a player breaking a jukebox
  */
 public class PlayerJukeboxBreak extends PlayerBlockBreak
 {
-    public Material disc;
+    public ItemType disc;
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         if (disc == null || this.hasAttached())
         {
             return super.translateAction(user);
         }
         return user.getTranslation(POSITIVE, "{user} broke {name#block} with {name#item}", this.player.name,
-                                   this.oldBlock.name(), this.disc.name());
+                                   this.oldBlock.name(), this.disc.getName());
     }
 
-    public void setDisc(Material disc)
+    public void setDisc(ItemType disc)
     {
         this.disc = disc;
     }

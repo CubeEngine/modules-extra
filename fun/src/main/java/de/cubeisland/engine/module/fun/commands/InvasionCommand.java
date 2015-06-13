@@ -23,10 +23,10 @@ import de.cubeisland.engine.module.service.command.CommandContext;
 import de.cubeisland.engine.module.core.util.matcher.Match;
 import de.cubeisland.engine.module.fun.Fun;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
+import org.spongepowered.api.world.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
+import org.spongepowered.api.entity.player.Player;
 
 import de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
 

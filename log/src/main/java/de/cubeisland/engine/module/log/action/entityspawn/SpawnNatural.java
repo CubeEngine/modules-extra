@@ -20,8 +20,9 @@ package de.cubeisland.engine.module.log.action.entityspawn;
 import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
+import org.spongepowered.api.text.Text;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.SPAWN;
 
 /**
@@ -41,7 +42,7 @@ public class SpawnNatural extends ActionEntitySpawn
     }
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         int count = this.countAttached();
         return user.getTranslationN(POSITIVE, count, "{name#entity} spawned naturally",

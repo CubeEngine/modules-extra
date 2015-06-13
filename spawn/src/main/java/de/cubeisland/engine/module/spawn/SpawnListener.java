@@ -24,7 +24,7 @@ import de.cubeisland.engine.module.service.world.WorldManager;
 import de.cubeisland.engine.module.roles.Roles;
 import de.cubeisland.engine.module.roles.role.RolesAttachment;
 import de.cubeisland.engine.module.roles.role.resolved.ResolvedMetadata;
-import org.bukkit.Location;
+import org.spongepowered.api.world.Location;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;

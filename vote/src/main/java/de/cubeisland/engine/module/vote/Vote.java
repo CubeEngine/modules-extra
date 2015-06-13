@@ -17,55 +17,69 @@
  */
 package de.cubeisland.engine.module.vote;
 
+import javax.inject.Inject;
 import com.vexsoftware.votifier.model.VotifierEvent;
-import de.cubeisland.engine.module.service.command.CommandManager;
-import de.cubeisland.engine.module.core.module.Module;
-import de.cubeisland.engine.module.service.Economy;
-import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.logscribe.Log;
+import de.cubeisland.engine.modularity.asm.marker.Enable;
+import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
+import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.module.core.filesystem.FileManager;
+import de.cubeisland.engine.module.core.sponge.EventManager;
 import de.cubeisland.engine.module.core.util.ChatFormat;
+import de.cubeisland.engine.module.service.Economy;
+import de.cubeisland.engine.module.service.command.CommandManager;
+import de.cubeisland.engine.module.service.database.Database;
+import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.module.service.user.UserManager;
 import de.cubeisland.engine.module.vote.storage.TableVote;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.jooq.DSLContext;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.NONE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.NONE;
 import static de.cubeisland.engine.module.vote.storage.TableVote.TABLE_VOTE;
 import static java.lang.Math.pow;
 
 /**
  * A module to handle Votes coming from a {@link VotifierEvent}
  */
+@ModuleInfo(name = "Vote", description = "Get rewards for votes")
 public class Vote extends Module implements Listener
 {
     private VoteConfiguration config;
-    private Economy economy;
 
-    @Override
+    @Inject private Economy economy;
+    @Inject private Database db;
+    @Inject private EventManager em;
+    @Inject private CommandManager cm;
+    @Inject private FileManager fm;
+    @Inject private UserManager um;
+    @Inject private Log logger;
+
+    @Enable
     public void onEnable()
     {
-        this.getCore().getDB().registerTable(TableVote.class);
-        this.config = this.loadConfig(VoteConfiguration.class);
-        this.getCore().getEventManager().registerListener(this, this);
-        CommandManager cm = this.getCore().getCommandManager();
-        cm.addCommands(cm, this, new VoteCommands(this));
-        this.economy = getCore().getModuleManager().getServiceManager().getServiceImplementation(Economy.class);
+        db.registerTable(TableVote.class);
+        this.config = fm.loadConfig(this, VoteConfiguration.class);
+        em.registerListener(this, this);
+        cm.addCommands(this, new VoteCommands(this, db));
     }
 
     @EventHandler
     private void onVote(VotifierEvent event)
     {
         final com.vexsoftware.votifier.model.Vote vote = event.getVote();
-        final User user = getCore().getUserManager().findExactUser(vote.getUsername());
+        final User user = um.findExactUser(vote.getUsername());
         if (user == null)
         {
             if (vote.getUsername() == null || vote.getUsername().trim().isEmpty())
             {
-                this.getLog().info("{} voted but is not known to the server!", vote.getUsername());
+                logger.info("{} voted but is not known to the server!", vote.getUsername());
             }
             return;
         }
-        final DSLContext dsl = getCore().getDB().getDSL();
-        getCore().getDB().queryOne(dsl.selectFrom(TABLE_VOTE).where(TABLE_VOTE.USERID.eq(user.getEntity().getId()))).thenAcceptAsync((voteModel) -> {
+        final DSLContext dsl = db.getDSL();
+        db.queryOne(dsl.selectFrom(TABLE_VOTE).where(TABLE_VOTE.USERID.eq(user.getEntity().getId()))).thenAcceptAsync((voteModel) -> {
             if (voteModel != null)
             {
                 if (voteModel.timePassed(config.voteBonusTime.getMillis()))
@@ -88,11 +102,10 @@ public class Vote extends Module implements Listener
             double money = this.config.voteReward * pow(1 + 1.5 / voteAmount, voteAmount - 1);
             economy.deposit(user.getUniqueId(), money);
             String moneyFormat = economy.format(money);
-            this.getCore().getUserManager().broadcastMessage(NONE, ChatFormat.parseFormats(this.config.voteBroadcast)
-                                                                             .replace("{PLAYER}", vote.getUsername())
-                                                                             .replace("{MONEY}", moneyFormat)
-                                                                             .replace("{AMOUNT}", String.valueOf(voteAmount))
-                                                                             .replace("{VOTEURL}", this.config.voteUrl));
+            um.broadcastMessage(NONE, ChatFormat.parseFormats(this.config.voteBroadcast)
+                    .replace("{PLAYER}", vote.getUsername())
+                    .replace("{MONEY}", moneyFormat).replace("{AMOUNT}", String.valueOf(voteAmount))
+                    .replace("{VOTEURL}", this.config.voteUrl));
             user.sendMessage(ChatFormat.parseFormats(this.config.voteMessage
                                                          .replace("{PLAYER}", vote.getUsername())
                                                          .replace("{MONEY}", moneyFormat)

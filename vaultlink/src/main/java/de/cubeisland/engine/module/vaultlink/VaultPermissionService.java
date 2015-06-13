@@ -22,7 +22,7 @@ import de.cubeisland.engine.module.service.command.CommandSender;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
+import org.spongepowered.api.entity.player.Player;
 
 public class VaultPermissionService implements de.cubeisland.engine.core.module.service.Permission
 {

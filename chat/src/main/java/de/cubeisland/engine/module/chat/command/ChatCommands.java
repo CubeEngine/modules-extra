@@ -33,6 +33,7 @@ import de.cubeisland.engine.module.service.command.CommandSender;
 import de.cubeisland.engine.module.service.command.sender.ConsoleCommandSender;
 import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.service.user.UserManager;
+import org.spongepowered.api.text.Texts;
 
 import static de.cubeisland.engine.butler.parameter.Parameter.INFINITE;
 import static de.cubeisland.engine.module.core.util.formatter.MessageType.*;
@@ -144,7 +145,7 @@ public class ChatCommands
             {
                 ConsoleCommandSender console = cm.getConsoleSender();
                 console.sendTranslated(NEUTRAL, "{sender} -> {text:You}: {message:color=WHITE}", context, message);
-                context.sendTranslated(NEUTRAL, "{text:You} -> {user}: {message:color=WHITE}", console.getDisplayName(), message);
+                context.sendTranslated(NEUTRAL, "{text:You} -> {user}: {message:color=WHITE}", Texts.toPlain(console.getDisplayName()), message);
                 this.lastWhisperOfConsole = context.getUniqueId();
                 ((User)context).get(ChatAttachment.class).setLastWhisper(NON_PLAYER_UUID);
                 return true;

@@ -21,10 +21,11 @@ import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock;
+import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.text.Text;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.USE;
-import static org.bukkit.Material.REDSTONE_COMPARATOR_ON;
 
 /**
  * Represents a player changing a comparator state
@@ -44,14 +45,14 @@ public class UseComparator extends ActionPlayerBlock
     }
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         if (this.hasAttached())
         {
             return user.getTranslation(POSITIVE, "{user} changed the comparator state {amount} times", this.player.name,
                                        this.countAttached());
         }
-        if (this.newBlock.is(REDSTONE_COMPARATOR_ON))
+        if (this.newBlock.is(BlockTypes.POWERED_COMPARATOR))
         {
             return user.getTranslation(POSITIVE, "{user} activated the comparator", this.player.name);
         }

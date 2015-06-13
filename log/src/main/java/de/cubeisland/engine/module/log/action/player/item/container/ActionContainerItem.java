@@ -20,8 +20,9 @@ package de.cubeisland.engine.module.log.action.player.item.container;
 import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.player.item.ActionItem;
+import org.spongepowered.api.text.Text;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.ITEM;
 
 public abstract class ActionContainerItem extends ActionItem
@@ -42,7 +43,7 @@ public abstract class ActionContainerItem extends ActionItem
     }
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         int amount = this.item.getQuantity();
         if (this instanceof ItemRemove)
@@ -66,15 +67,15 @@ public abstract class ActionContainerItem extends ActionItem
         if (amount > 0)
         {
             return user.getTranslation(POSITIVE, "{user} placed {amount} {name#item} into {name#container}",
-                                       this.player.name, amount, this.item.getType().name(), this.type.name);
+                                       this.player.name, amount, this.item.getItem().getName(), this.type.name);
         }
         if (amount < 0)
         {
             return user.getTranslation(POSITIVE, "{user} took {amount} {name#item} out of {name#container}",
-                                       this.player.name, -amount, this.item.getType().name(), this.type.name);
+                                       this.player.name, -amount, this.item.getItem().getName(), this.type.name);
         }
         return user.getTranslation(POSITIVE, "{user} did not change the amount of {name#item} in {name#container}",
-                                   this.player.name, this.item.getType().name(), this.type.name);
+                                   this.player.name, this.item.getItem().getName(), this.type.name);
     }
 
     /*

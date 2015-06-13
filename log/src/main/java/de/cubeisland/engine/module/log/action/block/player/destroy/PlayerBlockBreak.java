@@ -24,8 +24,9 @@ import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.ReferenceHolder;
 import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock;
 import de.cubeisland.engine.reflect.codec.mongo.Reference;
+import org.spongepowered.api.text.Text;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.BLOCK;
 
 /**
@@ -60,7 +61,7 @@ public class PlayerBlockBreak extends ActionPlayerBlock implements ReferenceHold
     }
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         int count = this.countAttached();
         if (this.reference == null)

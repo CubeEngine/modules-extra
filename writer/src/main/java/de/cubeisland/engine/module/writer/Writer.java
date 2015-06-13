@@ -17,7 +17,6 @@
  */
 package de.cubeisland.engine.module.writer;
 
-import java.util.Set;
 import javax.inject.Inject;
 import de.cubeisland.engine.butler.filter.Restricted;
 import de.cubeisland.engine.butler.parametric.Command;
@@ -26,14 +25,16 @@ import de.cubeisland.engine.butler.parametric.Named;
 import de.cubeisland.engine.modularity.asm.marker.Enable;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.module.core.util.formatter.MessageType;
 import de.cubeisland.engine.module.service.command.CommandManager;
 import de.cubeisland.engine.module.service.user.User;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.world.Location;
 
 import static de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
 import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static org.spongepowered.api.block.BlockTypes.AIR;
+import static org.spongepowered.api.item.ItemTypes.WRITTEN_BOOK;
 
 /**
  * A module to edit signs and signed books
@@ -83,11 +84,11 @@ public class Writer extends Module
      */
     public boolean editBookInHand(User user)
     {
-        if (user.getItemInHand().getType() != WRITTEN_BOOK)
+        if (!user.getItemInHand().isPresent() || user.getItemInHand().get().getItem() != WRITTEN_BOOK)
         {
             return false;
         }
-        ItemStack item = user.getItemInHand();
+        ItemStack item = user.getItemInHand().get();
         BookMeta meta = ((BookMeta)item.getItemMeta());
         meta.setAuthor("");
         meta.setTitle("");
@@ -110,7 +111,7 @@ public class Writer extends Module
      */
     public boolean editSignInSight(User user, String line1, String line2, String line3, String line4)
     {
-        Block target = user.getTargetBlock((Set<Material>)null, 10);
+        Location target = user.getTargetBlock(10, AIR);
         if (target.getType() != WALL_SIGN && target.getType() != SIGN_POST)
         {
             return false; // No Sign in sight

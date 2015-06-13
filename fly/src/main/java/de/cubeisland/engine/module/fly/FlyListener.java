@@ -22,14 +22,14 @@ import de.cubeisland.engine.module.service.permission.Permission;
 import de.cubeisland.engine.module.service.task.Task;
 import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.service.user.UserManager;
-import org.bukkit.Location;
+import org.spongepowered.api.world.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
+import org.spongepowered.api.entity.player.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 public class FlyListener implements Listener

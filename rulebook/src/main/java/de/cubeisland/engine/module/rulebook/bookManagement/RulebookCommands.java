@@ -38,7 +38,7 @@ import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.core.util.ChatFormat;
 import de.cubeisland.engine.i18n.language.Language;
 import de.cubeisland.engine.module.rulebook.Rulebook;
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 import de.cubeisland.engine.module.service.permission.PermDefault.TRUE;

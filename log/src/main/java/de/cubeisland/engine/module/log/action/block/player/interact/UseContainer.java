@@ -21,12 +21,13 @@ import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock;
+import org.spongepowered.api.text.Text;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.USE;
 
 /**
- * Represents a player accessing an {@link org.bukkit.inventory.InventoryHolder}
+ * Represents a player accessing an {@link org.spongepowered.api.item.inventory.Carrier}
  */
 public class UseContainer extends ActionPlayerBlock
 {
@@ -43,7 +44,7 @@ public class UseContainer extends ActionPlayerBlock
     }
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         int count = this.countAttached();
         return user.getTranslationN(POSITIVE, count, "{user} looked into a {name#container}",

@@ -21,10 +21,11 @@ import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock;
+import org.spongepowered.api.text.Text;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.BLOCK;
-import static org.bukkit.Material.SOIL;
+import static org.spongepowered.api.block.BlockTypes.FARMLAND;
 
 /**
  * Represents a player trampling crops
@@ -47,12 +48,12 @@ public class BlockTrample extends ActionPlayerBlock
     }
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         BlockTrample action = this;
         if (this.hasAttached())
         {
-            if (this.oldBlock.is(SOIL))
+            if (this.oldBlock.is(FARMLAND))
             {
                 // replacing SOIL log with the crop log as the destroyed SOIL is implied
                 action = (BlockTrample)this.getAttached().get(0);

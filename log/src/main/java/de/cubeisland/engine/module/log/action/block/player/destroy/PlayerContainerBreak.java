@@ -18,9 +18,10 @@
 package de.cubeisland.engine.module.log.action.block.player.destroy;
 
 import de.cubeisland.engine.module.service.user.User;
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.text.Text;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 
 /**
  * Represents a player breaking a container
@@ -30,7 +31,7 @@ public class PlayerContainerBreak extends PlayerBlockBreak
     public ItemStack[] contents;
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         if (this.hasAttached())
         {

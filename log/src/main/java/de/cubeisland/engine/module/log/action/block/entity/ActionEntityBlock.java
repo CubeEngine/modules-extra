@@ -24,8 +24,10 @@ import de.cubeisland.engine.module.log.action.ActionCategory;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.block.ActionBlock;
 import de.cubeisland.engine.reflect.Section;
-import org.bukkit.entity.Entity;
+import org.spongepowered.api.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntityType;
 
 /**
  * Represents an Entity changing a block
@@ -101,7 +103,7 @@ public abstract class ActionEntityBlock extends ActionBlock
 
         public String name()
         {
-            return this.type.name();
+            return this.type.getName();
         }
     }
 

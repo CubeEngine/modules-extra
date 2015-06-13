@@ -20,7 +20,7 @@ package de.cubeisland.engine.module.log.action.player.entity;
 import de.cubeisland.engine.module.log.action.ActionCategory;
 import de.cubeisland.engine.module.log.action.block.entity.ActionEntityBlock.EntitySection;
 import de.cubeisland.engine.module.log.action.player.ActionPlayer;
-import org.bukkit.entity.Entity;
+import org.spongepowered.api.entity.Entity;
 
 public abstract class ActionPlayerEntity extends ActionPlayer
 {

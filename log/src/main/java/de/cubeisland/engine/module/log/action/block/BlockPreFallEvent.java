@@ -17,14 +17,11 @@
  */
 package de.cubeisland.engine.module.log.action.block;
 
-import org.bukkit.Location;
-import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
+import org.spongepowered.api.event.AbstractEvent;
+import org.spongepowered.api.world.Location;
 
-public class BlockPreFallEvent extends Event
+public class BlockPreFallEvent extends AbstractEvent
 {
-    private static final HandlerList handlers = new HandlerList();
-
     private Location location;
     private ActionBlock action;
 
@@ -32,11 +29,6 @@ public class BlockPreFallEvent extends Event
     {
         this.location = location;
         this.action = action;
-    }
-
-    public static HandlerList getHandlerList()
-    {
-        return handlers;
     }
 
     public Location getLocation()
@@ -47,11 +39,5 @@ public class BlockPreFallEvent extends Event
     public ActionBlock getAction()
     {
         return action;
-    }
-
-    @Override
-    public HandlerList getHandlers()
-    {
-        return handlers;
     }
 }

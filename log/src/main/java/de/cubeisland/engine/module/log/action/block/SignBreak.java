@@ -20,8 +20,10 @@ package de.cubeisland.engine.module.log.action.block;
 import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.core.util.ChatFormat;
 import de.cubeisland.engine.module.core.util.StringUtils;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.Texts;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.SIGN;
 
 /**
@@ -37,16 +39,16 @@ public class SignBreak extends BlockBreak
     }
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         if (this.hasAttached())
         {
             return super.translateAction(user);
         }
         String delim = ChatFormat.GREY + " | " + ChatFormat.GOLD;
-        return super.translateAction(user) + "\n" +
+        return Texts.of(super.translateAction(user), "\n" ,
             user.getTranslation(POSITIVE, "    with {input#signtext} written on it", StringUtils.implode(delim,
-                                                                                                         this.oldLines));
+                                                                                                         this.oldLines)));
     }
 
     public void setLines(String[] lines)

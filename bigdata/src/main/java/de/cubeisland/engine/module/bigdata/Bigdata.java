@@ -21,10 +21,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
 import javax.inject.Inject;
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
@@ -35,10 +32,8 @@ import de.cubeisland.engine.modularity.asm.marker.Disable;
 import de.cubeisland.engine.modularity.asm.marker.Enable;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.module.core.filesystem.FileManager;
-import de.cubeisland.engine.module.core.module.Module;
-import de.cubeisland.engine.module.core.module.exception.ModuleLoadError;
 import de.cubeisland.engine.module.bigdata.MongoDBConfiguration.Authentication;
+import de.cubeisland.engine.module.core.filesystem.FileManager;
 import de.cubeisland.engine.reflect.Reflector;
 import de.cubeisland.engine.reflect.codec.mongo.MongoDBCodec;
 
@@ -62,7 +57,7 @@ public class Bigdata extends Module
         }
         catch (RuntimeException e)
         {
-            throw new ModuleLoadError("Failed to connect to the your MongoDB instance!", e);
+            throw new IllegalStateException("Failed to connect to the your MongoDB instance!", e);
         }
 
         reflector.getCodecManager().registerCodec(new MongoDBCodec());
@@ -120,7 +115,7 @@ public class Bigdata extends Module
         }
         catch (UnknownHostException e)
         {
-            throw new ModuleLoadError("Invalid host", e);
+            throw new IllegalStateException("Invalid host", e);
         }
     }
 }

@@ -18,22 +18,23 @@
 package de.cubeisland.engine.module.vote.storage;
 
 import java.sql.Timestamp;
-import de.cubeisland.engine.module.core.storage.database.Table;
 import de.cubeisland.engine.module.core.util.Version;
+import de.cubeisland.engine.module.service.database.Database;
+import de.cubeisland.engine.module.service.database.Table;
 import org.jooq.TableField;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
 
-import de.cubeisland.engine.module.service.user.TableUser.TABLE_USER;
+import static de.cubeisland.engine.module.service.user.TableUser.TABLE_USER;
 import static org.jooq.util.mysql.MySQLDataType.DATETIME;
 
 public class TableVote extends Table<VoteModel>
 {
     public static TableVote TABLE_VOTE;
 
-    public TableVote(String prefix)
+    public TableVote(String prefix, Database db)
     {
-        super(prefix + "votes", new Version(1));
+        super(prefix + "votes", new Version(1), db);
         this.setPrimaryKey(USERID);
         this.addForeignKey(TABLE_USER.getPrimaryKey(), USERID);
         this.addFields(USERID, LASTVOTE, VOTEAMOUNT);

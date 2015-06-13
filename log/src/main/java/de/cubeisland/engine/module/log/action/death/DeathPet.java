@@ -22,11 +22,14 @@ import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock.PlayerSection;
 import org.bukkit.entity.AnimalTamer;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.Tamer;
+import org.spongepowered.api.entity.player.Player;
 import org.bukkit.entity.Tameable;
+import org.spongepowered.api.text.Text;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 
 /**
  * Represents a pet dying
@@ -47,7 +50,7 @@ public class DeathPet extends EntityDeathAction
     }
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         DeathKill fetch = this.killer.fetch(DeathKill.class);
         if (fetch.isPlayerKiller())
@@ -91,7 +94,7 @@ public class DeathPet extends EntityDeathAction
     public void setKilled(Entity entity)
     {
         super.setKilled(entity);
-        AnimalTamer owner = ((Tameable)entity).getOwner();
+        Tamer owner = ((Tameable)entity).getOwner();
         if (owner instanceof Player)
         {
             this.owner = new PlayerSection((Player)owner);

@@ -20,8 +20,8 @@ package de.cubeisland.engine.module.log.action.vehicle;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.block.entity.ActionEntityBlock.EntitySection;
 import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock.PlayerSection;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.player.Player;
 
 import static de.cubeisland.engine.module.log.action.ActionCategory.VEHICLE;
 

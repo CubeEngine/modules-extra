@@ -20,7 +20,7 @@ package de.cubeisland.engine.module.itemrepair.repair.storage;
 import de.cubeisland.engine.module.service.database.AsyncRecord;
 import de.cubeisland.engine.module.core.storage.database.AsyncRecord;
 import de.cubeisland.engine.module.service.world.WorldManager;
-import org.bukkit.Location;
+import org.spongepowered.api.world.Location;
 import org.bukkit.block.Block;
 
 import static de.cubeisland.engine.module.itemrepair.repair.storage.TableRepairBlock.TABLE_REPAIR_BLOCK;

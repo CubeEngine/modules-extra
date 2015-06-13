@@ -27,7 +27,7 @@ import de.cubeisland.engine.module.core.sponge.SpongeCore;
 import de.cubeisland.engine.module.core.module.Module;
 import de.cubeisland.engine.module.core.util.ChatFormat;
 import org.bukkit.Server;
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.spongepowered.api.Game;

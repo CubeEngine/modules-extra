@@ -39,7 +39,7 @@ import de.cubeisland.engine.module.shout.announce.Announcement;
 import de.cubeisland.engine.module.shout.announce.MessageOfTheDay;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
+import org.spongepowered.api.entity.player.Player;
 
 @Command(name = "shout", desc = "Announce a message to players on the server", alias = "announce")
 public class ShoutCommand extends ContainerCommand

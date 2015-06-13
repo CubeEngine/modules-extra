@@ -20,9 +20,10 @@ package de.cubeisland.engine.module.log.action.player;
 import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
-import org.bukkit.Location;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.world.Location;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.PLAYER;
 
 /**
@@ -47,7 +48,7 @@ public class PlayerTeleport extends ActionPlayer
     }
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         if (this.hasAttached())
         {

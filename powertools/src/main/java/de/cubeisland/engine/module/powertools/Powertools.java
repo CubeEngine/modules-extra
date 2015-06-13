@@ -17,19 +17,38 @@
  */
 package de.cubeisland.engine.module.powertools;
 
-import de.cubeisland.engine.module.core.module.Module;
+import javax.inject.Inject;
+import de.cubeisland.engine.modularity.asm.marker.Disable;
+import de.cubeisland.engine.modularity.asm.marker.Enable;
+import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
+import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.module.core.sponge.EventManager;
+import de.cubeisland.engine.module.core.util.matcher.MaterialMatcher;
+import de.cubeisland.engine.module.service.command.CommandManager;
 
+@ModuleInfo(name = "Powertools", description = "Empower your tools")
 public class Powertools extends Module
 {
     private PowertoolsPerm perm;
-    
-    @Override
+
+    @Inject private CommandManager cm;
+    @Inject private EventManager em;
+    @Inject private MaterialMatcher materialMatcher;
+
+    @Enable
     public void onEnable()
     {
         this.perm = new PowertoolsPerm(this);
-        PowerToolCommand ptCommands = new PowerToolCommand(this);
-        getCore().getCommandManager().addCommand(ptCommands);
-        getCore().getEventManager().registerListener(this, ptCommands);
+        PowerToolCommand ptCommands = new PowerToolCommand(this, materialMatcher);
+        cm.addCommand(ptCommands);
+        em.registerListener(this, ptCommands);
+    }
+
+    @Disable
+    public void onDisable()
+    {
+        cm.removeCommands(this);
+        em.removeListeners(this);
     }
 
     public PowertoolsPerm perms()

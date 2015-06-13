@@ -26,7 +26,7 @@ import de.cubeisland.engine.module.signmarket.storage.BlockModel;
 import de.cubeisland.engine.module.signmarket.storage.ItemModel;
 import de.cubeisland.engine.module.signmarket.storage.SignMarketBlockManager;
 import de.cubeisland.engine.module.signmarket.storage.SignMarketItemManager;
-import org.bukkit.Location;
+import org.spongepowered.api.world.Location;
 import org.jooq.types.UInteger;
 
 import de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;

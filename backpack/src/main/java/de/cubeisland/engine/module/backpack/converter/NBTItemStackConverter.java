@@ -28,7 +28,7 @@ import de.cubeisland.engine.module.core.sponge.NBTUtils;
 import net.minecraft.server.v1_8_R2.NBTTagCompound;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_8_R2.inventory.CraftItemStack;
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStack;
 
 public class NBTItemStackConverter extends SimpleConverter<ItemStack>
 {

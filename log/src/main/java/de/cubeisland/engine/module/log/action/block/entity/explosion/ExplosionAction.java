@@ -19,7 +19,7 @@ package de.cubeisland.engine.module.log.action.block.entity.explosion;
 
 import de.cubeisland.engine.module.log.action.block.entity.ActionEntityBlock;
 import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock.PlayerSection;
-import org.bukkit.entity.Player;
+import org.spongepowered.api.entity.player.Player;
 
 import static de.cubeisland.engine.module.log.action.ActionCategory.EXPLODE;
 

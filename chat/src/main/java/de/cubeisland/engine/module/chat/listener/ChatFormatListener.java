@@ -90,12 +90,14 @@ public class ChatFormatListener
             event.getUser().getDisplayNameData().getDisplayName() : Texts.of(name);
         if (!Texts.toPlain(displayName).equals(name))
         {
-            Translation translation = i18n.getTranslation(NEUTRAL, null, "Actual name: {user}", name);
-            displayName = Texts.builder().append(displayName).onHover(new ShowText(Texts.of(translation))).build();
+            Translatable translation = i18n.getTranslation(NEUTRAL, null, "Actual name: {user}", name);
+            displayName = Texts.builder().append(displayName).onHover(new ShowText(translation)).build();
         }
         replacements.put("{DISPLAY_NAME}", displayName);
         replacements.put("{WORLD}", Texts.of(event.getUser().getWorld().getName()));
         replacements.put("{MESSAGE}", fromLegacy(msg));
+        replacements.put("{PREFIX}", Texts.of());
+        replacements.put("{SUFFIX}", Texts.of());
         if (subject instanceof OptionSubject)
         {
             replacements.put("{PREFIX}", fromLegacy(((OptionSubject)subject).getOption("chat-prefix").or("")));

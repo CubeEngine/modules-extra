@@ -23,13 +23,14 @@ import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock.PlayerSection;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntityType;
+import static org.spongepowered.api.entity.EntityTypes.*;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
-import static org.bukkit.entity.EntityType.GHAST;
-import static org.bukkit.entity.EntityType.PLAYER;
+import org.spongepowered.api.entity.player.Player;
+import org.spongepowered.api.text.Text;
+
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 
 /**
  * Represents a fireball setting a block on fire
@@ -58,7 +59,7 @@ public class IgniteFireball extends ActionBlockIgnite
     }
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         int count = this.countAttached();
         if (shooterType == PLAYER)

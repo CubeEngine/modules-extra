@@ -17,13 +17,14 @@
  */
 package de.cubeisland.engine.module.log.action.block.ignite;
 
-import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock.PlayerSection;
-import org.bukkit.entity.Player;
+import de.cubeisland.engine.module.service.user.User;
+import org.spongepowered.api.entity.player.Player;
+import org.spongepowered.api.text.Text;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 
 /**
  * Represents a fire being set using a lighter
@@ -45,7 +46,7 @@ public class IgniteLighter extends ActionBlockIgnite
     }
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         int count = this.countAttached();
         if (this.player == null)

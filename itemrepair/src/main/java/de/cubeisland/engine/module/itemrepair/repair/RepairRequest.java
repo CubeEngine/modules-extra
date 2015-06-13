@@ -20,7 +20,7 @@ package de.cubeisland.engine.module.itemrepair.repair;
 import java.util.Map;
 import de.cubeisland.engine.module.itemrepair.repair.blocks.RepairBlock;
 import de.cubeisland.engine.module.itemrepair.repair.blocks.RepairBlock.RepairBlockInventory;
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStack;
 
 public class RepairRequest
 {

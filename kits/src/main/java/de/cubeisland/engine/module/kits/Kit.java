@@ -30,13 +30,14 @@ import de.cubeisland.engine.module.service.command.exception.PermissionDeniedExc
 import de.cubeisland.engine.module.service.permission.Permission;
 import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.core.util.InventoryUtil;
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStack;
 import org.joda.time.Duration;
 import org.jooq.DSLContext;
 import org.jooq.Record1;
 import org.jooq.ResultQuery;
 import org.jooq.exception.DataAccessException;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.text.Text.Translatable;
 import org.spongepowered.api.text.format.BaseFormatting;
 
 import static de.cubeisland.engine.module.kits.TableKitsGiven.TABLE_KITS;
@@ -238,7 +239,7 @@ public class Kit
         }
 
         @Override
-        public String getTranslation(BaseFormatting format, String message, Object... params)
+        public Translatable getTranslation(BaseFormatting format, String message, Object... params)
         {
             return this.user.getTranslation(format, message, params);
         }
@@ -256,7 +257,8 @@ public class Kit
         }
 
         @Override
-        public String getTranslationN(BaseFormatting format, int n, String singular, String plural, Object... params)
+        public Translatable getTranslationN(BaseFormatting format, int n, String singular, String plural,
+                                            Object... params)
         {
             return this.user.getTranslationN(format, n, singular, plural, params);
         }

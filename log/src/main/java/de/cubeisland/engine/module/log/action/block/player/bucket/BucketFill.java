@@ -21,10 +21,11 @@ import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock;
+import org.spongepowered.api.text.Text;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.BUCKET;
-import static org.bukkit.Material.*;
+import static org.spongepowered.api.block.BlockTypes.*;
 
 /**
  * Represents a player filling a bucket
@@ -44,15 +45,15 @@ public class BucketFill extends ActionPlayerBlock
     }
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         int count = this.countAttached();
-        if (this.oldBlock.is(LAVA, STATIONARY_LAVA))
+        if (this.oldBlock.is(LAVA, FLOWING_LAVA))
         {
             return user.getTranslationN(POSITIVE, count, "{user} filled a bucket with lava",
                                         "{user} filled {amount} buckets with lava", this.player.name, count);
         }
-        if (this.oldBlock.is(WATER, STATIONARY_WATER))
+        if (this.oldBlock.is(WATER, FLOWING_WATER))
         {
             return user.getTranslationN(POSITIVE, count, "{user} filled a bucket with water",
                                         "{user} filled {amount} buckets with water", this.player.name, count);

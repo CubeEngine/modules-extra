@@ -30,7 +30,7 @@ import de.cubeisland.engine.module.service.command.CommandContext;
 import de.cubeisland.engine.module.service.command.CommandSender;
 import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.core.util.FileUtil;
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStack;
 
 import de.cubeisland.engine.module.core.util.ChatFormat.WHITE;
 import de.cubeisland.engine.module.core.util.ChatFormat.YELLOW;

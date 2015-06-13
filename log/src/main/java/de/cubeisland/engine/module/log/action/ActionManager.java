@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import de.cubeisland.engine.module.core.sponge.EventManager;
 import de.cubeisland.engine.module.core.util.StringUtils;
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
@@ -44,6 +45,7 @@ import de.cubeisland.engine.module.log.action.player.entity.ListenerPlayerEntity
 import de.cubeisland.engine.module.log.action.player.item.ListenerItem;
 import de.cubeisland.engine.module.log.action.player.item.container.ListenerContainerItem;
 import de.cubeisland.engine.module.log.action.vehicle.ListenerVehicle;
+import de.cubeisland.engine.module.service.command.CommandManager;
 import org.bukkit.ChatColor;
 
 public class ActionManager
@@ -58,11 +60,13 @@ public class ActionManager
 
     private final Map<Class<? extends BaseAction>, BaseAction> actions = new HashMap<>();
     private final Log module;
+    private EventManager em;
 
-    public ActionManager(Log module)
+    public ActionManager(Log module, CommandManager cm, EventManager em)
     {
         this.module = module;
-        this.module.getCore().getCommandManager().getProviderManager().register(module, new ActionTypeCompleter(this), ActionTypeCompleter.class);
+        this.em = em;
+        cm.getProviderManager().register(module, new ActionTypeCompleter(this), ActionTypeCompleter.class);
         this.registerLogActionTypes();
     }
 
@@ -93,7 +97,7 @@ public class ActionManager
 
     public ActionManager registerListener(LogListener listener)
     {
-        module.getCore().getEventManager().registerListener(module, listener);
+        em.registerListener(module, listener);
         for (Class<? extends BaseAction> actionClass : listener.getActions())
         {
             registerAction(actionClass);

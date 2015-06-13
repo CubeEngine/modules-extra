@@ -18,7 +18,7 @@
 package de.cubeisland.engine.module.vote.storage;
 
 import java.sql.Timestamp;
-import de.cubeisland.engine.module.core.storage.database.AsyncRecord;
+import de.cubeisland.engine.module.service.database.AsyncRecord;
 import de.cubeisland.engine.module.service.user.User;
 import org.jooq.types.UShort;
 

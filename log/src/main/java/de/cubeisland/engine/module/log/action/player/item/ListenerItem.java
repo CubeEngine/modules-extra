@@ -19,7 +19,7 @@ package de.cubeisland.engine.module.log.action.player.item;
 
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.action.player.ListenerPlayerLog;
-import org.bukkit.entity.Player;
+import org.spongepowered.api.entity.player.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.enchantment.EnchantItemEvent;

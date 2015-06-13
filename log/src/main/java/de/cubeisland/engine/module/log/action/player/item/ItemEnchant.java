@@ -21,9 +21,10 @@ import java.util.Map;
 import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
-import org.bukkit.enchantments.Enchantment;
+import org.spongepowered.api.item.Enchantment;
+import org.spongepowered.api.text.Text;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.ITEM;
 
 /**
@@ -45,15 +46,15 @@ public class ItemEnchant extends ActionItem
     }
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         if (this.hasAttached())
         {
             return user.getTranslation(POSITIVE, "{user} enchanted {name#item} x{amount}", this.player.name,
-                                       this.item.getType().name(), this.getAttached().size() + 1);
+                                       this.item.getItem().getName(), this.getAttached().size() + 1);
         }
         return user.getTranslation(POSITIVE, "{user} enchanted {name#item}", this.player.name,
-                                   this.item.getType().name());
+                                   this.item.getItem().getName());
         // TODO list enchantments
         // TODO enchant block used
     }

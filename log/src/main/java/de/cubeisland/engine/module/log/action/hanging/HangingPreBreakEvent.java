@@ -18,14 +18,11 @@
 package de.cubeisland.engine.module.log.action.hanging;
 
 import de.cubeisland.engine.module.log.action.BaseAction;
-import org.bukkit.Location;
-import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
+import org.spongepowered.api.event.AbstractEvent;
+import org.spongepowered.api.world.Location;
 
-public class HangingPreBreakEvent extends Event
+public class HangingPreBreakEvent extends AbstractEvent
 {
-    private static final HandlerList handlers = new HandlerList();
-
     private Location location;
     private BaseAction cause;
 
@@ -33,11 +30,6 @@ public class HangingPreBreakEvent extends Event
     {
         this.location = location;
         this.cause = cause;
-    }
-
-    public static HandlerList getHandlerList()
-    {
-        return handlers;
     }
 
     public Location getLocation()
@@ -48,11 +40,5 @@ public class HangingPreBreakEvent extends Event
     public BaseAction getCause()
     {
         return cause;
-    }
-
-    @Override
-    public HandlerList getHandlers()
-    {
-        return handlers;
     }
 }

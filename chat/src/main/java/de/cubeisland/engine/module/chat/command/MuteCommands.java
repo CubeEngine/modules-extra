@@ -68,7 +68,7 @@ public class MuteCommands
         }
         attachment.setMuted(new Date(System.currentTimeMillis() + (dura.getMillis() == 0 ? DAYS.toMillis(
             9001) : dura.getMillis())));
-        String timeString = dura.getMillis() == 0 ? player.getTranslation(NONE, "ever").get(player.getLocale()) : TimeUtil.format(
+        String timeString = dura.getMillis() == 0 ? player.getTranslation(NONE, "ever").getTranslation().get(player.getLocale()) : TimeUtil.format(
             player.getLocale(), dura.getMillis());
         player.sendTranslated(NEGATIVE, "You are now muted for {input#amount}!", timeString);
         context.sendTranslated(NEUTRAL, "You muted {user} globally for {input#amount}!", player, timeString);

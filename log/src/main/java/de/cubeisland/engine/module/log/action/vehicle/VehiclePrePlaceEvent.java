@@ -17,15 +17,12 @@
  */
 package de.cubeisland.engine.module.log.action.vehicle;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Entity;
-import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
+import org.spongepowered.api.event.AbstractEvent;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.entity.Entity;
 
-public class VehiclePrePlaceEvent extends Event
+public class VehiclePrePlaceEvent extends AbstractEvent
 {
-    private static final HandlerList handlers = new HandlerList();
-
     private Location location;
     private Entity player;
 
@@ -34,12 +31,6 @@ public class VehiclePrePlaceEvent extends Event
         this.location = location;
         this.player = player;
     }
-
-    public static HandlerList getHandlerList()
-    {
-        return handlers;
-    }
-
     public Location getLocation()
     {
         return location;
@@ -48,11 +39,5 @@ public class VehiclePrePlaceEvent extends Event
     public Entity getPlayer()
     {
         return player;
-    }
-
-    @Override
-    public HandlerList getHandlers()
-    {
-        return handlers;
     }
 }

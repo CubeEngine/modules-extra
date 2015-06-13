@@ -29,7 +29,7 @@ import de.cubeisland.engine.module.core.util.math.BlockVector3;
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.block.ActionBlock.BlockSection;
-import org.bukkit.Location;
+import org.spongepowered.api.world.Location;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.spongepowered.api.entity.EntityType;

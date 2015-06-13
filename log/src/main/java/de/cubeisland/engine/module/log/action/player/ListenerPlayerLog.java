@@ -20,7 +20,7 @@ package de.cubeisland.engine.module.log.action.player;
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.LogListener;
-import org.bukkit.entity.Player;
+import org.spongepowered.api.entity.player.Player;
 
 public abstract class ListenerPlayerLog extends LogListener
 {

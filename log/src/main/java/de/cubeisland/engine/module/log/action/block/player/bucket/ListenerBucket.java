@@ -23,7 +23,7 @@ import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock;
 import de.cubeisland.engine.module.log.action.player.BucketMilk;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
-import org.bukkit.entity.Player;
+import org.spongepowered.api.entity.player.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;

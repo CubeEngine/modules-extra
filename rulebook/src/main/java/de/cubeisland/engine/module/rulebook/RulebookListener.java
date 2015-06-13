@@ -24,7 +24,7 @@ import de.cubeisland.engine.module.rulebook.bookManagement.RulebookManager;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStack;
 
 class RulebookListener implements Listener
 {

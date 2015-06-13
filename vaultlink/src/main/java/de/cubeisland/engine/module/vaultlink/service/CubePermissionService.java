@@ -27,7 +27,7 @@ import de.cubeisland.engine.module.service.world.WorldManager;
 import de.cubeisland.engine.module.vaultlink.Vaultlink;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
+import org.spongepowered.api.entity.player.Player;
 
 public class CubePermissionService extends Permission
 {

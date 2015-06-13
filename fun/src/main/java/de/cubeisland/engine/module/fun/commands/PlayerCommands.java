@@ -26,13 +26,13 @@ import de.cubeisland.engine.module.service.command.CommandSender;
 import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.core.util.matcher.Match;
 import de.cubeisland.engine.module.fun.Fun;
-import org.bukkit.Location;
+import org.spongepowered.api.world.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
+import org.spongepowered.api.entity.player.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByBlockEvent;
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.Vector;
 

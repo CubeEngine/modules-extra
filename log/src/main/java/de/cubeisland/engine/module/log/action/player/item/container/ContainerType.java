@@ -17,20 +17,6 @@
  */
 package de.cubeisland.engine.module.log.action.player.item.container;
 
-import de.cubeisland.engine.module.core.util.matcher.Match;
-import org.bukkit.Material;
-import org.bukkit.block.BrewingStand;
-import org.bukkit.block.Chest;
-import org.bukkit.block.Dispenser;
-import org.bukkit.block.DoubleChest;
-import org.bukkit.block.Dropper;
-import org.bukkit.block.Furnace;
-import org.bukkit.block.Hopper;
-import org.bukkit.entity.minecart.HopperMinecart;
-import org.bukkit.entity.minecart.StorageMinecart;
-import org.bukkit.inventory.InventoryHolder;
-
-import static org.bukkit.Material.*;
 
 public class ContainerType
 {

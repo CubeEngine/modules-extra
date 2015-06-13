@@ -33,11 +33,14 @@ import de.cubeisland.engine.module.log.storage.ShowParameter;
 import de.cubeisland.engine.reflect.Section;
 import de.cubeisland.engine.reflect.codec.mongo.ReflectedDBObject;
 import org.bson.types.ObjectId;
-import org.bukkit.Location;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.world.Location;
 import org.bukkit.World;
 
 import de.cubeisland.engine.module.core.util.formatter.MessageType.NONE;
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import org.spongepowered.api.text.translation.Translation;
+
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static org.bukkit.ChatColor.GRAY;
 
 /**
@@ -212,7 +215,7 @@ public abstract class BaseAction extends ReflectedDBObject implements Comparable
 
     public abstract boolean isActive(LoggingConfiguration config);
 
-    public abstract String translateAction(User user);
+    public abstract Text translateAction(User user);
 
     public final boolean isNearTimeFrame(TimeUnit unit, int i, BaseAction action)
     {

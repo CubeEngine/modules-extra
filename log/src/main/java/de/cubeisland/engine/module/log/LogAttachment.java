@@ -26,7 +26,7 @@ import de.cubeisland.engine.module.core.util.math.shape.Shape;
 import de.cubeisland.engine.module.log.storage.Lookup;
 import de.cubeisland.engine.module.log.storage.QueryParameter;
 import de.cubeisland.engine.module.log.storage.ShowParameter;
-import org.bukkit.Location;
+import org.spongepowered.api.world.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 

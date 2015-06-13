@@ -36,7 +36,7 @@ import de.cubeisland.engine.module.service.command.result.paginated.PaginationIt
 
 import static de.cubeisland.engine.butler.parameter.Parameter.INFINITE;
 import de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static java.util.Locale.ENGLISH;
 
 @Command(name = "customcommands", desc = "Commands to modify custom commands.")

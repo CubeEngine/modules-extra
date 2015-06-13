@@ -33,7 +33,7 @@ import de.cubeisland.engine.module.service.command.CommandContext;
 import de.cubeisland.engine.module.service.command.CommandSender;
 import de.cubeisland.engine.module.service.command.conversation.ConversationCommand;
 import de.cubeisland.engine.module.service.user.User;
-import org.bukkit.Location;
+import org.spongepowered.api.world.Location;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.event.EventHandler;
@@ -43,7 +43,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStack;
 
 import static org.bukkit.event.Event.Result.DENY;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_AIR;

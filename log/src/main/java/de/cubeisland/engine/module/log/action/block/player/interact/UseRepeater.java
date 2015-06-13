@@ -23,8 +23,9 @@ import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock;
 import org.bukkit.material.Diode;
+import org.spongepowered.api.text.Text;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.USE;
 
 /**
@@ -45,7 +46,7 @@ public class UseRepeater extends ActionPlayerBlock
     }
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         int oldTicks = this.oldBlock.as(Diode.class).getDelay();
         int newTicks = this.newBlock.as(Diode.class).getDelay();

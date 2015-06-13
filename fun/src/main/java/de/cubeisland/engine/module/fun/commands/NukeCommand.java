@@ -34,7 +34,7 @@ import de.cubeisland.engine.module.core.util.math.shape.Cylinder;
 import de.cubeisland.engine.module.core.util.math.shape.Shape;
 import de.cubeisland.engine.module.core.util.math.shape.Sphere;
 import de.cubeisland.engine.module.fun.Fun;
-import org.bukkit.Location;
+import org.spongepowered.api.world.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
@@ -46,7 +46,7 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.util.Vector;
 
 import de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 
 public class NukeCommand
 {

@@ -34,7 +34,7 @@ import org.bukkit.World;
 import org.jooq.types.UInteger;
 
 import de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 
 @Command(name = "border", desc = "border commands")
 public class BorderCommands extends ContainerCommand

@@ -23,8 +23,9 @@ import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.ReferenceHolder;
 import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock;
 import de.cubeisland.engine.reflect.codec.mongo.Reference;
+import org.spongepowered.api.text.Text;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.BLOCK;
 
 /**
@@ -46,7 +47,7 @@ public class BlockFall extends ActionBlock implements ReferenceHolder
     }
 
     @Override
-    public String translateAction(User user)
+    public Text translateAction(User user)
     {
         // TODO plurals
         if (this.cause == null)

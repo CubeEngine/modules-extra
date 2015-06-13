@@ -21,7 +21,8 @@ import java.util.UUID;
 import de.cubeisland.engine.module.log.action.ActionCategory;
 import de.cubeisland.engine.module.log.action.block.ActionBlock;
 import de.cubeisland.engine.reflect.NullSection;
-import org.bukkit.entity.Player;
+import org.spongepowered.api.entity.player.Player;
+import org.spongepowered.api.entity.player.Player;
 
 /**
  * Represents a player changing a block
