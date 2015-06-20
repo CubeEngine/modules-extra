@@ -88,7 +88,7 @@ public class PowerToolCommand extends ContainerCommand
     {
         if (all)
         {
-            for (Inventory slot : context.getInventory().slots())
+            for (Inventory slot : context.asPlayer().getInventory().slots())
             {
                 if (slot.peek().isPresent())
                 {
@@ -98,12 +98,12 @@ public class PowerToolCommand extends ContainerCommand
             context.sendTranslated(POSITIVE, "Removed all commands bound to items in your inventory!");
             return;
         }
-        if (!context.getItemInHand().isPresent())
+        if (!context.asPlayer().getItemInHand().isPresent())
         {
             context.sendTranslated(NEUTRAL, "You are not holding any item in your hand.");
             return;
         }
-        this.setPowerTool(context.getItemInHand().get(), null);
+        this.setPowerTool(context.asPlayer().getItemInHand().get(), null);
         context.sendTranslated(POSITIVE, "Removed all commands bound to the item in your hand!");
     }
 
@@ -112,12 +112,12 @@ public class PowerToolCommand extends ContainerCommand
     @Restricted(value = User.class, msg = "No more power for you!")
     public void remove(User context, @Optional @Greed(INFINITE) String command, @Flag boolean chat)
     {
-        if (!context.getItemInHand().isPresent())
+        if (!context.asPlayer().getItemInHand().isPresent())
         {
             context.sendTranslated(NEUTRAL, "You are not holding any item in your hand.");
             return;
         }
-        this.remove(context, context.getItemInHand().get(), command, !chat);
+        this.remove(context, context.asPlayer().getItemInHand().get(), command, !chat);
     }
 
     private void remove(User context, ItemStack item, String cmd, boolean isCommand)
@@ -163,7 +163,7 @@ public class PowerToolCommand extends ContainerCommand
     @Restricted(value = User.class, msg = "You already have enough power!")
     public void add(User context, @Greed(INFINITE) String commandString, @Flag boolean chat, @Flag boolean replace)
     {
-        if (!context.getItemInHand().isPresent())
+        if (!context.asPlayer().getItemInHand().isPresent())
         {
             context.sendTranslated(NEUTRAL, "You do not have an item in your hand to bind the command to!");
             return;
@@ -179,10 +179,10 @@ public class PowerToolCommand extends ContainerCommand
         }
         else
         {
-            powerTools = this.getPowerTools(context.getItemInHand().get());
+            powerTools = this.getPowerTools(context.asPlayer().getItemInHand().get());
         }
         powerTools.add(commandString);
-        this.setPowerTool(context.getItemInHand().get(), powerTools);
+        this.setPowerTool(context.asPlayer().getItemInHand().get(), powerTools);
     }
 
     @Alias(value = "ptl")
@@ -192,7 +192,7 @@ public class PowerToolCommand extends ContainerCommand
     {
         if (all)
         {
-            for (Inventory slot : context.getInventory().slots())
+            for (Inventory slot : context.asPlayer().getInventory().slots())
             {
                 if (slot.peek().isPresent())
                 {
@@ -211,13 +211,13 @@ public class PowerToolCommand extends ContainerCommand
             }
             return;
         }
-        if (!context.getItemInHand().isPresent())
+        if (!context.asPlayer().getItemInHand().isPresent())
         {
             context.sendTranslated(NEUTRAL, "You do not have an item in your hand.");
         }
         else
         {
-            this.showPowerToolList(context, this.getPowerTools(context.getItemInHand().get()), false, true);
+            this.showPowerToolList(context, this.getPowerTools(context.asPlayer().getItemInHand().get()), false, true);
         }
     }
 
@@ -306,7 +306,7 @@ public class PowerToolCommand extends ContainerCommand
             }
             return powerTool;
         }
-        return emptyList();
+        return new ArrayList<>();
     }
 
     @Subscribe
@@ -322,7 +322,7 @@ public class PowerToolCommand extends ContainerCommand
             List<String> powerTool = this.getPowerTools(player.getItemInHand().get());
             for (String command : powerTool)
             {
-                player.chat(command);
+                player.getMessageSink().sendMessage(Texts.of(command));
             }
             if (!powerTool.isEmpty())
             {

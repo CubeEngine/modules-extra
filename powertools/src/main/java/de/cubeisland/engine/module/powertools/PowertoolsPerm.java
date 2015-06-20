@@ -31,3 +31,4 @@ public class PowertoolsPerm extends PermissionContainer<Powertools>
 
     public final Permission POWERTOOL_USE = getBasePerm().child("use");
 }
+

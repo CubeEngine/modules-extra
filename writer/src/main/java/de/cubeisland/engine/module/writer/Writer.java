@@ -18,6 +18,7 @@
 package de.cubeisland.engine.module.writer;
 
 import javax.inject.Inject;
+import com.google.common.base.Optional;
 import de.cubeisland.engine.butler.filter.Restricted;
 import de.cubeisland.engine.butler.parametric.Command;
 import de.cubeisland.engine.butler.parametric.Label;
@@ -28,13 +29,22 @@ import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.service.command.CommandManager;
 import de.cubeisland.engine.service.user.User;
 import org.spongepowered.api.Game;
+import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.data.manipulator.item.PagedData;
+import org.spongepowered.api.data.manipulator.tileentity.SignData;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.text.Texts;
+import org.spongepowered.api.util.blockray.BlockRay;
+import org.spongepowered.api.util.blockray.BlockRayHit;
 import org.spongepowered.api.world.Location;
 
 import static de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
 import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
-import static org.spongepowered.api.block.BlockTypes.AIR;
+import static org.spongepowered.api.block.BlockTypes.STANDING_SIGN;
+import static org.spongepowered.api.block.BlockTypes.WALL_SIGN;
+import static org.spongepowered.api.item.ItemTypes.WRITABLE_BOOK;
 import static org.spongepowered.api.item.ItemTypes.WRITTEN_BOOK;
+import static org.spongepowered.api.util.blockray.BlockRay.ONLY_AIR_FILTER;
 
 /**
  * A module to edit signs and signed books
@@ -84,16 +94,16 @@ public class Writer extends Module
      */
     public boolean editBookInHand(User user)
     {
-        if (!user.getItemInHand().isPresent() || user.getItemInHand().get().getItem() != WRITTEN_BOOK)
+        Optional<ItemStack> oItem = user.asPlayer().getItemInHand();
+        if (!oItem.isPresent() || oItem.get().getItem() != WRITTEN_BOOK)
         {
             return false;
         }
-        ItemStack item = user.getItemInHand().get();
-        BookMeta meta = ((BookMeta)item.getItemMeta());
-        meta.setAuthor("");
-        meta.setTitle("");
-        item.setItemMeta(meta);
-        item.setType(BOOK_AND_QUILL);
+
+        ItemStack item = oItem.get();
+        PagedData pages = item.getData(PagedData.class).get();
+        item = game.getRegistry().getItemBuilder().itemType(WRITABLE_BOOK).itemData(pages).build();
+        user.asPlayer().setItemInHand(item);
         user.sendTranslated(POSITIVE, "Your book is now unsigned and ready to be edited.");
         return true;
     }
@@ -111,29 +121,24 @@ public class Writer extends Module
      */
     public boolean editSignInSight(User user, String line1, String line2, String line3, String line4)
     {
-        Location target = user.getTargetBlock(10, AIR);
-        if (target.getType() != WALL_SIGN && target.getType() != SIGN_POST)
+        Optional<BlockRayHit> end = BlockRay.from(user.asPlayer()).filter(ONLY_AIR_FILTER).end();
+        if (!end.isPresent())
         {
-            return false; // No Sign in sight
+            return false;
         }
-        Sign sign = (Sign)target.getState();
-        String[] lines = sign.getLines();
-        lines[0] = line1 == null ? lines[0] : line1;
-        lines[1] = line2 == null ? lines[1] : line2;
-        lines[2] = line3 == null ? lines[2] : line3;
-        lines[3] = line4 == null ? lines[3] : line4;
-        SignChangeEvent event = new SignChangeEvent(sign.getBlock(), user, lines);
-        user.getCore().getEventManager().fireEvent(event);
-        if (event.isCancelled())
+        Location block = end.get().getLocation();
+        BlockType type = block.getBlockType();
+        if (type != WALL_SIGN && type != STANDING_SIGN)
         {
-            user.sendTranslated(NEGATIVE, "Could not change the sign!");
-            return true;
+            return false;
         }
-        for (int i = 0; i < 4; ++i)
-        {
-            sign.setLine(i, lines[i]);
-        }
-        sign.update();
+        SignData signData = block.getData(SignData.class).get();
+        signData.setLine(0, line1 == null ? signData.getLine(0) : Texts.of(line1));
+        signData.setLine(1, line2 == null ? signData.getLine(1) : Texts.of(line2));
+        signData.setLine(2, line3 == null ? signData.getLine(2) : Texts.of(line3));
+        signData.setLine(3, line4 == null ? signData.getLine(3) : Texts.of(line4));
+        block.offer(signData);
+
         user.sendTranslated(POSITIVE, "The sign has been changed!");
         return true;
     }
