@@ -21,8 +21,8 @@ import java.sql.Date;
 import java.util.UUID;
 import com.google.common.base.Optional;
 import de.cubeisland.engine.module.chat.storage.Muted;
-import de.cubeisland.engine.module.service.database.Database;
-import de.cubeisland.engine.module.service.user.UserAttachment;
+import de.cubeisland.engine.service.database.Database;
+import de.cubeisland.engine.service.user.UserAttachment;
 import org.jooq.DSLContext;
 
 import static com.google.common.base.Optional.fromNullable;

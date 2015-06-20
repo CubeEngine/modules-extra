@@ -19,7 +19,6 @@ package de.cubeisland.engine.module.chat.command;
 
 import java.util.UUID;
 import de.cubeisland.engine.butler.parametric.Command;
-import de.cubeisland.engine.butler.parametric.Default;
 import de.cubeisland.engine.butler.parametric.Greed;
 import de.cubeisland.engine.butler.parametric.Label;
 import de.cubeisland.engine.butler.parametric.Optional;
@@ -27,18 +26,18 @@ import de.cubeisland.engine.module.chat.Chat;
 import de.cubeisland.engine.module.chat.ChatAttachment;
 import de.cubeisland.engine.module.chat.listener.AfkListener;
 import de.cubeisland.engine.module.core.util.ChatFormat;
-import de.cubeisland.engine.module.service.command.CommandContext;
-import de.cubeisland.engine.module.service.command.CommandManager;
-import de.cubeisland.engine.module.service.command.CommandSender;
-import de.cubeisland.engine.module.service.command.sender.ConsoleCommandSender;
-import de.cubeisland.engine.module.service.user.User;
-import de.cubeisland.engine.module.service.user.UserManager;
+import de.cubeisland.engine.service.command.CommandContext;
+import de.cubeisland.engine.service.command.CommandManager;
+import de.cubeisland.engine.service.command.CommandSender;
+import de.cubeisland.engine.service.command.sender.ConsoleCommandSender;
+import de.cubeisland.engine.service.user.User;
+import de.cubeisland.engine.service.user.UserManager;
 import org.spongepowered.api.data.manipulator.DisplayNameData;
 import org.spongepowered.api.text.Texts;
 
 import static de.cubeisland.engine.butler.parameter.Parameter.INFINITE;
 import static de.cubeisland.engine.module.core.util.formatter.MessageType.*;
-import static de.cubeisland.engine.module.service.command.CommandSender.NON_PLAYER_UUID;
+import static de.cubeisland.engine.service.command.CommandSender.NON_PLAYER_UUID;
 
 public class ChatCommands
 {

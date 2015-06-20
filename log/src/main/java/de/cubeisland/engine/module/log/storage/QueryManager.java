@@ -42,7 +42,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import de.cubeisland.engine.module.core.CubeEngine;
-import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.service.user.User;
 import de.cubeisland.engine.module.core.util.Profiler;
 import de.cubeisland.engine.module.core.util.math.BlockVector3;
 import de.cubeisland.engine.module.log.Log;

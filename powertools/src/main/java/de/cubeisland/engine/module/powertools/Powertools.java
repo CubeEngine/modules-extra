@@ -24,7 +24,7 @@ import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.module.core.sponge.EventManager;
 import de.cubeisland.engine.module.core.util.matcher.MaterialMatcher;
-import de.cubeisland.engine.module.service.command.CommandManager;
+import de.cubeisland.engine.service.command.CommandManager;
 
 @ModuleInfo(name = "Powertools", description = "Empower your tools")
 public class Powertools extends Module

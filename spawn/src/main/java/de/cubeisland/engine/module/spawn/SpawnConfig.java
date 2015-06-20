@@ -18,7 +18,7 @@
 package de.cubeisland.engine.module.spawn;
 
 import de.cubeisland.engine.module.core.CubeEngine;
-import de.cubeisland.engine.module.service.world.ConfigWorld;
+import de.cubeisland.engine.service.world.ConfigWorld;
 import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
 import org.bukkit.Bukkit;
 

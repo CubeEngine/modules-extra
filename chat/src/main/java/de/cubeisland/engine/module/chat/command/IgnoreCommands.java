@@ -27,9 +27,9 @@ import de.cubeisland.engine.module.chat.Chat;
 import de.cubeisland.engine.module.chat.storage.IgnoreList;
 import de.cubeisland.engine.module.core.util.ChatFormat;
 import de.cubeisland.engine.module.core.util.StringUtils;
-import de.cubeisland.engine.module.service.command.CommandContext;
-import de.cubeisland.engine.module.service.database.Database;
-import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.service.command.CommandContext;
+import de.cubeisland.engine.service.database.Database;
+import de.cubeisland.engine.service.user.User;
 
 import static de.cubeisland.engine.module.chat.storage.TableIgnorelist.TABLE_IGNORE_LIST;
 import static de.cubeisland.engine.module.core.util.formatter.MessageType.*;

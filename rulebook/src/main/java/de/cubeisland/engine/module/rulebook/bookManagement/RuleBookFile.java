@@ -29,7 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import de.cubeisland.engine.module.core.CubeEngine;
-import de.cubeisland.engine.module.core.filesystem.FileUtil;
+import de.cubeisland.engine.service.filesystem.FileUtil;
 import de.cubeisland.engine.module.core.util.StringUtils;
 import de.cubeisland.engine.i18n.I18nUtil;
 import de.cubeisland.engine.i18n.language.Language;

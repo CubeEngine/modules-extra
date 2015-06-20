@@ -17,7 +17,7 @@
  */
 package de.cubeisland.engine.module.log.action.block;
 
-import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.service.user.User;
 import de.cubeisland.engine.module.core.util.ChatFormat;
 import de.cubeisland.engine.module.core.util.StringUtils;
 import org.spongepowered.api.text.Text;

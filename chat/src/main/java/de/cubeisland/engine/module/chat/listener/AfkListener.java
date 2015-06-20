@@ -19,8 +19,7 @@ package de.cubeisland.engine.module.chat.listener;
 
 import de.cubeisland.engine.module.chat.Chat;
 import de.cubeisland.engine.module.chat.ChatAttachment;
-import de.cubeisland.engine.module.service.user.User;
-import de.cubeisland.engine.module.service.user.UserManager;
+import de.cubeisland.engine.service.user.UserManager;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.Subscribe;
 import org.spongepowered.api.event.entity.ProjectileLaunchEvent;

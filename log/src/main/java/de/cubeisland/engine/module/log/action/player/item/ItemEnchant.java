@@ -18,7 +18,7 @@
 package de.cubeisland.engine.module.log.action.player.item;
 
 import java.util.Map;
-import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.service.user.User;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import org.spongepowered.api.item.Enchantment;

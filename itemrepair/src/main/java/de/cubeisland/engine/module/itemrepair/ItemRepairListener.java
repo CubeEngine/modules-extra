@@ -20,7 +20,7 @@ package de.cubeisland.engine.module.itemrepair;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.service.user.User;
 import de.cubeisland.engine.module.itemrepair.repair.RepairBlockManager;
 import de.cubeisland.engine.module.itemrepair.repair.RepairRequest;
 import de.cubeisland.engine.module.itemrepair.repair.blocks.RepairBlock;

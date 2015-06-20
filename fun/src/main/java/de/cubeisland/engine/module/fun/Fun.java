@@ -17,7 +17,7 @@
  */
 package de.cubeisland.engine.module.fun;
 
-import de.cubeisland.engine.module.service.command.CommandManager;
+import de.cubeisland.engine.service.command.CommandManager;
 import de.cubeisland.engine.module.core.module.Module;
 import de.cubeisland.engine.module.fun.commands.DiscoCommand;
 import de.cubeisland.engine.module.fun.commands.InvasionCommand;

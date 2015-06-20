@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import de.cubeisland.engine.module.core.module.Module;
-import de.cubeisland.engine.module.service.permission.Permission;
+import de.cubeisland.engine.service.permission.Permission;
 import de.cubeisland.engine.module.shout.announce.AnnouncementManager;
 import de.cubeisland.engine.module.shout.announce.announcer.Announcer;
 import de.cubeisland.engine.module.shout.interactions.ShoutCommand;

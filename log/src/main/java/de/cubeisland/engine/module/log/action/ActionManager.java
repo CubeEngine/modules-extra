@@ -45,7 +45,7 @@ import de.cubeisland.engine.module.log.action.player.entity.ListenerPlayerEntity
 import de.cubeisland.engine.module.log.action.player.item.ListenerItem;
 import de.cubeisland.engine.module.log.action.player.item.container.ListenerContainerItem;
 import de.cubeisland.engine.module.log.action.vehicle.ListenerVehicle;
-import de.cubeisland.engine.module.service.command.CommandManager;
+import de.cubeisland.engine.service.command.CommandManager;
 import org.bukkit.ChatColor;
 
 public class ActionManager

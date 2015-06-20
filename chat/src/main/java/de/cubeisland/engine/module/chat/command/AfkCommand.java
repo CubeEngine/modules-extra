@@ -22,9 +22,9 @@ import de.cubeisland.engine.butler.parametric.Default;
 import de.cubeisland.engine.module.chat.Chat;
 import de.cubeisland.engine.module.chat.ChatAttachment;
 import de.cubeisland.engine.module.chat.listener.AfkListener;
-import de.cubeisland.engine.module.service.command.CommandContext;
-import de.cubeisland.engine.module.service.user.User;
-import de.cubeisland.engine.module.service.user.UserManager;
+import de.cubeisland.engine.service.command.CommandContext;
+import de.cubeisland.engine.service.user.User;
+import de.cubeisland.engine.service.user.UserManager;
 
 import static de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
 

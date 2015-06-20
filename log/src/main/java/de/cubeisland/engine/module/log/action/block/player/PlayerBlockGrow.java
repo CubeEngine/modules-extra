@@ -17,10 +17,9 @@
  */
 package de.cubeisland.engine.module.log.action.block.player;
 
-import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.service.user.User;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
-import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.text.Text;
 
 import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;

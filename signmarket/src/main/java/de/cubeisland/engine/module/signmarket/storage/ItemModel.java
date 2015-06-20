@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.persistence.Transient;
 import de.cubeisland.engine.module.core.CubeEngine;
-import de.cubeisland.engine.module.service.database.AsyncRecord;
+import de.cubeisland.engine.service.database.AsyncRecord;
 import de.cubeisland.engine.module.core.storage.database.AsyncRecord;
 import de.cubeisland.engine.module.core.util.StringUtils;
 import de.cubeisland.engine.module.signmarket.MarketSign;
@@ -40,7 +40,6 @@ import org.bukkit.inventory.meta.Repairable;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
 import org.spongepowered.api.item.inventory.Inventory;
-import org.spongepowered.api.item.inventory.ItemStack;
 
 import static de.cubeisland.engine.module.signmarket.storage.TableSignItem.TABLE_SIGN_ITEM;
 

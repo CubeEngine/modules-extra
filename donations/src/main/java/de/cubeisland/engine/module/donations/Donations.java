@@ -21,11 +21,11 @@ import javax.inject.Inject;
 import de.cubeisland.engine.modularity.asm.marker.Enable;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.module.core.filesystem.FileManager;
-import de.cubeisland.engine.module.service.command.CommandManager;
-import de.cubeisland.engine.module.service.task.TaskManager;
-import de.cubeisland.engine.module.service.user.UserManager;
-import de.cubeisland.engine.module.webapi.ApiServer;
+import de.cubeisland.engine.service.filesystem.FileManager;
+import de.cubeisland.engine.service.command.CommandManager;
+import de.cubeisland.engine.service.task.TaskManager;
+import de.cubeisland.engine.service.user.UserManager;
+import de.cubeisland.engine.service.webapi.ApiServer;
 
 @ModuleInfo(name = "Donations", description = "Provides WebAPI to handle donations")
 public class Donations extends Module

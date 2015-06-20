@@ -19,12 +19,12 @@ package de.cubeisland.engine.module.chat.storage;
 
 import java.sql.Date;
 import de.cubeisland.engine.module.core.util.Version;
-import de.cubeisland.engine.module.service.database.Database;
-import de.cubeisland.engine.module.service.database.Table;
+import de.cubeisland.engine.service.database.Database;
+import de.cubeisland.engine.service.database.Table;
 import org.jooq.TableField;
 import org.jooq.types.UInteger;
 
-import static de.cubeisland.engine.module.service.user.TableUser.TABLE_USER;
+import static de.cubeisland.engine.service.user.TableUser.TABLE_USER;
 import static org.jooq.util.mysql.MySQLDataType.DATE;
 
 public class TableMuted extends Table<Muted>

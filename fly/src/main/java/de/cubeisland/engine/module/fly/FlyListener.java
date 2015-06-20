@@ -18,10 +18,10 @@
 package de.cubeisland.engine.module.fly;
 
 import java.util.HashMap;
-import de.cubeisland.engine.module.service.permission.Permission;
-import de.cubeisland.engine.module.service.task.Task;
-import de.cubeisland.engine.module.service.user.User;
-import de.cubeisland.engine.module.service.user.UserManager;
+import de.cubeisland.engine.service.permission.Permission;
+import de.cubeisland.engine.service.task.Task;
+import de.cubeisland.engine.service.user.User;
+import de.cubeisland.engine.service.user.UserManager;
 import org.spongepowered.api.world.Location;
 import org.bukkit.Material;
 import org.spongepowered.api.entity.player.Player;

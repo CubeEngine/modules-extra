@@ -22,7 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import de.cubeisland.engine.module.service.user.UserAttachment;
+import de.cubeisland.engine.service.user.UserAttachment;
 import de.cubeisland.engine.module.core.util.StringUtils;
 import org.spongepowered.api.world.World;
 

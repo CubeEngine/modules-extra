@@ -19,7 +19,7 @@ package de.cubeisland.engine.module.log.action.block.ignite;
 
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
-import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.service.user.User;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 

@@ -17,7 +17,7 @@
  */
 package de.cubeisland.engine.module.log.action.block.player.destroy;
 
-import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.service.user.User;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.text.Text;
 

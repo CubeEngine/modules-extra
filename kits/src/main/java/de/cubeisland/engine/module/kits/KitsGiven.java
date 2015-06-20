@@ -18,7 +18,7 @@
 package de.cubeisland.engine.module.kits;
 
 import de.cubeisland.engine.module.core.storage.database.AsyncRecord;
-import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.service.user.User;
 
 import static de.cubeisland.engine.module.kits.TableKitsGiven.TABLE_KITS;
 

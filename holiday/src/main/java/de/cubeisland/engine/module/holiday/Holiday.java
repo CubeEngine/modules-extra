@@ -18,7 +18,7 @@
 package de.cubeisland.engine.module.holiday;
 
 import de.cubeisland.engine.module.core.module.Module;
-import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.service.user.User;
 import de.cubeisland.engine.module.holiday.storage.HolidayModel;
 import de.cubeisland.engine.module.holiday.storage.TableHoliday;
 import org.bukkit.event.EventHandler;
@@ -26,7 +26,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.jooq.DSLContext;
 
-import de.cubeisland.engine.module.service.user.TableUser.TABLE_USER;
+import de.cubeisland.engine.service.user.TableUser.TABLE_USER;
 import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.holiday.storage.TableHoliday.TABLE_HOLIDAY;
 

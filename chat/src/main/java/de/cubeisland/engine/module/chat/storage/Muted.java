@@ -17,8 +17,8 @@
  */
 package de.cubeisland.engine.module.chat.storage;
 
-import de.cubeisland.engine.module.service.database.AsyncRecord;
-import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.service.database.AsyncRecord;
+import de.cubeisland.engine.service.user.User;
 
 import static de.cubeisland.engine.module.chat.storage.TableMuted.TABLE_MUTED;
 

@@ -18,10 +18,10 @@
 package de.cubeisland.engine.module.vaultlink.service;
 
 import java.util.concurrent.atomic.AtomicReference;
-import de.cubeisland.engine.module.service.Metadata;
-import de.cubeisland.engine.module.service.user.User;
-import de.cubeisland.engine.module.service.user.UserManager;
-import de.cubeisland.engine.module.service.world.WorldManager;
+import de.cubeisland.engine.service.Metadata;
+import de.cubeisland.engine.service.user.User;
+import de.cubeisland.engine.service.user.UserManager;
+import de.cubeisland.engine.service.world.WorldManager;
 import de.cubeisland.engine.module.vaultlink.Vaultlink;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.permission.Permission;

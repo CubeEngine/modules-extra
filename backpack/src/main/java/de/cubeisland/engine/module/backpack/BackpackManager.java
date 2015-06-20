@@ -19,8 +19,8 @@ package de.cubeisland.engine.module.backpack;
 
 import java.util.Collection;
 import java.util.HashMap;
-import de.cubeisland.engine.module.service.command.CommandSender;
-import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.service.command.CommandSender;
+import de.cubeisland.engine.service.user.User;
 import org.spongepowered.api.event.Subscribe;
 import org.spongepowered.api.event.inventory.InventoryClickEvent;
 import org.spongepowered.api.event.inventory.InventoryCloseEvent;

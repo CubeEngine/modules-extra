@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import de.cubeisland.engine.module.core.CubeEngine;
 import de.cubeisland.engine.module.core.module.Module;
-import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.service.user.User;
 import de.cubeisland.engine.module.log.LogAttachment;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.BaseAction.Coordinate;

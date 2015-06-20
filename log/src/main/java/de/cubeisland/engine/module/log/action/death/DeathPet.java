@@ -17,12 +17,11 @@
  */
 package de.cubeisland.engine.module.log.action.death;
 
-import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.service.user.User;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock.PlayerSection;
 import org.bukkit.entity.AnimalTamer;
-import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.Tamer;
 import org.spongepowered.api.entity.player.Player;

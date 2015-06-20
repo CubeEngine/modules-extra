@@ -26,8 +26,8 @@ import de.cubeisland.engine.module.chat.Chat;
 import de.cubeisland.engine.module.chat.ChatAttachment;
 import de.cubeisland.engine.module.core.util.TimeUtil;
 import de.cubeisland.engine.module.core.util.converter.DurationConverter;
-import de.cubeisland.engine.module.service.command.CommandSender;
-import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.service.command.CommandSender;
+import de.cubeisland.engine.service.user.User;
 import org.joda.time.Duration;
 
 import static de.cubeisland.engine.module.core.util.formatter.MessageType.*;

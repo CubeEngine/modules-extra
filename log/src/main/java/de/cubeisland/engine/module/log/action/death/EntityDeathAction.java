@@ -17,10 +17,9 @@
  */
 package de.cubeisland.engine.module.log.action.death;
 
-import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.service.user.User;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.block.entity.ActionEntityBlock.EntitySection;
-import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.text.Text;
 

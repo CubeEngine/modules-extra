@@ -17,8 +17,8 @@
  */
 package de.cubeisland.engine.module.log.tool;
 
-import de.cubeisland.engine.module.service.permission.Permission;
-import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.service.permission.Permission;
+import de.cubeisland.engine.service.user.User;
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.LogAttachment;
 import de.cubeisland.engine.module.log.commands.LogCommands;

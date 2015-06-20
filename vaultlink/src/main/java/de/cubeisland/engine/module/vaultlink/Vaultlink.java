@@ -22,7 +22,7 @@ import de.cubeisland.engine.module.core.Core;
 import de.cubeisland.engine.module.core.sponge.SpongeCore;
 import de.cubeisland.engine.module.core.sponge.SpongeServiceManager;
 import de.cubeisland.engine.module.core.module.Module;
-import de.cubeisland.engine.module.service.Metadata;
+import de.cubeisland.engine.service.Metadata;
 import de.cubeisland.engine.module.core.module.service.ServiceManager;
 import de.cubeisland.engine.module.vaultlink.service.CubeChatService;
 import de.cubeisland.engine.module.vaultlink.service.CubeEconomyService;

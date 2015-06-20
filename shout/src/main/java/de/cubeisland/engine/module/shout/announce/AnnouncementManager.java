@@ -38,9 +38,9 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import de.cubeisland.engine.module.core.CubeEngine;
-import de.cubeisland.engine.module.core.filesystem.FileUtil;
-import de.cubeisland.engine.module.core.i18n.I18n;
-import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.service.filesystem.FileUtil;
+import de.cubeisland.engine.service.i18n.I18n;
+import de.cubeisland.engine.service.user.User;
 import de.cubeisland.engine.module.core.util.StringUtils;
 import de.cubeisland.engine.module.core.util.matcher.Match;
 import de.cubeisland.engine.i18n.language.Language;
@@ -54,8 +54,8 @@ import de.cubeisland.engine.module.shout.announce.receiver.Receiver;
 import de.cubeisland.engine.module.shout.announce.receiver.UserReceiver;
 import org.apache.commons.lang.Validate;
 
-import de.cubeisland.engine.module.core.filesystem.FileExtensionFilter.TXT;
-import de.cubeisland.engine.module.core.filesystem.FileExtensionFilter.YAML;
+import de.cubeisland.engine.service.filesystem.FileExtensionFilter.TXT;
+import de.cubeisland.engine.service.filesystem.FileExtensionFilter.YAML;
 
 /**
  * Class to manage all the announcements and their receivers

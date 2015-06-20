@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import de.cubeisland.engine.module.chat.Chat;
 import de.cubeisland.engine.module.chat.CubeMessageSink;
-import de.cubeisland.engine.module.core.i18n.I18n;
+import de.cubeisland.engine.service.i18n.I18n;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.data.manipulator.DisplayNameData;
 import org.spongepowered.api.event.Order;

@@ -17,7 +17,7 @@
  */
 package de.cubeisland.engine.module.fun;
 
-import de.cubeisland.engine.module.core.filesystem.Resource;
+import de.cubeisland.engine.service.filesystem.Resource;
 
 public enum FunResource implements Resource
 {

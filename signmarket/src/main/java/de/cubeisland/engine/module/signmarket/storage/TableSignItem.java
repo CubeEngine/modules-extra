@@ -17,8 +17,8 @@
  */
 package de.cubeisland.engine.module.signmarket.storage;
 
-import de.cubeisland.engine.module.service.database.AutoIncrementTable;
-import de.cubeisland.engine.module.service.database.Database;
+import de.cubeisland.engine.service.database.AutoIncrementTable;
+import de.cubeisland.engine.service.database.Database;
 import de.cubeisland.engine.module.core.storage.database.AutoIncrementTable;
 import de.cubeisland.engine.module.core.util.Version;
 import org.jooq.TableField;

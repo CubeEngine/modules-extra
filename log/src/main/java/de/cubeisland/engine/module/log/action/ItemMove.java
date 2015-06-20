@@ -17,7 +17,7 @@
  */
 package de.cubeisland.engine.module.log.action;
 
-import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.service.user.User;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.player.item.container.ContainerType;
 import org.bukkit.block.BlockFace;

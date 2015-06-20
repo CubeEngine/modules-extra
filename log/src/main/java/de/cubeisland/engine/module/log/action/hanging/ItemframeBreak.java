@@ -17,7 +17,7 @@
  */
 package de.cubeisland.engine.module.log.action.hanging;
 
-import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.service.user.User;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;

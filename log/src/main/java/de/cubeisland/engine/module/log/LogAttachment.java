@@ -19,8 +19,8 @@ package de.cubeisland.engine.module.log;
 
 import java.util.LinkedList;
 import java.util.Queue;
-import de.cubeisland.engine.module.service.Selector;
-import de.cubeisland.engine.module.service.user.UserAttachment;
+import de.cubeisland.engine.service.Selector;
+import de.cubeisland.engine.service.user.UserAttachment;
 import de.cubeisland.engine.module.core.util.math.shape.Cuboid;
 import de.cubeisland.engine.module.core.util.math.shape.Shape;
 import de.cubeisland.engine.module.log.storage.Lookup;

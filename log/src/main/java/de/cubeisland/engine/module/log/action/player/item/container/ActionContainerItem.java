@@ -17,7 +17,7 @@
  */
 package de.cubeisland.engine.module.log.action.player.item.container;
 
-import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.service.user.User;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.player.item.ActionItem;
 import org.spongepowered.api.text.Text;

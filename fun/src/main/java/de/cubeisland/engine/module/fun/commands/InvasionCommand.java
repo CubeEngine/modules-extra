@@ -19,7 +19,7 @@ package de.cubeisland.engine.module.fun.commands;
 
 import java.util.Collections;
 import de.cubeisland.engine.butler.parametric.Command;
-import de.cubeisland.engine.module.service.command.CommandContext;
+import de.cubeisland.engine.service.command.CommandContext;
 import de.cubeisland.engine.module.core.util.matcher.Match;
 import de.cubeisland.engine.module.fun.Fun;
 import org.bukkit.Bukkit;

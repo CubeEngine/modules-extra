@@ -25,7 +25,7 @@ import de.cubeisland.engine.module.core.util.Version;
 import org.jooq.TableField;
 import org.jooq.types.UInteger;
 
-import de.cubeisland.engine.module.service.user.TableUser.TABLE_USER;
+import de.cubeisland.engine.service.user.TableUser.TABLE_USER;
 import static org.jooq.impl.SQLDataType.INTEGER;
 import static org.jooq.impl.SQLDataType.VARCHAR;
 

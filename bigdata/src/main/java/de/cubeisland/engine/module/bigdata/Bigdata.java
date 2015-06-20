@@ -33,7 +33,7 @@ import de.cubeisland.engine.modularity.asm.marker.Enable;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.module.bigdata.MongoDBConfiguration.Authentication;
-import de.cubeisland.engine.module.core.filesystem.FileManager;
+import de.cubeisland.engine.service.filesystem.FileManager;
 import de.cubeisland.engine.reflect.Reflector;
 import de.cubeisland.engine.reflect.codec.mongo.MongoDBCodec;
 

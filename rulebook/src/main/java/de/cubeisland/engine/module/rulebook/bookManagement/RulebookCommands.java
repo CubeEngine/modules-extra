@@ -29,19 +29,19 @@ import de.cubeisland.engine.butler.parametric.Flag;
 import de.cubeisland.engine.butler.parametric.Default;
 import de.cubeisland.engine.butler.parametric.Named;
 import de.cubeisland.engine.butler.parametric.Optional;
-import de.cubeisland.engine.module.service.command.ContainerCommand;
-import de.cubeisland.engine.module.service.command.CommandContext;
-import de.cubeisland.engine.module.service.command.CommandSender;
-import de.cubeisland.engine.module.service.command.annotation.CommandPermission;
-import de.cubeisland.engine.module.service.permission.Permission;
-import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.service.command.ContainerCommand;
+import de.cubeisland.engine.service.command.CommandContext;
+import de.cubeisland.engine.service.command.CommandSender;
+import de.cubeisland.engine.service.command.annotation.CommandPermission;
+import de.cubeisland.engine.service.permission.Permission;
+import de.cubeisland.engine.service.user.User;
 import de.cubeisland.engine.module.core.util.ChatFormat;
 import de.cubeisland.engine.i18n.language.Language;
 import de.cubeisland.engine.module.rulebook.Rulebook;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
-import de.cubeisland.engine.module.service.permission.PermDefault.TRUE;
+import de.cubeisland.engine.service.permission.PermDefault.TRUE;
 import static org.bukkit.Material.BOOK_AND_QUILL;
 import static org.bukkit.Material.WRITTEN_BOOK;
 

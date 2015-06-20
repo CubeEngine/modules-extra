@@ -19,10 +19,9 @@ package de.cubeisland.engine.module.log;
 
 import java.util.LinkedList;
 import java.util.Queue;
-import de.cubeisland.engine.module.service.user.User;
+import de.cubeisland.engine.service.user.User;
 import org.spongepowered.api.world.Location;
 import org.bukkit.block.BlockState;
-import org.spongepowered.api.world.Location;
 
 public class Preview
 {
