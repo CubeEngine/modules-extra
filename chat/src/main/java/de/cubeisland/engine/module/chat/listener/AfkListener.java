@@ -132,7 +132,7 @@ public class AfkListener implements Runnable
     public void run()
     {
         um.getLoadedUsers().stream()
-          .filter(User::isOnline)
+          .filter(u -> u.getPlayer().isPresent())
           .map(u -> u.attachOrGet(ChatAttachment.class, this.module))
           .forEach(this::updateAfk);
     }

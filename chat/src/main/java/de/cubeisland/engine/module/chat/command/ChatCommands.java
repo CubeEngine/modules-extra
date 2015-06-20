@@ -33,6 +33,7 @@ import de.cubeisland.engine.module.service.command.CommandSender;
 import de.cubeisland.engine.module.service.command.sender.ConsoleCommandSender;
 import de.cubeisland.engine.module.service.user.User;
 import de.cubeisland.engine.module.service.user.UserManager;
+import org.spongepowered.api.data.manipulator.DisplayNameData;
 import org.spongepowered.api.text.Texts;
 
 import static de.cubeisland.engine.butler.parameter.Parameter.INFINITE;
@@ -82,7 +83,9 @@ public class ChatCommands
 
         if ("-r".equalsIgnoreCase(name) || "-reset".equalsIgnoreCase(name))
         {
-            player.setDisplayName(context.getName());
+            DisplayNameData display = player.asPlayer().getOrCreate(DisplayNameData.class).get();
+            display.setDisplayName(Texts.of(context.getName()));
+            player.asPlayer().offer(display);
             context.sendTranslated(POSITIVE, "Display name reset to {user}", context);
             return;
         }
@@ -92,7 +95,9 @@ public class ChatCommands
             return;
         }
         context.sendTranslated(POSITIVE, "Display name changed from {user} to {user}", context, name);
-        ((User)context).setDisplayName(name);
+        DisplayNameData display = player.asPlayer().getOrCreate(DisplayNameData.class).get();
+        display.setDisplayName(ChatFormat.fromLegacy(name, '&'));
+        player.asPlayer().offer(display);
     }
 
     @Command(desc = "Sends a private message to someone", alias = {"tell", "message", "pm", "m", "t", "whisper", "w"})
@@ -154,7 +159,7 @@ public class ChatCommands
             return true;
         }
         User user = um.getExactUser(whisperTarget);
-        if (!user.isOnline())
+        if (!user.getPlayer().isPresent())
         {
             return false;
         }

@@ -41,6 +41,11 @@ import de.cubeisland.engine.module.service.task.TaskManager;
 import de.cubeisland.engine.module.service.user.UserManager;
 import org.spongepowered.api.Game;
 
+
+/**
+ * /me 	Displays a message about yourself.
+ * /tell (msg) Displays a private message to other players.
+ */
 @ModuleInfo(name = "Chat", description = "Chat formatting")
 public class Chat extends Module
 {

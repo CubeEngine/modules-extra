@@ -61,7 +61,7 @@ public class SelectorCommand
             }
         }
         */
-        Optional<ItemStack> itemInHand = user.getItemInHand();
+        Optional<ItemStack> itemInHand = user.asPlayer().getItemInHand();
         if (found == null)
         {
             found = game.getRegistry().getItemBuilder().itemType(ItemTypes.WOODEN_AXE).quantity(1).build();
@@ -74,10 +74,10 @@ public class SelectorCommand
             found.offer(lore);
             */
 
-            user.setItemInHand(found);
+            user.asPlayer().setItemInHand(found);
             if (itemInHand.isPresent())
             {
-                if (!user.getInventory().offer(itemInHand.get()))
+                if (!user.asPlayer().getInventory().offer(itemInHand.get()))
                 {
                     // TODO drop item
                 }
@@ -86,10 +86,10 @@ public class SelectorCommand
             return;
         }
 
-        user.setItemInHand(found);
+        user.asPlayer().setItemInHand(found);
         if (itemInHand.isPresent())
         {
-            user.getInventory().offer(itemInHand.get());
+            user.asPlayer().getInventory().offer(itemInHand.get());
         }
         user.sendTranslated(POSITIVE, "Found a region selector tool in your inventory!");
     }

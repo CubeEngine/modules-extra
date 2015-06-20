@@ -48,7 +48,7 @@ public class AfkCommand
         {
             context.ensurePermission(module.perms().COMMAND_AFK_OTHER);
         }
-        if (!player.isOnline())
+        if (!player.getPlayer().isPresent())
         {
             context.sendTranslated(NEGATIVE, "{user} is not online!", player);
             return;

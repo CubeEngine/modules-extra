@@ -49,6 +49,7 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.Location;
 
 import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static org.spongepowered.api.block.BlockTypes.AIR;
 
 
 @ServiceImpl(Selector.class)
@@ -119,7 +120,7 @@ public class CuboidSelector implements Selector
         {
             return;
         }
-        if (block.getType() == BlockTypes.AIR || !event.getUser().hasPermission(selectPerm.getFullName()))
+        if (block.getBlockType() == AIR || !event.getUser().hasPermission(selectPerm.getFullName()))
         {
             return;
         }
