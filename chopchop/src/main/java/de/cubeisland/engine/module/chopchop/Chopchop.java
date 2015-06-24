@@ -17,26 +17,26 @@
  */
 package de.cubeisland.engine.module.chopchop;
 
-import java.util.Arrays;
 import javax.inject.Inject;
 import de.cubeisland.engine.modularity.asm.marker.Enable;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.module.core.sponge.EventManager;
-import de.cubeisland.engine.module.core.sponge.SpongeCore;
-import de.cubeisland.engine.module.core.module.Module;
-import de.cubeisland.engine.module.core.util.ChatFormat;
-import org.bukkit.Server;
-import org.spongepowered.api.item.inventory.ItemStack;
-import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.spongepowered.api.Game;
-import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.GameRegistry;
+import org.spongepowered.api.data.manipulator.DisplayNameData;
+import org.spongepowered.api.data.manipulator.item.EnchantmentData;
+import org.spongepowered.api.data.manipulator.item.LoreData;
+import org.spongepowered.api.item.Enchantments;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.recipe.Recipes;
+import org.spongepowered.api.item.recipe.ShapedRecipe;
+import org.spongepowered.api.text.Texts;
 
-import static org.bukkit.Material.DIAMOND_AXE;
-import static org.bukkit.Material.LOG;
-import static org.bukkit.enchantments.Enchantment.ARROW_KNOCKBACK;
+import static org.spongepowered.api.item.ItemTypes.DIAMOND_AXE;
+import static org.spongepowered.api.item.ItemTypes.LOG;
+import static org.spongepowered.api.text.format.TextColors.GOLD;
+import static org.spongepowered.api.text.format.TextColors.YELLOW;
 
 @ModuleInfo(name = "ChopChop", description = "Chop whole trees down")
 public class Chopchop extends Module
@@ -49,17 +49,27 @@ public class Chopchop extends Module
     {
         em.registerListener(this, new ChopListener(this));
 
-        ItemStack axe = game.getRegistry().getItemBuilder().itemType(ItemTypes.DIAMOND_AXE).quantity(1).build();
-        axe.addUnsafeEnchantment(ARROW_KNOCKBACK, 5);
-        ItemMeta itemMeta = axe.getItemMeta();
-        itemMeta.setDisplayName(ChatFormat.parseFormats("&6Heavy Diamond Axe"));
-        itemMeta.setLore(Arrays.asList(ChatFormat.parseFormats("&eChop Chop!")));
-        axe.setItemMeta(itemMeta);
+        GameRegistry registry = game.getRegistry();
+        ItemStack axe = registry.getItemBuilder().itemType(DIAMOND_AXE).quantity(1).build();
+        EnchantmentData enchantments = axe.getOrCreate(EnchantmentData.class).get();
+        enchantments.setUnsafe(Enchantments.PUNCH, 5);
+        axe.offer(enchantments);
 
-        ShapedRecipe heavyAxe = new ShapedRecipe(axe).shape("aa", "la", "l ").
-            setIngredient('a', DIAMOND_AXE).setIngredient('l', LOG);
+        DisplayNameData display = axe.getOrCreate(DisplayNameData.class).get();
+        display.setDisplayName(Texts.of(GOLD, "Heavy Diamond Axe"));
+        axe.offer(display);
 
-        Server server = ((SpongeCore)this.getCore()).getServer();
-        server.addRecipe(heavyAxe);
+        LoreData lore = axe.getOrCreate(LoreData.class).get();
+        lore.set(Texts.of(YELLOW, "Chop Chop!"));
+        axe.offer(lore);
+
+        ItemStack axeHead = registry.getItemBuilder().itemType(DIAMOND_AXE).build();
+        ItemStack axeHandle = registry.getItemBuilder().itemType(LOG).build();
+
+        ShapedRecipe recipe = Recipes.shapedBuilder().height(3).width(2)
+                                     .row(0, axeHead, axeHead)
+                                     .row(1, axeHead, axeHandle)
+                                     .row(2, null, axeHandle).addResult(axe).build();
+        registry.getRecipeRegistry().register(recipe);
     }
 }

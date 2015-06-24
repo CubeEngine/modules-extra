@@ -20,238 +20,162 @@ package de.cubeisland.engine.module.chopchop;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
-import org.spongepowered.api.world.Location;
-import org.bukkit.TreeSpecies;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.BlockState;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
+import com.flowpowered.math.vector.Vector3i;
+import com.google.common.base.Optional;
+import de.cubeisland.engine.service.task.TaskManager;
+import org.spongepowered.api.Game;
+import org.spongepowered.api.data.manipulator.block.TreeData;
+import org.spongepowered.api.data.manipulator.item.DurabilityData;
+import org.spongepowered.api.data.manipulator.item.EnchantmentData;
+import org.spongepowered.api.data.type.TreeType;
+import org.spongepowered.api.data.type.TreeTypes;
+import org.spongepowered.api.effect.sound.SoundTypes;
+import org.spongepowered.api.event.Subscribe;
+import org.spongepowered.api.event.block.BlockBreakEvent;
+import org.spongepowered.api.event.entity.player.PlayerBreakBlockEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.bukkit.material.Leaves;
-import org.bukkit.material.MaterialData;
-import org.bukkit.material.Tree;
+import org.spongepowered.api.util.Direction;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
+import sun.reflect.generics.tree.Tree;
 
-import static org.bukkit.Effect.STEP_SOUND;
-import static org.bukkit.Material.*;
-import static org.bukkit.TreeSpecies.*;
-import static org.bukkit.block.BlockFace.*;
-import static org.bukkit.enchantments.Enchantment.ARROW_KNOCKBACK;
+import static org.spongepowered.api.block.BlockTypes.*;
+import static org.spongepowered.api.data.type.TreeTypes.DARK_OAK;
+import static org.spongepowered.api.data.type.TreeTypes.JUNGLE;
+import static org.spongepowered.api.data.type.TreeTypes.OAK;
+import static org.spongepowered.api.item.Enchantments.PUNCH;
+import static org.spongepowered.api.item.ItemTypes.DIAMOND_AXE;
+import static org.spongepowered.api.item.ItemTypes.LOG;
+import static org.spongepowered.api.item.ItemTypes.SAPLING;
+import static org.spongepowered.api.util.Direction.*;
+
 
 public class ChopListener
 {
-    private static final Set<BlockFace> dir8 = EnumSet.of(NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST,
-                                                          NORTH_WEST);
+    private static final Set<Direction> dir8 = EnumSet.of(NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST, NORTHWEST);
     private Chopchop module;
+    private Game game;
+    private TaskManager tm;
 
-    public ChopListener(Chopchop module)
+    public ChopListener(Chopchop module, Game game, TaskManager tm)
     {
         this.module = module;
+        this.game = game;
+        this.tm = tm;
     }
 
-    private static TreeSpecies getSpecies(Block block)
+    private static TreeType getSpecies(Location block)
     {
-        MaterialData data = block.getState().getData();
-        if (data instanceof Tree)
-        {
-            return ((Tree)data).getSpecies();
-        }
-        else if (block.getType() == LOG_2)
-        {
-            if ((data.getData() & 1) == 1)
-            {
-                return DARK_OAK;
-            }
-            else if ((data.getData() & 0) == 0)
-            {
-                return ACACIA;
-            }
-        }
-        return null;
+        return block.getData(TreeData.class).transform(TreeData::getValue).orNull();
     }
 
-    public static boolean isLeaf(Block block, TreeSpecies species)
+    public static boolean isLeaf(Location block, TreeType species)
     {
-        MaterialData data = block.getState().getData();
-        if (block.getType() == LEAVES)
-        {
-            if ((data.getData() & 4) == 4)
-            {
-                return false;
-            }
-            return data instanceof Tree && ((Tree)data).getSpecies() == species
-                || data instanceof Leaves && ((Leaves)data).getSpecies() == species;
-        }
-        else if (block.getType() == LEAVES_2)
-        {
-            if ((data.getData() & 4) == 4)
-            {
-                return false;
-            }
-            if (species == DARK_OAK && (data.getData() & 1) == 1)
-            {
-                return true;
-            }
-            else if (species == ACACIA && (data.getData() & 0) == 0)
-            {
-                return true;
-            }
-        }
-        return false;
+        return !(block.getBlockType() != LEAVES && block.getBlockType() != LEAVES2) && getSpecies(block) == species;
     }
 
-    private static boolean isLog(Block block, TreeSpecies species)
+    private static boolean isLog(Location block, TreeType species)
     {
-        return (block.getType() == LOG || block.getType() == LOG_2) && getSpecies(block) == species;
+        return !(block.getBlockType() != LOG && block.getBlockType() != LOG2) && getSpecies(block) == species;
     }
 
-    @EventHandler
-    public void onChop(final BlockBreakEvent event)
+    @Subscribe
+    public void onChop(final PlayerBreakBlockEvent event)
     {
-        final ItemStack axe = event.getPlayer().getItemInHand();
-        if (isChopChop(event.getBlock(), axe))
+        if (!event.getUser().getItemInHand().isPresent())
         {
-            if (axe.getDurability() >= 1561)
+            return;
+        }
+        ItemStack axe = event.getUser().getItemInHand().get();
+        Optional<DurabilityData> axeDura = axe.getData(DurabilityData.class);
+        if (!isChopChop(event.getBlock(), axe) || axeDura.transform(DurabilityData::getDurability).or(0) <= 0)
+        {
+            return;
+        }
+        TreeType species = getSpecies(event.getBlock());
+        Set<Location> treeBlocks = findTreeBlocks(event, species);
+        if (!treeBlocks.isEmpty())
+        {
+            event.setCancelled(true);
+            int logs = 0;
+            int leaves = 0;
+            Set<Location> saplings = new HashSet<>();
+            for (Location block : treeBlocks)
             {
-                return;
-            }
-            TreeSpecies species = getSpecies(event.getBlock());
-            Set<Block> treeBlocks = findTreeBlocks(event, species);
-            if (!treeBlocks.isEmpty())
-            {
-                event.setCancelled(true);
-                int logs = 0;
-                int leaves = 0;
-                Location loc = new Location(null, 0, 0, 0);
-                Set<Block> saplings = new HashSet<>();
-                for (Block block : treeBlocks)
+                if (block.getBlockType() == LOG || block.getBlockType() == LOG2)
                 {
-                    switch (block.getType())
+                    if (!block.equals(event.getBlock()))
                     {
-                        case LOG:
-                        case LOG_2:
-                            if (!block.equals(event.getBlock()))
-                            {
-                                block.getLocation(loc).getWorld().playEffect(loc, STEP_SOUND, LOG.getId());
-                            }
-                            logs++;
-                            block.setType(AIR);
-                            if (block.getRelative(DOWN).getType() == DIRT || block.getRelative(DOWN).getType() == GRASS)
-                            {
-                                saplings.add(block);
-                            }
-
-                            break;
-                        case LEAVES:
-                        case LEAVES_2:
-                            block.setType(AIR);
-                            block.getLocation(loc).getWorld().playEffect(loc, STEP_SOUND, LEAVES.getId());
-                            leaves++;
-                            break;
+                        ((World)block.getExtent()).playSound(SoundTypes.STEP_WOOD, block.getPosition(), 1);
+                    }
+                    logs++;
+                    block.setBlockType(AIR);
+                    if (block.getRelative(DOWN).getBlockType() == DIRT || block.getRelative(DOWN).getBlockType() == GRASS)
+                    {
+                        saplings.add(block);
                     }
                 }
-
-                ItemStack log;
-                switch (species)
+                if (block.getBlockType() == LEAVES || block.getBlockType() == LEAVES2)
                 {
-                    case GENERIC:
-                    case REDWOOD:
-                    case BIRCH:
-                    case JUNGLE:
-                        log = new ItemStack(LOG, logs, species.getData());
-                        break;
-                    case ACACIA:
-                        log = new ItemStack(LOG_2, logs, (short)0);
-                        break;
-                    case DARK_OAK:
-                        log = new ItemStack(LOG_2, logs, (short)1);
-                        break;
-                    default:
-                        return;
-                }
-                Tree sapType = new Tree(SAPLING);
-                sapType.setSpecies(species);
-                int apples = 0;
-                if (species == JUNGLE)
-                {
-                    leaves = leaves / 40;
-                }
-                else
-                {
-                    if (species == DARK_OAK || species == GENERIC)
-                    {
-                        apples = leaves / 200;
-                    }
-                    leaves = leaves / 20;
-                }
-                if (leaves == 0)
-                {
-                    leaves = 1;
-                }
-
-                for (Block block : saplings)
-                {
-                    if (leaves > 0)
-                    {
-                        block.setType(SAPLING);
-                        block.setData((byte)0);
-                        BlockState state = block.getState();
-                        Tree data = (Tree)state.getData();
-                        data.setSpecies(species);
-                        state.setData(data);
-                        state.update();
-                        leaves--;
-                    }
-                }
-
-                final int uses = axe.getDurability() + logs;
-                module.getCore().getTaskManager().runTaskDelayed(module, new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        axe.setDurability((short)(uses));
-                        if (uses >= 1561)
-                        {
-                            if (axe.getAmount() == 1)
-                            {
-                                axe.setAmount(0);
-                                axe.setDurability((short)1561);
-                                event.getPlayer().updateInventory();
-                            }
-                            else
-                            {
-                                axe.setAmount(axe.getAmount() - 1);
-                            }
-                        }
-                    }
-                }, 1);
-
-                ItemStack sap = sapType.toItemStack(leaves);
-
-                event.getBlock().getLocation(loc);
-                event.getBlock().getWorld().dropItemNaturally(loc, log);
-                if (sap.getAmount() > 0)
-                {
-                    event.getBlock().getWorld().dropItemNaturally(loc, sap);
-                }
-                if (apples > 0)
-                {
-                    event.getBlock().getWorld().dropItemNaturally(loc, new ItemStack(APPLE, apples));
+                    block.setBlockType(AIR);
+                    ((World)block.getExtent()).playSound(SoundTypes.STEP_GRASS, block.getPosition(), 1); // TODO leaves sound?
+                    leaves++;
                 }
             }
+
+            ItemStack log = game.getRegistry().getItemBuilder().itemType(LOG).quantity(logs).build();
+            log.offer(log.getOrCreate(TreeData.class).get().setValue(species));
+
+            int apples = 0;
+            if (species == JUNGLE)
+            {
+                leaves = leaves / 40;
+            }
+            else
+            {
+                if (species == DARK_OAK || species == OAK)
+                {
+                    apples = leaves / 200;
+                }
+                leaves = leaves / 20;
+            }
+            if (leaves == 0)
+            {
+                leaves = 1;
+            }
+
+            for (Location block : saplings)
+            {
+                if (leaves > 0)
+                {
+                    block.setBlockType(SAPLING.getBlock());
+                    block.offer(block.getOrCreate(TreeData.class).get().setValue(species));
+                    leaves--;
+                }
+            }
+
+            final int uses = axeDura.get().getDurability() - logs;
+            axeDura.get().setDurability(uses);
+            tm.runTaskDelayed(module, () -> {
+                // break current axe / if stacked only one!
+                axe.offer(axeDura.get()); // TODO check if this works as intended
+            }, 1);
+
+            ItemStack sap = game.getRegistry().getItemBuilder().itemType(SAPLING).quantity(leaves).build();
+            // TODO apples ItemStack
+
+            // TODO actually drop the items
         }
     }
 
-    private Set<Block> findTreeBlocks(BlockBreakEvent event, TreeSpecies species)
+    private Set<Location> findTreeBlocks(BlockBreakEvent event, TreeType species)
     {
-        HashSet<Block> blocks = new HashSet<>();
-        Set<Block> logs = new HashSet<>();
-        Set<Block> leaves = new HashSet<>();
+        HashSet<Location> blocks = new HashSet<>();
+        Set<Location> logs = new HashSet<>();
+        Set<Location> leaves = new HashSet<>();
 
         logs.add(event.getBlock());
-        findTrunk(event.getBlock().getLocation(), event.getBlock(), species, logs);
+        findTrunk(event.getBlock(), event.getBlock(), species, logs);
         findLeaves(logs, leaves, species);
 
         if (leaves.isEmpty())
@@ -265,33 +189,35 @@ public class ChopListener
         return blocks;
     }
 
-    private void findLeaves(Set<Block> logs, Set<Block> finalLeaves, TreeSpecies species)
+    private void findLeaves(Set<Location> logs, Set<Location> finalLeaves, TreeType species)
     {
-        Set<Block> leaves = new HashSet<>();
-        for (Block log : logs)
+        Set<Location> leaves = new HashSet<>();
+        for (Location log : logs)
         {
             for (int x = -4; x <= 4; x++)
                 for (int y = -4; y <= 4; y++)
                     for (int z = -4; z <= 4; z++)
                     {
-                        Block relative = log.getRelative(x, y, z);
+                        Location relative = log.add(x, y, z);
                         if (isLeaf(relative, species))
                         {
                             leaves.add(relative);
                         }
                     }
         }
-        Set<Block> lastLayer = new HashSet<>(logs);
+        Set<Location> lastLayer = new HashSet<>(logs);
         do
         {
-            Set<Block> curLayer = lastLayer;
+            Set<Location> curLayer = lastLayer;
             lastLayer = new HashSet<>();
-            for (Block layer : curLayer)
+            for (Location layer : curLayer)
             {
-                for (Block leaf : leaves)
+                Vector3i layerPos = layer.getBlockPosition();
+                for (Location leaf : leaves)
                 {
-                    BlockFace face = layer.getFace(leaf);
-                    if (dir8.contains(face) || face == UP || face == DOWN)
+                    Vector3i diff = layerPos.sub(leaf.getBlockPosition()).abs();
+                    if (diff.getX() + diff.getY() + diff.getZ() == 1 // cardinal or upright
+                    || (diff.getX() + diff.getY() == 2 && diff.getX() == diff.getY())) // ordinal
                     {
                         lastLayer.add(leaf);
                     }
@@ -303,36 +229,36 @@ public class ChopListener
         while (!lastLayer.isEmpty());
     }
 
-    private void findTrunk(Location root, Block base, TreeSpecies species, Set<Block> trunk)
+    private void findTrunk(Location root, Location base, TreeType species, Set<Location> trunk)
     {
         Location loc = new Location(null, 0, 0, 0);
-        Set<Block> blocks = new HashSet<>();
-        for (BlockFace face : dir8)
+        Set<Location> blocks = new HashSet<>();
+        for (Direction face : dir8)
         {
-            Block relative = base.getRelative(face);
+            Location relative = base.getRelative(face);
             if (!trunk.contains(relative) && isLog(relative, species))
             {
-                relative.getLocation(loc).setY(root.getY());
-                if (root.distanceSquared(loc) <= 25)
+                relative = relative.add(0, root.getY(), 0);
+                if (root.getBlockPosition().distanceSquared(loc.getBlockPosition()) <= 25)
                 {
                     blocks.add(relative);
                 }
             }
         }
 
-        Block up = base.getRelative(UP);
+        Location up = base.getRelative(UP);
         if (!trunk.contains(up) && isLog(up, species))
         {
             blocks.add(up);
         }
 
-        for (BlockFace face : dir8)
+        for (Direction face : dir8)
         {
-            Block relative = up.getRelative(face);
+            Location relative = up.getRelative(face);
             if (!trunk.contains(relative) && isLog(relative, species))
             {
-                relative.getLocation(loc).setY(root.getY());
-                if (root.distanceSquared(loc) <= 256)
+                relative = relative.add(0, root.getY(), 0);
+                if (root.getBlockPosition().distanceSquared(loc.getBlockPosition()) <= 256)
                 {
                     blocks.add(relative);
                 }
@@ -340,19 +266,23 @@ public class ChopListener
         }
 
         trunk.addAll(blocks);
-        for (Block block : blocks)
+        for (Location block : blocks)
         {
             findTrunk(root, block, species, trunk);
         }
     }
 
-    private boolean isChopChop(Block block, ItemStack item)
+    private boolean isChopChop(Location block, ItemStack item)
     {
-        if (block.getType() == LOG || block.getType() == LOG_2)
+        if (item == null)
         {
-            if (item.getType() == DIAMOND_AXE && item.getEnchantmentLevel(ARROW_KNOCKBACK) == 5)
+            return false;
+        }
+        if (block.getBlockType() == LOG || block.getBlockType() == LOG2)
+        {
+            if (item.getItem() == DIAMOND_AXE && item.getOrCreate(EnchantmentData.class).get().get(PUNCH).or(0) == 5)
             {
-                if (block.getRelative(DOWN).getType() == DIRT || block.getRelative(DOWN).getType() == GRASS)
+                if (block.getRelative(DOWN).getBlockType() == DIRT || block.getRelative(DOWN).getBlockType() == GRASS)
                 {
                     return true;
                 }
