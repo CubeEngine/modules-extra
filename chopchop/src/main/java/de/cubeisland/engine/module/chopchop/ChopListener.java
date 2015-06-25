@@ -37,7 +37,6 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
-import sun.reflect.generics.tree.Tree;
 
 import static org.spongepowered.api.block.BlockTypes.*;
 import static org.spongepowered.api.data.type.TreeTypes.DARK_OAK;
