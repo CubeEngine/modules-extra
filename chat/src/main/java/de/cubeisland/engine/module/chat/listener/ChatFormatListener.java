@@ -65,11 +65,7 @@ public class ChatFormatListener
     @Subscribe(order = Order.EARLY)
     public void onPlayerChat(PlayerChatEvent event)
     {
-        if (!(event.getMessage() instanceof Translatable))
-        {
-            return;
-        }
-        String msg = toPlain((Text)((Translatable)event.getMessage()).getArguments().get(1));
+        String msg = Texts.toPlain(event.getUnformattedMessage());
         if (module.getConfig().allowColors)
         {
             if (!event.getUser().hasPermission(module.perms().COLOR.getFullName()))
