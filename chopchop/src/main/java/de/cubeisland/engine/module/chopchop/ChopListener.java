@@ -29,6 +29,10 @@ import org.spongepowered.api.data.manipulator.item.DurabilityData;
 import org.spongepowered.api.data.manipulator.item.EnchantmentData;
 import org.spongepowered.api.data.type.TreeType;
 import org.spongepowered.api.effect.sound.SoundTypes;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntityType;
+import org.spongepowered.api.entity.EntityTypes;
+import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.event.Subscribe;
 import org.spongepowered.api.event.block.BlockBreakEvent;
 import org.spongepowered.api.event.entity.player.PlayerBreakBlockEvent;
@@ -44,6 +48,7 @@ import static org.spongepowered.api.block.BlockTypes.LEAVES;
 import static org.spongepowered.api.block.BlockTypes.LEAVES2;
 import static org.spongepowered.api.block.BlockTypes.LOG2;
 import static org.spongepowered.api.data.type.TreeTypes.*;
+import static org.spongepowered.api.entity.EntityTypes.DROPPED_ITEM;
 import static org.spongepowered.api.item.Enchantments.PUNCH;
 import static org.spongepowered.api.item.ItemTypes.*;
 import static org.spongepowered.api.item.ItemTypes.LOG;
@@ -163,9 +168,20 @@ public class ChopListener
             }, 1);
 
             ItemStack sap = game.getRegistry().getItemBuilder().itemType(SAPLING).quantity(leaves).build();
-            // TODO apples ItemStack
+            ItemStack apple = game.getRegistry().getItemBuilder().itemType(APPLE).quantity(apples).build();
 
-            // TODO actually drop the items
+            World world = event.getUser().getWorld();
+            Item itemEntity = (Item)world.createEntity(DROPPED_ITEM, event.getBlock().getPosition()).get();
+            itemEntity.offer(itemEntity.getItemData().setValue(sap));
+            world.spawnEntity(itemEntity);
+
+            itemEntity = (Item)world.createEntity(DROPPED_ITEM, event.getBlock().getPosition()).get();
+            itemEntity.offer(itemEntity.getItemData().setValue(log));
+            world.spawnEntity(itemEntity);
+
+            itemEntity = (Item)world.createEntity(DROPPED_ITEM, event.getBlock().getPosition()).get();
+            itemEntity.offer(itemEntity.getItemData().setValue(apple));
+            world.spawnEntity(itemEntity);
         }
     }
 
