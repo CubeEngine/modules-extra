@@ -25,7 +25,7 @@ import de.cubeisland.engine.service.Economy;
 import de.cubeisland.engine.service.user.User;
 import de.cubeisland.engine.module.core.util.InventoryGuardFactory;
 import de.cubeisland.engine.module.core.util.RomanNumbers;
-import de.cubeisland.engine.module.core.util.formatter.MessageType;
+import de.cubeisland.engine.service.i18n.formatter.MessageType;
 import de.cubeisland.engine.module.core.util.matcher.Match;
 import de.cubeisland.engine.module.signmarket.exceptions.NoDemandException;
 import de.cubeisland.engine.module.signmarket.exceptions.NoOwnerException;

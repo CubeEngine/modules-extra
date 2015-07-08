@@ -22,7 +22,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.cubeisland.engine.service.command.CommandManager;
-import de.cubeisland.engine.module.core.util.formatter.MessageType;
+import de.cubeisland.engine.service.i18n.formatter.MessageType;
 import de.cubeisland.engine.module.donations.DonationsConfig.DonationGoal;
 import de.cubeisland.engine.service.task.TaskManager;
 import de.cubeisland.engine.service.user.UserManager;

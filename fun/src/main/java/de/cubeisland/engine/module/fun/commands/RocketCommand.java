@@ -37,7 +37,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.util.Vector;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
+import de.cubeisland.engine.service.i18n.formatter.MessageType.NEGATIVE;
 
 public class RocketCommand
 {

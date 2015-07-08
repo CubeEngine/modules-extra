@@ -25,7 +25,7 @@ import de.cubeisland.engine.module.log.action.BaseAction;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
 
-import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.service.i18n.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.SIGN;
 
 /**

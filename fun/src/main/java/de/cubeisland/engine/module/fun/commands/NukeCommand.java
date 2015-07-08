@@ -45,8 +45,8 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.util.Vector;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
-import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import de.cubeisland.engine.service.i18n.formatter.MessageType.NEGATIVE;
+import static de.cubeisland.engine.service.i18n.formatter.MessageType.POSITIVE;
 
 public class NukeCommand
 {

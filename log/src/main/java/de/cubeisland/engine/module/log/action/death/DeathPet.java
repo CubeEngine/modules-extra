@@ -28,7 +28,7 @@ import org.spongepowered.api.entity.player.Player;
 import org.bukkit.entity.Tameable;
 import org.spongepowered.api.text.Text;
 
-import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.service.i18n.formatter.MessageType.POSITIVE;
 
 /**
  * Represents a pet dying

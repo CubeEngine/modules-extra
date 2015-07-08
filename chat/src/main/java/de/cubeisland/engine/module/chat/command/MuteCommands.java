@@ -30,7 +30,7 @@ import de.cubeisland.engine.service.command.CommandSender;
 import de.cubeisland.engine.service.user.User;
 import org.joda.time.Duration;
 
-import static de.cubeisland.engine.module.core.util.formatter.MessageType.*;
+import static de.cubeisland.engine.service.i18n.formatter.MessageType.*;
 import static java.util.concurrent.TimeUnit.DAYS;
 
 public class MuteCommands

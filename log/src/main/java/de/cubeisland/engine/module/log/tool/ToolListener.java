@@ -33,7 +33,7 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
+import de.cubeisland.engine.service.i18n.formatter.MessageType.NEGATIVE;
 
 public class ToolListener implements Listener
 {

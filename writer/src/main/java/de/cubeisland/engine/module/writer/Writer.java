@@ -23,6 +23,7 @@ import de.cubeisland.engine.butler.filter.Restricted;
 import de.cubeisland.engine.butler.parametric.Command;
 import de.cubeisland.engine.butler.parametric.Label;
 import de.cubeisland.engine.butler.parametric.Named;
+import de.cubeisland.engine.modularity.asm.marker.Disable;
 import de.cubeisland.engine.modularity.asm.marker.Enable;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
@@ -38,8 +39,8 @@ import org.spongepowered.api.util.blockray.BlockRay;
 import org.spongepowered.api.util.blockray.BlockRayHit;
 import org.spongepowered.api.world.Location;
 
-import static de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
-import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.service.i18n.formatter.MessageType.NEGATIVE;
+import static de.cubeisland.engine.service.i18n.formatter.MessageType.POSITIVE;
 import static org.spongepowered.api.block.BlockTypes.STANDING_SIGN;
 import static org.spongepowered.api.block.BlockTypes.WALL_SIGN;
 import static org.spongepowered.api.item.ItemTypes.WRITABLE_BOOK;
@@ -59,6 +60,12 @@ public class Writer extends Module
     public void onEnable()
     {
         cm.addCommands(cm, this, this);
+    }
+
+    @Disable
+    public void onDisable()
+    {
+        cm.removeCommands(this);
     }
 
     @Command(alias = "rewrite", desc = "Edit a sign or a signed book")

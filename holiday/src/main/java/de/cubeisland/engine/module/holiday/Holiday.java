@@ -27,7 +27,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.jooq.DSLContext;
 
 import de.cubeisland.engine.service.user.TableUser.TABLE_USER;
-import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.service.i18n.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.holiday.storage.TableHoliday.TABLE_HOLIDAY;
 
 public class Holiday extends Module implements Listener

@@ -35,8 +35,8 @@ import de.cubeisland.engine.service.command.result.paginated.PaginatedResult;
 import de.cubeisland.engine.service.command.result.paginated.PaginationIterator;
 
 import static de.cubeisland.engine.butler.parameter.Parameter.INFINITE;
-import de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
-import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import de.cubeisland.engine.service.i18n.formatter.MessageType.NEGATIVE;
+import static de.cubeisland.engine.service.i18n.formatter.MessageType.POSITIVE;
 import static java.util.Locale.ENGLISH;
 
 @Command(name = "customcommands", desc = "Commands to modify custom commands.")

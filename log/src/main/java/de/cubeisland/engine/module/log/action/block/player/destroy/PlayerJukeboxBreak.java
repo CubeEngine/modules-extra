@@ -21,7 +21,7 @@ import de.cubeisland.engine.service.user.User;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.text.Text;
 
-import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.service.i18n.formatter.MessageType.POSITIVE;
 
 /**
  * Represents a player breaking a jukebox

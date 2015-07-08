@@ -24,7 +24,7 @@ import org.bukkit.block.BlockFace;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
 
-import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.service.i18n.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.ITEM;
 
 /**

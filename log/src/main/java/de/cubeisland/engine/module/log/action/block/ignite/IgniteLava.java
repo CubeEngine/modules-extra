@@ -23,7 +23,7 @@ import de.cubeisland.engine.service.user.User;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 
-import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.service.i18n.formatter.MessageType.POSITIVE;
 
 /**
  * Represents lava setting a block on fire

@@ -28,7 +28,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.spongepowered.api.entity.player.Player;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
+import de.cubeisland.engine.service.i18n.formatter.MessageType.NEGATIVE;
 
 public class InvasionCommand
 {

@@ -36,8 +36,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
-import de.cubeisland.engine.module.core.util.formatter.MessageType.NEUTRAL;
+import de.cubeisland.engine.service.i18n.formatter.MessageType.NEGATIVE;
+import de.cubeisland.engine.service.i18n.formatter.MessageType.NEUTRAL;
 
 public class BorderListener implements Listener
 {

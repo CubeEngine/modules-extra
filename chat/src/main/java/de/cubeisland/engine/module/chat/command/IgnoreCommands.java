@@ -32,7 +32,7 @@ import de.cubeisland.engine.service.database.Database;
 import de.cubeisland.engine.service.user.User;
 
 import static de.cubeisland.engine.module.chat.storage.TableIgnorelist.TABLE_IGNORE_LIST;
-import static de.cubeisland.engine.module.core.util.formatter.MessageType.*;
+import static de.cubeisland.engine.service.i18n.formatter.MessageType.*;
 
 public class IgnoreCommands
 {

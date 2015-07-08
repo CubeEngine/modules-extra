@@ -27,8 +27,8 @@ import de.cubeisland.engine.module.vote.storage.VoteModel;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 
-import static de.cubeisland.engine.module.core.util.formatter.MessageType.NEUTRAL;
-import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.service.i18n.formatter.MessageType.NEUTRAL;
+import static de.cubeisland.engine.service.i18n.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.vote.storage.TableVote.TABLE_VOTE;
 import static java.util.concurrent.TimeUnit.DAYS;
 

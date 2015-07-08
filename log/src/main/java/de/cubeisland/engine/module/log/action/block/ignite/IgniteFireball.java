@@ -30,7 +30,7 @@ import static org.spongepowered.api.entity.EntityTypes.*;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.text.Text;
 
-import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.service.i18n.formatter.MessageType.POSITIVE;
 
 /**
  * Represents a fireball setting a block on fire

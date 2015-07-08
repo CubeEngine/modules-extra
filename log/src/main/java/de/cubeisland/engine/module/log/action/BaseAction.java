@@ -37,9 +37,9 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 import org.bukkit.World;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.NONE;
+import de.cubeisland.engine.service.i18n.formatter.MessageType.NONE;
 
-import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.service.i18n.formatter.MessageType.POSITIVE;
 import static org.bukkit.ChatColor.GRAY;
 
 /**

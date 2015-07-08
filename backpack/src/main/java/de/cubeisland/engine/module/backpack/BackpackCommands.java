@@ -32,8 +32,8 @@ import de.cubeisland.engine.module.core.util.ChatFormat;
 import de.cubeisland.engine.module.core.util.StringUtils;
 import org.spongepowered.api.world.World;
 
-import static de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
-import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.service.i18n.formatter.MessageType.NEGATIVE;
+import static de.cubeisland.engine.service.i18n.formatter.MessageType.POSITIVE;
 import static java.util.Arrays.asList;
 
 @Command(name = "backpack", desc = "The Backpack commands", alias = "bp")

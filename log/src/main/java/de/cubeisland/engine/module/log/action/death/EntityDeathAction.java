@@ -23,7 +23,7 @@ import de.cubeisland.engine.module.log.action.block.entity.ActionEntityBlock.Ent
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.text.Text;
 
-import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.service.i18n.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.DEATH;
 
 /**

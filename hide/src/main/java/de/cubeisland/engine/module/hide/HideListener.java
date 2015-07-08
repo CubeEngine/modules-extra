@@ -39,8 +39,8 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.NEUTRAL;
-import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import de.cubeisland.engine.service.i18n.formatter.MessageType.NEUTRAL;
+import static de.cubeisland.engine.service.i18n.formatter.MessageType.POSITIVE;
 import static org.bukkit.event.block.Action.PHYSICAL;
 
 public class HideListener implements Listener

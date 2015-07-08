@@ -27,7 +27,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.NONE;
+import de.cubeisland.engine.service.i18n.formatter.MessageType.NONE;
 import static java.util.Locale.ENGLISH;
 
 public class CustomCommandsListener implements Listener

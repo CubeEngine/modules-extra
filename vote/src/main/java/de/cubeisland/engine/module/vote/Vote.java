@@ -36,7 +36,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.jooq.DSLContext;
 
-import static de.cubeisland.engine.module.core.util.formatter.MessageType.NONE;
+import static de.cubeisland.engine.service.i18n.formatter.MessageType.NONE;
 import static de.cubeisland.engine.module.vote.storage.TableVote.TABLE_VOTE;
 import static java.lang.Math.pow;
 

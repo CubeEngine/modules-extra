@@ -32,7 +32,7 @@ import net.milkbowl.vault.economy.EconomyResponse.ResponseType;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.NONE;
+import de.cubeisland.engine.service.i18n.formatter.MessageType.NONE;
 import static net.milkbowl.vault.economy.EconomyResponse.ResponseType.FAILURE;
 import static net.milkbowl.vault.economy.EconomyResponse.ResponseType.SUCCESS;
 

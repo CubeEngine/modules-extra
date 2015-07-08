@@ -27,8 +27,8 @@ import org.spongepowered.api.event.inventory.InventoryCloseEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.world.World;
 
-import static de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
-import static de.cubeisland.engine.module.core.util.formatter.MessageType.POSITIVE;
+import static de.cubeisland.engine.service.i18n.formatter.MessageType.NEGATIVE;
+import static de.cubeisland.engine.service.i18n.formatter.MessageType.POSITIVE;
 
 public class BackpackManager
 {

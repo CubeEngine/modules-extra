@@ -34,7 +34,7 @@ import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.spongepowered.api.entity.EntityType;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.NEUTRAL;
+import de.cubeisland.engine.service.i18n.formatter.MessageType.NEUTRAL;
 
 public class QueryParameter implements Cloneable
 {

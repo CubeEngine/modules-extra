@@ -26,7 +26,7 @@ import de.cubeisland.engine.service.command.CommandContext;
 import de.cubeisland.engine.service.user.User;
 import de.cubeisland.engine.service.user.UserManager;
 
-import static de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
+import static de.cubeisland.engine.service.i18n.formatter.MessageType.NEGATIVE;
 
 public class AfkCommand
 {

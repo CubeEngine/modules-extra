@@ -29,7 +29,7 @@ import org.spongepowered.api.event.Subscribe;
 import org.spongepowered.api.event.entity.player.PlayerChatEvent;
 import org.spongepowered.api.util.command.CommandSource;
 
-import static de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
+import static de.cubeisland.engine.service.i18n.formatter.MessageType.NEGATIVE;
 
 public class MuteListener
 {

@@ -33,8 +33,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import de.cubeisland.engine.module.core.util.formatter.MessageType.NEGATIVE;
-import de.cubeisland.engine.module.core.util.formatter.MessageType.NEUTRAL;
+import de.cubeisland.engine.service.i18n.formatter.MessageType.NEGATIVE;
+import de.cubeisland.engine.service.i18n.formatter.MessageType.NEUTRAL;
 import static org.bukkit.event.Event.Result.DENY;
 import static org.bukkit.event.block.Action.LEFT_CLICK_BLOCK;
 import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;

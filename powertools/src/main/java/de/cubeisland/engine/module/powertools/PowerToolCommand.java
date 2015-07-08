@@ -44,8 +44,7 @@ import org.spongepowered.api.text.format.TextColors;
 
 import static de.cubeisland.engine.butler.parameter.Parameter.INFINITE;
 import static de.cubeisland.engine.module.core.util.ChatFormat.GOLD;
-import static de.cubeisland.engine.module.core.util.formatter.MessageType.*;
-import static java.util.Collections.emptyList;
+import static de.cubeisland.engine.service.i18n.formatter.MessageType.*;
 import static java.util.stream.Collectors.toList;
 import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
 
