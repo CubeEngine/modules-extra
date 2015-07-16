@@ -29,6 +29,8 @@ import de.cubeisland.engine.module.core.util.converter.DurationConverter;
 import de.cubeisland.engine.service.command.CommandSender;
 import de.cubeisland.engine.service.user.User;
 import org.joda.time.Duration;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.Texts;
 
 import static de.cubeisland.engine.service.i18n.formatter.MessageType.*;
 import static java.util.concurrent.TimeUnit.DAYS;
@@ -68,8 +70,7 @@ public class MuteCommands
         }
         attachment.setMuted(new Date(System.currentTimeMillis() + (dura.getMillis() == 0 ? DAYS.toMillis(
             9001) : dura.getMillis())));
-        String timeString = dura.getMillis() == 0 ? player.getTranslation(NONE, "ever").getTranslation().get(player.getLocale()) : TimeUtil.format(
-            player.getLocale(), dura.getMillis());
+        Text timeString = dura.getMillis() == 0 ? player.getTranslation(NONE, "ever") : Texts.of(TimeUtil.format(player.getLocale(), dura.getMillis()));
         player.sendTranslated(NEGATIVE, "You are now muted for {input#amount}!", timeString);
         context.sendTranslated(NEUTRAL, "You muted {user} globally for {input#amount}!", player, timeString);
     }

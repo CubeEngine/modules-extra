@@ -84,7 +84,7 @@ public class ChatFormatListener
             event.getUser().getDisplayNameData().getDisplayName() : Texts.of(name);
         if (!Texts.toPlain(displayName).equals(name))
         {
-            Translatable translation = i18n.getTranslation(null, NEUTRAL, "Actual name: {user}", name);
+            Text translation = i18n.getTranslation(null, NEUTRAL, "Actual name: {user}", name);
             displayName = Texts.builder().append(displayName).onHover(new ShowText(translation)).build();
         }
         replacements.put("{DISPLAY_NAME}", displayName);
