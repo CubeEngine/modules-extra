@@ -20,7 +20,7 @@ package de.cubeisland.engine.module.vote;
 import javax.inject.Inject;
 import com.vexsoftware.votifier.model.VotifierEvent;
 import de.cubeisland.engine.logscribe.Log;
-import de.cubeisland.engine.modularity.asm.marker.Enable;
+import de.cubeisland.engine.modularity.core.marker.Enable;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.service.filesystem.FileManager;

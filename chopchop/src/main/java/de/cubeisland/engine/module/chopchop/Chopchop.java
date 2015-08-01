@@ -18,22 +18,17 @@
 package de.cubeisland.engine.module.chopchop;
 
 import javax.inject.Inject;
-import com.google.common.base.Optional;
-import de.cubeisland.engine.modularity.asm.marker.Disable;
-import de.cubeisland.engine.modularity.asm.marker.Enable;
+import de.cubeisland.engine.modularity.core.marker.Disable;
+import de.cubeisland.engine.modularity.core.marker.Enable;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.module.core.sponge.EventManager;
 import de.cubeisland.engine.service.task.TaskManager;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.GameRegistry;
-import org.spongepowered.api.data.DataManipulatorBuilder;
 import org.spongepowered.api.data.manipulator.DisplayNameData;
 import org.spongepowered.api.data.manipulator.item.EnchantmentData;
 import org.spongepowered.api.data.manipulator.item.LoreData;
-import org.spongepowered.api.event.Subscribe;
-import org.spongepowered.api.event.state.InitializationEvent;
-import org.spongepowered.api.item.Enchantment;
 import org.spongepowered.api.item.Enchantments;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.recipe.Recipes;
