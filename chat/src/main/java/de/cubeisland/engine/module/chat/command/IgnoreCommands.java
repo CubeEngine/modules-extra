@@ -101,7 +101,7 @@ public class IgnoreCommands
             }
             else if (!this.addIgnore(sender, user))
             {
-                if (module.perms().COMMAND_IGNORE_PREVENT.isAuthorized(user))
+                if (user.hasPermission(module.perms().COMMAND_IGNORE_PREVENT.getId()))
                 {
                     context.sendTranslated(NEGATIVE, "You are not allowed to ignore {user}!", user);
                     continue;

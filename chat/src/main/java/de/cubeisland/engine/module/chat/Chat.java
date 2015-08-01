@@ -95,7 +95,7 @@ public class Chat extends Module
     {
         em.removeListeners(this);
         cm.removeCommands(this);
-        pm.removePermissions(this);
+        pm.cleanup(this);
     }
 
     public ChatConfig getConfig()

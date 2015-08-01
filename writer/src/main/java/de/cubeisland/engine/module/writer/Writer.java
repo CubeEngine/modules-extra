@@ -36,6 +36,7 @@ import org.spongepowered.api.data.manipulator.tileentity.SignData;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.util.blockray.BlockRay;
+import org.spongepowered.api.util.blockray.BlockRay.BlockRayBuilder;
 import org.spongepowered.api.util.blockray.BlockRayHit;
 import org.spongepowered.api.world.Location;
 
@@ -128,7 +129,7 @@ public class Writer extends Module
      */
     public boolean editSignInSight(User user, String line1, String line2, String line3, String line4)
     {
-        Optional<BlockRayHit> end = BlockRay.from(user.asPlayer()).filter(ONLY_AIR_FILTER).end();
+        Optional<BlockRayHit> end = BlockRay.from(user.asPlayer().getLocation().add(0,1.62,0)).filter(ONLY_AIR_FILTER).blockLimit(10).end();
         if (!end.isPresent())
         {
             return false;

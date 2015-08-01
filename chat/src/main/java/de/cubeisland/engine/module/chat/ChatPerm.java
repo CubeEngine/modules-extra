@@ -17,10 +17,8 @@
  */
 package de.cubeisland.engine.module.chat;
 
-import de.cubeisland.engine.service.permission.Permission;
 import de.cubeisland.engine.service.permission.PermissionContainer;
-
-import static de.cubeisland.engine.service.permission.PermDefault.FALSE;
+import org.spongepowered.api.service.permission.PermissionDescription;
 
 @SuppressWarnings("all")
 public class ChatPerm extends PermissionContainer<Chat>
@@ -28,33 +26,18 @@ public class ChatPerm extends PermissionContainer<Chat>
     public ChatPerm(Chat module)
     {
         super(module);
-        this.registerAllPermissions();
     }
 
-    public final Permission COMMAND = getBasePerm().childWildcard("command");
+    private final PermissionDescription COMMAND = register("command", "Base Commands Permission", null);
 
-    public final Permission COLOR = getBasePerm().child("color");
-    public final Permission COMMAND_NICK_OTHER = getBasePerm().childWildcard("command").childWildcard("nick").child("other");
-    /**
-     * Allows to set the nickname to a players name that plays on this server
-     */
-    public final Permission COMMAND_NICK_OFOTHER = getBasePerm().childWildcard("command").childWildcard("nick").child("of-other");
+    public final PermissionDescription COLOR = register("color", "Allows using color codes in chat", null);
 
-    private final Permission COMMAND_AFK = COMMAND.childWildcard("afk");
-    private final Permission COMMAND_AFK_PREVENT = COMMAND_AFK.newWildcard("prevent");
-    /**
-     * Prevents from being displayed as no longer afk automatically unless using chat
-     */
-    public final Permission PREVENT_AUTOUNAFK = COMMAND_AFK_PREVENT.child("autounafk", FALSE);
-    /**
-     * Prevents from being displayed as afk automatically
-     */
-    public final Permission PREVENT_AUTOAFK = COMMAND_AFK_PREVENT.child("autoafk", FALSE);
+    public final PermissionDescription COMMAND_NICK_OTHER = register("nick.other", "", COMMAND);
+    public final PermissionDescription COMMAND_NICK_OFOTHER = register("nick.of-other", "Allows to set the nickname to a players name that plays on this server", COMMAND);
 
-    /**
-     * Allows to set or unset the afk status of other players
-     */
-    public final Permission COMMAND_AFK_OTHER = COMMAND_AFK.child("other");
+    public final PermissionDescription PREVENT_AUTOUNAFK = register("afk.prevent.autounafk", "Prevents from being displayed as no longer afk automatically unless using chat", COMMAND);
+    public final PermissionDescription PREVENT_AUTOAFK = register("afk.prevent.autoafk", "Prevents from being displayed as afk automatically", COMMAND);
+    public final PermissionDescription COMMAND_AFK_OTHER = register("afk.other", "Allows to set or unset the afk status of other players", COMMAND);
 
-    public final Permission COMMAND_IGNORE_PREVENT = COMMAND.childWildcard("ignore").child("prevent", FALSE);
+    public final PermissionDescription COMMAND_IGNORE_PREVENT = register("ignore.prevent", "Prevents adding the player with this permission to an ignore-list", COMMAND);
 }

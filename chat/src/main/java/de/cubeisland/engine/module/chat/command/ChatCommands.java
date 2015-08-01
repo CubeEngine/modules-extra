@@ -74,7 +74,7 @@ public class ChatCommands
             player = (User)context;
         }
 
-        if (!context.equals(player) && !module.perms().COMMAND_NICK_OTHER.isAuthorized(context))
+        if (!context.equals(player) && !context.hasPermission(module.perms().COMMAND_NICK_OTHER.getId()))
         {
             context.sendTranslated(NEGATIVE, "You are not allowed to change the nickname of another player!");
             return;
@@ -88,7 +88,7 @@ public class ChatCommands
             context.sendTranslated(POSITIVE, "Display name reset to {user}", context);
             return;
         }
-        if (um.findExactUser(name) != null && !module.perms().COMMAND_NICK_OFOTHER.isAuthorized(context))
+        if (um.findExactUser(name) != null && !context.hasPermission(module.perms().COMMAND_NICK_OFOTHER.getId()))
         {
             context.sendTranslated(NEGATIVE, "This name has been taken by another player!");
             return;

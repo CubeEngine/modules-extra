@@ -27,8 +27,8 @@ import de.cubeisland.engine.service.filesystem.FileManager;
 import de.cubeisland.engine.service.i18n.I18n;
 import de.cubeisland.engine.module.core.sponge.EventManager;
 import de.cubeisland.engine.service.command.CommandManager;
-import de.cubeisland.engine.messagecompositor.macro.example.DateFormatter;
-import de.cubeisland.engine.messagecompositor.macro.example.DateFormatter.DateReader;
+import de.cubeisland.engine.dirigent.macro.example.DateFormatter;
+import de.cubeisland.engine.dirigent.macro.example.DateFormatter.DateReader;
 import de.cubeisland.engine.module.bigdata.Bigdata;
 import de.cubeisland.engine.module.log.action.ActionManager;
 import de.cubeisland.engine.module.log.action.block.player.worldedit.LogEditSessionFactory;
@@ -68,7 +68,7 @@ public class Log extends Module
     @Override
     public void onEnable()
     {
-        i18n.getCompositor().registerMacro(new DateFormatter());
+        i18n.getCompositor().registerFormatter(new DateFormatter());
         i18n.getCompositor().registerReader(DateFormatter.class, "format", new DateReader());
         this.config = fm.loadConfig(this, LogConfiguration.class);
         ConverterManager cMan = reflector.getDefaultConverterManager();

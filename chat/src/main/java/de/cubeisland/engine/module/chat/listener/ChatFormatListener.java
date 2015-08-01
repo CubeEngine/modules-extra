@@ -68,7 +68,7 @@ public class ChatFormatListener
         String msg = Texts.toPlain(event.getUnformattedMessage());
         if (module.getConfig().allowColors)
         {
-            if (!event.getUser().hasPermission(module.perms().COLOR.getFullName()))
+            if (!event.getUser().hasPermission(module.perms().COLOR.getId()))
             {
                 msg = chatColors.matcher(msg).replaceAll("");
             }

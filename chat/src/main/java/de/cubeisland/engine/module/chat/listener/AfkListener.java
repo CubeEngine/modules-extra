@@ -119,7 +119,7 @@ public class AfkListener implements Runnable
         ChatAttachment basicsAttachment = this.um.getExactUser(player.getUniqueId()).get(ChatAttachment.class);
         if (basicsAttachment != null)
         {
-            if (basicsAttachment.isAfk() && module.perms().PREVENT_AUTOUNAFK.isAuthorized(player))
+            if (basicsAttachment.isAfk() && player.hasPermission(module.perms().PREVENT_AUTOUNAFK.getId()))
             {
                 return;
             }
@@ -153,7 +153,7 @@ public class AfkListener implements Runnable
         }
         else if (System.currentTimeMillis() - lastAction > this.autoAfk)
         {
-            if (!module.perms().PREVENT_AUTOAFK.isAuthorized(attachment.getHolder()))
+            if (!attachment.getHolder().hasPermission(module.perms().PREVENT_AUTOAFK.getId()))
             {
                 attachment.setAfk(true);
                 this.um.broadcastStatus("is now afk!" ,attachment.getHolder());
