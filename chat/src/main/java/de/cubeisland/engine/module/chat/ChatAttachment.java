@@ -52,7 +52,7 @@ public class ChatAttachment extends UserAttachment
 
     private DSLContext dsl()
     {
-        return getModule().getModularity().getInstance(Database.class).getDSL();
+        return getModule().getModularity().provide(Database.class).getDSL();
     }
 
     private Optional<Muted> muted;
