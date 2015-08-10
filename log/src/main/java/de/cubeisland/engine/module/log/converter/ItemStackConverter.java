@@ -31,7 +31,7 @@ public class ItemStackConverter extends SimpleConverter<ItemStack>
     @Override
     public Node toNode(ItemStack itemStack) throws ConversionException
     {
-        if (itemStack == null || itemStack.getType() == Material.AIR)
+        if (itemStack == null || itemStack.getItem() == Material.AIR)
         {
             return NullNode.emptyNode();
         }

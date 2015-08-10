@@ -32,7 +32,7 @@ import de.cubeisland.engine.service.command.CommandSender;
 import de.cubeisland.engine.service.command.sender.ConsoleCommandSender;
 import de.cubeisland.engine.service.user.User;
 import de.cubeisland.engine.service.user.UserManager;
-import org.spongepowered.api.data.manipulator.DisplayNameData;
+import org.spongepowered.api.data.manipulator.mutable.DisplayNameData;
 import org.spongepowered.api.text.Texts;
 
 import static de.cubeisland.engine.butler.parameter.Parameter.INFINITE;
@@ -83,7 +83,7 @@ public class ChatCommands
         if ("-r".equalsIgnoreCase(name) || "-reset".equalsIgnoreCase(name))
         {
             DisplayNameData display = player.asPlayer().getOrCreate(DisplayNameData.class).get();
-            display.setDisplayName(Texts.of(context.getName()));
+            display.displayName().set(Texts.of(context.getName()));
             player.asPlayer().offer(display);
             context.sendTranslated(POSITIVE, "Display name reset to {user}", context);
             return;
@@ -95,7 +95,7 @@ public class ChatCommands
         }
         context.sendTranslated(POSITIVE, "Display name changed from {user} to {user}", context, name);
         DisplayNameData display = player.asPlayer().getOrCreate(DisplayNameData.class).get();
-        display.setDisplayName(ChatFormat.fromLegacy(name, '&'));
+        display.displayName().set(ChatFormat.fromLegacy(name, '&'));
         player.asPlayer().offer(display);
     }
 

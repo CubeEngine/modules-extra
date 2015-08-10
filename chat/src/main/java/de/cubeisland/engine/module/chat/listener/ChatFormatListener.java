@@ -24,7 +24,7 @@ import de.cubeisland.engine.module.chat.Chat;
 import de.cubeisland.engine.module.chat.CubeMessageSink;
 import de.cubeisland.engine.service.i18n.I18n;
 import org.spongepowered.api.Game;
-import org.spongepowered.api.data.manipulator.DisplayNameData;
+import org.spongepowered.api.data.manipulator.mutable.DisplayNameData;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.Subscribe;
 import org.spongepowered.api.event.entity.player.PlayerChatEvent;
@@ -80,8 +80,8 @@ public class ChatFormatListener
         Map<String, Text> replacements = new HashMap<>();
         String name = event.getUser().getName();
         replacements.put("{NAME}", Texts.of(name));
-        Text displayName = event.getUser().getData(DisplayNameData.class).isPresent() ?
-            event.getUser().getDisplayNameData().getDisplayName() : Texts.of(name);
+        Text displayName = event.getUser().get(DisplayNameData.class).isPresent() ?
+            event.getUser().getDisplayNameData().displayName().get() : Texts.of(name);
         if (!Texts.toPlain(displayName).equals(name))
         {
             Text translation = i18n.getTranslation(null, NEUTRAL, "Actual name: {user}", name);
