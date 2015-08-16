@@ -23,14 +23,14 @@ import de.cubeisland.engine.butler.result.CommandResult;
 import de.cubeisland.engine.service.command.CommandContext;
 import de.cubeisland.engine.service.user.User;
 import org.spongepowered.api.Game;
-import org.spongepowered.api.data.manipulator.DisplayNameData;
-import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.format.TextColors;
 
 import static de.cubeisland.engine.service.i18n.formatter.MessageType.NEGATIVE;
 import static de.cubeisland.engine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.spongepowered.api.data.key.Keys.DISPLAY_NAME;
+import static org.spongepowered.api.item.ItemTypes.WOODEN_AXE;
 
 public class SelectorCommand
 {
@@ -64,10 +64,8 @@ public class SelectorCommand
         Optional<ItemStack> itemInHand = user.asPlayer().getItemInHand();
         if (found == null)
         {
-            found = game.getRegistry().getItemBuilder().itemType(ItemTypes.WOODEN_AXE).quantity(1).build();
-            DisplayNameData display = found.getOrCreate(DisplayNameData.class).get();
-            display.setDisplayName(Texts.of(TextColors.BLUE, "Selector-Tool"));
-            found.offer(display);
+            found = game.getRegistry().createItemBuilder().itemType(WOODEN_AXE).quantity(1).build();
+            found.offer(DISPLAY_NAME, Texts.of(TextColors.BLUE, "Selector-Tool"));
             /* TODO wait for impl
             LoreData lore = found.getOrCreate(LoreData.class).get();
             lore.set(Texts.of("created by ", user.getDisplayName()));

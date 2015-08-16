@@ -25,14 +25,13 @@ import de.cubeisland.engine.modularity.asm.marker.Version;
 import de.cubeisland.engine.module.core.sponge.EventManager;
 import de.cubeisland.engine.service.Selector;
 import de.cubeisland.engine.service.command.CommandManager;
-import de.cubeisland.engine.service.permission.Permission;
 import de.cubeisland.engine.service.permission.PermissionManager;
 import de.cubeisland.engine.service.user.User;
 import de.cubeisland.engine.module.core.util.math.shape.Shape;
 
 import de.cubeisland.engine.service.user.UserManager;
 import org.spongepowered.api.Game;
-import org.spongepowered.api.data.manipulator.DisplayNameData;
+import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.EntityInteractionType;
 import org.spongepowered.api.entity.EntityInteractionTypes;
 import org.spongepowered.api.event.Subscribe;
@@ -52,19 +51,12 @@ public class CuboidSelector implements Selector
 {
     @Inject private de.cubeisland.engine.module.selector.Selector module;
     @Inject private EventManager em;
-    @Inject private CommandManager cm;
-    @Inject private PermissionManager pm;
     @Inject private UserManager um;
-    @Inject private Game game;
-    private Permission selectPerm;
 
     @Enable
     public void onEnable()
     {
         em.registerListener(module, this);
-        cm.addCommands(module, new SelectorCommand(game));
-        selectPerm = module.getProvided(Permission.class).child("use-wand");
-        pm.registerPermission(module, selectPerm);
     }
 
     @Override
@@ -109,18 +101,17 @@ public class CuboidSelector implements Selector
     public void onInteract(PlayerInteractBlockEvent event)
     {
         EntityInteractionType type = event.getInteractionType();
-        Location block = event.getBlock();
+        Location block = event.getLocation();
         if ((int)block.getPosition().length() == 0)
         {
             return;
         }
-        if (block.getBlockType() == AIR || !event.getUser().hasPermission(selectPerm.getFullName()))
+        if (block.getBlockType() == AIR || !event.getUser().hasPermission(module.getSelectPerm().getId()))
         {
             return;
         }
         Optional<ItemStack> itemInHand = event.getUser().getItemInHand();
-        if (!itemInHand.isPresent() || !Texts.of(TextColors.BLUE, "Selector-Tool").equals(itemInHand.get().getOrCreate(
-            DisplayNameData.class).get().getDisplayName()))
+        if (!itemInHand.isPresent() || !Texts.of(TextColors.BLUE, "Selector-Tool").equals(itemInHand.get().get(Keys.DISPLAY_NAME).orNull()))
         {
             return;
         }
