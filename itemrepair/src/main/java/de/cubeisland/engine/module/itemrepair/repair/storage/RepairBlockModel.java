@@ -43,8 +43,10 @@ public class RepairBlockModel extends AsyncRecord<RepairBlockModel>
 
     public Block getBlock(WorldManager wm)
     {
-        Location loc = new Location(wm.getWorld(this.getValue(TABLE_REPAIR_BLOCK.WORLD)), this.getValue(
-            TABLE_REPAIR_BLOCK.X), this.getValue(TABLE_REPAIR_BLOCK.Y), this.getValue(TABLE_REPAIR_BLOCK.Z));
+        Location loc = new Location(wm.getWorld(this.getValue(TABLE_REPAIR_BLOCK.WORLD)),
+                                    this.getValue(TABLE_REPAIR_BLOCK.X).doubleValue(),
+                                    this.getValue(TABLE_REPAIR_BLOCK.Y).doubleValue(),
+                                    this.getValue(TABLE_REPAIR_BLOCK.Z).doubleValue());
         return loc.getBlock();
     }
 }

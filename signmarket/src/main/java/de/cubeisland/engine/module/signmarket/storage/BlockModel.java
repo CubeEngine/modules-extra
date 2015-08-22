@@ -71,9 +71,10 @@ public class BlockModel extends AsyncRecord<BlockModel>
     {
         if (this.location == null)
         {
-            this.location = new Location(CubeEngine.getCore().getWorldManager().getWorld(this.getValue(
-                TABLE_SIGN_BLOCK.WORLD)), this.getValue(TABLE_SIGN_BLOCK.X), this.getValue(TABLE_SIGN_BLOCK.Y),
-                                         this.getValue(TABLE_SIGN_BLOCK.Z));
+            this.location = new Location(CubeEngine.getCore().getWorldManager().getWorld(this.getValue(TABLE_SIGN_BLOCK.WORLD)),
+                                         this.getValue(TABLE_SIGN_BLOCK.X).doubleValue(),
+                                         this.getValue(TABLE_SIGN_BLOCK.Y).doubleValue(),
+                                         this.getValue(TABLE_SIGN_BLOCK.Z).doubleValue());
         }
         return this.location;
     }
