@@ -17,6 +17,7 @@
  */
 package de.cubeisland.engine.module.chat.command;
 
+import java.util.Random;
 import java.util.UUID;
 import de.cubeisland.engine.butler.parametric.Command;
 import de.cubeisland.engine.butler.parametric.Greed;
@@ -212,5 +213,10 @@ public class ChatCommands
     }
 
 
+    @Command(alias = "roll", desc = "Shows a random number from 0 to 100")
+    public void rand(CommandSender context)
+    {
+        this.um.broadcastTranslatedStatus(NEUTRAL, "rolled a {integer}!", context, new Random().nextInt(100));
+    }
 
 }

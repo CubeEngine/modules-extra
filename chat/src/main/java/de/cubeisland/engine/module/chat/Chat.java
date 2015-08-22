@@ -49,6 +49,7 @@ import org.spongepowered.api.Game;
 @ModuleInfo(name = "Chat", description = "Chat formatting")
 public class Chat extends Module
 {
+    // TODO tablist-prefix data from subject or other module?
     private ChatConfig config;
     private ChatPerm perms;
 
