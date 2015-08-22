@@ -20,15 +20,15 @@ package de.cubeisland.engine.module.selector;
 import com.google.common.base.Optional;
 import de.cubeisland.engine.butler.parametric.Command;
 import de.cubeisland.engine.butler.result.CommandResult;
-import de.cubeisland.engine.service.command.CommandContext;
-import de.cubeisland.engine.service.user.User;
+import org.cubeengine.service.command.CommandContext;
+import org.cubeengine.service.user.User;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.format.TextColors;
 
-import static de.cubeisland.engine.service.i18n.formatter.MessageType.NEGATIVE;
-import static de.cubeisland.engine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
 import static org.spongepowered.api.data.key.Keys.DISPLAY_NAME;
 import static org.spongepowered.api.item.ItemTypes.WOODEN_AXE;
 

@@ -22,15 +22,12 @@ import com.google.common.base.Optional;
 import de.cubeisland.engine.modularity.core.marker.Enable;
 import de.cubeisland.engine.modularity.asm.marker.ServiceImpl;
 import de.cubeisland.engine.modularity.asm.marker.Version;
-import de.cubeisland.engine.module.core.sponge.EventManager;
-import de.cubeisland.engine.service.Selector;
-import de.cubeisland.engine.service.command.CommandManager;
-import de.cubeisland.engine.service.permission.PermissionManager;
-import de.cubeisland.engine.service.user.User;
-import de.cubeisland.engine.module.core.util.math.shape.Shape;
+import org.cubeengine.module.core.sponge.EventManager;
+import org.cubeengine.service.Selector;
+import org.cubeengine.service.user.User;
+import org.cubeengine.module.core.util.math.shape.Shape;
 
-import de.cubeisland.engine.service.user.UserManager;
-import org.spongepowered.api.Game;
+import org.cubeengine.service.user.UserManager;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.EntityInteractionType;
 import org.spongepowered.api.entity.EntityInteractionTypes;
@@ -41,7 +38,7 @@ import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.Location;
 
-import static de.cubeisland.engine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
 import static org.spongepowered.api.block.BlockTypes.AIR;
 
 

@@ -26,10 +26,10 @@ import de.cubeisland.engine.butler.parametric.Command;
 import de.cubeisland.engine.butler.parametric.Flag;
 import de.cubeisland.engine.butler.parametric.Greed;
 import de.cubeisland.engine.butler.parametric.Optional;
-import de.cubeisland.engine.module.core.util.ChatFormat;
-import de.cubeisland.engine.module.core.util.matcher.MaterialMatcher;
-import de.cubeisland.engine.service.command.ContainerCommand;
-import de.cubeisland.engine.service.user.User;
+import org.cubeengine.module.core.util.ChatFormat;
+import org.cubeengine.module.core.util.matcher.MaterialMatcher;
+import org.cubeengine.service.command.ContainerCommand;
+import org.cubeengine.service.user.User;
 import org.spongepowered.api.data.manipulator.DisplayNameData;
 import org.spongepowered.api.data.manipulator.item.LoreData;
 import org.spongepowered.api.entity.EntityInteractionTypes;
@@ -43,8 +43,7 @@ import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.format.TextColors;
 
 import static de.cubeisland.engine.butler.parameter.Parameter.INFINITE;
-import static de.cubeisland.engine.module.core.util.ChatFormat.GOLD;
-import static de.cubeisland.engine.service.i18n.formatter.MessageType.*;
+import static org.cubeengine.module.core.util.ChatFormat.GOLD;
 import static java.util.stream.Collectors.toList;
 import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
 

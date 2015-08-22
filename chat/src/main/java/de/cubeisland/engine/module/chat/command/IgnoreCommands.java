@@ -25,14 +25,13 @@ import de.cubeisland.engine.butler.parametric.Command;
 import de.cubeisland.engine.butler.parametric.Reader;
 import de.cubeisland.engine.module.chat.Chat;
 import de.cubeisland.engine.module.chat.storage.IgnoreList;
-import de.cubeisland.engine.module.core.util.ChatFormat;
-import de.cubeisland.engine.module.core.util.StringUtils;
-import de.cubeisland.engine.service.command.CommandContext;
-import de.cubeisland.engine.service.database.Database;
-import de.cubeisland.engine.service.user.User;
+import org.cubeengine.module.core.util.ChatFormat;
+import org.cubeengine.module.core.util.StringUtils;
+import org.cubeengine.service.command.CommandContext;
+import org.cubeengine.service.database.Database;
+import org.cubeengine.service.user.User;
 
 import static de.cubeisland.engine.module.chat.storage.TableIgnorelist.TABLE_IGNORE_LIST;
-import static de.cubeisland.engine.service.i18n.formatter.MessageType.*;
 
 public class IgnoreCommands
 {

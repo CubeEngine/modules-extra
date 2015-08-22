@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 import com.mongodb.BasicDBObject;
-import de.cubeisland.engine.module.core.sponge.BukkitUtils;
+import org.cubeengine.module.core.sponge.BukkitUtils;
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.action.LogListener;
 import org.spongepowered.api.world.Location;

@@ -19,9 +19,9 @@ package de.cubeisland.engine.module.signmarket.storage;
 
 import javax.persistence.Transient;
 import de.cubeisland.engine.module.core.CubeEngine;
-import de.cubeisland.engine.service.database.AsyncRecord;
+import org.cubeengine.service.database.AsyncRecord;
 import de.cubeisland.engine.module.core.storage.database.AsyncRecord;
-import de.cubeisland.engine.service.user.User;
+import org.cubeengine.service.user.User;
 import org.spongepowered.api.world.Location;
 import org.jooq.types.UInteger;
 

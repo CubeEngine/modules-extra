@@ -26,13 +26,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import de.cubeisland.engine.service.user.UserLoadedEvent;
-import de.cubeisland.engine.module.core.util.StringUtils;
+import org.cubeengine.module.core.util.StringUtils;
 import de.cubeisland.engine.module.core.util.matcher.Match;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-import de.cubeisland.engine.service.filesystem.FileExtensionFilter.YAML;
+import org.cubeengine.service.filesystem.FileExtensionFilter.YAML;
 
 public class KitManager implements Listener
 {

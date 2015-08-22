@@ -19,10 +19,10 @@ package de.cubeisland.engine.module.log;
 
 import java.util.LinkedList;
 import java.util.Queue;
-import de.cubeisland.engine.service.Selector;
-import de.cubeisland.engine.service.user.UserAttachment;
-import de.cubeisland.engine.module.core.util.math.shape.Cuboid;
-import de.cubeisland.engine.module.core.util.math.shape.Shape;
+import org.cubeengine.service.Selector;
+import org.cubeengine.service.user.UserAttachment;
+import org.cubeengine.module.core.util.math.shape.Cuboid;
+import org.cubeengine.module.core.util.math.shape.Shape;
 import de.cubeisland.engine.module.log.storage.Lookup;
 import de.cubeisland.engine.module.log.storage.QueryParameter;
 import de.cubeisland.engine.module.log.storage.ShowParameter;

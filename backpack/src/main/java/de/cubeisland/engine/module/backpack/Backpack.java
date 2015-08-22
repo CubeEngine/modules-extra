@@ -29,7 +29,7 @@ import java.util.UUID;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.module.backpack.converter.NBTItemStackConverter;
-import de.cubeisland.engine.module.core.util.McUUID;
+import org.cubeengine.module.core.util.McUUID;
 import de.cubeisland.engine.module.worlds.Multiverse;
 import de.cubeisland.engine.module.worlds.Worlds;
 import de.cubeisland.engine.reflect.codec.nbt.NBTCodec;

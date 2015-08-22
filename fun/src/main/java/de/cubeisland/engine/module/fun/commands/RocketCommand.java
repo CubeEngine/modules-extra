@@ -25,9 +25,9 @@ import de.cubeisland.engine.butler.parametric.Command;
 import de.cubeisland.engine.butler.parametric.Default;
 import de.cubeisland.engine.butler.parametric.Optional;
 import de.cubeisland.engine.module.core.CubeEngine;
-import de.cubeisland.engine.service.command.CommandContext;
-import de.cubeisland.engine.service.user.User;
-import de.cubeisland.engine.service.user.UserManager;
+import org.cubeengine.service.command.CommandContext;
+import org.cubeengine.service.user.User;
+import org.cubeengine.service.user.UserManager;
 import de.cubeisland.engine.module.fun.Fun;
 import org.bukkit.Effect;
 import org.spongepowered.api.world.Location;
@@ -37,7 +37,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.util.Vector;
 
-import de.cubeisland.engine.service.i18n.formatter.MessageType.NEGATIVE;
+import org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
 
 public class RocketCommand
 {

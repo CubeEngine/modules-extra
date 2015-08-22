@@ -19,11 +19,11 @@ package de.cubeisland.engine.module.log.action.block.ignite;
 
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
-import de.cubeisland.engine.service.user.User;
+import org.cubeengine.service.user.User;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 
-import static de.cubeisland.engine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
 
 /**
  * Represents lava setting a block on fire

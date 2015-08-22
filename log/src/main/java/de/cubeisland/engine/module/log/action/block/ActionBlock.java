@@ -18,7 +18,7 @@
 package de.cubeisland.engine.module.log.action.block;
 
 import java.lang.reflect.Constructor;
-import de.cubeisland.engine.module.core.util.BlockUtil;
+import org.cubeengine.module.core.util.BlockUtil;
 import de.cubeisland.engine.module.log.LogAttachment;
 import de.cubeisland.engine.module.log.action.ActionCategory;
 import de.cubeisland.engine.module.log.action.BaseAction;

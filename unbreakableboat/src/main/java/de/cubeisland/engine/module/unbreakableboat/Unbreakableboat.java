@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.UUID;
 import de.cubeisland.engine.module.core.sponge.SpongeCore;
 import de.cubeisland.engine.module.core.module.Module;
-import de.cubeisland.engine.module.core.util.ChatFormat;
+import org.cubeengine.module.core.util.ChatFormat;
 import org.spongepowered.api.world.Location;
 import org.bukkit.Server;
 import org.bukkit.entity.Boat;

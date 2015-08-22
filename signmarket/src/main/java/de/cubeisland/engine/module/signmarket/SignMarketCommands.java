@@ -19,9 +19,9 @@ package de.cubeisland.engine.module.signmarket;
 
 import de.cubeisland.engine.butler.alias.Alias;
 import de.cubeisland.engine.butler.parametric.Command;
-import de.cubeisland.engine.service.command.ContainerCommand;
-import de.cubeisland.engine.service.command.CommandContext;
-import de.cubeisland.engine.service.user.User;
+import org.cubeengine.service.command.ContainerCommand;
+import org.cubeengine.service.command.CommandContext;
+import org.cubeengine.service.user.User;
 
 @Command(name = "marketsign", desc = "MarketSign-Commands", alias = {"signmarket", "market"})
 public class SignMarketCommands extends ContainerCommand

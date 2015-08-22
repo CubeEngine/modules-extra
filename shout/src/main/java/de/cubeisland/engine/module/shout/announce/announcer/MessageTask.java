@@ -17,8 +17,8 @@
  */
 package de.cubeisland.engine.module.shout.announce.announcer;
 
-import de.cubeisland.engine.service.task.TaskManager;
-import de.cubeisland.engine.module.core.util.Pair;
+import org.cubeengine.service.task.TaskManager;
+import org.cubeengine.module.core.util.Pair;
 import de.cubeisland.engine.module.shout.announce.Announcement;
 import de.cubeisland.engine.module.shout.announce.receiver.Receiver;
 

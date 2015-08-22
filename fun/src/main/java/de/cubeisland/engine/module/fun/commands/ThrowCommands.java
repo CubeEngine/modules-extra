@@ -30,7 +30,7 @@ import de.cubeisland.engine.butler.parametric.Flag;
 import de.cubeisland.engine.butler.parametric.Named;
 import de.cubeisland.engine.butler.parametric.Optional;
 import de.cubeisland.engine.service.permission.Permission;
-import de.cubeisland.engine.service.user.User;
+import org.cubeengine.service.user.User;
 import de.cubeisland.engine.module.core.util.matcher.Match;
 import de.cubeisland.engine.module.fun.Fun;
 import org.spongepowered.api.world.Location;

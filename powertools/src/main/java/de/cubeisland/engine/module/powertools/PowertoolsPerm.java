@@ -18,7 +18,7 @@
 package de.cubeisland.engine.module.powertools;
 
 import de.cubeisland.engine.service.permission.Permission;
-import de.cubeisland.engine.service.permission.PermissionContainer;
+import org.cubeengine.service.permission.PermissionContainer;
 
 @SuppressWarnings("all")
 public class PowertoolsPerm extends PermissionContainer<Powertools>

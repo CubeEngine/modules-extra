@@ -25,15 +25,15 @@ import de.cubeisland.engine.butler.filter.Restricted;
 import de.cubeisland.engine.butler.parametric.Command;
 import de.cubeisland.engine.butler.parametric.Flag;
 import de.cubeisland.engine.butler.parametric.Default;
-import de.cubeisland.engine.service.command.ContainerCommand;
-import de.cubeisland.engine.service.command.CommandContext;
-import de.cubeisland.engine.service.command.CommandSender;
-import de.cubeisland.engine.service.user.User;
-import de.cubeisland.engine.module.core.util.FileUtil;
+import org.cubeengine.service.command.ContainerCommand;
+import org.cubeengine.service.command.CommandContext;
+import org.cubeengine.service.command.CommandSender;
+import org.cubeengine.service.user.User;
+import org.cubeengine.module.core.util.FileUtil;
 import org.spongepowered.api.item.inventory.ItemStack;
 
-import de.cubeisland.engine.module.core.util.ChatFormat.WHITE;
-import de.cubeisland.engine.module.core.util.ChatFormat.YELLOW;
+import org.cubeengine.module.core.util.ChatFormat.WHITE;
+import org.cubeengine.module.core.util.ChatFormat.YELLOW;
 import static org.bukkit.Material.AIR;
 
 @Command(name = "kit", desc = "Manages item-kits")

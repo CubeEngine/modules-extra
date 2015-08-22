@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import de.cubeisland.engine.module.chat.Chat;
 import de.cubeisland.engine.module.chat.CubeMessageSink;
-import de.cubeisland.engine.service.i18n.I18n;
+import org.cubeengine.service.i18n.I18n;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.data.manipulator.mutable.DisplayNameData;
 import org.spongepowered.api.event.Order;
@@ -33,13 +33,11 @@ import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.option.OptionSubject;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.Text.Translatable;
 import org.spongepowered.api.text.Texts;
-import org.spongepowered.api.text.action.HoverAction.ShowText;
 import org.spongepowered.api.text.action.TextActions;
 
-import static de.cubeisland.engine.module.core.util.ChatFormat.fromLegacy;
-import static de.cubeisland.engine.service.i18n.formatter.MessageType.NEUTRAL;
+import static org.cubeengine.module.core.util.ChatFormat.fromLegacy;
+import static org.cubeengine.service.i18n.formatter.MessageType.NEUTRAL;
 import static org.spongepowered.api.text.Texts.toPlain;
 
 

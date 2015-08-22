@@ -17,7 +17,7 @@
  */
 package de.cubeisland.engine.module.log.action.player.item;
 
-import de.cubeisland.engine.service.user.User;
+import org.cubeengine.service.user.User;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.block.entity.ActionEntityBlock.EntitySection;
@@ -25,7 +25,7 @@ import org.bukkit.entity.Item;
 import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.text.Text;
 
-import static de.cubeisland.engine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.ITEM;
 
 /**

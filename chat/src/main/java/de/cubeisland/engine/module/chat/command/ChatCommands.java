@@ -26,19 +26,18 @@ import de.cubeisland.engine.butler.parametric.Optional;
 import de.cubeisland.engine.module.chat.Chat;
 import de.cubeisland.engine.module.chat.ChatAttachment;
 import de.cubeisland.engine.module.chat.listener.AfkListener;
-import de.cubeisland.engine.module.core.util.ChatFormat;
-import de.cubeisland.engine.service.command.CommandContext;
-import de.cubeisland.engine.service.command.CommandManager;
-import de.cubeisland.engine.service.command.CommandSender;
-import de.cubeisland.engine.service.command.sender.ConsoleCommandSender;
-import de.cubeisland.engine.service.user.User;
-import de.cubeisland.engine.service.user.UserManager;
+import org.cubeengine.module.core.util.ChatFormat;
+import org.cubeengine.service.command.CommandContext;
+import org.cubeengine.service.command.CommandManager;
+import org.cubeengine.service.command.CommandSender;
+import org.cubeengine.service.command.sender.ConsoleCommandSender;
+import org.cubeengine.service.user.User;
+import org.cubeengine.service.user.UserManager;
 import org.spongepowered.api.data.manipulator.mutable.DisplayNameData;
 import org.spongepowered.api.text.Texts;
 
 import static de.cubeisland.engine.butler.parameter.Parameter.INFINITE;
-import static de.cubeisland.engine.service.i18n.formatter.MessageType.*;
-import static de.cubeisland.engine.service.command.CommandSender.NON_PLAYER_UUID;
+import static org.cubeengine.service.command.CommandSender.NON_PLAYER_UUID;
 
 public class ChatCommands
 {

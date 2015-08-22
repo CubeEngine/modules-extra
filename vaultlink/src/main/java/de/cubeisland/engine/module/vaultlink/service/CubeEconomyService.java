@@ -22,9 +22,9 @@ import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import de.cubeisland.engine.module.core.Core;
-import de.cubeisland.engine.service.i18n.I18n;
-import de.cubeisland.engine.service.user.User;
-import de.cubeisland.engine.module.core.util.McUUID;
+import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.service.user.User;
+import org.cubeengine.module.core.util.McUUID;
 import de.cubeisland.engine.module.vaultlink.Vaultlink;
 import net.milkbowl.vault.economy.AbstractEconomy;
 import net.milkbowl.vault.economy.EconomyResponse;
@@ -32,7 +32,7 @@ import net.milkbowl.vault.economy.EconomyResponse.ResponseType;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
-import de.cubeisland.engine.service.i18n.formatter.MessageType.NONE;
+import org.cubeengine.service.i18n.formatter.MessageType.NONE;
 import static net.milkbowl.vault.economy.EconomyResponse.ResponseType.FAILURE;
 import static net.milkbowl.vault.economy.EconomyResponse.ResponseType.SUCCESS;
 

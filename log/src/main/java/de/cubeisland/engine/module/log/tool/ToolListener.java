@@ -18,7 +18,7 @@
 package de.cubeisland.engine.module.log.tool;
 
 import de.cubeisland.engine.service.permission.Permission;
-import de.cubeisland.engine.service.user.User;
+import org.cubeengine.service.user.User;
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.LogAttachment;
 import de.cubeisland.engine.module.log.commands.LogCommands;
@@ -33,7 +33,7 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 
-import de.cubeisland.engine.service.i18n.formatter.MessageType.NEGATIVE;
+import org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
 
 public class ToolListener implements Listener
 {

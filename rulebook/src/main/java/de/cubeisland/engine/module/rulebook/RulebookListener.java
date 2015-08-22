@@ -19,7 +19,7 @@ package de.cubeisland.engine.module.rulebook;
 
 import java.util.Locale;
 import de.cubeisland.engine.module.core.sponge.AfterJoinEvent;
-import de.cubeisland.engine.service.user.User;
+import org.cubeengine.service.user.User;
 import de.cubeisland.engine.module.rulebook.bookManagement.RulebookManager;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;

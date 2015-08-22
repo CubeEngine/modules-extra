@@ -17,10 +17,10 @@
  */
 package de.cubeisland.engine.module.selector;
 
-import de.cubeisland.engine.module.core.util.math.Vector3;
-import de.cubeisland.engine.module.core.util.math.shape.Cuboid;
-import de.cubeisland.engine.module.core.util.math.shape.Shape;
-import de.cubeisland.engine.service.user.UserAttachment;
+import org.cubeengine.module.core.util.math.Vector3;
+import org.cubeengine.module.core.util.math.shape.Cuboid;
+import org.cubeengine.module.core.util.math.shape.Shape;
+import org.cubeengine.service.user.UserAttachment;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 

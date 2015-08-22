@@ -19,7 +19,7 @@ package de.cubeisland.engine.module.customcommands;
 
 import java.util.ArrayList;
 import java.util.List;
-import de.cubeisland.engine.module.core.util.StringUtils;
+import org.cubeengine.module.core.util.StringUtils;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -27,7 +27,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 
-import de.cubeisland.engine.service.i18n.formatter.MessageType.NONE;
+import org.cubeengine.service.i18n.formatter.MessageType.NONE;
 import static java.util.Locale.ENGLISH;
 
 public class CustomCommandsListener implements Listener

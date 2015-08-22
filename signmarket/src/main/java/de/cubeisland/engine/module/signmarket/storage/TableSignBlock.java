@@ -17,15 +17,15 @@
  */
 package de.cubeisland.engine.module.signmarket.storage;
 
-import de.cubeisland.engine.service.database.AutoIncrementTable;
-import de.cubeisland.engine.service.database.Database;
-import de.cubeisland.engine.module.core.util.Version;
+import org.cubeengine.service.database.AutoIncrementTable;
+import org.cubeengine.service.database.Database;
+import org.cubeengine.module.core.util.Version;
 import org.jooq.TableField;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
 
-import static de.cubeisland.engine.service.user.TableUser.TABLE_USER;
-import static de.cubeisland.engine.service.world.TableWorld.TABLE_WORLD;
+import static org.cubeengine.service.user.TableUser.TABLE_USER;
+import static org.cubeengine.service.world.TableWorld.TABLE_WORLD;
 import static de.cubeisland.engine.module.signmarket.storage.TableSignItem.TABLE_SIGN_ITEM;
 import static org.jooq.impl.SQLDataType.INTEGER;
 import static org.jooq.impl.SQLDataType.TINYINT;

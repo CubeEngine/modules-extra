@@ -20,7 +20,7 @@ package de.cubeisland.engine.module.log.storage;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
-import de.cubeisland.engine.service.user.User;
+import org.cubeengine.service.user.User;
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.LogAttachment;
 import de.cubeisland.engine.module.log.action.ActionCategory;

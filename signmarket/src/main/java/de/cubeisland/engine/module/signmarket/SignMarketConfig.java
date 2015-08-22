@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import de.cubeisland.engine.module.core.CubeEngine;
-import de.cubeisland.engine.service.world.WorldManager;
+import org.cubeengine.service.world.WorldManager;
 import de.cubeisland.engine.reflect.annotations.Comment;
 import de.cubeisland.engine.reflect.annotations.Name;
 import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;

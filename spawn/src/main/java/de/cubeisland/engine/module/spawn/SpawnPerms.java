@@ -18,7 +18,7 @@
 package de.cubeisland.engine.module.spawn;
 
 import de.cubeisland.engine.service.permission.Permission;
-import de.cubeisland.engine.service.permission.PermissionContainer;
+import org.cubeengine.service.permission.PermissionContainer;
 
 @SuppressWarnings("all")
 public class SpawnPerms extends PermissionContainer<Spawn>

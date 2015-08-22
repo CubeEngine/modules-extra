@@ -19,16 +19,16 @@ package de.cubeisland.engine.module.backpack;
 
 import java.util.Collection;
 import java.util.HashMap;
-import de.cubeisland.engine.service.command.CommandSender;
-import de.cubeisland.engine.service.user.User;
+import org.cubeengine.service.command.CommandSender;
+import org.cubeengine.service.user.User;
 import org.spongepowered.api.event.Subscribe;
 import org.spongepowered.api.event.inventory.InventoryClickEvent;
 import org.spongepowered.api.event.inventory.InventoryCloseEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.world.World;
 
-import static de.cubeisland.engine.service.i18n.formatter.MessageType.NEGATIVE;
-import static de.cubeisland.engine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
 
 public class BackpackManager
 {

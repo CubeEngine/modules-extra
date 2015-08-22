@@ -25,15 +25,15 @@ import de.cubeisland.engine.butler.parametric.Greed;
 import de.cubeisland.engine.butler.parametric.Optional;
 import de.cubeisland.engine.converter.ConversionException;
 import de.cubeisland.engine.converter.node.StringNode;
-import de.cubeisland.engine.service.command.ContainerCommand;
-import de.cubeisland.engine.service.command.CommandSender;
-import de.cubeisland.engine.service.user.User;
-import de.cubeisland.engine.module.core.util.converter.DurationConverter;
+import org.cubeengine.service.command.ContainerCommand;
+import org.cubeengine.service.command.CommandSender;
+import org.cubeengine.service.user.User;
+import org.cubeengine.module.core.util.converter.DurationConverter;
 import de.cubeisland.engine.module.holiday.storage.HolidayModel;
 import org.jooq.DSLContext;
 
 import static de.cubeisland.engine.butler.parameter.Parameter.INFINITE;
-import de.cubeisland.engine.service.user.TableUser.TABLE_USER;
+import org.cubeengine.service.user.TableUser.TABLE_USER;
 import static de.cubeisland.engine.module.holiday.storage.TableHoliday.TABLE_HOLIDAY;
 
 @Command(name = "holiday", desc = "Manages your holiday ")

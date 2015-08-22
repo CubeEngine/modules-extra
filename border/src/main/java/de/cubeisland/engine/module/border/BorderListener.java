@@ -20,9 +20,9 @@ package de.cubeisland.engine.module.border;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import de.cubeisland.engine.service.user.User;
-import de.cubeisland.engine.service.user.UserManager;
-import de.cubeisland.engine.module.core.util.math.BlockVector2;
+import org.cubeengine.service.user.User;
+import org.cubeengine.service.user.UserManager;
+import org.cubeengine.module.core.util.math.BlockVector2;
 import org.bukkit.Chunk;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.entity.player.Player;
@@ -36,8 +36,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
-import de.cubeisland.engine.service.i18n.formatter.MessageType.NEGATIVE;
-import de.cubeisland.engine.service.i18n.formatter.MessageType.NEUTRAL;
+import org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
+import org.cubeengine.service.i18n.formatter.MessageType.NEUTRAL;
 
 public class BorderListener implements Listener
 {

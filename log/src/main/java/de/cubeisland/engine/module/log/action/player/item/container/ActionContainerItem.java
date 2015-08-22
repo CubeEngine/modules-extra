@@ -17,12 +17,12 @@
  */
 package de.cubeisland.engine.module.log.action.player.item.container;
 
-import de.cubeisland.engine.service.user.User;
+import org.cubeengine.service.user.User;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.action.player.item.ActionItem;
 import org.spongepowered.api.text.Text;
 
-import static de.cubeisland.engine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
 import static de.cubeisland.engine.module.log.action.ActionCategory.ITEM;
 
 public abstract class ActionContainerItem extends ActionItem

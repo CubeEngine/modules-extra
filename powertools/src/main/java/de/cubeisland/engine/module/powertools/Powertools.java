@@ -22,9 +22,9 @@ import de.cubeisland.engine.modularity.core.marker.Disable;
 import de.cubeisland.engine.modularity.core.marker.Enable;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.module.core.sponge.EventManager;
-import de.cubeisland.engine.module.core.util.matcher.MaterialMatcher;
-import de.cubeisland.engine.service.command.CommandManager;
+import org.cubeengine.module.core.sponge.EventManager;
+import org.cubeengine.module.core.util.matcher.MaterialMatcher;
+import org.cubeengine.service.command.CommandManager;
 
 @ModuleInfo(name = "Powertools", description = "Empower your tools")
 public class Powertools extends Module

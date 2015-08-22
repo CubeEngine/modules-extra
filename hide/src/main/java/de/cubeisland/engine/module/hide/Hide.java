@@ -22,7 +22,7 @@ import java.util.Set;
 import java.util.UUID;
 import de.cubeisland.engine.module.core.module.Module;
 import de.cubeisland.engine.module.core.module.Reloadable;
-import de.cubeisland.engine.service.user.User;
+import org.cubeengine.service.user.User;
 import de.cubeisland.engine.module.hide.event.UserHideEvent;
 import de.cubeisland.engine.module.hide.event.UserShowEvent;
 import org.bukkit.Bukkit;

@@ -18,8 +18,8 @@
 package de.cubeisland.engine.module.fly;
 
 import de.cubeisland.engine.module.core.Core;
-import de.cubeisland.engine.service.user.User;
-import de.cubeisland.engine.service.user.UserEvent;
+import org.cubeengine.service.user.User;
+import org.cubeengine.service.user.UserEvent;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 

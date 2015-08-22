@@ -17,11 +17,11 @@
  */
 package de.cubeisland.engine.module.log.action.hanging;
 
-import de.cubeisland.engine.service.user.User;
+import org.cubeengine.service.user.User;
 import org.spongepowered.api.data.type.Art;
 import org.spongepowered.api.text.Text;
 
-import static de.cubeisland.engine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
 
 /**
  * Represents a player placing a painting

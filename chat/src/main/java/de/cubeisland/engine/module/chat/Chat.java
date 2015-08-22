@@ -31,14 +31,14 @@ import de.cubeisland.engine.module.chat.listener.ChatFormatListener;
 import de.cubeisland.engine.module.chat.listener.MuteListener;
 import de.cubeisland.engine.module.chat.storage.TableIgnorelist;
 import de.cubeisland.engine.module.chat.storage.TableMuted;
-import de.cubeisland.engine.service.filesystem.FileManager;
-import de.cubeisland.engine.service.i18n.I18n;
-import de.cubeisland.engine.module.core.sponge.EventManager;
-import de.cubeisland.engine.service.command.CommandManager;
-import de.cubeisland.engine.service.database.Database;
-import de.cubeisland.engine.service.permission.PermissionManager;
-import de.cubeisland.engine.service.task.TaskManager;
-import de.cubeisland.engine.service.user.UserManager;
+import org.cubeengine.service.filesystem.FileManager;
+import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.module.core.sponge.EventManager;
+import org.cubeengine.service.command.CommandManager;
+import org.cubeengine.service.database.Database;
+import org.cubeengine.service.permission.PermissionManager;
+import org.cubeengine.service.task.TaskManager;
+import org.cubeengine.service.user.UserManager;
 import org.spongepowered.api.Game;
 
 

@@ -19,8 +19,8 @@ package de.cubeisland.engine.module.log.action.block;
 
 import java.util.HashMap;
 import java.util.Map;
-import de.cubeisland.engine.module.core.sponge.EventManager;
-import de.cubeisland.engine.module.core.util.BlockUtil;
+import org.cubeengine.module.core.sponge.EventManager;
+import org.cubeengine.module.core.util.BlockUtil;
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.action.LogListener;
 import de.cubeisland.engine.module.log.action.block.player.ActionPlayerBlock;

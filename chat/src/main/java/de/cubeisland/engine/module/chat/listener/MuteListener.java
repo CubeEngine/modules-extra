@@ -22,14 +22,14 @@ import java.util.Iterator;
 import de.cubeisland.engine.module.chat.Chat;
 import de.cubeisland.engine.module.chat.ChatAttachment;
 import de.cubeisland.engine.module.chat.command.IgnoreCommands;
-import de.cubeisland.engine.service.user.User;
-import de.cubeisland.engine.service.user.UserManager;
+import org.cubeengine.service.user.User;
+import org.cubeengine.service.user.UserManager;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.event.Subscribe;
 import org.spongepowered.api.event.entity.player.PlayerChatEvent;
 import org.spongepowered.api.util.command.CommandSource;
 
-import static de.cubeisland.engine.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
 
 public class MuteListener
 {

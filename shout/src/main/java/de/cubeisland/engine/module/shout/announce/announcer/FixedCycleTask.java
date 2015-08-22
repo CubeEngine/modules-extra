@@ -19,11 +19,11 @@ package de.cubeisland.engine.module.shout.announce.announcer;
 
 import java.util.Locale;
 import java.util.Queue;
-import de.cubeisland.engine.service.task.TaskManager;
-import de.cubeisland.engine.service.user.User;
-import de.cubeisland.engine.service.user.UserManager;
-import de.cubeisland.engine.module.core.util.ChatFormat;
-import de.cubeisland.engine.module.core.util.Pair;
+import org.cubeengine.service.task.TaskManager;
+import org.cubeengine.service.user.User;
+import org.cubeengine.service.user.UserManager;
+import org.cubeengine.module.core.util.ChatFormat;
+import org.cubeengine.module.core.util.Pair;
 import de.cubeisland.engine.module.shout.announce.Announcement;
 import de.cubeisland.engine.module.shout.announce.MessageOfTheDay;
 import de.cubeisland.engine.module.shout.announce.receiver.Receiver;

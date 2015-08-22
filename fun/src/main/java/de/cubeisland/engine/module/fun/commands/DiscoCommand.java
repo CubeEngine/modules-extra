@@ -23,12 +23,12 @@ import java.util.Map;
 import de.cubeisland.engine.butler.parametric.Command;
 import de.cubeisland.engine.butler.parametric.Default;
 import de.cubeisland.engine.butler.parametric.Optional;
-import de.cubeisland.engine.service.command.CommandSender;
+import org.cubeengine.service.command.CommandSender;
 import de.cubeisland.engine.module.fun.Fun;
 import org.bukkit.World;
 
-import de.cubeisland.engine.service.i18n.formatter.MessageType.NEGATIVE;
-import static de.cubeisland.engine.service.i18n.formatter.MessageType.POSITIVE;
+import org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
 
 public class DiscoCommand
 {

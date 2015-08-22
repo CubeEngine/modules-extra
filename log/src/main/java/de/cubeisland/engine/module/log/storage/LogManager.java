@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import de.cubeisland.engine.module.core.sponge.SpongeCore;
-import de.cubeisland.engine.service.user.User;
+import org.cubeengine.service.user.User;
 import de.cubeisland.engine.module.bigdata.Bigdata;
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.LoggingConfiguration;

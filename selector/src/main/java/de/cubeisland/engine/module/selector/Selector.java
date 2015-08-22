@@ -21,11 +21,10 @@ import javax.inject.Inject;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.modularity.core.marker.Enable;
-import de.cubeisland.engine.service.command.CommandManager;
-import de.cubeisland.engine.service.permission.PermissionManager;
+import org.cubeengine.service.command.CommandManager;
+import org.cubeengine.service.permission.PermissionManager;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.service.permission.PermissionDescription;
-import org.spongepowered.api.service.permission.PermissionService;
 
 @ModuleInfo(name = "Selector", description = "Select Areas")
 public class Selector extends Module

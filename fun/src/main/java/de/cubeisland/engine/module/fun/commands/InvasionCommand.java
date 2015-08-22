@@ -19,7 +19,7 @@ package de.cubeisland.engine.module.fun.commands;
 
 import java.util.Collections;
 import de.cubeisland.engine.butler.parametric.Command;
-import de.cubeisland.engine.service.command.CommandContext;
+import org.cubeengine.service.command.CommandContext;
 import de.cubeisland.engine.module.core.util.matcher.Match;
 import de.cubeisland.engine.module.fun.Fun;
 import org.bukkit.Bukkit;
@@ -28,7 +28,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.spongepowered.api.entity.player.Player;
 
-import de.cubeisland.engine.service.i18n.formatter.MessageType.NEGATIVE;
+import org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
 
 public class InvasionCommand
 {

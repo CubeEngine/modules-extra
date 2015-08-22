@@ -24,8 +24,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import de.cubeisland.engine.module.core.sponge.EventManager;
-import de.cubeisland.engine.module.core.util.StringUtils;
+import org.cubeengine.module.core.sponge.EventManager;
+import org.cubeengine.module.core.util.StringUtils;
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.block.ListenerBlock;
@@ -45,7 +45,7 @@ import de.cubeisland.engine.module.log.action.player.entity.ListenerPlayerEntity
 import de.cubeisland.engine.module.log.action.player.item.ListenerItem;
 import de.cubeisland.engine.module.log.action.player.item.container.ListenerContainerItem;
 import de.cubeisland.engine.module.log.action.vehicle.ListenerVehicle;
-import de.cubeisland.engine.service.command.CommandManager;
+import org.cubeengine.service.command.CommandManager;
 import org.bukkit.ChatColor;
 
 public class ActionManager

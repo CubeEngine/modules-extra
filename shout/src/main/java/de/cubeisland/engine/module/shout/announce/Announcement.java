@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import de.cubeisland.engine.module.core.CubeEngine;
-import de.cubeisland.engine.service.i18n.I18n;
+import org.cubeengine.service.i18n.I18n;
 import de.cubeisland.engine.service.permission.PermDefault;
 import de.cubeisland.engine.service.permission.Permission;
 import de.cubeisland.engine.i18n.language.ClonedLanguage;
