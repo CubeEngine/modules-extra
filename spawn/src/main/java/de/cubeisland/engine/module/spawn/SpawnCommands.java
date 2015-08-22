@@ -29,7 +29,7 @@ import org.cubeengine.service.user.User;
 import org.cubeengine.module.core.util.StringUtils;
 import org.cubeengine.module.core.util.math.BlockVector3;
 import de.cubeisland.engine.module.roles.RoleCompleter;
-import de.cubeisland.engine.module.roles.Roles;
+import org.cubeengine.module.roles.Roles;
 import de.cubeisland.engine.module.roles.role.ResolvedDataHolder;
 import de.cubeisland.engine.module.roles.role.Role;
 import de.cubeisland.engine.module.roles.role.RolesAttachment;

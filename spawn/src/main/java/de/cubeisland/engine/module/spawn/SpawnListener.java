@@ -21,7 +21,7 @@ import org.cubeengine.service.user.User;
 import org.cubeengine.service.user.UserManager;
 import org.cubeengine.module.core.util.StringUtils;
 import org.cubeengine.service.world.WorldManager;
-import de.cubeisland.engine.module.roles.Roles;
+import org.cubeengine.module.roles.Roles;
 import de.cubeisland.engine.module.roles.role.RolesAttachment;
 import de.cubeisland.engine.module.roles.role.resolved.ResolvedMetadata;
 import org.spongepowered.api.world.Location;
