@@ -32,7 +32,7 @@ import de.cubeisland.engine.module.core.module.exception.ModuleLoadError;
 import org.cubeengine.module.core.sponge.EventManager;
 import org.cubeengine.service.command.CommandManager;
 import org.cubeengine.service.world.WorldManager;
-import de.cubeisland.engine.module.portals.Portals;
+import org.cubeengine.module.portals.Portals;
 import de.cubeisland.engine.reflect.Reflector;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
