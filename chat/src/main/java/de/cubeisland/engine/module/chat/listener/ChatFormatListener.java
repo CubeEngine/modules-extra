@@ -36,6 +36,7 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Text.Translatable;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.action.HoverAction.ShowText;
+import org.spongepowered.api.text.action.TextActions;
 
 import static de.cubeisland.engine.module.core.util.ChatFormat.fromLegacy;
 import static de.cubeisland.engine.service.i18n.formatter.MessageType.NEUTRAL;
@@ -85,7 +86,7 @@ public class ChatFormatListener
         if (!Texts.toPlain(displayName).equals(name))
         {
             Text translation = i18n.getTranslation(null, NEUTRAL, "Actual name: {user}", name);
-            displayName = Texts.builder().append(displayName).onHover(new ShowText(translation)).build();
+            displayName = Texts.builder().append(displayName).onHover(TextActions.showText(translation)).build();
         }
         replacements.put("{DISPLAY_NAME}", displayName);
         replacements.put("{WORLD}", Texts.of(event.getUser().getWorld().getName()));
