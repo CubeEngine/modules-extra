@@ -31,6 +31,8 @@ import org.cubeengine.module.core.util.StringUtils;
 import org.cubeengine.service.command.CommandContext;
 import org.cubeengine.service.database.Database;
 import org.cubeengine.service.user.User;
+import static org.cubeengine.service.i18n.formatter.MessageType.*;
+
 
 public class IgnoreCommands
 {

@@ -31,6 +31,7 @@ import org.cubeengine.service.user.User;
 import org.joda.time.Duration;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
+import static org.cubeengine.service.i18n.formatter.MessageType.*;
 
 import static java.util.concurrent.TimeUnit.DAYS;
 

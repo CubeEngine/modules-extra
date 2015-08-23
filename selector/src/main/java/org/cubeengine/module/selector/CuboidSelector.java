@@ -46,7 +46,7 @@ import static org.spongepowered.api.block.BlockTypes.AIR;
 @Version(1)
 public class CuboidSelector implements Selector
 {
-    @Inject private Selector module;
+    @Inject private org.cubeengine.module.selector.Selector module;
     @Inject private EventManager em;
     @Inject private UserManager um;
 

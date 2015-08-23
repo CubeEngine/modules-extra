@@ -38,6 +38,8 @@ import org.spongepowered.api.text.Texts;
 
 import static de.cubeisland.engine.butler.parameter.Parameter.INFINITE;
 import static org.cubeengine.service.command.CommandSender.NON_PLAYER_UUID;
+import static org.cubeengine.service.i18n.formatter.MessageType.*;
+
 
 public class ChatCommands
 {
