@@ -17,7 +17,6 @@
  */
 package de.cubeisland.engine.module.border;
 
-import de.cubeisland.engine.service.permission.Permission;
 import org.cubeengine.service.permission.PermissionContainer;
 
 @SuppressWarnings("all")

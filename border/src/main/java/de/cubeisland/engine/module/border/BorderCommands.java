@@ -29,12 +29,10 @@ import org.cubeengine.service.command.ContainerCommand;
 import org.cubeengine.service.command.CommandSender;
 import org.cubeengine.service.user.User;
 import org.cubeengine.module.core.util.Triplet;
-import org.bukkit.Chunk;
-import org.bukkit.World;
 import org.jooq.types.UInteger;
+import org.spongepowered.api.world.World;
 
-import org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
-import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.service.i18n.formatter.MessageType.*;
 
 @Command(name = "border", desc = "border commands")
 public class BorderCommands extends ContainerCommand

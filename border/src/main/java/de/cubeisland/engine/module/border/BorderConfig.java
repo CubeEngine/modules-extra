@@ -21,8 +21,8 @@ import de.cubeisland.engine.reflect.Section;
 import de.cubeisland.engine.reflect.annotations.Comment;
 import de.cubeisland.engine.reflect.annotations.Name;
 import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
-import org.bukkit.Chunk;
-import org.bukkit.World;
+import org.spongepowered.api.world.Chunk;
+import org.spongepowered.api.world.World;
 
 @SuppressWarnings("all")
 public class BorderConfig extends ReflectedYaml
@@ -65,6 +65,7 @@ public class BorderConfig extends ReflectedYaml
     {
         if (center.useSpawn)
         {
+             world.getSpawnLocation().getPosition()
             setCenter(world.getSpawnLocation().getChunk(), true);
             return true;
         }
