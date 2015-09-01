@@ -20,15 +20,16 @@ package org.cubeengine.module.chat.listener;
 import org.cubeengine.module.chat.Chat;
 import org.cubeengine.module.chat.ChatAttachment;
 import org.cubeengine.service.user.UserManager;
-import org.spongepowered.api.entity.player.Player;
-import org.spongepowered.api.event.Subscribe;
-import org.spongepowered.api.event.entity.ProjectileLaunchEvent;
-import org.spongepowered.api.event.entity.player.PlayerChatEvent;
-import org.spongepowered.api.event.entity.player.PlayerInteractEvent;
-import org.spongepowered.api.event.entity.player.PlayerMoveEvent;
-import org.spongepowered.api.event.entity.player.PlayerQuitEvent;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.command.SendCommandEvent;
+import org.spongepowered.api.event.entity.DisplaceEntityEvent;
+import org.spongepowered.api.event.entity.InteractEntityEvent;
+import org.spongepowered.api.event.entity.living.player.PlayerChatEvent;
+import org.spongepowered.api.event.entity.living.player.PlayerQuitEvent;
+import org.spongepowered.api.event.entity.projectile.LaunchProjectileEvent;
 import org.spongepowered.api.event.inventory.InventoryClickEvent;
-import org.spongepowered.api.event.message.CommandEvent;
 
 import static org.spongepowered.api.event.Order.POST;
 
@@ -46,17 +47,18 @@ public class AfkListener implements Runnable
         this.autoAfk = autoAfk;
         this.afkCheck = afkCheck;
     }
-    @Subscribe(order = POST)
-    public void onMove(PlayerMoveEvent event)
+    @Listener(order = POST)
+    public void onMove(DisplaceEntityEvent.Move.TargetPlayer event)
     {
-        if (event.getOldLocation().getBlockX() == event.getNewLocation().getBlockX() && event.getOldLocation().getBlockZ() == event.getNewLocation().getBlockZ())
+        if (event.getOldTransform().getLocation().getBlockX() == event.getNewTransform().getLocation().getBlockX()
+            && event.getOldTransform().getLocation().getBlockZ() == event.getNewTransform().getLocation().getBlockZ())
         {
             return;
         }
-        this.updateLastAction(event.getUser());
+        this.updateLastAction(event.getTargetEntity());
     }
 
-    @Subscribe(order = POST)
+    @Listener(order = POST)
     public void onInventoryClick(InventoryClickEvent event)
     {
         if (event.getViewer() instanceof Player)
@@ -65,21 +67,28 @@ public class AfkListener implements Runnable
         }
     }
 
-    @Subscribe(order = POST)
-    public void playerInteract(PlayerInteractEvent event)
+    @Listener(order = POST)
+    public void playerInteract(InteractBlockEvent.SourcePlayer event)
     {
-        this.updateLastAction(event.getUser());
+        this.updateLastAction(event.getSourceEntity());
     }
 
-    @Subscribe(order = POST)
+
+    @Listener(order = POST)
+    public void playerInteract(InteractEntityEvent.SourcePlayer event)
+    {
+        this.updateLastAction(event.getSourceEntity());
+    }
+
+    @Listener(order = POST)
     public void onChat(PlayerChatEvent event)
     {
-        this.updateLastAction(event.getUser());
+        this.updateLastAction(event.getSource());
         this.run();
     }
 
-    @Subscribe(order = POST)
-    public void onCommand(CommandEvent event)
+    @Listener(order = POST)
+    public void onCommand(SendCommandEvent event)
     {
         if (event.getSource() instanceof Player)
         {
@@ -94,10 +103,10 @@ public class AfkListener implements Runnable
     }
     */
 
-    @Subscribe(order = POST)
+    @Listener(order = POST)
     public void onLeave(PlayerQuitEvent event)
     {
-        ChatAttachment attachment = this.um.getExactUser(event.getUser().getUniqueId()).get(ChatAttachment.class);
+        ChatAttachment attachment = this.um.getExactUser(event.getSource().getUniqueId()).get(ChatAttachment.class);
         if (attachment != null)
         {
             attachment.setAfk(false);
@@ -105,13 +114,10 @@ public class AfkListener implements Runnable
         }
     }
 
-    @Subscribe(order = POST)
-    public void onBowShot(ProjectileLaunchEvent event)
+    @Listener(order = POST)
+    public void onBowShot(LaunchProjectileEvent.SourcePlayer event)
     {
-        if (event.getSource().isPresent() && event.getSource() instanceof Player)
-        {
-            this.updateLastAction((Player)event.getEntity());
-        }
+        this.updateLastAction(event.getSourceEntity());
     }
 
     private void updateLastAction(Player player)

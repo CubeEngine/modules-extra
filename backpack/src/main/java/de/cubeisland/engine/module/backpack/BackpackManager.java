@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import org.cubeengine.service.command.CommandSender;
 import org.cubeengine.service.user.User;
-import org.spongepowered.api.event.Subscribe;
+import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.inventory.InventoryClickEvent;
 import org.spongepowered.api.event.inventory.InventoryCloseEvent;
 import org.spongepowered.api.item.inventory.ItemStack;

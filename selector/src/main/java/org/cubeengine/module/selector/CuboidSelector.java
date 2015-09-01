@@ -31,8 +31,8 @@ import org.cubeengine.service.user.UserManager;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.EntityInteractionType;
 import org.spongepowered.api.entity.EntityInteractionTypes;
-import org.spongepowered.api.event.Subscribe;
-import org.spongepowered.api.event.entity.player.PlayerInteractBlockEvent;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.format.TextColors;
@@ -94,32 +94,31 @@ public class CuboidSelector implements Selector
         return attachment.getPoint(index);
     }
 
-    @Subscribe
-    public void onInteract(PlayerInteractBlockEvent event)
+    @Listener
+    public void onInteract(InteractBlockEvent.SourcePlayer event)
     {
-        EntityInteractionType type = event.getInteractionType();
-        Location block = event.getLocation();
+        Location block = event.getTargetLocation();
         if ((int)block.getPosition().length() == 0)
         {
             return;
         }
-        if (block.getBlockType() == AIR || !event.getUser().hasPermission(module.getSelectPerm().getId()))
+        if (block.getBlockType() == AIR || !event.getSourceEntity().hasPermission(module.getSelectPerm().getId()))
         {
             return;
         }
-        Optional<ItemStack> itemInHand = event.getUser().getItemInHand();
+        Optional<ItemStack> itemInHand = event.getSourceEntity().getItemInHand();
         if (!itemInHand.isPresent() || !Texts.of(TextColors.BLUE, "Selector-Tool").equals(itemInHand.get().get(Keys.DISPLAY_NAME).orNull()))
         {
             return;
         }
-        User user = um.getExactUser(event.getUser().getUniqueId());
+        User user = um.getExactUser(event.getSourceEntity().getUniqueId());
         SelectorAttachment logAttachment = user.attachOrGet(SelectorAttachment.class, this.module);
-        if (EntityInteractionTypes.ATTACK == type)
+        if (event instanceof InteractBlockEvent.Attack)
         {
             logAttachment.setPoint(0, block);
             user.sendTranslated(POSITIVE, "First position set to ({integer}, {integer}, {integer}).", block.getBlockX(), block.getBlockY(), block.getBlockZ());
         }
-        else if (EntityInteractionTypes.USE == type)
+        else if (event instanceof InteractBlockEvent.Use)
         {
             logAttachment.setPoint(1, block);
             user.sendTranslated(POSITIVE, "Second position set to ({integer}, {integer}, {integer}).", block.getBlockX(), block.getBlockY(), block.getBlockZ());

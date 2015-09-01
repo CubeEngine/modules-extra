@@ -25,10 +25,11 @@ import org.cubeengine.module.chat.CubeMessageSink;
 import org.cubeengine.service.i18n.I18n;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.data.manipulator.mutable.DisplayNameData;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Order;
-import org.spongepowered.api.event.Subscribe;
-import org.spongepowered.api.event.entity.player.PlayerChatEvent;
-import org.spongepowered.api.event.entity.player.PlayerJoinEvent;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.entity.living.player.PlayerChatEvent;
+import org.spongepowered.api.event.entity.living.player.PlayerJoinEvent;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.option.OptionSubject;
@@ -38,7 +39,6 @@ import org.spongepowered.api.text.action.TextActions;
 
 import static org.cubeengine.module.core.util.ChatFormat.fromLegacy;
 import static org.cubeengine.service.i18n.formatter.MessageType.NEUTRAL;
-import static org.spongepowered.api.text.Texts.toPlain;
 
 
 public class ChatFormatListener
@@ -55,39 +55,40 @@ public class ChatFormatListener
         this.i18n = i18n;
     }
 
-    @Subscribe
+    @Listener
     public void onPlayerJoin(PlayerJoinEvent event)
     {
-        event.getUser().setMessageSink(new CubeMessageSink());
+        event.getSource().setMessageSink(new CubeMessageSink());
     }
 
-    @Subscribe(order = Order.EARLY)
+    @Listener(order = Order.EARLY)
     public void onPlayerChat(PlayerChatEvent event)
     {
         String msg = Texts.toPlain(event.getUnformattedMessage());
+        Player player = event.getSource();
         if (module.getConfig().allowColors)
         {
-            if (!event.getUser().hasPermission(module.perms().COLOR.getId()))
+            if (!player.hasPermission(module.perms().COLOR.getId()))
             {
                 msg = chatColors.matcher(msg).replaceAll("");
             }
         }
 
         Subject subject = game.getServiceManager().provideUnchecked(PermissionService.class).getUserSubjects().get(
-            event.getUser().getUniqueId().toString());
+            player.getUniqueId().toString());
 
         Map<String, Text> replacements = new HashMap<>();
-        String name = event.getUser().getName();
+        String name = player.getName();
         replacements.put("{NAME}", Texts.of(name));
-        Text displayName = event.getUser().get(DisplayNameData.class).isPresent() ?
-            event.getUser().getDisplayNameData().displayName().get() : Texts.of(name);
+        Text displayName = player.get(DisplayNameData.class).isPresent() ?
+            player.getDisplayNameData().displayName().get() : Texts.of(name);
         if (!Texts.toPlain(displayName).equals(name))
         {
             Text translation = i18n.getTranslation(null, NEUTRAL, "Actual name: {user}", name);
             displayName = Texts.builder().append(displayName).onHover(TextActions.showText(translation)).build();
         }
         replacements.put("{DISPLAY_NAME}", displayName);
-        replacements.put("{WORLD}", Texts.of(event.getUser().getWorld().getName()));
+        replacements.put("{WORLD}", Texts.of(player.getWorld().getName()));
         replacements.put("{MESSAGE}", fromLegacy(msg, '&'));
         replacements.put("{PREFIX}", Texts.of());
         replacements.put("{SUFFIX}", Texts.of());

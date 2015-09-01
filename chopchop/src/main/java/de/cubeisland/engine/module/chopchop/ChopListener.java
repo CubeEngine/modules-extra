@@ -30,7 +30,7 @@ import org.spongepowered.api.data.manipulator.item.EnchantmentData;
 import org.spongepowered.api.data.type.TreeType;
 import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.Item;
-import org.spongepowered.api.event.Subscribe;
+import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.BlockBreakEvent;
 import org.spongepowered.api.event.entity.player.PlayerBreakBlockEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
