@@ -20,6 +20,7 @@ package org.cubeengine.module.chat.listener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
+import com.google.common.base.Optional;
 import org.cubeengine.module.chat.Chat;
 import org.cubeengine.module.chat.CubeMessageSink;
 import org.cubeengine.service.i18n.I18n;
@@ -28,8 +29,8 @@ import org.spongepowered.api.data.manipulator.mutable.DisplayNameData;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.entity.living.player.PlayerChatEvent;
-import org.spongepowered.api.event.entity.living.player.PlayerJoinEvent;
+import org.spongepowered.api.event.command.MessageSinkEvent;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.option.OptionSubject;
@@ -39,7 +40,6 @@ import org.spongepowered.api.text.action.TextActions;
 
 import static org.cubeengine.module.core.util.ChatFormat.fromLegacy;
 import static org.cubeengine.service.i18n.formatter.MessageType.NEUTRAL;
-
 
 public class ChatFormatListener
 {
@@ -56,16 +56,22 @@ public class ChatFormatListener
     }
 
     @Listener
-    public void onPlayerJoin(PlayerJoinEvent event)
+    public void onPlayerJoin(ClientConnectionEvent.Join event)
     {
-        event.getSource().setMessageSink(new CubeMessageSink());
+        event.getTargetEntity().setMessageSink(new CubeMessageSink());
     }
 
     @Listener(order = Order.EARLY)
-    public void onPlayerChat(PlayerChatEvent event)
+    public void onPlayerChat(MessageSinkEvent event)
     {
-        String msg = Texts.toPlain(event.getUnformattedMessage());
-        Player player = event.getSource();
+        Optional<Player> source = event.getCause().first(Player.class);
+        if (!source.isPresent())
+        {
+            return;
+        }
+        String msg = Texts.toPlain(event.getOriginalMessage());
+
+        Player player = source.get();
         if (module.getConfig().allowColors)
         {
             if (!player.hasPermission(module.perms().COLOR.getId()))
@@ -98,7 +104,7 @@ public class ChatFormatListener
             replacements.put("{SUFFIX}", fromLegacy(((OptionSubject)subject).getOption("chat-suffix").or(""), '&'));
         }
 
-        event.setNewMessage(fromLegacy(this.getFormat(subject), replacements, '&'));
+        event.setMessage(fromLegacy(this.getFormat(subject), replacements, '&'));
     }
 
     protected String getFormat(Subject subject)

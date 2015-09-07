@@ -19,6 +19,7 @@ package org.cubeengine.module.chat.listener;
 
 import java.sql.Date;
 import java.util.Iterator;
+import com.google.common.base.Optional;
 import org.cubeengine.module.chat.Chat;
 import org.cubeengine.module.chat.ChatAttachment;
 import org.cubeengine.module.chat.command.IgnoreCommands;
@@ -26,7 +27,7 @@ import org.cubeengine.service.user.User;
 import org.cubeengine.service.user.UserManager;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.entity.living.player.PlayerChatEvent;
+import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.util.command.CommandSource;
 
 import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
@@ -45,10 +46,15 @@ public class MuteListener
     }
 
     @Listener
-    public void onChat(PlayerChatEvent event)
+    public void onChat(MessageSinkEvent event)
     {
+        Optional<Player> source = event.getCause().first(Player.class);
+        if (!source.isPresent())
+        {
+            return;
+        }
         // muted?
-        User sender = um.getExactUser(event.getSource().getUniqueId());
+        User sender = um.getExactUser(source.get().getUniqueId());
         if (sender != null)
         {
             ChatAttachment attachment = sender.attachOrGet(ChatAttachment.class, module);

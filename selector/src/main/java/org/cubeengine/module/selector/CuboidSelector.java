@@ -31,6 +31,7 @@ import org.cubeengine.service.user.UserManager;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.EntityInteractionType;
 import org.spongepowered.api.entity.EntityInteractionTypes;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -95,23 +96,28 @@ public class CuboidSelector implements Selector
     }
 
     @Listener
-    public void onInteract(InteractBlockEvent.SourcePlayer event)
+    public void onInteract(InteractBlockEvent event)
     {
-        Location block = event.getTargetLocation();
+        Optional<Player> source = event.getCause().first(Player.class);
+        if (!source.isPresent())
+        {
+            return;
+        }
+        Location block = event.getTargetBlock().getLocation().get();
         if ((int)block.getPosition().length() == 0)
         {
             return;
         }
-        if (block.getBlockType() == AIR || !event.getSourceEntity().hasPermission(module.getSelectPerm().getId()))
+        if (block.getBlockType() == AIR || !source.get().hasPermission(module.getSelectPerm().getId()))
         {
             return;
         }
-        Optional<ItemStack> itemInHand = event.getSourceEntity().getItemInHand();
+        Optional<ItemStack> itemInHand = source.get().getItemInHand();
         if (!itemInHand.isPresent() || !Texts.of(TextColors.BLUE, "Selector-Tool").equals(itemInHand.get().get(Keys.DISPLAY_NAME).orNull()))
         {
             return;
         }
-        User user = um.getExactUser(event.getSourceEntity().getUniqueId());
+        User user = um.getExactUser(source.get().getUniqueId());
         SelectorAttachment logAttachment = user.attachOrGet(SelectorAttachment.class, this.module);
         if (event instanceof InteractBlockEvent.Attack)
         {

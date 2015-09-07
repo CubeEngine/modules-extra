@@ -17,19 +17,20 @@
  */
 package org.cubeengine.module.chat.listener;
 
+import com.google.common.base.Optional;
 import org.cubeengine.module.chat.Chat;
 import org.cubeengine.module.chat.ChatAttachment;
 import org.cubeengine.service.user.UserManager;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.event.command.SendCommandEvent;
 import org.spongepowered.api.event.entity.DisplaceEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
-import org.spongepowered.api.event.entity.living.player.PlayerChatEvent;
-import org.spongepowered.api.event.entity.living.player.PlayerQuitEvent;
 import org.spongepowered.api.event.entity.projectile.LaunchProjectileEvent;
-import org.spongepowered.api.event.inventory.InventoryClickEvent;
+import org.spongepowered.api.event.inventory.InteractInventoryEvent;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
 
 import static org.spongepowered.api.event.Order.POST;
 
@@ -50,8 +51,8 @@ public class AfkListener implements Runnable
     @Listener(order = POST)
     public void onMove(DisplaceEntityEvent.Move.TargetPlayer event)
     {
-        if (event.getOldTransform().getLocation().getBlockX() == event.getNewTransform().getLocation().getBlockX()
-            && event.getOldTransform().getLocation().getBlockZ() == event.getNewTransform().getLocation().getBlockZ())
+        if (event.getFromTransform().getLocation().getBlockX() == event.getToTransform().getLocation().getBlockX()
+            && event.getFromTransform().getLocation().getBlockZ() == event.getToTransform().getLocation().getBlockZ())
         {
             return;
         }
@@ -59,32 +60,45 @@ public class AfkListener implements Runnable
     }
 
     @Listener(order = POST)
-    public void onInventoryClick(InventoryClickEvent event)
+    public void onInventoryClick(InteractInventoryEvent.Click event)
     {
-        if (event.getViewer() instanceof Player)
+        Optional<Player> source = event.getCause().first(Player.class);
+        if (source.isPresent())
         {
-            this.updateLastAction((Player)event.getViewer());
+            this.updateLastAction(source.get());
         }
     }
 
     @Listener(order = POST)
-    public void playerInteract(InteractBlockEvent.SourcePlayer event)
+    public void playerInteract(InteractBlockEvent event)
     {
-        this.updateLastAction(event.getSourceEntity());
+        Optional<Player> source = event.getCause().first(Player.class);
+        if (source.isPresent())
+        {
+            this.updateLastAction(source.get());
+        }
     }
 
 
     @Listener(order = POST)
-    public void playerInteract(InteractEntityEvent.SourcePlayer event)
+    public void playerInteract(InteractEntityEvent event)
     {
-        this.updateLastAction(event.getSourceEntity());
+        Optional<Player> source = event.getCause().first(Player.class);
+        if (source.isPresent())
+        {
+            this.updateLastAction(source.get());
+        }
     }
 
     @Listener(order = POST)
-    public void onChat(PlayerChatEvent event)
+    public void onChat(MessageSinkEvent event)
     {
-        this.updateLastAction(event.getSource());
-        this.run();
+        Optional<Player> source = event.getCause().first(Player.class);
+        if (source.isPresent())
+        {
+            this.updateLastAction(source.get());
+            this.run();
+        }
     }
 
     @Listener(order = POST)
@@ -104,20 +118,28 @@ public class AfkListener implements Runnable
     */
 
     @Listener(order = POST)
-    public void onLeave(PlayerQuitEvent event)
+    public void onLeave(ClientConnectionEvent.Disconnect event)
     {
-        ChatAttachment attachment = this.um.getExactUser(event.getSource().getUniqueId()).get(ChatAttachment.class);
-        if (attachment != null)
+        Optional<Player> source = event.getCause().first(Player.class);
+        if (source.isPresent())
         {
-            attachment.setAfk(false);
-            attachment.resetLastAction();
+            ChatAttachment attachment = this.um.getExactUser(source.get().getUniqueId()).get(ChatAttachment.class);
+            if (attachment != null)
+            {
+                attachment.setAfk(false);
+                attachment.resetLastAction();
+            }
         }
     }
 
     @Listener(order = POST)
-    public void onBowShot(LaunchProjectileEvent.SourcePlayer event)
+    public void onBowShot(LaunchProjectileEvent event)
     {
-        this.updateLastAction(event.getSourceEntity());
+        Optional<Player> source = event.getCause().first(Player.class);
+        if (source.isPresent())
+        {
+            this.updateLastAction(source.get());
+        }
     }
 
     private void updateLastAction(Player player)
