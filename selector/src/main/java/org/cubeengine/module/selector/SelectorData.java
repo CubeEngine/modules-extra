@@ -20,27 +20,11 @@ package org.cubeengine.module.selector;
 import org.cubeengine.module.core.util.math.Vector3;
 import org.cubeengine.module.core.util.math.shape.Cuboid;
 import org.cubeengine.module.core.util.math.shape.Shape;
-import org.cubeengine.service.user.UserAttachment;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-public class SelectorAttachment extends UserAttachment
+public class SelectorData
 {
-    private enum Mode
-    {
-        CUBOID(2);
-        private int initialSize;
-
-        Mode(int initialSize)
-        {
-            this.initialSize = initialSize;
-        }
-
-        public int initialSize()
-        {
-            return this.initialSize;
-        }
-    }
 
     private Mode mode = Mode.CUBOID;
 
@@ -94,5 +78,21 @@ public class SelectorAttachment extends UserAttachment
         Vector3 v1 = new Vector3(this.getPoint(0).getX(), this.getPoint(0).getY(), this.getPoint(0).getZ());
         Vector3 v2 = new Vector3(this.getPoint(1).getX(), this.getPoint(1).getY(), this.getPoint(1).getZ());
         return new Cuboid(v1.midpoint(v2), v1.distanceVector(v2));
+    }
+
+    enum Mode
+    {
+        CUBOID(2);
+        private int initialSize;
+
+        Mode(int initialSize)
+        {
+            this.initialSize = initialSize;
+        }
+
+        public int initialSize()
+        {
+            return this.initialSize;
+        }
     }
 }

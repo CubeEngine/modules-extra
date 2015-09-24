@@ -27,7 +27,7 @@ import de.cubeisland.engine.butler.parametric.Named;
 import de.cubeisland.engine.butler.parametric.Optional;
 import org.cubeengine.service.command.ContainerCommand;
 import org.cubeengine.service.command.CommandSender;
-import org.cubeengine.service.user.User;
+import org.cubeengine.service.user.MultilingualPlayer;
 import org.cubeengine.module.core.util.Triplet;
 import org.jooq.types.UInteger;
 import org.spongepowered.api.world.World;
@@ -69,9 +69,9 @@ public class BorderCommands extends ContainerCommand
         {
             center = world.getChunkAt(chunkX, chunkZ);
         }
-        else if (context instanceof User)
+        else if (context instanceof MultilingualPlayer)
         {
-            center = ((User)context).getLocation().getChunk();
+            center = ((MultilingualPlayer)context).getLocation().getChunk();
         }
         else
         {

@@ -37,9 +37,11 @@ import org.spongepowered.api.service.permission.option.OptionSubject;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.action.TextActions;
+import org.spongepowered.api.text.format.TextColors;
 
 import static org.cubeengine.module.core.util.ChatFormat.fromLegacy;
 import static org.cubeengine.service.i18n.formatter.MessageType.NEUTRAL;
+import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
 
 public class ChatFormatListener
 {
@@ -90,8 +92,7 @@ public class ChatFormatListener
             player.getDisplayNameData().displayName().get() : Texts.of(name);
         if (!Texts.toPlain(displayName).equals(name))
         {
-            Text translation = i18n.getTranslation(null, NEUTRAL, "Actual name: {user}", name);
-            displayName = Texts.builder().append(displayName).onHover(TextActions.showText(translation)).build();
+            displayName = Texts.builder().append(displayName).onHover(TextActions.showText(Texts.of(DARK_GREEN, name))).build();
         }
         replacements.put("{DISPLAY_NAME}", displayName);
         replacements.put("{WORLD}", Texts.of(player.getWorld().getName()));

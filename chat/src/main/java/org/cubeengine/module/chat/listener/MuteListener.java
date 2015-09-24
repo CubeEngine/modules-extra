@@ -20,11 +20,10 @@ package org.cubeengine.module.chat.listener;
 import java.sql.Date;
 import java.util.Iterator;
 import com.google.common.base.Optional;
-import org.cubeengine.module.chat.Chat;
-import org.cubeengine.module.chat.ChatAttachment;
 import org.cubeengine.module.chat.command.IgnoreCommands;
-import org.cubeengine.service.user.User;
-import org.cubeengine.service.user.UserManager;
+import org.cubeengine.module.chat.command.MuteCommands;
+import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.service.user.MultilingualPlayer;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.command.MessageSinkEvent;
@@ -34,15 +33,15 @@ import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
 
 public class MuteListener
 {
-    private final Chat module;
-    private final IgnoreCommands ignore;
-    private UserManager um;
+    private final IgnoreCommands ignoreCmd;
+    private MuteCommands muteCmd;
+    private I18n i18n;
 
-    public MuteListener(Chat module, IgnoreCommands ignore, UserManager um)
+    public MuteListener(IgnoreCommands ignore, MuteCommands muteCmd, I18n i18n)
     {
-        this.module = module;
-        this.ignore = ignore;
-        this.um = um;
+        this.ignoreCmd = ignore;
+        this.muteCmd = muteCmd;
+        this.i18n = i18n;
     }
 
     @Listener
@@ -54,16 +53,13 @@ public class MuteListener
             return;
         }
         // muted?
-        User sender = um.getExactUser(source.get().getUniqueId());
-        if (sender != null)
+        MultilingualPlayer sender = i18n.getMultilingual(source.get());
+        Date muted = muteCmd.getMuted(source.get());
+        if (muted != null && System.currentTimeMillis() < muted.getTime())
         {
-            ChatAttachment attachment = sender.attachOrGet(ChatAttachment.class, module);
-            Date muted = attachment.getMuted();
-            if (muted != null && System.currentTimeMillis() < muted.getTime())
-            {
-                event.setCancelled(true);
-                sender.sendTranslated(NEGATIVE, "You try to speak but nothing happens!");
-            }
+            event.setCancelled(true);
+            sender.sendTranslated(NEGATIVE, "You try to speak but nothing happens!");
+            return;
         }
         // ignored?
         for (Iterator<CommandSource> iterator = event.getSink().getRecipients().iterator(); iterator.hasNext(); )
@@ -71,8 +67,7 @@ public class MuteListener
             final CommandSource player = iterator.next();
             if (player instanceof Player)
             {
-                User user = um.getExactUser(player.getName());
-                if (this.ignore.checkIgnored(user, sender))
+                if (this.ignoreCmd.checkIgnored(((Player)player), sender.getSource()))
                 {
                     iterator.remove();
                 }

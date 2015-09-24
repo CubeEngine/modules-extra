@@ -21,7 +21,7 @@ import com.google.common.base.Optional;
 import de.cubeisland.engine.butler.parametric.Command;
 import de.cubeisland.engine.butler.result.CommandResult;
 import org.cubeengine.service.command.CommandContext;
-import org.cubeengine.service.user.User;
+import org.cubeengine.service.user.MultilingualPlayer;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Texts;
@@ -41,7 +41,7 @@ public class SelectorCommand
         this.game = game;
     }
 
-    public void giveSelectionTool(User user)
+    public void giveSelectionTool(MultilingualPlayer user)
     {
         ItemStack found = null;
         // TODO wait for implemented InventoryAPI
@@ -61,7 +61,7 @@ public class SelectorCommand
             }
         }
         */
-        Optional<ItemStack> itemInHand = user.asPlayer().getItemInHand();
+        Optional<ItemStack> itemInHand = user.original().getItemInHand();
         if (found == null)
         {
             found = game.getRegistry().createItemBuilder().itemType(WOODEN_AXE).quantity(1).build();
@@ -72,10 +72,10 @@ public class SelectorCommand
             found.offer(lore);
             */
 
-            user.asPlayer().setItemInHand(found);
+            user.original().setItemInHand(found);
             if (itemInHand.isPresent())
             {
-                if (!user.asPlayer().getInventory().offer(itemInHand.get()))
+                if (!user.original().getInventory().offer(itemInHand.get()))
                 {
                     // TODO drop item
                 }
@@ -84,10 +84,10 @@ public class SelectorCommand
             return;
         }
 
-        user.asPlayer().setItemInHand(found);
+        user.original().setItemInHand(found);
         if (itemInHand.isPresent())
         {
-            user.asPlayer().getInventory().offer(itemInHand.get());
+            user.original().getInventory().offer(itemInHand.get());
         }
         user.sendTranslated(POSITIVE, "Found a region selector tool in your inventory!");
     }
@@ -95,9 +95,9 @@ public class SelectorCommand
     @Command(desc = "Provides you with a wand to select a cuboid")
     public CommandResult selectiontool(CommandContext context)
     {
-        if (context.getSource() instanceof User)
+        if (context.getSource() instanceof MultilingualPlayer)
         {
-            giveSelectionTool((User)context.getSource());
+            giveSelectionTool((MultilingualPlayer)context.getSource());
         }
         else
         {

@@ -17,50 +17,143 @@
  */
 package org.cubeengine.module.chat.command;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.UUID;
 import de.cubeisland.engine.butler.parametric.Command;
 import de.cubeisland.engine.butler.parametric.Default;
 import org.cubeengine.module.chat.Chat;
-import org.cubeengine.module.chat.ChatAttachment;
 import org.cubeengine.module.chat.listener.AfkListener;
+import org.cubeengine.module.core.sponge.EventManager;
 import org.cubeengine.service.command.CommandContext;
-import org.cubeengine.service.user.User;
+import org.cubeengine.service.task.TaskManager;
+import org.cubeengine.service.user.Broadcaster;
 import org.cubeengine.service.user.UserManager;
+import org.spongepowered.api.Game;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.service.user.UserStorage;
 
-import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
-
-public class AfkCommand
+public class AfkCommand implements Runnable
 {
     private final Chat module;
+    private long autoAfk;
+    private long afkCheck;
+    private Game game;
     private final AfkListener listener;
     private final UserManager um;
+    private Broadcaster bc;
 
-    public AfkCommand(Chat module, AfkListener listener, UserManager um)
+    private Map<UUID, Boolean> afks = new HashMap<>();
+    private Map<UUID, Long> actions = new HashMap<>();
+
+    public AfkCommand(Chat module, long autoAfk, long afkCheck, UserManager um, Broadcaster bc, TaskManager tm,
+                      EventManager em, Game game)
     {
         this.module = module;
-        this.listener = listener;
+        this.autoAfk = autoAfk;
+        this.afkCheck = afkCheck;
+        this.game = game;
+        this.listener = new AfkListener(module, this);
+        if (afkCheck > 0)
+        {
+            em.registerListener(module, listener);
+            if (autoAfk > 0)
+            {
+                tm.runTimer(module, this, 20, afkCheck / 50); // this is in ticks so /50
+            }
+        }
         this.um = um;
+        this.bc = bc;
     }
 
     @Command(desc = "Displays that you are afk")
-    public void afk(CommandContext context, @Default User player)
+    public void afk(CommandContext context, @Default Player player)
     {
         if (!context.getSource().equals(player))
         {
             context.ensurePermission(module.perms().COMMAND_AFK_OTHER);
         }
-        if (!player.getPlayer().isPresent())
+        if (afks.getOrDefault(player.getUniqueId(), false))
         {
-            context.sendTranslated(NEGATIVE, "{user} is not online!", player);
+            updateLastAction(player);
+            this.run();
             return;
         }
-        if (player.get(ChatAttachment.class).isAfk())
+        setAfk(player, true);
+        resetLastAction(player);
+        bc.broadcastStatus("is now afk.", player);
+    }
+
+
+    public boolean isAfk(Player player)
+    {
+        return afks.getOrDefault(player.getUniqueId(), false);
+    }
+
+    public void setAfk(Player player, boolean afk)
+    {
+        afks.put(player.getUniqueId(), afk);
+    }
+
+    public long getLastAction(Player player)
+    {
+        return actions.getOrDefault(player.getUniqueId(), 0L);
+    }
+
+    public long updateLastAction(Player player)
+    {
+        actions.put(player.getUniqueId(), System.currentTimeMillis());
+        return getLastAction(player);
+    }
+
+    public void resetLastAction(Player player)
+    {
+        actions.remove(player.getUniqueId());
+    }
+
+
+
+    @Override
+    public void run()
+    {
+        afks.entrySet().stream().filter(Entry::getValue)
+            .map(Entry::getKey).map(uuid -> game.getServiceManager().provide(UserStorage.class).get().get(uuid))
+            .filter(com.google.common.base.Optional::isPresent)
+            .map(com.google.common.base.Optional::get)
+            .forEach(this::updateAfk);
+    }
+
+    private void updateAfk(User user)
+    {
+        if (user.getPlayer().isPresent())
         {
-            player.get(ChatAttachment.class).updateLastAction();
-            listener.run();
+            Player player = user.getPlayer().get();
+            long lastAction = getLastAction(player);
+            if (lastAction == 0)
+            {
+                return;
+            }
+            if (isAfk(player))
+            {
+                if (System.currentTimeMillis() - lastAction < this.afkCheck)
+                {
+                    setAfk(player, false);
+                    this.bc.broadcastStatus("is no longer afk!", player);
+                }
+            }
+            else if (System.currentTimeMillis() - lastAction > this.autoAfk)
+            {
+                if (!player.hasPermission(module.perms().PREVENT_AUTOAFK.getId()))
+                {
+                    setAfk(player, true);
+                    this.bc.broadcastStatus("is now afk!", player);
+                }
+            }
             return;
         }
-        player.get(ChatAttachment.class).setAfk(true);
-        player.get(ChatAttachment.class).resetLastAction();
-        um.broadcastStatus("is now afk.", player);
+        afks.remove(user.getUniqueId());
+        actions.remove(user.getUniqueId());
     }
 }

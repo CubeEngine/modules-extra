@@ -20,7 +20,7 @@ package de.cubeisland.engine.module.border;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import org.cubeengine.service.user.User;
+import org.cubeengine.service.user.MultilingualPlayer;
 import org.cubeengine.service.user.UserManager;
 import org.cubeengine.module.core.util.math.BlockVector2;
 import org.bukkit.Chunk;
@@ -165,7 +165,7 @@ public class BorderListener implements Listener
         }
         if (!isChunkInRange(event.getTo().getChunk(),config))
         {
-            User user = this.module.getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
+            MultilingualPlayer user = this.module.getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
             user.sendTranslated(NEGATIVE, "This portal would teleport you behind the border!");
             event.setCancelled(true);
         }

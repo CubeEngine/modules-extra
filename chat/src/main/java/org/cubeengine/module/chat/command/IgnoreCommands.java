@@ -18,8 +18,11 @@
 package org.cubeengine.module.chat.command;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 import de.cubeisland.engine.butler.filter.Restricted;
 import de.cubeisland.engine.butler.parametric.Command;
 import de.cubeisland.engine.butler.parametric.Reader;
@@ -30,7 +33,10 @@ import org.cubeengine.module.core.util.ChatFormat;
 import org.cubeengine.module.core.util.StringUtils;
 import org.cubeengine.service.command.CommandContext;
 import org.cubeengine.service.database.Database;
-import org.cubeengine.service.user.User;
+import org.cubeengine.service.user.MultilingualPlayer;
+import org.cubeengine.service.user.UserManager;
+import org.spongepowered.api.entity.living.player.Player;
+
 import static org.cubeengine.service.i18n.formatter.MessageType.*;
 
 
@@ -38,52 +44,58 @@ public class IgnoreCommands
 {
     private final Chat module;
     private Database db;
+    private UserManager um;
 
-    public IgnoreCommands(Chat basics, Database db)
+    private Map<UUID, List<IgnoreList>> ignored = new HashMap<>();
+
+    public IgnoreCommands(Chat basics, Database db, UserManager um)
     {
         this.module = basics;
-
         this.db = db;
+        this.um = um;
     }
 
-    private boolean addIgnore(User user, User ignored)
+    private boolean addIgnore(Player user, Player ignored)
     {
         if (checkIgnored(user, ignored))
         {
             return false;
         }
-        IgnoreList ignoreList = db.getDSL().newRecord(TableIgnorelist.TABLE_IGNORE_LIST).newIgnore(user, ignored);
+
+        IgnoreList ignoreList = db.getDSL().newRecord(TableIgnorelist.TABLE_IGNORE_LIST)
+              .newIgnore(um.getByUUID(user.getUniqueId()).getEntity().getId(),
+                         um.getByUUID(ignored.getUniqueId()).getEntity().getId());
         ignoreList.insertAsync();
         return true;
     }
 
-    private boolean removeIgnore(User user, User ignored)
+    private boolean removeIgnore(Player user, Player ignored)
     {
         if (checkIgnored(user, ignored))
         {
             db.getDSL().delete(TableIgnorelist.TABLE_IGNORE_LIST).
-                where(TableIgnorelist.TABLE_IGNORE_LIST.ID.eq(user.getEntity().getId())).
-                and(TableIgnorelist.TABLE_IGNORE_LIST.IGNORE.eq(ignored.getEntity().getId())).execute();
+                where(TableIgnorelist.TABLE_IGNORE_LIST.ID.eq(um.getByUUID(user.getUniqueId()).getEntity().getId())).
+                and(TableIgnorelist.TABLE_IGNORE_LIST.IGNORE.eq(um.getByUUID(ignored.getUniqueId()).getEntity().getId())).execute();
             return true;
         }
         return true;
     }
 
-    public boolean checkIgnored(User user, User ignored)
+    public boolean checkIgnored(Player user, Player ignored)
     {
         // TODO cache this shit
         IgnoreList ignore =
             db.getDSL().selectFrom(TableIgnorelist.TABLE_IGNORE_LIST).
-                where(TableIgnorelist.TABLE_IGNORE_LIST.ID.eq(user.getEntity().getId())).
-                and(TableIgnorelist.TABLE_IGNORE_LIST.IGNORE.eq(ignored.getEntity().getId())).fetchOneInto(
+                where(TableIgnorelist.TABLE_IGNORE_LIST.ID.eq(um.getByUUID(user.getUniqueId()).getEntity().getId())).
+                and(TableIgnorelist.TABLE_IGNORE_LIST.IGNORE.eq(um.getByUUID(ignored.getUniqueId()).getEntity().getId())).fetchOneInto(
                 TableIgnorelist.TABLE_IGNORE_LIST);
         return ignore != null;
     }
 
     @Command(desc = "Ignores all messages from players")
-    public void ignore(CommandContext context, @Reader(User.class) List<User> players)
+    public void ignore(CommandContext context, @Reader(MultilingualPlayer.class) List<MultilingualPlayer> players)
     {
-        if (!context.isSource(User.class))
+        if (!context.isSource(Player.class))
         {
             int rand1 = new Random().nextInt(6) + 1;
             int rand2 = new Random().nextInt(6 - rand1 + 1) + 1;
@@ -91,15 +103,15 @@ public class IgnoreCommands
                                    rand1, rand2, rand1 + rand2);
             return;
         }
-        User sender = (User)context.getSource();
+        Player sender = ((Player)context.getSource());
         List<String> added = new ArrayList<>();
-        for (User user : players)
+        for (MultilingualPlayer user : players)
         {
             if (user == context.getSource())
             {
                 context.sendTranslated(NEGATIVE, "If you do not feel like talking to yourself just don't talk.");
             }
-            else if (!this.addIgnore(sender, user))
+            else if (!this.addIgnore(sender, user.getSource()))
             {
                 if (user.hasPermission(module.perms().COMMAND_IGNORE_PREVENT.getId()))
                 {
@@ -117,13 +129,13 @@ public class IgnoreCommands
     }
 
     @Command(desc = "Stops ignoring all messages from a player")
-    @Restricted(value = User.class, msg = "Congratulations! You are now looking at this text!")
-    public void unignore(User context, @Reader(User.class) List<User> players)
+    @Restricted(value = MultilingualPlayer.class, msg = "Congratulations! You are now looking at this text!")
+    public void unignore(MultilingualPlayer context, @Reader(MultilingualPlayer.class) List<MultilingualPlayer> players)
     {
         List<String> added = new ArrayList<>();
-        for (User user : players)
+        for (MultilingualPlayer user : players)
         {
-            if (!this.removeIgnore(context, user))
+            if (!this.removeIgnore(context.getSource(), user.getSource()))
             {
                 context.sendTranslated(NEGATIVE, "You haven't ignored {user}!", user);
             }

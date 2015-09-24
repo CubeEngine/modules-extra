@@ -17,6 +17,9 @@
  */
 package org.cubeengine.module.selector;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import javax.inject.Inject;
 import com.google.common.base.Optional;
 import de.cubeisland.engine.modularity.core.marker.Enable;
@@ -24,13 +27,12 @@ import de.cubeisland.engine.modularity.asm.marker.ServiceImpl;
 import de.cubeisland.engine.modularity.asm.marker.Version;
 import org.cubeengine.module.core.sponge.EventManager;
 import org.cubeengine.service.Selector;
-import org.cubeengine.service.user.User;
+import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.service.user.MultilingualPlayer;
 import org.cubeengine.module.core.util.math.shape.Shape;
 
 import org.cubeengine.service.user.UserManager;
 import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.entity.EntityInteractionType;
-import org.spongepowered.api.entity.EntityInteractionTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
@@ -50,6 +52,9 @@ public class CuboidSelector implements Selector
     @Inject private org.cubeengine.module.selector.Selector module;
     @Inject private EventManager em;
     @Inject private UserManager um;
+    @Inject private I18n i18n;
+
+    private Map<UUID, SelectorData> selectorData = new HashMap<>();
 
     @Enable
     public void onEnable()
@@ -58,41 +63,41 @@ public class CuboidSelector implements Selector
     }
 
     @Override
-    public Shape getSelection(User user)
+    public Shape getSelection(Player user)
     {
-        SelectorAttachment attachment = user.attachOrGet(SelectorAttachment.class, this.module);
-        return attachment.getSelection();
+        SelectorData data = this.selectorData.get(user.getUniqueId());
+        return data == null ? null : data.getSelection();
     }
 
     @Override
-    public Shape get2DProjection(User user)
+    public Shape get2DProjection(Player user)
     {
         throw new UnsupportedOperationException("Not supported yet!"); // TODO Shape.projectOnto(Plane)
     }
 
     @Override
-    public <T extends Shape> T getSelection(User user, Class<T> shape)
+    public <T extends Shape> T getSelection(Player user, Class<T> shape)
     {
         throw new UnsupportedOperationException("Not supported yet!");
     }
 
     @Override
-    public Location getFirstPoint(User user)
+    public Location getFirstPoint(Player user)
     {
         return this.getPoint(user, 0);
     }
 
     @Override
-    public Location getSecondPoint(User user)
+    public Location getSecondPoint(Player user)
     {
         return this.getPoint(user, 1);
     }
 
     @Override
-    public Location getPoint(User user, int index)
+    public Location getPoint(Player user, int index)
     {
-        SelectorAttachment attachment = user.attachOrGet(SelectorAttachment.class, this.module);
-        return attachment.getPoint(index);
+        SelectorData data = this.selectorData.get(user.getUniqueId());
+        return data == null ? null : data.getPoint(index);
     }
 
     @Listener
@@ -117,17 +122,22 @@ public class CuboidSelector implements Selector
         {
             return;
         }
-        User user = um.getExactUser(source.get().getUniqueId());
-        SelectorAttachment logAttachment = user.attachOrGet(SelectorAttachment.class, this.module);
-        if (event instanceof InteractBlockEvent.Attack)
+
+        SelectorData data = selectorData.get(source.get().getUniqueId());
+        if (data == null)
         {
-            logAttachment.setPoint(0, block);
-            user.sendTranslated(POSITIVE, "First position set to ({integer}, {integer}, {integer}).", block.getBlockX(), block.getBlockY(), block.getBlockZ());
+            data = new SelectorData();
+            selectorData.put(source.get().getUniqueId(), data);
         }
-        else if (event instanceof InteractBlockEvent.Use)
+        if (event instanceof InteractBlockEvent.Primary)
         {
-            logAttachment.setPoint(1, block);
-            user.sendTranslated(POSITIVE, "Second position set to ({integer}, {integer}, {integer}).", block.getBlockX(), block.getBlockY(), block.getBlockZ());
+            data.setPoint(0, block);
+            i18n.sendTranslated(source.get(), POSITIVE, "First position set to ({integer}, {integer}, {integer}).", block.getBlockX(), block.getBlockY(), block.getBlockZ());
+        }
+        else if (event instanceof InteractBlockEvent.Secondary)
+        {
+            data.setPoint(1, block);
+            i18n.sendTranslated(source.get(), POSITIVE, "Second position set to ({integer}, {integer}, {integer}).", block.getBlockX(), block.getBlockY(), block.getBlockZ());
         }
         event.setCancelled(true);
     }

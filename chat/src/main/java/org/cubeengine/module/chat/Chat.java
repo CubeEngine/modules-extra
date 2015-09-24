@@ -26,7 +26,6 @@ import org.cubeengine.module.chat.command.AfkCommand;
 import org.cubeengine.module.chat.command.ChatCommands;
 import org.cubeengine.module.chat.command.IgnoreCommands;
 import org.cubeengine.module.chat.command.MuteCommands;
-import org.cubeengine.module.chat.listener.AfkListener;
 import org.cubeengine.module.chat.listener.ChatFormatListener;
 import org.cubeengine.module.chat.listener.MuteListener;
 import org.cubeengine.module.chat.storage.TableIgnorelist;
@@ -38,6 +37,7 @@ import org.cubeengine.service.command.CommandManager;
 import org.cubeengine.service.database.Database;
 import org.cubeengine.service.permission.PermissionManager;
 import org.cubeengine.service.task.TaskManager;
+import org.cubeengine.service.user.Broadcaster;
 import org.cubeengine.service.user.UserManager;
 import org.spongepowered.api.Game;
 
@@ -62,6 +62,7 @@ public class Chat extends Module
     @Inject private Game game;
     @Inject private Database db;
     @Inject private TaskManager tm;
+    @Inject private Broadcaster bc;
 
     @Enable
     public void onEnable()
@@ -70,25 +71,17 @@ public class Chat extends Module
         this.perms = new ChatPerm(this);
         db.registerTable(TableMuted.class);
         db.registerTable(TableIgnorelist.class);
-        cm.addCommands(this, new MuteCommands(this));
-        IgnoreCommands ignoreCmd = new IgnoreCommands(this, db);
-        cm.addCommands(this, new ChatCommands(this, um, cm));
+        MuteCommands muteCmd = new MuteCommands(this, db, um);
+        cm.addCommands(this, muteCmd);
+        IgnoreCommands ignoreCmd = new IgnoreCommands(this, db, um);
+        cm.addCommands(this, new ChatCommands(this, game, um, cm, i18n, bc));
         cm.addCommands(this, ignoreCmd);
         em.registerListener(this, new ChatFormatListener(this, game, i18n));
-        em.registerListener(this, new MuteListener(this, ignoreCmd, um));
+        em.registerListener(this, new MuteListener(ignoreCmd, muteCmd, i18n));
 
         final long autoAfk = config.autoAfk.after.getMillis();
         final long afkCheck = config.autoAfk.check.getMillis();
-        AfkListener afkListener = new AfkListener(this, um, autoAfk, afkCheck);
-        if (afkCheck > 0)
-        {
-            em.registerListener(this, afkListener);
-            if (autoAfk > 0)
-            {
-                tm.runTimer(this, afkListener, 20, afkCheck / 50); // this is in ticks so /50
-            }
-        }
-        cm.addCommands(this, new AfkCommand(this, afkListener, um));
+        cm.addCommands(this, new AfkCommand(this, autoAfk, afkCheck, um, bc, tm, em, game));
     }
 
     @Disable

@@ -19,8 +19,7 @@ package org.cubeengine.module.chat.listener;
 
 import com.google.common.base.Optional;
 import org.cubeengine.module.chat.Chat;
-import org.cubeengine.module.chat.ChatAttachment;
-import org.cubeengine.service.user.UserManager;
+import org.cubeengine.module.chat.command.AfkCommand;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
@@ -34,20 +33,17 @@ import org.spongepowered.api.event.network.ClientConnectionEvent;
 
 import static org.spongepowered.api.event.Order.POST;
 
-public class AfkListener implements Runnable
+public class AfkListener
 {
     private final Chat module;
-    private final UserManager um;
-    private final long autoAfk;
-    private final long afkCheck;
+    private AfkCommand afkCommand;
 
-    public AfkListener(Chat module, UserManager um, long autoAfk, long afkCheck)
+    public AfkListener(Chat module, AfkCommand afkCommand)
     {
         this.module = module;
-        this.um = um;
-        this.autoAfk = autoAfk;
-        this.afkCheck = afkCheck;
+        this.afkCommand = afkCommand;
     }
+
     @Listener(order = POST)
     public void onMove(DisplaceEntityEvent.Move.TargetPlayer event)
     {
@@ -97,7 +93,7 @@ public class AfkListener implements Runnable
         if (source.isPresent())
         {
             this.updateLastAction(source.get());
-            this.run();
+            afkCommand.run();
         }
     }
 
@@ -123,12 +119,8 @@ public class AfkListener implements Runnable
         Optional<Player> source = event.getCause().first(Player.class);
         if (source.isPresent())
         {
-            ChatAttachment attachment = this.um.getExactUser(source.get().getUniqueId()).get(ChatAttachment.class);
-            if (attachment != null)
-            {
-                attachment.setAfk(false);
-                attachment.resetLastAction();
-            }
+            afkCommand.setAfk(source.get(), false);
+            afkCommand.resetLastAction(source.get());
         }
     }
 
@@ -144,48 +136,11 @@ public class AfkListener implements Runnable
 
     private void updateLastAction(Player player)
     {
-        ChatAttachment basicsAttachment = this.um.getExactUser(player.getUniqueId()).get(ChatAttachment.class);
-        if (basicsAttachment != null)
-        {
-            if (basicsAttachment.isAfk() && player.hasPermission(module.perms().PREVENT_AUTOUNAFK.getId()))
-            {
-                return;
-            }
-            basicsAttachment.updateLastAction();
-        }
-    }
-
-    @Override
-    public void run()
-    {
-        um.getLoadedUsers().stream()
-          .filter(u -> u.getPlayer().isPresent())
-          .map(u -> u.attachOrGet(ChatAttachment.class, this.module))
-          .forEach(this::updateAfk);
-    }
-
-    private void updateAfk(ChatAttachment attachment)
-    {
-        long lastAction = attachment.getLastAction();
-        if (lastAction == 0)
+        if (afkCommand.isAfk(player) && player.hasPermission(module.perms().PREVENT_AUTOUNAFK.getId()))
         {
             return;
         }
-        if (attachment.isAfk())
-        {
-            if (System.currentTimeMillis() - lastAction < this.afkCheck)
-            {
-                attachment.setAfk(false);
-                this.um.broadcastStatus("is no longer afk!", attachment.getHolder());
-            }
-        }
-        else if (System.currentTimeMillis() - lastAction > this.autoAfk)
-        {
-            if (!attachment.getHolder().hasPermission(module.perms().PREVENT_AUTOAFK.getId()))
-            {
-                attachment.setAfk(true);
-                this.um.broadcastStatus("is now afk!" ,attachment.getHolder());
-            }
-        }
+        afkCommand.updateLastAction(player);
     }
+
 }
