@@ -30,14 +30,14 @@ import org.cubeengine.module.chat.storage.Muted;
 import org.cubeengine.module.core.util.TimeUtil;
 import org.cubeengine.module.core.util.converter.DurationConverter;
 import org.cubeengine.service.database.Database;
-import org.cubeengine.service.user.MultilingualCommandSource;
-import org.cubeengine.service.user.MultilingualPlayer;
+import org.cubeengine.service.i18n.I18n;
 import org.cubeengine.service.user.UserManager;
 import org.joda.time.Duration;
 import org.jooq.types.UInteger;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
+import org.spongepowered.api.util.command.CommandSource;
 
 import static java.util.concurrent.TimeUnit.DAYS;
 import static org.cubeengine.module.chat.storage.TableMuted.TABLE_MUTED;
@@ -48,24 +48,26 @@ public class MuteCommands
     private Chat module;
     private Database db;
     private UserManager um;
+    private I18n i18n;
     private final DurationConverter converter = new DurationConverter();
 
     private Map<UUID, java.util.Optional<Muted>> mutedMap = new HashMap<>();
 
-    public MuteCommands(Chat module, Database db, UserManager um)
+    public MuteCommands(Chat module, Database db, UserManager um, I18n i18n)
     {
         this.module = module;
         this.db = db;
         this.um = um;
+        this.i18n = i18n;
     }
 
     @Command(desc = "Mutes a player")
-    public void mute(MultilingualCommandSource context, MultilingualPlayer player, @Optional String duration)
+    public void mute(CommandSource context, Player player, @Optional String duration)
     {
-        Date muted = getMuted(player.getSource());
+        Date muted = getMuted(player);
         if (muted != null && muted.getTime() < System.currentTimeMillis())
         {
-            context.sendTranslated(NEUTRAL, "{user} was already muted!", player);
+            i18n.sendTranslated(context, NEUTRAL, "{user} was already muted!", player);
         }
         Duration dura = module.getConfig().defaultMuteTime;
         if (duration != null)
@@ -76,16 +78,17 @@ public class MuteCommands
             }
             catch (ConversionException e)
             {
-                context.sendTranslated(NEGATIVE, "Invalid duration format!");
+                i18n.sendTranslated(context, NEGATIVE, "Invalid duration format!");
                 return;
             }
         }
 
-        setMuted(player.getSource(), new Date(System.currentTimeMillis() + (dura.getMillis() == 0 ? DAYS.toMillis(
+        setMuted(player, new Date(System.currentTimeMillis() + (dura.getMillis() == 0 ? DAYS.toMillis(
             9001) : dura.getMillis())));
-        Text timeString = dura.getMillis() == 0 ? player.getTranslation(NONE, "ever") : Texts.of(TimeUtil.format(player.getSource().getLocale(), dura.getMillis()));
-        player.sendTranslated(NEGATIVE, "You are now muted for {input#amount}!", timeString);
-        context.sendTranslated(NEUTRAL, "You muted {user} globally for {input#amount}!", player, timeString);
+        Text timeString = dura.getMillis() == 0 ? i18n.getTranslation(player, NONE, "ever") : Texts.of(TimeUtil.format(
+            player.getLocale(), dura.getMillis()));
+        i18n.sendTranslated(player, NEGATIVE, "You are now muted for {input#amount}!", timeString);
+        i18n.sendTranslated(context, NEUTRAL, "You muted {user} globally for {input#amount}!", player, timeString);
     }
 
     public Date getMuted(Player player)
@@ -113,9 +116,9 @@ public class MuteCommands
 
 
     @Command(desc = "Unmutes a player")
-    public void unmute(MultilingualCommandSource context, MultilingualPlayer player)
+    public void unmute(CommandSource context, Player player)
     {
-        setMuted(player.getSource(), null);
-        context.sendTranslated(POSITIVE, "{user} is no longer muted!", player);
+        setMuted(player, null);
+        i18n.sendTranslated(context, POSITIVE, "{user} is no longer muted!", player);
     }
 }

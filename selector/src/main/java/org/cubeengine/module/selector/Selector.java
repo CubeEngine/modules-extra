@@ -22,6 +22,7 @@ import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.modularity.core.marker.Enable;
 import org.cubeengine.service.command.CommandManager;
+import org.cubeengine.service.i18n.I18n;
 import org.cubeengine.service.permission.PermissionManager;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.service.permission.PermissionDescription;
@@ -32,13 +33,14 @@ public class Selector extends Module
     @Inject private PermissionManager pm;
     @Inject private CommandManager cm;
     @Inject private Game game;
+    @Inject private I18n i18n;
     private PermissionDescription selectPerm;
 
     @Enable
     public void onEnable()
     {
         selectPerm = pm.register(this, "use-wand", "Allows using the selector wand",null);
-        cm.addCommands(this, new SelectorCommand(game));
+        cm.addCommands(this, new SelectorCommand(game, i18n));
     }
 
     public PermissionDescription getSelectPerm()

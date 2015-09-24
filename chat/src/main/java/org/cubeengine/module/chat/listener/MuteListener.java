@@ -23,7 +23,6 @@ import com.google.common.base.Optional;
 import org.cubeengine.module.chat.command.IgnoreCommands;
 import org.cubeengine.module.chat.command.MuteCommands;
 import org.cubeengine.service.i18n.I18n;
-import org.cubeengine.service.user.MultilingualPlayer;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.command.MessageSinkEvent;
@@ -53,12 +52,11 @@ public class MuteListener
             return;
         }
         // muted?
-        MultilingualPlayer sender = i18n.getMultilingual(source.get());
         Date muted = muteCmd.getMuted(source.get());
         if (muted != null && System.currentTimeMillis() < muted.getTime())
         {
             event.setCancelled(true);
-            sender.sendTranslated(NEGATIVE, "You try to speak but nothing happens!");
+            i18n.sendTranslated(source.get(), NEGATIVE, "You try to speak but nothing happens!");
             return;
         }
         // ignored?
@@ -67,7 +65,7 @@ public class MuteListener
             final CommandSource player = iterator.next();
             if (player instanceof Player)
             {
-                if (this.ignoreCmd.checkIgnored(((Player)player), sender.getSource()))
+                if (this.ignoreCmd.checkIgnored(((Player)player), source.get()))
                 {
                     iterator.remove();
                 }

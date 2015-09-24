@@ -33,18 +33,18 @@ import org.cubeengine.module.core.util.ChatFormat;
 import org.cubeengine.module.core.util.StringUtils;
 import org.cubeengine.service.command.CommandContext;
 import org.cubeengine.service.database.Database;
-import org.cubeengine.service.user.MultilingualPlayer;
+import org.cubeengine.service.i18n.I18n;
 import org.cubeengine.service.user.UserManager;
 import org.spongepowered.api.entity.living.player.Player;
 
 import static org.cubeengine.service.i18n.formatter.MessageType.*;
-
 
 public class IgnoreCommands
 {
     private final Chat module;
     private Database db;
     private UserManager um;
+    private I18n i18n;
 
     private Map<UUID, List<IgnoreList>> ignored = new HashMap<>();
 
@@ -93,7 +93,7 @@ public class IgnoreCommands
     }
 
     @Command(desc = "Ignores all messages from players")
-    public void ignore(CommandContext context, @Reader(MultilingualPlayer.class) List<MultilingualPlayer> players)
+    public void ignore(CommandContext context, @Reader(Player.class) List<Player> players)
     {
         if (!context.isSource(Player.class))
         {
@@ -105,13 +105,13 @@ public class IgnoreCommands
         }
         Player sender = ((Player)context.getSource());
         List<String> added = new ArrayList<>();
-        for (MultilingualPlayer user : players)
+        for (Player user : players)
         {
             if (user == context.getSource())
             {
                 context.sendTranslated(NEGATIVE, "If you do not feel like talking to yourself just don't talk.");
             }
-            else if (!this.addIgnore(sender, user.getSource()))
+            else if (!this.addIgnore(sender, user))
             {
                 if (user.hasPermission(module.perms().COMMAND_IGNORE_PREVENT.getId()))
                 {
@@ -129,21 +129,21 @@ public class IgnoreCommands
     }
 
     @Command(desc = "Stops ignoring all messages from a player")
-    @Restricted(value = MultilingualPlayer.class, msg = "Congratulations! You are now looking at this text!")
-    public void unignore(MultilingualPlayer context, @Reader(MultilingualPlayer.class) List<MultilingualPlayer> players)
+    @Restricted(value = Player.class, msg = "Congratulations! You are now looking at this text!")
+    public void unignore(Player context, @Reader(Player.class) List<Player> players)
     {
         List<String> added = new ArrayList<>();
-        for (MultilingualPlayer user : players)
+        for (Player user : players)
         {
-            if (!this.removeIgnore(context.getSource(), user.getSource()))
+            if (!this.removeIgnore(context, user))
             {
-                context.sendTranslated(NEGATIVE, "You haven't ignored {user}!", user);
+                i18n.sendTranslated(context, NEGATIVE, "You haven't ignored {user}!", user);
             }
             else
             {
                 added.add(user.getName());
             }
         }
-        context.sendTranslated(POSITIVE, "You removed {user#list} from your ignore list!", StringUtils.implode(ChatFormat.WHITE + ", " + ChatFormat.DARK_GREEN, added));
+        i18n.sendTranslated(context, POSITIVE, "You removed {user#list} from your ignore list!", StringUtils.implode(ChatFormat.WHITE + ", " + ChatFormat.DARK_GREEN, added));
     }
 }

@@ -18,7 +18,6 @@
 package org.cubeengine.module.chat.storage;
 
 import org.cubeengine.service.database.AsyncRecord;
-import org.cubeengine.service.user.MultilingualPlayer;
 import org.jooq.types.UInteger;
 
 import static org.cubeengine.module.chat.storage.TableIgnorelist.TABLE_IGNORE_LIST;

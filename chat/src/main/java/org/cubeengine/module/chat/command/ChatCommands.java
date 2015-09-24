@@ -31,8 +31,6 @@ import org.cubeengine.service.command.CommandContext;
 import org.cubeengine.service.command.CommandManager;
 import org.cubeengine.service.i18n.I18n;
 import org.cubeengine.service.user.Broadcaster;
-import org.cubeengine.service.user.MultilingualCommandSource;
-import org.cubeengine.service.user.MultilingualPlayer;
 import org.cubeengine.service.user.UserManager;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.data.manipulator.mutable.DisplayNameData;
@@ -68,65 +66,65 @@ public class ChatCommands
     }
 
     @Command(desc = "Allows you to emote")
-    public void me(MultilingualCommandSource context, @Greed(INFINITE) String message)
+    public void me(CommandSource context, @Greed(INFINITE) String message)
     {
-        bc.broadcastStatus(message, context.getSource());
+        bc.broadcastStatus(message, context);
     }
 
     @Command(desc = "Changes your display name")
-    public void nick(MultilingualCommandSource context, @Label("<name>|-reset") String name, @Optional Player player)
+    public void nick(CommandSource context, @Label("<name>|-reset") String name, @Optional Player player)
     {
         if (player == null)
         {
-            if (!(context instanceof MultilingualPlayer))
+            if (!(context instanceof Player))
             {
-                context.sendTranslated(NEGATIVE, "You cannot change the consoles display name"); // TODO You cannot?!? why oh whyy
+                i18n.sendTranslated(context, NEGATIVE, "You cannot change the consoles display name"); // TODO You cannot?!? why oh whyy
                 return;
             }
-            player = ((MultilingualPlayer)context).original();
+            player = ((Player)context);
         }
 
-        if (!context.equals(player) && !context.getSource().hasPermission(module.perms().COMMAND_NICK_OTHER.getId()))
+        if (!context.equals(player) && !context.hasPermission(module.perms().COMMAND_NICK_OTHER.getId()))
         {
-            context.sendTranslated(NEGATIVE, "You are not allowed to change the nickname of another player!");
+            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to change the nickname of another player!");
             return;
         }
 
         if ("-r".equalsIgnoreCase(name) || "-reset".equalsIgnoreCase(name))
         {
             DisplayNameData display = player.getOrCreate(DisplayNameData.class).get();
-            display.displayName().set(Texts.of(context.getSource().getName()));
+            display.displayName().set(Texts.of(context.getName()));
             player.offer(display);
-            context.sendTranslated(POSITIVE, "Display name reset to {user}", context);
+            i18n.sendTranslated(context, POSITIVE, "Display name reset to {user}", context);
             return;
         }
         if (um.getByName(name).isPresent() && !context.hasPermission(module.perms().COMMAND_NICK_OFOTHER.getId()))
         {
-            context.sendTranslated(NEGATIVE, "This name has been taken by another player!");
+            i18n.sendTranslated(context, NEGATIVE, "This name has been taken by another player!");
             return;
         }
-        context.sendTranslated(POSITIVE, "Display name changed from {user} to {user}", context, name);
+        i18n.sendTranslated(context, POSITIVE, "Display name changed from {user} to {user}", context, name);
         DisplayNameData display = player.getOrCreate(DisplayNameData.class).get();
         display.displayName().set(ChatFormat.fromLegacy(name, '&'));
         player.offer(display);
     }
 
     @Command(desc = "Sends a private message to someone", alias = {"tell", "message", "pm", "m", "t", "whisper", "w"})
-    public void msg(MultilingualCommandSource context, CommandSource player, @Greed(INFINITE) String message)
+    public void msg(CommandSource context, CommandSource player, @Greed(INFINITE) String message)
     {
         if (!this.sendWhisperTo(player, message, context))
         {
-            context.sendTranslated(NEGATIVE, "Could not find the player {user} to send the message to. Is the player offline?", player);
+            i18n.sendTranslated(context, NEGATIVE, "Could not find the player {user} to send the message to. Is the player offline?", player);
         }
     }
 
     @Command(alias = "r", desc = "Replies to the last person that whispered to you.")
-    public void reply(MultilingualCommandSource context, @Greed(INFINITE) String message)
+    public void reply(CommandSource context, @Greed(INFINITE) String message)
     {
         UUID lastWhisper;
-        if (context instanceof MultilingualPlayer)
+        if (context instanceof Player)
         {
-            lastWhisper = lastWhispers.get(((MultilingualPlayer)context).original().getUniqueId());
+            lastWhisper = lastWhispers.get(((Player)context).getUniqueId());
         }
         else
         {
@@ -134,7 +132,7 @@ public class ChatCommands
         }
         if (lastWhisper == null)
         {
-            context.sendTranslated(NEUTRAL, "No one has sent you a message that you could reply to!");
+            i18n.sendTranslated(context, NEUTRAL, "No one has sent you a message that you could reply to!");
             return;
         }
         CommandSource target;
@@ -148,11 +146,11 @@ public class ChatCommands
         }
         if (!this.sendWhisperTo(target, message, context))
         {
-            context.sendTranslated(NEGATIVE, "Could not find the player to reply to. Is the player offline?");
+            i18n.sendTranslated(context, NEGATIVE, "Could not find the player to reply to. Is the player offline?");
         }
     }
 
-    private boolean sendWhisperTo(CommandSource whisperTarget, String message, MultilingualCommandSource context)
+    private boolean sendWhisperTo(CommandSource whisperTarget, String message, CommandSource context)
     {
         if (whisperTarget == null)
         {
@@ -162,46 +160,45 @@ public class ChatCommands
         {
             if (context instanceof ConsoleSource)
             {
-                context.sendTranslated(NEUTRAL, "Talking to yourself?");
+                i18n.sendTranslated(context, NEUTRAL, "Talking to yourself?");
                 return true;
             }
-            if (context instanceof MultilingualPlayer)
+            if (context instanceof Player)
             {
-                i18n.sendTranslated(whisperTarget, NEUTRAL, "{sender} -> {text:You}: {message:color=WHITE}", context, message);
-                context.sendTranslated(NEUTRAL, "{text:You} -> {user}: {message:color=WHITE}", whisperTarget.getName(),
-                                       message);
-                lastWhispers.put(consoleUUID, ((MultilingualPlayer)context).original().getUniqueId());
-                lastWhispers.put(((MultilingualPlayer)context).original().getUniqueId(), consoleUUID);
+                i18n.sendTranslated(whisperTarget, NEUTRAL, "{sender} -> {text:You}: {message:color=WHITE}", context,
+                                    message);
+                i18n.sendTranslated(context, NEUTRAL, "{text:You} -> {user}: {message:color=WHITE}",
+                                    whisperTarget.getName(), message);
+                lastWhispers.put(consoleUUID, ((Player)context).getUniqueId());
+                lastWhispers.put(((Player)context).getUniqueId(), consoleUUID);
                 return true;
             }
-            context.sendTranslated(NONE, "Who are you!?");
+            i18n.sendTranslated(context, NONE, "Who are you!?");
             return true;
         }
 
         if (whisperTarget instanceof Player)
         {
-            MultilingualPlayer user = i18n.getMultilingual(((Player)whisperTarget));
-            if (context.equals(user))
+            if (context.equals(whisperTarget))
             {
-                context.sendTranslated(NEUTRAL, "Talking to yourself?");
+                i18n.sendTranslated(context, NEUTRAL, "Talking to yourself?");
                 return true;
             }
-            user.sendTranslated(NONE, "{sender} -> {text:You}: {message:color=WHITE}", context.getSource().getName(),
-                                message);
+            i18n.sendTranslated(whisperTarget, NONE, "{sender} -> {text:You}: {message:color=WHITE}", context.getName(), message);
             /*
             if (user.get(ChatAttachment.class).isAfk()) // TODO afk auch hier rein?
             {
-                context.sendTranslated(NEUTRAL, "{user} is afk!", user);
+                i18n.sendTranslated(context, NEUTRAL, "{user} is afk!", user);
             }
             */
-            context.sendTranslated(NEUTRAL, "{text:You} -> {user}: {message:color=WHITE}", user, message);
-            if (context.getSource() instanceof Player)
+            i18n.sendTranslated(context, NEUTRAL, "{text:You} -> {user}: {message:color=WHITE}", whisperTarget, message);
+            if (context instanceof Player)
             {
-                lastWhispers.put(((Player)context.getSource()).getUniqueId(), user.getSource().getUniqueId());
+                lastWhispers.put(((Player)context).getUniqueId(), ((Player)whisperTarget).getUniqueId());
             }
             else
             {
-                lastWhispers.put(consoleUUID, user.getSource().getUniqueId());
+                lastWhispers.put(consoleUUID, ((Player)whisperTarget).getUniqueId());
             }
             return true;
         }
@@ -215,9 +212,9 @@ public class ChatCommands
     }
 
     @Command(desc = "Displays the colors")
-    public void chatcolors(MultilingualCommandSource context)
+    public void chatcolors(CommandSource context)
     {
-        context.sendTranslated(POSITIVE, "The following chat codes are available:");
+        i18n.sendTranslated(context, POSITIVE, "The following chat codes are available:");
         StringBuilder builder = new StringBuilder();
         int i = 0;
         for (ChatFormat chatFormat : ChatFormat.values())
@@ -228,8 +225,8 @@ public class ChatCommands
             }
             builder.append(" ").append(chatFormat.getChar()).append(" ").append(chatFormat.toString()).append(chatFormat.name()).append(ChatFormat.RESET);
         }
-        context.getSource().sendMessage(Texts.of(builder.toString()));
-        context.sendTranslated(POSITIVE, "To use these type {text:&} followed by the code above");
+        context.sendMessage(Texts.of(builder.toString()));
+        i18n.sendTranslated(context, POSITIVE, "To use these type {text:&} followed by the code above");
     }
 
 

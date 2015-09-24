@@ -21,8 +21,9 @@ import com.google.common.base.Optional;
 import de.cubeisland.engine.butler.parametric.Command;
 import de.cubeisland.engine.butler.result.CommandResult;
 import org.cubeengine.service.command.CommandContext;
-import org.cubeengine.service.user.MultilingualPlayer;
+import org.cubeengine.service.i18n.I18n;
 import org.spongepowered.api.Game;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.format.TextColors;
@@ -35,13 +36,15 @@ import static org.spongepowered.api.item.ItemTypes.WOODEN_AXE;
 public class SelectorCommand
 {
     private Game game;
+    private I18n i18n;
 
-    public SelectorCommand(Game game)
+    public SelectorCommand(Game game, I18n i18n)
     {
         this.game = game;
+        this.i18n = i18n;
     }
 
-    public void giveSelectionTool(MultilingualPlayer user)
+    public void giveSelectionTool(Player user)
     {
         ItemStack found = null;
         // TODO wait for implemented InventoryAPI
@@ -61,7 +64,7 @@ public class SelectorCommand
             }
         }
         */
-        Optional<ItemStack> itemInHand = user.original().getItemInHand();
+        Optional<ItemStack> itemInHand = user.getItemInHand();
         if (found == null)
         {
             found = game.getRegistry().createItemBuilder().itemType(WOODEN_AXE).quantity(1).build();
@@ -72,32 +75,32 @@ public class SelectorCommand
             found.offer(lore);
             */
 
-            user.original().setItemInHand(found);
+            user.setItemInHand(found);
             if (itemInHand.isPresent())
             {
-                if (!user.original().getInventory().offer(itemInHand.get()))
+                if (!user.getInventory().offer(itemInHand.get()))
                 {
                     // TODO drop item
                 }
             }
-            user.sendTranslated(POSITIVE, "Received a new region selector tool");
+            i18n.sendTranslated(user, POSITIVE, "Received a new region selector tool");
             return;
         }
 
-        user.original().setItemInHand(found);
+        user.setItemInHand(found);
         if (itemInHand.isPresent())
         {
-            user.original().getInventory().offer(itemInHand.get());
+            user.getInventory().offer(itemInHand.get());
         }
-        user.sendTranslated(POSITIVE, "Found a region selector tool in your inventory!");
+        i18n.sendTranslated(user, POSITIVE, "Found a region selector tool in your inventory!");
     }
 
     @Command(desc = "Provides you with a wand to select a cuboid")
     public CommandResult selectiontool(CommandContext context)
     {
-        if (context.getSource() instanceof MultilingualPlayer)
+        if (context.getSource() instanceof Player)
         {
-            giveSelectionTool((MultilingualPlayer)context.getSource());
+            giveSelectionTool((Player)context.getSource());
         }
         else
         {

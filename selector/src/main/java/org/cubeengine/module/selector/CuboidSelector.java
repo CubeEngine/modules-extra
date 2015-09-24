@@ -28,7 +28,6 @@ import de.cubeisland.engine.modularity.asm.marker.Version;
 import org.cubeengine.module.core.sponge.EventManager;
 import org.cubeengine.service.Selector;
 import org.cubeengine.service.i18n.I18n;
-import org.cubeengine.service.user.MultilingualPlayer;
 import org.cubeengine.module.core.util.math.shape.Shape;
 
 import org.cubeengine.service.user.UserManager;

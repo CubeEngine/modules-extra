@@ -71,7 +71,7 @@ public class Chat extends Module
         this.perms = new ChatPerm(this);
         db.registerTable(TableMuted.class);
         db.registerTable(TableIgnorelist.class);
-        MuteCommands muteCmd = new MuteCommands(this, db, um);
+        MuteCommands muteCmd = new MuteCommands(this, db, um, i18n);
         cm.addCommands(this, muteCmd);
         IgnoreCommands ignoreCmd = new IgnoreCommands(this, db, um);
         cm.addCommands(this, new ChatCommands(this, game, um, cm, i18n, bc));

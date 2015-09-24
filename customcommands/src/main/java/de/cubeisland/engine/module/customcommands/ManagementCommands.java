@@ -30,12 +30,9 @@ import de.cubeisland.engine.butler.parametric.Greed;
 import de.cubeisland.engine.butler.result.CommandResult;
 import org.cubeengine.service.command.ContainerCommand;
 import org.cubeengine.service.command.CommandContext;
-import org.cubeengine.service.command.CommandSender;
-import de.cubeisland.engine.service.command.result.paginated.PaginatedResult;
-import de.cubeisland.engine.service.command.result.paginated.PaginationIterator;
 
 import static de.cubeisland.engine.butler.parameter.Parameter.INFINITE;
-import org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
 import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
 import static java.util.Locale.ENGLISH;
 

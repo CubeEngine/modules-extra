@@ -100,9 +100,10 @@ public class AfkListener
     @Listener(order = POST)
     public void onCommand(SendCommandEvent event)
     {
-        if (event.getSource() instanceof Player)
+        Optional<Player> player = event.getCause().first(Player.class);
+        if (player.isPresent())
         {
-            this.updateLastAction((Player)event.getSource());
+            this.updateLastAction(player.get());
         }
     }
 
