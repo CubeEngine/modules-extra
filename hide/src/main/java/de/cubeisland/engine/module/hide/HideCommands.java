@@ -19,8 +19,8 @@ package de.cubeisland.engine.module.hide;
 
 import java.util.Set;
 import java.util.UUID;
-import de.cubeisland.engine.butler.parametric.Command;
-import de.cubeisland.engine.butler.parametric.Default;
+import org.cubeengine.butler.parametric.Command;
+import org.cubeengine.butler.parametric.Default;
 import org.cubeengine.service.command.CommandContext;
 import org.cubeengine.service.command.CommandSender;
 import org.cubeengine.service.user.User;

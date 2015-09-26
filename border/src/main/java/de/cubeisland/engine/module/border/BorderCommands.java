@@ -19,12 +19,12 @@ package de.cubeisland.engine.module.border;
 
 import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
-import de.cubeisland.engine.butler.alias.Alias;
-import de.cubeisland.engine.butler.parametric.Command;
-import de.cubeisland.engine.butler.parametric.Flag;
-import de.cubeisland.engine.butler.parametric.Default;
-import de.cubeisland.engine.butler.parametric.Named;
-import de.cubeisland.engine.butler.parametric.Optional;
+import org.cubeengine.butler.alias.Alias;
+import org.cubeengine.butler.parametric.Command;
+import org.cubeengine.butler.parametric.Flag;
+import org.cubeengine.butler.parametric.Default;
+import org.cubeengine.butler.parametric.Named;
+import org.cubeengine.butler.parametric.Optional;
 import org.cubeengine.service.command.ContainerCommand;
 import org.cubeengine.service.command.CommandSender;
 import org.cubeengine.service.user.MultilingualPlayer;

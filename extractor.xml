@@ -200,7 +200,7 @@
             </constructor>
 
             <annotation>
-                <name>de.cubeisland.engine.butler.parametric.Command</name>
+                <name>org.cubeengine.butler.parametric.Command</name>
                 <fields>
                     <field>desc</field>
                 </fields>

@@ -17,13 +17,13 @@
  */
 package de.cubeisland.engine.module.spawn;
 
-import de.cubeisland.engine.butler.parametric.Command;
-import de.cubeisland.engine.butler.parametric.Flag;
-import de.cubeisland.engine.butler.parametric.Complete;
-import de.cubeisland.engine.butler.parametric.Default;
-import de.cubeisland.engine.butler.parametric.Named;
-import de.cubeisland.engine.butler.parametric.Optional;
-import de.cubeisland.engine.butler.parameter.TooFewArgumentsException;
+import org.cubeengine.butler.parametric.Command;
+import org.cubeengine.butler.parametric.Flag;
+import org.cubeengine.butler.parametric.Complete;
+import org.cubeengine.butler.parametric.Default;
+import org.cubeengine.butler.parametric.Named;
+import org.cubeengine.butler.parametric.Optional;
+import org.cubeengine.butler.parameter.TooFewArgumentsException;
 import org.cubeengine.service.command.CommandSender;
 import org.cubeengine.service.user.User;
 import org.cubeengine.module.core.util.StringUtils;

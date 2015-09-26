@@ -19,8 +19,8 @@ package de.cubeisland.engine.module.namehistory;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
-import de.cubeisland.engine.butler.parametric.Command;
-import de.cubeisland.engine.butler.parametric.Default;
+import org.cubeengine.butler.parametric.Command;
+import org.cubeengine.butler.parametric.Default;
 import org.cubeengine.service.command.CommandManager;
 import org.cubeengine.service.command.CommandSender;
 import de.cubeisland.engine.module.core.module.Module;

@@ -18,7 +18,7 @@
 package de.cubeisland.engine.module.vote;
 
 import java.util.Date;
-import de.cubeisland.engine.butler.parametric.Command;
+import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.module.core.util.TimeUtil;
 import org.cubeengine.service.command.CommandContext;
 import org.cubeengine.service.database.Database;

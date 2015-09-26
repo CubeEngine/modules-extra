@@ -19,10 +19,10 @@ package de.cubeisland.engine.module.writer;
 
 import javax.inject.Inject;
 import com.google.common.base.Optional;
-import de.cubeisland.engine.butler.filter.Restricted;
-import de.cubeisland.engine.butler.parametric.Command;
-import de.cubeisland.engine.butler.parametric.Label;
-import de.cubeisland.engine.butler.parametric.Named;
+import org.cubeengine.butler.filter.Restricted;
+import org.cubeengine.butler.parametric.Command;
+import org.cubeengine.butler.parametric.Label;
+import org.cubeengine.butler.parametric.Named;
 import de.cubeisland.engine.modularity.core.marker.Disable;
 import de.cubeisland.engine.modularity.core.marker.Enable;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;

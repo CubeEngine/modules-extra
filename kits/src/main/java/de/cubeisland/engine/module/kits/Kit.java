@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-import de.cubeisland.engine.butler.parameter.IncorrectUsageException;
+import org.cubeengine.butler.parameter.IncorrectUsageException;
 import de.cubeisland.engine.module.core.Core;
 import org.cubeengine.service.command.CommandManager;
 import org.cubeengine.service.command.CommandSender;

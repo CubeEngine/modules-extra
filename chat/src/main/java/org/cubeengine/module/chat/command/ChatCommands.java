@@ -21,10 +21,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
-import de.cubeisland.engine.butler.parametric.Command;
-import de.cubeisland.engine.butler.parametric.Greed;
-import de.cubeisland.engine.butler.parametric.Label;
-import de.cubeisland.engine.butler.parametric.Optional;
+import org.cubeengine.butler.parametric.Command;
+import org.cubeengine.butler.parametric.Greed;
+import org.cubeengine.butler.parametric.Label;
+import org.cubeengine.butler.parametric.Optional;
 import org.cubeengine.module.chat.Chat;
 import org.cubeengine.module.core.util.ChatFormat;
 import org.cubeengine.service.command.CommandContext;
@@ -39,7 +39,7 @@ import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.util.command.CommandSource;
 import org.spongepowered.api.util.command.source.ConsoleSource;
 
-import static de.cubeisland.engine.butler.parameter.Parameter.INFINITE;
+import static org.cubeengine.butler.parameter.Parameter.INFINITE;
 import static org.cubeengine.service.i18n.formatter.MessageType.*;
 
 

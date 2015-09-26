@@ -20,7 +20,7 @@ package de.cubeisland.engine.module.itemrepair;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import de.cubeisland.engine.butler.parametric.Command;
+import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.service.command.ContainerCommand;
 import org.cubeengine.service.command.CommandContext;
 import org.cubeengine.service.user.User;

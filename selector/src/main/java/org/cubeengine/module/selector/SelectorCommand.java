@@ -18,8 +18,8 @@
 package org.cubeengine.module.selector;
 
 import com.google.common.base.Optional;
-import de.cubeisland.engine.butler.parametric.Command;
-import de.cubeisland.engine.butler.result.CommandResult;
+import org.cubeengine.butler.parametric.Command;
+import org.cubeengine.butler.result.CommandResult;
 import org.cubeengine.service.command.CommandContext;
 import org.cubeengine.service.i18n.I18n;
 import org.spongepowered.api.Game;

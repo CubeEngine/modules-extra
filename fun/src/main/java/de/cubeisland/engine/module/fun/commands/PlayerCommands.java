@@ -18,10 +18,10 @@
 package de.cubeisland.engine.module.fun.commands;
 
 import java.util.Collections;
-import de.cubeisland.engine.butler.parametric.Command;
-import de.cubeisland.engine.butler.parametric.Flag;
-import de.cubeisland.engine.butler.parametric.Named;
-import de.cubeisland.engine.butler.parametric.Optional;
+import org.cubeengine.butler.parametric.Command;
+import org.cubeengine.butler.parametric.Flag;
+import org.cubeengine.butler.parametric.Named;
+import org.cubeengine.butler.parametric.Optional;
 import org.cubeengine.service.command.CommandSender;
 import org.cubeengine.service.user.User;
 import de.cubeisland.engine.module.core.util.matcher.Match;

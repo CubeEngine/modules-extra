@@ -19,10 +19,10 @@ package de.cubeisland.engine.module.holiday;
 
 import java.sql.Date;
 import java.text.DateFormat;
-import de.cubeisland.engine.butler.filter.Restricted;
-import de.cubeisland.engine.butler.parametric.Command;
-import de.cubeisland.engine.butler.parametric.Greed;
-import de.cubeisland.engine.butler.parametric.Optional;
+import org.cubeengine.butler.filter.Restricted;
+import org.cubeengine.butler.parametric.Command;
+import org.cubeengine.butler.parametric.Greed;
+import org.cubeengine.butler.parametric.Optional;
 import de.cubeisland.engine.converter.ConversionException;
 import de.cubeisland.engine.converter.node.StringNode;
 import org.cubeengine.service.command.ContainerCommand;
@@ -32,7 +32,7 @@ import org.cubeengine.module.core.util.converter.DurationConverter;
 import de.cubeisland.engine.module.holiday.storage.HolidayModel;
 import org.jooq.DSLContext;
 
-import static de.cubeisland.engine.butler.parameter.Parameter.INFINITE;
+import static org.cubeengine.butler.parameter.Parameter.INFINITE;
 import org.cubeengine.service.user.TableUser.TABLE_USER;
 import static de.cubeisland.engine.module.holiday.storage.TableHoliday.TABLE_HOLIDAY;
 
