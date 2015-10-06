@@ -20,6 +20,7 @@ package org.cubeengine.module.chat.command;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.UUID;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Default;
@@ -120,8 +121,8 @@ public class AfkCommand implements Runnable
     {
         afks.entrySet().stream().filter(Entry::getValue)
             .map(Entry::getKey).map(uuid -> game.getServiceManager().provide(UserStorage.class).get().get(uuid))
-            .filter(com.google.common.base.Optional::isPresent)
-            .map(com.google.common.base.Optional::get)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
             .forEach(this::updateAfk);
     }
 

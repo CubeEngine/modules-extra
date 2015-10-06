@@ -19,7 +19,7 @@ package org.cubeengine.module.chat.listener;
 
 import java.sql.Date;
 import java.util.Iterator;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.cubeengine.module.chat.command.IgnoreCommands;
 import org.cubeengine.module.chat.command.MuteCommands;
 import org.cubeengine.service.i18n.I18n;

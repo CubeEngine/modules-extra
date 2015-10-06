@@ -20,7 +20,7 @@ package org.cubeengine.module.chat.listener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.cubeengine.module.chat.Chat;
 import org.cubeengine.module.chat.CubeMessageSink;
 import org.cubeengine.service.i18n.I18n;
@@ -38,6 +38,8 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 import static org.cubeengine.module.core.util.ChatFormat.fromLegacy;
 import static org.cubeengine.service.i18n.formatter.MessageType.NEUTRAL;
@@ -101,8 +103,8 @@ public class ChatFormatListener
         replacements.put("{SUFFIX}", Texts.of());
         if (subject instanceof OptionSubject)
         {
-            replacements.put("{PREFIX}", fromLegacy(((OptionSubject)subject).getOption("chat-prefix").or(""), '&'));
-            replacements.put("{SUFFIX}", fromLegacy(((OptionSubject)subject).getOption("chat-suffix").or(""), '&'));
+            replacements.put("{PREFIX}", fromLegacy(((OptionSubject)subject).getOption("chat-prefix").orElse(""), '&'));
+            replacements.put("{SUFFIX}", fromLegacy(((OptionSubject)subject).getOption("chat-suffix").orElse(""), '&'));
         }
 
         event.setMessage(fromLegacy(this.getFormat(subject), replacements, '&'));
@@ -113,7 +115,7 @@ public class ChatFormatListener
         String format = this.module.getConfig().format;
         if (subject instanceof OptionSubject)
         {
-            format = ((OptionSubject)subject).getOption("chat-format").or(format);
+            format = ((OptionSubject)subject).getOption("chat-format").orElse(format);
         }
         return format;
     }

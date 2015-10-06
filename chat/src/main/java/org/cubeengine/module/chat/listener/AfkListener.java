@@ -17,7 +17,7 @@
  */
 package org.cubeengine.module.chat.listener;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.cubeengine.module.chat.Chat;
 import org.cubeengine.module.chat.command.AfkCommand;
 import org.spongepowered.api.entity.living.player.Player;

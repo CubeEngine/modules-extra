@@ -51,7 +51,7 @@ public class ChatCommands
     private CommandManager cm;
     private I18n i18n;
     private Broadcaster bc;
-    private UUID consoleUUID = UUID.fromString(":console");
+    private UUID consoleUUID = UUID.nameUUIDFromBytes(":console".getBytes());
 
     private Map<UUID, UUID> lastWhispers = new HashMap<>();
 
@@ -142,7 +142,7 @@ public class ChatCommands
         }
         else
         {
-            target = game.getServer().getPlayer(lastWhisper).orNull();
+            target = game.getServer().getPlayer(lastWhisper).orElse(null);
         }
         if (!this.sendWhisperTo(target, message, context))
         {
