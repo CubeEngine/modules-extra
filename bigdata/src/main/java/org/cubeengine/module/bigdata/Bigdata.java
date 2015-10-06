@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.cubeisland.engine.module.bigdata;
+package org.cubeengine.module.bigdata;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -32,7 +32,7 @@ import de.cubeisland.engine.modularity.core.marker.Disable;
 import de.cubeisland.engine.modularity.core.marker.Enable;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.module.bigdata.MongoDBConfiguration.Authentication;
+import org.cubeengine.module.bigdata.MongoDBConfiguration.Authentication;
 import org.cubeengine.service.filesystem.FileManager;
 import de.cubeisland.engine.reflect.Reflector;
 import de.cubeisland.engine.reflect.codec.mongo.MongoDBCodec;
