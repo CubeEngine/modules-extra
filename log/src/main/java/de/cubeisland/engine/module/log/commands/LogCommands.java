@@ -37,14 +37,18 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.Texts;
+import org.spongepowered.api.text.format.TextColors;
+
 import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
 import static org.bukkit.Material.WOOD_AXE;
 
 @Command(name = "log", desc = "log-module commands.")
 public class LogCommands extends ContainerCommand
 {
-    public static final String toolName = ChatFormat.INDIGO + "Logging-ToolBlock";
-    public static final String selectorToolName = ChatFormat.INDIGO + "Selector-Tool";
+    public static final Text toolName = Texts.of(TextColors.DARK_AQUA, "Logging-ToolBlock");
+    public static final Text selectorToolName = Texts.of(TextColors.DARK_AQUA, "Selector-Tool");
 
     private final Log module;
 
@@ -130,37 +134,33 @@ public class LogCommands extends ContainerCommand
         {
             return null;
         }
-        if (match.equals("chest") || match.equals("container"))
+        switch (match)
         {
-            if (block)
-            {
-                return Material.CHEST;
-            }
-            return Material.CLAY_BRICK;
-        }
-        if (match.equals("player"))
-        {
-            if (block)
-            {
-                return Material.PUMPKIN;
-            }
-            return Material.CLAY_BALL;
-        }
-        if (match.equals("kills"))
-        {
-            if (block)
-            {
-                return Material.SOUL_SAND;
-            }
-            return Material.BONE;
-        }
-        if (match.equals("block"))
-        {
-            if (block)
-            {
-                return Material.LOG;
-            }
-            return Material.NETHER_BRICK_ITEM;
+            case "chest":
+            case "container":
+                if (block)
+                {
+                    return Material.CHEST;
+                }
+                return Material.CLAY_BRICK;
+            case "player":
+                if (block)
+                {
+                    return Material.PUMPKIN;
+                }
+                return Material.CLAY_BALL;
+            case "kills":
+                if (block)
+                {
+                    return Material.SOUL_SAND;
+                }
+                return Material.BONE;
+            case "block":
+                if (block)
+                {
+                    return Material.LOG;
+                }
+                return Material.NETHER_BRICK_ITEM;
         }
         return null;
     }

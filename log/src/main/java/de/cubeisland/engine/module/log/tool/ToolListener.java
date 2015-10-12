@@ -17,82 +17,76 @@
  */
 package de.cubeisland.engine.module.log.tool;
 
-import de.cubeisland.engine.service.permission.Permission;
-import org.cubeengine.service.user.User;
 import de.cubeisland.engine.module.log.Log;
 import de.cubeisland.engine.module.log.LogAttachment;
-import de.cubeisland.engine.module.log.commands.LogCommands;
 import de.cubeisland.engine.module.log.storage.Lookup;
 import de.cubeisland.engine.module.log.storage.ShowParameter;
+import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.service.i18n.formatter.MessageType;
+import org.cubeengine.service.permission.PermissionManager;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.inventory.DropItemEvent;
+import org.spongepowered.api.service.permission.PermissionDescription;
 import org.spongepowered.api.world.Location;
-import org.bukkit.event.Event.Result;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.world.World;
 
-import org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
+import static de.cubeisland.engine.module.log.commands.LogCommands.toolName;
+import static java.util.stream.Collectors.toList;
+import static org.spongepowered.api.data.key.Keys.DISPLAY_NAME;
 
-public class ToolListener implements Listener
+public class ToolListener
 {
     private final Log module;
-    private final Permission toolPerm;
+    private I18n i18n;
+    private final PermissionDescription toolPerm;
 
-    public ToolListener(Log module)
+    public ToolListener(Log module, I18n i18n, PermissionManager pm)
     {
         this.module = module;
-        toolPerm = module.getBasePermission().child("use-logtool");
+        this.i18n = i18n;
+        toolPerm = pm.register(module, "use-logtool", "Allows using log-tools", null);
     }
 
-    @EventHandler
-    public void onClick(PlayerInteractEvent event)
+    @Listener
+    public void onClick(InteractBlockEvent event)
     {
-        if (event.getAction().equals(Action.PHYSICAL)) return;
-        if (!toolPerm.isAuthorized(event.getPlayer())) return;
-        if (event.getClickedBlock() != null)
-        {
-            User user = this.module.getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
-            ItemStack item = event.getPlayer().getItemInHand();
-            if (item.hasItemMeta() && item.getItemMeta().hasDisplayName())
+        event.getCause().first(Player.class).ifPresent(player -> {
+            // TODO don't trigger on pressureplates?
+            if (player.hasPermission(toolPerm.getId()))
             {
-                if (item.getItemMeta().getDisplayName().equals(LogCommands.toolName))
-                {
-                    LogAttachment attachment = user.attachOrGet(LogAttachment.class,this.module);
-                    Lookup lookup = attachment.getLookup(item.getType());
-                    if (lookup == null)
+                player.getItemInHand().ifPresent(item -> item.get(DISPLAY_NAME).ifPresent(display -> {
+                    if (display.equals(toolName))
                     {
-                        user.sendTranslated(NEGATIVE, "Invalid LoggingTool-Block!");
-                        return;
-                    }
-                    Location loc = event.getAction().equals(Action.LEFT_CLICK_BLOCK)
-                                   ? event.getClickedBlock().getLocation()
-                                   : event.getClickedBlock().getRelative(event.getBlockFace()).getLocation();
-                    lookup.getQueryParameter().setSingleLocations(loc);
+                        LogAttachment attachment = module.getAttachment(player);
+                        Lookup lookup = attachment.getLookup(item.getItem());
+                        if (lookup == null)
+                        {
+                            i18n.sendTranslated(player, MessageType.NEGATIVE, "Invalid LoggingTool-Block!");
+                            return;
+                        }
 
-                    ShowParameter show = new ShowParameter();
-                    show.showCoords = false;
-                    attachment.queueShowParameter(show);
-                    this.module.getLogManager().fillLookupAndShow(lookup, user);
-                    event.setCancelled(true);
-                    event.setUseItemInHand(Result.DENY);
-                    event.setUseInteractedBlock(Result.DENY);
-                }
+                        Location<World> loc = event instanceof InteractBlockEvent.Primary ? event.getTargetBlock().getLocation().get() : event.getTargetBlock().getLocation().get().getRelative(event.getTargetSide());
+                        lookup.getQueryParameter().setSingleLocations(loc);
+
+                        ShowParameter show = new ShowParameter();
+                        show.showCoords = false;
+                        attachment.queueShowParameter(show);
+                        this.module.getLogManager().fillLookupAndShow(lookup, player);
+                        event.setCancelled(true);
+                    }
+                }));
             }
-        }
+        });
     }
 
-    @EventHandler
-    public void onDrop(PlayerDropItemEvent event)
+    @Listener
+    public void onDrop(DropItemEvent.Toss event)
     {
-        ItemStack item = event.getItemDrop().getItemStack();
-        if (!item.hasItemMeta() || !item.getItemMeta().hasDisplayName() ||
-            !item.getItemMeta().getDisplayName().equals(LogCommands.toolName))
-        {
-            return;
-        }
-        event.getItemDrop().remove();
+        event.getEntities().retainAll(event.getEntities().stream()
+            .filter(item -> item.getItemData().item().get().createStack().get(DISPLAY_NAME).map(
+                display -> !display.equals(toolName)).orElse(true)).collect(toList()));
     }
 
     // TODO InteractEntity show logs of entity

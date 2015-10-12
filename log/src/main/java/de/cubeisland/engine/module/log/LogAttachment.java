@@ -26,11 +26,12 @@ import org.cubeengine.module.core.util.math.shape.Shape;
 import de.cubeisland.engine.module.log.storage.Lookup;
 import de.cubeisland.engine.module.log.storage.QueryParameter;
 import de.cubeisland.engine.module.log.storage.ShowParameter;
+import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.world.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 
-public class LogAttachment extends UserAttachment
+public class LogAttachment
 {
     private Lookup lastLookup; // always contains the last lookup worked on
 
@@ -130,7 +131,7 @@ public class LogAttachment extends UserAttachment
         }
     }
 
-    public Lookup getLookup(Material material)
+    public Lookup getLookup(ItemType material)
     {
         Lookup lookup;
         switch (material)

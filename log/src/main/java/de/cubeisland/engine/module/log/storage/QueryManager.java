@@ -41,6 +41,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.QueryOperators;
 import de.cubeisland.engine.module.core.CubeEngine;
 import org.cubeengine.service.user.User;
 import org.cubeengine.module.core.util.Profiler;
@@ -88,66 +89,44 @@ public class QueryManager
 
         this.batchSize = module.getConfiguration().loggingBatchSize;
 
-        this.storeRunner = new Runnable()
-        {
-            @Override
-            public void run()
+        this.storeRunner = () -> {
+            try
             {
-                try
-                {
-                    doEmptyLogs(batchSize);
-                }
-                catch (Exception ex)
-                {
-                    QueryManager.this.module.getLog().error(ex, "Fatal Error while logging!");
-                }
+                doEmptyLogs(batchSize);
+            }
+            catch (Exception ex)
+            {
+                QueryManager.this.module.getLog().error(ex, "Fatal Error while logging!");
             }
         };
 
         final ThreadFactory factory = this.module.getCore().getTaskManager().getThreadFactory(this.module);
         this.storeExecutor = Executors.newSingleThreadExecutor(factory);
-        this.lookupRunner = new Runnable()
-        {
-            @Override
-            public void run()
+        this.lookupRunner = () -> {
+            try
             {
-                try
-                {
-                    doQueryLookup();
-                }
-                catch (Exception ex)
-                {
-                    QueryManager.this.module.getLog().error(ex, "Error while lookup!");
-                }
+                doQueryLookup();
+            }
+            catch (Exception ex)
+            {
+                QueryManager.this.module.getLog().error(ex, "Error while lookup!");
             }
         };
         this.lookupExecutor = Executors.newSingleThreadExecutor(factory);
 
         long delay = this.module.getConfiguration().cleanup.delay.getStandardSeconds() * 20;
-        this.cleanUpTaskId = this.module.getCore().getTaskManager().runAsynchronousTimer(this.module, new Runnable()
-        {
-            @Override
-            public void run()
+        this.cleanUpTaskId = this.module.getCore().getTaskManager().runAsynchronousTimer(this.module, (Runnable)() -> {
+            try
             {
-                try
-                {
-                    cleanUpLogs();
-                }
-                catch (Exception e)
-                {
-                    QueryManager.this.module.getLog().error(e, "An error occurred while cleaning up the database");
-                }
+                cleanUpLogs();
+            }
+            catch (Exception e)
+            {
+                QueryManager.this.module.getLog().error(e, "An error occurred while cleaning up the database");
             }
         }, delay, delay);
 
-        this.module.getCore().getTaskManager().runTimer(module, new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                updateStatistics();
-            }
-        },1 , 20 * STATISTIC_UPDATE_TIME); // 5 * 20 Ticks = 5 Seconds
+        this.module.getCore().getTaskManager().runTimer(module, this::updateStatistics,1 , 20 * STATISTIC_UPDATE_TIME); // 5 * 20 Ticks = 5 Seconds
     }
 
     private synchronized void updateStatistics()
@@ -278,28 +257,23 @@ public class QueryManager
         lookup.setQueryResults(results);
         if (user != null && user.isOnline())
         {
-            module.getCore().getTaskManager().runTask(module, new Runnable()
-            {
-                @Override
-                public void run()
+            module.getCore().getTaskManager().runTask(module, (Runnable)() -> {
+                switch (queryAction)
                 {
-                    switch (queryAction)
-                    {
-                    case SHOW:
-                        lookup.show(user);
-                        return;
-                    case ROLLBACK:
-                        lookup.rollback(user, false);
-                        return;
-                    case ROLLBACK_PREVIEW:
-                        lookup.rollback(user, true);
-                        return;
-                    case REDO:
-                        lookup.redo(user, false);
-                        return;
-                    case REDO_PREVIEW:
-                        lookup.redo(user, true);
-                    }
+                case SHOW:
+                    lookup.show(user);
+                    return;
+                case ROLLBACK:
+                    lookup.rollback(user, false);
+                    return;
+                case ROLLBACK_PREVIEW:
+                    lookup.rollback(user, true);
+                    return;
+                case REDO:
+                    lookup.redo(user, false);
+                    return;
+                case REDO_PREVIEW:
+                    lookup.redo(user, true);
                 }
             });
         }
@@ -543,7 +517,7 @@ public class QueryManager
                 }
                 else // has radius
                 {
-                    query.append("coord.vector.x", new BasicDBObject("$gte", loc1.x - params.radius).append("$lte", loc1.x + params.radius)).
+                    query.append("coord.vector.x", new BasicDBObject(QueryOperators.GTE, loc1.x - params.radius).append("$lte", loc1.x + params.radius)).
                           append("coord.vector.y", new BasicDBObject("$gte", loc1.y - params.radius).append("$lte", loc1.y + params.radius)).
                           append("coord.vector.z", new BasicDBObject("$gte", loc1.z - params.radius).append("$lte", loc1.z + params.radius));
                 }

@@ -33,6 +33,7 @@ import de.cubeisland.engine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.module.log.action.BaseAction;
 import de.cubeisland.engine.module.log.storage.QueryManager.QueryAction;
 import org.bukkit.World;
+import org.spongepowered.api.entity.living.player.Player;
 
 public class LogManager
 {
@@ -102,7 +103,7 @@ public class LogManager
         return this.queryManager.queuedLogs.size();
     }
 
-    public void fillLookupAndShow(Lookup lookup, User user)
+    public void fillLookupAndShow(Lookup lookup, Player user)
     {
         this.queryManager.prepareLookupQuery(lookup.clone(), user, QueryAction.SHOW);
     }

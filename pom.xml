@@ -53,6 +53,7 @@
     <module>holiday</module>
     <module>unbreakableboat</module>
     <module>namehistory</module>
+    <module>vigil</module>
   </modules>
 
   <build>

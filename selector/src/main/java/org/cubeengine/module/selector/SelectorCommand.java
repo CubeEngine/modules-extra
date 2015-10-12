@@ -17,7 +17,7 @@
  */
 package org.cubeengine.module.selector;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.result.CommandResult;
 import org.cubeengine.service.command.CommandContext;

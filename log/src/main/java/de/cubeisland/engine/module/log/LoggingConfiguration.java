@@ -25,7 +25,9 @@ import de.cubeisland.engine.module.log.action.player.item.container.ContainerTyp
 import de.cubeisland.engine.reflect.Section;
 import de.cubeisland.engine.reflect.annotations.Comment;
 import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
-import org.bukkit.Material;
+import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.ItemTypes;
 
 @SuppressWarnings("all")
 public class LoggingConfiguration extends ReflectedYaml
@@ -55,7 +57,7 @@ public class LoggingConfiguration extends ReflectedYaml
         {
             public boolean enable = false;
             @Comment("The blocks not to log when fading away (ICE, SNOW, GRASS)")
-            public Set<Material> ignore = new LinkedHashSet<>();
+            public Set<BlockType> ignore = new LinkedHashSet<>();
         }
 
         public boolean placeByEnderman = true;
@@ -167,15 +169,15 @@ public class LoggingConfiguration extends ReflectedYaml
 
         // TODO
         @Comment("Items to ignore when moved by a hopper or dropper")
-        public Set<Material> moveIgnore = new LinkedHashSet<Material>()
+        public Set<ItemType> moveIgnore = new LinkedHashSet<ItemType>()
         {
             {
-                this.add(Material.EGG);
-                this.add(Material.MELON);
-                this.add(Material.PUMPKIN);
-                this.add(Material.SUGAR_CANE);
-                this.add(Material.FEATHER);
-                this.add(Material.RAW_CHICKEN);
+                this.add(ItemTypes.EGG);
+                this.add(ItemTypes.MELON);
+                this.add(ItemTypes.PUMPKIN);
+                this.add(ItemTypes.REEDS);
+                this.add(ItemTypes.FEATHER);
+                this.add(ItemTypes.CHICKEN);
             }
         };
 

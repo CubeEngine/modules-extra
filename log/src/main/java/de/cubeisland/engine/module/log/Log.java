@@ -17,18 +17,20 @@
  */
 package de.cubeisland.engine.module.log;
 
+import java.util.Map;
+import java.util.UUID;
 import javax.inject.Inject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import de.cubeisland.engine.converter.ConverterManager;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.modularity.core.marker.Disable;
+import org.cubeengine.dirigent.formatter.example.DateFormatter;
 import org.cubeengine.service.filesystem.FileManager;
 import org.cubeengine.service.i18n.I18n;
 import org.cubeengine.module.core.sponge.EventManager;
 import org.cubeengine.service.command.CommandManager;
-import de.cubeisland.engine.dirigent.macro.example.DateFormatter;
-import de.cubeisland.engine.dirigent.macro.example.DateFormatter.DateReader;
 import org.cubeengine.module.bigdata.Bigdata;
 import de.cubeisland.engine.module.log.action.ActionManager;
 import de.cubeisland.engine.module.log.action.block.player.worldedit.LogEditSessionFactory;
@@ -46,6 +48,8 @@ import de.cubeisland.engine.module.log.storage.LogManager;
 import de.cubeisland.engine.module.log.tool.ToolListener;
 import de.cubeisland.engine.reflect.Reflector;
 import de.cubeisland.engine.reflect.codec.mongo.MongoDBCodec;
+import org.spongepowered.api.Game;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.ItemStack;
 
 @ModuleInfo(name = "Log", description = "Log everything you want")
@@ -64,12 +68,15 @@ public class Log extends Module
     @Inject private Reflector reflector;
     @Inject private CommandManager cm;
     @Inject private de.cubeisland.engine.logscribe.Log logger;
+    @Inject private Game game;
+
+    private Map<UUID, LogAttachment> attachments;
 
     @Override
     public void onEnable()
     {
         i18n.getCompositor().registerFormatter(new DateFormatter());
-        i18n.getCompositor().registerReader(DateFormatter.class, "format", new DateReader());
+        i18n.getCompositor().registerFormatter(DateFormatter.class, "format", new DateReader());
         this.config = fm.loadConfig(this, LogConfiguration.class);
         ConverterManager cMan = reflector.getDefaultConverterManager();
         cMan.registerConverter(new ContainerTypeConverter(), ContainerType.class);
@@ -96,19 +103,15 @@ public class Log extends Module
             logger.warn("No WorldEdit found!");
         }
         em.registerListener(this, new ToolListener(this));
-    }
 
-    @EventHandler
-    public void onWorldEditEnable(PluginEnableEvent event)
-    {
-        if (event.getPlugin() instanceof WorldEditPlugin)
+        if (game.getPluginManager().getPlugin("worldedit").isPresent())
         {
             LogEditSessionFactory.initialize(this);
             worldEditFound = true;
         }
     }
 
-    @Override
+    @Disable
     public void onDisable()
     {
         this.logManager.disable();
@@ -116,7 +119,6 @@ public class Log extends Module
         {
             LogEditSessionFactory.shutdown();
         }
-        super.onDisable();
     }
 
     public LogManager getLogManager()
@@ -145,5 +147,16 @@ public class Log extends Module
     public boolean hasWorldEdit()
     {
         return this.worldEditFound;
+    }
+
+    public LogAttachment getAttachment(Player player)
+    {
+        LogAttachment attachment = attachments.get(player.getUniqueId());
+        if (attachment == null)
+        {
+            attachment = new LogAttachment();
+            attachments.put(player.getUniqueId(), attachment);
+        }
+        return attachment;
     }
 }
