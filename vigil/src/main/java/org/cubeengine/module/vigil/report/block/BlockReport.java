@@ -22,8 +22,8 @@ import java.util.*;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.BaseReport;
 import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.block.BlockTransaction;
 import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
@@ -55,6 +55,19 @@ public abstract class BlockReport<T extends ChangeBlockEvent> extends BaseReport
         event.getCause().first(Player.class).ifPresent(p -> showReport(action, p));
 
         return action;
+    }
+
+    @Override
+    public boolean group(Action action, Action other)
+    {
+
+        return false;
+    }
+
+    @Override
+    public void apply(Action action, boolean rollback)
+    {
+
     }
 
     public static class Break extends BlockReport<ChangeBlockEvent.Break>
@@ -125,7 +138,7 @@ public abstract class BlockReport<T extends ChangeBlockEvent> extends BaseReport
      * @param transaction the transaction to observe
      * @return the obeserved data
      */
-    public static Map<String, Object> observe(BlockTransaction transaction)
+    public static Map<String, Object> observe(Transaction<BlockSnapshot> transaction)
     {
         Map<String, Object> data = new HashMap<>();
         BlockSnapshot original = transaction.getOriginal();
@@ -133,7 +146,7 @@ public abstract class BlockReport<T extends ChangeBlockEvent> extends BaseReport
         {
             data.put(LOCATION, observeLocation(original.getLocation().get()));
             data.put(ORIGINAL, observeBlockSnapshot(original.toContainer()));
-            data.put(REPLACEMENT, observeBlockSnapshot(transaction.getFinalReplacement().toContainer()));
+            data.put(REPLACEMENT, observeBlockSnapshot(transaction.getFinal().toContainer()));
         }
         return data;
     }

@@ -23,7 +23,35 @@ import org.spongepowered.api.util.command.CommandSource;
 public interface Report<T extends Event>
 {
     // TODO multiple similar Actions
+
+    /**
+     * Shows the action to given CommandSource
+     * @param action the action to show
+     * @param cmdSource the CommandSource
+     */
     void showReport(Action action, CommandSource cmdSource);
 
+    /**
+     * Returns whether the actions can be grouped
+     * @param action the first action
+     * @param other the second action
+     * @return whether the actions can be grouped
+     */
+    boolean group(Action action, Action other);
+
+    /**
+     * Applies given action to the world
+     *
+     * @param action the action to apply
+     * @param rollback true if rollback or false if redo
+     */
+    void apply(Action action, boolean rollback);
+
+    /**
+     * Observes an event an creates an action for it
+     *
+     * @param event the event to observe
+     * @return the events action
+     */
     Action observe(T event);
 }

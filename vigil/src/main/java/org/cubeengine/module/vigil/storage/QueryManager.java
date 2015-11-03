@@ -10,10 +10,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadFactory;
 
 import com.flowpowered.math.vector.Vector3d;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
+import com.mongodb.*;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.ReportManager;
 import org.cubeengine.module.vigil.report.ReportUtil;
@@ -91,6 +88,10 @@ public class QueryManager
 
             List<DBObject> storeList = storing.stream().map(Action::getDBObject).collect(toList());
             db.insert(storeList);
+        }
+        catch (MongoTimeoutException e)
+        {
+            System.out.println(e.getMessage());
         }
         catch (Exception e)
         {
