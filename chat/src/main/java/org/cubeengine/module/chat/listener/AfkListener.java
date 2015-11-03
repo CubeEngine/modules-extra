@@ -28,6 +28,7 @@ import org.spongepowered.api.event.command.SendCommandEvent;
 import org.spongepowered.api.event.entity.DisplaceEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.projectile.LaunchProjectileEvent;
+import org.spongepowered.api.event.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.inventory.InteractInventoryEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 
@@ -56,7 +57,7 @@ public class AfkListener
     }
 
     @Listener(order = POST)
-    public void onInventoryClick(InteractInventoryEvent.Click event)
+    public void onInventoryInteract(InteractInventoryEvent event)
     {
         Optional<Player> source = event.getCause().first(Player.class);
         if (source.isPresent())

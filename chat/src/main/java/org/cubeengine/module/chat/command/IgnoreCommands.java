@@ -37,6 +37,7 @@ import org.cubeengine.service.i18n.I18n;
 import org.cubeengine.service.user.UserManager;
 import org.spongepowered.api.entity.living.player.Player;
 
+import static org.cubeengine.module.chat.storage.TableIgnorelist.TABLE_IGNORE_LIST;
 import static org.cubeengine.service.i18n.formatter.MessageType.*;
 
 public class IgnoreCommands
@@ -62,7 +63,7 @@ public class IgnoreCommands
             return false;
         }
 
-        IgnoreList ignoreList = db.getDSL().newRecord(TableIgnorelist.TABLE_IGNORE_LIST)
+        IgnoreList ignoreList = db.getDSL().newRecord(TABLE_IGNORE_LIST)
               .newIgnore(um.getByUUID(user.getUniqueId()).getEntity().getId(),
                          um.getByUUID(ignored.getUniqueId()).getEntity().getId());
         ignoreList.insertAsync();
@@ -73,9 +74,9 @@ public class IgnoreCommands
     {
         if (checkIgnored(user, ignored))
         {
-            db.getDSL().delete(TableIgnorelist.TABLE_IGNORE_LIST).
-                where(TableIgnorelist.TABLE_IGNORE_LIST.ID.eq(um.getByUUID(user.getUniqueId()).getEntity().getId())).
-                and(TableIgnorelist.TABLE_IGNORE_LIST.IGNORE.eq(um.getByUUID(ignored.getUniqueId()).getEntity().getId())).execute();
+            db.getDSL().delete(TABLE_IGNORE_LIST).
+                where(TABLE_IGNORE_LIST.ID.eq(um.getByUUID(user.getUniqueId()).getEntity().getId())).
+                and(TABLE_IGNORE_LIST.IGNORE.eq(um.getByUUID(ignored.getUniqueId()).getEntity().getId())).execute();
             return true;
         }
         return true;
@@ -85,10 +86,10 @@ public class IgnoreCommands
     {
         // TODO cache this shit
         IgnoreList ignore =
-            db.getDSL().selectFrom(TableIgnorelist.TABLE_IGNORE_LIST).
-                where(TableIgnorelist.TABLE_IGNORE_LIST.ID.eq(um.getByUUID(user.getUniqueId()).getEntity().getId())).
-                and(TableIgnorelist.TABLE_IGNORE_LIST.IGNORE.eq(um.getByUUID(ignored.getUniqueId()).getEntity().getId())).fetchOneInto(
-                TableIgnorelist.TABLE_IGNORE_LIST);
+            db.getDSL().selectFrom(TABLE_IGNORE_LIST).
+                where(TABLE_IGNORE_LIST.ID.eq(um.getByUUID(user.getUniqueId()).getEntity().getId())).
+                and(TABLE_IGNORE_LIST.IGNORE.eq(um.getByUUID(ignored.getUniqueId()).getEntity().getId())).fetchOneInto(
+                TABLE_IGNORE_LIST);
         return ignore != null;
     }
 

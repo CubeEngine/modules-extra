@@ -66,14 +66,14 @@ public class ChatFormatListener
     }
 
     @Listener(order = Order.EARLY)
-    public void onPlayerChat(MessageSinkEvent event)
+    public void onPlayerChat(MessageSinkEvent.Chat event)
     {
         Optional<Player> source = event.getCause().first(Player.class);
         if (!source.isPresent())
         {
             return;
         }
-        String msg = Texts.toPlain(event.getOriginalMessage());
+        String msg = Texts.toPlain(event.getRawMessage());
 
         Player player = source.get();
         if (module.getConfig().allowColors)
