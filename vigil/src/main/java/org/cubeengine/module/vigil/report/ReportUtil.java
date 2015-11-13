@@ -21,11 +21,18 @@ import java.util.*;
 
 import org.spongepowered.api.Game;
 import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.block.BlockSnapshotBuilder;
+import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.MemoryDataContainer;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.Texts;
+import org.spongepowered.api.text.action.HoverAction;
+import org.spongepowered.api.text.action.TextActions;
+import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -42,8 +49,8 @@ public class ReportUtil
     public static final String UUID = "UUID";
     public static final String NAME = "name";
     public static final String LOCATION = "location";
-    // Observe
 
+    // Observe
     public static Map<String, Object> observeBlockSnapshot(DataContainer block)
     {
         Map<String, Object> info = new HashMap<>();
@@ -77,7 +84,6 @@ public class ReportUtil
     }
 
     // Recall
-
     public static void recall(DataContainer container, Map<String, Object> data, DataQuery query)
     {
         Object value = data.get(query.asString("_"));
@@ -97,7 +103,7 @@ public class ReportUtil
         recall(container, data, BLOCK_TYPE);
         recall(container, data, BLOCK_META);
 
-        return game.getRegistry().createBlockSnapshotBuilder().build(container);
+        return game.getRegistry().createBuilder(BlockSnapshotBuilder.class).build(container);
     }
 
     public static Map<String, Object> observeCause(Cause causes)
@@ -125,5 +131,10 @@ public class ReportUtil
         data.put(NAME, player.getName());
         // TODO configurable data.put("ip", player.getConnection().getAddress().getAddress().getHostAddress());
         return data;
+    }
+
+    public static Text name(BlockType type)
+    {
+        return Texts.of(TextColors.GOLD, type.getTranslation()).builder().onHover(TextActions.showText(Texts.of(type.getName()))).build();
     }
 }

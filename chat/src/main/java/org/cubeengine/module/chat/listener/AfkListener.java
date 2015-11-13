@@ -28,8 +28,7 @@ import org.spongepowered.api.event.command.SendCommandEvent;
 import org.spongepowered.api.event.entity.DisplaceEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.projectile.LaunchProjectileEvent;
-import org.spongepowered.api.event.inventory.ChangeInventoryEvent;
-import org.spongepowered.api.event.inventory.InteractInventoryEvent;
+import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 
 import static org.spongepowered.api.event.Order.POST;

@@ -21,20 +21,28 @@ import java.util.*;
 
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.BaseReport;
+import org.cubeengine.module.vigil.report.ReportUtil;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.Transaction;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
+import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.api.util.command.CommandSource;
 
 import static java.util.Locale.ENGLISH;
 import static java.util.stream.Collectors.toList;
 import static org.cubeengine.module.vigil.report.ReportUtil.*;
 import static org.spongepowered.api.block.BlockTypes.AIR;
+import static org.spongepowered.api.text.format.TextColors.GOLD;
+import static org.spongepowered.api.text.format.TextColors.YELLOW;
 
 public abstract class BlockReport<T extends ChangeBlockEvent> extends BaseReport<T>
 {
@@ -81,7 +89,10 @@ public abstract class BlockReport<T extends ChangeBlockEvent> extends BaseReport
             {
                 @SuppressWarnings("unchecked")
                 Optional<BlockSnapshot> recalled = recallBlockSnapshot(vigil.getGame(), ((Map<String, Object>) data.get(ORIGINAL)), ((Map<String, Object>) data.get(LOCATION)));
-                recalled.ifPresent(snapshot -> cmdSource.sendMessage(Texts.of("Break ", snapshot.getState().getType().getTranslation().get(ENGLISH))));
+                if (recalled.isPresent())
+                {
+                    cmdSource.sendMessage(Texts.of(YELLOW, "Break ", ReportUtil.name(recalled.get().getState().getType())));
+                }
             }
         }
 
@@ -109,15 +120,23 @@ public abstract class BlockReport<T extends ChangeBlockEvent> extends BaseReport
                 Optional<BlockSnapshot> repl = recallBlockSnapshot(vigil.getGame(), ((Map<String, Object>) data.get(REPLACEMENT)), locationData);
                 @SuppressWarnings("unchecked")
                 Optional<BlockSnapshot> orig = recallBlockSnapshot(vigil.getGame(), ((Map<String, Object>) data.get(ORIGINAL)), locationData);
+
+
                 if (orig.isPresent() && !orig.get().getState().getType().equals(AIR))
                 {
-                    repl.ifPresent(snapshot ->
-                            cmdSource.sendMessage(Texts.of("RePlace ", orig.get().getState().getType().getTranslation().get(ENGLISH),
-                                    " with " + snapshot.getState().getType().getTranslation().get(ENGLISH))));
+                    if (repl.isPresent())
+                    {
+                        // TODO Translations in here
+                        cmdSource.sendMessage(Texts.of(YELLOW, "Changed ", ReportUtil.name(orig.get().getState().getType()),
+                                YELLOW, " to ", ReportUtil.name(repl.get().getState().getType())));
+                    }
                 }
                 else
                 {
-                    repl.ifPresent(snapshot -> cmdSource.sendMessage(Texts.of("Place ", snapshot.getState().getType().getTranslation().get(ENGLISH))));
+                    if (repl.isPresent())
+                    {
+                        cmdSource.sendMessage(Texts.of(YELLOW, "Place ", ReportUtil.name(repl.get().getState().getType())));
+                    }
                 }
             }
         }
@@ -130,6 +149,38 @@ public abstract class BlockReport<T extends ChangeBlockEvent> extends BaseReport
                 report(observe(event));
             }
         }
+
+        /*
+        @Listener(order = Order.POST)
+        public void listen(ChangeBlockEvent event)
+        {
+            if (!event.getCause().first(Player.class).isPresent())
+            {
+                return;
+            }
+            if (event instanceof ChangeBlockEvent.Place)
+            {
+                System.out.print("\nChangeBlockEvent.Place");
+            }
+            else
+            {
+                System.out.print("\nChangeBlockEvent");
+            }
+
+            for (Transaction<BlockSnapshot> trans : event.getTransactions())
+            {
+                System.out.print("\nFrom " + trans.getOriginal());
+                System.out.print("\nto " + trans.getFinal());
+            }
+
+            for (Object o : event.getCause().all())
+            {
+                System.out.print("\nby " + o);
+            }
+
+            System.out.print("\n");
+        }
+        // */
     }
 
     /**

@@ -16,6 +16,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStackBuilder;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.format.TextColors;
@@ -112,7 +113,7 @@ public class VigilCommands
     @SuppressWarnings("deprecation")
     private void findLogTool(Player player, ItemType type)
     {
-        ItemStack itemStack = game.getRegistry().createItemBuilder().itemType(type).quantity(1).build();
+        ItemStack itemStack = game.getRegistry().createBuilder(ItemStackBuilder.class).itemType(type).quantity(1).build();
         itemStack.offer(Keys.DISPLAY_NAME, toolName);
         itemStack.offer(Keys.ITEM_LORE, asList(i18n.getTranslation(player, NONE, "created by {name}", player.getName())));
         player.setItemInHand(itemStack);

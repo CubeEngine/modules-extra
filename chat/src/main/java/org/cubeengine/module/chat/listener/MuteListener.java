@@ -44,7 +44,7 @@ public class MuteListener
     }
 
     @Listener
-    public void onChat(MessageSinkEvent event)
+    public void onChat(MessageSinkEvent.Chat event)
     {
         Optional<Player> source = event.getCause().first(Player.class);
         if (!source.isPresent())
