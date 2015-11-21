@@ -25,7 +25,6 @@ import org.cubeengine.service.i18n.I18n;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.item.inventory.ItemStackBuilder;
 import org.spongepowered.api.item.inventory.transaction.InventoryTransactionResult;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.format.TextColors;
@@ -69,7 +68,7 @@ public class SelectorCommand
         Optional<ItemStack> itemInHand = user.getItemInHand();
         if (found == null)
         {
-            found = game.getRegistry().createBuilder(ItemStackBuilder.class).itemType(WOODEN_AXE).quantity(1).build();
+            found = game.getRegistry().createBuilder(ItemStack.Builder.class).itemType(WOODEN_AXE).quantity(1).build();
             found.offer(DISPLAY_NAME, Texts.of(TextColors.BLUE, "Selector-Tool"));
             /* TODO wait for impl
             LoreData lore = found.getOrCreate(LoreData.class).get();

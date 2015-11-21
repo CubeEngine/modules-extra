@@ -21,7 +21,6 @@ import java.util.*;
 
 import org.spongepowered.api.Game;
 import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.block.BlockSnapshotBuilder;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataQuery;
@@ -30,7 +29,6 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
-import org.spongepowered.api.text.action.HoverAction;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.Location;
@@ -103,7 +101,7 @@ public class ReportUtil
         recall(container, data, BLOCK_TYPE);
         recall(container, data, BLOCK_META);
 
-        return game.getRegistry().createBuilder(BlockSnapshotBuilder.class).build(container);
+        return game.getRegistry().createBuilder(BlockSnapshot.Builder.class).build(container);
     }
 
     public static Map<String, Object> observeCause(Cause causes)
