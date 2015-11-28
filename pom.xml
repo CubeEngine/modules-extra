@@ -54,6 +54,8 @@
     <module>unbreakableboat</module>
     <module>namehistory</module>
     <module>vigil</module>
+    <module>authorization</module>
+    <module>apiserver</module>
   </modules>
 
   <build>
