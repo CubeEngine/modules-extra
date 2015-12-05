@@ -36,8 +36,8 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.ban.BanService;
 import org.spongepowered.api.text.Text.Literal;
 import org.spongepowered.api.text.Texts;
-import org.spongepowered.api.util.ban.Bans;
-import org.spongepowered.api.util.command.CommandSource;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.util.ban.Ban;
 
 import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -133,11 +133,11 @@ public class AuthCommands
                     Literal msg = Texts.of(i18n.getTranslation(context, NEGATIVE, "Too many wrong passwords!") + "\n"
                                     + i18n.getTranslation(context, NEUTRAL, "For your security you were banned 10 seconds."));
                     Date expires = new Date(currentTimeMillis() + SECONDS.toMillis(config.banDuration));
-                    this.bs.ban(Bans.builder().user(context).reason(msg).expirationDate(expires).source(
+                    this.bs.ban(Ban.builder().user(context).reason(msg).expirationDate(expires).source(
                         context).build());
                     if (!game.getServer().getOnlineMode())
                     {
-                        this.bs.ban(Bans.builder().address(context.getConnection().getAddress().getAddress()).reason(
+                        this.bs.ban(Ban.builder().address(context.getConnection().getAddress().getAddress()).reason(
                             msg).expirationDate(expires).source(context).build());
                     }
                     context.kick(msg);

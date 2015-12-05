@@ -33,11 +33,11 @@ import org.cubeengine.service.i18n.I18n;
 import org.cubeengine.service.user.Broadcaster;
 import org.cubeengine.service.user.UserManager;
 import org.spongepowered.api.Game;
+import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.data.manipulator.mutable.DisplayNameData;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Texts;
-import org.spongepowered.api.util.command.CommandSource;
-import org.spongepowered.api.util.command.source.ConsoleSource;
+import org.spongepowered.api.command.CommandSource;
 
 import static org.cubeengine.butler.parameter.Parameter.INFINITE;
 import static org.cubeengine.service.i18n.formatter.MessageType.*;

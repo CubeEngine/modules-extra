@@ -34,7 +34,7 @@ import org.cubeengine.service.user.UserManager;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.service.user.UserStorage;
+import org.spongepowered.api.service.user.UserStorageService;
 
 public class AfkCommand implements Runnable
 {
@@ -120,7 +120,7 @@ public class AfkCommand implements Runnable
     public void run()
     {
         afks.entrySet().stream().filter(Entry::getValue)
-            .map(Entry::getKey).map(uuid -> game.getServiceManager().provide(UserStorage.class).get().get(uuid))
+            .map(Entry::getKey).map(uuid -> game.getServiceManager().provide(UserStorageService.class).get().get(uuid))
             .filter(Optional::isPresent)
             .map(Optional::get)
             .forEach(this::updateAfk);

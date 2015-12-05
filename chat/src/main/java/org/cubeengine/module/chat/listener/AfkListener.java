@@ -25,6 +25,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.event.command.SendCommandEvent;
+import org.spongepowered.api.event.command.TabCompleteCommandEvent;
 import org.spongepowered.api.event.entity.DisplaceEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.projectile.LaunchProjectileEvent;
@@ -107,12 +108,15 @@ public class AfkListener
         }
     }
 
-    /* TODO @Subscribe(order = POST)
-    public void onChatTabComplete(PlayerChatTabCompleteEvent event)
+    @Listener(order = POST)
+    public void onChatTabComplete(TabCompleteCommandEvent event)
     {
-        this.updateLastAction(event.getUser());
+        Optional<Player> source = event.getCause().first(Player.class);
+        if (source.isPresent())
+        {
+            this.updateLastAction(source.get());
+        }
     }
-    */
 
     @Listener(order = POST)
     public void onLeave(ClientConnectionEvent.Disconnect event)

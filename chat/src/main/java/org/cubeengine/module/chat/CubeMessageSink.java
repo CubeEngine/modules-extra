@@ -19,7 +19,7 @@ package org.cubeengine.module.chat;
 
 import org.spongepowered.api.text.sink.MessageSink;
 import org.spongepowered.api.text.sink.MessageSinks;
-import org.spongepowered.api.util.command.CommandSource;
+import org.spongepowered.api.command.CommandSource;
 
 public class CubeMessageSink extends MessageSink
 {

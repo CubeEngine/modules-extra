@@ -4,7 +4,7 @@ import org.cubeengine.module.core.sponge.EventManager;
 import org.cubeengine.module.vigil.Vigil;
 import org.cubeengine.module.vigil.report.block.BlockReport;
 import org.spongepowered.api.text.Texts;
-import org.spongepowered.api.util.command.CommandSource;
+import org.spongepowered.api.command.CommandSource;
 
 import java.util.HashMap;
 import java.util.Map;

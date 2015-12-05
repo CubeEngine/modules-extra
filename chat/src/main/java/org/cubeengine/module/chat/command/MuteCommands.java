@@ -37,7 +37,7 @@ import org.jooq.types.UInteger;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
-import org.spongepowered.api.util.command.CommandSource;
+import org.spongepowered.api.command.CommandSource;
 
 import static java.util.concurrent.TimeUnit.DAYS;
 import static org.cubeengine.module.chat.storage.TableMuted.TABLE_MUTED;

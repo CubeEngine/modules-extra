@@ -38,6 +38,8 @@ public class Spawn extends Module
         cm.removeCommand("spawn", true); // unregister basics commands
         cm.addCommands(cm, this, new SpawnCommands(roles, this));
         perms = new SpawnPerms(this); // PermContainer registers itself
+
+        // TODO per world spawn with rotation
     }
 
     @Override

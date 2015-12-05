@@ -17,21 +17,27 @@
  */
 package org.cubeengine.module.selector;
 
+import java.util.Arrays;
 import java.util.Optional;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.result.CommandResult;
 import org.cubeengine.service.command.CommandContext;
 import org.cubeengine.service.i18n.I18n;
 import org.spongepowered.api.Game;
+import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.transaction.InventoryTransactionResult;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.format.TextColors;
 
 import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
 import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
 import static org.spongepowered.api.data.key.Keys.DISPLAY_NAME;
+import static org.spongepowered.api.data.key.Keys.ITEM_LORE;
 import static org.spongepowered.api.item.ItemTypes.WOODEN_AXE;
 
 public class SelectorCommand
@@ -48,15 +54,14 @@ public class SelectorCommand
     public void giveSelectionTool(Player user)
     {
         ItemStack found = null;
-        // TODO wait for implemented InventoryAPI
-        /*
         Inventory axes = user.getInventory().query(ItemTypes.WOODEN_AXE);
         for (Inventory slot : axes.slots())
         {
-            ItemStack itemStack = slot.peek().get();
-            if (itemStack.getData(DisplayNameData.class).isPresent())
+            ItemStack itemStack = slot.peek();
+            Optional<Text> display = itemStack.get(Keys.DISPLAY_NAME);
+            if (display.isPresent())
             {
-                if (SELECTOR_TOOL_NAME.equals(itemStack.getData(DisplayNameData.class).get().getDisplayName()))
+                if (Texts.of(TextColors.BLUE, "Selector-Tool").equals(display.get()))
                 {
                     found = itemStack;
                     slot.clear();
@@ -64,17 +69,13 @@ public class SelectorCommand
                 }
             }
         }
-        */
+
         Optional<ItemStack> itemInHand = user.getItemInHand();
         if (found == null)
         {
             found = game.getRegistry().createBuilder(ItemStack.Builder.class).itemType(WOODEN_AXE).quantity(1).build();
             found.offer(DISPLAY_NAME, Texts.of(TextColors.BLUE, "Selector-Tool"));
-            /* TODO wait for impl
-            LoreData lore = found.getOrCreate(LoreData.class).get();
-            lore.set(Texts.of("created by ", user.getDisplayName()));
-            found.offer(lore);
-            */
+            found.offer(ITEM_LORE, Arrays.asList(Texts.of("created by ", user.getName())));
 
             user.setItemInHand(found);
             if (itemInHand.isPresent())

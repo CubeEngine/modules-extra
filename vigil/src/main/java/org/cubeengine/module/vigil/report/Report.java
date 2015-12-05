@@ -18,7 +18,7 @@
 package org.cubeengine.module.vigil.report;
 
 import org.spongepowered.api.event.Event;
-import org.spongepowered.api.util.command.CommandSource;
+import org.spongepowered.api.command.CommandSource;
 
 public interface Report<T extends Event>
 {

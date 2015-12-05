@@ -18,9 +18,9 @@
 package org.cubeengine.service.webapi.sender;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.network.RemoteConnection;
 import org.spongepowered.api.service.permission.Subject;
-import org.spongepowered.api.util.command.source.ConsoleSource;
 
 public class ApiServerSender extends ApiCommandSource
 {
