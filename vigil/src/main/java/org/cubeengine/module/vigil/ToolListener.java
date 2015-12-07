@@ -8,6 +8,7 @@ import org.spongepowered.api.data.manipulator.mutable.DisplayNameData;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.service.permission.PermissionDescription;
 import org.spongepowered.api.world.Location;
@@ -34,33 +35,29 @@ public class ToolListener
     }
 
     @Listener
-    public void onClick(InteractBlockEvent event)
+    public void onClick(InteractBlockEvent event, @First Player player)
     {
-        Optional<Player> player = event.getCause().first(Player.class);
-        if (player.isPresent())
+        // TODO don't trigger on pressureplates?
+        if (player.hasPermission(toolPerm.getId()))
         {
-            // TODO don't trigger on pressureplates?
-            if (player.get().hasPermission(toolPerm.getId()))
+            Optional<ItemStack> itemInHand = player.getItemInHand();
+            if (itemInHand.isPresent())
             {
-                Optional<ItemStack> itemInHand = player.get().getItemInHand();
-                if (itemInHand.isPresent())
+                if (itemInHand.get().get(DisplayNameData.class).map(data -> data.displayName().get().equals(toolName)).orElse(false))
                 {
-                    if (itemInHand.get().get(DisplayNameData.class).map(data -> data.displayName().get().equals(toolName)).orElse(false))
+                    Location loc;
+                    if (event instanceof InteractBlockEvent.Primary)
                     {
-                        Location loc;
-                        if (event instanceof InteractBlockEvent.Primary)
-                        {
-                            loc = event.getTargetBlock().getLocation().get();
-                        }
-                        else
-                        {
-                            loc = event.getTargetBlock().getLocation().get().getRelative(event.getTargetSide());
-                        }
-                        // TODO generate and pass Lookup with parameters and show settings
-                        // TODO set lookuplocation to Block ; left: clicked block ; righ: would placed block
-                        qm.queryAndShow(loc.getPosition(), player.get());
-                        event.setCancelled(true);
+                        loc = event.getTargetBlock().getLocation().get();
                     }
+                    else
+                    {
+                        loc = event.getTargetBlock().getLocation().get().getRelative(event.getTargetSide());
+                    }
+                    // TODO generate and pass Lookup with parameters and show settings
+                    // TODO set lookuplocation to Block ; left: clicked block ; righ: would placed block
+                    qm.queryAndShow(loc.getPosition(), player);
+                    event.setCancelled(true);
                 }
             }
         }

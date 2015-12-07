@@ -30,6 +30,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.command.MessageSinkEvent;
+import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
@@ -66,16 +67,9 @@ public class ChatFormatListener
     }
 
     @Listener(order = Order.EARLY)
-    public void onPlayerChat(MessageSinkEvent.Chat event)
+    public void onPlayerChat(MessageSinkEvent.Chat event, @First Player player)
     {
-        Optional<Player> source = event.getCause().first(Player.class);
-        if (!source.isPresent())
-        {
-            return;
-        }
         String msg = Texts.toPlain(event.getRawMessage());
-
-        Player player = source.get();
         if (module.getConfig().allowColors)
         {
             if (!player.hasPermission(module.perms().COLOR.getId()))

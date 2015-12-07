@@ -31,6 +31,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
+import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.format.TextColors;
@@ -97,12 +98,10 @@ public abstract class BlockReport<T extends ChangeBlockEvent> extends BaseReport
         }
 
         @Listener(order = Order.POST)
-        public void listen(ChangeBlockEvent.Break event)
+        public void listen(ChangeBlockEvent.Break event, @First Player player)
         {
-            if (event.getCause().first(Player.class).isPresent()) // TODO cause filtering
-            {
-                report(observe(event));
-            }
+            // TODO cause filtering ?
+            report(observe(event));
         }
     }
 
@@ -142,12 +141,10 @@ public abstract class BlockReport<T extends ChangeBlockEvent> extends BaseReport
         }
 
         @Listener(order = Order.POST)
-        public void listen(ChangeBlockEvent.Place event)
+        public void listen(ChangeBlockEvent.Place event, @First Player player)
         {
-            if (event.getCause().first(Player.class).isPresent()) // TODO cause filtering
-            {
-                report(observe(event));
-            }
+            // TODO cause filtering
+            report(observe(event));
         }
 
         /*

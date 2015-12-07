@@ -27,6 +27,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.event.filter.cause.First;
 
 import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
 
@@ -44,19 +45,14 @@ public class MuteListener
     }
 
     @Listener
-    public void onChat(MessageSinkEvent.Chat event)
+    public void onChat(MessageSinkEvent.Chat event, @First Player source)
     {
-        Optional<Player> source = event.getCause().first(Player.class);
-        if (!source.isPresent())
-        {
-            return;
-        }
         // muted?
-        Date muted = muteCmd.getMuted(source.get());
+        Date muted = muteCmd.getMuted(source);
         if (muted != null && System.currentTimeMillis() < muted.getTime())
         {
             event.setCancelled(true);
-            i18n.sendTranslated(source.get(), NEGATIVE, "You try to speak but nothing happens!");
+            i18n.sendTranslated(source, NEGATIVE, "You try to speak but nothing happens!");
             return;
         }
         // ignored?
@@ -65,7 +61,7 @@ public class MuteListener
             final CommandSource player = iterator.next();
             if (player instanceof Player)
             {
-                if (this.ignoreCmd.checkIgnored(((Player)player), source.get()))
+                if (this.ignoreCmd.checkIgnored(((Player) player), source))
                 {
                     iterator.remove();
                 }

@@ -35,6 +35,7 @@ import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.format.TextColors;
@@ -100,43 +101,38 @@ public class CuboidSelector implements Selector
     }
 
     @Listener
-    public void onInteract(InteractBlockEvent event)
+    public void onInteract(InteractBlockEvent event, @First Player player)
     {
-        Optional<Player> source = event.getCause().first(Player.class);
-        if (!source.isPresent())
-        {
-            return;
-        }
         Location block = event.getTargetBlock().getLocation().get();
         if ((int)block.getPosition().length() == 0)
         {
             return;
         }
-        if (block.getBlockType() == AIR || !source.get().hasPermission(module.getSelectPerm().getId()))
+        if (block.getBlockType() == AIR || !player.hasPermission(module.getSelectPerm().getId()))
         {
             return;
         }
-        Optional<ItemStack> itemInHand = source.get().getItemInHand();
+        Optional<ItemStack> itemInHand = player.getItemInHand();
         if (!itemInHand.isPresent() || !Texts.of(TextColors.BLUE, "Selector-Tool").equals(itemInHand.get().get(Keys.DISPLAY_NAME).orElse(null)))
         {
             return;
         }
 
-        SelectorData data = selectorData.get(source.get().getUniqueId());
+        SelectorData data = selectorData.get(player.getUniqueId());
         if (data == null)
         {
             data = new SelectorData();
-            selectorData.put(source.get().getUniqueId(), data);
+            selectorData.put(player.getUniqueId(), data);
         }
         if (event instanceof InteractBlockEvent.Primary)
         {
             data.setPoint(0, block);
-            i18n.sendTranslated(source.get(), POSITIVE, "First position set to ({integer}, {integer}, {integer}).", block.getBlockX(), block.getBlockY(), block.getBlockZ());
+            i18n.sendTranslated(player, POSITIVE, "First position set to ({integer}, {integer}, {integer}).", block.getBlockX(), block.getBlockY(), block.getBlockZ());
         }
         else if (event instanceof InteractBlockEvent.Secondary)
         {
             data.setPoint(1, block);
-            i18n.sendTranslated(source.get(), POSITIVE, "Second position set to ({integer}, {integer}, {integer}).", block.getBlockX(), block.getBlockY(), block.getBlockZ());
+            i18n.sendTranslated(player, POSITIVE, "Second position set to ({integer}, {integer}, {integer}).", block.getBlockX(), block.getBlockY(), block.getBlockZ());
         }
         event.setCancelled(true);
     }

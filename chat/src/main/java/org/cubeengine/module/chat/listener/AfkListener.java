@@ -17,7 +17,6 @@
  */
 package org.cubeengine.module.chat.listener;
 
-import java.util.Optional;
 import org.cubeengine.module.chat.Chat;
 import org.cubeengine.module.chat.command.AfkCommand;
 import org.spongepowered.api.entity.living.player.Player;
@@ -29,6 +28,7 @@ import org.spongepowered.api.event.command.TabCompleteCommandEvent;
 import org.spongepowered.api.event.entity.DisplaceEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.projectile.LaunchProjectileEvent;
+import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 
@@ -57,86 +57,54 @@ public class AfkListener
     }
 
     @Listener(order = POST)
-    public void onInventoryInteract(InteractInventoryEvent event)
+    public void onInventoryInteract(InteractInventoryEvent event, @First Player player)
     {
-        Optional<Player> source = event.getCause().first(Player.class);
-        if (source.isPresent())
-        {
-            this.updateLastAction(source.get());
-        }
+        this.updateLastAction(player);
     }
 
     @Listener(order = POST)
-    public void playerInteract(InteractBlockEvent event)
+    public void playerInteract(InteractBlockEvent event, @First Player player)
     {
-        Optional<Player> source = event.getCause().first(Player.class);
-        if (source.isPresent())
-        {
-            this.updateLastAction(source.get());
-        }
+        this.updateLastAction(player);
     }
 
 
     @Listener(order = POST)
-    public void playerInteract(InteractEntityEvent event)
+    public void playerInteract(InteractEntityEvent event, @First Player player)
     {
-        Optional<Player> source = event.getCause().first(Player.class);
-        if (source.isPresent())
-        {
-            this.updateLastAction(source.get());
-        }
+        this.updateLastAction(player);
     }
 
     @Listener(order = POST)
-    public void onChat(MessageSinkEvent event)
+    public void onChat(MessageSinkEvent event, @First Player player)
     {
-        Optional<Player> source = event.getCause().first(Player.class);
-        if (source.isPresent())
-        {
-            this.updateLastAction(source.get());
-            afkCommand.run();
-        }
+        this.updateLastAction(player);
+        afkCommand.run();
     }
 
     @Listener(order = POST)
-    public void onCommand(SendCommandEvent event)
+    public void onCommand(SendCommandEvent event, @First Player player)
     {
-        Optional<Player> player = event.getCause().first(Player.class);
-        if (player.isPresent())
-        {
-            this.updateLastAction(player.get());
-        }
+        this.updateLastAction(player);
     }
 
     @Listener(order = POST)
-    public void onChatTabComplete(TabCompleteCommandEvent event)
+    public void onChatTabComplete(TabCompleteCommandEvent event, @First Player player)
     {
-        Optional<Player> source = event.getCause().first(Player.class);
-        if (source.isPresent())
-        {
-            this.updateLastAction(source.get());
-        }
+        this.updateLastAction(player);
     }
 
     @Listener(order = POST)
-    public void onLeave(ClientConnectionEvent.Disconnect event)
+    public void onLeave(ClientConnectionEvent.Disconnect event, @First Player player)
     {
-        Optional<Player> source = event.getCause().first(Player.class);
-        if (source.isPresent())
-        {
-            afkCommand.setAfk(source.get(), false);
-            afkCommand.resetLastAction(source.get());
-        }
+        afkCommand.setAfk(player, false);
+        afkCommand.resetLastAction(player);
     }
 
     @Listener(order = POST)
-    public void onBowShot(LaunchProjectileEvent event)
+    public void onBowShot(LaunchProjectileEvent event, @First Player source)
     {
-        Optional<Player> source = event.getCause().first(Player.class);
-        if (source.isPresent())
-        {
-            this.updateLastAction(source.get());
-        }
+        this.updateLastAction(source);
     }
 
     private void updateLastAction(Player player)
