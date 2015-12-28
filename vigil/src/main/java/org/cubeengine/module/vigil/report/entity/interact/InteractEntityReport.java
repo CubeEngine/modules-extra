@@ -15,34 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cubeengine.module.vigil.report;
+package org.cubeengine.module.vigil.report.entity.interact;
 
-import org.cubeengine.module.vigil.Vigil;
-import org.spongepowered.api.event.Event;
+import org.cubeengine.module.vigil.report.entity.EntityReport;
+import org.spongepowered.api.event.entity.InteractEntityEvent;
 
-import java.util.List;
-import java.util.function.Function;
+/* TODO
+entity
+-dye
+-fill soup
+-shear
+-milk
 
-public abstract class BaseReport<T extends Event> implements Report<T>
+vehicle
+-enter
+-exit
+-use-furnace-minecart
+ */
+public abstract class InteractEntityReport<T extends InteractEntityEvent> extends EntityReport<T>
 {
-    protected Vigil vigil;
-
-    public void init(Vigil vigil)
-    {
-        this.vigil = vigil;
-    }
-
-    protected Action newReport()
-    {
-        return new Action(getClass().getName());
-    }
-
-    protected void report(Action action)
-    {
-        if (action != null)
-        {
-            vigil.getQueryManager().report(action);
-        }
-    }
-
 }

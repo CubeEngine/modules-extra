@@ -17,6 +17,7 @@
  */
 package org.cubeengine.module.vigil.storage;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -28,21 +29,18 @@ import java.util.concurrent.ThreadFactory;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.mongodb.*;
-import org.cubeengine.module.vigil.report.Action;
-import org.cubeengine.module.vigil.report.ReportManager;
-import org.cubeengine.module.vigil.report.ReportUtil;
-import org.cubeengine.module.vigil.report.block.BlockReport;
+import org.cubeengine.module.vigil.Receiver;
+import org.cubeengine.module.vigil.report.*;
+import org.cubeengine.service.i18n.I18n;
 import org.spongepowered.api.entity.living.player.Player;
 
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static java.util.stream.Collectors.toList;
 import static org.cubeengine.module.vigil.report.Action.DATA;
-import static org.cubeengine.module.vigil.report.ReportUtil.*;
-import static org.cubeengine.module.vigil.report.ReportUtil.WORLD;
-import static org.cubeengine.module.vigil.report.ReportUtil.X;
-import static org.cubeengine.module.vigil.report.ReportUtil.Y;
+import static org.cubeengine.module.vigil.report.Report.WORLD;
+import static org.cubeengine.module.vigil.report.Report.X;
+import static org.cubeengine.module.vigil.report.Report.Y;
 import static org.cubeengine.module.vigil.report.block.BlockReport.BLOCK_CHANGES;
-import static org.cubeengine.module.vigil.report.block.BlockReport.ORIGINAL;
 
 public class QueryManager
 {
@@ -56,11 +54,13 @@ public class QueryManager
     private int batchSize = 2000; // TODO config
     private DBCollection db;
     private ReportManager reportManager;
+    private I18n i18n;
 
-    public QueryManager(ThreadFactory tf, DBCollection db, ReportManager reportManager)
+    public QueryManager(ThreadFactory tf, DBCollection db, ReportManager reportManager, I18n i18n)
     {
         this.db = db;
         this.reportManager = reportManager;
+        this.i18n = i18n;
         storeExecuter = newSingleThreadExecutor(tf);
         queryExecuter = newSingleThreadExecutor(tf);
     }
@@ -134,17 +134,34 @@ public class QueryManager
     {
         // Build query from lookup
         BasicDBObject query = new BasicDBObject();
-        query.put(DATA + "." + BLOCK_CHANGES + "." + LOCATION + "." + WORLD.asString("_"), player.getWorld().getUniqueId().toString());
+        query.put(DATA + "." + BLOCK_CHANGES + "." + Report.LOCATION + "." + WORLD.asString("_"), player.getWorld().getUniqueId().toString());
         if (lookup instanceof Vector3d)
         {
-            query.put(DATA + "." + BLOCK_CHANGES + "." + LOCATION + "." + X.asString("_"), ((Vector3d) lookup).getFloorX());
-            query.put(DATA + "." + BLOCK_CHANGES + "." + LOCATION + "." + Y.asString("_"), ((Vector3d) lookup).getFloorY());
-            query.put(DATA + "." + BLOCK_CHANGES + "." + LOCATION + "." + Z.asString("_"), ((Vector3d) lookup).getFloorZ());
+            query.put(DATA + "." + BLOCK_CHANGES + "." + Report.LOCATION + "." + X.asString("_"), ((Vector3d) lookup).getFloorX());
+            query.put(DATA + "." + BLOCK_CHANGES + "." + Report.LOCATION + "." + Y.asString("_"), ((Vector3d) lookup).getFloorY());
+            query.put(DATA + "." + BLOCK_CHANGES + "." + Report.LOCATION + "." + Report.Z.asString("_"), ((Vector3d) lookup).getFloorZ());
         }
         DBCursor results = db.find(query);
+
+        List<ReportActions> reportActions = new ArrayList<>();
+        ReportActions last = null;
         for (DBObject result : results)
         {
-            reportManager.showReport(new Action(result), player);
+            Action action = new Action(result);
+            Report report = reportManager.reportOf(action);
+            if (last == null)
+            {
+                last = new ReportActions(report);
+                reportActions.add(last);
+            }
+            if (!last.add(action, report, lookup))
+            {
+                last = new ReportActions(report);
+                reportActions.add(last);
+                last.add(action, report, lookup);
+            }
         }
+
+        new Receiver(player, i18n, lookup).sendReports(reportActions);
     }
 }

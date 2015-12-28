@@ -27,7 +27,6 @@ import org.cubeengine.module.core.sponge.EventManager;
 import org.cubeengine.module.core.util.matcher.StringMatcher;
 import org.cubeengine.module.vigil.commands.VigilCommands;
 import org.cubeengine.module.vigil.report.ReportManager;
-import org.cubeengine.module.vigil.report.block.BlockReport;
 import org.cubeengine.module.vigil.storage.QueryManager;
 import org.cubeengine.service.command.CommandManager;
 import org.cubeengine.service.i18n.I18n;
@@ -56,8 +55,8 @@ public class Vigil extends Module
     @Enable
     public void onEnable()
     {
-        ReportManager reportManager = new ReportManager(this, em);
-        qm = new QueryManager(tf, bd.getDatabase().getCollection("vigil"), reportManager);
+        ReportManager reportManager = new ReportManager(this, em, i18n);
+        qm = new QueryManager(tf, bd.getDatabase().getCollection("vigil"), reportManager, i18n);
         cm.addCommands(this, new VigilCommands(sm, i18n, game));
         em.registerListener(this, new ToolListener(this, i18n, pm, qm, game));
     }

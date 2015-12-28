@@ -17,8 +17,6 @@
  */
 package org.cubeengine.module.vigil.commands;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import org.cubeengine.butler.alias.Alias;
 import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parametric.Command;
@@ -46,7 +44,6 @@ public class VigilCommands
 {
     public static final Text toolName = Texts.of(TextColors.DARK_AQUA, "Logging-ToolBlock");
     public static final Text selectorToolName = Texts.of(TextColors.DARK_AQUA, "Selector-Tool");
-
 
     private StringMatcher sm;
     private I18n i18n;

@@ -17,32 +17,33 @@
  */
 package org.cubeengine.module.vigil.report;
 
-import org.cubeengine.module.vigil.Vigil;
-import org.spongepowered.api.event.Event;
+import org.cubeengine.module.vigil.Receiver;
 
-import java.util.List;
-import java.util.function.Function;
+import java.util.LinkedList;
 
-public abstract class BaseReport<T extends Event> implements Report<T>
+public class ReportActions
 {
-    protected Vigil vigil;
+    private final Report report;
+    private final LinkedList<Action> actions = new LinkedList<>();
 
-    public void init(Vigil vigil)
+    public ReportActions(Report report)
     {
-        this.vigil = vigil;
+        this.report = report;
     }
 
-    protected Action newReport()
+    public boolean add(Action action, Report report, Object lookup)
     {
-        return new Action(getClass().getName());
-    }
-
-    protected void report(Action action)
-    {
-        if (action != null)
+        if (actions.isEmpty() || this.report.group(lookup, actions.getLast(), action, report))
         {
-            vigil.getQueryManager().report(action);
+            actions.add(action);
+            return true;
         }
+        return false;
+    }
+
+    public void showReport(Receiver receiver)
+    {
+        report.showReport(actions, receiver);
     }
 
 }

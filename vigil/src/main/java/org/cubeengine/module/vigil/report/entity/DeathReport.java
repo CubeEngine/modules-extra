@@ -15,34 +15,52 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cubeengine.module.vigil.report;
+package org.cubeengine.module.vigil.report.entity;
 
-import org.cubeengine.module.vigil.Vigil;
-import org.spongepowered.api.event.Event;
+import org.cubeengine.module.vigil.Receiver;
+import org.cubeengine.module.vigil.report.Action;
+import org.cubeengine.module.vigil.report.Report;
+import org.spongepowered.api.event.entity.DestructEntityEvent;
 
 import java.util.List;
-import java.util.function.Function;
+/* TODO
+death
+-animal
+-boss
+-kill
+-monster
+-npc
+-other
+-pet
+-player?
 
-public abstract class BaseReport<T extends Event> implements Report<T>
+-hanging-break
+-vehicle-break
+
+ */
+public class DeathReport extends EntityReport<DestructEntityEvent.Death>
 {
-    protected Vigil vigil;
-
-    public void init(Vigil vigil)
+    @Override
+    public void showReport(List<Action> actions, Receiver receiver)
     {
-        this.vigil = vigil;
+
     }
 
-    protected Action newReport()
+    @Override
+    public boolean group(Object lookup, Action action, Action otherAction, Report otherReport)
     {
-        return new Action(getClass().getName());
+        return false;
     }
 
-    protected void report(Action action)
+    @Override
+    public void apply(Action action, boolean rollback)
     {
-        if (action != null)
-        {
-            vigil.getQueryManager().report(action);
-        }
+
     }
 
+    @Override
+    public Action observe(DestructEntityEvent.Death event)
+    {
+        return null;
+    }
 }

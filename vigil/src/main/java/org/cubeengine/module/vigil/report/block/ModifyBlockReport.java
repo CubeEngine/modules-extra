@@ -15,34 +15,40 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cubeengine.module.vigil.report;
+package org.cubeengine.module.vigil.report.block;
 
-import org.cubeengine.module.vigil.Vigil;
-import org.spongepowered.api.event.Event;
+import org.cubeengine.module.vigil.Receiver;
+import org.cubeengine.module.vigil.report.Action;
+import org.cubeengine.module.vigil.report.Report;
+import org.spongepowered.api.event.block.ChangeBlockEvent;
 
 import java.util.List;
-import java.util.function.Function;
 
-public abstract class BaseReport<T extends Event> implements Report<T>
+/* TODO change
+sign
+noteblock
+jukebox
+repeater
+plate
+lever
+door
+comparatpr
+cake
+button
+
+bonemeal?
+ */
+public class ModifyBlockReport extends BlockReport<ChangeBlockEvent.Modify>
 {
-    protected Vigil vigil;
-
-    public void init(Vigil vigil)
+    @Override
+    public void showReport(List<Action> actions, Receiver receiver)
     {
-        this.vigil = vigil;
+
     }
 
-    protected Action newReport()
+    @Override
+    public boolean group(Object lookup, Action action, Action otherAction, Report otherReport)
     {
-        return new Action(getClass().getName());
+        return false;
     }
-
-    protected void report(Action action)
-    {
-        if (action != null)
-        {
-            vigil.getQueryManager().report(action);
-        }
-    }
-
 }

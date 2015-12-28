@@ -20,6 +20,9 @@ package org.cubeengine.module.vigil.report;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
@@ -29,6 +32,8 @@ public class Action
     public static final String TYPE = "type";
     public static final String DATA = "data";
     private final DBObject dbObject;
+
+    private Map<String, Object> cached;
 
     public Action(String type)
     {
@@ -63,5 +68,20 @@ public class Action
     public DBObject getDBObject()
     {
         return dbObject;
+    }
+
+    public <T> T getData(String key, Function<Action, T> func)
+    {
+        if (cached == null)
+        {
+            cached = new HashMap<>();
+        }
+        T result = (T)cached.get(key);
+        if (result == null)
+        {
+            result = func.apply(this);
+            cached.put(key, result);
+        }
+        return result;
     }
 }
