@@ -113,7 +113,7 @@ public class CuboidSelector implements Selector
             return;
         }
         Optional<ItemStack> itemInHand = player.getItemInHand();
-        if (!itemInHand.isPresent() || !Texts.of(TextColors.BLUE, "Selector-Tool").equals(itemInHand.get().get(Keys.DISPLAY_NAME).orElse(null)))
+        if (!itemInHand.isPresent() || !"Selector-Tool".equals(itemInHand.get().get(Keys.DISPLAY_NAME).map(Texts::toPlain).orElse("")))
         {
             return;
         }

@@ -54,6 +54,7 @@ public class SelectorCommand
     public void giveSelectionTool(Player user)
     {
         ItemStack found = null;
+/* TODO wait for inventory impl
         Inventory axes = user.getInventory().query(ItemTypes.WOODEN_AXE);
         for (Inventory slot : axes.slots())
         {
@@ -69,7 +70,7 @@ public class SelectorCommand
                 }
             }
         }
-
+*/
         Optional<ItemStack> itemInHand = user.getItemInHand();
         if (found == null)
         {
