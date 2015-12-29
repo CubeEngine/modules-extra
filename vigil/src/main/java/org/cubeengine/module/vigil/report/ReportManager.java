@@ -38,6 +38,7 @@ import org.cubeengine.module.core.sponge.EventManager;
 import org.cubeengine.module.vigil.Vigil;
 import org.cubeengine.module.vigil.report.block.BreakBlockReport;
 import org.cubeengine.module.vigil.report.block.PlaceBlockReport;
+import org.cubeengine.module.vigil.report.entity.player.ChatReport;
 import org.cubeengine.module.vigil.report.inventory.InventoryOpenReport;
 import org.cubeengine.service.i18n.I18n;
 
@@ -62,6 +63,7 @@ public class ReportManager
         register(BreakBlockReport.class);
         register(PlaceBlockReport.class);
         register(InventoryOpenReport.class);
+        register(ChatReport.class);
     }
 
     public void register(Class<? extends Report<?>> report)

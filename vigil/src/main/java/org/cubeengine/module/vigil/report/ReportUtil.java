@@ -40,9 +40,15 @@ public class ReportUtil
 {
     public static Text name(BlockSnapshot snapshot)
     {
-        ItemStack item = ItemStack.builder().fromBlockSnapshot(snapshot).build();
+        BlockType type = snapshot.getState().getType();
+        Translation trans = type.getTranslation();
+        if (snapshot.getState().getType().getItem().isPresent())
+        {
+            trans = ItemStack.builder().fromBlockSnapshot(snapshot).build().getTranslation();
+        }
         // TODO sign lines
-            return Texts.of(TextColors.GOLD, item.getTranslation()).builder().onHover(TextActions.showText(Texts.of(item.getItem().getName()))).build();
+        return Texts.of(TextColors.GOLD, trans).builder()
+                .onHover(TextActions.showText(Texts.of(type.getName()))).build();
     }
 
     public static <LT, T> boolean containsSingle(List<LT> list, Function<LT, T> func)
