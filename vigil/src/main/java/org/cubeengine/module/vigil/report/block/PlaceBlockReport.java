@@ -72,16 +72,16 @@ public class PlaceBlockReport extends BlockReport<ChangeBlockEvent.Place>
         {
             return false;
         }
-        List<Optional<BlockSnapshot>> snaps = action.getData(BLOCKS_ORIG, Recall::origSnapshot);
-        snaps.addAll(otherAction.getData(BLOCKS_ORIG, Recall::origSnapshot));
+        List<Optional<BlockSnapshot>> snaps = action.getCached(BLOCKS_ORIG, Recall::origSnapshot);
+        snaps.addAll(otherAction.getCached(BLOCKS_ORIG, Recall::origSnapshot));
         if (!containsSingle(snaps, el -> el.map(BlockSnapshot::getState).map(BlockState::getType).orElse(null))
                 || !containsSingle(snaps, el -> el.map(BlockSnapshot::getWorldUniqueId)))
         {
             return false;
         }
 
-        snaps = action.getData(BLOCKS_REPL, Recall::replSnapshot);
-        snaps.addAll(otherAction.getData(BLOCKS_REPL, Recall::replSnapshot));
+        snaps = action.getCached(BLOCKS_REPL, Recall::replSnapshot);
+        snaps.addAll(otherAction.getCached(BLOCKS_REPL, Recall::replSnapshot));
         if (!containsSingle(snaps, el -> el.map(BlockSnapshot::getState).map(BlockState::getType).orElse(null)))
         {
             return false;
@@ -95,8 +95,8 @@ public class PlaceBlockReport extends BlockReport<ChangeBlockEvent.Place>
     public void showReport(List<Action> actions, Receiver receiver)
     {
         Action action = actions.get(0);
-        Optional<BlockSnapshot> orig = action.getData(BLOCKS_ORIG, Recall::origSnapshot).get(0);
-        Optional<BlockSnapshot> repl = action.getData(BLOCKS_REPL, Recall::replSnapshot).get(0);
+        Optional<BlockSnapshot> orig = action.getCached(BLOCKS_ORIG, Recall::origSnapshot).get(0);
+        Optional<BlockSnapshot> repl = action.getCached(BLOCKS_REPL, Recall::replSnapshot).get(0);
 
         Text cause = Recall.cause(action);
         if (!repl.isPresent())

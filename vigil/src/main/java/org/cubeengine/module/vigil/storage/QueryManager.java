@@ -29,6 +29,9 @@ import java.util.concurrent.ThreadFactory;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.mongodb.*;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import org.bson.Document;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.*;
 import org.cubeengine.service.i18n.I18n;
@@ -36,11 +39,6 @@ import org.spongepowered.api.entity.living.player.Player;
 
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static java.util.stream.Collectors.toList;
-import static org.cubeengine.module.vigil.report.Action.DATA;
-import static org.cubeengine.module.vigil.report.Report.WORLD;
-import static org.cubeengine.module.vigil.report.Report.X;
-import static org.cubeengine.module.vigil.report.Report.Y;
-import static org.cubeengine.module.vigil.report.block.BlockReport.BLOCK_CHANGES;
 
 public class QueryManager
 {
@@ -52,11 +50,11 @@ public class QueryManager
     private final Semaphore latch = new Semaphore(1);
 
     private int batchSize = 2000; // TODO config
-    private DBCollection db;
+    private MongoCollection<Document> db;
     private ReportManager reportManager;
     private I18n i18n;
 
-    public QueryManager(ThreadFactory tf, DBCollection db, ReportManager reportManager, I18n i18n)
+    public QueryManager(ThreadFactory tf, MongoCollection<Document> db, ReportManager reportManager, I18n i18n)
     {
         this.db = db;
         this.reportManager = reportManager;
@@ -103,8 +101,8 @@ public class QueryManager
                 storing.offer(actions.poll());
             }
 
-            List<DBObject> storeList = storing.stream().map(Action::getDBObject).collect(toList());
-            db.insert(storeList);
+            List<Document> storeList = storing.stream().map(Action::getDocument).collect(toList());
+            db.insertMany(storeList);
         }
         catch (MongoTimeoutException e)
         {
@@ -133,19 +131,20 @@ public class QueryManager
     public void queryAndShow(Object lookup, Player player) // TODO lookup object
     {
         // Build query from lookup
-        BasicDBObject query = new BasicDBObject();
-        query.put(DATA + "." + BLOCK_CHANGES + "." + Report.LOCATION + "." + WORLD.asString("_"), player.getWorld().getUniqueId().toString());
+        Query query = new Query();
+
+        // TODO lookup settings
+        query.world(player.getWorld());
         if (lookup instanceof Vector3d)
         {
-            query.put(DATA + "." + BLOCK_CHANGES + "." + Report.LOCATION + "." + X.asString("_"), ((Vector3d) lookup).getFloorX());
-            query.put(DATA + "." + BLOCK_CHANGES + "." + Report.LOCATION + "." + Y.asString("_"), ((Vector3d) lookup).getFloorY());
-            query.put(DATA + "." + BLOCK_CHANGES + "." + Report.LOCATION + "." + Report.Z.asString("_"), ((Vector3d) lookup).getFloorZ());
+            query.position(((Vector3d) lookup));
         }
-        DBCursor results = db.find(query);
+
+        FindIterable<Document> results = query.find(db);
 
         List<ReportActions> reportActions = new ArrayList<>();
         ReportActions last = null;
-        for (DBObject result : results)
+        for (Document result : results)
         {
             Action action = new Action(result);
             Report report = reportManager.reportOf(action);

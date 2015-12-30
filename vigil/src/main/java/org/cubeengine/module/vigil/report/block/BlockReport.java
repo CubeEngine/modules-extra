@@ -40,7 +40,7 @@ public abstract class BlockReport<T extends ChangeBlockEvent> extends BaseReport
     public static final String REPLACEMENT = "replacement";
 
     @Override
-    public Action observe(T event)
+    protected Action observe(T event)
     {
         Action action = newReport();
         action.addData(BLOCK_CHANGES, event.getTransactions().stream().map(Observe::transactions).collect(toList()));
@@ -49,29 +49,28 @@ public abstract class BlockReport<T extends ChangeBlockEvent> extends BaseReport
     }
 
     @Override
-    public void apply(Action action, boolean rollback)
+    public void apply(Action action, boolean noOp)
     {
-        if (rollback)
+        // TODO noOp
+        for (Optional<BlockSnapshot> snapshot : action.getCached(BLOCKS_REPL, Recall::replSnapshot))
         {
-            for (Optional<BlockSnapshot> snapshot : action.getData(BLOCKS_ORIG, Recall::origSnapshot))
+            if (snapshot.isPresent())
             {
-                if (snapshot.isPresent())
-                {
-                    snapshot.get().restore(true, false);
-                }
-            }
-        }
-        else
-        {
-            for (Optional<BlockSnapshot> snapshot : action.getData(BLOCKS_REPL, Recall::replSnapshot))
-            {
-                if (snapshot.isPresent())
-                {
-                    snapshot.get().restore(true, false);
-                }
+                snapshot.get().restore(true, false);
             }
         }
     }
 
-
+    @Override
+    public void unapply(Action action, boolean noOp)
+    {
+        // TODO noOp
+        for (Optional<BlockSnapshot> snapshot : action.getCached(BLOCKS_ORIG, Recall::origSnapshot))
+        {
+            if (snapshot.isPresent())
+            {
+                snapshot.get().restore(true, false);
+            }
+        }
+    }
 }

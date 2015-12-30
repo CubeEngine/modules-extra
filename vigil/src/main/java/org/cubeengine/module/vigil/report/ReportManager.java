@@ -39,6 +39,8 @@ import org.cubeengine.module.vigil.Vigil;
 import org.cubeengine.module.vigil.report.block.BreakBlockReport;
 import org.cubeengine.module.vigil.report.block.PlaceBlockReport;
 import org.cubeengine.module.vigil.report.entity.player.ChatReport;
+import org.cubeengine.module.vigil.report.entity.player.JoinReport;
+import org.cubeengine.module.vigil.report.entity.player.QuitReport;
 import org.cubeengine.module.vigil.report.inventory.InventoryOpenReport;
 import org.cubeengine.service.i18n.I18n;
 
@@ -64,13 +66,15 @@ public class ReportManager
         register(PlaceBlockReport.class);
         register(InventoryOpenReport.class);
         register(ChatReport.class);
+        register(JoinReport.class);
+        register(QuitReport.class);
     }
 
-    public void register(Class<? extends Report<?>> report)
+    public void register(Class<? extends Report> report)
     {
         try
         {
-            Report<?> instance = report.newInstance();
+            Report instance = report.newInstance();
             if (instance instanceof BaseReport)
             {
                 ((BaseReport) instance).init(module);
@@ -86,7 +90,7 @@ public class ReportManager
 
     public Report reportOf(Action action)
     {
-        String type = action.getDBObject().get("type").toString();
+        String type = action.getDocument().get("type").toString();
         return reports.getOrDefault(type, new UnkownReport(i18n, type));
     }
 }

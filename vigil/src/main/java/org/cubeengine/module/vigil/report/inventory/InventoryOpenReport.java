@@ -28,7 +28,7 @@ import org.spongepowered.api.text.Texts;
 
 import java.util.List;
 
-public class InventoryOpenReport extends InventoryReport<InteractInventoryEvent.Open>
+public class InventoryOpenReport extends InventoryReport<InteractInventoryEvent.Open> implements Report.Readonly
 {
     @Override
     public void showReport(List<Action> actions, Receiver receiver)
@@ -73,6 +73,6 @@ public class InventoryOpenReport extends InventoryReport<InteractInventoryEvent.
     }
 
     @Override
-    public void apply(Action action, boolean rollback)
+    public void apply(Action action, boolean noOp)
     {}
 }

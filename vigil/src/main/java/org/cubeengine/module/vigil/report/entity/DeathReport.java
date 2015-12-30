@@ -53,7 +53,7 @@ public class DeathReport extends EntityReport<DestructEntityEvent.Death>
     }
 
     @Override
-    public void apply(Action action, boolean rollback)
+    public void apply(Action action, boolean noOp)
     {
 
     }

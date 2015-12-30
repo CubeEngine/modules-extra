@@ -60,8 +60,8 @@ public class BreakBlockReport extends BlockReport<ChangeBlockEvent.Break>
         {
             return false;
         }
-        List<Optional<BlockSnapshot>> snaps = action.getData(BLOCKS_ORIG, Recall::origSnapshot);
-        snaps.addAll(otherAction.getData(BLOCKS_ORIG, Recall::origSnapshot));
+        List<Optional<BlockSnapshot>> snaps = action.getCached(BLOCKS_ORIG, Recall::origSnapshot);
+        snaps.addAll(otherAction.getCached(BLOCKS_ORIG, Recall::origSnapshot));
         if (!containsSingle(snaps, el -> el.map(BlockSnapshot::getState).map(BlockState::getType).orElse(null))
                 || !containsSingle(snaps, el -> el.map(BlockSnapshot::getWorldUniqueId)))
         {
@@ -83,7 +83,7 @@ public class BreakBlockReport extends BlockReport<ChangeBlockEvent.Break>
     public void showReport(List<Action> actions, Receiver receiver)
     {
         Action action = actions.get(0);
-        BlockSnapshot snap = action.getData(BLOCKS_ORIG, Recall::origSnapshot).get(0).get();
+        BlockSnapshot snap = action.getCached(BLOCKS_ORIG, Recall::origSnapshot).get(0).get();
         receiver.sendReport(actions, actions.size(),
                 "{txt} break {txt}",
                 "{txt} break {txt} x{}",

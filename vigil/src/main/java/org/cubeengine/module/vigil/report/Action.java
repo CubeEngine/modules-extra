@@ -17,41 +17,39 @@
  */
 package org.cubeengine.module.vigil.report;
 
+import org.bson.Document;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Function;
-
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 
 public class Action
 {
     public static final String DATE = "date";
     public static final String TYPE = "type";
     public static final String DATA = "data";
-    private final DBObject dbObject;
+    private final Document document;
 
     private Map<String, Object> cached;
 
     public Action(String type)
     {
-        this(new BasicDBObject());
-        dbObject.put(DATE, new Date());
-        dbObject.put(TYPE, type);
-        dbObject.put(DATA, new HashMap<String, Object>());
+        this(new Document());
+        document.put(DATE, new Date());
+        document.put(TYPE, type);
+        document.put(DATA, new HashMap<String, Object>());
     }
 
-    public Action(DBObject dbObject)
+    public Action(Document dbObject)
     {
-        this.dbObject = dbObject;
+        this.document = dbObject;
     }
 
     @SuppressWarnings("unchecked")
     public Map<String, Object> getData()
     {
-        return ((Map<String, Object>)dbObject.get(DATA));
+        return document.get(DATA, Map.class);
     }
 
     @SuppressWarnings("unchecked")
@@ -65,12 +63,12 @@ public class Action
         getData().put(name, value);
     }
 
-    public DBObject getDBObject()
+    public Document getDocument()
     {
-        return dbObject;
+        return document;
     }
 
-    public <T> T getData(String key, Function<Action, T> func)
+    public <T> T getCached(String key, Function<Action, T> func)
     {
         if (cached == null)
         {

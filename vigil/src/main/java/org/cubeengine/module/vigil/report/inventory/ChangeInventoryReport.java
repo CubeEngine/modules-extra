@@ -31,7 +31,7 @@ inventory
 -move
 -item-pickup
  */
-public class ChangeInventoryReport extends InventoryReport<ChangeInventoryEvent>
+public class ChangeInventoryReport extends InventoryReport<ChangeInventoryEvent> implements Report.Readonly
 {
     @Override
     public void showReport(List<Action> actions, Receiver receiver)
@@ -46,7 +46,7 @@ public class ChangeInventoryReport extends InventoryReport<ChangeInventoryEvent>
     }
 
     @Override
-    public void apply(Action action, boolean rollback)
+    public void apply(Action action, boolean noOp)
     {
 
     }

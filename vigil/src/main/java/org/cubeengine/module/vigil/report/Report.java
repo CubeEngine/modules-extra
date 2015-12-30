@@ -36,11 +36,14 @@ package org.cubeengine.module.vigil.report;
 
 import org.cubeengine.module.vigil.Receiver;
 import org.spongepowered.api.data.DataQuery;
-import org.spongepowered.api.event.Event;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
-public interface Report<T extends Event>
+import static java.util.Collections.emptyList;
+
+public interface Report
 {
     DataQuery WORLD = DataQuery.of("WorldUuid");
     DataQuery X = DataQuery.of("Position", "X");
@@ -72,24 +75,58 @@ public interface Report<T extends Event>
     boolean group(Object lookup, Action action, Action otherAction, Report otherReport);
 
     /**
-     * Applies given action to the world
+     * Applies the action to the world
      *
      * @param action   the action to apply
-     * @param rollback true if rollback or false if redo
+     * @param noOp true if permanent or false transient
      */
-    void apply(Action action, boolean rollback);
+    void apply(Action action, boolean noOp);
 
     /**
-     * Observes an event an creates an action for it
+     * Applies the reverse action to the world
      *
-     * @param event the event to observe
-     * @return the events action
+     * @param action the action to unapply
+     * @param noOp true if permanent or false if transient
      */
-    Action observe(T event);
+    void unapply(Action action, boolean noOp);
 
     enum CauseType
     {
         CAUSE_PLAYER,
         CAUSE_BLOCK_FIRE,
+    }
+
+    interface SimpleGrouping extends Report
+    {
+        @Override
+        default boolean group(Object lookup, Action action, Action otherAction, Report otherReport)
+        {
+            if (!this.equals(otherReport))
+            {
+                return false;
+            }
+            // TODO compare cause
+            return !groupBy().stream().anyMatch(key -> !Objects.equals(action.getData(key), otherAction.getData(key)));
+        }
+
+        default List<String> groupBy()
+        {
+            return emptyList();
+        }
+    }
+
+    interface Readonly extends Report
+    {
+        default void apply(Action action, boolean noOp) {}
+        default void unapply(Action action, boolean noOp) {}
+    }
+
+    interface NonGrouping extends Report
+    {
+        @Override
+        default boolean group(Object lookup, Action action, Action otherAction, Report otherReport)
+        {
+            return false;
+        }
     }
 }

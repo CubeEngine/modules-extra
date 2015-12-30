@@ -32,7 +32,7 @@ fireball
 tnt
 wither
  */
-public class ExplosionReport extends BlockReport<ExplosionEvent.Detonate>
+public class ExplosionReport extends BlockReport<ExplosionEvent.Detonate> implements Report.Readonly
 {
     @Override
     public void showReport(List<Action> actions, Receiver receiver)

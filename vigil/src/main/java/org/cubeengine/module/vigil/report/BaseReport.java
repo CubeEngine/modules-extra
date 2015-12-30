@@ -23,7 +23,7 @@ import org.spongepowered.api.event.Event;
 import java.util.List;
 import java.util.function.Function;
 
-public abstract class BaseReport<T extends Event> implements Report<T>
+public abstract class BaseReport<T extends Event> implements Report
 {
     protected Vigil vigil;
 
@@ -45,4 +45,11 @@ public abstract class BaseReport<T extends Event> implements Report<T>
         }
     }
 
+    /**
+     * Observes an event an creates an action for it
+     *
+     * @param event the event to observe
+     * @return the events action
+     */
+    protected abstract Action observe(T event);
 }

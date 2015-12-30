@@ -21,9 +21,6 @@ import org.cubeengine.module.vigil.report.entity.EntityReport;
 import org.spongepowered.api.event.entity.living.humanoid.player.TargetPlayerEvent;
 
 /* TODO player
--command
--join
--quit
 -teleport
 -xp
 

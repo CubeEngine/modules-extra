@@ -25,7 +25,7 @@ import java.util.List;
 
 import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
 
-public class UnkownReport<T extends Event> implements Report<T>
+public class UnkownReport implements Report, Report.Readonly, Report.SimpleGrouping
 {
     private I18n i18n;
     private String type;
@@ -42,22 +42,5 @@ public class UnkownReport<T extends Event> implements Report<T>
         receiver.sendReport(actions, actions.size(),
                 "Unknown Report {input}","Unknown Report {input} {size}",
                 type, actions.size());
-    }
-
-    @Override
-    public boolean group(Object lookup, Action action, Action otherAction, Report otherReport)
-    {
-        return this.equals(otherReport);
-    }
-
-    @Override
-    public void apply(Action action, boolean rollback)
-    {
-    }
-
-    @Override
-    public Action observe(Event event)
-    {
-        return null;
     }
 }

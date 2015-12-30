@@ -105,6 +105,7 @@ public class Observe
         Map<String, Object> info = new HashMap<>();
 
         info.put(WORLD.asString("_"), location.getExtent().getUniqueId().toString());
+        // TODO worldname also recall it
         info.put(X.asString("_"), location.getBlockX());
         info.put(Y.asString("_"), location.getBlockY());
         info.put(Z.asString("_"), location.getBlockZ());

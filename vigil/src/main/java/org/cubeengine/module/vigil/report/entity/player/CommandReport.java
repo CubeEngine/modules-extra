@@ -23,45 +23,44 @@ import org.cubeengine.module.vigil.report.Report.Readonly;
 import org.cubeengine.module.vigil.report.Report.SimpleGrouping;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.Order;
-import org.spongepowered.api.event.command.MessageSinkEvent;
+import org.spongepowered.api.event.command.SendCommandEvent;
 import org.spongepowered.api.event.filter.cause.First;
-import org.spongepowered.api.text.Texts;
 
 import java.util.List;
 
 import static java.util.Collections.singletonList;
 
-public class ChatReport extends BaseReport<MessageSinkEvent.Chat> implements Readonly, SimpleGrouping
+public class CommandReport extends BaseReport<SendCommandEvent> implements Readonly, SimpleGrouping
 {
-    private static final String CHAT = "chat";
+    private static final String COMMAND = "commmand";
 
     @Override
-    public void showReport(List<Action> actions, Receiver receiver)
-    {
-        Action action = actions.get(0);
-        receiver.sendReport(actions, actions.size(), "{txt} wrote {input}", "{txt} spammed {input} x{}",
-                Recall.cause(action), action.getData(CHAT), actions.size());
-    }
-
-    @Override
-    public Action observe(MessageSinkEvent.Chat event)
+    public Action observe(SendCommandEvent event)
     {
         Action action = newReport();
         action.addData(CAUSE, Observe.causes(event.getCause()));
-        action.addData(CHAT, Texts.toPlain(event.getRawMessage()));
+        action.addData(COMMAND, event.getCommand());
         action.addData(LOCATION, Observe.location(event.getCause().first(Player.class).get().getLocation()));
         return action;
     }
 
     @Override
-    public List<String> groupBy()
+    public void showReport(List<Action> actions, Receiver receiver)
     {
-        return singletonList(CHAT);
+        Action action = actions.get(0);
+        receiver.sendReport(actions, actions.size(), "{txt} used {input}", "{txt} used {input} x{}",
+                Recall.cause(action), action.getData(COMMAND), actions.size());
     }
 
-    @Listener(order = Order.POST)
-    public void onChat(MessageSinkEvent.Chat event, @First Player player)
+    @Override
+    public List<String> groupBy()
+    {
+        return singletonList(COMMAND);
+    }
+
+
+    @Listener
+    public void onCommand(SendCommandEvent event, @First Player player)
     {
         report(observe(event));
     }
