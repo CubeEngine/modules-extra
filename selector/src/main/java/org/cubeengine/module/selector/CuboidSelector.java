@@ -37,8 +37,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.text.Texts;
-import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 
 import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
@@ -113,7 +112,7 @@ public class CuboidSelector implements Selector
             return;
         }
         Optional<ItemStack> itemInHand = player.getItemInHand();
-        if (!itemInHand.isPresent() || !"Selector-Tool".equals(itemInHand.get().get(Keys.DISPLAY_NAME).map(Texts::toPlain).orElse("")))
+        if (!itemInHand.isPresent() || !"Selector-Tool".equals(itemInHand.get().get(Keys.DISPLAY_NAME).map(Text::toPlain).orElse("")))
         {
             return;
         }

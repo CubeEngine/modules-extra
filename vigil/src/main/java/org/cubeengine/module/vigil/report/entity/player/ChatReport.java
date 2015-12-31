@@ -26,7 +26,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.event.filter.cause.First;
-import org.spongepowered.api.text.Texts;
+
 
 import java.util.List;
 
@@ -49,7 +49,7 @@ public class ChatReport extends BaseReport<MessageSinkEvent.Chat> implements Rea
     {
         Action action = newReport();
         action.addData(CAUSE, Observe.causes(event.getCause()));
-        action.addData(CHAT, Texts.toPlain(event.getRawMessage()));
+        action.addData(CHAT, event.getRawMessage().toPlain());
         action.addData(LOCATION, Observe.location(event.getCause().first(Player.class).get().getLocation()));
         return action;
     }

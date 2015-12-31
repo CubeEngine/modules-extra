@@ -17,18 +17,14 @@
  */
 package org.cubeengine.module.chat.listener;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Pattern;
-import java.util.Optional;
 import org.cubeengine.module.chat.Chat;
 import org.cubeengine.module.chat.CubeMessageSink;
 import org.cubeengine.service.i18n.I18n;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.data.manipulator.mutable.DisplayNameData;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
@@ -36,14 +32,13 @@ import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.option.OptionSubject;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.action.TextActions;
-import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 import static org.cubeengine.module.core.util.ChatFormat.fromLegacy;
-import static org.cubeengine.service.i18n.formatter.MessageType.NEUTRAL;
 import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
 
 public class ChatFormatListener
@@ -69,7 +64,7 @@ public class ChatFormatListener
     @Listener(order = Order.EARLY)
     public void onPlayerChat(MessageSinkEvent.Chat event, @First Player player)
     {
-        String msg = Texts.toPlain(event.getRawMessage());
+        String msg = event.getRawMessage().toPlain();
         if (module.getConfig().allowColors)
         {
             if (!player.hasPermission(module.perms().COLOR.getId()))
@@ -83,18 +78,18 @@ public class ChatFormatListener
 
         Map<String, Text> replacements = new HashMap<>();
         String name = player.getName();
-        replacements.put("{NAME}", Texts.of(name));
+        replacements.put("{NAME}", Text.of(name));
         Text displayName = player.get(DisplayNameData.class).isPresent() ?
-            player.getDisplayNameData().displayName().get() : Texts.of(name);
-        if (!Texts.toPlain(displayName).equals(name))
+            player.getDisplayNameData().displayName().get() : Text.of(name);
+        if (!displayName.toPlain().equals(name))
         {
-            displayName = Texts.builder().append(displayName).onHover(TextActions.showText(Texts.of(DARK_GREEN, name))).build();
+            displayName = Text.builder().append(displayName).onHover(TextActions.showText(Text.of(DARK_GREEN, name))).build();
         }
         replacements.put("{DISPLAY_NAME}", displayName);
-        replacements.put("{WORLD}", Texts.of(player.getWorld().getName()));
+        replacements.put("{WORLD}", Text.of(player.getWorld().getName()));
         replacements.put("{MESSAGE}", fromLegacy(msg, '&'));
-        replacements.put("{PREFIX}", Texts.of());
-        replacements.put("{SUFFIX}", Texts.of());
+        replacements.put("{PREFIX}", Text.of());
+        replacements.put("{SUFFIX}", Text.of());
         if (subject instanceof OptionSubject)
         {
             replacements.put("{PREFIX}", fromLegacy(((OptionSubject)subject).getOption("chat-prefix").orElse(""), '&'));

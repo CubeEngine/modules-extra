@@ -36,8 +36,8 @@ import org.spongepowered.api.Game;
 import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.data.manipulator.mutable.DisplayNameData;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.text.Text;
 
 import static org.cubeengine.butler.parameter.Parameter.INFINITE;
 import static org.cubeengine.service.i18n.formatter.MessageType.*;
@@ -93,7 +93,7 @@ public class ChatCommands
         if ("-r".equalsIgnoreCase(name) || "-reset".equalsIgnoreCase(name))
         {
             DisplayNameData display = player.getOrCreate(DisplayNameData.class).get();
-            display.displayName().set(Texts.of(context.getName()));
+            display.displayName().set(Text.of(context.getName()));
             player.offer(display);
             i18n.sendTranslated(context, POSITIVE, "Display name reset to {user}", context);
             return;
@@ -225,7 +225,7 @@ public class ChatCommands
             }
             builder.append(" ").append(chatFormat.getChar()).append(" ").append(chatFormat.toString()).append(chatFormat.name()).append(ChatFormat.RESET);
         }
-        context.sendMessage(Texts.of(builder.toString()));
+        context.sendMessage(Text.of(builder.toString()));
         i18n.sendTranslated(context, POSITIVE, "To use these type {text:&} followed by the code above");
     }
 

@@ -28,7 +28,8 @@ import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.service.permission.PermissionDescription;
-import org.spongepowered.api.text.Texts;
+
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 
 import java.util.Optional;
@@ -61,7 +62,7 @@ public class ToolListener
         }
         Optional<ItemStack> itemInHand = player.getItemInHand();
         if (itemInHand.isPresent() && itemInHand.get().get(DisplayNameData.class)
-                                        .map(data -> Texts.toPlain(data.displayName().get()).equals(Texts.toPlain(toolName)))
+                                        .map(data -> data.displayName().get().toPlain().equals(toolName.toPlain()))
                                         .orElse(false))
         {
             Location loc;

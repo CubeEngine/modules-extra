@@ -23,7 +23,7 @@ import org.cubeengine.module.vigil.report.ReportActions;
 import org.cubeengine.service.i18n.I18n;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.Texts;
+
 import org.spongepowered.api.text.format.TextColors;
 
 import java.util.List;
@@ -66,7 +66,7 @@ public class Receiver
             i18n.sendTranslated(cmdSource, NEGATIVE, "Nothing logged here");
             return;
         }
-        cmdSource.sendMessage(Texts.of(TextColors.GOLD, StringUtils.repeat("-", 53)));
+        cmdSource.sendMessage(Text.of(TextColors.GOLD, StringUtils.repeat("-", 53)));
         for (ReportActions reportAction : reportActions)
         {
             reportAction.showReport(this);

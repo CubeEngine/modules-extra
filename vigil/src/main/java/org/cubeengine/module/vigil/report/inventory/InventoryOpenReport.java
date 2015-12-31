@@ -24,7 +24,8 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
-import org.spongepowered.api.text.Texts;
+import org.spongepowered.api.text.Text;
+
 
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class InventoryOpenReport extends InventoryReport<InteractInventoryEvent.
         receiver.sendReport(actions, actions.size(),
                 "{txt} open {txt}",
                 "{txt} open {txt} x{}",
-                Recall.cause(action), Texts.of("?"), actions.size());
+                Recall.cause(action), Text.of("?"), actions.size());
     }
 
     @Override

@@ -31,7 +31,7 @@ import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.Texts;
+
 import org.spongepowered.api.text.format.TextColors;
 
 import static java.util.Arrays.asList;
@@ -42,8 +42,8 @@ import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
 @Command(name = "vigil", alias = "log", desc = "Vigil-Module Commands")
 public class VigilCommands
 {
-    public static final Text toolName = Texts.of(TextColors.DARK_AQUA, "Logging-ToolBlock");
-    public static final Text selectorToolName = Texts.of(TextColors.DARK_AQUA, "Selector-Tool");
+    public static final Text toolName = Text.of(TextColors.DARK_AQUA, "Logging-ToolBlock");
+    public static final Text selectorToolName = Text.of(TextColors.DARK_AQUA, "Selector-Tool");
 
     private StringMatcher sm;
     private I18n i18n;

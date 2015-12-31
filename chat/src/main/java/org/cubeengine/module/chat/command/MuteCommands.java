@@ -36,7 +36,6 @@ import org.joda.time.Duration;
 import org.jooq.types.UInteger;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.command.CommandSource;
 
 import static java.util.concurrent.TimeUnit.DAYS;
@@ -85,7 +84,7 @@ public class MuteCommands
 
         setMuted(player, new Date(System.currentTimeMillis() + (dura.getMillis() == 0 ? DAYS.toMillis(
             9001) : dura.getMillis())));
-        Text timeString = dura.getMillis() == 0 ? i18n.getTranslation(player, NONE, "ever") : Texts.of(TimeUtil.format(
+        Text timeString = dura.getMillis() == 0 ? i18n.getTranslation(player, NONE, "ever") : Text.of(TimeUtil.format(
             player.getLocale(), dura.getMillis()));
         i18n.sendTranslated(player, NEGATIVE, "You are now muted for {input#amount}!", timeString);
         i18n.sendTranslated(context, NEUTRAL, "You muted {user} globally for {input#amount}!", player, timeString);

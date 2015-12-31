@@ -27,7 +27,7 @@ import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.Texts;
+
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.translation.Translation;
@@ -47,8 +47,8 @@ public class ReportUtil
             trans = ItemStack.builder().fromBlockSnapshot(snapshot).build().getTranslation();
         }
         // TODO sign lines
-        return Texts.of(TextColors.GOLD, trans).builder()
-                .onHover(TextActions.showText(Texts.of(type.getName()))).build();
+        return Text.of(TextColors.GOLD, trans).toBuilder()
+                .onHover(TextActions.showText(Text.of(type.getName()))).build();
     }
 
     public static <LT, T> boolean containsSingle(List<LT> list, Function<LT, T> func)

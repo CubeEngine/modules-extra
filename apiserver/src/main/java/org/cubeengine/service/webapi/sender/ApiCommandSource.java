@@ -42,7 +42,7 @@ import org.cubeengine.service.command.AbstractCommandSource;
 import org.spongepowered.api.command.source.RconSource;
 import org.spongepowered.api.network.RemoteConnection;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.Texts;
+
 
 public abstract class ApiCommandSource extends AbstractCommandSource implements RconSource
 {
@@ -70,7 +70,7 @@ public abstract class ApiCommandSource extends AbstractCommandSource implements 
     @Override
     protected void sendMessage0(Text text)
     {
-        messages.add(Texts.toPlain(text)); // TODO color support?
+        messages.add(text.toPlain()); // TODO color support?
     }
 
     @Override

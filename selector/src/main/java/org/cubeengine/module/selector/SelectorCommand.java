@@ -17,22 +17,19 @@
  */
 package org.cubeengine.module.selector;
 
-import java.util.Arrays;
-import java.util.Optional;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.result.CommandResult;
 import org.cubeengine.service.command.CommandContext;
 import org.cubeengine.service.i18n.I18n;
 import org.spongepowered.api.Game;
-import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.item.ItemTypes;
-import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.transaction.InventoryTransactionResult;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.format.TextColors;
+
+import java.util.Arrays;
+import java.util.Optional;
 
 import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
 import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
@@ -62,7 +59,7 @@ public class SelectorCommand
             Optional<Text> display = itemStack.get(Keys.DISPLAY_NAME);
             if (display.isPresent())
             {
-                if (Texts.of(TextColors.BLUE, "Selector-Tool").equals(display.get()))
+                if (Text.of(TextColors.BLUE, "Selector-Tool").equals(display.get()))
                 {
                     found = itemStack;
                     slot.clear();
@@ -75,8 +72,8 @@ public class SelectorCommand
         if (found == null)
         {
             found = game.getRegistry().createBuilder(ItemStack.Builder.class).itemType(WOODEN_AXE).quantity(1).build();
-            found.offer(DISPLAY_NAME, Texts.of(TextColors.BLUE, "Selector-Tool"));
-            found.offer(ITEM_LORE, Arrays.asList(Texts.of("created by ", user.getName())));
+            found.offer(DISPLAY_NAME, Text.of(TextColors.BLUE, "Selector-Tool"));
+            found.offer(ITEM_LORE, Arrays.asList(Text.of("created by ", user.getName())));
 
             user.setItemInHand(found);
             if (itemInHand.isPresent())

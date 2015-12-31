@@ -24,7 +24,7 @@ import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.MemoryDataContainer;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.Texts;
+
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
 
@@ -95,7 +95,7 @@ public class Recall
 
     public static Text cause(Map<String, Object> source, Map<String, Object> notifier)
     {
-        Text text = Texts.of("?");
+        Text text = Text.of("?");
         if (source != null)
         {
             CauseType type = CauseType.valueOf(source.get(CAUSE_TYPE).toString());
@@ -104,8 +104,8 @@ public class Recall
 
         if (notifier != null)
         {
-            text = text.builder().append(Texts.of("…")).onHover(
-                    TextActions.showText(Texts.of(text, "←", cause(notifier, Texts.of(),
+            text = text.toBuilder().append(Text.of("…")).onHover(
+                    TextActions.showText(Text.of(text, "←", cause(notifier, Text.of(),
                             CauseType.valueOf(notifier.get(CAUSE_TYPE).toString()))))).build();
         }
 
@@ -117,10 +117,10 @@ public class Recall
         switch (type)
         {
             case CAUSE_PLAYER:
-                text = Texts.of(TextColors.DARK_GREEN, source.get(CAUSE_PLAYER_NAME));
+                text = Text.of(TextColors.DARK_GREEN, source.get(CAUSE_PLAYER_NAME));
                 break;
             case CAUSE_BLOCK_FIRE:
-                text = Texts.of(TextColors.RED, "Fire"); // TODO translate
+                text = Text.of(TextColors.RED, "Fire"); // TODO translate
                 break;
         }
         return text;
