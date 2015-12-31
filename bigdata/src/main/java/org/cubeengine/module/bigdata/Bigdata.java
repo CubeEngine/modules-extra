@@ -17,28 +17,32 @@
  */
 package org.cubeengine.module.bigdata;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.logging.Level;
-import javax.inject.Inject;
-
-import com.mongodb.*;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
-import de.cubeisland.engine.modularity.core.marker.Disable;
-import de.cubeisland.engine.modularity.core.marker.Enable;
+import de.cubeisland.engine.logscribe.Log;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.modularity.core.marker.Disable;
+import de.cubeisland.engine.modularity.core.marker.Enable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.bson.Document;
 import org.cubeengine.module.bigdata.MongoDBConfiguration.Authentication;
 import org.cubeengine.service.filesystem.FileManager;
-import org.slf4j.LoggerFactory;
 
-import static org.apache.logging.log4j.Level.*;
+import javax.inject.Inject;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.security.AccessControlException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import static org.apache.logging.log4j.Level.ERROR;
+import static org.apache.logging.log4j.Level.WARN;
 
 @ModuleInfo(name = "BigData", description = "Provides serialization to a MongoDB")
 public class Bigdata extends Module
@@ -54,12 +58,14 @@ public class Bigdata extends Module
         this.config = fm.loadConfig(this, MongoDBConfiguration.class);
         try
         {
-            ((Logger) LogManager.getLogger("org.mongodb.driver.connection")).setLevel(INFO);
-            ((Logger) LogManager.getLogger("org.mongodb.driver.management")).setLevel(INFO);
-            ((Logger) LogManager.getLogger("org.mongodb.driver.cluster")).setLevel(INFO);
-            ((Logger) LogManager.getLogger("org.mongodb.driver.protocol.insert")).setLevel(INFO);
-            ((Logger) LogManager.getLogger("org.mongodb.driver.protocol.query")).setLevel(INFO);
-            ((Logger) LogManager.getLogger("org.mongodb.driver.protocol.update")).setLevel(INFO);
+            ((Logger) LogManager.getLogger("org.mongodb.driver.connection")).setLevel(WARN);
+            ((Logger) LogManager.getLogger("org.mongodb.driver.management")).setLevel(WARN);
+            ((Logger) LogManager.getLogger("org.mongodb.driver.cluster")).setLevel(WARN);
+            ((Logger) LogManager.getLogger("org.mongodb.driver.protocol.insert")).setLevel(WARN);
+            ((Logger) LogManager.getLogger("org.mongodb.driver.protocol.query")).setLevel(WARN);
+            ((Logger) LogManager.getLogger("org.mongodb.driver.protocol.update")).setLevel(WARN);
+            ((Logger) LogManager.getLogger("org.mongodb.driver.protocol.command")).setLevel(WARN);
+            ((Logger) LogManager.getLogger("org.mongodb.driver.management")).setLevel(ERROR);
             getDatabase();
             releaseClient();
         }
