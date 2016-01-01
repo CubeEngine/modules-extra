@@ -21,11 +21,15 @@ import org.cubeengine.module.core.util.StringUtils;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.ReportActions;
 import org.cubeengine.service.i18n.I18n;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.service.pagination.PaginationBuilder;
+import org.spongepowered.api.service.pagination.PaginationService;
 import org.spongepowered.api.text.Text;
 
 import org.spongepowered.api.text.format.TextColors;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
@@ -36,6 +40,8 @@ public class Receiver
     private final CommandSource cmdSource;
     private final I18n i18n;
     private Object lookup;
+
+    private List<Text> lines = new ArrayList<>();
 
     public Receiver(CommandSource cmdSource, I18n i18n, Object lookup)
     {
@@ -49,14 +55,14 @@ public class Receiver
     {
         Text trans = i18n.getTranslation(cmdSource, NEUTRAL, msg, args);
         // TODO add info (where when etc.)
-        cmdSource.sendMessage(trans);
+        lines.add(trans);
     }
 
     public void sendReport(List<Action> actions, int size, String msgSingular, String msgPlural, Object... args)
     {
         Text trans = i18n.getTranslationN(cmdSource, NEUTRAL, size, msgSingular, msgPlural, args);
         // TODO add info (where when etc.)
-        cmdSource.sendMessage(trans);
+        lines.add(trans);
     }
 
     public void sendReports(List<ReportActions> reportActions)
@@ -71,5 +77,7 @@ public class Receiver
         {
             reportAction.showReport(this);
         }
+        PaginationBuilder builder = Sponge.getGame().getServiceManager().provideUnchecked(PaginationService.class).builder();
+        builder.title(Text.of("Logs")).paddingString("-").contents(lines).sendTo(cmdSource);
     }
 }
