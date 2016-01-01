@@ -17,16 +17,18 @@
  */
 package org.cubeengine.module.chat;
 
-import org.spongepowered.api.text.sink.MessageSink;
-import org.spongepowered.api.text.sink.MessageSinks;
-import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.text.channel.MessageChannel;
+import org.spongepowered.api.text.channel.MessageReceiver;
 
-public class CubeMessageSink extends MessageSink
+import java.util.Collection;
+
+public class CubeMessageChannel implements MessageChannel
 {
-    private MessageSink sink = MessageSinks.toAll();
+    private MessageChannel channel = MessageChannel.TO_ALL;
+
     @Override
-    public Iterable<CommandSource> getRecipients()
+    public Collection<MessageReceiver> getMembers()
     {
-        return sink.getRecipients(); // TODO Channels
+        return channel.getMembers();  // TODO Channels
     }
 }

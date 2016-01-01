@@ -18,15 +18,15 @@
 package org.cubeengine.module.chat.listener;
 
 import org.cubeengine.module.chat.Chat;
-import org.cubeengine.module.chat.CubeMessageSink;
+import org.cubeengine.module.chat.CubeMessageChannel;
 import org.cubeengine.service.i18n.I18n;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.data.manipulator.mutable.DisplayNameData;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
-import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
@@ -58,11 +58,11 @@ public class ChatFormatListener
     @Listener
     public void onPlayerJoin(ClientConnectionEvent.Join event)
     {
-        event.getTargetEntity().setMessageSink(new CubeMessageSink());
+        event.getTargetEntity().setMessageChannel(new CubeMessageChannel());
     }
 
     @Listener(order = Order.EARLY)
-    public void onPlayerChat(MessageSinkEvent.Chat event, @First Player player)
+    public void onPlayerChat(MessageChannelEvent.Chat event, @First Player player)
     {
         String msg = event.getRawMessage().toPlain();
         if (module.getConfig().allowColors)

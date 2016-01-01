@@ -19,15 +19,15 @@ package org.cubeengine.module.chat.listener;
 
 import java.sql.Date;
 import java.util.Iterator;
-import java.util.Optional;
 import org.cubeengine.module.chat.command.IgnoreCommands;
 import org.cubeengine.module.chat.command.MuteCommands;
 import org.cubeengine.service.i18n.I18n;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.event.message.MessageChannelEvent;
+import org.spongepowered.api.text.channel.MessageReceiver;
 
 import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
 
@@ -45,7 +45,7 @@ public class MuteListener
     }
 
     @Listener
-    public void onChat(MessageSinkEvent.Chat event, @First Player source)
+    public void onChat(MessageChannelEvent.Chat event, @First Player source)
     {
         // muted?
         Date muted = muteCmd.getMuted(source);
@@ -56,9 +56,9 @@ public class MuteListener
             return;
         }
         // ignored?
-        for (Iterator<CommandSource> iterator = event.getSink().getRecipients().iterator(); iterator.hasNext(); )
+        for (Iterator<MessageReceiver> iterator = event.getChannel().get().getMembers().iterator(); iterator.hasNext(); )
         {
-            final CommandSource player = iterator.next();
+            final MessageReceiver player = iterator.next();
             if (player instanceof Player)
             {
                 if (this.ignoreCmd.checkIgnored(((Player) player), source))

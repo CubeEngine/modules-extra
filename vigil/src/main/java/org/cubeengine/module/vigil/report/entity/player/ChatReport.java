@@ -24,15 +24,15 @@ import org.cubeengine.module.vigil.report.Report.SimpleGrouping;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
-import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.event.message.MessageChannelEvent;
 
 
 import java.util.List;
 
 import static java.util.Collections.singletonList;
 
-public class ChatReport extends BaseReport<MessageSinkEvent.Chat> implements Readonly, SimpleGrouping
+public class ChatReport extends BaseReport<MessageChannelEvent.Chat> implements Readonly, SimpleGrouping
 {
     private static final String CHAT = "chat";
 
@@ -45,7 +45,7 @@ public class ChatReport extends BaseReport<MessageSinkEvent.Chat> implements Rea
     }
 
     @Override
-    public Action observe(MessageSinkEvent.Chat event)
+    public Action observe(MessageChannelEvent.Chat event)
     {
         Action action = newReport();
         action.addData(CAUSE, Observe.causes(event.getCause()));
@@ -61,7 +61,7 @@ public class ChatReport extends BaseReport<MessageSinkEvent.Chat> implements Rea
     }
 
     @Listener(order = Order.POST)
-    public void onChat(MessageSinkEvent.Chat event, @First Player player)
+    public void onChat(MessageChannelEvent.Chat event, @First Player player)
     {
         report(observe(event));
     }

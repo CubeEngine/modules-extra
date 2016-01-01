@@ -22,7 +22,6 @@ import org.cubeengine.module.chat.command.AfkCommand;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
-import org.spongepowered.api.event.command.MessageSinkEvent;
 import org.spongepowered.api.event.command.SendCommandEvent;
 import org.spongepowered.api.event.command.TabCompleteCommandEvent;
 import org.spongepowered.api.event.entity.DisplaceEntityEvent;
@@ -30,6 +29,7 @@ import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.projectile.LaunchProjectileEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
+import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 
 import static org.spongepowered.api.event.Order.POST;
@@ -76,7 +76,7 @@ public class AfkListener
     }
 
     @Listener(order = POST)
-    public void onChat(MessageSinkEvent event, @First Player player)
+    public void onChat(MessageChannelEvent event, @First Player player)
     {
         this.updateLastAction(player);
         afkCommand.run();
