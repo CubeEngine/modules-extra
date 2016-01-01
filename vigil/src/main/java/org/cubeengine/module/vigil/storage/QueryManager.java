@@ -142,6 +142,7 @@ public class QueryManager
 
         FindIterable<Document> results = query.find(db);
 
+        results.sort(new Document("date", -1));
         List<ReportActions> reportActions = new ArrayList<>();
         ReportActions last = null;
         for (Document result : results)
