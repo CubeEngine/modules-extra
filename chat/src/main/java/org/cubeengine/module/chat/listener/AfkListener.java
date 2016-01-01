@@ -23,7 +23,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.command.SendCommandEvent;
-import org.spongepowered.api.event.command.TabCompleteCommandEvent;
+import org.spongepowered.api.event.command.TabCompleteEvent;
 import org.spongepowered.api.event.entity.DisplaceEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.projectile.LaunchProjectileEvent;
@@ -89,7 +89,7 @@ public class AfkListener
     }
 
     @Listener(order = POST)
-    public void onChatTabComplete(TabCompleteCommandEvent event, @First Player player)
+    public void onTabComplete(TabCompleteEvent event, @First Player player)
     {
         this.updateLastAction(player);
     }
