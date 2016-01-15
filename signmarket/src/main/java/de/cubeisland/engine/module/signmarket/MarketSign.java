@@ -272,6 +272,7 @@ public class MarketSign
         {
             if (this.displayInventory == null)
             {
+                org.spongepowered.api.item.inventory.custom.CustomInventory
                 this.displayInventory = Bukkit.createInventory(null, DISPENSER,
                                                                this.isAdminSign() ? "Server" : this.getOwner().getName());
                 this.displayInventory.setItem(4, this.getItem());
