@@ -74,14 +74,14 @@ public class Chat extends Module
         MuteCommands muteCmd = new MuteCommands(this, db, um, i18n);
         cm.addCommands(this, muteCmd);
         IgnoreCommands ignoreCmd = new IgnoreCommands(this, db, um);
-        cm.addCommands(this, new ChatCommands(this, game, um, cm, i18n, bc));
+
         cm.addCommands(this, ignoreCmd);
         em.registerListener(this, new ChatFormatListener(this, game, i18n));
         em.registerListener(this, new MuteListener(ignoreCmd, muteCmd, i18n));
 
-        final long autoAfk = config.autoAfk.after.getMillis();
-        final long afkCheck = config.autoAfk.check.getMillis();
-        cm.addCommands(this, new AfkCommand(this, autoAfk, afkCheck, um, bc, tm, em, game));
+        AfkCommand afkCmd = new AfkCommand(this, config.autoAfk.after.getMillis(), config.autoAfk.check.getMillis(), um, bc, tm, em, game);
+        cm.addCommands(this, afkCmd);
+        cm.addCommands(this, new ChatCommands(this, game, um, cm, i18n, bc, afkCmd));
     }
 
     @Disable

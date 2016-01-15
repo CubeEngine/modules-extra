@@ -21,10 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
-import org.cubeengine.butler.parametric.Command;
-import org.cubeengine.butler.parametric.Greed;
-import org.cubeengine.butler.parametric.Label;
-import org.cubeengine.butler.parametric.Optional;
+
+import org.cubeengine.butler.parametric.*;
 import org.cubeengine.module.chat.Chat;
 import org.cubeengine.module.core.util.ChatFormat;
 import org.cubeengine.service.command.CommandContext;
@@ -51,11 +49,12 @@ public class ChatCommands
     private CommandManager cm;
     private I18n i18n;
     private Broadcaster bc;
+    private AfkCommand afkCmd;
     private UUID consoleUUID = UUID.nameUUIDFromBytes(":console".getBytes());
 
     private Map<UUID, UUID> lastWhispers = new HashMap<>();
 
-    public ChatCommands(Chat module, Game game, UserManager um, CommandManager cm, I18n i18n, Broadcaster broadcaster)
+    public ChatCommands(Chat module, Game game, UserManager um, CommandManager cm, I18n i18n, Broadcaster broadcaster, AfkCommand afkCmd)
     {
         this.module = module;
         this.game = game;
@@ -63,6 +62,7 @@ public class ChatCommands
         this.cm = cm;
         this.i18n = i18n;
         this.bc = broadcaster;
+        this.afkCmd = afkCmd;
     }
 
     @Command(desc = "Allows you to emote")
@@ -78,7 +78,7 @@ public class ChatCommands
         {
             if (!(context instanceof Player))
             {
-                i18n.sendTranslated(context, NEGATIVE, "You cannot change the consoles display name"); // TODO You cannot?!? why oh whyy
+                i18n.sendTranslated(context, NEGATIVE, "You cannot change the consoles display name"); // console has no data / displayname
                 return;
             }
             player = ((Player)context);
@@ -165,10 +165,8 @@ public class ChatCommands
             }
             if (context instanceof Player)
             {
-                i18n.sendTranslated(whisperTarget, NEUTRAL, "{sender} -> {text:You}: {message:color=WHITE}", context,
-                                    message);
-                i18n.sendTranslated(context, NEUTRAL, "{text:You} -> {user}: {message:color=WHITE}",
-                                    whisperTarget.getName(), message);
+                i18n.sendTranslated(whisperTarget, NEUTRAL, "{sender} -> {text:You}: {message:color=WHITE}", context, message);
+                i18n.sendTranslated(context, NEUTRAL, "{text:You} -> {user}: {message:color=WHITE}", whisperTarget.getName(), message);
                 lastWhispers.put(consoleUUID, ((Player)context).getUniqueId());
                 lastWhispers.put(((Player)context).getUniqueId(), consoleUUID);
                 return true;
@@ -185,12 +183,10 @@ public class ChatCommands
                 return true;
             }
             i18n.sendTranslated(whisperTarget, NONE, "{sender} -> {text:You}: {message:color=WHITE}", context.getName(), message);
-            /*
-            if (user.get(ChatAttachment.class).isAfk()) // TODO afk auch hier rein?
+            if (afkCmd.isAfk(((Player) whisperTarget)))
             {
-                i18n.sendTranslated(context, NEUTRAL, "{user} is afk!", user);
+                i18n.sendTranslated(context, NEUTRAL, "{user} is afk!", whisperTarget);
             }
-            */
             i18n.sendTranslated(context, NEUTRAL, "{text:You} -> {user}: {message:color=WHITE}", whisperTarget, message);
             if (context instanceof Player)
             {
