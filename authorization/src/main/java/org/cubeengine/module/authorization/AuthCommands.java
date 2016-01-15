@@ -53,11 +53,11 @@ public class AuthCommands
 
     private final ConcurrentHashMap<UUID, Long> fails = new ConcurrentHashMap<>();
 
-    public AuthCommands(Authorization module, Game game, BanService bs, I18n i18n)
+    public AuthCommands(Authorization module, Game game, I18n i18n)
     {
         this.module = module;
         this.game = game;
-        this.bs = bs;
+        this.bs = game.getServiceManager().provideUnchecked(BanService.class);
         this.i18n = i18n;
     }
 

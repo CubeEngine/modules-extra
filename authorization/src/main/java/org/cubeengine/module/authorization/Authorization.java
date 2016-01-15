@@ -55,7 +55,6 @@ import org.cubeengine.service.user.UserManager;
 import org.jooq.DSLContext;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.service.ban.BanService;
 
 import static org.cubeengine.module.authorization.storage.TableAuth.TABLE_AUTH;
 import static org.cubeengine.service.user.TableUser.TABLE_USER;
@@ -66,7 +65,6 @@ public class Authorization extends Module
     @Inject private FileManager fm;
     @Inject private CommandManager cm;
     @Inject private Game game;
-    @Inject private BanService bs;
     @Inject private PermissionManager pm;
     @Inject private I18n i18n;
 
@@ -104,7 +102,7 @@ public class Authorization extends Module
 
         perms = new AuthPerms(this);
         config = fm.loadConfig(this, AuthConfiguration.class);
-        cm.addCommands(this, new AuthCommands(this, game, bs, i18n));
+        cm.addCommands(this, new AuthCommands(this, game, i18n));
     }
 
 
