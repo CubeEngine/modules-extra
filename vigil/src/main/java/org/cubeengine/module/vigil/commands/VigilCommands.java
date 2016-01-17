@@ -22,7 +22,7 @@ import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Label;
 import org.cubeengine.butler.parametric.Optional;
-import org.cubeengine.module.core.util.matcher.StringMatcher;
+import org.cubeengine.service.matcher.StringMatcher;
 import org.cubeengine.service.i18n.I18n;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.data.key.Keys;

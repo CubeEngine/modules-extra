@@ -17,6 +17,7 @@
  */
 package org.cubeengine.module.chat.storage;
 
+import java.util.UUID;
 import org.cubeengine.service.database.AsyncRecord;
 import org.jooq.types.UInteger;
 
@@ -29,7 +30,7 @@ public class IgnoreList extends AsyncRecord<IgnoreList>
         super(TABLE_IGNORE_LIST);
     }
 
-    public IgnoreList newIgnore(UInteger user, UInteger ignore)
+    public IgnoreList newIgnore(UUID user, UUID ignore)
     {
         this.setValue(TABLE_IGNORE_LIST.ID, user);
         this.setValue(TABLE_IGNORE_LIST.ID, ignore);

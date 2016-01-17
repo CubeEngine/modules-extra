@@ -25,12 +25,11 @@ import java.util.Optional;
 import de.cubeisland.engine.modularity.core.marker.Enable;
 import de.cubeisland.engine.modularity.asm.marker.ServiceImpl;
 import de.cubeisland.engine.modularity.asm.marker.Version;
-import org.cubeengine.module.core.sponge.EventManager;
+import org.cubeengine.service.event.EventManager;
 import org.cubeengine.service.Selector;
 import org.cubeengine.service.i18n.I18n;
 import org.cubeengine.module.core.util.math.shape.Shape;
 
-import org.cubeengine.service.user.UserManager;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
@@ -50,7 +49,6 @@ public class CuboidSelector implements Selector
 {
     @Inject private org.cubeengine.module.selector.Selector module;
     @Inject private EventManager em;
-    @Inject private UserManager um;
     @Inject private I18n i18n;
 
     private Map<UUID, SelectorData> selectorData = new HashMap<>();

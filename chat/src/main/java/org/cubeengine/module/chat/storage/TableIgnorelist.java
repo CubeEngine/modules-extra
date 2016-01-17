@@ -17,25 +17,22 @@
  */
 package org.cubeengine.module.chat.storage;
 
+import java.util.UUID;
 import org.cubeengine.module.core.util.Version;
 import org.cubeengine.service.database.Database;
 import org.cubeengine.service.database.Table;
 import org.jooq.TableField;
-import org.jooq.types.UInteger;
-
-import static org.cubeengine.service.user.TableUser.TABLE_USER;
+import org.jooq.impl.SQLDataType;
 
 public class TableIgnorelist extends Table<IgnoreList>
 {
     public static TableIgnorelist TABLE_IGNORE_LIST;
-    public final TableField<IgnoreList, UInteger> ID = createField("id", U_INTEGER.nullable(false), this);
-    public final TableField<IgnoreList, UInteger> IGNORE = createField("ignore", U_INTEGER.nullable(false), this);
+    public final TableField<IgnoreList, UUID> ID = createField("id", SQLDataType.UUID.length(36).nullable(false), this);
+    public final TableField<IgnoreList, UUID> IGNORE = createField("ignore", SQLDataType.UUID.length(36).nullable(false), this);
 
     public TableIgnorelist(String prefix, Database db)
     {
         super(prefix + "ignorelist", new Version(1), db);
-        this.addForeignKey(TABLE_USER.getPrimaryKey(), ID);
-        this.addForeignKey(TABLE_USER.getPrimaryKey(), IGNORE);
         this.setPrimaryKey(ID, IGNORE);
         this.addFields(ID, IGNORE);
         TABLE_IGNORE_LIST = this;

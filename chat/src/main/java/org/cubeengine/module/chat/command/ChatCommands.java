@@ -29,12 +29,13 @@ import org.cubeengine.service.command.CommandContext;
 import org.cubeengine.service.command.CommandManager;
 import org.cubeengine.service.i18n.I18n;
 import org.cubeengine.service.user.Broadcaster;
-import org.cubeengine.service.user.UserManager;
 import org.spongepowered.api.Game;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.data.manipulator.mutable.DisplayNameData;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.service.user.UserStorageService;
 import org.spongepowered.api.text.Text;
 
 import static org.cubeengine.butler.parameter.Parameter.INFINITE;
@@ -45,7 +46,6 @@ public class ChatCommands
 {
     private final Chat module;
     private Game game;
-    private UserManager um;
     private CommandManager cm;
     private I18n i18n;
     private Broadcaster bc;
@@ -54,11 +54,10 @@ public class ChatCommands
 
     private Map<UUID, UUID> lastWhispers = new HashMap<>();
 
-    public ChatCommands(Chat module, Game game, UserManager um, CommandManager cm, I18n i18n, Broadcaster broadcaster, AfkCommand afkCmd)
+    public ChatCommands(Chat module, Game game, CommandManager cm, I18n i18n, Broadcaster broadcaster, AfkCommand afkCmd)
     {
         this.module = module;
         this.game = game;
-        this.um = um;
         this.cm = cm;
         this.i18n = i18n;
         this.bc = broadcaster;
@@ -98,7 +97,8 @@ public class ChatCommands
             i18n.sendTranslated(context, POSITIVE, "Display name reset to {user}", context);
             return;
         }
-        if (um.getByName(name).isPresent() && !context.hasPermission(module.perms().COMMAND_NICK_OFOTHER.getId()))
+
+        if (Sponge.getServiceManager().provideUnchecked(UserStorageService.class).get(name).isPresent() && !context.hasPermission(module.perms().COMMAND_NICK_OFOTHER.getId()))
         {
             i18n.sendTranslated(context, NEGATIVE, "This name has been taken by another player!");
             return;

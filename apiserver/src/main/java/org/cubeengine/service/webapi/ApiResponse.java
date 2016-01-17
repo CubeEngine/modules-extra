@@ -22,9 +22,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.cubeengine.module.core.contract.Contract;
+import org.cubeengine.module.core.util.contract.Contract;
 
-import static org.cubeengine.module.core.contract.Contract.expectNotNull;
+import static org.cubeengine.module.core.util.contract.Contract.expectNotNull;
 
 /**
  * this class wrapps the data which will be send to the client

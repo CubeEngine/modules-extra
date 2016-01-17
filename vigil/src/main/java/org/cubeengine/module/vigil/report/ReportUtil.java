@@ -20,21 +20,14 @@ package org.cubeengine.module.vigil.report;
 import java.util.*;
 import java.util.function.Function;
 
-import org.cubeengine.module.core.util.converter.ItemStackConverter;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockType;
-import org.spongepowered.api.data.DataContainer;
-import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
 
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.translation.Translation;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
-
-import static org.cubeengine.module.vigil.report.block.BlockReport.*;
 
 public class ReportUtil
 {

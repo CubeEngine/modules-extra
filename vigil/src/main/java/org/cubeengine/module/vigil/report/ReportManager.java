@@ -34,7 +34,7 @@
  */
 package org.cubeengine.module.vigil.report;
 
-import org.cubeengine.module.core.sponge.EventManager;
+import org.cubeengine.service.event.EventManager;
 import org.cubeengine.module.vigil.Vigil;
 import org.cubeengine.module.vigil.report.block.BreakBlockReport;
 import org.cubeengine.module.vigil.report.block.PlaceBlockReport;

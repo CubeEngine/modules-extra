@@ -17,6 +17,7 @@
  */
 package org.cubeengine.module.chat.storage;
 
+import java.util.UUID;
 import org.cubeengine.service.database.AsyncRecord;
 import org.jooq.types.UInteger;
 
@@ -27,7 +28,7 @@ public class Muted extends AsyncRecord<Muted>
         super(TableMuted.TABLE_MUTED);
     }
 
-    public Muted newMuted(UInteger userId)
+    public Muted newMuted(UUID userId)
     {
         this.setValue(TableMuted.TABLE_MUTED.ID, userId);
         return this;

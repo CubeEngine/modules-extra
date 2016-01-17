@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +41,7 @@ import de.cubeisland.engine.modularity.core.marker.Disable;
 import de.cubeisland.engine.modularity.core.marker.Enable;
 import org.cubeengine.module.authorization.storage.Auth;
 import org.cubeengine.module.authorization.storage.TableAuth;
-import org.cubeengine.module.core.sponge.EventManager;
+import org.cubeengine.service.event.EventManager;
 import org.cubeengine.module.core.util.StringUtils;
 import org.cubeengine.module.core.util.Triplet;
 import org.cubeengine.service.command.CommandManager;
@@ -49,15 +50,15 @@ import org.cubeengine.service.filesystem.FileManager;
 import org.cubeengine.service.filesystem.FileUtil;
 import org.cubeengine.service.i18n.I18n;
 import org.cubeengine.service.permission.PermissionManager;
-import org.cubeengine.service.user.CachedUser;
-import org.cubeengine.service.user.TableUser;
-import org.cubeengine.service.user.UserManager;
 import org.jooq.DSLContext;
 import org.spongepowered.api.Game;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.manipulator.mutable.entity.JoinData;
+import org.spongepowered.api.data.value.BaseValue;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.service.user.UserStorageService;
 
 import static org.cubeengine.module.authorization.storage.TableAuth.TABLE_AUTH;
-import static org.cubeengine.service.user.TableUser.TABLE_USER;
 
 @ModuleInfo(name = "Authorization", description = "Provides password authorization")
 public class Authorization extends Module
@@ -68,8 +69,6 @@ public class Authorization extends Module
     @Inject private PermissionManager pm;
     @Inject private I18n i18n;
 
-
-    @Inject private UserManager um;
     @Inject private Database db;
     @Inject private EventManager em;
 
@@ -171,7 +170,7 @@ public class Authorization extends Module
 
     public void resetAllPasswords()
     {
-        this.db.getDSL().update(TableUser.TABLE_USER).set(TABLE_AUTH.PASSWD, (byte[])null).execute();
+        this.db.getDSL().update(TABLE_AUTH).set(TABLE_AUTH.PASSWD, (byte[])null).execute();
         reset();
     }
 
@@ -229,7 +228,8 @@ public class Authorization extends Module
 
     private String salt2(UUID player)
     {
-        return um.getByUUID(player).getEntity().getValue(TABLE_USER.FIRSTSEEN).toString();
+        return Sponge.getServiceManager().provideUnchecked(UserStorageService.class).get(player).get().get(JoinData.class).map(
+            JoinData::firstPlayed).map(BaseValue::get).map(Instant::toEpochMilli).map(Object::toString).orElse("0");
     }
 
 
@@ -239,11 +239,10 @@ public class Authorization extends Module
         if (auth == null)
         {
             DSLContext dsl = db.getDSL();
-            CachedUser byUUID = um.getByUUID(player);
-            auth = dsl.selectFrom(TABLE_AUTH).where(TABLE_AUTH.ID.eq(byUUID.getEntity().getId())).fetchOne();
+            auth = dsl.selectFrom(TABLE_AUTH).where(TABLE_AUTH.ID.eq(player)).fetchOne();
             if (auth == null)
             {
-                auth = dsl.newRecord(TABLE_AUTH).newAuth(byUUID);
+                auth = dsl.newRecord(TABLE_AUTH).newAuth(player);
                 auth.insert();
             }
             this.auths.put(player, auth);

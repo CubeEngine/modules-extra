@@ -48,7 +48,7 @@ import org.cubeengine.service.filesystem.FileManager;
 import org.cubeengine.service.i18n.I18n;
 import org.cubeengine.service.logging.LoggingUtil;
 import org.cubeengine.service.command.CommandManager;
-import org.cubeengine.module.core.sponge.CoreModule;
+import org.cubeengine.module.core.CoreModule;
 import org.cubeengine.module.core.util.StringUtils;
 import org.cubeengine.service.permission.PermissionManager;
 import org.cubeengine.service.task.TaskManager;
@@ -65,7 +65,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 
-import static org.cubeengine.module.core.contract.Contract.expectNotNull;
+import static org.cubeengine.module.core.util.contract.Contract.expectNotNull;
 import static java.util.Locale.ENGLISH;
 
 /**

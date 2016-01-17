@@ -32,13 +32,12 @@ import org.cubeengine.module.chat.storage.TableIgnorelist;
 import org.cubeengine.module.chat.storage.TableMuted;
 import org.cubeengine.service.filesystem.FileManager;
 import org.cubeengine.service.i18n.I18n;
-import org.cubeengine.module.core.sponge.EventManager;
+import org.cubeengine.service.event.EventManager;
 import org.cubeengine.service.command.CommandManager;
 import org.cubeengine.service.database.Database;
 import org.cubeengine.service.permission.PermissionManager;
 import org.cubeengine.service.task.TaskManager;
 import org.cubeengine.service.user.Broadcaster;
-import org.cubeengine.service.user.UserManager;
 import org.spongepowered.api.Game;
 
 
@@ -53,7 +52,6 @@ public class Chat extends Module
     private ChatConfig config;
     private ChatPerm perms;
 
-    @Inject private UserManager um;
     @Inject private FileManager fm;
     @Inject private EventManager em;
     @Inject private CommandManager cm;
@@ -71,17 +69,17 @@ public class Chat extends Module
         this.perms = new ChatPerm(this);
         db.registerTable(TableMuted.class);
         db.registerTable(TableIgnorelist.class);
-        MuteCommands muteCmd = new MuteCommands(this, db, um, i18n);
+        MuteCommands muteCmd = new MuteCommands(this, db, i18n);
         cm.addCommands(this, muteCmd);
-        IgnoreCommands ignoreCmd = new IgnoreCommands(this, db, um);
+        IgnoreCommands ignoreCmd = new IgnoreCommands(this, db);
 
         cm.addCommands(this, ignoreCmd);
         em.registerListener(this, new ChatFormatListener(this, game, i18n));
         em.registerListener(this, new MuteListener(ignoreCmd, muteCmd, i18n));
 
-        AfkCommand afkCmd = new AfkCommand(this, config.autoAfk.after.getMillis(), config.autoAfk.check.getMillis(), um, bc, tm, em, game);
+        AfkCommand afkCmd = new AfkCommand(this, config.autoAfk.after.getMillis(), config.autoAfk.check.getMillis(), bc, tm, em, game);
         cm.addCommands(this, afkCmd);
-        cm.addCommands(this, new ChatCommands(this, game, um, cm, i18n, bc, afkCmd));
+        cm.addCommands(this, new ChatCommands(this, game, cm, i18n, bc, afkCmd));
     }
 
     @Disable

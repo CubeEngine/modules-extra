@@ -17,26 +17,25 @@
  */
 package org.cubeengine.module.authorization.storage;
 
+import java.util.UUID;
 import org.cubeengine.module.core.util.Version;
-import org.cubeengine.service.database.AutoIncrementTable;
 import org.cubeengine.service.database.Database;
+import org.cubeengine.service.database.Table;
 import org.jooq.TableField;
-import org.jooq.types.UInteger;
+import org.jooq.impl.SQLDataType;
 
-import static org.cubeengine.service.user.TableUser.TABLE_USER;
 import static org.jooq.impl.SQLDataType.VARBINARY;
 
-public class TableAuth extends AutoIncrementTable<Auth, UInteger>
+public class TableAuth extends Table<Auth>
 {
     public static TableAuth TABLE_AUTH;
-    public final TableField<Auth, UInteger> ID = createField("key", U_INTEGER.nullable(false), this);
+    public final TableField<Auth, UUID> ID = createField("key", SQLDataType.UUID.length(36).nullable(false), this);
     public final TableField<Auth, byte[]> PASSWD = createField("passwd", VARBINARY.length(128), this);
 
     public TableAuth(String prefix, Database db)
     {
         super(prefix + "auth", new Version(1), db);
-        setAIKey(ID);
-        addForeignKey(TABLE_USER.getPrimaryKey(), ID);
+        setPrimaryKey(ID);
         addFields(ID, PASSWD);
         TABLE_AUTH = this;
     }

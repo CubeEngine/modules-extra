@@ -28,13 +28,11 @@ import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Reader;
 import org.cubeengine.module.chat.Chat;
 import org.cubeengine.module.chat.storage.IgnoreList;
-import org.cubeengine.module.chat.storage.TableIgnorelist;
 import org.cubeengine.module.core.util.ChatFormat;
 import org.cubeengine.module.core.util.StringUtils;
 import org.cubeengine.service.command.CommandContext;
 import org.cubeengine.service.database.Database;
 import org.cubeengine.service.i18n.I18n;
-import org.cubeengine.service.user.UserManager;
 import org.spongepowered.api.entity.living.player.Player;
 
 import static org.cubeengine.module.chat.storage.TableIgnorelist.TABLE_IGNORE_LIST;
@@ -44,16 +42,14 @@ public class IgnoreCommands
 {
     private final Chat module;
     private Database db;
-    private UserManager um;
     private I18n i18n;
 
     private Map<UUID, List<IgnoreList>> ignored = new HashMap<>();
 
-    public IgnoreCommands(Chat basics, Database db, UserManager um)
+    public IgnoreCommands(Chat basics, Database db)
     {
         this.module = basics;
         this.db = db;
-        this.um = um;
     }
 
     private boolean addIgnore(Player user, Player ignored)
@@ -63,9 +59,7 @@ public class IgnoreCommands
             return false;
         }
 
-        IgnoreList ignoreList = db.getDSL().newRecord(TABLE_IGNORE_LIST)
-              .newIgnore(um.getByUUID(user.getUniqueId()).getEntity().getId(),
-                         um.getByUUID(ignored.getUniqueId()).getEntity().getId());
+        IgnoreList ignoreList = db.getDSL().newRecord(TABLE_IGNORE_LIST).newIgnore(user.getUniqueId(), ignored.getUniqueId());
         ignoreList.insertAsync();
         return true;
     }
@@ -75,8 +69,8 @@ public class IgnoreCommands
         if (checkIgnored(user, ignored))
         {
             db.getDSL().delete(TABLE_IGNORE_LIST).
-                where(TABLE_IGNORE_LIST.ID.eq(um.getByUUID(user.getUniqueId()).getEntity().getId())).
-                and(TABLE_IGNORE_LIST.IGNORE.eq(um.getByUUID(ignored.getUniqueId()).getEntity().getId())).execute();
+                where(TABLE_IGNORE_LIST.ID.eq(user.getUniqueId())).
+                and(TABLE_IGNORE_LIST.IGNORE.eq(ignored.getUniqueId())).execute();
             return true;
         }
         return true;
@@ -87,8 +81,8 @@ public class IgnoreCommands
         // TODO cache this shit
         IgnoreList ignore =
             db.getDSL().selectFrom(TABLE_IGNORE_LIST).
-                where(TABLE_IGNORE_LIST.ID.eq(um.getByUUID(user.getUniqueId()).getEntity().getId())).
-                and(TABLE_IGNORE_LIST.IGNORE.eq(um.getByUUID(ignored.getUniqueId()).getEntity().getId())).fetchOneInto(
+                where(TABLE_IGNORE_LIST.ID.eq(user.getUniqueId())).
+                and(TABLE_IGNORE_LIST.IGNORE.eq(ignored.getUniqueId())).fetchOneInto(
                 TABLE_IGNORE_LIST);
         return ignore != null;
     }

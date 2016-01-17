@@ -22,7 +22,7 @@ import java.util.Map;
 import org.cubeengine.butler.CommandInvocation;
 import org.cubeengine.butler.ProviderManager;
 
-import static org.cubeengine.module.core.contract.Contract.expectNotNull;
+import static org.cubeengine.module.core.util.contract.Contract.expectNotNull;
 
 public class Parameters
 {

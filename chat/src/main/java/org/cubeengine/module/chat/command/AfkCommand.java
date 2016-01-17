@@ -26,11 +26,10 @@ import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Default;
 import org.cubeengine.module.chat.Chat;
 import org.cubeengine.module.chat.listener.AfkListener;
-import org.cubeengine.module.core.sponge.EventManager;
+import org.cubeengine.service.event.EventManager;
 import org.cubeengine.service.command.CommandContext;
 import org.cubeengine.service.task.TaskManager;
 import org.cubeengine.service.user.Broadcaster;
-import org.cubeengine.service.user.UserManager;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
@@ -43,14 +42,12 @@ public class AfkCommand implements Runnable
     private long afkCheck;
     private Game game;
     private final AfkListener listener;
-    private final UserManager um;
     private Broadcaster bc;
 
     private Map<UUID, Boolean> afks = new HashMap<>();
     private Map<UUID, Long> actions = new HashMap<>();
 
-    public AfkCommand(Chat module, long autoAfk, long afkCheck, UserManager um, Broadcaster bc, TaskManager tm,
-                      EventManager em, Game game)
+    public AfkCommand(Chat module, long autoAfk, long afkCheck, Broadcaster bc, TaskManager tm, EventManager em, Game game)
     {
         this.module = module;
         this.autoAfk = autoAfk;
@@ -65,7 +62,6 @@ public class AfkCommand implements Runnable
                 tm.runTimer(module, this, 20, afkCheck / 50); // this is in ticks so /50
             }
         }
-        this.um = um;
         this.bc = bc;
     }
 

@@ -18,26 +18,24 @@
 package org.cubeengine.module.chat.storage;
 
 import java.sql.Date;
+import java.util.UUID;
 import org.cubeengine.module.core.util.Version;
 import org.cubeengine.service.database.Database;
 import org.cubeengine.service.database.Table;
 import org.jooq.TableField;
-import org.jooq.types.UInteger;
-
-import static org.cubeengine.service.user.TableUser.TABLE_USER;
+import org.jooq.impl.SQLDataType;
 import static org.jooq.util.mysql.MySQLDataType.DATE;
 
 public class TableMuted extends Table<Muted>
 {
     public static TableMuted TABLE_MUTED;
-    public final TableField<Muted, UInteger> ID = createField("id", U_INTEGER.nullable(false), this);
+    public final TableField<Muted, UUID> ID = createField("id", SQLDataType.UUID.length(36).nullable(false), this);
     public final TableField<Muted, Date> MUTED = createField("muted", DATE, this);
 
     public TableMuted(String prefix, Database db)
     {
         super(prefix + "mute", new Version(1), db);
         setPrimaryKey(ID);
-        addForeignKey(TABLE_USER.getPrimaryKey(), ID);
         addFields(ID, MUTED);
         TABLE_MUTED = this;
     }
