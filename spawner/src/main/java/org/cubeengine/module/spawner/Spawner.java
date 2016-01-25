@@ -19,49 +19,52 @@ package org.cubeengine.module.spawner;
 
 import java.util.HashMap;
 import java.util.Map;
-import de.cubeisland.engine.module.core.module.Module;
-import de.cubeisland.engine.service.permission.Permission;
+import java.util.Optional;
+import javax.inject.Inject;
+import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
+import de.cubeisland.engine.modularity.core.Module;
+import org.cubeengine.service.event.EventManager;
+import org.cubeengine.service.i18n.I18n;
 import org.cubeengine.service.permission.PermissionManager;
-import org.cubeengine.service.user.User;
-import org.bukkit.block.CreatureSpawner;
-import org.bukkit.entity.EntityType;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
+import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.entity.EntityType;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.gamemode.GameModes;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.block.ChangeBlockEvent;
+import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.item.Enchantments;
+import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.material.SpawnEgg;
+import org.spongepowered.api.service.permission.PermissionDescription;
 
-import static org.bukkit.GameMode.CREATIVE;
-import static org.bukkit.Material.MOB_SPAWNER;
-import static org.bukkit.Material.MONSTER_EGG;
-import static org.bukkit.enchantments.Enchantment.LURE;
-import static org.bukkit.enchantments.Enchantment.SILK_TOUCH;
-import static org.bukkit.entity.EntityType.*;
-import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;
+import static org.cubeengine.service.i18n.formatter.MessageType.*;
+import static org.spongepowered.api.block.BlockTypes.MOB_SPAWNER;
+import static org.spongepowered.api.entity.EntityTypes.*;
+import static org.spongepowered.api.event.Order.POST;
 
 /**
  * A module to gather monster spawners with silk touch and reactivate them using spawneggs
  */
-public class Spawner extends Module implements Listener
+@ModuleInfo(name = "Spawner", description = "Lets you move spawners")
+public class Spawner extends Module
 {
     private ItemStack spawnerItem;
-    private Permission eggPerms;
-    private Map<EntityType, Permission> perms = new HashMap<>();
+    private PermissionDescription eggPerms;
+    private Map<EntityType, PermissionDescription> perms = new HashMap<>();
+
+    @Inject private PermissionManager pm;
+    @Inject private EventManager em;
+    @Inject private I18n i18n;
 
     @Override
     public void onEnable()
     {
-        this.eggPerms = getBasePermission().childWildcard("egg");
-        PermissionManager permMan = this.getCore().getPermissionManager();
-        permMan.registerPermission(this, this.eggPerms);
+        this.eggPerms = pm.register(this, "egg", "", null);
         this.initPerms();
-        this.spawnerItem = new ItemStack(MOB_SPAWNER, 1);
+        this.spawnerItem = ItemStack.of(ItemTypes.MOB_SPAWNER, 1);
         spawnerItem.addUnsafeEnchantment(LURE, 1);
-        this.getCore().getEventManager().registerListener(this, this);
+        em.registerListener(this, this);
     }
 
     private void initPerms()
@@ -77,36 +80,35 @@ public class Spawner extends Module implements Listener
     {
         for (EntityType type : types)
         {
-            Permission child = eggPerms.child(type.name().toLowerCase().replace("_", "-"));
+            PermissionDescription child = pm.register(this, type.getName(), "", eggPerms);
             this.perms.put(type, child);
-            this.getCore().getPermissionManager().registerPermission(this, child);
         }
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    public void onBlockBreak(BlockBreakEvent event)
+    @Listener(order = POST, ignoreCancelled = true)
+    public void onBlockBreak(ChangeBlockEvent.Break event, @Filter Player player)
     {
-        ItemStack inHand = event.getPlayer().getItemInHand();
-        if (inHand != null &&
-            inHand.containsEnchantment(SILK_TOUCH) &&
+        Optional<ItemStack> inHand = player.getItemInHand();
+        if (inHand.isPresent() &&
+            inHand.containsEnchantment(Enchantments.SILK_TOUCH) &&
             event.getBlock().getType() == MOB_SPAWNER)
         {
-            User user = this.getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
+            User user = this.getCore().getUserManager().getExactUser(player.getUniqueId());
 
             ItemStack clone = spawnerItem.clone();
             ItemMeta itemMeta = clone.getItemMeta();
-            itemMeta.setDisplayName(user.getTranslation(NONE, "Inactive Monster Spawner"));
+            itemMeta.setDisplayName(i18n.getTranslation(player, NONE, "Inactive Monster Spawner"));
             clone.setItemMeta(itemMeta);
             event.getPlayer().getWorld().dropItemNaturally(event.getBlock().getLocation(), clone);
 
-            user.sendTranslated(POSITIVE, "Dropped inactive Monster Spawner!");
+            i18n.sendTranslated(user, POSITIVE, "Dropped inactive Monster Spawner!");
 
             event.setExpToDrop(0);
         }
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    public void onBlockPlace(BlockPlaceEvent event)
+    @Listener(ignoreCancelled = true, order = POST)
+    public void onBlockPlace(ChangeBlockEvent.Place event)
     {
         if (event.getBlockPlaced().getType() == MOB_SPAWNER &&
             event.getPlayer().getItemInHand().getEnchantmentLevel(LURE) == 1)
@@ -114,16 +116,15 @@ public class Spawner extends Module implements Listener
             CreatureSpawner spawner = (CreatureSpawner)event.getBlock().getState();
             spawner.setSpawnedType(SNOWBALL);
             User user = this.getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
-            user.sendTranslated(POSITIVE, "Inactive Monster Spawner placed!");
+            i18n.sendTranslated(user, POSITIVE, "Inactive Monster Spawner placed!");
         }
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    public void onInteract(PlayerInteractEvent event)
+    @Listener(ignoreCancelled = true, order = POST)
+    public void onInteract(InteractBlockEvent.Secondary event, @Filter Player player)
     {
-        if (event.getAction() == RIGHT_CLICK_BLOCK
-         && event.getClickedBlock().getType() == MOB_SPAWNER
-         && event.getPlayer().getItemInHand().getType() == MONSTER_EGG)
+        if (event.getClickedBlock().getType() == MOB_SPAWNER
+         && event.getPlayer().getItemInHand().getType() == BlockTypes.MONSTER_EGG)
         {
             event.setCancelled(true);
             User user = this.getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
@@ -133,26 +134,26 @@ public class Spawner extends Module implements Listener
                 this.handleInteract(user, state, (SpawnEgg)event.getPlayer().getItemInHand().getData());
                 return;
             }
-            user.sendTranslated(NEGATIVE, "You can only change inactive Monster Spawner!");
+            i18n.sendTranslated(user, NEGATIVE, "You can only change inactive Monster Spawner!");
         }
     }
 
-    private void handleInteract(User user, CreatureSpawner spawner, SpawnEgg egg)
+    private void handleInteract(Player user, CreatureSpawner spawner, SpawnEgg egg)
     {
-        Permission perm = this.perms.get(egg.getSpawnedType());
+        PermissionDescription perm = this.perms.get(egg.getSpawnedType());
         if (perm == null && !this.eggPerms.isAuthorized(user))
         {
-            user.sendTranslated(NEGATIVE, "Invalid SpawnEgg!");
+            i18n.sendTranslated(user, NEGATIVE, "Invalid SpawnEgg!");
             return;
         }
         if (perm != null && !perm.isAuthorized(user))
         {
-            user.sendTranslated(NEGATIVE, "You are not allowed to change Monster Spawner to this EntityType!");
+            i18n.sendTranslated(user, NEGATIVE, "You are not allowed to change Monster Spawner to this EntityType!");
             return;
         }
         spawner.setSpawnedType(egg.getSpawnedType());
         spawner.update();
-        if (user.getGameMode() != CREATIVE)
+        if (user.getGameMode() != GameModes.CREATIVE)
         {
             int amount = user.getItemInHand().getAmount() - 1;
             user.getItemInHand().setAmount(amount);
@@ -161,6 +162,6 @@ public class Spawner extends Module implements Listener
                 user.setItemInHand(null);
             }
         }
-        user.sendTranslated(POSITIVE, "Monster Spawner activated!");
+        i18n.sendTranslated(user, POSITIVE, "Monster Spawner activated!");
     }
 }

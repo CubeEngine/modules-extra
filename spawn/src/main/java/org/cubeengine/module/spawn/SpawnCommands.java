@@ -35,17 +35,17 @@ import de.cubeisland.engine.module.roles.role.Role;
 import de.cubeisland.engine.module.roles.role.RolesAttachment;
 import de.cubeisland.engine.module.roles.role.RolesManager;
 import de.cubeisland.engine.module.roles.role.resolved.ResolvedMetadata;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.world.Location;
 import org.bukkit.World;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+import org.spongepowered.api.world.World;
 
 public class SpawnCommands
 {
-
     private final Roles roles;
     private final Spawn module;
-
-    private RolesManager manager;
 
     public SpawnCommands(Roles roles, Spawn module)
     {
@@ -99,7 +99,7 @@ public class SpawnCommands
     // TODO teleport all players to spawn
 
     @Command(desc = "Teleports a player to spawn (of a role)")
-    public void spawn(CommandSender context, @Default User player, @Optional World world,
+    public void spawn(CommandSource context, @Default Player player, @Optional World world,
                       @Named({"role", "r"}) @Complete(RoleCompleter.class) String role, // TODO Role Reader & DefaultProvider
                       @Flag boolean force, @Flag boolean worldSpawn)
     {

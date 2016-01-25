@@ -17,26 +17,25 @@
  */
 package org.cubeengine.module.spawn;
 
+import javax.inject.Inject;
+import de.cubeisland.engine.modularity.core.Module;
 import org.cubeengine.service.command.CommandManager;
-import de.cubeisland.engine.module.core.module.Inject;
-import de.cubeisland.engine.module.core.module.Module;
-import org.cubeengine.module.roles.Roles;
+import org.cubeengine.service.event.EventManager;
 
 public class Spawn extends Module
 {
     private SpawnConfig config;
-    @Inject
-    private Roles roles;
+    @Inject private EventManager em;
+    @Inject private CommandManager cm;
     private SpawnPerms perms;
 
     @Override
     public void onEnable()
     {
         this.config = this.loadConfig(SpawnConfig.class);
-        this.getCore().getEventManager().registerListener(this, new SpawnListener(roles));
-        CommandManager cm = this.getCore().getCommandManager();
+        em.registerListener(this, new SpawnListener());
         cm.removeCommand("spawn", true); // unregister basics commands
-        cm.addCommands(cm, this, new SpawnCommands(roles, this));
+        cm.addCommands(cm, this, new SpawnCommands(this));
         perms = new SpawnPerms(this); // PermContainer registers itself
 
         // TODO per world spawn with rotation

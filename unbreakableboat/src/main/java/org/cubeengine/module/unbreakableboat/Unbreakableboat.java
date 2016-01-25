@@ -23,42 +23,33 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import de.cubeisland.engine.module.core.sponge.SpongeCore;
-import de.cubeisland.engine.module.core.module.Module;
+import javax.inject.Inject;
+import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
+import de.cubeisland.engine.modularity.core.Module;
 import org.cubeengine.module.core.util.ChatFormat;
-import org.spongepowered.api.world.Location;
-import org.bukkit.Server;
-import org.bukkit.entity.Boat;
-import org.spongepowered.api.entity.player.Player;
-import org.bukkit.entity.Vehicle;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.vehicle.VehicleCreateEvent;
-import org.bukkit.event.vehicle.VehicleDestroyEvent;
+import org.cubeengine.service.event.EventManager;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.meta.ItemMeta;
-
-import static org.bukkit.Material.BOAT;
-import static org.bukkit.Material.LOG;
-import static org.bukkit.block.BlockFace.UP;
-import static org.bukkit.enchantments.Enchantment.DURABILITY;
-import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;
+import org.spongepowered.api.world.Location;
 
 /**
  * A module providing a recipe for an (almost) unbreakable boat
  */
-public class Unbreakableboat extends Module implements Listener
+// TODO add customdata to check for? OR vanilla unbreakable tag?
+@ModuleInfo(name = "UnbreakableBoat", description = "Adds a Recipe for an unbreakable Boat")
+public class Unbreakableboat extends Module
 {
     private Map<Location, Player> prePlanned = new HashMap<>();
     private Set<UUID> unbreakable = new HashSet<>();
     private ItemStack boat = new ItemStack(BOAT, 1);
 
+    @Inject private EventManager em;
+
     @Override
     public void onEnable()
     {
-        this.getCore().getEventManager().registerListener(this, this);
+        em.registerListener(this, this);
         boat.addUnsafeEnchantment(DURABILITY, 5);
         ItemMeta itemMeta = boat.getItemMeta();
         itemMeta.setDisplayName(ChatFormat.parseFormats("&6Sturdy Boat"));
@@ -69,7 +60,7 @@ public class Unbreakableboat extends Module implements Listener
         server.addRecipe(recipe);
     }
 
-    @EventHandler
+    @Listener
     public void onVehicleBreak(VehicleDestroyEvent event)
     {
         Vehicle vehicle = event.getVehicle();
@@ -94,7 +85,7 @@ public class Unbreakableboat extends Module implements Listener
         }
     }
 
-    @EventHandler
+    @Listener
     public void onVehiclePlace(VehicleCreateEvent event)
     {
         // TODO waiting for https://hub.spigotmc.org/jira/browse/SPIGOT-694 to remove this ugly hack
@@ -113,7 +104,7 @@ public class Unbreakableboat extends Module implements Listener
         }
     }
 
-    @EventHandler
+    @Listener
     public void onBoatPreplace(PlayerInteractEvent event)
     {
         ItemStack inHand = event.getPlayer().getItemInHand();

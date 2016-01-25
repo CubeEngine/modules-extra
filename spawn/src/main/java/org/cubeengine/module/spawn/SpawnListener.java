@@ -17,39 +17,18 @@
  */
 package org.cubeengine.module.spawn;
 
-import org.cubeengine.service.user.User;
-import org.cubeengine.service.user.UserManager;
 import org.cubeengine.module.core.util.StringUtils;
-import org.cubeengine.service.world.WorldManager;
-import org.cubeengine.module.roles.Roles;
-import de.cubeisland.engine.module.roles.role.RolesAttachment;
-import de.cubeisland.engine.module.roles.role.resolved.ResolvedMetadata;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.world.Location;
-import org.bukkit.World;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
-public class SpawnListener implements Listener
+public class SpawnListener
 {
-    private final Roles roles;
-    private final WorldManager wm;
-    private final UserManager um;
-
-    public SpawnListener(Roles roles)
+    @Listener(order = Order.LATE) // has to be called after roles could assign data
+    public void onJoin(ClientConnectionEvent.Join event)
     {
-        this.roles = roles;
-        this.wm = roles.getCore().getWorldManager();
-        this.um = roles.getCore().getUserManager();
-    }
-
-    @EventHandler(priority = EventPriority.HIGH) // has to be called after roles could assign data
-    public void onJoin(PlayerJoinEvent event)
-    {
-        if (!event.getPlayer().hasPlayedBefore())
+        if (!event.getTargetEntity().lastPlayed().exists()) // has played before?
         {
             User user = um.getExactUser(event.getPlayer().getUniqueId());
             RolesAttachment rolesAttachment = user.get(RolesAttachment.class);
@@ -72,7 +51,7 @@ public class SpawnListener implements Listener
         }
     }
 
-    @EventHandler
+    @Listener
     public void onSpawn(PlayerRespawnEvent event)
     {
         if (!event.isBedSpawn())

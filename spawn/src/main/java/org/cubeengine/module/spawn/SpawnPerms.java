@@ -17,8 +17,8 @@
  */
 package org.cubeengine.module.spawn;
 
-import de.cubeisland.engine.service.permission.Permission;
 import org.cubeengine.service.permission.PermissionContainer;
+import org.spongepowered.api.service.permission.PermissionDescription;
 
 @SuppressWarnings("all")
 public class SpawnPerms extends PermissionContainer<Spawn>
@@ -26,16 +26,15 @@ public class SpawnPerms extends PermissionContainer<Spawn>
     public SpawnPerms(Spawn module)
     {
         super(module);
-        this.registerAllPermissions();
     }
-    private final Permission COMMAND_SPAWN = getBasePerm().childWildcard("command").childWildcard("spawn");
+    private final PermissionDescription COMMAND_SPAWN = getBasePerm().childWildcard("command").childWildcard("spawn");
     /**
      * Prevents from being teleported to spawn by someone else
      */
-    public final Permission COMMAND_SPAWN_PREVENT = COMMAND_SPAWN.child("prevent");
+    public final PermissionDescription COMMAND_SPAWN_PREVENT = COMMAND_SPAWN.child("prevent");
     /**
      * Allows teleporting a player to spawn even if the player has the prevent permission
      */
-    public final Permission COMMAND_SPAWN_FORCE = COMMAND_SPAWN.child("force");
+    public final PermissionDescription COMMAND_SPAWN_FORCE = COMMAND_SPAWN.child("force");
 
 }
