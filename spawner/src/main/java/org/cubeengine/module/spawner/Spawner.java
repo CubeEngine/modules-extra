@@ -18,30 +18,50 @@
 package org.cubeengine.module.spawner;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import javax.inject.Inject;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.modularity.core.marker.Enable;
 import org.cubeengine.service.event.EventManager;
 import org.cubeengine.service.i18n.I18n;
 import org.cubeengine.service.permission.PermissionManager;
-import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.block.BlockState;
+import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.data.Transaction;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.meta.ItemEnchantment;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.EntityType;
+import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.entity.ConstructEntityEvent;
+import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.item.Enchantment;
 import org.spongepowered.api.item.Enchantments;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.service.permission.PermissionDescription;
+import org.spongepowered.api.util.weighted.RandomObjectTable;
+import org.spongepowered.api.util.weighted.WeightedTable;
 
+import static java.util.Collections.singletonList;
 import static org.cubeengine.service.i18n.formatter.MessageType.*;
 import static org.spongepowered.api.block.BlockTypes.MOB_SPAWNER;
 import static org.spongepowered.api.entity.EntityTypes.*;
+import static org.spongepowered.api.entity.living.player.gamemode.GameModes.CREATIVE;
 import static org.spongepowered.api.event.Order.POST;
+import static org.spongepowered.api.item.Enchantments.LURE;
+import static org.spongepowered.api.item.Enchantments.SILK_TOUCH;
 
 /**
  * A module to gather monster spawners with silk touch and reactivate them using spawneggs
@@ -57,23 +77,17 @@ public class Spawner extends Module
     @Inject private EventManager em;
     @Inject private I18n i18n;
 
-    @Override
+    @Enable
     public void onEnable()
     {
         this.eggPerms = pm.register(this, "egg", "", null);
-        this.initPerms();
-        this.spawnerItem = ItemStack.of(ItemTypes.MOB_SPAWNER, 1);
-        spawnerItem.addUnsafeEnchantment(LURE, 1);
-        em.registerListener(this, this);
-    }
+        this.initPerm(CREEPER, SKELETON, SPIDER, ZOMBIE, SLIME, GHAST, PIG_ZOMBIE, ENDERMAN,
+                      CAVE_SPIDER, SILVERFISH, BLAZE, MAGMA_CUBE, WITCH, BAT, PIG, SHEEP, COW,
+                      CHICKEN, SQUID, WOLF, MUSHROOM_COW, OCELOT, HORSE, VILLAGER);
 
-    private void initPerms()
-    {
-        this.initPerm(CREEPER, SKELETON, SPIDER, ZOMBIE, SLIME, GHAST,
-                      PIG_ZOMBIE, ENDERMAN, CAVE_SPIDER, SILVERFISH,
-                      BLAZE, MAGMA_CUBE, WITCH, BAT, PIG, SHEEP, COW,
-                      CHICKEN, SQUID, WOLF, MUSHROOM_COW, OCELOT,
-                      HORSE, VILLAGER);
+        this.spawnerItem = ItemStack.of(ItemTypes.MOB_SPAWNER, 1);
+        spawnerItem.offer(Keys.ITEM_ENCHANTMENTS, singletonList(new ItemEnchantment(Enchantments.LURE, 1)));
+        em.registerListener(this, this);
     }
 
     private void initPerm(EntityType... types)
@@ -85,83 +99,142 @@ public class Spawner extends Module
         }
     }
 
-    @Listener(order = POST, ignoreCancelled = true)
-    public void onBlockBreak(ChangeBlockEvent.Break event, @Filter Player player)
+    public static boolean hasEnchantment(ItemStack item, Enchantment ench)
+    {
+        // TODO Sponge 4.0 will have a check for this?
+        Optional<List<ItemEnchantment>> enchs = item.get(Keys.ITEM_ENCHANTMENTS);
+        if (enchs.isPresent())
+        {
+            for (ItemEnchantment e : enchs.get())
+            {
+                if (e.getEnchantment().equals(ench))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static boolean breaks(ChangeBlockEvent.Break event, BlockType type)
+    {
+        return has(event, type, snap -> snap.getOriginal().getState().getType());
+    }
+
+    public static boolean places(ChangeBlockEvent.Place event, BlockType type)
+    {
+        return has(event, type, snap -> snap.getFinal().getState().getType());
+    }
+
+    public static boolean has(ChangeBlockEvent event, BlockType type, Function<Transaction<BlockSnapshot>, BlockType> func)
+    {
+        for (Transaction<BlockSnapshot> trans : event.getTransactions())
+        {
+            if (func.apply(trans).equals(type))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Listener(order = POST)
+    public void onBlockBreak(ChangeBlockEvent.Break event, @First Player player)
     {
         Optional<ItemStack> inHand = player.getItemInHand();
         if (inHand.isPresent() &&
-            inHand.containsEnchantment(Enchantments.SILK_TOUCH) &&
-            event.getBlock().getType() == MOB_SPAWNER)
+            hasEnchantment(inHand.get(), SILK_TOUCH) &&
+            breaks(event, MOB_SPAWNER))
         {
-            User user = this.getCore().getUserManager().getExactUser(player.getUniqueId());
+            ItemStack clone = spawnerItem.copy();
+            clone.offer(Keys.DISPLAY_NAME, i18n.getTranslation(player, NONE, "Inactive Monster Spawner"));
 
-            ItemStack clone = spawnerItem.clone();
-            ItemMeta itemMeta = clone.getItemMeta();
-            itemMeta.setDisplayName(i18n.getTranslation(player, NONE, "Inactive Monster Spawner"));
-            clone.setItemMeta(itemMeta);
-            event.getPlayer().getWorld().dropItemNaturally(event.getBlock().getLocation(), clone);
-
-            i18n.sendTranslated(user, POSITIVE, "Dropped inactive Monster Spawner!");
-
-            event.setExpToDrop(0);
-        }
-    }
-
-    @Listener(ignoreCancelled = true, order = POST)
-    public void onBlockPlace(ChangeBlockEvent.Place event)
-    {
-        if (event.getBlockPlaced().getType() == MOB_SPAWNER &&
-            event.getPlayer().getItemInHand().getEnchantmentLevel(LURE) == 1)
-        {
-            CreatureSpawner spawner = (CreatureSpawner)event.getBlock().getState();
-            spawner.setSpawnedType(SNOWBALL);
-            User user = this.getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
-            i18n.sendTranslated(user, POSITIVE, "Inactive Monster Spawner placed!");
-        }
-    }
-
-    @Listener(ignoreCancelled = true, order = POST)
-    public void onInteract(InteractBlockEvent.Secondary event, @Filter Player player)
-    {
-        if (event.getClickedBlock().getType() == MOB_SPAWNER
-         && event.getPlayer().getItemInHand().getType() == BlockTypes.MONSTER_EGG)
-        {
-            event.setCancelled(true);
-            User user = this.getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
-            CreatureSpawner state = (CreatureSpawner)event.getClickedBlock().getState();
-            if (state.getSpawnedType() == SNOWBALL)
+            Optional<Entity> item = player.getWorld().createEntity(ITEM, player.getLocation().getPosition());
+            if (item.isPresent())
             {
-                this.handleInteract(user, state, (SpawnEgg)event.getPlayer().getItemInHand().getData());
+                item.get().offer(Keys.REPRESENTED_ITEM, clone.createSnapshot());
+                player.getWorld().spawnEntity(item.get(), Cause.of(player)); // TODO instead drop naturally at blockpos
+                i18n.sendTranslated(player, POSITIVE, "Dropped inactive Monster Spawner!");
+                // TODO cancel exp drops
                 return;
             }
-            i18n.sendTranslated(user, NEGATIVE, "You can only change inactive Monster Spawner!");
+            throw new IllegalStateException("Could not spawn item");
         }
     }
 
-    private void handleInteract(Player user, CreatureSpawner spawner, SpawnEgg egg)
+    @Listener
+    public void onSpawnerExp(ConstructEntityEvent event)
     {
-        PermissionDescription perm = this.perms.get(egg.getSpawnedType());
-        if (perm == null && !this.eggPerms.isAuthorized(user))
+        if (event.getTargetType().equals(EntityTypes.EXPERIENCE_ORB))
         {
-            i18n.sendTranslated(user, NEGATIVE, "Invalid SpawnEgg!");
-            return;
+            System.out.println(event.getCause()); // TODO can i detect drops from blockbreak?
         }
-        if (perm != null && !perm.isAuthorized(user))
+    }
+
+    @Listener(order = POST)
+    public void onBlockPlace(ChangeBlockEvent.Place event, @First Player player)
+    {
+        if (places(event, MOB_SPAWNER) &&
+            hasEnchantment(player.getItemInHand().get(), LURE))
         {
-            i18n.sendTranslated(user, NEGATIVE, "You are not allowed to change Monster Spawner to this EntityType!");
-            return;
-        }
-        spawner.setSpawnedType(egg.getSpawnedType());
-        spawner.update();
-        if (user.getGameMode() != GameModes.CREATIVE)
-        {
-            int amount = user.getItemInHand().getAmount() - 1;
-            user.getItemInHand().setAmount(amount);
-            if (amount == 0)
+            for (Transaction<BlockSnapshot> trans : event.getTransactions())
             {
-                user.setItemInHand(null);
+                if (trans.getFinal().getState().getType().equals(MOB_SPAWNER))
+                {
+                    BlockSnapshot snap = trans.getFinal();
+                    snap.with(Keys.SPAWNER_ENTITIES, new WeightedTable<>());
+                    trans.setCustom(snap);
+                    i18n.sendTranslated(player, POSITIVE, "Inactive Monster Spawner placed!");
+                    return;
+                }
             }
         }
-        i18n.sendTranslated(user, POSITIVE, "Monster Spawner activated!");
+    }
+
+    @Listener(order = POST)
+    public void onInteract(InteractBlockEvent.Secondary event, @First Player player)
+    {
+        BlockState state = event.getTargetBlock().getState();
+        if (state.getType().equals(MOB_SPAWNER)
+         && player.getItemInHand().map(i -> i.getItem().equals(ItemTypes.SPAWN_EGG)).orElse(false))
+        {
+            event.setCancelled(true);
+
+            if (state.get(Keys.SPAWNER_ENTITIES).map(RandomObjectTable::isEmpty).orElse(false))
+            {
+                ItemStack itemInHand = player.getItemInHand().get();
+                EntityType type = itemInHand.get(Keys.SPAWNABLE_ENTITY_TYPE).get();
+
+                PermissionDescription perm = this.perms.get(type);
+                if (perm == null && !player.hasPermission(eggPerms.getId()))
+                {
+                    i18n.sendTranslated(player, NEGATIVE, "Invalid SpawnEgg!");
+                    return;
+                }
+                if (perm != null && !player.hasPermission(perm.getId()))
+                {
+                    i18n.sendTranslated(player, NEGATIVE, "You are not allowed to change Monster Spawner to this EntityType!");
+                    return;
+                }
+
+                WeightedTable<EntitySnapshot> spawns = new WeightedTable<>();
+                spawns.add(EntitySnapshot.builder().type(type).build(), 1);
+                state.with(Keys.SPAWNER_ENTITIES, spawns);
+
+                if (event.getTargetBlock().withState(state).restore(true, true)) // TODO no cause?
+                {
+                    if (!player.gameMode().get().equals(CREATIVE))
+                    {
+                        itemInHand.setQuantity(itemInHand.getQuantity() - 1);
+                        player.setItemInHand(itemInHand); // TODO check if this sets no item if quantity 0
+                    }
+
+                    i18n.sendTranslated(player, POSITIVE, "Monster Spawner activated!");
+                    return;
+                }
+                throw new IllegalStateException("Could not change SpawnerType");
+            }
+            i18n.sendTranslated(player, NEGATIVE, "You can only change inactive Monster Spawner!");
+        }
     }
 }
