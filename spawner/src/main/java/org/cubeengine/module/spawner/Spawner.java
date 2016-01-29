@@ -162,7 +162,7 @@ public class Spawner extends Module
         }
     }
 
-    @Listener
+    // TODO AbstractMethodError below @Listener
     public void onSpawnerExp(ConstructEntityEvent event)
     {
         if (event.getTargetType().equals(EntityTypes.EXPERIENCE_ORB))
@@ -194,6 +194,7 @@ public class Spawner extends Module
     @Listener(order = POST)
     public void onInteract(InteractBlockEvent.Secondary event, @First Player player)
     {
+        // TODO maybe allow multiple spawner eggs /w same weight
         BlockState state = event.getTargetBlock().getState();
         if (state.getType().equals(MOB_SPAWNER)
          && player.getItemInHand().map(i -> i.getItem().equals(ItemTypes.SPAWN_EGG)).orElse(false))

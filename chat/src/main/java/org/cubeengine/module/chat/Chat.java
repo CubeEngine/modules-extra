@@ -18,7 +18,6 @@
 package org.cubeengine.module.chat;
 
 import javax.inject.Inject;
-import de.cubeisland.engine.modularity.core.marker.Disable;
 import de.cubeisland.engine.modularity.core.marker.Enable;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
@@ -30,11 +29,13 @@ import org.cubeengine.module.chat.listener.ChatFormatListener;
 import org.cubeengine.module.chat.listener.MuteListener;
 import org.cubeengine.module.chat.storage.TableIgnorelist;
 import org.cubeengine.module.chat.storage.TableMuted;
-import org.cubeengine.service.filesystem.FileManager;
+import org.cubeengine.service.database.ModuleTables;
+import org.cubeengine.service.filesystem.ModuleConfig;
 import org.cubeengine.service.i18n.I18n;
 import org.cubeengine.service.event.EventManager;
 import org.cubeengine.service.command.CommandManager;
 import org.cubeengine.service.database.Database;
+import org.cubeengine.service.permission.ModulePermissions;
 import org.cubeengine.service.permission.PermissionManager;
 import org.cubeengine.service.task.TaskManager;
 import org.cubeengine.service.user.Broadcaster;
@@ -46,13 +47,13 @@ import org.spongepowered.api.Game;
  * /tell (msg) Displays a private message to other players.
  */
 @ModuleInfo(name = "Chat", description = "Chat formatting")
+@ModuleTables({TableMuted.class, TableIgnorelist.class})
 public class Chat extends Module
 {
     // TODO tablist-prefix data from subject or other module?
-    private ChatConfig config;
-    private ChatPerm perms;
+    @ModuleConfig private ChatConfig config;
+    @ModulePermissions private ChatPerm perms;
 
-    @Inject private FileManager fm;
     @Inject private EventManager em;
     @Inject private CommandManager cm;
     @Inject private PermissionManager pm;
@@ -65,10 +66,6 @@ public class Chat extends Module
     @Enable
     public void onEnable()
     {
-        this.config = fm.loadConfig(this, ChatConfig.class);
-        this.perms = new ChatPerm(this);
-        db.registerTable(TableMuted.class);
-        db.registerTable(TableIgnorelist.class);
         MuteCommands muteCmd = new MuteCommands(this, db, i18n);
         cm.addCommands(this, muteCmd);
         IgnoreCommands ignoreCmd = new IgnoreCommands(this, db);
@@ -80,14 +77,6 @@ public class Chat extends Module
         AfkCommand afkCmd = new AfkCommand(this, config.autoAfk.after.getMillis(), config.autoAfk.check.getMillis(), bc, tm, em, game);
         cm.addCommands(this, afkCmd);
         cm.addCommands(this, new ChatCommands(this, game, cm, i18n, bc, afkCmd));
-    }
-
-    @Disable
-    public void onDisable()
-    {
-        em.removeListeners(this);
-        cm.removeCommands(this);
-        pm.cleanup(this);
     }
 
     public ChatConfig getConfig()

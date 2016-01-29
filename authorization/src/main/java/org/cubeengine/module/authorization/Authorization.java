@@ -41,6 +41,7 @@ import de.cubeisland.engine.modularity.core.marker.Disable;
 import de.cubeisland.engine.modularity.core.marker.Enable;
 import org.cubeengine.module.authorization.storage.Auth;
 import org.cubeengine.module.authorization.storage.TableAuth;
+import org.cubeengine.service.database.ModuleTables;
 import org.cubeengine.service.event.EventManager;
 import org.cubeengine.module.core.util.StringUtils;
 import org.cubeengine.module.core.util.Triplet;
@@ -48,7 +49,9 @@ import org.cubeengine.service.command.CommandManager;
 import org.cubeengine.service.database.Database;
 import org.cubeengine.service.filesystem.FileManager;
 import org.cubeengine.service.filesystem.FileUtil;
+import org.cubeengine.service.filesystem.ModuleConfig;
 import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.service.permission.ModulePermissions;
 import org.cubeengine.service.permission.PermissionManager;
 import org.jooq.DSLContext;
 import org.spongepowered.api.Game;
@@ -61,6 +64,7 @@ import org.spongepowered.api.service.user.UserStorageService;
 import static org.cubeengine.module.authorization.storage.TableAuth.TABLE_AUTH;
 
 @ModuleInfo(name = "Authorization", description = "Provides password authorization")
+@ModuleTables(TableAuth.class)
 public class Authorization extends Module
 {
     @Inject private FileManager fm;
@@ -72,8 +76,8 @@ public class Authorization extends Module
     @Inject private Database db;
     @Inject private EventManager em;
 
-    private AuthPerms perms;
-    private AuthConfiguration config;
+    @ModulePermissions private AuthPerms perms;
+    @ModuleConfig private AuthConfiguration config;
 
     private final MessageDigest messageDigest;
     private String salt;
@@ -95,21 +99,8 @@ public class Authorization extends Module
     @Enable
     public void onEnable()
     {
-        db.registerTable(TableAuth.class);
-
         loadSalt();
-
-        perms = new AuthPerms(this);
-        config = fm.loadConfig(this, AuthConfiguration.class);
-        cm.addCommands(this, new AuthCommands(this, game, i18n));
-    }
-
-
-    @Disable
-    public void onDisable()
-    {
-        cm.removeCommands(this);
-        pm.cleanup(this);
+        cm.addCommands(this, new AuthCommands(this, game, i18n, config));
     }
 
     private void loadSalt()
@@ -270,14 +261,8 @@ public class Authorization extends Module
         loggedIn.clear();
     }
 
-
     public AuthPerms perms()
     {
         return perms;
-    }
-
-    public AuthConfiguration getConfig()
-    {
-        return config;
     }
 }

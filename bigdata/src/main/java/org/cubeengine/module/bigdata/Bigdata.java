@@ -32,6 +32,7 @@ import org.apache.logging.log4j.core.Logger;
 import org.bson.Document;
 import org.cubeengine.module.bigdata.MongoDBConfiguration.Authentication;
 import org.cubeengine.service.filesystem.FileManager;
+import org.cubeengine.service.filesystem.ModuleConfig;
 
 import javax.inject.Inject;
 import java.net.InetAddress;
@@ -47,15 +48,12 @@ import static org.apache.logging.log4j.Level.WARN;
 @ModuleInfo(name = "BigData", description = "Provides serialization to a MongoDB")
 public class Bigdata extends Module
 {
+    @ModuleConfig private MongoDBConfiguration config;
     private MongoClient mongoClient;
-    private MongoDBConfiguration config;
-
-    @Inject private FileManager fm;
 
     @Enable
-    public void onLoad()
+    public void onEnable()
     {
-        this.config = fm.loadConfig(this, MongoDBConfiguration.class);
         try
         {
             ((Logger) LogManager.getLogger("org.mongodb.driver.connection")).setLevel(WARN);

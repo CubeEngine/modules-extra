@@ -37,6 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.inject.Inject;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.gson.internal.$Gson$Preconditions;
 import de.cubeisland.engine.logscribe.LogFactory;
 import de.cubeisland.engine.modularity.core.Maybe;
 import de.cubeisland.engine.modularity.core.marker.Enable;
@@ -52,7 +53,6 @@ import org.cubeengine.module.core.CoreModule;
 import org.cubeengine.module.core.util.StringUtils;
 import org.cubeengine.service.permission.PermissionManager;
 import org.cubeengine.service.task.TaskManager;
-import org.cubeengine.service.user.UserManager;
 import org.cubeengine.service.webapi.exception.ApiStartupException;
 import de.cubeisland.engine.logscribe.Log;
 import de.cubeisland.engine.logscribe.target.file.AsyncFileTarget;
@@ -65,7 +65,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 
-import static org.cubeengine.module.core.util.contract.Contract.expectNotNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Locale.ENGLISH;
 
 /**
@@ -104,7 +104,6 @@ public class ApiServer
     @Inject private CommandManager cm;
     @Inject private I18n i18n;
     @Inject private TaskManager tm;
-    @Inject private UserManager um;
     @Inject private PermissionManager pm;
     @Inject private Maybe<Authorization> am;
     private CoreModule module;
@@ -159,7 +158,7 @@ public class ApiServer
 
     public void configure(final ApiConfig config)
     {
-        expectNotNull(config, "The config must not be null!");
+        checkNotNull(config, "The config must not be null!");
 
         try
         {
@@ -204,7 +203,7 @@ public class ApiServer
                 this.eventLoopGroup.set(new NioEventLoopGroup(this.maxThreads.get(), this.module.getProvided(ThreadFactory.class)));
                 serverBootstrap.group(this.eventLoopGroup.get())
                     .channel(NioServerSocketChannel.class)
-                    .childHandler(new ApiServerInitializer(cm, um, am, this))
+                    .childHandler(new ApiServerInitializer(cm, am, this))
                     .localAddress(this.bindAddress.get(), this.port.get());
 
                 this.bootstrap.set(serverBootstrap);
@@ -258,7 +257,7 @@ public class ApiServer
 
     public void registerApiHandlers(final Module owner, final Object holder)
     {
-        expectNotNull(holder, "The API holder must not be null!");
+        checkNotNull(holder, "The API holder must not be null!");
 
         for (Method method : holder.getClass().getDeclaredMethods())
         {
@@ -382,7 +381,7 @@ public class ApiServer
      */
     public void setBindAddress(InetAddress address)
     {
-        expectNotNull(address, "The address must not be null!");
+        checkNotNull(address, "The address must not be null!");
 
         this.bindAddress.set(address);
     }
@@ -537,7 +536,7 @@ public class ApiServer
 
     public void setWhitelist(Set<InetAddress> newWhitelist)
     {
-        expectNotNull(newWhitelist, "The whitelist must not be null!");
+        checkNotNull(newWhitelist, "The whitelist must not be null!");
         // TODO Validate.noNullElements(newWhitelist, "The whitelist must not contain null values!");
 
         this.whitelist.clear();
@@ -604,7 +603,7 @@ public class ApiServer
 
     public void setBlacklist(Set<InetAddress> newBlacklist)
     {
-        expectNotNull(newBlacklist, "The blacklist must not be null!");
+        checkNotNull(newBlacklist, "The blacklist must not be null!");
         // TODO Validate.noNullElements(newBlacklist, "The blacklist must not contain null values!");
 
         this.blacklist.clear();
@@ -650,7 +649,7 @@ public class ApiServer
 
     public void setAuthorizedList(Set<InetAddress> newAuthorizedlist)
     {
-        expectNotNull(newAuthorizedlist, "The autorizedlist must not be null!");
+        checkNotNull(newAuthorizedlist, "The autorizedlist must not be null!");
         // TODO Validate.noNullElements(newAuthorizedlist, "The autorizedlist must not contain null values!");
 
         this.authorizedList.clear();
@@ -687,8 +686,8 @@ public class ApiServer
 
     public void subscribe(String event, WebSocketRequestHandler requestHandler)
     {
-        expectNotNull(event, "The event name must not be null!");
-        expectNotNull(requestHandler, "The request handler must not be null!");
+        checkNotNull(event, "The event name must not be null!");
+        checkNotNull(requestHandler, "The request handler must not be null!");
         event = event.toLowerCase(ENGLISH);
 
         Set<WebSocketRequestHandler> subscribedHandlers = this.subscriptions.get(event);
@@ -718,7 +717,7 @@ public class ApiServer
 
     public void unsubscribe(String event)
     {
-        expectNotNull(event, "The event name must not be null!");
+        checkNotNull(event, "The event name must not be null!");
         event = event.toLowerCase(ENGLISH);
 
         this.subscriptions.remove(event);
@@ -726,7 +725,7 @@ public class ApiServer
 
     public void unsubscribe(WebSocketRequestHandler handler)
     {
-        expectNotNull(handler, "The event name must not be null!");
+        checkNotNull(handler, "The event name must not be null!");
 
         Iterator<Map.Entry<String, Set<WebSocketRequestHandler>>> iter = this.subscriptions.entrySet().iterator();
 
@@ -744,7 +743,7 @@ public class ApiServer
 
     public void fireEvent(String event, ObjectNode data)
     {
-        expectNotNull(event, "The event name must not be null!");
+        checkNotNull(event, "The event name must not be null!");
         event = event.toLowerCase(ENGLISH);
 
         Set<WebSocketRequestHandler> subscribedHandlers = this.subscriptions.get(event);

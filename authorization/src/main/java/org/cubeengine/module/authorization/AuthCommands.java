@@ -26,6 +26,7 @@ import org.cubeengine.butler.parametric.Optional;
 import org.cubeengine.service.command.CommandContext;
 import org.cubeengine.service.command.annotation.CommandPermission;
 import org.cubeengine.service.command.annotation.Unloggable;
+import org.cubeengine.service.filesystem.ModuleConfig;
 import org.cubeengine.service.i18n.I18n;
 import org.cubeengine.service.user.UserList;
 import org.spongepowered.api.Game;
@@ -48,15 +49,17 @@ public class AuthCommands
 {
     private final Authorization module;
     private final Game game;
+    private AuthConfiguration config;
     private final BanService bs;
     private I18n i18n;
 
     private final ConcurrentHashMap<UUID, Long> fails = new ConcurrentHashMap<>();
 
-    public AuthCommands(Authorization module, Game game, I18n i18n)
+    public AuthCommands(Authorization module, Game game, I18n i18n, AuthConfiguration config)
     {
         this.module = module;
         this.game = game;
+        this.config = config;
         this.bs = game.getServiceManager().provideUnchecked(BanService.class);
         this.i18n = i18n;
     }
@@ -124,7 +127,6 @@ public class AuthCommands
             return;
         }
         i18n.sendTranslated(context, NEGATIVE, "Wrong password!");
-        AuthConfiguration config = this.module.getConfig();
         if (config.fail2ban)
         {
             if (fails.get(context.getUniqueId()) != null)

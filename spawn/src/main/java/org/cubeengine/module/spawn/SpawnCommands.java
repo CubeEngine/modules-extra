@@ -25,6 +25,8 @@ import org.cubeengine.butler.parametric.Named;
 import org.cubeengine.butler.parametric.Optional;
 import org.cubeengine.butler.parameter.TooFewArgumentsException;
 import org.cubeengine.service.command.CommandSender;
+import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.service.i18n.formatter.MessageType;
 import org.cubeengine.service.user.User;
 import org.cubeengine.module.core.util.StringUtils;
 import org.cubeengine.module.core.util.math.BlockVector3;
@@ -42,26 +44,30 @@ import org.bukkit.World;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.spongepowered.api.world.World;
 
+import static org.cubeengine.service.i18n.formatter.MessageType.CRITICAL;
+import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
+
 public class SpawnCommands
 {
-    private final Roles roles;
     private final Spawn module;
+    private I18n i18n;
 
-    public SpawnCommands(Roles roles, Spawn module)
+    public SpawnCommands(Spawn module, I18n i18n)
     {
-        this.roles = roles;
         this.module = module;
+        this.i18n = i18n;
         manager = roles.getRolesManager();
     }
 
     @Command(desc = "Changes the respawnpoint")
-    public void setRoleSpawn(CommandSender context, @Complete(RoleCompleter.class) String role, @Default World world, @Optional Double x, @Optional Double y, @Optional Double z)
+    public void setRoleSpawn(CommandSource context, @Complete(RoleCompleter.class) String role, @Default World world, @Optional Double x, @Optional Double y, @Optional Double z)
     {
         float yaw = 0;
         float pitch = 0;
         if (z == null)
         {
-            if (!(context instanceof User))
+            if (!(context instanceof Player))
             {
                 throw new TooFewArgumentsException();
             }
@@ -75,11 +81,11 @@ public class SpawnCommands
         Role r = manager.getProvider(world).getRole(role);
         if (r == null)
         {
-            context.sendTranslated(NEGATIVE, "Could not find the role {input} in {world}!", role, world);
+            i18n.sendTranslated(context, NEGATIVE, "Could not find the role {input} in {world}!", role, world);
             return;
         }
         setRoleSpawn(world, x, y, z, yaw, pitch, r);
-        context.sendTranslated(POSITIVE, "The spawn in {world} for the role {name#role} is now set to {vector}", world, r.getName(), new BlockVector3(x.intValue(),y.intValue(),z.intValue()));
+        i18n.sendTranslated(context, POSITIVE, "The spawn in {world} for the role {name#role} is now set to {vector}", world, r.getName(), new BlockVector3(x.intValue(),y.intValue(),z.intValue()));
     }
 
     private void setRoleSpawn(World world, Double x, Double y, Double z, float yaw, float pitch, Role role)
@@ -121,10 +127,10 @@ public class SpawnCommands
             spawnLocation.setYaw(playerLocation.getYaw());
             if (!this.tpTo(player, spawnLocation, force))
             {
-                context.sendTranslated(NEGATIVE, "Teleport failed!");
+                i18n.sendTranslated(context, NEGATIVE, "Teleport failed!");
                 return;
             }
-            context.sendTranslated(POSITIVE, "You are now standing at the spawn in {world}!", world);
+            i18n.sendTranslated(context, POSITIVE, "You are now standing at the spawn in {world}!", world);
             return;
         }
 
@@ -135,7 +141,7 @@ public class SpawnCommands
             r = manager.getProvider(world).getRole(role);
             if (r == null)
             {
-                context.sendTranslated(NEGATIVE, "Could not find the role {input} in {world}!", role, world);
+                i18n.sendTranslated(context, NEGATIVE, "Could not find the role {input} in {world}!", role, world);
                 return;
             }
         }
@@ -153,14 +159,14 @@ public class SpawnCommands
         String roleName = rolespawn == null ? r.getName() : rolespawn.getOrigin().getName();
         if (rolespawn == null || rolespawn.getValue() == null)
         {
-            context.sendTranslated(NEGATIVE, "No spawn point for {name} in {world}!", roleName, world);
+            i18n.sendTranslated(context, NEGATIVE, "No spawn point for {name} in {world}!", roleName, world);
             return;
         }
         roleSpawn = rolespawn.getValue();
         Location spawnLocation = this.getSpawnLocation(roleSpawn);
         if (spawnLocation == null)
         {
-            context.sendTranslated(CRITICAL, "Invalid spawn location for {name} in {world}!", roleName, world);
+            i18n.sendTranslated(context, CRITICAL, "Invalid spawn location for {name} in {world}!", roleName, world);
             context.sendMessage(roleSpawn);
         }
 
@@ -168,30 +174,30 @@ public class SpawnCommands
 
         if (!player.isOnline())
         {
-            context.sendTranslated(NEGATIVE, "You cannot teleport an offline player to spawn!");
+            i18n.sendTranslated(context, NEGATIVE, "You cannot teleport an offline player to spawn!");
             return;
         }
         if (!context.equals(player) && !force && module.perms().COMMAND_SPAWN_PREVENT.isAuthorized(player))
         {
-            context.sendTranslated(NEGATIVE, "You are not allowed to spawn {user}!", player);
+            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to spawn {user}!", player);
             return;
         }
         if (!this.tpTo(player, spawnLocation, force))
         {
-            context.sendTranslated(NEGATIVE, "Teleport failed!");
+            i18n.sendTranslated(context, NEGATIVE, "Teleport failed!");
             return;
         }
         if (!context.equals(player))
         {
-            context.sendTranslated(POSITIVE, "Teleported {user} to the spawn of the role {name#role} in {world}", player, roleName, world);
+            i18n.sendTranslated(context, POSITIVE, "Teleported {user} to the spawn of the role {name#role} in {world}", player, roleName, world);
         }
         else if (role == null)
         {
-            context.sendTranslated(POSITIVE, "You are now standing at your role's spawn in {world}!", world);
+            i18n.sendTranslated(context, POSITIVE, "You are now standing at your role's spawn in {world}!", world);
         }
         else
         {
-            context.sendTranslated(POSITIVE, "You are now standing at the spawn of {name#role} in {world}!", roleName, world);
+            i18n.sendTranslated(context, POSITIVE, "You are now standing at the spawn of {name#role} in {world}!", roleName, world);
         }
     }
 

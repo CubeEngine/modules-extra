@@ -29,7 +29,6 @@ import java.util.Optional;
 import de.cubeisland.engine.modularity.core.Maybe;
 import org.cubeengine.module.authorization.Authorization;
 import org.cubeengine.service.command.CommandManager;
-import org.cubeengine.service.user.UserManager;
 import org.cubeengine.service.webapi.exception.ApiRequestException;
 import de.cubeisland.engine.logscribe.Log;
 import io.netty.buffer.ByteBuf;
@@ -59,13 +58,11 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
     private Maybe<Authorization> am;
     private final ApiServer server;
     private final CommandManager cm;
-    private final UserManager um;
     private ObjectMapper objectMapper;
 
-    HttpRequestHandler(CommandManager cm, UserManager um, Maybe<Authorization> am, ApiServer server, ObjectMapper mapper)
+    HttpRequestHandler(CommandManager cm, Maybe<Authorization> am, ApiServer server, ObjectMapper mapper)
     {
         this.cm = cm;
-        this.um = um;
         this.am = am;
         this.server = server;
         this.objectMapper = mapper;
