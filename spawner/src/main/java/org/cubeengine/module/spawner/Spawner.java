@@ -29,11 +29,14 @@ import de.cubeisland.engine.modularity.core.marker.Enable;
 import org.cubeengine.service.event.EventManager;
 import org.cubeengine.service.i18n.I18n;
 import org.cubeengine.service.permission.PermissionManager;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.manipulator.DataManipulatorBuilder;
+import org.spongepowered.api.data.manipulator.mutable.MobSpawnerData;
 import org.spongepowered.api.data.meta.ItemEnchantment;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
@@ -147,6 +150,7 @@ public class Spawner extends Module
             breaks(event, MOB_SPAWNER))
         {
             ItemStack clone = spawnerItem.copy();
+            clone.offer(Keys.ITEM_ENCHANTMENTS, singletonList(new ItemEnchantment(Enchantments.LURE, 1)));
             clone.offer(Keys.DISPLAY_NAME, i18n.getTranslation(player, NONE, "Inactive Monster Spawner"));
 
             Optional<Entity> item = player.getWorld().createEntity(ITEM, player.getLocation().getPosition());

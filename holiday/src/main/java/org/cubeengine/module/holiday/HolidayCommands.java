@@ -26,65 +26,69 @@ import org.cubeengine.butler.parametric.Optional;
 import de.cubeisland.engine.converter.ConversionException;
 import de.cubeisland.engine.converter.node.StringNode;
 import org.cubeengine.service.command.ContainerCommand;
-import org.cubeengine.service.command.CommandSender;
-import org.cubeengine.service.user.User;
-import org.cubeengine.module.core.util.converter.DurationConverter;
 import org.cubeengine.module.holiday.storage.HolidayModel;
+import org.cubeengine.service.converter.DurationConverter;
+import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.service.i18n.formatter.MessageType;
 import org.jooq.DSLContext;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 
 import static org.cubeengine.butler.parameter.Parameter.INFINITE;
-import org.cubeengine.service.user.TableUser.TABLE_USER;
 import static org.cubeengine.module.holiday.storage.TableHoliday.TABLE_HOLIDAY;
+import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.service.i18n.formatter.MessageType.NEUTRAL;
+import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
 
 @Command(name = "holiday", desc = "Manages your holiday ")
 public class HolidayCommands extends ContainerCommand
 {
     private final DurationConverter converter = new DurationConverter();
     private final DSLContext dsl;
+    private I18n i18n;
 
-    public HolidayCommands(Holiday module)
+    public HolidayCommands(Holiday module, DSLContext dsl, I18n i18n)
     {
         super(module);
-        dsl = module.getCore().getDB().getDSL();
+        this.dsl = dsl;
+        this.i18n = i18n;
     }
 
     @Command(name = "for", desc = "Starts your holiday and kicks you from the server")
     @Restricted(User.class)
-    public void forCommand(User context, String duration, @Optional @Greed(INFINITE) String reason)
+    public void forCommand(Player context, String duration, @Optional @Greed(INFINITE) String reason)
     {
         try
         {
             Date toDate = new Date(System.currentTimeMillis() + converter.fromNode(StringNode.of(duration)).getMillis());
-            HolidayModel model = dsl.selectFrom(TABLE_HOLIDAY).where(TABLE_HOLIDAY.USERID.eq(context.getEntity().getId())).fetchOne();
+            HolidayModel model = dsl.selectFrom(TABLE_HOLIDAY).where(TABLE_HOLIDAY.USERID.eq(
+                context.getUniqueId())).fetchOne();
             if (model == null)
             {
                 model = dsl.newRecord(TABLE_HOLIDAY);
-                model.setValue(TABLE_HOLIDAY.USERID, context.getEntity().getId());
+                model.setValue(TABLE_HOLIDAY.USERID, context.getUniqueId());
             }
             model.setValue(TABLE_HOLIDAY.FROM, new Date(System.currentTimeMillis()));
             model.setValue(TABLE_HOLIDAY.TO, toDate);
             model.setValue(TABLE_HOLIDAY.REASON, reason);
             model.store();
 
-            context.getEntity().setValue(TABLE_USER.NOGC, false);
-            context.getEntity().updateAsync();
-
-            context.kick(context.getTranslation(NEUTRAL, "You are now on holiday. See you later!"));
+            context.kick(i18n.getTranslation(context, NEUTRAL, "You are now on holiday. See you later!"));
         }
         catch (ConversionException e)
         {
-            context.sendTranslated(NEGATIVE, "Invalid duration format!");
+            i18n.sendTranslated(context, NEGATIVE, "Invalid duration format!");
         }
     }
 
     @Command(desc = "Checks the holiday status of a player")
-    public void check(CommandSender context, User player)
+    public void check(CommandSource context, User player)
     {
-        HolidayModel model = dsl.selectFrom(TABLE_HOLIDAY).where(TABLE_HOLIDAY.USERID.eq(
-            player.getEntity().getId())).fetchOne();
+        HolidayModel model = dsl.selectFrom(TABLE_HOLIDAY).where(TABLE_HOLIDAY.USERID.eq(player.getUniqueId())).fetchOne();
         if (model == null)
         {
-            context.sendTranslated(NEUTRAL, "{user} is not on holiday!", player);
+            i18n.sendTranslated(context, NEUTRAL, "{user} is not on holiday!", player);
             return;
         }
         DateFormat df = DateFormat.getDateInstance(DateFormat.DEFAULT, context.getLocale());
@@ -92,16 +96,16 @@ public class HolidayCommands extends ContainerCommand
         String dateFrom = df.format(model.getValue(TABLE_HOLIDAY.FROM));
         if (model.getValue(TABLE_HOLIDAY.TO).getTime() >= System.currentTimeMillis())
         {
-            context.sendTranslated(POSITIVE, "{user} is on holiday from {input#date} to {input#date}", player, dateFrom, dateTo);
+            i18n.sendTranslated(context, POSITIVE, "{user} is on holiday from {input#date} to {input#date}", player, dateFrom, dateTo);
         }
         else
         {
-            context.sendTranslated(POSITIVE, "{user} was on holiday from {input#date} to {input#date}", player, dateFrom, dateTo);
+            i18n.sendTranslated(context, POSITIVE, "{user} was on holiday from {input#date} to {input#date}", player, dateFrom, dateTo);
         }
         String reason = model.getValue(TABLE_HOLIDAY.REASON);
         if (reason != null)
         {
-            context.sendTranslated(POSITIVE, "Reason: {input}", reason);
+            i18n.sendTranslated(context, POSITIVE, "Reason: {input}", reason);
         }
     }
 }

@@ -17,32 +17,24 @@
  */
 package org.cubeengine.module.fly;
 
-import de.cubeisland.engine.module.core.Core;
-import org.cubeengine.service.user.User;
-import org.cubeengine.service.user.UserEvent;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.HandlerList;
+import de.cubeisland.engine.modularity.core.Module;
+import org.cubeengine.service.event.CubeEvent;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.Cancellable;
+import org.spongepowered.api.event.cause.Cause;
 
-public class FlyStartEvent extends UserEvent implements Cancellable
+public class FlyStartEvent extends CubeEvent implements Cancellable
 {
-    private static final HandlerList handlers = new HandlerList();
-
-    public HandlerList getHandlers()
-    {
-        return handlers;
-    }
-
-    public static HandlerList getHandlerList()
-    {
-        return handlers;
-    }
-
-    public FlyStartEvent(Core core, User user)
-    {
-        super(core, user);
-    }
-
+    private final Cause cause;
     private boolean cancelled;
+    private final Player player;
+
+    public FlyStartEvent(Module module, Player player)
+    {
+        super(module);
+        this.player = player;
+        this.cause = Cause.of(player);
+    }
 
     @Override
     public boolean isCancelled()
@@ -54,5 +46,16 @@ public class FlyStartEvent extends UserEvent implements Cancellable
     public void setCancelled(boolean bln)
     {
         this.cancelled = bln;
+    }
+
+    @Override
+    public Cause getCause()
+    {
+        return cause;
+    }
+
+    public Player getPlayer()
+    {
+        return player;
     }
 }

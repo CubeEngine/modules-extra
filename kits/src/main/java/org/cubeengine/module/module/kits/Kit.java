@@ -36,6 +36,7 @@ import org.jooq.DSLContext;
 import org.jooq.Record1;
 import org.jooq.ResultQuery;
 import org.jooq.exception.DataAccessException;
+import org.spongepowered.api.service.permission.PermissionDescription;
 import org.spongepowered.api.text.Text.Translatable;
 import org.spongepowered.api.text.format.BaseFormatting;
 
@@ -58,7 +59,7 @@ public class Kit
     private boolean giveKitOnFirstJoin;
     private int limitUsagePerPlayer;
     private long limitUsageDelay;
-    private Permission permission;
+    private PermissionDescription permission;
     private String customMessage;
     private List<String> commands;
     private DSLContext dsl;

@@ -17,31 +17,29 @@
  */
 package org.cubeengine.module.module.kits;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import de.cubeisland.engine.module.core.storage.database.Table;
-import de.cubeisland.engine.module.core.storage.database.TableUpdateCreator;
+import java.util.UUID;
 import org.cubeengine.module.core.util.Version;
+import org.cubeengine.service.database.Database;
+import org.cubeengine.service.database.Table;
 import org.jooq.TableField;
-import org.jooq.types.UInteger;
+import org.jooq.impl.SQLDataType;
 
-import org.cubeengine.service.user.TableUser.TABLE_USER;
 import static org.jooq.impl.SQLDataType.INTEGER;
 import static org.jooq.impl.SQLDataType.VARCHAR;
 
-public class TableKitsGiven extends Table<KitsGiven> implements TableUpdateCreator<KitsGiven>
+public class TableKitsGiven extends Table<KitsGiven>
 {
     public static TableKitsGiven TABLE_KITS;
-    public final TableField<KitsGiven, UInteger> USERID = createField("userId", U_INTEGER.nullable(false), this);
+    public final TableField<KitsGiven, UUID> USERID = createField("userId", SQLDataType.UUID.length(36).nullable(false),
+                                                                  this);
     public final TableField<KitsGiven, String> KITNAME = createField("kitName", VARCHAR.length(50).nullable(false),
                                                                      this);
     public final TableField<KitsGiven, Integer> AMOUNT = createField("amount", INTEGER.nullable(false), this);
 
-    public TableKitsGiven(String prefix)
+    public TableKitsGiven(String prefix, Database db)
     {
-        super(prefix + "kits", new Version(1,1));
+        super(prefix + "kits", new Version(1,1), db);
         this.setPrimaryKey(USERID, KITNAME);
-        this.addForeignKey(TABLE_USER.getPrimaryKey(), USERID);
         this.addFields(USERID, KITNAME, AMOUNT);
         TABLE_KITS = this;
     }
@@ -52,12 +50,4 @@ public class TableKitsGiven extends Table<KitsGiven> implements TableUpdateCreat
         return KitsGiven.class;
     }
 
-    @Override
-    public void update(Connection connection, Version dbVersion) throws SQLException
-    {
-        if (dbVersion.getMajor() == 1 && dbVersion.getMinor() == 0)
-        {
-            connection.prepareStatement("ALTER TABLE cube_kits DROP PRIMARY KEY, ADD PRIMARY KEY (userId, kitName)").execute();
-        }
-    }
 }

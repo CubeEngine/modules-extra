@@ -233,7 +233,7 @@ public abstract class BaseAction extends ReflectedDBObject implements Comparable
 
         public Coordinate(Location loc)
         {
-            this.world = new ConfigWorld(CubeEngine.getCore().getWorldManager(), loc.getWorld());
+            this.world = new ConfigWorld(loc.getWorld());
             this.worldUUID = loc.getWorld().getUID();
             this.vector = new Block3DVector(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
         }

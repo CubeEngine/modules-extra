@@ -17,20 +17,27 @@
  */
 package org.cubeengine.module.fly;
 
-import de.cubeisland.engine.module.core.module.Module;
+import javax.inject.Inject;
+import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.modularity.core.marker.Enable;
+import org.cubeengine.service.event.EventManager;
+import org.cubeengine.service.filesystem.ModuleConfig;
+import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.service.permission.PermissionManager;
 
 public class Fly extends Module
 {
-    private FlyConfig config;
+    @ModuleConfig private FlyConfig config;
+    @Inject private PermissionManager pm;
+    @Inject private EventManager em;
+    @Inject private I18n i18n;
 
-    @Override
+    @Enable
     public void onEnable()
     {
-        this.config = this.loadConfig(FlyConfig.class);
         if (this.config.flyfeather)
         {
-            this.getCore().getEventManager().registerListener(this, new FlyListener(this));
+            em.registerListener(this, new FlyListener(this, pm, i18n));
         }
-        //this.getCore().getFileManager().dropResources(FlyResource.values());
     }
 }

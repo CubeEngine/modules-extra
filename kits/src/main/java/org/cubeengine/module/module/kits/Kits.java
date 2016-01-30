@@ -17,35 +17,44 @@
  */
 package org.cubeengine.module.module.kits;
 
-import de.cubeisland.engine.module.core.module.Module;
+import javax.inject.Inject;
+import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
+import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.modularity.core.marker.Enable;
+import de.cubeisland.engine.reflect.Reflector;
+import org.cubeengine.service.command.CommandManager;
+import org.cubeengine.service.database.ModuleTables;
+import org.cubeengine.service.permission.ModulePermissions;
 
+@ModuleInfo(name = "Kits", description = "Hand kits to your players")
+@ModuleTables(TableKitsGiven.class)
 public class Kits extends Module
 {
     private KitManager kitManager;
 
-    public KitsPerm perms()
+    @ModulePermissions private KitsPerm perms;
+
+    @Inject private CommandManager cm;
+    @Inject
+    public Kits(Reflector reflector)
     {
-        return perms;
+        reflector.getDefaultConverterManager().registerConverter(new KitItemConverter(), KitItem.class);
     }
 
-    private KitsPerm perms;
-
-    @Override
+    @Enable
     public void onEnable()
     {
-        getCore().getDB().registerTable(TableKitsGiven.class);
-        this.getCore().getConfigFactory().getDefaultConverterManager().
-            registerConverter(new KitItemConverter(), KitItem.class);
-
         this.kitManager = new KitManager(this);
-        perms = new KitsPerm(this);
         this.kitManager.loadKits();
-        this.getCore().getUserManager().addDefaultAttachment(KitsAttachment.class, this);
-        getCore().getCommandManager().addCommand(new KitCommand(this));
+        cm.addCommand(new KitCommand(this));
     }
 
     public KitManager getKitManager()
     {
         return this.kitManager;
+    }
+    public KitsPerm perms()
+    {
+        return perms;
     }
 }

@@ -17,8 +17,8 @@
  */
 package org.cubeengine.module.powertools;
 
-import de.cubeisland.engine.service.permission.Permission;
 import org.cubeengine.service.permission.PermissionContainer;
+import org.spongepowered.api.service.permission.PermissionDescription;
 
 @SuppressWarnings("all")
 public class PowertoolsPerm extends PermissionContainer<Powertools>
@@ -26,9 +26,8 @@ public class PowertoolsPerm extends PermissionContainer<Powertools>
     public PowertoolsPerm(Powertools module)
     {
         super(module);
-        this.registerAllPermissions();
     }
 
-    public final Permission POWERTOOL_USE = getBasePerm().child("use");
+    public final PermissionDescription POWERTOOL_USE = register("use", "Allows the usage of Powertools", null);
 }
 

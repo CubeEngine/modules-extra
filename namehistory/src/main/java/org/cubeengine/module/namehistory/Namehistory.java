@@ -19,90 +19,71 @@ package org.cubeengine.module.namehistory;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import javax.inject.Inject;
+import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
+import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.modularity.core.marker.Enable;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Default;
 import org.cubeengine.service.command.CommandManager;
-import org.cubeengine.service.command.CommandSender;
-import de.cubeisland.engine.module.core.module.Module;
-import org.cubeengine.service.user.TableUser;
-import org.cubeengine.service.user.User;
-import de.cubeisland.engine.service.user.UserLoadedEvent;
-import org.cubeengine.module.core.util.McUUID;
-import org.cubeengine.module.core.util.McUUID.NameEntry;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
+import org.cubeengine.service.event.EventManager;
+import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.service.i18n.formatter.MessageType;
+import org.cubeengine.service.user.Broadcaster;
 import org.jooq.DSLContext;
-import org.jooq.ResultQuery;
-import org.jooq.SelectSeekStep1;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.profile.GameProfileManager;
 
-import static org.cubeengine.module.namehistory.TableNameHistory.TABLE_NAMEHISTORY;
+import static org.cubeengine.service.i18n.formatter.MessageType.*;
 
-public class Namehistory extends Module implements Listener
+@ModuleInfo(name = "Namehistory", description = "Tracks users changing names on your server")
+public class Namehistory extends Module
 {
-    @Override
+    @Inject private EventManager em;
+    @Inject private CommandManager cm;
+    @Inject private Broadcaster bc;
+    @Inject private I18n i18n;
+
+    @Enable
     public void onEnable()
     {
-        this.getCore().getEventManager().registerListener(this, this);
-        this.getCore().getDB().registerTable(TableNameHistory.class);
-
-        CommandManager cm = this.getCore().getCommandManager();
-        cm.addCommands(cm, this, this);
+        em.registerListener(this, this);
+        cm.addCommands(this, this);
     }
 
-    @EventHandler
-    public void onJoin(UserLoadedEvent event)
+    @Listener
+    public void onJoin(ClientConnectionEvent.Join event, @First Player player)
     {
-        DSLContext dsl = getCore().getDB().getDSL();
-        User user = event.getUser();
-        SelectSeekStep1<NameHistoryEntry, Date> query = dsl.selectFrom(TABLE_NAMEHISTORY)
-                   .where(TABLE_NAMEHISTORY.USERID.eq(user.getEntity().getId()))
-                   .orderBy(TABLE_NAMEHISTORY.CHANGED_AT.desc());
-        getCore().getDB().queryOne(query.limit(1)).thenAccept(entry -> {
-            if (entry == null || entry.getValue(TABLE_NAMEHISTORY.CHANGED_AT).getTime() > user.getLastPlayed()
-                  || !entry.getValue(TABLE_NAMEHISTORY.NAME).equals(user.getName()))
-            {
-                NameEntry[] nameHistory = McUUID.getNameHistory(user.getUniqueId());
-                for (NameEntry nameEntry : nameHistory)
-                {
-                    dsl.insertInto(TABLE_NAMEHISTORY).values(user.getEntity().getId(), nameEntry.name, new Date(nameEntry.changedToAt))
-                       .onDuplicateKeyIgnore().execute();
-                }
-                entry = query.limit(1).fetchOne();
-            }
-            if (entry == null)
-            {
-                getLog().warn("Could not get NameHistory for {}", user.getName());
-                return;
-            }
-
-            if (entry.getValue(TABLE_NAMEHISTORY.CHANGED_AT).getTime() > user.getEntity().getValue(TableUser.TABLE_USER.LASTSEEN).getTime())
-            {
-                entry = query.limit(1, 1).fetchOne();
-                getCore().getUserManager().broadcastMessage(POSITIVE, "{name} was renamed to {user}", entry.getValue(TABLE_NAMEHISTORY.NAME), user);
-            }
-        });
+        // TODO get nameHistory from Sponge
+        if (changed in last x days configurable)
+        {
+            bc.broadcastMessage(POSITIVE, "{name} was renamed to {user}", lastName, player);
+        }
     }
 
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     @Command(desc = "Shows the namehistory of a player")
-    public void namehistory(CommandSender context, @Default User player)
+    public void namehistory(CommandSource context, @Default User player)
     {
-        ResultQuery<NameHistoryEntry> query = getCore().getDB().getDSL().selectFrom(TABLE_NAMEHISTORY).where(
-            TABLE_NAMEHISTORY.USERID.eq(player.getEntity().getId())).orderBy(TABLE_NAMEHISTORY.CHANGED_AT.desc());
-        getCore().getDB().query(query).thenAccept(result -> {
-            if (result.isEmpty())
-            {
-                context.sendTranslated(NEGATIVE, "No NameHistory available for {user}", player);
-                return;
-            }
-            context.sendTranslated(POSITIVE, "The following names were known for {user}", player);
-            for (NameHistoryEntry entry : result)
-            {
-                Date value = entry.getValue(TABLE_NAMEHISTORY.CHANGED_AT);
-                context.sendTranslated(NEUTRAL," - {user} since {input}", entry.getValue(TABLE_NAMEHISTORY.NAME),
-                    value.getTime() <= 0 ? context.getTranslation(NONE, "account creation") : sdf.format(value));
-            }
-        });
+        // TODO get nameHistory from Sponge
+
+        if (isEmpty)
+        {
+            i18n.sendTranslated(context,  NEGATIVE, "No NameHistory available for {user}", player);
+            return;
+        }
+        i18n.sendTranslated(context, POSITIVE, "The following names were known for {user}", player);
+
+        i18n.sendTranslated(context, NEUTRAL," - {user} since {input}",
+                            entry.getValue(TABLE_NAMEHISTORY.NAME), 0 >= value.getTime() ?
+                               i18n.getTranslation(context, NONE, "account creation") :
+                               sdf.format(value));
     }
 }

@@ -25,5 +25,5 @@ import org.bukkit.Bukkit;
 @SuppressWarnings("all")
 public class SpawnConfig extends ReflectedYaml
 {
-    public ConfigWorld mainWorld = new ConfigWorld(CubeEngine.getCore().getWorldManager(), Bukkit.getWorlds().get(0));
+    public ConfigWorld mainWorld = new ConfigWorld(Bukkit.getWorlds().get(0));
 }

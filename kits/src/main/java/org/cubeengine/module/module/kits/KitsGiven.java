@@ -17,8 +17,8 @@
  */
 package org.cubeengine.module.module.kits;
 
-import de.cubeisland.engine.module.core.storage.database.AsyncRecord;
-import org.cubeengine.service.user.User;
+import org.cubeengine.service.database.AsyncRecord;
+import org.spongepowered.api.entity.living.player.Player;
 
 public class KitsGiven extends AsyncRecord<KitsGiven>
 {
@@ -27,9 +27,9 @@ public class KitsGiven extends AsyncRecord<KitsGiven>
         super(TableKitsGiven.TABLE_KITS);
     }
 
-    public KitsGiven newKitsGiven(User user, Kit kit)
+    public KitsGiven newKitsGiven(Player player, Kit kit)
     {
-        this.setValue(TableKitsGiven.TABLE_KITS.USERID, user.getEntity().getId());
+        this.setValue(TableKitsGiven.TABLE_KITS.USERID, player.getUniqueId());
         this.setValue(TableKitsGiven.TABLE_KITS.KITNAME, kit.getKitName());
         this.setValue(TableKitsGiven.TABLE_KITS.AMOUNT, 1);
         return this;

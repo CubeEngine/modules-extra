@@ -17,38 +17,46 @@
  */
 package org.cubeengine.module.holiday;
 
-import de.cubeisland.engine.module.core.module.Module;
-import org.cubeengine.service.user.User;
+import java.util.UUID;
+import javax.inject.Inject;
+import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
+import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.modularity.core.marker.Enable;
 import org.cubeengine.module.holiday.storage.HolidayModel;
 import org.cubeengine.module.holiday.storage.TableHoliday;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
+import org.cubeengine.service.command.CommandManager;
+import org.cubeengine.service.database.Database;
+import org.cubeengine.service.database.ModuleTables;
+import org.cubeengine.service.event.EventManager;
+import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.service.task.TaskManager;
 import org.jooq.DSLContext;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
 
-import org.cubeengine.service.user.TableUser.TABLE_USER;
 import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
 import static org.cubeengine.module.holiday.storage.TableHoliday.TABLE_HOLIDAY;
 
-public class Holiday extends Module implements Listener
+
+@ModuleInfo(name = "Holiday", description = "Marks you as being on holiday")
+@ModuleTables(TableHoliday.class)
+public class Holiday extends Module
 {
     private DSLContext dsl;
+    @Inject private Database db;
+    @Inject private CommandManager cm;
+    @Inject private TaskManager tm;
+    @Inject private EventManager em;
+    @Inject private I18n i18n;
 
-    @Override
+    @Enable
     public void onEnable()
     {
-        this.getCore().getDB().registerTable(TableHoliday.class);
-        this.getCore().getCommandManager().addCommand(new HolidayCommands(this));
-        dsl = this.getCore().getDB().getDSL();
-        this.getCore().getEventManager().registerListener(this, this);
-        this.getCore().getTaskManager().runTimer(this, new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                checkExpiredHolidays();
-            }
-        }, 0, 20 * 60 * 60 * 24);
+        dsl = db.getDSL();
+        cm.addCommand(new HolidayCommands(this, dsl, i18n));
+        em.registerListener(this, this);
+        tm.runTimer(this, this::checkExpiredHolidays, 0, 20 * 60 * 60 * 24);
     }
 
     private void checkExpiredHolidays()
@@ -58,24 +66,22 @@ public class Holiday extends Module implements Listener
         {
             if (model.getValue(TABLE_HOLIDAY.TO).getTime() < current)
             {
-                User user = this.getCore().getUserManager().getUser(model.getValue(TABLE_HOLIDAY.USERID));
-                user.getEntity().setValue(TABLE_USER.NOGC, false);
-                user.getEntity().updateAsync();
+                UUID userUUID = model.getValue(TABLE_HOLIDAY.USERID);
+                // TODO no gc no longer exists due to removed user table
             }
         }
     }
 
-    @EventHandler
-    public void onJoin(PlayerJoinEvent event)
+    @Listener
+    public void onJoin(ClientConnectionEvent.Join event)
     {
-        User user = this.getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
-        HolidayModel existing = dsl.selectFrom(TABLE_HOLIDAY).where(TABLE_HOLIDAY.USERID.eq(user.getEntity().getId())).fetchOne();
+        Player player = event.getTargetEntity();
+        HolidayModel existing = dsl.selectFrom(TABLE_HOLIDAY).where(TABLE_HOLIDAY.USERID.eq(
+            player.getUniqueId())).fetchOne();
         if (existing != null)
         {
             existing.deleteAsync();
-            user.sendTranslated(POSITIVE, "Welcome back!");
-            user.getEntity().setValue(TABLE_USER.NOGC, false);
-            user.getEntity().updateAsync();
+            i18n.sendTranslated(player, POSITIVE, "Welcome back!");
         }
     }
 }

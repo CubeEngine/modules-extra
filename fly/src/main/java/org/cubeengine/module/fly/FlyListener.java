@@ -18,66 +18,58 @@
 package org.cubeengine.module.fly;
 
 import java.util.HashMap;
-import de.cubeisland.engine.service.permission.Permission;
-import org.cubeengine.service.task.Task;
-import org.cubeengine.service.user.User;
-import org.cubeengine.service.user.UserManager;
-import org.spongepowered.api.world.Location;
-import org.bukkit.Material;
-import org.spongepowered.api.entity.player.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractEvent;
+import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.service.i18n.formatter.MessageType;
+import org.cubeengine.service.permission.PermissionManager;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.action.InteractEvent;
+import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.bukkit.util.Vector;
+import org.spongepowered.api.service.permission.PermissionDescription;
+import org.spongepowered.api.world.Location;
 
-public class FlyListener implements Listener
+import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.service.i18n.formatter.MessageType.NEUTRAL;
+import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
+
+public class FlyListener
 {
-    private final UserManager usermanager;
     private final HashMap<Player, Task> tasks = new HashMap<>();
-    private final Fly fly;
+    private final Fly module;
+    private I18n i18n;
     private final Location helperLocation = new Location(null, 0, 0, 0);
 
-    private final Permission FLY_FEATHER;
+    private final PermissionDescription FLY_FEATHER;
 
-    public FlyListener(Fly fly)
+    public FlyListener(Fly module, PermissionManager pm, I18n i18n)
     {
-        this.FLY_FEATHER = fly.getBasePermission().child("feather");
-        fly.getCore().getPermissionManager().registerPermission(fly,FLY_FEATHER);
-        this.fly = fly;
-        this.usermanager = fly.getCore().getUserManager();
+        this.module = module;
+        this.i18n = i18n;
+        FLY_FEATHER = pm.register(module, "feather", "", null);
     }
 
-    @EventHandler
-    public void playerInteract(final PlayerInteractEvent event)
+    @Listener
+    public void playerInteract(final InteractBlockEvent.Secondary event, @First Player player)
     {
-        final Player player = event.getPlayer();
-        if (!(event.getAction().equals(Action.RIGHT_CLICK_AIR) || event.getAction().equals(Action.RIGHT_CLICK_BLOCK)))
-        {
-            return;
-        }
-        if (!player.getItemInHand().getType().equals(Material.FEATHER))
-        {
-            return;
-        }
-        User user = usermanager.getExactUser(player.getUniqueId());
-        if (user == null)//User does not exist
+        if (!player.getItemInHand().map(i -> i.getItem().equals(ItemTypes.FEATHER)).orElse(false))
         {
             return;
         }
 
-        if (!FLY_FEATHER.isAuthorized(player))
+        if (!player.hasPermission(FLY_FEATHER.getId()))
         {
-            user.sendTranslated(NEGATIVE, "You dont have permission to use this!");
+            i18n.sendTranslated(player, NEGATIVE, "You dont have permission to use this!");
             player.setAllowFlight(false); //Disable when player is flying
             return;
         }
 
-        FlyStartEvent flyStartEvent = new FlyStartEvent(fly.getCore(), user);
+        FlyStartEvent flyStartEvent = new FlyStartEvent(module, player);
         if (flyStartEvent.isCancelled())
         {
-            user.sendTranslated(NEGATIVE, "You are not allowed to fly now!");
+            i18n.sendTranslated(player, NEGATIVE, "You are not allowed to fly now!");
             player.setAllowFlight(false); //Disable when player is flying
             return;
         }
@@ -90,8 +82,8 @@ public class FlyListener implements Listener
             player.setVelocity(player.getVelocity().setY(player.getVelocity().getY() + 1));
             player.teleport(player.getLocation(this.helperLocation).add(new Vector(0, 0.05, 0))); //make sure the player stays flying
             player.setFlying(true);
-            user.sendTranslated(POSITIVE, "You can now fly!");
-            Task flymore = new Task(fly)
+            i18n.sendTranslated(player, POSITIVE, "You can now fly!");
+            Task flymore = new Task(module)
             {
                 public void run()//2 feather/min
                 {
@@ -122,7 +114,7 @@ public class FlyListener implements Listener
         else
         {//or not
             player.setFallDistance(0);
-            user.sendTranslated(NEUTRAL, "You cannot fly anymore!");
+            i18n.sendTranslated(player, NEUTRAL, "You cannot fly anymore!");
         }
     }
 }

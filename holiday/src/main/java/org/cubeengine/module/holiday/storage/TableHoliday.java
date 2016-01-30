@@ -18,29 +18,29 @@
 package org.cubeengine.module.holiday.storage;
 
 import java.sql.Date;
-import de.cubeisland.engine.module.core.storage.database.Table;
+import java.util.UUID;
 import org.cubeengine.module.core.util.Version;
+import org.cubeengine.service.database.Database;
+import org.cubeengine.service.database.Table;
 import org.jooq.TableField;
-import org.jooq.types.UInteger;
+import org.jooq.impl.SQLDataType;
 
-import org.cubeengine.service.user.TableUser.TABLE_USER;
 import static org.jooq.util.mysql.MySQLDataType.DATE;
 import static org.jooq.util.mysql.MySQLDataType.VARCHAR;
 
 public class TableHoliday extends Table<HolidayModel>
 {
     public static TableHoliday TABLE_HOLIDAY;
-    public final TableField<HolidayModel, UInteger> USERID = createField("userid", U_INTEGER.nullable(false), this);
+    public final TableField<HolidayModel, UUID> USERID = createField("userid", SQLDataType.UUID.length(36).nullable(false), this);
     public final TableField<HolidayModel, Date> FROM = createField("from", DATE, this);
     public final TableField<HolidayModel, Date> TO = createField("to", DATE, this);
     public final TableField<HolidayModel, String> REASON = createField("reason", VARCHAR.length(255), this);
 
-    public TableHoliday(String prefix)
+    public TableHoliday(String prefix, Database db)
     {
-        super(prefix + "holiday", new Version(1));
+        super(prefix + "holiday", new Version(1), db);
         this.setPrimaryKey(USERID);
         this.addUniqueKey(USERID);
-        this.addForeignKey(TABLE_USER.getPrimaryKey(), USERID);
         this.addFields(USERID, FROM, TO, REASON);
         TABLE_HOLIDAY = this;
     }

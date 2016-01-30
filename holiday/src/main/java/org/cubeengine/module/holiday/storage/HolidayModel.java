@@ -17,7 +17,7 @@
  */
 package org.cubeengine.module.holiday.storage;
 
-import de.cubeisland.engine.module.core.storage.database.AsyncRecord;
+import org.cubeengine.service.database.AsyncRecord;
 
 import static org.cubeengine.module.holiday.storage.TableHoliday.TABLE_HOLIDAY;
 
