@@ -38,6 +38,7 @@ import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
 import static org.spongepowered.api.block.BlockTypes.AIR;
@@ -79,19 +80,19 @@ public class CuboidSelector implements Selector
     }
 
     @Override
-    public Location getFirstPoint(Player user)
+    public Location<World> getFirstPoint(Player user)
     {
         return this.getPoint(user, 0);
     }
 
     @Override
-    public Location getSecondPoint(Player user)
+    public Location<World> getSecondPoint(Player user)
     {
         return this.getPoint(user, 1);
     }
 
     @Override
-    public Location getPoint(Player user, int index)
+    public Location<World> getPoint(Player user, int index)
     {
         SelectorData data = this.selectorData.get(user.getUniqueId());
         return data == null ? null : data.getPoint(index);

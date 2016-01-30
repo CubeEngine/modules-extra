@@ -30,12 +30,12 @@ public class SelectorData
 
     private World lastPointWorld;
 
-    private Location[] points = new Location[mode.initialSize];
+    private Location<World>[] points = new Location[mode.initialSize];
 
-    public void setPoint(int index, Location location)
+    public void setPoint(int index, Location<World> location)
     {
         this.points[index] = location;
-        this.lastPointWorld = ((World)location.getExtent());
+        this.lastPointWorld = location.getExtent();
     }
 
     public int addPoint(Location location)
