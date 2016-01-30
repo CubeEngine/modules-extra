@@ -18,6 +18,7 @@
 package org.cubeengine.module.border;
 
 import java.util.LinkedList;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.cubeengine.butler.alias.Alias;
 import org.cubeengine.butler.parametric.Command;
@@ -26,10 +27,14 @@ import org.cubeengine.butler.parametric.Default;
 import org.cubeengine.butler.parametric.Named;
 import org.cubeengine.butler.parametric.Optional;
 import org.cubeengine.service.command.ContainerCommand;
-import org.cubeengine.service.command.CommandSender;
-import org.cubeengine.service.user.MultilingualPlayer;
 import org.cubeengine.module.core.util.Triplet;
+import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.service.task.TaskManager;
 import org.jooq.types.UInteger;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.World;
 
 import static org.cubeengine.service.i18n.formatter.MessageType.*;
@@ -38,16 +43,20 @@ import static org.cubeengine.service.i18n.formatter.MessageType.*;
 public class BorderCommands extends ContainerCommand
 {
     private final Border module;
+    private I18n i18n;
+    private TaskManager tm;
 
-    public BorderCommands(Border module)
+    public BorderCommands(Border module, I18n i18n, TaskManager tm)
     {
         super(module);
         this.module = module;
+        this.i18n = i18n;
+        this.tm = tm;
     }
 
-    private LinkedList<Triplet<UInteger,Integer,Integer>> chunksToGenerate;
+    private LinkedList<Triplet<UUID,Integer,Integer>> chunksToGenerate;
     private LinkedList<Triplet<World,Integer,Integer>> chunksToUnload;
-    private CommandSender sender = null;
+    private CommandSource sender = null;
     private int total = 0;
     private int totalDone = 0;
     private long lastNotify;
@@ -55,57 +64,57 @@ public class BorderCommands extends ContainerCommand
     private boolean running = false;
 
     @Command(desc = "Sets the center of the border")
-    public void setCenter(CommandSender context, @Optional Integer chunkX, @Optional Integer chunkZ,
+    public void setCenter(CommandSource context, @Optional Integer chunkX, @Optional Integer chunkZ,
                           @Default @Named({"in", "world", "w"}) World world, @Flag boolean spawn)
     {
         Chunk center;
         if (spawn)
         {
             this.module.getConfig(world).setCenter(world.getSpawnLocation().getChunk(), true);
-            context.sendTranslated(POSITIVE, "Center for Border in {world} set to world spawn!", world);
+            i18n.sendTranslated(context, POSITIVE, "Center for Border in {world} set to world spawn!", world);
             return;
         }
         else if (chunkZ != null)
         {
             center = world.getChunkAt(chunkX, chunkZ);
         }
-        else if (context instanceof MultilingualPlayer)
+        else if (context instanceof Player)
         {
-            center = ((MultilingualPlayer)context).getLocation().getChunk();
+            center = ((Player)context).getLocation().getChunk();
         }
         else
         {
-            context.sendTranslated(NEGATIVE, "You need to specify the chunk coordinates or use the -spawn flag");
+            i18n.sendTranslated(context, NEGATIVE, "You need to specify the chunk coordinates or use the -spawn flag");
             return;
         }
         this.module.getConfig(world).setCenter(center, false);
-        context.sendTranslated(POSITIVE, "Center for Border in {world} set!", world);
+        i18n.sendTranslated(context, POSITIVE, "Center for Border in {world} set!", world);
     }
 
     @Alias(value = "generateBorder")
     @Command(desc = "Generates the chunks located in the border")
-    public void generate(CommandSender context, String world)
+    public void generate(CommandSource context, String world)
     {
         if (running)
         {
-            context.sendTranslated(NEGATIVE, "Chunk generation is already running!");
+            i18n.sendTranslated(context, NEGATIVE, "Chunk generation is already running!");
             return;
         }
         this.chunksToGenerate = new LinkedList<>();
         this.chunksToUnload = new LinkedList<>();
         if ("*".equals(world))
         {
-            for (World w : this.module.getCore().getWorldManager().getWorlds())
+            for (World w : Sponge.getServer().getWorlds())
             {
                 this.addChunksToGenerate(w, context);
             }
         }
         else
         {
-            World w = this.module.getCore().getWorldManager().getWorld(world);
+            World w = Sponge.getServer().getWorld(world).orElse(null);
             if (w == null)
             {
-                context.sendTranslated(NEGATIVE, "World {input} not found!", world);
+                i18n.sendTranslated(context, NEGATIVE, "World {input} not found!", world);
                 return;
             }
             this.addChunksToGenerate(w, context);
@@ -118,17 +127,17 @@ public class BorderCommands extends ContainerCommand
         this.scheduleGeneration(1);
     }
 
-    private void addChunksToGenerate(World world, CommandSender sender)
+    private void addChunksToGenerate(World world, CommandSource sender)
     {
         BorderConfig config = this.module.getConfig(world);
         Chunk spawnChunk = world.getSpawnLocation().getChunk();
-        final int spawnX = spawnChunk.getX();
-        final int spawnZ = spawnChunk.getZ();
+        final int spawnX = spawnChunk.getPosition().getX();
+        final int spawnZ = spawnChunk.getPosition().getZ();
         int radius = config.radius;
-        radius += sender.getServer().getViewDistance();
+        radius += Sponge.getServer().;
         int radiusSquared = radius * radius;
         int chunksAdded = 0;
-        UInteger worldID = this.module.getCore().getWorldManager().getWorldId(world);
+        UUID worldID = world.getUniqueId()
         // Construct Spiral
         int curLen = 1;
         int curX = spawnX;
@@ -155,10 +164,10 @@ public class BorderCommands extends ContainerCommand
             curLen++;
             dir = -dir;
         }
-        sender.sendTranslated(POSITIVE, "Added {amount} chunks to generate in {world}", chunksAdded, world);
+        i18n.sendTranslated(sender, POSITIVE, "Added {amount} chunks to generate in {world}", chunksAdded, world);
     }
 
-    private boolean addIfInBorder(BorderConfig config, UInteger worldId, int x, int z, int spawnX, int spawnZ, int radius, int radiusSquared)
+    private boolean addIfInBorder(BorderConfig config, UUID worldId, int x, int z, int spawnX, int spawnZ, int radius, int radiusSquared)
     {
         if (config.square)
         {
@@ -179,14 +188,7 @@ public class BorderCommands extends ContainerCommand
     private void scheduleGeneration(int inTicks)
     {
         this.running = true;
-        this.module.getCore().getTaskManager().runTaskDelayed(module, new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                BorderCommands.this.generate();
-            }
-        }, inTicks);
+        tm.runTaskDelayed(module, BorderCommands.this::generate, inTicks);
     }
     private static final int TIMELIMIT = 40;
 
@@ -198,7 +200,7 @@ public class BorderCommands extends ContainerCommand
         if (freeMemory < 300) // less than 300 MB memory left
         {
             this.scheduleGeneration(20 * 10); // Take a 10 second break
-            sender.sendTranslated(NEGATIVE, "Available Memory getting low! Pausing Chunk Generation");
+            i18n.sendTranslated(sender, NEGATIVE, "Available Memory getting low! Pausing Chunk Generation");
             rt.gc();
             return;
         }
@@ -208,13 +210,13 @@ public class BorderCommands extends ContainerCommand
             {
                 break;
             }
-            Triplet<UInteger, Integer, Integer> poll = chunksToGenerate.poll();
-            World world = this.module.getCore().getWorldManager().getWorld(poll.getFirst());
-            if (!world.isChunkLoaded(poll.getSecond(), poll.getThird()))
+            Triplet<UUID, Integer, Integer> poll = chunksToGenerate.poll();
+            World world = Sponge.getServer().getWorld(poll.getFirst()).orElse(null);
+            if (!world.getChunk(poll.getSecond(), 0, poll.getThird()).isPresent())
             {
-                if (!world.loadChunk(poll.getSecond(), poll.getThird(), false))
+                if (!world.loadChunk(poll.getSecond(), 0, poll.getThird(), false).isPresent())
                 {
-                    world.loadChunk(poll.getSecond(), poll.getThird(), true);
+                    world.loadChunk(poll.getSecond(), 0, poll.getThird(), true);
                     generated++;
                 }
                 this.chunksToUnload.add(new Triplet<>(world, poll.getSecond(), poll.getThird()));
@@ -222,7 +224,7 @@ public class BorderCommands extends ContainerCommand
             if (this.chunksToUnload.size() > 8)
             {
                 Triplet<World, Integer, Integer> toUnload = chunksToUnload.poll();
-                toUnload.getFirst().unloadChunkRequest(toUnload.getSecond(), toUnload.getThird());
+                toUnload.getFirst().unloadChunk(chunk);
             }
             totalDone++;
 
@@ -230,7 +232,7 @@ public class BorderCommands extends ContainerCommand
             {
                 this.lastNotify = System.currentTimeMillis();
                 int percentNow = totalDone * 100 / total;
-                this.sender.sendTranslated(POSITIVE, "Chunk generation is at {integer#percent}% ({amount#done}/{amount#total})", percentNow, totalDone, total);
+                i18n.sendTranslated(sender, POSITIVE, "Chunk generation is at {integer#percent}% ({amount#done}/{amount#total})", percentNow, totalDone, total);
             }
         }
         if (!chunksToGenerate.isEmpty())
@@ -241,9 +243,9 @@ public class BorderCommands extends ContainerCommand
         {
             for (Triplet<World, Integer, Integer> triplet : chunksToUnload)
             {
-                triplet.getFirst().unloadChunkRequest(triplet.getSecond(), triplet.getThird());
+                triplet.getFirst().unloadChunk(triplet.getSecond(), triplet.getThird());
             }
-            sender.sendTranslated(POSITIVE, "Chunk generation completed! Generated {amount} chunks", generated);
+            i18n.sendTranslated(sender, POSITIVE, "Chunk generation completed! Generated {amount} chunks", generated);
             rt.gc();
             this.running = false;
         }

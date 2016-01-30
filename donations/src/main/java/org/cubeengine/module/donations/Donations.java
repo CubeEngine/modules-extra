@@ -24,7 +24,7 @@ import de.cubeisland.engine.modularity.core.Module;
 import org.cubeengine.service.filesystem.FileManager;
 import org.cubeengine.service.command.CommandManager;
 import org.cubeengine.service.task.TaskManager;
-import org.cubeengine.service.user.UserManager;
+import org.cubeengine.service.user.Broadcaster;
 import org.cubeengine.service.webapi.ApiServer;
 
 @ModuleInfo(name = "Donations", description = "Provides WebAPI to handle donations")
@@ -33,13 +33,13 @@ public class Donations extends Module
     @Inject private FileManager fm;
     @Inject private CommandManager cm;
     @Inject private TaskManager tm;
-    @Inject private UserManager um;
+    @Inject private Broadcaster bc;
     @Inject private ApiServer apiServer;
 
     @Enable
     public void onEnable()
     {
-        DonationController controller = new DonationController(this, fm.loadConfig(this, DonationsConfig.class), cm, tm, um);
+        DonationController controller = new DonationController(this, fm.loadConfig(this, DonationsConfig.class), cm, tm, bc);
         apiServer.registerApiHandlers(this, controller);
     }
 }

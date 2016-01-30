@@ -25,7 +25,7 @@ import org.cubeengine.module.donations.DonationsConfig.DonationGoal;
 import org.cubeengine.service.command.CommandManager;
 import org.cubeengine.service.i18n.formatter.MessageType;
 import org.cubeengine.service.task.TaskManager;
-import org.cubeengine.service.user.UserManager;
+import org.cubeengine.service.user.Broadcaster;
 import org.cubeengine.service.webapi.Action;
 import org.cubeengine.service.webapi.ApiRequest;
 import org.cubeengine.service.webapi.ApiResponse;
@@ -39,15 +39,15 @@ public class DonationController
     private DonationsConfig config;
     private CommandManager cm;
     private TaskManager tm;
-    private UserManager um;
+    private Broadcaster bc;
 
-    public DonationController(Donations module, DonationsConfig config, CommandManager cm, TaskManager tm, UserManager um)
+    public DonationController(Donations module, DonationsConfig config, CommandManager cm, TaskManager tm, Broadcaster bc)
     {
         this.module = module;
         this.config = config;
         this.cm = cm;
         this.tm = tm;
-        this.um = um;
+        this.bc = bc;
     }
 
     @Action
@@ -90,7 +90,7 @@ public class DonationController
 
     private void broadcastDonation(String user)
     {
-        um.broadcastTranslated(MessageType.POSITIVE, "New Donation! Thank you {user}!", user);
+        bc.broadcastTranslated(MessageType.POSITIVE, "New Donation! Thank you {user}!", user);
     }
 
     private void updateDonation(final double newTotal, final String user)

@@ -17,22 +17,35 @@
  */
 package org.cubeengine.module.customcommands;
 
-import de.cubeisland.engine.module.core.module.Module;
+import javax.inject.Inject;
+import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
+import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.modularity.core.marker.Enable;
+import org.cubeengine.module.customcommands.ManagementCommands.CustomCommandCompleter;
+import org.cubeengine.service.command.CommandManager;
+import org.cubeengine.service.event.EventManager;
+import org.cubeengine.service.filesystem.ModuleConfig;
+import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.service.user.Broadcaster;
 
+@ModuleInfo(name = "Customcommands", description = "Module adding custom chat commands")
 public class Customcommands extends Module
 {
-    private CustomCommandsConfig config;
+    @ModuleConfig private CustomCommandsConfig config;
+    @Inject private EventManager em;
+    @Inject private CommandManager cm;
+    @Inject private Broadcaster bc;
+    @Inject private I18n i18n;
 
-    @Override
+    @Enable
     public void onEnable()
     {
-        this.config = this.loadConfig(CustomCommandsConfig.class);
-
         if (this.config.commands.size() > 0)
         {
-            this.getCore().getEventManager().registerListener(this, new CustomCommandsListener(this));
+            em.registerListener(this, new CustomCommandsListener(this, bc));
         }
-        this.getCore().getCommandManager().addCommand(new ManagementCommands(this));
+        cm.addCommand(new ManagementCommands(this, i18n));
+        cm.getProviderManager().register(this, new CustomCommandCompleter(this));
     }
 
     public CustomCommandsConfig getConfig()

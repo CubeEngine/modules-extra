@@ -22,25 +22,24 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import javax.inject.Inject;
 import de.cubeisland.engine.logscribe.Log;
 import de.cubeisland.engine.modularity.core.marker.Enable;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.reflect.Reflector;
-import org.cubeengine.module.core.sponge.EventManager;
 import org.cubeengine.module.portals.Portals;
 import org.cubeengine.service.command.CommandManager;
-import org.cubeengine.service.world.WorldManager;
-import org.jooq.types.UInteger;
+import org.cubeengine.service.event.EventManager;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.world.World;
 
 @ModuleInfo(name = "Border", description = "Limiting the world size")
 public class Border extends Module
 {
     private BorderConfig globalConfig;
-    private Map<UInteger, BorderConfig> worldConfigs;
-    @Inject private WorldManager wm;
+    private Map<UUID, BorderConfig> worldConfigs;
     @Inject private Reflector reflector;
     @Inject private EventManager em;
     @Inject private CommandManager cm;
@@ -63,17 +62,17 @@ public class Border extends Module
             throw new IllegalArgumentException("Could not create the worlds folder", e);
         }
         this.worldConfigs = new HashMap<>();
-        wm.getWorlds().forEach(this::loadConfig);
+        Sponge.getServer().getWorlds().forEach(this::loadConfig);
         perms = new BorderPerms(this);
         em.registerListener(this, new BorderListener(this));
-        cm.addCommand(new BorderCommands(this));
+        cm.addCommand(new BorderCommands(this, i18n, tm));
 
     }
 
     private BorderConfig loadConfig(World world)
     {
         BorderConfig worldConfig = this.globalConfig.loadChild(folder.resolve(world.getName() + ".yml").toFile());
-        this.worldConfigs.put(this.wm.getWorldId(world), worldConfig);
+        this.worldConfigs.put(world.getUniqueId(), worldConfig);
 
         if (!worldConfig.checkCenter(world))
         {
@@ -89,7 +88,7 @@ public class Border extends Module
 
     public BorderConfig getConfig(World world)
     {
-        BorderConfig worldConfig = this.worldConfigs.get(this.wm.getWorldId(world));
+        BorderConfig worldConfig = this.worldConfigs.get(world.getUniqueId());
         if (worldConfig == null)
         {
             return this.loadConfig(world);

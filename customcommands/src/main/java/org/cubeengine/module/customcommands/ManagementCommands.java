@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import de.cubeisland.engine.butler.CommandInvocation;
+import org.cubeengine.butler.CommandInvocation;
 import org.cubeengine.butler.completer.Completer;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Flag;
@@ -30,6 +31,8 @@ import org.cubeengine.butler.parametric.Greed;
 import org.cubeengine.butler.result.CommandResult;
 import org.cubeengine.service.command.ContainerCommand;
 import org.cubeengine.service.command.CommandContext;
+import org.cubeengine.service.i18n.I18n;
+import org.spongepowered.api.command.CommandSource;
 
 import static org.cubeengine.butler.parameter.Parameter.INFINITE;
 import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
@@ -40,51 +43,51 @@ import static java.util.Locale.ENGLISH;
 public class ManagementCommands extends ContainerCommand
 {
     private final Customcommands module;
+    private I18n i18n;
     private final CustomCommandsConfig config;
 
-    public ManagementCommands(Customcommands module)
+    public ManagementCommands(Customcommands module, I18n i18n)
     {
         super(module);
         this.module = module;
+        this.i18n = i18n;
         this.config = module.getConfig();
-
-        module.getCore().getCommandManager().getProviderManager().register(module, new CustomCommandCompleter(module));
     }
 
     @Command(desc = "Adds a custom chat command.")
-    public void add(CommandSender context, String name, @Greed(INFINITE) String message, @Flag boolean force, @Flag boolean global)
+    public void add(CommandSource context, String name, @Greed(INFINITE) String message, @Flag boolean force, @Flag boolean global)
     {
         if (config.commands.containsKey(name))
         {
             if (!force)
             {
-                context.sendTranslated(NEGATIVE, "Custom command {input} already exists. Set the flag {text:-force} if you want to replace the message.", "!" + name);
+                i18n.sendTranslated(context, NEGATIVE, "Custom command {input} already exists. Set the flag {text:-force} if you want to replace the message.", "!" + name);
                 return;
             }
             config.commands.put(name, message);
-            context.sendTranslated(POSITIVE, "Custom command {input} has successfully been replaced.", "!" + name);
+            i18n.sendTranslated(context, POSITIVE, "Custom command {input} has successfully been replaced.", "!" + name);
         }
         else
         {
             config.commands.put(name.toLowerCase(ENGLISH), message);
-            context.sendTranslated(POSITIVE, "Custom command {input} has successfully been added.", "!" + name);
+            i18n.sendTranslated(context, POSITIVE, "Custom command {input} has successfully been added.", "!" + name);
         }
         config.save();
     }
 
     @Command(desc = "Deletes a custom chat command.")
-    public void delete(CommandSender context, @Complete(CustomCommandCompleter.class)String name, @Flag boolean global)
+    public void delete(CommandSource context, @Complete(CustomCommandCompleter.class)String name, @Flag boolean global)
     {
         if (config.commands.containsKey(name))
         {
             config.commands.remove(name.toLowerCase(ENGLISH));
             config.save();
 
-            context.sendTranslated(POSITIVE, "Custom command {input} has successfully been deleted.", "!" + name);
+            i18n.sendTranslated(context, POSITIVE, "Custom command {input} has successfully been deleted.", "!" + name);
         }
         else
         {
-            context.sendTranslated(NEGATIVE, "Custom command {input} has not been found.", "!" + name);
+            i18n.sendTranslated(context, NEGATIVE, "Custom command {input} has not been found.", "!" + name);
         }
     }
 

@@ -700,8 +700,8 @@ public class ApiServer
 
     public void unsubscribe(String event, WebSocketRequestHandler requestHandler)
     {
-        expectNotNull(event, "The event name must not be null!");
-        expectNotNull(requestHandler, "The request handler must not be null!");
+        checkNotNull(event, "The event name must not be null!");
+        checkNotNull(requestHandler, "The request handler must not be null!");
         event = event.toLowerCase(ENGLISH);
 
         Set<WebSocketRequestHandler> subscribedHandlers = this.subscriptions.get(event);

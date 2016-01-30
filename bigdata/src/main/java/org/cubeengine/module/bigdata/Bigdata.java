@@ -42,6 +42,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static java.util.Arrays.asList;
 import static org.apache.logging.log4j.Level.ERROR;
 import static org.apache.logging.log4j.Level.WARN;
 
@@ -115,7 +116,7 @@ public class Bigdata extends Module
             if (authConfig != null && authConfig.username != null && authConfig.password != null)
             {
                 MongoCredential credential = MongoCredential.createMongoCRCredential(authConfig.username, db, authConfig.password.toCharArray());
-                credentialList = Arrays.asList(credential);
+                credentialList = asList(credential);
             }
             MongoClientOptions options = MongoClientOptions.builder().connectTimeout(this.config.connectionTimeout).build();
             mongoClient = new MongoClient(address, credentialList, options);

@@ -18,32 +18,47 @@
 package org.cubeengine.module.faq;
 
 import java.util.PriorityQueue;
-import de.cubeisland.engine.module.core.module.Module;
-import org.spongepowered.api.entity.player.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import javax.inject.Inject;
+import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
+import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.modularity.core.marker.Enable;
+import de.cubeisland.engine.reflect.Reflector;
+import org.cubeengine.service.event.EventManager;
+import org.cubeengine.service.filesystem.ModuleConfig;
+import org.cubeengine.service.task.TaskManager;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.event.message.MessageChannelEvent;
+import org.spongepowered.api.text.Text;
 
-public class Faq extends Module implements Listener
+import static org.spongepowered.api.event.Order.POST;
+
+@ModuleInfo(name = "Faq", description = "Answers all your frequently asked questions!")
+public class Faq extends Module
 {
     private final PriorityQueue<Question> questions = new PriorityQueue<>();
-    
-    @Override
-    public void onEnable()
-    {
-        getCore().getConfigFactory().getDefaultConverterManager().registerConverter(new QuestionConverter(),
-                                                                                    Question.class);
+    @ModuleConfig private FaqConfig config;
+    @Inject private EventManager em;
+    @Inject private TaskManager tm;
 
-        FaqConfig config = this.loadConfig(FaqConfig.class);
-        this.questions.addAll(config.questions);
-        this.getCore().getEventManager().registerListener(this, this);
+    @Inject
+    public Faq(Reflector reflector)
+    {
+        reflector.getDefaultConverterManager().registerConverter(new QuestionConverter(), Question.class);
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onPlayerChat(AsyncPlayerChatEvent event)
+    @Enable
+    public void onEnable()
     {
-        String question = event.getMessage();
+        this.questions.addAll(config.questions);
+        em.registerListener(this, this);
+    }
+
+    @Listener(order = POST)
+    public void onPlayerChat(MessageChannelEvent.Chat event, @First Player player)
+    {
+        String question = event.getRawMessage().toPlain();
         int questionMarkIndex = question.indexOf('?');
         if (questionMarkIndex > -1)
         {
@@ -76,14 +91,8 @@ public class Faq extends Module implements Listener
             if (bestFaq != null && (highestScore >= 1.0 || highestScore == -1))
             {
                 bestFaq.hit();
-                final String answer = bestFaq.getAnswer();
-                final Player player = event.getPlayer();
-                this.getCore().getTaskManager().runTaskDelayed(this, new Runnable() {
-                    public void run()
-                    {
-                        player.sendMessage(answer);
-                    }
-                }, 5L);
+                final Text answer = Text.of(bestFaq.getAnswer());
+                tm.runTaskDelayed(this, () -> player.sendMessage(answer), 5L);
             }
         }
     }

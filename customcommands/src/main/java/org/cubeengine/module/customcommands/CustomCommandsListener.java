@@ -20,37 +20,39 @@ package org.cubeengine.module.customcommands;
 import java.util.ArrayList;
 import java.util.List;
 import org.cubeengine.module.core.util.StringUtils;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.server.ServerCommandEvent;
+import org.cubeengine.service.user.Broadcaster;
+import org.spongepowered.api.event.Cancellable;
+import org.spongepowered.api.event.Event;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.command.SendCommandEvent;
+import org.spongepowered.api.event.message.MessageChannelEvent;
 
-import org.cubeengine.service.i18n.formatter.MessageType.NONE;
 import static java.util.Locale.ENGLISH;
+import static org.spongepowered.api.text.format.TextFormat.NONE;
 
-public class CustomCommandsListener implements Listener
+public class CustomCommandsListener
 {
     private final Customcommands customcommands;
+    private Broadcaster bc;
     private final CustomCommandsConfig config;
 
-    public CustomCommandsListener(Customcommands customcommands)
+    public CustomCommandsListener(Customcommands customcommands, Broadcaster bc)
     {
         this.customcommands = customcommands;
+        this.bc = bc;
         this.config = this.customcommands.getConfig();
     }
 
-    @EventHandler
-    public void onChat(ServerCommandEvent event)
+    @Listener
+    public void onChat(SendCommandEvent event)
     {
         handleMessages(event.getCommand(), event);
     }
 
-    @EventHandler
-    public void onChat(AsyncPlayerChatEvent event)
+    @Listener
+    public void onChat(MessageChannelEvent.Chat event)
     {
-        handleMessages(event.getMessage(), event);
+        handleMessages(event.getRawMessage().toPlain(), event);
     }
 
     private void handleMessages(String message, Event event)
@@ -58,7 +60,7 @@ public class CustomCommandsListener implements Listener
         List<String> messages = processMessage(message);
         for (String currMessage : messages)
         {
-            customcommands.getCore().getUserManager().broadcastMessage(NONE, currMessage);
+            bc.broadcastMessage(NONE, currMessage);
         }
         if (config.surpressMessage && event instanceof Cancellable)
         {
