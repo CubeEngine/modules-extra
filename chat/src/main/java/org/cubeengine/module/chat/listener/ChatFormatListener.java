@@ -64,6 +64,7 @@ public class ChatFormatListener
     @Listener(order = Order.EARLY)
     public void onPlayerChat(MessageChannelEvent.Chat event, @First Player player)
     {
+        // TODO format on the messagechannel instead
         String msg = event.getRawMessage().toPlain();
         if (module.getConfig().allowColors)
         {
