@@ -34,10 +34,12 @@ public class TableSignItem extends AutoIncrementTable<ItemModel, UInteger>
     public final TableField<ItemModel, UInteger> KEY = createField("key", U_INTEGER.nullable(false), this);
     public final TableField<ItemModel, UInteger> STOCK = createField("stock", U_MEDIUMINT, this);
     public final TableField<ItemModel, String> ITEM = createField("item", VARCHAR.length(32).nullable(false), this);
+
     public final TableField<ItemModel, UShort> DAMAGEVALUE = createField("damageValue", U_SMALLINT.nullable(false), this);
     public final TableField<ItemModel, String> CUSTOMNAME = createField("customName",VARCHAR.length(100),this);
     public final TableField<ItemModel, String> LORE = createField("lore", VARCHAR.length(1000),this);
     public final TableField<ItemModel, String> ENCHANTMENTS = createField("enchantments",VARCHAR.length(255),this);
+
     public final TableField<ItemModel, Byte> SIZE = createField("size", SQLDataType.TINYINT.nullable(false),this);
 
     public TableSignItem(String prefix, Database database)

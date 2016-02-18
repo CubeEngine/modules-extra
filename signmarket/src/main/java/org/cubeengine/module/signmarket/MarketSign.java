@@ -37,6 +37,7 @@ import org.cubeengine.service.i18n.formatter.MessageType;
 import de.cubeisland.engine.module.core.util.matcher.Match;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.world.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -60,7 +61,7 @@ public class MarketSign
 {
     public static final Byte SELL_SIGN = 0;
     public static final Byte BUY_SIGN = 1;
-    protected final Economy economy;
+    protected final EconomyService economy;
     private final MarketSignFactory msFactory;
     private final Signmarket module;
     private final BlockModel blockInfo;

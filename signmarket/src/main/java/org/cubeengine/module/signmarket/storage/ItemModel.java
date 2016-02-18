@@ -24,22 +24,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.persistence.Transient;
-import de.cubeisland.engine.module.core.CubeEngine;
-import org.cubeengine.service.database.AsyncRecord;
-import de.cubeisland.engine.module.core.storage.database.AsyncRecord;
 import org.cubeengine.module.core.util.StringUtils;
 import org.cubeengine.module.signmarket.MarketSign;
-import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
-import org.spongepowered.api.item.inventory.ItemStack;
-import org.bukkit.inventory.meta.EnchantmentStorageMeta;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.Repairable;
+import org.cubeengine.service.database.AsyncRecord;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
+import org.spongepowered.api.item.Enchantment;
 import org.spongepowered.api.item.inventory.Inventory;
+import org.spongepowered.api.item.inventory.ItemStack;
 
 public class ItemModel extends AsyncRecord<ItemModel> implements InventoryHolder, Cloneable
 {

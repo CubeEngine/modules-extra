@@ -17,34 +17,58 @@
  */
 package org.cubeengine.module.signmarket;
 
-import de.cubeisland.engine.module.core.module.Module;
-import de.cubeisland.engine.module.core.module.Reloadable;
-import de.cubeisland.engine.module.core.storage.database.Database;
+import javax.inject.Inject;
+import de.cubeisland.engine.logscribe.Log;
+import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
+import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.modularity.core.marker.Enable;
+import org.cubeengine.module.signmarket.data.ImmutableMarketSignData;
+import org.cubeengine.module.signmarket.data.MarketSignData;
+import org.cubeengine.module.signmarket.data.MarketSignDataBuilder;
+import org.cubeengine.module.signmarket.data.SignType;
+import org.cubeengine.module.signmarket.data.SignTypeBuilder;
 import org.cubeengine.module.signmarket.storage.TableSignBlock;
 import org.cubeengine.module.signmarket.storage.TableSignItem;
+import org.cubeengine.service.command.CommandManager;
+import org.cubeengine.service.database.ModuleTables;
+import org.cubeengine.service.event.EventManager;
+import org.cubeengine.service.filesystem.ModuleConfig;
+import org.spongepowered.api.Sponge;
 
-public class Signmarket extends Module implements Reloadable
+@ModuleInfo()
+@ModuleTables({TableSignItem.class, TableSignBlock.class})
+public class Signmarket extends Module
 {
     private MarketSignFactory marketSignFactory;
-    private SignMarketConfig config;
+    @ModuleConfig private SignMarketConfig config;
     private EditModeListener editModeListener;
     private MarketSignPerm perms;
     private SignMarketCommands smCmds;
+    @Inject private Log logger;
+    @Inject private CommandManager cm;
+    @Inject private EventManager em;
 
-    @Override
+    public Signmarket()
+    {
+        Sponge.getDataManager().registerBuilder(SignType.class, new SignTypeBuilder());
+        Sponge.getDataManager().register(MarketSignData.class, ImmutableMarketSignData.class, new MarketSignDataBuilder());
+    }
+
+    @Enable
     public void onEnable()
     {
-        Database db = this.getCore().getDB();
-        db.registerTable(TableSignItem.class); // Init Item-table first!!!
-        db.registerTable(TableSignBlock.class);
         this.marketSignFactory = new MarketSignFactory(this);
         this.marketSignFactory.loadInAllSigns();
         this.editModeListener = new EditModeListener(this);
-        this.getCore().getEventManager().registerListener(this, new MarketSignListener(this));
+        em.registerListener(this, new MarketSignListener(this));
         smCmds = new SignMarketCommands(this);
-        this.getCore().getCommandManager().addCommand(smCmds);
+        cm.addCommand(smCmds);
         this.perms = new MarketSignPerm(this, smCmds);
-        this.config = this.loadConfig(SignMarketConfig.class);
+
+        if (!config.enableAdmin && ! config.enableUser)
+        {
+            logger.warn("[MarketSign] All SignTypes are disabled in the configuration!");
+        }
     }
 
     @Override

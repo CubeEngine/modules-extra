@@ -17,13 +17,14 @@
  */
 package org.cubeengine.module.signmarket.storage;
 
+import java.util.UUID;
 import javax.persistence.Transient;
-import de.cubeisland.engine.module.core.CubeEngine;
 import org.cubeengine.service.database.AsyncRecord;
-import de.cubeisland.engine.module.core.storage.database.AsyncRecord;
-import org.cubeengine.service.user.User;
-import org.spongepowered.api.world.Location;
 import org.jooq.types.UInteger;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 import static org.cubeengine.module.signmarket.storage.TableSignBlock.TABLE_SIGN_BLOCK;
 
@@ -38,9 +39,9 @@ public class BlockModel extends AsyncRecord<BlockModel>
         this.setValue(TABLE_SIGN_BLOCK.KEY, UInteger.valueOf(0));
     }
 
-    public BlockModel newBlockModel(Location location)
+    public BlockModel newBlockModel(Location<World> location)
     {
-        this.setValue(TABLE_SIGN_BLOCK.WORLD, CubeEngine.getCore().getWorldManager().getWorldId(location.getWorld()));
+        this.setValue(TABLE_SIGN_BLOCK.WORLD, location.getExtent().getUniqueId());
         this.setValue(TABLE_SIGN_BLOCK.X, location.getBlockX());
         this.setValue(TABLE_SIGN_BLOCK.Y, location.getBlockY());
         this.setValue(TABLE_SIGN_BLOCK.Z, location.getBlockZ());
@@ -72,9 +73,8 @@ public class BlockModel extends AsyncRecord<BlockModel>
     {
         if (this.location == null)
         {
-            this.location = new Location(CubeEngine.getCore().getWorldManager().getWorld(this.getValue(
-                TABLE_SIGN_BLOCK.WORLD)), this.getValue(TABLE_SIGN_BLOCK.X), this.getValue(TABLE_SIGN_BLOCK.Y),
-                                         this.getValue(TABLE_SIGN_BLOCK.Z));
+            this.location = new Location(Sponge.getServer().getWorld(getValue(TABLE_SIGN_BLOCK.WORLD)).get(),
+                 this.getValue(TABLE_SIGN_BLOCK.X), this.getValue(TABLE_SIGN_BLOCK.Y), this.getValue(TABLE_SIGN_BLOCK.Z));
         }
         return this.location;
     }
@@ -85,13 +85,13 @@ public class BlockModel extends AsyncRecord<BlockModel>
      * @param user the user
      * @return whether the user is owner
      */
-    public boolean isOwner(User user)
+    public boolean isOwner(Player user)
     {
-        UInteger owner = this.getValue(TABLE_SIGN_BLOCK.OWNER);
+        UUID owner = this.getValue(TABLE_SIGN_BLOCK.OWNER);
         if (owner == null)
         {
             return user == null;
         }
-        return user != null && user.getEntity().getId().equals(owner);
+        return user != null && user.getUniqueId().equals(owner);
     }
 }

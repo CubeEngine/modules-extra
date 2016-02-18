@@ -23,12 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import de.cubeisland.engine.module.core.CubeEngine;
-import org.cubeengine.service.world.WorldManager;
 import de.cubeisland.engine.reflect.annotations.Comment;
 import de.cubeisland.engine.reflect.annotations.Name;
 import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
-import org.bukkit.World;
 import org.jooq.types.UInteger;
 
 @SuppressWarnings("all")
@@ -87,10 +84,6 @@ public class SignMarketConfig extends ReflectedYaml
         if (!allowAdminNoStock && !allowAdminStock)
         {
             this.enableAdmin = false;
-        }
-        if (!enableAdmin && ! enableUser)
-        {
-            CubeEngine.getCore().getLog().warn("[MarketSign] All SignTypes are disabled in the configuration!");
         }
     }
 

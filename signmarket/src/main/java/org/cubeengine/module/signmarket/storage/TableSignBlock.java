@@ -17,15 +17,15 @@
  */
 package org.cubeengine.module.signmarket.storage;
 
+import java.util.UUID;
 import org.cubeengine.service.database.AutoIncrementTable;
 import org.cubeengine.service.database.Database;
 import org.cubeengine.module.core.util.Version;
 import org.jooq.TableField;
+import org.jooq.impl.SQLDataType;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
 
-import static org.cubeengine.service.user.TableUser.TABLE_USER;
-import static org.cubeengine.service.world.TableWorld.TABLE_WORLD;
 import static org.jooq.impl.SQLDataType.INTEGER;
 import static org.jooq.impl.SQLDataType.TINYINT;
 
@@ -33,12 +33,12 @@ public class TableSignBlock extends AutoIncrementTable<BlockModel, UInteger>
 {
     public static TableSignBlock TABLE_SIGN_BLOCK;
     public final TableField<BlockModel, UInteger> KEY = createField("key", U_INTEGER.nullable(false), this);
-    public final TableField<BlockModel, UInteger> WORLD = createField("world", U_INTEGER.nullable(false), this);
+    public final TableField<BlockModel, UUID> WORLD = createField("world", SQLDataType.UUID.length(36).nullable(false), this);
     public final TableField<BlockModel, Integer> X = createField("x", INTEGER, this);
     public final TableField<BlockModel, Integer> Y = createField("y", INTEGER, this);
     public final TableField<BlockModel, Integer> Z = createField("z", INTEGER, this);
     public final TableField<BlockModel, Byte> SIGNTYPE = createField("signType", TINYINT, this);
-    public final TableField<BlockModel, UInteger> OWNER = createField("owner", U_INTEGER, this);
+    public final TableField<BlockModel, UUID> OWNER = createField("owner", SQLDataType.UUID.length(36), this);
     public final TableField<BlockModel, UInteger> ITEMKEY = createField("itemKey", U_INTEGER.nullable(false), this);
     public final TableField<BlockModel, UShort> AMOUNT = createField("amount", U_SMALLINT.nullable(false), this);
     public final TableField<BlockModel, UInteger> DEMAND = createField("demand", U_MEDIUMINT, this);
@@ -49,8 +49,6 @@ public class TableSignBlock extends AutoIncrementTable<BlockModel, UInteger>
         super(prefix + "signmarketblocks", new Version(1), database);
         this.setAIKey(KEY);
         this.addIndex(WORLD, X, Y, Z);
-        this.addForeignKey(TABLE_USER.getPrimaryKey(), OWNER);
-        this.addForeignKey(TABLE_WORLD.getPrimaryKey(), WORLD);
         this.addForeignKey(TableSignItem.TABLE_SIGN_ITEM.getPrimaryKey(), ITEMKEY);
         this.addFields(KEY, WORLD, X, Y, Z, SIGNTYPE, OWNER, ITEMKEY, AMOUNT, DEMAND, PRICE);
         TABLE_SIGN_BLOCK = this;
