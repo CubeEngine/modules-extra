@@ -17,17 +17,18 @@
  */
 package org.cubeengine.module.vigil.report.inventory;
 
+import java.util.List;
 import org.cubeengine.module.vigil.Receiver;
-import org.cubeengine.module.vigil.report.*;
+import org.cubeengine.module.vigil.report.Action;
+import org.cubeengine.module.vigil.report.Observe;
+import org.cubeengine.module.vigil.report.Recall;
+import org.cubeengine.module.vigil.report.Report;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
 import org.spongepowered.api.text.Text;
-
-
-import java.util.List;
 
 public class InventoryOpenReport extends InventoryReport<InteractInventoryEvent.Open> implements Report.Readonly
 {

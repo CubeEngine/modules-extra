@@ -18,48 +18,47 @@
 package org.cubeengine.module.signmarket;
 
 import org.cubeengine.butler.alias.Alias;
+import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.service.command.ContainerCommand;
-import org.cubeengine.service.command.CommandContext;
+import org.cubeengine.service.i18n.I18n;
 import org.cubeengine.service.user.User;
+import org.spongepowered.api.entity.living.player.Player;
+
+import static org.cubeengine.service.i18n.formatter.MessageType.NEUTRAL;
+import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
 
 @Command(name = "marketsign", desc = "MarketSign-Commands", alias = {"signmarket", "market"})
 public class SignMarketCommands extends ContainerCommand
 {
     private final Signmarket module;
+    private I18n i18n;
 
-    public SignMarketCommands(Signmarket module)
+    public SignMarketCommands(Signmarket module, I18n i18n)
     {
         super(module);
         this.module = module;
+        this.i18n = i18n;
     }
 
     @Alias(value = "medit")
     @Command(alias = "edit", desc = "Enters the editmode allowing to change market signs easily")
-    public void editMode(CommandContext context)
+    @Restricted(value = Player.class, msg = "Only players can edit market signs!")
+    public void editMode(Player context)
     {
-        if (context.getSource() instanceof User)
+        if (this.module.getEditModeListener().hasUser(context);
         {
-            if (this.module.getEditModeListener().hasUser((User)context.getSource()))
-            {
-                this.module.getEditModeListener().removeUser((User)context.getSource());
-            }
-            else
-            {
-                if (this.module.getConfig().disableInWorlds.contains(((User)context.getSource()).getWorld().getName()))
-                {
-                    context.sendTranslated(NEUTRAL, "MarketSigns are disabled in the configuration for this world!");
-                    return;
-                }
-                this.module.getEditModeListener().addUser((User)context.getSource());
-                context.sendTranslated(POSITIVE, "You are now in edit mode!");
-                context.sendTranslated(POSITIVE, "Chat will now work as commands.");
-                context.sendTranslated(NEUTRAL, "Type exit or use this command again to leave the edit mode.");
-            }
+            this.module.getEditModeListener().removeUser(context);
+            return;
         }
-        else
+        if (this.module.getConfig().disableInWorlds.contains(context.getWorld().getName()))
         {
-            context.sendTranslated(NEGATIVE, "Only players can edit market signs!");
+            i18n.sendTranslated(context, NEUTRAL, "MarketSigns are disabled in the configuration for this world!");
+            return;
         }
+        this.module.getEditModeListener().addUser(context);
+        i18n.sendTranslated(context, POSITIVE, "You are now in edit mode!");
+        i18n.sendTranslated(context, POSITIVE, "Chat will now work as commands.");
+        i18n.sendTranslated(context, NEUTRAL, "Type exit or use this command again to leave the edit mode.");
     }
 }

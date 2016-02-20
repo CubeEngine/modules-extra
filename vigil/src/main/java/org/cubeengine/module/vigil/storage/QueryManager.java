@@ -26,14 +26,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadFactory;
-
 import com.flowpowered.math.vector.Vector3d;
-import com.mongodb.*;
+import com.mongodb.MongoTimeoutException;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 import org.cubeengine.module.vigil.Receiver;
-import org.cubeengine.module.vigil.report.*;
+import org.cubeengine.module.vigil.report.Action;
+import org.cubeengine.module.vigil.report.Report;
+import org.cubeengine.module.vigil.report.ReportActions;
+import org.cubeengine.module.vigil.report.ReportManager;
 import org.cubeengine.service.i18n.I18n;
 import org.spongepowered.api.entity.living.player.Player;
 

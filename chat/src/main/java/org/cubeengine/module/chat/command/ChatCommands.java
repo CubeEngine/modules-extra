@@ -21,20 +21,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
-
-import org.cubeengine.butler.parametric.*;
+import org.cubeengine.butler.parametric.Command;
+import org.cubeengine.butler.parametric.Greed;
+import org.cubeengine.butler.parametric.Label;
+import org.cubeengine.butler.parametric.Optional;
 import org.cubeengine.module.chat.Chat;
 import org.cubeengine.module.core.util.ChatFormat;
-import org.cubeengine.service.command.CommandContext;
 import org.cubeengine.service.command.CommandManager;
 import org.cubeengine.service.i18n.I18n;
 import org.cubeengine.service.user.Broadcaster;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.data.manipulator.mutable.DisplayNameData;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.service.user.UserStorageService;
 import org.spongepowered.api.text.Text;
 
@@ -202,7 +203,7 @@ public class ChatCommands
     }
 
     @Command(desc = "Broadcasts a message")
-    public void broadcast(CommandContext context, @Greed(INFINITE) String message)
+    public void broadcast(CommandSource context, @Greed(INFINITE) String message)
     {
         this.bc.broadcastMessage(NEUTRAL, "[{text:Broadcast}] {input}", message);
     }

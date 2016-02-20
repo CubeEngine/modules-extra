@@ -34,12 +34,10 @@
  */
 package org.cubeengine.module.vigil.report;
 
-import org.cubeengine.module.vigil.Receiver;
-import org.spongepowered.api.data.DataQuery;
-
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import org.cubeengine.module.vigil.Receiver;
+import org.spongepowered.api.data.DataQuery;
 
 import static java.util.Collections.emptyList;
 

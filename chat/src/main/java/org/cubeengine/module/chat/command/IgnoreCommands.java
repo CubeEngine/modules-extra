@@ -30,9 +30,9 @@ import org.cubeengine.module.chat.Chat;
 import org.cubeengine.module.chat.storage.IgnoreList;
 import org.cubeengine.module.core.util.ChatFormat;
 import org.cubeengine.module.core.util.StringUtils;
-import org.cubeengine.service.command.CommandContext;
 import org.cubeengine.service.database.Database;
 import org.cubeengine.service.i18n.I18n;
+import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 
 import static org.cubeengine.module.chat.storage.TableIgnorelist.TABLE_IGNORE_LIST;
@@ -88,39 +88,40 @@ public class IgnoreCommands
     }
 
     @Command(desc = "Ignores all messages from players")
-    public void ignore(CommandContext context, @Reader(Player.class) List<Player> players)
+    public void ignore(CommandSource context, @Reader(Player.class) List<Player> players)
     {
-        if (!context.isSource(Player.class))
+        if (!(context instanceof Player))
         {
             int rand1 = new Random().nextInt(6) + 1;
             int rand2 = new Random().nextInt(6 - rand1 + 1) + 1;
-            context.sendTranslated(NEUTRAL, "Ignore ({text:8+:color=WHITE}): {integer#random} + {integer#random} = {integer#sum} -> {text:failed:color=RED}",
+            i18n.sendTranslated(context, NEUTRAL, "Ignore ({text:8+:color=WHITE}): {integer#random} + {integer#random} = {integer#sum} -> {text:failed:color=RED}",
                                    rand1, rand2, rand1 + rand2);
             return;
         }
-        Player sender = ((Player)context.getSource());
+        
+        Player sender = ((Player)context);
         List<String> added = new ArrayList<>();
         for (Player user : players)
         {
-            if (user == context.getSource())
+            if (user == context)
             {
-                context.sendTranslated(NEGATIVE, "If you do not feel like talking to yourself just don't talk.");
+                i18n.sendTranslated(context, NEGATIVE, "If you do not feel like talking to yourself just don't talk.");
             }
             else if (!this.addIgnore(sender, user))
             {
                 if (user.hasPermission(module.perms().COMMAND_IGNORE_PREVENT.getId()))
                 {
-                    context.sendTranslated(NEGATIVE, "You are not allowed to ignore {user}!", user);
+                    i18n.sendTranslated(context, NEGATIVE, "You are not allowed to ignore {user}!", user);
                     continue;
                 }
-                context.sendTranslated(NEGATIVE, "{user} is already on your ignore list!", user);
+                i18n.sendTranslated(context, NEGATIVE, "{user} is already on your ignore list!", user);
             }
             else
             {
                 added.add(user.getName());
             }
         }
-        context.sendTranslated(POSITIVE, "You added {user#list} to your ignore list!", StringUtils.implode(ChatFormat.WHITE + ", " + ChatFormat.DARK_GREEN, added));
+        i18n.sendTranslated(context, POSITIVE, "You added {user#list} to your ignore list!", StringUtils.implode(ChatFormat.WHITE + ", " + ChatFormat.DARK_GREEN, added));
     }
 
     @Command(desc = "Stops ignoring all messages from a player")

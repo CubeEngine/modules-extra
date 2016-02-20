@@ -19,17 +19,16 @@ package org.cubeengine.module.selector;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import javax.inject.Inject;
-import java.util.Optional;
-import de.cubeisland.engine.modularity.core.marker.Enable;
 import de.cubeisland.engine.modularity.asm.marker.ServiceImpl;
 import de.cubeisland.engine.modularity.asm.marker.Version;
-import org.cubeengine.service.event.EventManager;
-import org.cubeengine.service.Selector;
-import org.cubeengine.service.i18n.I18n;
+import de.cubeisland.engine.modularity.core.marker.Enable;
 import org.cubeengine.module.core.util.math.shape.Shape;
-
+import org.cubeengine.service.Selector;
+import org.cubeengine.service.event.EventManager;
+import org.cubeengine.service.i18n.I18n;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;

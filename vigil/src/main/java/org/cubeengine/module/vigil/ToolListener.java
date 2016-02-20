@@ -17,6 +17,7 @@
  */
 package org.cubeengine.module.vigil;
 
+import java.util.Optional;
 import org.cubeengine.module.vigil.storage.QueryManager;
 import org.cubeengine.service.i18n.I18n;
 import org.cubeengine.service.permission.PermissionManager;
@@ -28,11 +29,7 @@ import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.service.permission.PermissionDescription;
-
-import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
-
-import java.util.Optional;
 
 import static org.cubeengine.module.vigil.commands.VigilCommands.toolName;
 

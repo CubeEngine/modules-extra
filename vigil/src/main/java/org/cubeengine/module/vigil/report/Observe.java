@@ -17,6 +17,9 @@
  */
 package org.cubeengine.module.vigil.report;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.cubeengine.module.vigil.report.block.BlockReport;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.data.DataContainer;
@@ -26,10 +29,6 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
-
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import static org.cubeengine.module.vigil.report.Report.*;
 import static org.cubeengine.module.vigil.report.Report.CauseType.CAUSE_BLOCK_FIRE;

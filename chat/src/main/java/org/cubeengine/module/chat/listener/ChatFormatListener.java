@@ -17,6 +17,9 @@
  */
 package org.cubeengine.module.chat.listener;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
 import org.cubeengine.module.chat.Chat;
 import org.cubeengine.module.chat.CubeMessageChannel;
 import org.cubeengine.service.i18n.I18n;
@@ -33,10 +36,6 @@ import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.option.OptionSubject;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Pattern;
 
 import static org.cubeengine.module.core.util.ChatFormat.fromLegacy;
 import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;

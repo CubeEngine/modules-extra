@@ -34,7 +34,8 @@
  */
 package org.cubeengine.module.vigil.report;
 
-import org.cubeengine.service.event.EventManager;
+import java.util.HashMap;
+import java.util.Map;
 import org.cubeengine.module.vigil.Vigil;
 import org.cubeengine.module.vigil.report.block.BreakBlockReport;
 import org.cubeengine.module.vigil.report.block.PlaceBlockReport;
@@ -42,10 +43,8 @@ import org.cubeengine.module.vigil.report.entity.player.ChatReport;
 import org.cubeengine.module.vigil.report.entity.player.JoinReport;
 import org.cubeengine.module.vigil.report.entity.player.QuitReport;
 import org.cubeengine.module.vigil.report.inventory.InventoryOpenReport;
+import org.cubeengine.service.event.EventManager;
 import org.cubeengine.service.i18n.I18n;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class ReportManager
 {

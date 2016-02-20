@@ -17,16 +17,19 @@
  */
 package org.cubeengine.module.authorization;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parameter.TooFewArgumentsException;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Default;
 import org.cubeengine.butler.parametric.Desc;
 import org.cubeengine.butler.parametric.Optional;
-import org.cubeengine.service.command.CommandContext;
 import org.cubeengine.service.command.annotation.CommandPermission;
 import org.cubeengine.service.command.annotation.Unloggable;
-import org.cubeengine.service.filesystem.ModuleConfig;
+import org.cubeengine.service.command.exception.PermissionDeniedException;
 import org.cubeengine.service.i18n.I18n;
 import org.cubeengine.service.user.UserList;
 import org.spongepowered.api.Game;
@@ -35,11 +38,6 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.ban.BanService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.ban.Ban;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -66,46 +64,54 @@ public class AuthCommands
 
     @Unloggable
     @Command(alias = "setpw", desc = "Sets your password.")
-    public void setPassword(CommandContext context, String password, @Default Player player)
+    public void setPassword(CommandSource context, String password, @Default Player player)
     {
-        if ((context.getSource().equals(player)))
+        if ((context.equals(player)))
         {
             module.setPassword(player.getUniqueId(), password);
-            context.sendTranslated(POSITIVE, "Your password has been set!");
+            i18n.sendTranslated(context, POSITIVE, "Your password has been set!");
             return;
         }
-        context.ensurePermission(module.perms().COMMAND_SETPASSWORD_OTHER);
+        if (!context.hasPermission(module.perms().COMMAND_SETPASSWORD_OTHER.getId()))
+        {
+            throw new PermissionDeniedException(module.perms().COMMAND_SETPASSWORD_OTHER);
+        }
         module.setPassword(player.getUniqueId(), password);
-        context.sendTranslated(POSITIVE, "{user}'s password has been set!", player);
+        i18n.sendTranslated(context, POSITIVE, "{user}'s password has been set!", player);
     }
 
     @Command(alias = "clearpw", desc = "Clears your password.")
-    public void clearPassword(CommandContext context,
+    public void clearPassword(CommandSource context,
                               @Optional @Desc("* or a list of Players delimited by ,") UserList players)
     {
-        CommandSource sender = context.getSource();
         if (players == null)
         {
-            if (!(sender instanceof Player))
+            if (!(context instanceof Player))
             {
                 throw new TooFewArgumentsException();
             }
-            module.resetPassword(((Player)sender).getUniqueId());
-            context.sendTranslated(POSITIVE, "Your password has been reset!");
+            module.resetPassword(((Player)context).getUniqueId());
+            i18n.sendTranslated(context, POSITIVE, "Your password has been reset!");
             return;
         }
         if (players.isAll())
         {
-            context.ensurePermission(module.perms().COMMAND_CLEARPASSWORD_ALL);
+            if (!context.hasPermission(module.perms().COMMAND_CLEARPASSWORD_ALL.getId()))
+            {
+                throw new PermissionDeniedException(module.perms().COMMAND_CLEARPASSWORD_ALL);
+            }
             module.resetAllPasswords();
-            context.sendTranslated(POSITIVE, "All passwords reset!");
+            i18n.sendTranslated(context, POSITIVE, "All passwords reset!");
             return;
         }
-        context.ensurePermission(module.perms().COMMAND_CLEARPASSWORD_OTHER);
+        if (!context.hasPermission(module.perms().COMMAND_CLEARPASSWORD_OTHER.getId()))
+        {
+            throw new PermissionDeniedException(module.perms().COMMAND_CLEARPASSWORD_OTHER);
+        }
         for (Player user : players.list())
         {
             module.resetPassword(user.getUniqueId());
-            context.sendTranslated(POSITIVE, "{user}'s password has been reset!", user.getName());
+            i18n.sendTranslated(context, POSITIVE, "{user}'s password has been reset!", user.getName());
         }
     }
 

@@ -17,9 +17,8 @@
  */
 package org.cubeengine.module.vigil.report;
 
-import org.cubeengine.module.vigil.Receiver;
-
 import java.util.LinkedList;
+import org.cubeengine.module.vigil.Receiver;
 
 public class ReportActions
 {

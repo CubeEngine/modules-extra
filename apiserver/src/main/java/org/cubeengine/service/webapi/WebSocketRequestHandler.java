@@ -23,8 +23,6 @@ import java.nio.charset.Charset;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import org.cubeengine.service.command.CommandManager;
 import de.cubeisland.engine.logscribe.Log;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -39,6 +37,7 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
+import org.cubeengine.service.command.CommandManager;
 import org.spongepowered.api.entity.living.player.User;
 
 import static io.netty.handler.codec.http.HttpHeaders.EMPTY_HEADERS;

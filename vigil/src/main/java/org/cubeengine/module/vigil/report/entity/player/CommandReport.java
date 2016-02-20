@@ -17,16 +17,18 @@
  */
 package org.cubeengine.module.vigil.report.entity.player;
 
+import java.util.List;
 import org.cubeengine.module.vigil.Receiver;
-import org.cubeengine.module.vigil.report.*;
+import org.cubeengine.module.vigil.report.Action;
+import org.cubeengine.module.vigil.report.BaseReport;
+import org.cubeengine.module.vigil.report.Observe;
+import org.cubeengine.module.vigil.report.Recall;
 import org.cubeengine.module.vigil.report.Report.Readonly;
 import org.cubeengine.module.vigil.report.Report.SimpleGrouping;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.command.SendCommandEvent;
 import org.spongepowered.api.event.filter.cause.First;
-
-import java.util.List;
 
 import static java.util.Collections.singletonList;
 

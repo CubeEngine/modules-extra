@@ -20,9 +20,6 @@ package org.cubeengine.module.vigil.report;
 import org.cubeengine.module.vigil.Vigil;
 import org.spongepowered.api.event.Event;
 
-import java.util.List;
-import java.util.function.Function;
-
 public abstract class BaseReport<T extends Event> implements Report
 {
     protected Vigil vigil;

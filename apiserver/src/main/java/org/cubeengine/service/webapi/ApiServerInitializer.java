@@ -18,16 +18,15 @@
 package org.cubeengine.service.webapi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import de.cubeisland.engine.modularity.core.Maybe;
-import org.cubeengine.module.authorization.Authorization;
-import org.cubeengine.service.command.CommandManager;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
+import org.cubeengine.module.authorization.Authorization;
+import org.cubeengine.service.command.CommandManager;
 
 public class ApiServerInitializer extends ChannelInitializer<SocketChannel>
 {

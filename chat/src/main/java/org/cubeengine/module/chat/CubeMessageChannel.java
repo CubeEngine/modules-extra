@@ -17,13 +17,12 @@
  */
 package org.cubeengine.module.chat;
 
+import java.util.Collection;
+import java.util.Optional;
+import javax.annotation.Nullable;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.text.channel.MessageReceiver;
-
-import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.Optional;
 
 public class CubeMessageChannel implements MessageChannel
 {

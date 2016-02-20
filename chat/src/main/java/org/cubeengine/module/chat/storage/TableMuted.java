@@ -24,6 +24,7 @@ import org.cubeengine.service.database.Database;
 import org.cubeengine.service.database.Table;
 import org.jooq.TableField;
 import org.jooq.impl.SQLDataType;
+
 import static org.jooq.util.mysql.MySQLDataType.DATE;
 
 public class TableMuted extends Table<Muted>

@@ -19,7 +19,6 @@ package org.cubeengine.module.chat.storage;
 
 import java.util.UUID;
 import org.cubeengine.service.database.AsyncRecord;
-import org.jooq.types.UInteger;
 
 import static org.cubeengine.module.chat.storage.TableIgnorelist.TABLE_IGNORE_LIST;
 

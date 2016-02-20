@@ -17,6 +17,7 @@
  */
 package org.cubeengine.module.vigil.report.block;
 
+import java.util.Optional;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.BaseReport;
 import org.cubeengine.module.vigil.report.Observe;
@@ -24,8 +25,6 @@ import org.cubeengine.module.vigil.report.Recall;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
-
-import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 

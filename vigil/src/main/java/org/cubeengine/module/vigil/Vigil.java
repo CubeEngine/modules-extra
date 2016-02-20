@@ -23,13 +23,13 @@ import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.modularity.core.marker.Enable;
 import org.cubeengine.module.bigdata.Bigdata;
-import org.cubeengine.service.event.EventManager;
-import org.cubeengine.service.matcher.StringMatcher;
 import org.cubeengine.module.vigil.commands.VigilCommands;
 import org.cubeengine.module.vigil.report.ReportManager;
 import org.cubeengine.module.vigil.storage.QueryManager;
 import org.cubeengine.service.command.CommandManager;
+import org.cubeengine.service.event.EventManager;
 import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.service.matcher.StringMatcher;
 import org.cubeengine.service.permission.PermissionManager;
 import org.spongepowered.api.Game;
 

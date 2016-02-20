@@ -21,16 +21,12 @@ import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.util.Optional;
-import de.cubeisland.engine.modularity.core.Maybe;
-import org.cubeengine.module.authorization.Authorization;
-import org.cubeengine.service.command.CommandManager;
-import org.cubeengine.service.webapi.exception.ApiRequestException;
 import de.cubeisland.engine.logscribe.Log;
+import de.cubeisland.engine.modularity.core.Maybe;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -40,6 +36,9 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.QueryStringDecoder;
+import org.cubeengine.module.authorization.Authorization;
+import org.cubeengine.service.command.CommandManager;
+import org.cubeengine.service.webapi.exception.ApiRequestException;
 import org.spongepowered.api.entity.living.player.User;
 
 import static io.netty.buffer.Unpooled.EMPTY_BUFFER;

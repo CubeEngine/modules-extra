@@ -17,6 +17,10 @@
  */
 package org.cubeengine.module.vigil.report;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.data.DataContainer;
@@ -24,14 +28,8 @@ import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.MemoryDataContainer;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.text.Text;
-
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.cubeengine.module.vigil.report.Report.LOCATION;
 import static org.cubeengine.module.vigil.report.block.BlockReport.*;

@@ -18,9 +18,9 @@
 package org.cubeengine.module.chat;
 
 import javax.inject.Inject;
-import de.cubeisland.engine.modularity.core.marker.Enable;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.modularity.core.marker.Enable;
 import org.cubeengine.module.chat.command.AfkCommand;
 import org.cubeengine.module.chat.command.ChatCommands;
 import org.cubeengine.module.chat.command.IgnoreCommands;
@@ -29,12 +29,12 @@ import org.cubeengine.module.chat.listener.ChatFormatListener;
 import org.cubeengine.module.chat.listener.MuteListener;
 import org.cubeengine.module.chat.storage.TableIgnorelist;
 import org.cubeengine.module.chat.storage.TableMuted;
-import org.cubeengine.service.database.ModuleTables;
-import org.cubeengine.service.filesystem.ModuleConfig;
-import org.cubeengine.service.i18n.I18n;
-import org.cubeengine.service.event.EventManager;
 import org.cubeengine.service.command.CommandManager;
 import org.cubeengine.service.database.Database;
+import org.cubeengine.service.database.ModuleTables;
+import org.cubeengine.service.event.EventManager;
+import org.cubeengine.service.filesystem.ModuleConfig;
+import org.cubeengine.service.i18n.I18n;
 import org.cubeengine.service.permission.ModulePermissions;
 import org.cubeengine.service.permission.PermissionManager;
 import org.cubeengine.service.task.TaskManager;

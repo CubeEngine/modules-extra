@@ -59,9 +59,9 @@ public class Signmarket extends Module
     {
         this.marketSignFactory = new MarketSignFactory(this);
         this.marketSignFactory.loadInAllSigns();
-        this.editModeListener = new EditModeListener(this);
+        this.editModeListener = new EditModeListener(this, i18n);
         em.registerListener(this, new MarketSignListener(this));
-        smCmds = new SignMarketCommands(this);
+        smCmds = new SignMarketCommands(this, i18n);
         cm.addCommand(smCmds);
         this.perms = new MarketSignPerm(this, smCmds);
 
@@ -80,7 +80,7 @@ public class Signmarket extends Module
         this.config = this.loadConfig(SignMarketConfig.class);
         this.marketSignFactory = new MarketSignFactory(this);
         this.marketSignFactory.loadInAllSigns();
-        this.editModeListener = new EditModeListener(this);
+        this.editModeListener = new EditModeListener(this, i18n);
         this.getCore().getEventManager().registerListener(this, new MarketSignListener(this));
         this.perms = new MarketSignPerm(this, smCmds);
     }

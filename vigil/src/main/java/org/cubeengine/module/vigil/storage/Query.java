@@ -17,17 +17,14 @@
  */
 package org.cubeengine.module.vigil.storage;
 
-import com.flowpowered.math.vector.Vector3d;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Filters;
-import org.bson.Document;
-import org.bson.conversions.Bson;
-import org.spongepowered.api.world.World;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import com.flowpowered.math.vector.Vector3d;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import org.bson.Document;
+import org.spongepowered.api.world.World;
 
 import static com.mongodb.QueryOperators.AND;
 import static com.mongodb.QueryOperators.OR;

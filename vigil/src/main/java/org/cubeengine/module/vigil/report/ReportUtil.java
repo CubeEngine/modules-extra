@@ -17,14 +17,12 @@
  */
 package org.cubeengine.module.vigil.report;
 
-import java.util.*;
+import java.util.List;
 import java.util.function.Function;
-
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
-
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.translation.Translation;

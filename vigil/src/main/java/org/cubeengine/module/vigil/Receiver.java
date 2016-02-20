@@ -17,6 +17,8 @@
  */
 package org.cubeengine.module.vigil;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.cubeengine.module.core.util.StringUtils;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.ReportActions;
@@ -26,11 +28,7 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.service.pagination.PaginationBuilder;
 import org.spongepowered.api.service.pagination.PaginationService;
 import org.spongepowered.api.text.Text;
-
 import org.spongepowered.api.text.format.TextColors;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
 import static org.cubeengine.service.i18n.formatter.MessageType.NEUTRAL;

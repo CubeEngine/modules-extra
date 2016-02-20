@@ -17,13 +17,9 @@
  */
 package org.cubeengine.module.vigil.report;
 
+import java.util.List;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.service.i18n.I18n;
-import org.spongepowered.api.event.Event;
-
-import java.util.List;
-
-import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
 
 public class UnkownReport implements Report, Report.Readonly, Report.SimpleGrouping
 {

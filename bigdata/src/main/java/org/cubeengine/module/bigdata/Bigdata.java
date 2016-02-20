@@ -17,12 +17,15 @@
  */
 package org.cubeengine.module.bigdata;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Collections;
+import java.util.List;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
-import de.cubeisland.engine.logscribe.Log;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.modularity.core.marker.Disable;
@@ -31,16 +34,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.bson.Document;
 import org.cubeengine.module.bigdata.MongoDBConfiguration.Authentication;
-import org.cubeengine.service.filesystem.FileManager;
 import org.cubeengine.service.filesystem.ModuleConfig;
-
-import javax.inject.Inject;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.security.AccessControlException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.apache.logging.log4j.Level.ERROR;

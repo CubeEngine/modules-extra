@@ -20,7 +20,7 @@ package org.cubeengine.module.signmarket;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
-import de.cubeisland.engine.module.core.CubeEngine;
+import org.cubeengine.module.core.util.RomanNumbers;
 import org.cubeengine.module.signmarket.exceptions.NoDemandException;
 import org.cubeengine.module.signmarket.exceptions.NoOwnerException;
 import org.cubeengine.module.signmarket.exceptions.NoStockException;
@@ -29,30 +29,17 @@ import org.cubeengine.module.signmarket.storage.BlockModel;
 import org.cubeengine.module.signmarket.storage.ItemModel;
 import org.cubeengine.module.signmarket.storage.TableSignBlock;
 import org.cubeengine.module.signmarket.storage.TableSignItem;
-import org.cubeengine.service.Economy;
-import org.cubeengine.service.user.User;
-import org.cubeengine.module.core.util.InventoryGuardFactory;
-import org.cubeengine.module.core.util.RomanNumbers;
 import org.cubeengine.service.i18n.formatter.MessageType;
-import de.cubeisland.engine.module.core.util.matcher.Match;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.spongepowered.api.service.economy.EconomyService;
-import org.spongepowered.api.world.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.Sign;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.event.block.Action;
-import org.bukkit.inventory.Inventory;
-import org.spongepowered.api.item.inventory.ItemStack;
-import org.bukkit.inventory.meta.EnchantmentStorageMeta;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.jooq.DSLContext;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.item.inventory.Inventory;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.service.economy.EconomyService;
+import org.spongepowered.api.world.Location;
 
-import static org.bukkit.event.inventory.InventoryType.DISPENSER;
+import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
 
 // TODO http://git.cubeisland.de/cubeengine/cubeengine/issues/414 shift-click to edit multiple signs at the same time
 // TODO http://git.cubeisland.de/cubeengine/cubeengine/issues/431 blacklist
@@ -67,7 +54,7 @@ public class MarketSign
     private final BlockModel blockInfo;
     public boolean syncOnMe = false;
     private ItemModel itemInfo;
-    private WeakReference<User> userOwner;
+    private WeakReference<Player> userOwner;
     private Map<Long, Long> breakingSign = new HashMap<>();
     private boolean editMode;
     private int inventoryStock;
@@ -78,7 +65,7 @@ public class MarketSign
         this(module, location, null);
     }
 
-    public MarketSign(Signmarket module, Location location, User owner)
+    public MarketSign(Signmarket module, Location location, Player owner)
     {
         DSLContext dsl = module.getCore().getDB().getDSL();
         this.module = module;
@@ -971,14 +958,14 @@ public class MarketSign
         }
     }
 
-    public boolean isValidSign(User user)
+    public boolean isValidSign(Player user)
     {
         boolean result = true;
         if (!this.hasType())
         {
             if (user != null)
             {
-                user.sendTranslated(NEGATIVE, "No sign-type given!");
+                i18n.sendTranslated(user, NEGATIVE, "No sign-type given!");
             }
             result = false;
         }
@@ -1486,7 +1473,7 @@ public class MarketSign
         this.updateSignText();
     }
 
-    public void exitEditMode(User user)
+    public void exitEditMode(Player user)
     {
         this.editMode = false;
         this.updateSignText();

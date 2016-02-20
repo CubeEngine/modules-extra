@@ -17,12 +17,11 @@
  */
 package org.cubeengine.module.vigil.report.inventory;
 
+import java.util.List;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.Report;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
-
-import java.util.List;
 
 /* TODO
 inventory

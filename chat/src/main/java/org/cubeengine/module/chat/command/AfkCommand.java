@@ -26,11 +26,12 @@ import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Default;
 import org.cubeengine.module.chat.Chat;
 import org.cubeengine.module.chat.listener.AfkListener;
+import org.cubeengine.service.command.exception.PermissionDeniedException;
 import org.cubeengine.service.event.EventManager;
-import org.cubeengine.service.command.CommandContext;
 import org.cubeengine.service.task.TaskManager;
 import org.cubeengine.service.user.Broadcaster;
 import org.spongepowered.api.Game;
+import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.user.UserStorageService;
@@ -66,11 +67,14 @@ public class AfkCommand implements Runnable
     }
 
     @Command(desc = "Displays that you are afk")
-    public void afk(CommandContext context, @Default Player player)
+    public void afk(CommandSource context, @Default Player player)
     {
-        if (!context.getSource().equals(player))
+        if (!context.equals(player))
         {
-            context.ensurePermission(module.perms().COMMAND_AFK_OTHER);
+            if (context.hasPermission(module.perms().COMMAND_AFK_OTHER.getId()))
+            {
+                throw new PermissionDeniedException(module.perms().COMMAND_AFK_OTHER);
+            }
         }
         if (afks.getOrDefault(player.getUniqueId(), false))
         {

@@ -17,6 +17,8 @@
  */
 package org.cubeengine.module.vigil.report.block;
 
+import java.util.List;
+import java.util.Optional;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.Recall;
@@ -28,9 +30,6 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
-
-import java.util.List;
-import java.util.Optional;
 
 import static org.cubeengine.module.vigil.report.ReportUtil.containsSingle;
 import static org.cubeengine.module.vigil.report.ReportUtil.name;

@@ -17,12 +17,11 @@
  */
 package org.cubeengine.module.vigil.report.block;
 
+import java.util.List;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.Report;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
-
-import java.util.List;
 
 /* TODO change
 sign
