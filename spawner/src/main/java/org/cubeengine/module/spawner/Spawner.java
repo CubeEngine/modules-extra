@@ -44,6 +44,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.item.Enchantment;
@@ -154,7 +155,7 @@ public class Spawner extends Module
             if (item.isPresent())
             {
                 item.get().offer(Keys.REPRESENTED_ITEM, clone.createSnapshot());
-                player.getWorld().spawnEntity(item.get(), Cause.of(player)); // TODO instead drop naturally at blockpos
+                player.getWorld().spawnEntity(item.get(), Cause.of(NamedCause.source(player))); // TODO instead drop naturally at blockpos
                 i18n.sendTranslated(player, POSITIVE, "Dropped inactive Monster Spawner!");
                 // TODO cancel exp drops
                 return;
