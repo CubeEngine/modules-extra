@@ -17,6 +17,7 @@
  */
 package org.cubeengine.module.chat.command;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -38,9 +39,21 @@ import org.spongepowered.api.data.manipulator.mutable.DisplayNameData;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.user.UserStorageService;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.Text.Builder;
+import org.spongepowered.api.text.format.TextColor;
+import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.format.TextStyle;
+import org.spongepowered.api.text.format.TextStyles;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
 import static org.cubeengine.butler.parameter.Parameter.INFINITE;
 import static org.cubeengine.service.i18n.formatter.MessageType.*;
+import static org.cubeengine.service.i18n.formatter.MessageType.NONE;
+import static org.spongepowered.api.text.format.TextStyles.*;
+import static org.spongepowered.api.text.format.TextStyles.BOLD;
+import static org.spongepowered.api.text.format.TextStyles.ITALIC;
+import static org.spongepowered.api.text.format.TextStyles.OBFUSCATED;
+import static org.spongepowered.api.text.serializer.TextSerializers.FORMATTING_CODE;
 
 
 public class ChatCommands
@@ -212,18 +225,28 @@ public class ChatCommands
     public void chatcolors(CommandSource context)
     {
         i18n.sendTranslated(context, POSITIVE, "The following chat codes are available:");
-        StringBuilder builder = new StringBuilder();
+        Builder builder = Text.builder();
         int i = 0;
-        for (ChatFormat chatFormat : ChatFormat.values())
+        for (TextColor color : Sponge.getRegistry().getAllOf(TextColor.class))
         {
+            if (color == TextColors.NONE)
+            {
+                continue;
+            }
             if (i++ % 3 == 0)
             {
-                builder.append("\n");
+                builder.append(Text.NEW_LINE);
             }
-            builder.append(" ").append(chatFormat.getChar()).append(" ").append(chatFormat.toString()).append(chatFormat.name()).append(ChatFormat.RESET);
+            builder.append(Text.of(" ")).append(Text.of(color, color.getName())).append(Text.of(" (", FORMATTING_CODE.serialize(Text.of(color)), ")"));
         }
-        context.sendMessage(Text.of(builder.toString()));
-        i18n.sendTranslated(context, POSITIVE, "To use these type {text:&} followed by the code above");
+        builder.append(Text.NEW_LINE);
+        builder.append(Text.of(" ")).append(Text.of(BOLD, "bold")).append(Text.of(" (", FORMATTING_CODE.serialize(Text.of(BOLD)), ")"));
+        builder.append(Text.of(" ")).append(Text.of(ITALIC, "italic")).append(Text.of(" (", FORMATTING_CODE.serialize(Text.of(ITALIC)), ")"));
+        builder.append(Text.of(" ")).append(Text.of(UNDERLINE, "underline")).append(Text.of(" (", FORMATTING_CODE.serialize(Text.of(UNDERLINE)), ")"));
+        builder.append(Text.NEW_LINE);
+        builder.append(Text.of(" ")).append(Text.of(STRIKETHROUGH, "strikethrough")).append(Text.of(" (", FORMATTING_CODE.serialize(Text.of(STRIKETHROUGH)), ")"));
+        builder.append(Text.of(" ")).append(Text.of(OBFUSCATED, "obfuscated")).append(Text.of(" (", FORMATTING_CODE.serialize(Text.of(OBFUSCATED)), ")"));
+        context.sendMessage(builder.build());
     }
 
 
