@@ -73,8 +73,7 @@ public class ChatFormatListener
             }
         }
 
-        Subject subject = game.getServiceManager().provideUnchecked(PermissionService.class).getUserSubjects().get(
-            player.getUniqueId().toString());
+        Subject subject = game.getServiceManager().provideUnchecked(PermissionService.class).getUserSubjects().get(player.getUniqueId().toString());
 
         Map<String, Text> replacements = new HashMap<>();
         String name = player.getName();
