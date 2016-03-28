@@ -20,92 +20,87 @@ package org.cubeengine.module.backpack;
 import org.cubeengine.butler.alias.Alias;
 import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parametric.Command;
-import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Default;
+import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Label;
 import org.cubeengine.butler.parametric.Named;
 import org.cubeengine.butler.parametric.Optional;
-import org.cubeengine.service.command.ContainerCommand;
-import org.cubeengine.service.command.CommandContext;
-import org.cubeengine.service.user.User;
 import org.cubeengine.module.core.util.ChatFormat;
 import org.cubeengine.module.core.util.StringUtils;
+import org.cubeengine.service.command.CommandContext;
+import org.cubeengine.service.command.ContainerCommand;
+import org.cubeengine.service.command.annotation.ParameterPermission;
+import org.cubeengine.service.i18n.I18n;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.world.World;
 
 import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
-import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
 
 @Command(name = "backpack", desc = "The Backpack commands", alias = "bp")
 public class BackpackCommands extends ContainerCommand
 {
     private final Backpack module;
     private final BackpackManager manager;
+    private I18n i18n;
 
-    public BackpackCommands(Backpack module, BackpackManager manager)
+    public BackpackCommands(Backpack module, BackpackManager manager, I18n i18n)
     {
         super(module);
         this.module = module;
         this.manager = manager;
+        this.i18n = i18n;
     }
 
     @Alias(value = "openbp")
     @Command(desc = "opens a backpack")
-    @Restricted(value = User.class, msg = "You cannot open a inventory in console!")
-    public void open(CommandContext context, String name, @Default User player, @Named({"world", "for", "in", "w"}) World world)
+    @Restricted(value = Player.class, msg = "You cannot open a inventory in console!")
+    public void open(Player ctx, String name, @Default User player,
+                     @ParameterPermission(value = "other-context", desc = "Allows using the open command in another context")@Flag boolean outOfContext)
     {
-        if (world == null)
+        if (ctx != player && !ctx.hasPermission(module.perms().COMMAND_OPEN_OTHER_PLAYER.getId()))
         {
-            world = player.getWorld();
-        }
-        if (context.getSource() != player && !module.perms().OPEN_OTHER_USER.isAuthorized(context.getSource()))
-        {
-            context.sendTranslated(NEGATIVE, "You are not allowed to open the backpacks of other users!");
+            i18n.sendTranslated(ctx, NEGATIVE, "You are not allowed to open the backpacks of other users!");
             return;
         }
-        if (player.getWorld() != world && !module.perms().OPEN_OTHER_WORLDS.isAuthorized(context.getSource()))
-        {
-            context.sendTranslated(NEGATIVE, "You are not allowed to open backpacks from an other world!");
-            return;
-        }
-        manager.openBackpack((User)context.getSource(), player, world, name);
+        manager.openBackpack(ctx, player, outOfContext, name);
     }
 
     @Alias(value = "createbp")
     @Command(desc = "creates a new backpack")
-    public void create(CommandContext context, String name,
+    public void create(CommandSource ctx, String name,
                        @Default @Optional User player,
-                       @Named({"w", "world", "for", "in"}) World world,
+                       @Default @Named("in") Context context,
                        @Named({"p", "pages"}) Integer pages,
                        @Named({"s","size"}) Integer size,
-                       @Flag boolean global,
-                       @Flag boolean single,
                        @Flag boolean blockinput)
     {
-        if (world == null && !global)
-        {
-            if (!(context.getSource() instanceof User))
-            {
-                context.sendTranslated(POSITIVE, "You have to specify a world for non global backpacks!");
-                return;
-            }
-            world = ((User)context.getSource()).getWorld();
-        }
-        manager.createBackpack(context.getSource(), player, name, world, global, single, blockinput, pages, size);
+        manager.createBackpack(ctx, player, name, context, blockinput, pages, size);
     }
 
     @Alias(value = "modifybp")
     @Command(desc = "modifies a backpack")
-    public void modify(CommandContext context, String name, @Default User player,
-                       @Named({"w", "world", "for", "in"}) World world,
+    public void modify(CommandSource ctx, String name, @Default User player,
                        @Named({"p", "pages"}) Integer pages,
                        @Named({"s","size"}) Integer size,
                        @Flag boolean blockinput)
     {
-        if (world == null && (context.getSource() instanceof User))
-        {
-            world = ((User)context.getSource()).getWorld();
-        }
-        manager.modifyBackpack(context.getSource(), player, name, world, blockinput, pages, size);
+        manager.modifyBackpack(ctx, player, name, blockinput, pages, size);
+    }
+
+    // TODO modify backpack context
+    public void addContext(CommandSource ctx, String name, @Default User player, Context context)
+    {
+        manager.setBackpackContext(ctx, player, name, context, true);
+    }
+
+    // TODO modify backpack context
+    public void removeContext(CommandSource ctx, String name, @Default User player, Context context)
+    {
+        manager.setBackpackContext(ctx, player, name, context, false);
     }
 
     @Alias(value = "givebp")
@@ -174,6 +169,6 @@ public class BackpackCommands extends ContainerCommand
             amount = matchedItem.getMaxStackSize();
         }
         matchedItem.setAmount(amount);
-        this.manager.giveItem(context.getSource(), player, world, name, matchedItem);
+        this.manager.giveItem(context.getSource(), player, name, matchedItem);
     }
 }

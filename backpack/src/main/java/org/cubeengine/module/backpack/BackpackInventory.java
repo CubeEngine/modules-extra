@@ -22,18 +22,18 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import org.cubeengine.service.user.User;
+import java.util.Set;
 import org.cubeengine.module.core.util.ChatFormat;
-import org.cubeengine.module.core.util.InventoryGuardFactory;
-import de.cubeisland.engine.module.core.util.InventoryUtil;
-import org.bukkit.entity.HumanEntity;
-import org.spongepowered.api.entity.player.Player;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
-import org.spongepowered.api.item.inventory.ItemStack;
+import org.cubeengine.service.inventoryguard.InventoryGuardFactory;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.item.inventory.Inventory;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.custom.CustomInventory;
+import org.spongepowered.api.service.context.Context;
 
-public class BackpackInventories
+public class BackpackInventory
 {
     private final Backpack module;
     protected BackpackData data;
@@ -43,7 +43,7 @@ public class BackpackInventories
     
     private static final String pageString = ChatFormat.GOLD + "Page";
 
-    public BackpackInventories(Backpack module, BackpackData data)
+    public BackpackInventory(Backpack module, BackpackData data)
     {
         this.module = module;
         this.data = data;
@@ -56,6 +56,9 @@ public class BackpackInventories
 
     private Inventory getInventory(int index)
     {
+        CustomInventory.builder()
+            // TODO create custom inventory that is a CarriedInventory
+
         BackpackHolder holder = this.views.get(index);
         if (holder == null)
         {
@@ -74,7 +77,7 @@ public class BackpackInventories
 
     private void saveData(int index, Inventory inventory)
     {
-        ItemStack[] contents = inventory.getContents();
+        Iterable<Inventory> slots = inventory.slots();
         int offset = index * data.size * 9;
         for (int i = 0; i < data.size * 9; i++)
         {
@@ -92,61 +95,60 @@ public class BackpackInventories
 
     private void openInventory(int index, Player player)
     {
-        if (player instanceof User)
-        {
-            player = player.getPlayer();
-        }
         this.viewers.put(player, index);
         if (data.allowItemsIn)
         {
-            player.openInventory(this.getInventory(index));
+            player.openInventory(this.getInventory(index), Cause.of(NamedCause.source(player)));
         }
         else
         {
-            InventoryGuardFactory.prepareInventory(this.getInventory(index),
-               module.getCore().getUserManager().getExactUser(player.getUniqueId())).
+            module.getInventoryGuardFactory().prepareInv(this.getInventory(index), player.getUniqueId()).
                 blockPutInAll().submitInventory(module, true);
         }
     }
 
     public void showNextPage(Player player)
     {
-        Integer index = viewers.get(player);
-        if (data.pages == 1)
-        {
-            return;
-        }
-        player.closeInventory();
-        int newIndex;
-        if (index == data.pages -1)
-        {
-            newIndex = 0;
-        }
-        else
-        {
-            newIndex = index + 1;
-        }
-        this.openInventory(newIndex, player);
+        showPage(player, 1);
     }
 
-    public void showPrevPage(Player player)
+    private void showPage(Player player, boolean next)
     {
         Integer index = viewers.get(player);
         if (data.pages == 1)
         {
             return;
         }
-        player.closeInventory();
+        player.closeInventory(Cause.of(NamedCause.source(player)));
         int newIndex;
-        if (index == 0)
+        if (next)
         {
-            newIndex = data.pages - 1;
+            if (index == data.pages -1)
+            {
+                newIndex = 0;
+            }
+            else
+            {
+                newIndex = index + 1;
+            }
         }
         else
         {
-            newIndex = index - 1;
+            if (index == 0)
+            {
+                newIndex = data.pages - 1;
+            }
+            else
+            {
+                newIndex = index - 1;
+            }
         }
         this.openInventory(newIndex, player);
+    }
+
+    public void showPrevPage(Player player)
+    {
+        showPage(player, false);
     }
 
     public void closeInventory(Player player)
@@ -166,8 +168,11 @@ public class BackpackInventories
         }
     }
 
-    public void addItem(ItemStack toGive)
+    public void closeInventory()
     {
+        viewers.keySet().forEach(p -> p.closeInventory(Cause.of(NamedCause.source(this)))); // TODO better cause
+
+        // TODO save changes
         for (InventoryHolder holder : new ArrayList<>(this.views.values()))
         {
             for (HumanEntity humanEntity : new ArrayList<>(holder.getInventory().getViewers()))
@@ -176,6 +181,11 @@ public class BackpackInventories
                 humanEntity.closeInventory();
             }
         }
+    }
+
+    public void addItem(ItemStack toGive)
+    {
+        closeInventory();
 
         LinkedList<ItemStack> itemStacks = new LinkedList<>(Arrays.asList(InventoryUtil.splitIntoMaxItems(toGive, toGive.getMaxStackSize())));
         for (int i = 0 ; itemStacks.size() > 0; i++)
@@ -192,5 +202,20 @@ public class BackpackInventories
         this.data.save();
     }
 
+    public boolean hasContext(Set<Context> set)
+    {
+        for (Context context : data.activeIn)
+        {
+            if (context.equals(new Context("global", ""))) // TODO global context in service
+            {
+                return true;
+            }
+            if (set.contains(context))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }

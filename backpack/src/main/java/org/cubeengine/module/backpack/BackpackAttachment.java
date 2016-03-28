@@ -23,19 +23,14 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import org.cubeengine.service.user.UserAttachment;
-import org.cubeengine.module.core.util.StringUtils;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.world.World;
 
 
-public class BackpackAttachment extends UserAttachment
+public class BackpackAttachment
 {
-    protected final Map<World, Map<String, BackpackInventories>> backpacks = new HashMap<>();
-    protected final Map<World, Map<String, BackpackInventories>> groupedBackpacks = new HashMap<>();
-    protected final Map<String, BackpackInventories> globalBackpacks = new HashMap<>();
-
     public void loadGlobalBackpacks()
     {
-        Backpack module = (Backpack)this.getModule();
         this.loadBackpacks(module.globalDir, globalBackpacks);
     }
     // backpack/global/<playername>/backpackname
@@ -55,7 +50,7 @@ public class BackpackAttachment extends UserAttachment
         Path dir = module.singleDir.resolve(world.getName());
         if (Files.isDirectory(dir))
         {
-            Map<String, BackpackInventories> map = this.backpacks.get(world);
+            Map<String, BackpackInventory> map = this.backpacks.get(world);
             if (map == null)
             {
                 map = new HashMap<>();
@@ -63,11 +58,11 @@ public class BackpackAttachment extends UserAttachment
             }
             this.loadBackpacks(dir, map);
         }
-        World mainWorld = ((Backpack)this.getModule()).getMainWorld(world);
+        World mainWorld = Sponge.getServer().getWorld(Sponge.getServer().getDefaultWorld().get().getUniqueId()).get();
         dir = module.groupedDir.resolve(mainWorld.getName());
         if (Files.isDirectory(dir))
         {
-            Map<String, BackpackInventories> map = this.groupedBackpacks.get(mainWorld);
+            Map<String, BackpackInventory> map = this.groupedBackpacks.get(mainWorld);
             if (map == null)
             {
                 map = new HashMap<>();
@@ -122,44 +117,17 @@ public class BackpackAttachment extends UserAttachment
         return path.resolve(name + DAT.getExtention());
     }
 
-    protected void loadBackpacks(Path dir, Map<String, BackpackInventories> map)
-    {
-        Path playerDir = dir.resolve(this.getHolder().getUniqueId().toString());
-        if (Files.isDirectory(playerDir))
-        {
-            try
-            {
-                for (Path path : Files.newDirectoryStream(playerDir, DAT.getExtention()))
-                {
-                    String name = StringUtils.stripFileExtension(path.getFileName().toString());
-                    BackpackData load = reflector.load(BackpackData.class, path.toFile());
-                    BackpackInventories bpInv = map.get(name);
-                    if (bpInv == null)
-                    {
-                        map.put(name, new BackpackInventories((Backpack)this.getModule(), load));
-                    }
-                    else
-                    {
-                        bpInv.data = load;
-                    }
-                }
-            }
-            catch (IOException e)
-            {
-                throw new IllegalStateException(e); // TODO better exception
-            }
-        }
-    }
 
-    public BackpackInventories getBackpack(String name, World world)
+
+    public BackpackInventory getBackpack(String name, World world)
     {
-        BackpackInventories backpack = this.globalBackpacks.get(name);
+        BackpackInventory backpack = this.globalBackpacks.get(name);
         if (backpack != null)
         {
             return backpack;
         }
         if (world == null) return null;
-        Map<String, BackpackInventories> map = this.backpacks.get(world);
+        Map<String, BackpackInventory> map = this.backpacks.get(world);
         if (map != null)
         {
              backpack = map.get(name);
@@ -168,60 +136,13 @@ public class BackpackAttachment extends UserAttachment
         {
             return backpack;
         }
-        World mainWorld = ((Backpack)this.getModule()).getMainWorld(world);
+
+        World mainWorld = Sponge.getServer().getWorld(Sponge.getServer().getDefaultWorld().get().getUniqueId()).get();
         map = this.groupedBackpacks.get(mainWorld);
         if (map != null)
         {
             backpack = map.get(name);
         }
         return backpack;
-    }
-
-    public void createBackpack(String name, World forWorld, boolean blockIn, Integer pages, Integer size)
-    {
-        Path file = this.getSingleBackpack(name, forWorld.getName());
-        BackpackData data = this.getModule().getCore().getConfigFactory().create(BackpackData.class);
-        data.allowItemsIn = !blockIn;
-        data.pages = pages;
-        data.size = size;
-        data.setFile(file.toFile());
-        data.save();
-        Map<String, BackpackInventories> backpacks = this.backpacks.get(forWorld);
-        if (backpacks == null)
-        {
-            backpacks = new HashMap<>();
-            this.backpacks.put(forWorld, backpacks);
-        }
-        backpacks.put(name, new BackpackInventories((Backpack)getModule(), data));
-    }
-
-    public void createGroupedBackpack(String name, World forWorld, boolean blockIn, Integer pages, Integer size)
-    {
-        Path path = this.getGroupedBackpack(name, forWorld.getName());
-        BackpackData data = reflector.create(BackpackData.class);
-        data.allowItemsIn = !blockIn;
-        data.pages = pages;
-        data.size = size;
-        data.setFile(path.toFile());
-        data.save();
-        Map<String, BackpackInventories> backpacks = this.backpacks.get(forWorld);
-        if (backpacks == null)
-        {
-            backpacks = new HashMap<>();
-            this.backpacks.put(forWorld, backpacks);
-        }
-        backpacks.put(name, new BackpackInventories((Backpack)getModule(), data));
-    }
-
-    public void createGlobalBackpack(String name, boolean blockIn, Integer pages, Integer size)
-    {
-        Path file = this.getGlobalBackpack(name);
-        BackpackData data = reflector.create(BackpackData.class);
-        data.allowItemsIn = !blockIn;
-        data.pages = pages;
-        data.size = size;
-        data.setFile(file.toFile());
-        data.save();
-        globalBackpacks.put(name, new BackpackInventories((Backpack)getModule(), data));
     }
 }

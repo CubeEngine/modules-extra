@@ -17,26 +17,30 @@
  */
 package org.cubeengine.module.backpack;
 
-public class BackpackHolder implements InventoryHolder
+import org.spongepowered.api.item.inventory.Carrier;
+import org.spongepowered.api.item.inventory.custom.CustomInventory;
+import org.spongepowered.api.item.inventory.type.CarriedInventory;
+
+public class BackpackHolder implements Carrier
 {
     public final int index;
-    public final Inventory inventory;
-    private final BackpackInventories backBackInventories;
+    public final CarriedInventory inventory;
+    private final BackpackInventory backBackInventories;
 
-    public BackpackHolder(BackpackInventories backBackInventories, int index, int size, String title)
+    public BackpackHolder(BackpackInventory backBackInventories, int index, int size, String title)
     {
         this.backBackInventories = backBackInventories;
         this.index = index;
-        this.inventory = Bukkit.createInventory(this, size, title);
+        this.inventory = CustomInventory.builder().name(title).size(size).build();
     }
 
     @Override
-    public Inventory getInventory()
+    public CarriedInventory getInventory()
     {
         return this.inventory;
     }
 
-    public BackpackInventories getBackpack()
+    public BackpackInventory getBackpack()
     {
         return this.backBackInventories;
     }

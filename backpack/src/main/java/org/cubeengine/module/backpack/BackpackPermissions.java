@@ -17,8 +17,8 @@
  */
 package org.cubeengine.module.backpack;
 
-import de.cubeisland.engine.service.permission.Permission;
 import org.cubeengine.service.permission.PermissionContainer;
+import org.spongepowered.api.service.permission.PermissionDescription;
 
 @SuppressWarnings("all")
 public class BackpackPermissions extends PermissionContainer<Backpack>
@@ -26,11 +26,8 @@ public class BackpackPermissions extends PermissionContainer<Backpack>
     public BackpackPermissions(Backpack module)
     {
         super(module);
-        this.registerAllPermissions();
     }
 
-    private final Permission COMMAND = getBasePerm().childWildcard("command");
-    private final Permission COMMAND_OPEN = COMMAND.childWildcard("open");
-    public final Permission OPEN_OTHER_USER = COMMAND_OPEN.child("other-user");
-    public final Permission OPEN_OTHER_WORLDS = COMMAND_OPEN.child("other-worlds");
+    private final PermissionDescription COMMAND_OPEN = register("command.open", "Allows using the open command without restriction", null);
+    public final PermissionDescription COMMAND_OPEN_OTHER_PLAYER = register("command.open.other-player", "Allows using the open command as another player", null);
 }

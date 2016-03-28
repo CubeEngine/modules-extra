@@ -17,10 +17,13 @@
  */
 package org.cubeengine.module.backpack;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import de.cubeisland.engine.reflect.codec.nbt.ReflectedNBT;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.service.context.Context;
 
 public class BackpackData extends ReflectedNBT
 {
@@ -28,16 +31,13 @@ public class BackpackData extends ReflectedNBT
     public int pages = 1;
     public int size = 6;
     public Map<Integer, ItemStack> contents = new HashMap<>();
+    public List<Context> activeIn = new ArrayList<>();
 
     @Override
     public void onSave()
     {
-        for (Integer next : contents.keySet())
-        {
-            if (contents.get(next) == null)
-            {
-                contents.remove(next);
-            }
-        }
+        contents.keySet().stream()
+                .filter(next -> contents.get(next) == null)
+                .forEach(next -> contents.remove(next));
     }
 }

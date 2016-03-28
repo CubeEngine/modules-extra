@@ -17,31 +17,38 @@
  */
 package org.cubeengine.module.backpack;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.UUID;
+import javax.inject.Inject;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
-import org.cubeengine.module.backpack.converter.NBTItemStackConverter;
-import org.cubeengine.module.core.util.McUUID;
-import de.cubeisland.engine.module.worlds.Multiverse;
-import de.cubeisland.engine.module.worlds.Worlds;
+import de.cubeisland.engine.modularity.core.marker.Enable;
+import de.cubeisland.engine.reflect.Reflector;
 import de.cubeisland.engine.reflect.codec.nbt.NBTCodec;
-import org.spongepowered.api.world.World;
+import org.cubeengine.module.backpack.converter.NBTItemStackConverter;
+import org.cubeengine.service.command.CommandManager;
+import org.cubeengine.service.event.EventManager;
+import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.service.inventoryguard.InventoryGuardFactory;
+import org.spongepowered.api.item.inventory.ItemStack;
 
 @ModuleInfo(name = "Backpack", description = "Expand your inventory")
+/*
+TODO blocked by custom inventories implementation
+TODO replace global/grouped/single with context:
+    backpack names are unique to one player and can be active in any number of context
+TODO NBT-Reflect Context Reader
+TODO add cmds to add/remove context
+ */
 public class Backpack extends Module
 {
-    protected Path singleDir;
-    protected Path groupedDir;
-    protected Path globalDir;
     private BackpackManager manager;
+
+    @Inject private Path modulePath;
+    @Inject private Reflector reflector;
+    @Inject private I18n i18n;
+    @Inject private CommandManager cm;
+    @Inject private EventManager em;
+    @Inject private InventoryGuardFactory igf;
 
     public BackpackPermissions perms()
     {
@@ -50,103 +57,25 @@ public class Backpack extends Module
 
     private BackpackPermissions perms;
 
-    @Override
+    @Enable
     public void onEnable()
     {
         perms = new BackpackPermissions(this);
-        this.getCore().getConfigFactory().getCodecManager().getCodec(NBTCodec.class).getConverterManager().
+        reflector.getCodecManager().getCodec(NBTCodec.class).getConverterManager().
             registerConverter(new NBTItemStackConverter(), ItemStack.class);
-        this.singleDir = this.getFolder().resolve("single");
-        this.groupedDir = this.getFolder().resolve("grouped");
-        this.globalDir = this.getFolder().resolve("global");
 
-        this.updateToUUID();
-        manager = new BackpackManager(this);
+        manager = new BackpackManager(this, reflector, i18n);
+        cm.addCommand(new BackpackCommands(this, manager, i18n));
+        em.registerListener(this, manager);
     }
 
-    private void updateToUUID()
+    public Path getModulePath()
     {
-        try
-        {
-            Map<String, List<Path>> toRename = new HashMap<>();
-            for (Path dir : Files.newDirectoryStream(singleDir))
-            {
-                addPaths(toRename, dir);
-            }
-            for (Path dir : Files.newDirectoryStream(groupedDir))
-            {
-                addPaths(toRename, dir);
-            }
-            addPaths(toRename, globalDir);
-            if (!toRename.isEmpty())
-            {
-                getLog().info("Updating Backpacks for {} to UUID", toRename.size());
-                for (Entry<String, UUID> entry : McUUID.getUUIDForNames(toRename.keySet()).entrySet())
-                {
-                    for (Path path : toRename.get(entry.getKey()))
-                    {
-                        if (entry.getValue() != null)
-                        {
-                            Files.move(path, path.getParent().resolve(entry.getValue().toString()));
-                        }
-                    }
-                }
-            }
-        }
-        catch (IOException e)
-        {
-            throw new ModuleLoadError(e);
-        }
+        return modulePath;
     }
 
-    private void addPaths(Map<String, List<Path>> toRename, Path dir) throws IOException
+    public InventoryGuardFactory getInventoryGuardFactory()
     {
-        if (!Files.isDirectory(dir))
-        {
-            return;
-        }
-        for (Path path : Files.newDirectoryStream(dir))
-        {
-            if (Files.isDirectory(path))
-            {
-                String name = path.getFileName().toString();
-                if (!McUUID.UUID_PATTERN.matcher(name).find())
-                {
-                    List<Path> paths = toRename.get(name);
-                    if (paths == null)
-                    {
-                        paths = new ArrayList<>();
-                        toRename.put(name, paths);
-                    }
-                    paths.add(path);
-                }
-            }
-        }
-    }
-
-
-    public World getMainWorld(World world)
-    {
-        Module worlds = this.getCore().getModuleManager().getModule("worlds");
-        if (worlds != null && worlds instanceof Worlds)
-        {
-            Multiverse multiverse = ((Worlds)worlds).getMultiverse();
-            return multiverse.getUniverseFrom(world).getMainWorld();
-        }
-        else
-        {
-            if (world.getName().contains("_"))
-            {
-                String pre = world.getName().substring(0, world.getName().indexOf("_"));
-                for (World aWorld : this.getCore().getWorldManager().getWorlds())
-                {
-                    if (aWorld.getName().equals(pre))
-                    {
-                        return aWorld;
-                    }
-                }
-            }
-            return world;
-        }
+        return igf;
     }
 }

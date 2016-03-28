@@ -17,85 +17,289 @@
  */
 package org.cubeengine.module.backpack;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
-import org.cubeengine.service.command.CommandSender;
-import org.cubeengine.service.user.User;
-import org.spongepowered.api.event.inventory.InventoryClickEvent;
-import org.spongepowered.api.event.inventory.InventoryCloseEvent;
+import java.util.Map;
+import java.util.UUID;
+import de.cubeisland.engine.reflect.Reflector;
+import org.cubeengine.module.core.util.StringUtils;
+import org.cubeengine.service.i18n.I18n;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.event.item.inventory.ClickInventoryEvent;
+import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.world.World;
+import org.spongepowered.api.item.inventory.type.CarriedInventory;
+import org.spongepowered.api.service.context.Context;
 
+import static org.cubeengine.service.filesystem.FileExtensionFilter.DAT;
 import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
 import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
 
 public class BackpackManager
 {
     private final Backpack module;
+    private Reflector reflector;
+    private I18n i18n;
+    private final Path backpackPath;
 
-    public BackpackManager(Backpack module)
+    private Map<UUID, Map<String, BackpackInventory>> allPacks = new HashMap<>();
+
+    public BackpackManager(Backpack module, Reflector reflector, I18n i18n)
     {
         this.module = module;
-        cm.addCommand(new BackpackCommands(module, this));
-        em.registerListener(module, this);
+        this.reflector = reflector;
+        this.i18n = i18n;
+        this.backpackPath = module.getModulePath().resolve("backpacks");
     }
 
-    public void openBackpack(User sender, User forUser, World forWorld, String name)
+    protected void loadBackpacks(UUID player)
     {
-        BackpackAttachment attachment = forUser.attachOrGet(BackpackAttachment.class, module);
-        attachment.loadBackpacks(forWorld);
-        BackpackInventories backPack = attachment.getBackpack(name, forWorld);
-        if (backPack == null)
+        try
         {
-            if (sender != forUser)
+            Path folder = this.backpackPath.resolve(player.toString());
+
+            // When already loaded discard previous
+            Map<String, BackpackInventory> backPacks = allPacks.get(player);
+            if (backPacks != null)
             {
-                sender.sendTranslated(NEGATIVE, "{user} does not have a backpack named {input#backpack} in this world!", forUser, name);
-                return;
+                backPacks.values().forEach(BackpackInventory::closeInventory);
             }
-            sender.sendTranslated(NEGATIVE, "You don't have a backpack named {input#backpack} in this world!", name);
+            backPacks = new HashMap<>();
+            allPacks.put(player, backPacks);
+
+            for (Path path : Files.newDirectoryStream(folder, DAT.getExtention()))
+            {
+                String name = StringUtils.stripFileExtension(path.getFileName().toString());
+                BackpackData load = reflector.load(BackpackData.class, path.toFile());
+                backPacks.put(name, new BackpackInventory(module, load));
+            }
+        }
+        catch (IOException e)
+        {
+            throw new IllegalStateException(e);
+        }
+    }
+
+
+    public void openBackpack(Player sender, User forUser, boolean outOfContext, String name)
+    {
+        BackpackInventory pack = getBackpack(forUser, name);
+        if (pack == null)
+        {
+            packNotExistMessage(sender, forUser, name);
             return;
         }
-        backPack.openInventory(sender);
+        if (!outOfContext && !pack.hasContext(sender.getActiveContexts()))
+        {
+            i18n.sendTranslated(sender, NEGATIVE, "This backpack is not available in your current context!");
+            return;
+        }
+
+        pack.openInventory(sender);
     }
 
-    public void createBackpack(CommandSender sender, User forUser, String name, World forWorld, boolean global, boolean single, boolean blockInput, Integer pages, Integer size)
+    private void packNotExistMessage(CommandSource sender, User player, String name)
     {
-        BackpackAttachment attachment = forUser.attachOrGet(BackpackAttachment.class, module);
-        attachment.loadBackpacks(forWorld);
-        BackpackInventories backPack = attachment.getBackpack(name, forWorld);
-        if (backPack == null)
+        if (sender != player)
         {
-            if (global)
+            i18n.sendTranslated(sender, NEGATIVE, "{user} does not have a backpack named {input#backpack}!", player, name);
+            return;
+        }
+        i18n.sendTranslated(sender, NEGATIVE, "You don't have a backpack named {input#backpack}!", name);
+    }
+
+    private BackpackInventory getBackpack(User player, String name)
+    {
+        Map<String, BackpackInventory> packs = allPacks.get(player.getUniqueId());
+        BackpackInventory pack = null;
+        if (packs != null)
+        {
+            pack = packs.get(name);
+        }
+        return pack;
+    }
+
+    public void createBackpack(CommandSource sender, User player, String name, Context context, boolean blockInput, Integer pages, Integer size)
+    {
+        BackpackInventory backpack = getBackpack(player, name);
+        if (backpack != null)
+        {
+            packExistsMessage(sender, player, name);
+            return;
+        }
+
+        try
+        {
+            Path folder = this.backpackPath.resolve(player.getUniqueId().toString());
+            Files.createDirectories(folder);
+
+            BackpackData data = reflector.create(BackpackData.class);
+            data.allowItemsIn = !blockInput;
+            data.pages = pages;
+            data.size = size;
+            data.activeIn.add(context);
+            data.setFile(folder.resolve(name + DAT.getExtention()).toFile());
+            data.save();
+
+            Map<String, BackpackInventory> packs = allPacks.get(player.getUniqueId());
+            if (packs == null)
             {
-                attachment.createGlobalBackpack(name, blockInput, pages, size);
-                sender.sendTranslated(POSITIVE, "Created global backpack {input#backpack} for {user}", name, forUser);
+                packs = new HashMap<>();
+                allPacks.put(player.getUniqueId(), packs);
             }
-            else if (single)
+            packs.put(name, new BackpackInventory(module, data));
+
+            i18n.sendTranslated(sender, POSITIVE, "Created backpack {input#backpack} for {user}", name, player);
+            i18n.sendTranslated(sender, POSITIVE, "The backpack is currently active in {context}", context);
+
+        }
+        catch (IOException e)
+        {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private void packExistsMessage(CommandSource sender, User player, String name)
+    {
+        if (sender == player)
+        {
+            i18n.sendTranslated(sender, NEGATIVE, "A backpack named {input#backpack} already exists", name);
+            return;
+        }
+        i18n.sendTranslated(sender, NEGATIVE, "{user} already had a backpack named {input#backpack}", player, name);
+        return;
+    }
+
+    public void giveItem(CommandSource sender, User player, String name, ItemStack itemToGive)
+    {
+        BackpackInventory pack = getBackpack(player, name);
+        if (pack == null)
+        {
+            packNotExistMessage(sender, player, name);
+            if (sender != player)
             {
-                attachment.createBackpack(name, forWorld, blockInput, pages, size);
-                sender.sendTranslated(POSITIVE, "Created singleworld backpack {input#backpack} in {world} for {user}", name, forWorld, forUser);
+                i18n.sendTranslated(sender, NEGATIVE, "{user} does not have a backpack named {input#backpack} in this world!", player, name);
+                return;
+            }
+            i18n.sendTranslated(sender, NEGATIVE, "You don't have a backpack named {input#backpack} in this world!", name);
+            return;
+        }
+        pack.addItem(itemToGive);
+        i18n.sendTranslated(sender, POSITIVE, "Item added to backpack!");
+        if (sender != player && player.isOnline())
+        {
+            i18n.sendTranslated(player.getPlayer().get(), POSITIVE, "You received items in your backpack {input#backpack}", name);
+        }
+    }
+
+    public void modifyBackpack(CommandSource sender, User player, String name, Boolean blockInput, Integer pages, Integer size)
+    {
+        BackpackInventory pack = getBackpack(player, name);
+        if (pack == null)
+        {
+            packNotExistMessage(sender, player, name);
+            return;
+        }
+        
+        if (pages != null)
+        {
+            if (pack.data.contents.size() > pages * pack.data.size)
+            {
+                i18n.sendTranslated(sender, NEGATIVE, "Could not change page amount! Not enough space!");
             }
             else
             {
-                attachment.createGroupedBackpack(name, forWorld, blockInput, pages, size);
-                sender.sendTranslated(POSITIVE, "Created grouped backpack {input#backpack} in {world} for {user}", name, forWorld, forUser);
+                if (pack.data.pages > pages) // compact inventory
+                {
+                    Collection<ItemStack> values = pack.data.contents.values();
+                    pack.data.contents = new HashMap<>();
+                    int i = 0;
+                    for (ItemStack value : values)
+                    {
+                        pack.data.contents.put(i++, value);
+                    }
+                }
+                pack.data.pages = pages;
+                i18n.sendTranslated(sender, POSITIVE, "Pages changed!");
             }
+        }
+        if (size != null)
+        {
+            if (pack.data.contents.size() > size * pack.data.pages)
+            {
+                i18n.sendTranslated(sender, NEGATIVE, "Could not change page size! Not enough space!");
+            }
+            else
+            {
+                if (pack.data.size > size) // compact inventory
+                {
+                    Collection<ItemStack> values = pack.data.contents.values();
+                    pack.data.contents = new HashMap<>();
+                    int i = 0;
+                    for (ItemStack value : values)
+                    {
+                        pack.data.contents.put(i++, value);
+                    }
+                }
+                pack.data.size = size;
+                i18n.sendTranslated(sender, POSITIVE, "Page-size changed!");
+            }
+        }
+        if (blockInput != null)
+        {
+            pack.data.allowItemsIn = !blockInput;
+            if (blockInput)
+            {
+                i18n.sendTranslated(sender, POSITIVE, "Items are not allowed to go in!");
+            }
+            else
+            {
+                i18n.sendTranslated(sender, POSITIVE, "Items are allowed to go in!");
+            }
+        }
+        pack.data.save();
+    }
+
+    public void setBackpackContext(CommandSource ctx, User player, String name, Context context, boolean add)
+    {
+        BackpackInventory pack = getBackpack(player, name);
+        if (pack == null)
+        {
+            packNotExistMessage(ctx, player, name);
+            return;
+        }
+        if (add)
+        {
+            if (pack.data.activeIn.add(context))
+            {
+                pack.data.save();
+                i18n.sendTranslated(ctx, POSITIVE, "Added {context} to the backpack", context);
+                return;
+            }
+            i18n.sendTranslated(ctx, NEGATIVE, "{context} was already active for this backpack", context);
         }
         else
         {
-            if (sender == forUser)
+            if (pack.data.activeIn.remove(context))
             {
-                sender.sendTranslated(NEGATIVE, "A backpack named {input#backpack} already exists in {world}", name, forWorld);
+                pack.data.save();
+                i18n.sendTranslated(ctx, POSITIVE, "Removed {context} from the backpack", context);
+                return;
             }
-            else
-            {
-                sender.sendTranslated(NEGATIVE, "{user} already had a backpack named {input#backpack} in {world}", forUser, name, forWorld);
-            }
+            i18n.sendTranslated(ctx, NEGATIVE, "{context} was not active for this backpack", context);
         }
+
     }
 
-    @Subscribe
-    public void onInventoryClick(InventoryClickEvent event)
+    @Listener
+    public void onInventoryClick(ClickInventoryEvent event)
     {
         if (event.getWhoClicked() instanceof Player
             && event.getInventory().getHolder() instanceof BackpackHolder)
@@ -114,111 +318,16 @@ public class BackpackManager
         }
     }
 
-    @Subscribe
-    public void onInventoryClose(InventoryCloseEvent event)
+    @Listener
+    public void onInventoryClose(InteractInventoryEvent.Close event, @First Player player)
     {
-        if (event.getPlayer() instanceof Player
-            && event.getInventory().getHolder() instanceof BackpackHolder)
+        if (event.getTargetInventory() instanceof CarriedInventory)
         {
-            ((BackpackHolder)event.getInventory().getHolder()).getBackpack().closeInventory((Player)event.getPlayer());
-        }
-    }
 
-    public void giveItem(CommandSender sender, User forUser, World forWorld, String name, ItemStack itemToGive)
-    {
-        BackpackAttachment attachment = forUser.attachOrGet(BackpackAttachment.class, module);
-        attachment.loadBackpacks(forWorld);
-        BackpackInventories backPack = attachment.getBackpack(name, forWorld);
-        if (backPack == null)
-        {
-            if (sender != forUser)
-            {
-                sender.sendTranslated(NEGATIVE, "{user} does not have a backpack named {input#backpack} in this world!", forUser, name);
-                return;
-            }
-            sender.sendTranslated(NEGATIVE, "You don't have a backpack named {input#backpack} in this world!", name);
-            return;
         }
-        backPack.addItem(itemToGive);
-        sender.sendTranslated(POSITIVE, "Item added to backpack!");
-        if (sender != forUser && forUser.isOnline())
+        if (event.getInventory().getHolder() instanceof BackpackHolder)
         {
-            forUser.sendTranslated(POSITIVE, "You received items in your backpack {input#backpack}", name);
+            ((BackpackHolder)event.getInventory().getHolder()).getBackpack().closeInventory(player);
         }
-    }
-
-    public void modifyBackpack(CommandSender sender, User forUser, String name, World forWorld, Boolean blockInput,
-                               Integer pages, Integer size)
-    {
-        BackpackAttachment attachment = forUser.attachOrGet(BackpackAttachment.class, module);
-        attachment.loadBackpacks(forWorld);
-        BackpackInventories backPack = attachment.getBackpack(name, forWorld);
-        if (backPack == null)
-        {
-            if (sender != forUser)
-            {
-                sender.sendTranslated(NEGATIVE, "{user} does not have a backpack named {input#backpack} in this world!", forUser, name);
-                return;
-            }
-            sender.sendTranslated(NEGATIVE, "You don't have a backpack named {input#backpack} in this world!", name);
-            return;
-        }
-        if (pages != null)
-        {
-            if (backPack.data.contents.size() > pages * backPack.data.size)
-            {
-                sender.sendTranslated(NEGATIVE, "Could not change page amount! Not enough space!");
-            }
-            else
-            {
-                if (backPack.data.pages > pages) // compact inventory
-                {
-                    Collection<ItemStack> values = backPack.data.contents.values();
-                    backPack.data.contents = new HashMap<>();
-                    int i = 0;
-                    for (ItemStack value : values)
-                    {
-                        backPack.data.contents.put(i++, value);
-                    }
-                }
-                backPack.data.pages = pages;
-                sender.sendTranslated(POSITIVE, "Pages changed!");
-            }
-        }
-        if (size != null)
-        {
-            if (backPack.data.contents.size() > size * backPack.data.pages)
-            {
-                sender.sendTranslated(NEGATIVE, "Could not change page size! Not enough space!");
-            }
-            else
-            {
-                if (backPack.data.size > size) // compact inventory
-                {
-                    Collection<ItemStack> values = backPack.data.contents.values();
-                    backPack.data.contents = new HashMap<>();
-                    int i = 0;
-                    for (ItemStack value : values)
-                    {
-                        backPack.data.contents.put(i++, value);
-                    }
-                }
-                backPack.data.size = size;
-                sender.sendTranslated(POSITIVE, "Page-size changed!");
-            }
-        }
-        if (blockInput != null)
-        {
-            backPack.data.allowItemsIn = !blockInput;
-            if (blockInput)
-            {
-                sender.sendTranslated(POSITIVE, "Items are not allowed to go in!");
-            }
-            else
-            {
-                sender.sendTranslated(POSITIVE, "Items are allowed to go in!");
-            }
-        }
-        backPack.data.save();
     }
 }
