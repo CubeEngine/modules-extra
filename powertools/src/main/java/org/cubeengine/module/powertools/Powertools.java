@@ -45,7 +45,7 @@ public class Powertools extends Module
     public void onEnable()
     {
         Sponge.getDataManager().register(PowertoolData.class, ImmutablePowertoolData.class, new PowertoolDataBuilder());
-        PowertoolCommands ptCommands = new PowertoolCommands(this, materialMatcher, i18n);
+        PowertoolCommand ptCommands = new PowertoolCommand(this, materialMatcher, i18n);
         cm.addCommand(ptCommands);
         em.registerListener(this, ptCommands);
     }
