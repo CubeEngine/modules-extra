@@ -27,9 +27,15 @@ import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Greed;
 import org.cubeengine.butler.parametric.Optional;
 import org.cubeengine.module.core.util.ChatFormat;
+import org.cubeengine.module.powertools.data.IPowertoolData;
+import org.cubeengine.module.powertools.data.PowertoolData;
 import org.cubeengine.service.command.ContainerCommand;
 import org.cubeengine.service.i18n.I18n;
 import org.cubeengine.service.matcher.MaterialMatcher;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.manipulator.mutable.DisplayNameData;
+import org.spongepowered.api.data.manipulator.mutable.item.LoreData;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
@@ -51,13 +57,13 @@ import static org.spongepowered.api.text.format.TextColors.YELLOW;
  * <p>The data is appended onto the items lore
  */
 @Command(name = "powertool", desc = "Binding shortcuts to an item.", alias = "pt")
-public class PowerToolCommand extends ContainerCommand
+public class PowertoolCommand extends ContainerCommand
 {
     private final Powertools module;
     private MaterialMatcher materialMatcher;
     private I18n i18n;
 
-    public PowerToolCommand(Powertools module, MaterialMatcher materialMatcher, I18n i18n)
+    public PowertoolCommand(Powertools module, MaterialMatcher materialMatcher, I18n i18n)
     {
         super(module);
         this.module = module;
@@ -68,9 +74,12 @@ public class PowerToolCommand extends ContainerCommand
     @Override
     protected boolean selfExecute(CommandInvocation invocation)
     {
-        if ("?".equals(invocation.currentToken()))
+        if (!invocation.isConsumed())
         {
-            return super.selfExecute(invocation);
+            if ("?".equals(invocation.currentToken()))
+            {
+                return super.selfExecute(invocation);
+            }
         }
         if (invocation.tokens().size() - invocation.consumed() > 0)
         {
@@ -90,7 +99,7 @@ public class PowerToolCommand extends ContainerCommand
             {
                 if (slot.peek().isPresent())
                 {
-                    this.setPowerTool(slot.peek().get(), null);
+                    slot.set(this.setPowerTool(slot.peek().get(), null));
                 }
             }
             i18n.sendTranslated(context, POSITIVE, "Removed all commands bound to items in your inventory!");
@@ -101,40 +110,36 @@ public class PowerToolCommand extends ContainerCommand
             i18n.sendTranslated(context, NEUTRAL, "You are not holding any item in your hand.");
             return;
         }
-        this.setPowerTool(context.getItemInHand().get(), null);
+        context.setItemInHand(this.setPowerTool(context.getItemInHand().get(), null));
         i18n.sendTranslated(context, POSITIVE, "Removed all commands bound to the item in your hand!");
     }
 
     @Alias(value = "ptr")
     @Command(alias = {"del", "delete", "rm"}, desc = "Removes a command from your powertool")
     @Restricted(value = Player.class, msg = "No more power for you!")
-    public void remove(Player context, @Optional @Greed(INFINITE) String command, @Flag boolean chat)
+    public void remove(Player context, @Optional @Greed(INFINITE) String command)
     {
         if (!context.getItemInHand().isPresent())
         {
             i18n.sendTranslated(context, NEUTRAL, "You are not holding any item in your hand.");
             return;
         }
-        this.remove(context, context.getItemInHand().get(), command, !chat);
+        context.setItemInHand(this.remove(context, context.getItemInHand().get(), command));
     }
 
-    private void remove(Player context, ItemStack item, String cmd, boolean isCommand)
+    private ItemStack remove(Player context, ItemStack item, String cmd)
     {
-        List<String> powertools = this.getPowerTools(item);
+        List<String> powers = item.get(IPowertoolData.POWERS).orElse(null);
         if (cmd == null || cmd.isEmpty())
         {
-            powertools.remove(powertools.size() - 1);
-            this.setPowerTool(item, powertools);
+            powers.remove(powers.size() - 1);
+            this.setPowerTool(item, powers);
             i18n.sendTranslated(context, POSITIVE, "Removed the last command bound to this item!");
         }
         else
         {
-            if (isCommand)
-            {
-                cmd = "/" + cmd;
-            }
             boolean removed = false;
-            while (powertools.remove(cmd)) // removes also multiple same cmds
+            while (powers.remove(cmd)) // removes also multiple same cmds
             {
                 removed = true;
             }
@@ -147,28 +152,25 @@ public class PowerToolCommand extends ContainerCommand
                 i18n.sendTranslated(context, NEGATIVE, "The command {input#command} was not found on this item!", cmd);
             }
         }
-        this.setPowerTool(item, powertools);
-        if (powertools.isEmpty())
+        this.setPowerTool(item, powers);
+        if (powers.isEmpty())
         {
             i18n.sendTranslated(context, NEUTRAL, "No more commands saved on this item!");
-            return;
+            return item;
         }
-        this.showPowerToolList(context, powertools, false, false);
+        this.showPowerToolList(context, powers, false, false);
+        return item;
     }
 
     @Alias(value = "pta")
     @Command(desc = "Adds a command to your powertool")
     @Restricted(value = Player.class, msg = "You already have enough power!")
-    public void add(Player context, @Greed(INFINITE) String commandString, @Flag boolean chat, @Flag boolean replace)
+    public void add(Player context, @Greed(INFINITE) String commandString, @Flag boolean replace)
     {
         if (!context.getItemInHand().isPresent())
         {
             i18n.sendTranslated(context, NEUTRAL, "You do not have an item in your hand to bind the command to!");
             return;
-        }
-        if (!chat)
-        {
-            commandString = "/" + commandString;
         }
         List<String> powerTools;
         if (replace)
@@ -177,10 +179,10 @@ public class PowerToolCommand extends ContainerCommand
         }
         else
         {
-            powerTools = this.getPowerTools(context.getItemInHand().get());
+            powerTools = new ArrayList<>(this.getPowerTools(context.getItemInHand().get()));
         }
         powerTools.add(commandString);
-        this.setPowerTool(context.getItemInHand().get(), powerTools);
+        context.setItemInHand(this.setPowerTool(context.getItemInHand().get(), powerTools));
     }
 
     @Alias(value = "ptl")
@@ -195,16 +197,12 @@ public class PowerToolCommand extends ContainerCommand
                 if (slot.peek().isPresent())
                 {
                     ItemStack item = slot.peek().get();
-                    DisplayNameData display = item.getData(DisplayNameData.class).orNull();
-                    if (display == null)
+                    PowertoolData data = item.get(PowertoolData.class).orElse(null);
+                    if (data != null)
                     {
-                        context.sendMessage(Text.of(GOLD, materialMatcher.getNameFor(item), GOLD, ":"));
+                        context.sendMessage(Text.of(GOLD, data.get(Keys.DISPLAY_NAME).orElse(Text.of(materialMatcher.getNameFor(item))), GOLD, ":"));
+                        showPowerToolList(context, this.getPowerTools(item), false, false);
                     }
-                    else
-                    {
-                        context.sendMessage(Text.of(GOLD, display.getDisplayName(), GOLD, ":"));
-                    }
-                    this.showPowerToolList(context, this.getPowerTools(item), false, false);
                 }
             }
             return;
@@ -248,34 +246,47 @@ public class PowerToolCommand extends ContainerCommand
         }
     }
 
-    private void setPowerTool(ItemStack item, List<String> newPowerTools)
+    private ItemStack setPowerTool(ItemStack item, List<String> newPowerTools)
     {
-        LoreData lore = item.getOrCreate(LoreData.class).get();
-        List<Text> newLore = new ArrayList<>();
-        Text first = Texts.of(DARK_GREEN, "PowerTool");
-        for (Text text : lore.getAll())
+        if (newPowerTools == null)
         {
-            if (text.equals(first))
+            item.remove(PowertoolData.class);
+        }
+        else
+        {
+            item.offer(new PowertoolData(newPowerTools));
+        }
+
+        List<Text> lore = item.get(Keys.ITEM_LORE).orElse(null);
+        if (lore == null)
+        {
+            lore = new ArrayList<>();
+        }
+        List<Text> newLore = new ArrayList<>();
+
+        for (Text text : lore)
+        {
+            if (text.toPlain().equals("PowerTool"))
             {
                 break;
             }
-            newLore.add(first);
+            newLore.add(text);
         }
 
         if (newPowerTools != null && !newPowerTools.isEmpty())
         {
-            newLore.add(first);
+            newLore.add(Text.of(DARK_GREEN, "PowerTool"));
             newLore.addAll(newPowerTools.stream().map(Text::of).collect(toList()));
         }
 
-        if (!newLore.isEmpty())
+        if (newLore.isEmpty())
         {
             item.remove(LoreData.class);
-            return;
+            return item;
         }
 
-        lore.set(newLore);
-        item.offer(lore);
+        item.offer(Keys.ITEM_LORE, newLore);
+        return item;
     }
 
     /**
@@ -286,39 +297,27 @@ public class PowerToolCommand extends ContainerCommand
      */
     private List<String> getPowerTools(ItemStack item)
     {
-        Text first = Text.of(DARK_GREEN, "PowerTool");
-        LoreData lore = item.getData(LoreData.class).orNull();
-        if (lore != null)
-        {
-            List<String> powerTool = new ArrayList<>();
-            boolean ptStart = false;
-            for (Text text : lore.getAll())
-            {
-                if (text.equals(first))
-                {
-                    ptStart = true;
-                }
-                else if (ptStart)
-                {
-                    powerTool.add(text.toPlain());
-                }
-            }
-            return powerTool;
-        }
-        return new ArrayList<>();
+        return item.get(IPowertoolData.POWERS).orElse(new ArrayList<>());
     }
 
     @Listener
     public void onLeftClick(InteractBlockEvent.Primary event, @First Player player)
     {
-        if (!player.getItemInHand().isPresent() && player.hasPermission(module.perms().POWERTOOL_USE.getId()))
+        if (player.getItemInHand().isPresent() && player.hasPermission(module.perms().POWERTOOL_USE.getId()))
         {
-            List<String> powerTool = this.getPowerTools(player.getItemInHand().get());
-            for (String command : powerTool)
+            List<String> powers = this.getPowerTools(player.getItemInHand().get());
+            for (String power : powers)
             {
-                player.getMessageChannel().send(Text.of(command)); // TODO is this working for cmds?
+                if (power.startsWith("/"))
+                {
+                    Sponge.getCommandManager().process(player, power.substring(1));
+                }
+                else
+                {
+                    player.getMessageChannel().send(Text.of(power));
+                }
             }
-            if (!powerTool.isEmpty())
+            if (!powers.isEmpty())
             {
                 event.setCancelled(true);
             }
