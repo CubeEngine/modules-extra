@@ -57,13 +57,13 @@ import static org.spongepowered.api.text.format.TextColors.YELLOW;
  * <p>The data is appended onto the items lore
  */
 @Command(name = "powertool", desc = "Binding shortcuts to an item.", alias = "pt")
-public class PowertoolCommand extends ContainerCommand
+public class PowertoolCommands extends ContainerCommand
 {
     private final Powertools module;
     private MaterialMatcher materialMatcher;
     private I18n i18n;
 
-    public PowertoolCommand(Powertools module, MaterialMatcher materialMatcher, I18n i18n)
+    public PowertoolCommands(Powertools module, MaterialMatcher materialMatcher, I18n i18n)
     {
         super(module);
         this.module = module;
