@@ -17,8 +17,9 @@
  */
 package org.cubeengine.module.shout.announce;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import de.cubeisland.engine.reflect.annotations.Comment;
 import de.cubeisland.engine.reflect.annotations.Name;
 import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
@@ -26,14 +27,11 @@ import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
 @SuppressWarnings("all")
 public class AnnouncementConfig extends ReflectedYaml
 {
-    @Name("delay")
     public String delay = "10 minutes";
 
-    @Name("worlds")
-    public List<String> worlds = Arrays.asList("*");
-
     @Comment("The name that should be used in the permission. It'll end up like this: " +
-                 "cubeengine.shout.announcement.permission-name")
+                 "cubeengine.shout.announcement.permission-name\n"
+        + "Use * to skip the permission check")
     @Name("permission-name")
     public String permName = "*";
 
@@ -41,4 +39,12 @@ public class AnnouncementConfig extends ReflectedYaml
                  "In opposite to it being displayed to each user after their last announcement.")
     @Name("fixed-cycle")
     public boolean fixedCycle = false;
+
+    @Comment("The default announcment")
+    public String announcement;
+
+    @Comment("The announcement for a locale\n"
+        + "en_US: English_Version\n"
+        + "de_DE: German_Version")
+    public Map<Locale, String> translated = new HashMap<>();
 }

@@ -15,29 +15,31 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cubeengine.module.shout.announce.announcer;
+package org.cubeengine.module.shout.announce;
 
-import java.util.concurrent.Callable;
-import org.cubeengine.module.shout.announce.receiver.Receiver;
+import org.cubeengine.module.shout.Shout;
+import org.cubeengine.module.shout.announce.task.FixedCycleTask;
+import org.cubeengine.service.permission.PermissionManager;
+import org.cubeengine.service.task.TaskManager;
 
-class SenderTask implements Callable<Void>
+public class FixedCycleAnnouncement extends Announcement
 {
-    private final String[] message;
-    private final Receiver receiver;
+    private FixedCycleTask task;
 
-    public SenderTask(String[] message, Receiver receiver)
+    public FixedCycleAnnouncement(Shout module, String name, AnnouncementConfig config, PermissionManager pm, TaskManager tm)
     {
-        this.message = message;
-        this.receiver = receiver;
+        super(module, name, config, pm);
+        task = new FixedCycleTask(tm, this, module);
     }
 
-    @Override
-    public Void call() throws Exception
+    public void stop()
     {
-        String[] newline = {""};
-        receiver.sendMessage(newline);
-        receiver.sendMessage(this.message);
-        receiver.sendMessage(newline);
-        return null;
+        task.stop();
+    }
+
+    public FixedCycleAnnouncement start()
+    {
+        task.run();
+        return this;
     }
 }

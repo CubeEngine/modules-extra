@@ -17,62 +17,63 @@
  */
 package org.cubeengine.module.shout;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import de.cubeisland.engine.module.core.module.Module;
-import de.cubeisland.engine.service.permission.Permission;
+import javax.inject.Inject;
+import de.cubeisland.engine.logscribe.Log;
+import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
+import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.modularity.core.marker.Disable;
+import de.cubeisland.engine.modularity.core.marker.Enable;
+import de.cubeisland.engine.reflect.Reflector;
 import org.cubeengine.module.shout.announce.AnnouncementManager;
-import org.cubeengine.module.shout.announce.announcer.Announcer;
 import org.cubeengine.module.shout.interactions.ShoutCommand;
 import org.cubeengine.module.shout.interactions.ShoutListener;
+import org.cubeengine.service.command.CommandManager;
+import org.cubeengine.service.event.EventManager;
+import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.service.matcher.StringMatcher;
+import org.cubeengine.service.permission.PermissionManager;
+import org.cubeengine.service.task.TaskManager;
+import org.spongepowered.api.service.permission.PermissionDescription;
 
+@ModuleInfo(name = "Shout", description = "Announce things!")
 public class Shout extends Module
 {
+    @Inject private PermissionManager pm;
+    @Inject private Path modulePath;
+    @Inject private Log log;
+    @Inject private EventManager em;
+    @Inject private CommandManager cm;
+    @Inject private I18n i18n;
+    @Inject private TaskManager tm;
+    @Inject private StringMatcher sm;
+    @Inject private Reflector reflector;
+
     private AnnouncementManager announcementManager;
-    private Announcer announcer;
-    private ShoutConfiguration config;
+    private PermissionDescription announcePerm;
 
-    private Permission announcePerm;
 
-    public Permission getAnnouncePerm()
+    public PermissionDescription getAnnouncePerm()
     {
         return announcePerm;
     }
 
-    @Override
+    @Enable
     public void onEnable()
     {
-        this.announcePerm = this.getBasePermission().newWildcard("announcement");
+        announcePerm = pm.register(this, "announcement", "", null);
 
-        this.config = this.loadConfig(ShoutConfiguration.class);
+        announcementManager = new AnnouncementManager(this, modulePath, i18n, pm, tm, sm, reflector);
+        announcementManager.loadAnnouncements();
+        em.registerListener(this, new ShoutListener(announcementManager));
+        cm.addCommand(new ShoutCommand(this, i18n));
 
-        this.announcer = new Announcer(this.getCore().getTaskManager().getThreadFactory(this), this.config.initialDelay);
-        this.announcementManager = new AnnouncementManager(this, this.getFolder());
-
-        if (isFirstRun())
-        {
-            try
-            {
-                this.announcementManager.createAnnouncement("Example", this.getCore().getConfiguration().defaultLocale,
-                        "This is an example announcement", "10 minutes", "*", "*", false);
-            }
-            catch (Exception ex)
-            {
-                this.getLog().warn(ex, "An exception occured when creating the example announcement!");
-            }
-        }
-        this.announcementManager.loadAnnouncements(this.getFolder());
-        this.getCore().getEventManager().registerListener(this, new ShoutListener(this));
-        this.getCore().getCommandManager().addCommand(new ShoutCommand(this));
-
-        this.announcementManager.initUsers();
+        announcementManager.initUsers();
     }
 
-    @Override
+    @Disable
     public void onDisable()
     {
-        this.announcer.shutdown();
     }
 
     public AnnouncementManager getAnnouncementManager()
@@ -80,26 +81,8 @@ public class Shout extends Module
         return this.announcementManager;
     }
 
-    public Announcer getAnnouncer()
+    public Log getLog()
     {
-        return this.announcer;
-    }
-
-    private boolean isFirstRun()
-    {
-        Path file = this.getFolder().resolve(".shout");
-        if (Files.exists(file))
-        {
-            return false;
-        }
-        try
-        {
-            Files.createFile(file);
-        }
-        catch (IOException ex)
-        {
-            this.getLog().debug(ex, "There was an error creating a file: {}", file);
-        }
-        return true;
+        return log;
     }
 }

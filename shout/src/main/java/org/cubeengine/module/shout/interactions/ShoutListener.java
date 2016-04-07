@@ -17,41 +17,29 @@
  */
 package org.cubeengine.module.shout.interactions;
 
-import de.cubeisland.engine.module.core.sponge.AfterJoinEvent;
 import org.cubeengine.module.shout.Shout;
 import org.cubeengine.module.shout.announce.AnnouncementManager;
-import org.cubeengine.service.user.User;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
 
-public class ShoutListener implements Listener
+public class ShoutListener
 {
-    private final Shout module;
     private final AnnouncementManager am;
 
-    public ShoutListener(Shout module)
+    public ShoutListener(AnnouncementManager am)
     {
-        this.module = module;
-        this.am = module.getAnnouncementManager();
+        this.am = am;
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void afterPlayerJoin(AfterJoinEvent event)
+    @Listener
+    public void afterPlayerJoin(ClientConnectionEvent.Join event)
     {
-        if (am.getReceiver(event.getPlayer().getName()) == null)
-        {
-            User user = this.module.getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
-
-            this.module.getLog().debug("Loading user: {}", user.getDisplayName());
-            this.am.initializeUser(user);
-        }
+        am.initializeUser(event.getTargetEntity());
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onQuit(PlayerQuitEvent event)
+    @Listener
+    public void onQuit(ClientConnectionEvent.Disconnect event)
     {
-        this.am.clean(event.getPlayer().getName());
+        am.stop(event.getTargetEntity());
     }
 }

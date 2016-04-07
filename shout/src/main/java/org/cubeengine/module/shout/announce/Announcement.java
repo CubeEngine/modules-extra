@@ -17,20 +17,18 @@
  */
 package org.cubeengine.module.shout.announce;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Collection;
 import java.util.Locale;
-import java.util.Map;
-import de.cubeisland.engine.module.core.CubeEngine;
-import org.cubeengine.service.i18n.I18n;
-import de.cubeisland.engine.service.permission.PermDefault;
-import de.cubeisland.engine.service.permission.Permission;
-import de.cubeisland.engine.i18n.language.ClonedLanguage;
-import de.cubeisland.engine.i18n.language.Language;
-import de.cubeisland.engine.i18n.language.NormalLanguage;
 import org.cubeengine.module.shout.Shout;
-import org.bukkit.permissions.Permissible;
+import org.cubeengine.module.shout.ShoutUtil;
+import org.cubeengine.service.permission.PermissionManager;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.service.permission.PermissionDescription;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.channel.MessageChannel;
+
+import static java.util.stream.Collectors.toList;
+import static org.spongepowered.api.text.serializer.TextSerializers.FORMATTING_CODE;
 
 /**
  * Class to represent an announcement.
@@ -38,55 +36,16 @@ import org.bukkit.permissions.Permissible;
 public class Announcement
 {
     private final String name;
-    private final Permission permission;
-    private final List<String> worlds;
-    private final Map<Locale, String[]> messages;
-    private final long delay;
-    private final boolean fixedCycle;
+    private final PermissionDescription permission;
+    private final AnnouncementConfig config;
+    private long delay;
 
-    public Announcement(Announcement acm)
+    public Announcement(Shout module, String name, AnnouncementConfig config, PermissionManager pm)
     {
-        if (acm == null) throw new IllegalArgumentException("The announcement must not be null!");
-
-        this.name = acm.name;
-        this.permission = acm.permission;
-        this.worlds = new ArrayList<>(acm.getWorlds());
-        this.messages = new HashMap<>(acm.messages);
-        this.delay = acm.delay;
-        this.fixedCycle = acm.fixedCycle;
-    }
-
-    /**
-     * Constructor of announcement
-     *
-     * @param name          This announcements unique name
-     * @param permName      This permission node for this announcement
-     * @param worlds        The worlds this announcement should be displayed in. Can be just a * to indicate all worlds
-     * @param messages      The messages of this announcement
-     * @param delay         The delay of the announcement
-     */
-    public Announcement(Shout module, String name, String permName, List<String> worlds, Map<Locale, String[]> messages, long delay, boolean fixedCycle)
-    {
-        if (name == null || name.isEmpty()) throw new IllegalArgumentException("The announcement must have a name");
-        if (permName == null || permName.isEmpty()) throw new IllegalArgumentException("The announcement must have a permission name");
-        if (worlds == null || worlds.isEmpty()) throw new IllegalArgumentException("The announcement must have a world");
-        if (messages == null || messages.isEmpty()) throw new IllegalArgumentException("The announcement must have one or more messages");
-        if (delay < 0) throw new IllegalArgumentException("The announcement must have a valid delay");
-
+        this.permission = "*".equals(config.permName) ? null : pm.register(module, config.permName, "", module.getAnnouncePerm());
+        this.config = config;
         this.name = name;
-        if (!permName.equalsIgnoreCase("*"))
-        {
-            this.permission = module.getAnnouncePerm().child(permName, PermDefault.FALSE);
-            module.getCore().getPermissionManager().registerPermission(module, permission);
-        }
-        else
-        {
-            this.permission = null;
-        }
-        this.worlds = worlds;
-        this.messages = messages;
-        this.delay = delay;
-        this.fixedCycle = fixedCycle;
+        this.delay = ShoutUtil.parseDelay(config.delay) * 20 / 1000;
     }
 
     /**
@@ -95,33 +54,10 @@ public class Announcement
      * @param   locale  The language to get the message in
      * @return	The message in that language if exist, else the message in the default locale will be returned
      */
-    public String[] getMessage(Locale locale)
+    public Text getMessage(Locale locale)
     {
-        if (this.messages.containsKey(locale))
-        {
-            return messages.get(locale);
-        }
-
-        final I18n i18n = i18n;
-        Language lang = i18n.getLanguage(locale);
-        if (lang != null)
-        {
-            if (lang instanceof NormalLanguage)
-            {
-                lang = lang.getParent();
-                if (lang != null)
-                {
-                    return this.messages.get(lang.getLocale());
-                }
-            }
-
-            if (lang instanceof ClonedLanguage)
-            {
-                return this.messages.get(((ClonedLanguage)lang).getOriginal().getLocale());
-            }
-        }
-
-        return this.messages.get(Locale.getDefault());
+        String announcement = config.translated.getOrDefault(locale, config.announcement);
+        return FORMATTING_CODE.deserialize(announcement);
     }
 
     /**
@@ -139,34 +75,9 @@ public class Announcement
      *
      * @return	the permission node for this announcement
      */
-    public Permission getPermission()
+    public PermissionDescription getPermission()
     {
         return this.permission;
-    }
-
-    /**
-     * Get the worlds this announcement should be displayed in
-     *
-     * @return	The worlds this announcement should be displayed in.
-     */
-    public List<String> getWorlds()
-    {
-        return this.worlds;
-    }
-
-    /**
-     * Get this announcements first world
-     *
-     * @return the first world
-     */
-    public String getFirstWorld()
-    {
-        return worlds.get(0);
-    }
-
-    public boolean hasWorld(String world)
-    {
-        return (this.worlds.get(0).equals("*") || this.worlds.contains(world));
     }
 
     public String getName()
@@ -174,14 +85,27 @@ public class Announcement
         return this.name;
     }
 
-    public boolean hasFixedCycle()
+    public boolean canAccess(CommandSource subject)
     {
-        return this.fixedCycle;
+        return getPermission() == null || subject.hasPermission(permission.getId());
     }
 
-    public boolean canAccess(Permissible permissible)
+    protected Collection<CommandSource> getReceivers()
     {
-        // TODO check the group
-        return this.getPermission() == null || this.getPermission().isAuthorized(permissible);
+        return MessageChannel.TO_ALL.getMembers().stream()
+                                    .filter(m -> m instanceof CommandSource)
+                                    .map(CommandSource.class::cast)
+                                    .filter(this::canAccess)
+                                    .collect(toList());
+    }
+
+    public void announce(CommandSource receiver)
+    {
+        receiver.sendMessages(getMessage(receiver.getLocale()));
+    }
+
+    public void announce()
+    {
+        getReceivers().forEach(this::announce);
     }
 }

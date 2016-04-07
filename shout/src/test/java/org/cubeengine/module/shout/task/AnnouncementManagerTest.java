@@ -19,7 +19,7 @@ package org.cubeengine.module.shout.task;
 
 import org.junit.Test;
 
-import static org.cubeengine.module.shout.announce.AnnouncementManager.parseDelay;
+import static org.cubeengine.module.shout.ShoutUtil.parseDelay;
 import static org.junit.Assert.assertEquals;
 
 public class AnnouncementManagerTest
