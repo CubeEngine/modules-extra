@@ -26,93 +26,80 @@ import java.util.UUID;
 import javax.inject.Inject;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.modularity.core.marker.Enable;
 import org.cubeengine.module.core.util.ChatFormat;
+import org.cubeengine.module.unbreakableboat.data.ImmutableUnbreakableData;
+import org.cubeengine.module.unbreakableboat.data.UnbreakableData;
+import org.cubeengine.module.unbreakableboat.data.UnbreakableDataBuilder;
 import org.cubeengine.service.event.EventManager;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.meta.ItemEnchantment;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.vehicle.Boat;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.entity.ConstructEntityEvent;
+import org.spongepowered.api.event.entity.DamageEntityEvent;
+import org.spongepowered.api.event.entity.DestructEntityEvent;
+import org.spongepowered.api.item.Enchantments;
+import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.recipe.ShapedRecipe;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.Location;
+
+import static java.util.Collections.singletonList;
 
 /**
  * A module providing a recipe for an (almost) unbreakable boat
  */
-// TODO add customdata to check for? OR vanilla unbreakable tag?
 @ModuleInfo(name = "UnbreakableBoat", description = "Adds a Recipe for an unbreakable Boat")
 public class Unbreakableboat extends Module
 {
-    private Map<Location, Player> prePlanned = new HashMap<>();
-    private Set<UUID> unbreakable = new HashSet<>();
-    private ItemStack boat = new ItemStack(BOAT, 1);
+    private ItemStack boat = ItemStack.of(ItemTypes.BOAT, 1);
 
     @Inject private EventManager em;
 
-    @Override
+    @Enable
     public void onEnable()
     {
         em.registerListener(this, this);
-        boat.addUnsafeEnchantment(DURABILITY, 5);
-        ItemMeta itemMeta = boat.getItemMeta();
-        itemMeta.setDisplayName(ChatFormat.parseFormats("&6Sturdy Boat"));
-        itemMeta.setLore(Arrays.asList(ChatFormat.parseFormats("&eCan take a lot!")));
-        boat.setItemMeta(itemMeta);
-        ShapedRecipe recipe = new ShapedRecipe(boat).shape("l l", "lll").setIngredient('l', LOG);
-        Server server = ((SpongeCore)this.getCore()).getServer();
-        server.addRecipe(recipe);
+        boat.offer(Keys.ITEM_ENCHANTMENTS, singletonList(new ItemEnchantment(Enchantments.UNBREAKING, 5)));
+        boat.offer(Keys.DISPLAY_NAME, Text.of(TextColors.GOLD, "Sturdy Boat"));
+        boat.offer(Keys.ITEM_LORE, Arrays.asList(Text.of(TextColors.YELLOW, "Can take a lot!")));
+
+        ItemStack log = ItemStack.of(ItemTypes.LOG, 1);
+
+        Sponge.getRegistry().createBuilder(ShapedRecipe.Builder.class)
+            .width(3).height(2)
+            .row(0, log, null, log)
+            .row(1, log, log, log)
+        // TODO SpongePR#1098 .aisle("l l", "lll")
+        // TODO SpongePR#1098 .where('l', log)
+            .addResult(boat)
+            .build();
+        // TODO register recipe
+
+        Sponge.getDataManager().register(UnbreakableData.class, ImmutableUnbreakableData.class, new UnbreakableDataBuilder());
     }
 
     @Listener
-    public void onVehicleBreak(VehicleDestroyEvent event)
+    public void onVehicleBreak(DamageEntityEvent event)
     {
-        Vehicle vehicle = event.getVehicle();
-        if (!(vehicle instanceof Boat))
+        if (event.getTargetEntity() instanceof Boat)
         {
-            return;
-        }
-        if (event.getAttacker() instanceof Player)
-        {
-            if (this.unbreakable.remove(vehicle.getUniqueId()))
+            if (event.getTargetEntity().get(UnbreakableData.UNBREAKING).isPresent())
             {
-                Location location = vehicle.getLocation();
-                location.getWorld().dropItemNaturally(location, boat.clone());
-                vehicle.remove();
+                // TODO do no cancel if direct attacker is player
                 event.setCancelled(true);
             }
-            return;
-        }
-        if (this.unbreakable.contains(vehicle.getUniqueId()))
-        {
-            event.setCancelled(true);
         }
     }
 
     @Listener
-    public void onVehiclePlace(VehicleCreateEvent event)
+    public void onVehiclePlace(ConstructEntityEvent.Post event)
     {
-        // TODO waiting for https://hub.spigotmc.org/jira/browse/SPIGOT-694 to remove this ugly hack
-        final Vehicle vehicle = event.getVehicle();
-        getCore().getTaskManager().runTask(this, () -> onVehiclePlace0(vehicle));
-    }
-
-    private void onVehiclePlace0(Vehicle vehicle)
-    {
-        Location location = vehicle.getLocation();
-        location.getBlock().getLocation(location);
-        Player player = this.prePlanned.remove(location);
-        if (player != null)
-        {
-            this.unbreakable.add(vehicle.getUniqueId());
-        }
-    }
-
-    @Listener
-    public void onBoatPreplace(PlayerInteractEvent event)
-    {
-        ItemStack inHand = event.getPlayer().getItemInHand();
-        if (event.getAction() == RIGHT_CLICK_BLOCK
-         && inHand.getType() == BOAT
-         && inHand.getEnchantmentLevel(DURABILITY) == 5)
-        {
-            this.prePlanned.put(event.getClickedBlock().getRelative(UP).getLocation(), event.getPlayer());
-        }
+        event.getTargetEntity().offer(new UnbreakableData(true));
     }
 }
