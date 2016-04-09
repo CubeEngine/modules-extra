@@ -130,7 +130,7 @@ public class BackpackAttachment extends UserAttachment
         {
             try
             {
-                for (Path path : Files.newDirectoryStream(playerDir, DAT.getExtention()))
+                for (Path path : Files.newDirectoryStream(playerDir, DAT))
                 {
                     String name = StringUtils.stripFileExtension(path.getFileName().toString());
                     BackpackData load = this.getModule().getCore().getConfigFactory().load(BackpackData.class, path.toFile());
