@@ -50,7 +50,7 @@ public interface Report
     String CAUSE = "cause";
     String CAUSE_TYPE = "type";
     String CAUSE_PLAYER_UUID = "UUID";
-    String CAUSE_PLAYER_NAME = "name";
+    String CAUSE_NAME = "name";
     String LOCATION = "location";
 
     /**
@@ -91,7 +91,9 @@ public interface Report
     enum CauseType
     {
         CAUSE_PLAYER,
+        CAUSE_BLOCK_AIR, // Indirect
         CAUSE_BLOCK_FIRE,
+        CAUSE_TNT,
     }
 
     interface SimpleGrouping extends Report

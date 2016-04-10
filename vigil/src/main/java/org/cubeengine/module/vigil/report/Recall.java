@@ -29,10 +29,13 @@ import org.spongepowered.api.data.MemoryDataContainer;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
+import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
 
 import static org.cubeengine.module.vigil.report.Report.LOCATION;
 import static org.cubeengine.module.vigil.report.block.BlockReport.*;
+import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
+import static org.spongepowered.api.text.format.TextColors.YELLOW;
 
 public class Recall
 {
@@ -53,8 +56,11 @@ public class Recall
         toContainer(container, locationData, Report.X);
         toContainer(container, locationData, Report.Y);
         toContainer(container, locationData, Report.Z);
-        toContainer(container, data, BLOCK_TYPE);
-        toContainer(container, data, BLOCK_META);
+
+        toContainer(container, data, BLOCK_STATE);
+        toContainer(container, data, BLOCK_DATA);
+
+        toContainer(container, data, BLOCK_UNSAFE_DATA);
 
         return Sponge.getGame().getRegistry().createBuilder(BlockSnapshot.Builder.class).build(container);
     }
@@ -88,10 +94,11 @@ public class Recall
     {
         Map<String, Object> data = action.getData(CAUSE);
         return cause((Map<String, Object>) data.get(NamedCause.SOURCE),
-                (Map<String, Object>) data.get(NamedCause.NOTIFIER));
+                (Map<String, Object>) data.get(NamedCause.NOTIFIER),
+                     (Map<String, Object>) data.get(NamedCause.SOURCE + "1"));
     }
 
-    public static Text cause(Map<String, Object> source, Map<String, Object> notifier)
+    public static Text cause(Map<String, Object> source, Map<String, Object> notifier, Map<String, Object> source2)
     {
         Text text = Text.of("?");
         if (source != null)
@@ -102,9 +109,16 @@ public class Recall
 
         if (notifier != null)
         {
-            text = text.toBuilder().append(Text.of("…")).onHover(
+            text = text.toBuilder().append(Text.of("…").toBuilder().onHover(
                     TextActions.showText(Text.of(text, "←", cause(notifier, Text.of(),
-                            CauseType.valueOf(notifier.get(CAUSE_TYPE).toString()))))).build();
+                            CauseType.valueOf(notifier.get(CAUSE_TYPE).toString()))))).build()).build();
+        }
+
+        if (source2 != null)
+        {
+            Text source2Text = cause(source2, Text.of(), CauseType.valueOf(source2.get(CAUSE_TYPE).toString()));
+            text = source2Text.toBuilder().append(Text.of("…").toBuilder().onHover(
+                TextActions.showText(Text.of(source2Text, "←", text))).build()).build();
         }
 
         return text;
@@ -115,10 +129,26 @@ public class Recall
         switch (type)
         {
             case CAUSE_PLAYER:
-                text = Text.of(TextColors.DARK_GREEN, source.get(CAUSE_PLAYER_NAME));
+                text = Text.of(DARK_GREEN, source.get(CAUSE_NAME)).toBuilder()
+                           .onHover(TextActions.showText(Text.of(YELLOW, source.get(CAUSE_PLAYER_UUID)))).build();
                 break;
             case CAUSE_BLOCK_FIRE:
                 text = Text.of(TextColors.RED, "Fire"); // TODO translate
+                break;
+            case CAUSE_BLOCK_AIR:
+                text = Text.of(TextColors.GOLD, "Indirect"); // TODO translate
+                break;
+            case CAUSE_TNT:
+                text = Text.of(TextColors.RED, "TNT"); // TODO translatable
+                if (source.get(CAUSE_PLAYER_UUID) == null)
+                {
+                    text = text.toBuilder().append(Text.of(" (", Text.of(TextColors.GOLD, source.get(CAUSE_NAME)), ")")).build();
+                }
+                else
+                {
+                    text = text.toBuilder().append(Text.of(" (", Text.of(DARK_GREEN, source.get(CAUSE_NAME)).toBuilder()
+                                 .onHover(TextActions.showText(Text.of(YELLOW, source.get(CAUSE_PLAYER_UUID)))).build(), ")")).build();
+                }
                 break;
         }
         return text;

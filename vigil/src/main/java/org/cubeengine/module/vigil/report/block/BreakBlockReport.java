@@ -17,8 +17,10 @@
  */
 package org.cubeengine.module.vigil.report.block;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import com.flowpowered.math.vector.Vector3d;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.Recall;
@@ -82,11 +84,28 @@ public class BreakBlockReport extends BlockReport<ChangeBlockEvent.Break>
     public void showReport(List<Action> actions, Receiver receiver)
     {
         Action action = actions.get(0);
-        BlockSnapshot snap = action.getCached(BLOCKS_ORIG, Recall::origSnapshot).get(0).get();
+
+        for (Optional<BlockSnapshot> orig : action.getCached(BLOCKS_ORIG, Recall::origSnapshot))
+        {
+            if (!orig.isPresent())
+            {
+                throw new IllegalStateException();
+            }
+            if (!orig.get().getLocation().get().getPosition().equals(((Vector3d)receiver.getLookup())))
+            {
+                continue;
+            }
+            showReport(actions, receiver, action, orig.get());
+        }
+
+    }
+
+    private void showReport(List<Action> actions, Receiver receiver, Action action, BlockSnapshot orig)
+    {
         receiver.sendReport(actions, actions.size(),
-                "{txt} break {txt}",
-                "{txt} break {txt} x{}",
-                Recall.cause(action), name(snap), actions.size());
+                            "{txt} break {txt}",
+                            "{txt} break {txt} x{}",
+                            Recall.cause(action), name(orig), actions.size());
     }
 
     @Listener(order = Order.POST)

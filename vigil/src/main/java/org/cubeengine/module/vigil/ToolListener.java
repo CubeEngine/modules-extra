@@ -22,6 +22,7 @@ import org.cubeengine.module.vigil.storage.QueryManager;
 import org.cubeengine.service.i18n.I18n;
 import org.cubeengine.service.permission.PermissionManager;
 import org.spongepowered.api.Game;
+import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.data.manipulator.mutable.DisplayNameData;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
@@ -53,7 +54,7 @@ public class ToolListener
     @Listener
     public void onClick(InteractBlockEvent event, @First Player player)
     {
-        if (!player.hasPermission(toolPerm.getId()))
+        if (!player.hasPermission(toolPerm.getId()) || event.getTargetBlock() == BlockSnapshot.NONE)
         {
             return;
         }

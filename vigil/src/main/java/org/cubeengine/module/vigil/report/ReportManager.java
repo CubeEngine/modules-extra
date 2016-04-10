@@ -38,6 +38,8 @@ import java.util.HashMap;
 import java.util.Map;
 import org.cubeengine.module.vigil.Vigil;
 import org.cubeengine.module.vigil.report.block.BreakBlockReport;
+import org.cubeengine.module.vigil.report.block.ExplosionReport;
+import org.cubeengine.module.vigil.report.block.ModifyBlockReport;
 import org.cubeengine.module.vigil.report.block.PlaceBlockReport;
 import org.cubeengine.module.vigil.report.entity.player.ChatReport;
 import org.cubeengine.module.vigil.report.entity.player.JoinReport;
@@ -63,6 +65,8 @@ public class ReportManager
         // TODO also allow classloading additional Reports from module folder
         register(BreakBlockReport.class);
         register(PlaceBlockReport.class);
+        // TODO register(ExplosionReport.class);
+        register(ModifyBlockReport.class);
         register(InventoryOpenReport.class);
         register(ChatReport.class);
         register(JoinReport.class);

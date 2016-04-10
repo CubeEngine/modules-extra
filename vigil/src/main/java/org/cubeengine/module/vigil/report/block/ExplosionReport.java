@@ -20,8 +20,17 @@ package org.cubeengine.module.vigil.report.block;
 import java.util.List;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
+import org.cubeengine.module.vigil.report.Recall;
 import org.cubeengine.module.vigil.report.Report;
+import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.block.ChangeBlockEvent;
+import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.world.ExplosionEvent;
+
+import static org.cubeengine.module.vigil.report.ReportUtil.name;
 
 /* TODO explosions
 creeper
@@ -31,17 +40,31 @@ fireball
 tnt
 wither
  */
+// TODO wait for Sponge implementation
 public class ExplosionReport extends BlockReport<ExplosionEvent.Detonate> implements Report.Readonly
 {
     @Override
     public void showReport(List<Action> actions, Receiver receiver)
     {
-
+        // TODO test
+        Action action = actions.get(0);
+        BlockSnapshot snap = action.getCached(BLOCKS_ORIG, Recall::origSnapshot).get(0).get();
+        receiver.sendReport(actions, actions.size(),
+                            "{txt} made boom {txt}",
+                            "{txt} made boom {txt} x{}",
+                            Recall.cause(action), name(snap), actions.size());
     }
 
     @Override
     public boolean group(Object lookup, Action action, Action otherAction, Report otherReport)
     {
         return false;
+    }
+
+    @Listener(order = Order.POST)
+    public void listen(ExplosionEvent.Detonate event, @First Player player)
+    {
+        // TODO cause filtering
+        report(observe(event));
     }
 }

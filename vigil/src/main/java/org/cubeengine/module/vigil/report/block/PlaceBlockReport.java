@@ -17,8 +17,10 @@
  */
 package org.cubeengine.module.vigil.report.block;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import com.flowpowered.math.vector.Vector3d;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.Recall;
@@ -94,27 +96,39 @@ public class PlaceBlockReport extends BlockReport<ChangeBlockEvent.Place>
     public void showReport(List<Action> actions, Receiver receiver)
     {
         Action action = actions.get(0);
-        Optional<BlockSnapshot> orig = action.getCached(BLOCKS_ORIG, Recall::origSnapshot).get(0);
-        Optional<BlockSnapshot> repl = action.getCached(BLOCKS_REPL, Recall::replSnapshot).get(0);
 
-        Text cause = Recall.cause(action);
-        if (!repl.isPresent())
+        Iterator<Optional<BlockSnapshot>> orig = action.getCached(BLOCKS_ORIG, Recall::origSnapshot).iterator();
+        for (Optional<BlockSnapshot> repl : action.getCached(BLOCKS_REPL, Recall::replSnapshot))
         {
-            throw new IllegalStateException();
+            if (!repl.isPresent())
+            {
+                throw new IllegalStateException();
+            }
+            if (!repl.get().getLocation().get().getPosition().equals(((Vector3d)receiver.getLookup())))
+            {
+                continue;
+            }
+            showReport(actions, receiver, action, orig.next(), repl.get());
         }
+    }
+
+    private void showReport(List<Action> actions, Receiver receiver, Action action, Optional<BlockSnapshot> orig, BlockSnapshot repl)
+    {
+        Text cause = Recall.cause(action);
+
         if (orig.isPresent() && !orig.get().getState().getType().equals(AIR))
         {
             receiver.sendReport(actions, actions.size(),
-                    "{txt} replace {txt} with {txt}",
-                    "{txt} replace {txt} with {txt} x{}",
-                    cause, name(orig.get()), name(repl.get()), actions.size());
+                                "{txt} replace {txt} with {txt}",
+                                "{txt} replace {txt} with {txt} x{}",
+                                cause, name(orig.get()), name(repl), actions.size());
         }
         else
         {
             receiver.sendReport(actions, actions.size(),
-                    "{txt} place {txt}",
-                    "{txt} place {txt} x{}",
-                    cause, name(repl.get()), actions.size());
+                                "{txt} place {txt}",
+                                "{txt} place {txt} x{}",
+                                cause, name(repl), actions.size());
         }
     }
 

@@ -19,22 +19,26 @@ package org.cubeengine.module.vigil.report;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.cubeengine.module.vigil.report.block.BlockReport;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.Transaction;
+import org.spongepowered.api.entity.explosive.PrimedTNT;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import static org.cubeengine.module.vigil.report.Report.*;
-import static org.cubeengine.module.vigil.report.Report.CauseType.CAUSE_BLOCK_FIRE;
-import static org.cubeengine.module.vigil.report.Report.CauseType.CAUSE_PLAYER;
-import static org.cubeengine.module.vigil.report.block.BlockReport.BLOCK_META;
-import static org.cubeengine.module.vigil.report.block.BlockReport.BLOCK_TYPE;
+import static org.cubeengine.module.vigil.report.Report.CauseType.*;
+import static org.cubeengine.module.vigil.report.block.BlockReport.*;
+import static org.spongepowered.api.block.BlockTypes.AIR;
 import static org.spongepowered.api.block.BlockTypes.FIRE;
 
 public class Observe
@@ -57,17 +61,41 @@ public class Observe
     {
         if (cause instanceof Player)
         {
-            return player(((Player) cause));
+            return playerCause(((Player) cause));
         }
         else if (cause instanceof BlockSnapshot)
         {
-            return block(((BlockSnapshot) cause));
+            return blockCause(((BlockSnapshot) cause));
+        }
+        else if (cause instanceof PrimedTNT)
+        {
+            return tntCause(((PrimedTNT)cause));
         }
         // TODO other causes that interest us
         return null;
     }
 
-    public static Map<String, Object> block(BlockSnapshot block)
+    private static Map<String, Object> tntCause(PrimedTNT cause)
+    {
+        Map<String, Object> data = new HashMap<>();
+        if (cause.getDetonator().isPresent())
+        {
+            if (cause.getDetonator().get() instanceof Player)
+            {
+                data.put(CAUSE_NAME, ((Player)cause.getDetonator().get()).getName());
+                data.put(CAUSE_PLAYER_UUID, cause.getDetonator().get().getUniqueId());
+            }
+            else
+            {
+                data.put(CAUSE_NAME, cause.getDetonator().get().getType().getId());
+            }
+        }
+
+        data.put(CAUSE_TYPE, CAUSE_TNT.toString());
+        return data;
+    }
+
+    public static Map<String, Object> blockCause(BlockSnapshot block)
     {
         if (FIRE.equals(block.getState().getType()))
         {
@@ -75,16 +103,22 @@ public class Observe
             data.put(CAUSE_TYPE, CAUSE_BLOCK_FIRE.toString());
             return data;
         }
+        if (AIR.equals(block.getState().getType()))
+        {
+            Map<String, Object> data = new HashMap<>();
+            data.put(CAUSE_TYPE, CAUSE_BLOCK_AIR.toString());
+            return data;
+        }
         return null;
     }
 
-    public static Map<String, Object> player(Player player)
+    public static Map<String, Object> playerCause(Player player)
     {
         Map<String, Object> data = new HashMap<>();
         data.put(CAUSE_TYPE, CAUSE_PLAYER.toString());
 
         data.put(CAUSE_PLAYER_UUID, player.getUniqueId());
-        data.put(CAUSE_PLAYER_NAME, player.getName());
+        data.put(CAUSE_NAME, player.getName());
         // TODO configurable data.put("ip", player.getConnection().getAddress().getAddress().getHostAddress());
         return data;
     }
@@ -113,14 +147,60 @@ public class Observe
     }
 
     // Observe
-    public static Map<String, Object> blockSnapshot(DataContainer block)
+    public static Map<String, Object> blockSnapshot(BlockSnapshot block)
     {
         Map<String, Object> info = new HashMap<>();
 
-        fromContainter(info, block, BLOCK_TYPE);
-        fromContainter(info, block, BLOCK_META);
+        info.put(BLOCK_STATE.asString("_"), toRawData(block.getState().toContainer()));
+
+        DataContainer blockContainer = block.toContainer();
+        Optional<List<DataView>> data = blockContainer.getViewList(BLOCK_DATA);
+        if (data.isPresent())
+        {
+            info.put(BLOCK_DATA.asString("_"), toRawData(data.get()));
+        }
+
+        Optional<Object> unsafe = blockContainer.get(BLOCK_UNSAFE_DATA);
+        if (unsafe.isPresent())
+        {
+            info.put(BLOCK_UNSAFE_DATA.asString("_"), toRawData(unsafe.get()));
+        }
 
         return info;
+    }
+
+    /**
+     * Converts potentialDataViews into corresponding String -> Object Maps
+     * @param data the data to convert
+     * @return the converted DataView or the original data
+     */
+    public static Object toRawData(Object data)
+    {
+        if (data instanceof DataQuery)
+        {
+            return ((DataQuery)data).asString("_");
+        }
+        if (data instanceof DataView)
+        {
+            return ((DataView)data).getValues(false).entrySet().stream()
+                .collect(Collectors.toMap(e -> toRawData(e.getKey()),
+                                          e -> toRawData(e.getValue())));
+        }
+        if (data instanceof Map)
+        {
+            return ((Map<?,?>)data).entrySet().stream()
+                                   .collect(Collectors.toMap(e -> toRawData(e.getKey()),
+                                                             e -> toRawData(e.getValue())));
+        }
+        if (data instanceof List)
+        {
+            return ((List<?>)data).stream().map(Observe::toRawData).collect(Collectors.toList());
+        }
+        if (data.getClass().isEnum())
+        {
+            return ((Enum)data).name();
+        }
+        return data;
     }
 
     /**
@@ -135,9 +215,10 @@ public class Observe
         BlockSnapshot original = transaction.getOriginal();
         if (original.getLocation().isPresent())
         {
-            data.put(LOCATION, location(original.getLocation().get()));
-            data.put(BlockReport.ORIGINAL, blockSnapshot(original.toContainer()));
-            data.put(BlockReport.REPLACEMENT, blockSnapshot(transaction.getFinal().toContainer()));
+            //System.out.print(transaction.getFinal().getLocation().get().getPosition() +  " " + transaction.getFinal().getState().getType() + "\n");
+            data.put(LOCATION, location(transaction.getFinal().getLocation().get()));
+            data.put(BlockReport.ORIGINAL, blockSnapshot(original));
+            data.put(BlockReport.REPLACEMENT, blockSnapshot(transaction.getFinal()));
         }
         return data;
     }

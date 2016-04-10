@@ -19,13 +19,14 @@ package org.cubeengine.module.vigil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import org.cubeengine.module.core.util.StringUtils;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.ReportActions;
 import org.cubeengine.service.i18n.I18n;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.service.pagination.PaginationBuilder;
+import org.spongepowered.api.service.pagination.PaginationList.Builder;
 import org.spongepowered.api.service.pagination.PaginationService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
@@ -75,7 +76,17 @@ public class Receiver
         {
             reportAction.showReport(this);
         }
-        PaginationBuilder builder = Sponge.getGame().getServiceManager().provideUnchecked(PaginationService.class).builder();
-        builder.title(Text.of("Logs")).paddingString("-").contents(lines).sendTo(cmdSource);
+        Builder builder = Sponge.getGame().getServiceManager().provideUnchecked(PaginationService.class).builder();
+        builder.title(Text.of("Logs")).padding(Text.of("-")).contents(lines).sendTo(cmdSource);
+    }
+
+    public Locale getLocale()
+    {
+        return cmdSource.getLocale();
+    }
+
+    public Object getLookup()
+    {
+        return lookup;
     }
 }

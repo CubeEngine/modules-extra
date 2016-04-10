@@ -112,8 +112,9 @@ public class QueryManager
         }
         catch (Exception e)
         {
-            e.printStackTrace(); //TODO log in logger!
-            actions.addAll(storing); // readd actions to store later // TODO this may cause duplicates!!
+            System.out.print(e.getMessage() + "\n");
+            // TODO e.printStackTrace(); //TODO log in logger!
+            actions.addAll(storing); // read actions to store later // TODO this may cause duplicates!!
         }
         finally
         {
