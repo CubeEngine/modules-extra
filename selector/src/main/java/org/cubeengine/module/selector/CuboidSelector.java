@@ -29,6 +29,7 @@ import org.cubeengine.module.core.util.math.shape.Shape;
 import org.cubeengine.service.Selector;
 import org.cubeengine.service.event.EventManager;
 import org.cubeengine.service.i18n.I18n;
+import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
@@ -100,6 +101,10 @@ public class CuboidSelector implements Selector
     @Listener
     public void onInteract(InteractBlockEvent event, @First Player player)
     {
+        if (event.getTargetBlock() == BlockSnapshot.NONE)
+        {
+            return;
+        }
         Location block = event.getTargetBlock().getLocation().get();
         if ((int)block.getPosition().length() == 0)
         {
