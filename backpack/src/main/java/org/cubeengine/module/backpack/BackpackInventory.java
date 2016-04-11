@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import org.cubeengine.module.core.util.ChatFormat;
+import org.cubeengine.service.ContextUtil;
 import org.cubeengine.service.inventoryguard.InventoryGuardFactory;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
@@ -206,7 +207,7 @@ public class BackpackInventory
     {
         for (Context context : data.activeIn)
         {
-            if (context.equals(new Context("global", ""))) // TODO global context in service
+            if (context.equals(ContextUtil.GLOBAL)) // TODO global context in service
             {
                 return true;
             }

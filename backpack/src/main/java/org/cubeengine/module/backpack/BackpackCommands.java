@@ -66,7 +66,7 @@ public class BackpackCommands extends ContainerCommand
             i18n.sendTranslated(ctx, NEGATIVE, "You are not allowed to open the backpacks of other users!");
             return;
         }
-        manager.openBackpack(ctx, player, outOfContext, name);
+        manager.openBackpack(ctx, player, outOfContext, name) ;
     }
 
     @Alias(value = "createbp")
@@ -91,18 +91,17 @@ public class BackpackCommands extends ContainerCommand
         manager.modifyBackpack(ctx, player, name, blockinput, pages, size);
     }
 
-    // TODO modify backpack context
     public void addContext(CommandSource ctx, String name, @Default User player, Context context)
     {
         manager.setBackpackContext(ctx, player, name, context, true);
     }
 
-    // TODO modify backpack context
     public void removeContext(CommandSource ctx, String name, @Default User player, Context context)
     {
         manager.setBackpackContext(ctx, player, name, context, false);
     }
 
+    /* TODO give cmd
     @Alias(value = "givebp")
     @Command(desc = "Puts items into a backpack")
     // /givebp premium Faithcaio item diamondpick:1500 name "broken pick" lore "A broken\npick" "ench unbreaking:1,effi:3"
@@ -171,4 +170,5 @@ public class BackpackCommands extends ContainerCommand
         matchedItem.setAmount(amount);
         this.manager.giveItem(context.getSource(), player, name, matchedItem);
     }
+    */
 }
