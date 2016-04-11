@@ -24,14 +24,26 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.cubeengine.module.vigil.report.block.BlockReport;
+import org.cubeengine.module.vigil.report.entity.EntityReport;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.Transaction;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.entity.EnderCrystal;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntitySnapshot;
+import org.spongepowered.api.entity.ExperienceOrb;
+import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.explosive.PrimedTNT;
+import org.spongepowered.api.entity.hanging.Hanging;
+import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.vehicle.Boat;
+import org.spongepowered.api.entity.vehicle.minecart.Minecart;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -45,6 +57,7 @@ public class Observe
 {
     public static Map<String, Object> causes(Cause causes)
     {
+        // TODO EntityDamageSource as Cause
         Map<String, Object> data = new LinkedHashMap<>();
         for (Map.Entry<String, Object> namedCause : causes.getNamedCauses().entrySet())
         {
@@ -207,7 +220,7 @@ public class Observe
      * Observes a BlockTransaction
      *
      * @param transaction the transaction to observe
-     * @return the obeserved data
+     * @return the observed data
      */
     public static Map<String, Object> transactions(Transaction<BlockSnapshot> transaction)
     {
@@ -220,6 +233,48 @@ public class Observe
             data.put(BlockReport.ORIGINAL, blockSnapshot(original));
             data.put(BlockReport.REPLACEMENT, blockSnapshot(transaction.getFinal()));
         }
+        return data;
+    }
+
+    /**
+     * Observes an EntitySnapshot
+     * @param entity the entity
+     * @return the observed data
+     */
+    public static Map<String, Object> entity(EntitySnapshot entity)
+    {
+        Map<String, Object> data = new HashMap<>();
+
+        Class<? extends Entity> clazz = entity.getType().getEntityClass();
+        if (Living.class.isAssignableFrom(clazz))
+        {
+            data.put(EntityReport.ENTITY_DATA, toRawData(entity.toContainer()));
+        }
+        else if (Item.class.isAssignableFrom(clazz))
+        {
+            data.put(EntityReport.ENTITY_DATA, toRawData(entity.toContainer()));
+        }
+        else if (Boat.class.isAssignableFrom(clazz) || Minecart.class.isAssignableFrom(clazz))
+        {
+            data.put(EntityReport.ENTITY_DATA, toRawData(entity.toContainer()));
+        }
+        else if (Hanging.class.isAssignableFrom(clazz))
+        {
+            data.put(EntityReport.ENTITY_DATA, toRawData(entity.toContainer()));
+        }
+        else if (ExperienceOrb.class.isAssignableFrom(clazz))
+        {
+            data.put(EntityReport.ENTITY_DATA, toRawData(entity.toContainer()));
+        }
+        else if (EnderCrystal.class.isAssignableFrom(clazz))
+        {
+            data.put(EntityReport.ENTITY_DATA, toRawData(entity.toContainer()));
+        }
+        else // FallingBlock, WeatherEffect, Projectile, Explosive, Projectile
+        {
+            data.put(EntityReport.ENTITY_DATA + ".EntityType", entity.getType().getId());
+        }
+
         return data;
     }
 }

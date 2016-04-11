@@ -18,10 +18,23 @@
 package org.cubeengine.module.vigil.report.entity;
 
 import java.util.List;
+import java.util.Optional;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
+import org.cubeengine.module.vigil.report.Observe;
+import org.cubeengine.module.vigil.report.Recall;
 import org.cubeengine.module.vigil.report.Report;
+import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.value.mutable.MutableBoundedValue;
+import org.spongepowered.api.entity.EntitySnapshot;
+import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
+import org.spongepowered.api.text.Text;
+
+import static java.util.stream.Collectors.toList;
+import static org.cubeengine.module.vigil.report.ReportUtil.name;
+
 /* TODO
 death
 -animal
@@ -37,12 +50,19 @@ death
 -vehicle-break
 
  */
-public class DeathReport extends EntityReport<DestructEntityEvent.Death>
+public class DestructReport extends EntityReport<DestructEntityEvent>
 {
     @Override
     public void showReport(List<Action> actions, Receiver receiver)
     {
+        Action action = actions.get(0);
+        //Optional<BlockSnapshot> orig = action.getCached(BLOCKS_ORIG, Recall::origSnapshot).get(0);
 
+        Text cause = Recall.cause(action);
+        receiver.sendReport(actions, actions.size(),
+                            "{txt} killed ?",
+                            "{txt} killed ? x{}",
+                            cause);
     }
 
     @Override
@@ -58,8 +78,18 @@ public class DeathReport extends EntityReport<DestructEntityEvent.Death>
     }
 
     @Override
-    public Action observe(DestructEntityEvent.Death event)
+    public Action observe(DestructEntityEvent event)
     {
-        return null;
+        Action action = newReport();
+        action.addData(ENTITY, Observe.entity(event.getTargetEntity().createSnapshot()));
+        action.addData(CAUSE, Observe.causes(event.getCause()));
+        action.addData(LOCATION, Observe.location(event.getTargetEntity().getLocation()));
+        return action;
+    }
+
+    @Listener
+    public void onDesctruct(DestructEntityEvent event)
+    {
+        report(observe(event));
     }
 }

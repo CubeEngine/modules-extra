@@ -81,6 +81,7 @@ public class ModifyBlockReport extends BlockReport<ChangeBlockEvent.Modify>
                                 cause, name(orig.get()), actions.size());
             return;
         }
+        // TODO other modifyables
         receiver.sendReport(actions, actions.size(),
                             "{txt} modified {txt}",
                             "{txt} modified {txt} x{}",

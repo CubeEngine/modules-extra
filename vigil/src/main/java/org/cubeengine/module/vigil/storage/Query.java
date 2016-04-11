@@ -24,6 +24,7 @@ import com.flowpowered.math.vector.Vector3d;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
+import org.cubeengine.module.vigil.report.entity.EntityReport;
 import org.spongepowered.api.world.World;
 
 import static com.mongodb.QueryOperators.AND;
@@ -31,6 +32,8 @@ import static com.mongodb.QueryOperators.OR;
 import static org.cubeengine.module.vigil.report.Action.DATA;
 import static org.cubeengine.module.vigil.report.Report.*;
 import static org.cubeengine.module.vigil.report.block.BlockReport.BLOCK_CHANGES;
+import static org.cubeengine.module.vigil.report.entity.EntityReport.ENTITY;
+import static org.cubeengine.module.vigil.report.entity.EntityReport.ENTITY_DATA;
 
 public class Query
 {

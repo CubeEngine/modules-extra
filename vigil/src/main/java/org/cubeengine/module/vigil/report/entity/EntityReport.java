@@ -26,4 +26,6 @@ import org.spongepowered.api.event.entity.TargetEntityEvent;
  */
 public abstract class EntityReport<T extends TargetEntityEvent> extends BaseReport<T> implements Report.Readonly
 {
+    public static final String ENTITY = "entity";
+    public static final String ENTITY_DATA = "data";
 }
