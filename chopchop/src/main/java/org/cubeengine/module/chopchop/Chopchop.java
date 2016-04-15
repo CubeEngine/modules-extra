@@ -18,23 +18,23 @@
 package org.cubeengine.module.chopchop;
 
 import javax.inject.Inject;
-import de.cubeisland.engine.modularity.core.marker.Disable;
-import de.cubeisland.engine.modularity.core.marker.Enable;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
-import org.cubeengine.module.core.sponge.EventManager;
+import de.cubeisland.engine.modularity.core.marker.Disable;
+import de.cubeisland.engine.modularity.core.marker.Enable;
+import org.cubeengine.service.event.EventManager;
 import org.cubeengine.service.task.TaskManager;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.GameRegistry;
-import org.spongepowered.api.data.manipulator.DisplayNameData;
-import org.spongepowered.api.data.manipulator.item.EnchantmentData;
-import org.spongepowered.api.data.manipulator.item.LoreData;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.meta.ItemEnchantment;
 import org.spongepowered.api.item.Enchantments;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.item.recipe.Recipes;
 import org.spongepowered.api.item.recipe.ShapedRecipe;
-import org.spongepowered.api.text.Texts;
+import org.spongepowered.api.text.Text;
 
+import static java.util.Collections.singletonList;
 import static org.spongepowered.api.item.ItemTypes.DIAMOND_AXE;
 import static org.spongepowered.api.item.ItemTypes.LOG;
 import static org.spongepowered.api.text.format.TextColors.GOLD;
@@ -52,7 +52,7 @@ public class Chopchop extends Module
     @Enable
     public void onEnable()
     {
-        em.registerListener(this, new ChopListener(this, game, tm));
+        em.registerListener(this, new ChopListener());
         tm.runTaskDelayed(this, this::registerRecipe, 1);
     }
 
@@ -63,32 +63,24 @@ public class Chopchop extends Module
         {
             game.getRegistry().getRecipeRegistry().remove(recipe);
         }
-        em.removeListeners(this);
     }
 
     public void registerRecipe()
     {
         GameRegistry registry = game.getRegistry();
-        ItemStack axe = registry.getItemBuilder().itemType(DIAMOND_AXE).quantity(1).build();
-        EnchantmentData enchantments = game.getRegistry().getManipulatorRegistry().getBuilder(EnchantmentData.class).get().create();
-        enchantments.setUnsafe(Enchantments.PUNCH, 5);
-        axe.offer(enchantments);
+        ItemStack axe = ItemStack.builder().itemType(DIAMOND_AXE).quantity(1).build();
+        axe.offer(Keys.ITEM_ENCHANTMENTS, singletonList(new ItemEnchantment(Enchantments.PUNCH, 5)));
+        axe.offer(Keys.DISPLAY_NAME, Text.of(GOLD, "Heavy Diamond Axe"));
+        axe.offer(Keys.ITEM_LORE, singletonList(Text.of(YELLOW, "Chop Chop!")));
 
-        DisplayNameData display = axe.getOrCreate(DisplayNameData.class).get();
-        display.setDisplayName(Texts.of(GOLD, "Heavy Diamond Axe"));
-        axe.offer(display);
+        ItemStack axeHead = ItemStack.builder().itemType(DIAMOND_AXE).build();
+        ItemStack axeHandle = ItemStack.builder().itemType(LOG).build();
 
-        LoreData lore = game.getRegistry().getManipulatorRegistry().getBuilder(LoreData.class).get().create();
-        lore.set(Texts.of(YELLOW, "Chop Chop!"));
-        axe.offer(lore);
 
-        ItemStack axeHead = registry.getItemBuilder().itemType(DIAMOND_AXE).build();
-        ItemStack axeHandle = registry.getItemBuilder().itemType(LOG).build();
-
-        recipe = Recipes.shapedBuilder().height(3).width(2)
-                        .row(0, axeHead, axeHead)
-                        .row(1, axeHead, axeHandle)
-                        .row(2, null, axeHandle).addResult(axe).build();
+        recipe = Sponge.getRegistry().createBuilder(ShapedRecipe.Builder.class).height(3).width(2)
+                                             .row(0, axeHead, axeHead)
+                                             .row(1, axeHead, axeHandle)
+                                             .row(2, null, axeHandle).addResult(axe).build();
         registry.getRecipeRegistry().register(recipe);
     }
 }
