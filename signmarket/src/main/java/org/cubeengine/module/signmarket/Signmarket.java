@@ -26,73 +26,43 @@ import org.cubeengine.module.signmarket.data.ImmutableMarketSignData;
 import org.cubeengine.module.signmarket.data.MarketSignData;
 import org.cubeengine.module.signmarket.data.MarketSignDataBuilder;
 import org.cubeengine.module.signmarket.data.SignType;
-import org.cubeengine.module.signmarket.data.SignTypeBuilder;
-import org.cubeengine.module.signmarket.storage.TableSignBlock;
-import org.cubeengine.module.signmarket.storage.TableSignItem;
+import org.cubeengine.module.signmarket.data.SignTypeSerializer;
 import org.cubeengine.service.command.CommandManager;
-import org.cubeengine.service.database.ModuleTables;
 import org.cubeengine.service.event.EventManager;
-import org.cubeengine.service.filesystem.ModuleConfig;
+import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.service.inventoryguard.InventoryGuardFactory;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.service.economy.EconomyService;
 
-@ModuleInfo()
-@ModuleTables({TableSignItem.class, TableSignBlock.class})
+@ModuleInfo(name = "SignMarket", description = "Adds a sign-based market")
 public class Signmarket extends Module
 {
-    private MarketSignFactory marketSignFactory;
-    @ModuleConfig private SignMarketConfig config;
+    @Inject private Log logger; // TODO log transactions
+    @Inject private CommandManager cm;
+    @Inject private EventManager em;
+    @Inject private I18n i18n;
+    @Inject private InventoryGuardFactory igf;
+
+    private MarketSignManager manager;
     private EditModeListener editModeListener;
     private MarketSignPerm perms;
     private SignMarketCommands smCmds;
-    @Inject private Log logger;
-    @Inject private CommandManager cm;
-    @Inject private EventManager em;
 
     public Signmarket()
     {
-        Sponge.getDataManager().registerBuilder(SignType.class, new SignTypeBuilder());
+        Sponge.getDataManager().registerSerializer(SignType.class, new SignTypeSerializer());
         Sponge.getDataManager().register(MarketSignData.class, ImmutableMarketSignData.class, new MarketSignDataBuilder());
     }
 
-    @Enable
-    public void onEnable()
+    @Inject @Enable
+    public void onEnable(EconomyService es)
     {
-        this.marketSignFactory = new MarketSignFactory(this);
-        this.marketSignFactory.loadInAllSigns();
-        this.editModeListener = new EditModeListener(this, i18n);
-        em.registerListener(this, new MarketSignListener(this));
+        manager = new MarketSignManager(i18n, es, this, igf);
+        this.editModeListener = new EditModeListener(this, i18n, manager);
+        em.registerListener(this, new MarketSignListener(manager));
         smCmds = new SignMarketCommands(this, i18n);
         cm.addCommand(smCmds);
         this.perms = new MarketSignPerm(this, smCmds);
-
-        if (!config.enableAdmin && ! config.enableUser)
-        {
-            logger.warn("[MarketSign] All SignTypes are disabled in the configuration!");
-        }
-    }
-
-    @Override
-    public void reload()
-    {
-        Database db = this.getCore().getDB();
-        db.registerTable(TableSignItem.class); // Init Item-table first!!!
-        db.registerTable(TableSignBlock.class);
-        this.config = this.loadConfig(SignMarketConfig.class);
-        this.marketSignFactory = new MarketSignFactory(this);
-        this.marketSignFactory.loadInAllSigns();
-        this.editModeListener = new EditModeListener(this, i18n);
-        this.getCore().getEventManager().registerListener(this, new MarketSignListener(this));
-        this.perms = new MarketSignPerm(this, smCmds);
-    }
-
-    public MarketSignFactory getMarketSignFactory()
-    {
-        return this.marketSignFactory;
-    }
-
-    public SignMarketConfig getConfig()
-    {
-        return this.config;
     }
 
     public EditModeListener getEditModeListener()

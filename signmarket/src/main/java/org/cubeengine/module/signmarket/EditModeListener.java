@@ -17,75 +17,63 @@
  */
 package org.cubeengine.module.signmarket;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
-import de.cubeisland.engine.butler.CommandInvocation;
-import de.cubeisland.engine.butler.CommandSource;
-import org.cubeengine.butler.completer.Completer;
 import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parametric.Command;
-import org.cubeengine.butler.parameter.IncorrectUsageException;
-import org.cubeengine.service.command.CommandSource;
-import org.cubeengine.service.command.CommandSender;
+import org.cubeengine.butler.parametric.Flag;
+import org.cubeengine.module.signmarket.data.IMarketSignData;
+import org.cubeengine.module.signmarket.data.ImmutableMarketSignData;
+import org.cubeengine.module.signmarket.data.MarketSignData;
+import org.cubeengine.module.signmarket.data.SignType;
+import org.cubeengine.service.command.annotation.ParameterPermission;
 import org.cubeengine.service.command.conversation.ConversationCommand;
+import org.cubeengine.service.command.exception.PermissionDeniedException;
 import org.cubeengine.service.i18n.I18n;
-import org.cubeengine.service.user.User;
-import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.block.ChangeBlockEvent;
+import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.block.InteractBlockEvent.Primary;
+import org.spongepowered.api.event.block.tileentity.ChangeSignEvent;
 import org.spongepowered.api.event.entity.DisplaceEntityEvent;
+import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.world.Location;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.Sign;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.block.SignChangeEvent;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.world.World;
 
-import static org.bukkit.event.Event.Result.DENY;
-import static org.bukkit.event.block.Action.RIGHT_CLICK_AIR;
-import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;
 import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.service.i18n.formatter.MessageType.NEUTRAL;
 import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
 
 @Command(name = "MarketSign", desc = "Edit Signmarket signs")
 public class EditModeListener extends ConversationCommand
 {
-    private final MarketSignFactory signFactory;
     private final Signmarket module;
     private I18n i18n;
-    private final Map<UUID, Location> currentSignLocation = new HashMap<>();
-    private final Map<UUID, MarketSign> previousMarketSign = new HashMap<>();
+    private MarketSignManager manager;
 
-    public EditModeListener(final Signmarket module, I18n i18n)
+    public EditModeListener(final Signmarket module, I18n i18n, MarketSignManager manager)
     {
         super(module);
         this.module = module;
         this.i18n = i18n;
-        this.signFactory = module.getMarketSignFactory();
+        this.manager = manager;
     }
 
     @Listener
     public void changeWorld(DisplaceEntityEvent.Teleport event)
     {
-        // TODO check for worldchange
-        if (this.module.getConfig().disableInWorlds.contains(event.getPlayer().getWorld().getName()))
+        if (!(event.getTargetEntity() instanceof Player))
         {
-            Player Player = this.getModule().getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
-            if (this.hasUser(user))
-            {
-                i18n.sendTranslated(user, NEUTRAL, "MarketSigns are disabled in the configuration for this world!");
-                this.removeUser(user);
-                this.currentSignLocation.remove(user.getUniqueId());
-            }
+            return;
+        }
+        if (!((Player)event.getTargetEntity()).hasPermission(module.perms().EDIT_USE.getId()))
+        {
+            manager.exitEditMode(((Player)event.getTargetEntity()));
         }
     }
 
@@ -100,570 +88,447 @@ public class EditModeListener extends ConversationCommand
     @Command(desc = "Exits the Editmode")
     public void exit(Player context)
     {
-        MarketSign marketSign = getSign(context);
-        this.removeUser(context);
-        this.previousMarketSign.put(context.getUniqueId(), marketSign);
-        this.currentSignLocation.remove(context.getUniqueId());
-        marketSign.exitEditMode(context);
+        manager.exitEditMode(context);
+        removeUser(context);
     }
 
     @Restricted(Player.class)
     @Command(desc = "Copies the settings from the previous sign")
-    public void copy(CommandSource context)
+    public void copy(Player context)
     {
-        MarketSign sign = getSign((Player)context.getSource());
-        MarketSign prevSign = this.previousMarketSign.get(context.getSource().getUniqueId());
-        if (prevSign == null)
+        ImmutableMarketSignData data = manager.getPreviousData(context);
+        if (data != null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "No market sign at previous position.");
+            i18n.sendTranslated(context, NEGATIVE, "No previous market sign");
             return;
         }
-        if (prevSign.isAdminSign() && !module.perms().SIGN_CREATE_ADMIN_CREATE.isAuthorized(context.getSource()))
-        {
-            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to copy admin signs!");
-            return;
-        }
-        else if (!prevSign.isAdminSign() && !module.perms().SIGN_CREATE_USER_CREATE.isAuthorized(context.getSource()))
-        {
-            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to copy player signs!");
-            return;
-        }
-        sign.copyValuesFrom(prevSign);
-        showInfoAndUpdate(sign, (User)context.getSource());
-    }
 
-    private MarketSign getSign(Player user)
-    {
-        UUID uuid = user.getUniqueId();
-        Location loc = this.currentSignLocation.get(uuid);
-        if (loc == null)
+        if (data.getOwner().equals(IMarketSignData.ADMIN_SIGN))
         {
-            throw new IncorrectUsageException("Please select a sign to edit.");
-        }
-        MarketSign signAt = this.signFactory.getSignAt(loc);
-        if (signAt == null)
-        {
-            throw new IncorrectUsageException("No market sign at position! This should not happen!");
-        }
-        this.setEditingSign(user, signAt);
-        return signAt;
-    }
-
-    private boolean setEditingSign(Player user, MarketSign marketSign)
-    {
-        if (marketSign == null)
-        {
-            return true;
-        }
-        Location previous = this.currentSignLocation.put(user.getUniqueId(), marketSign.getLocation());
-        if (!marketSign.getLocation().equals(previous))
-        {
-            MarketSign previousSign = this.signFactory.getSignAt(previous);
-            if (previousSign != null)
+            if (!context.hasPermission(module.perms().EDIT_ADMIN.getId()))
             {
-                this.previousMarketSign.put(user.getUniqueId(), previousSign);
-                previousSign.exitEditMode(user);
+                throw new PermissionDeniedException(module.perms().EDIT_ADMIN);
             }
-            if (!checkAllowedEditing(marketSign, user))
+        }
+        else
+        {
+            if (!context.hasPermission(module.perms().EDIT_USE.getId()))
             {
-                return true;
+                throw new PermissionDeniedException(module.perms().EDIT_USE);
             }
-            marketSign.enterEditMode();
-            i18n.sendTranslated(user, POSITIVE, "Changed active sign!");
-            return true;
         }
-        if (!checkAllowedEditing(marketSign, user))
+
+        MarketSignData copy = data.asMutable();
+        if (!copy.isAdminOwner())
         {
-            return true;
+            copy.setStock(0);
         }
-        marketSign.enterEditMode();
-        return false;
+        Location<World> loc = manager.updateData(copy, context);
+        manager.executeShowInfo(copy, context, loc);
     }
 
-    private boolean checkAllowedEditing(MarketSign marketSign, Player user)
-    {
-        if (marketSign.isAdminSign() && !module.perms().SIGN_CREATE_ADMIN_CREATE.isAuthorized(user))
-        {
-            i18n.sendTranslated(user, NEGATIVE, "You are not allowed to edit admin signs!");
-            this.currentSignLocation.remove(user.getUniqueId());
-            return false;
-        }
-        else if (!marketSign.isAdminSign() && !module.perms().SIGN_CREATE_USER_CREATE.isAuthorized(user))
-        {
-            i18n.sendTranslated(user, NEGATIVE, "You are not allowed to edit player signs!");
-            this.currentSignLocation.remove(user.getUniqueId());
-            return false;
-        }
-        if (!marketSign.isAdminSign() && !marketSign.isOwner(user)
-            && !module.perms().SIGN_CREATE_USER_OTHER.isAuthorized(user))
-        {
-            i18n.sendTranslated(user, NEGATIVE, "You are not allowed to edit Signs of other players!");
-            this.currentSignLocation.remove(user.getUniqueId());
-            return false;
-        }
-        return true;
-    }
-
-    @Restricted(Player.class)
     @Command(desc = "Changes the sign to a buy-sign")
-    public void buy(CommandSource context)
+    public void buy(Player context)
     {
-        MarketSign sign = getSign((User)context.getSource());
-        if (sign.isAdminSign() && !module.perms().SIGN_CREATE_ADMIN_BUY.isAuthorized(context.getSource()))
+        // TODO perms for sell/Buy maybe?
+        MarketSignData data = manager.getCurrentData(context);
+        if (data == null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to create admin buy signs!");
+            i18n.sendTranslated(context, NEGATIVE, "No active sign!");
             return;
         }
-        if (!sign.isAdminSign() && !module.perms().SIGN_CREATE_USER_BUY.isAuthorized(context.getSource()))
-        {
-            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to create player buy signs!");
-            return;
-        }
-        sign.setTypeBuy();
-        showInfoAndUpdate(sign, (User)context.getSource());
+
+        data.setSignType(SignType.BUY);
+
+        Location<World> loc = manager.updateData(data, context);
+        manager.executeShowInfo(data, context, loc);
     }
 
-    @Restricted(Player.class)
     @Command(desc = "Changes the sign to a sell-sign")
-    public void sell(CommandSource context)
+    public void sell(Player context)
     {
-        MarketSign sign = getSign((User)context.getSource());
-        if (sign.isAdminSign() && !module.perms().SIGN_CREATE_ADMIN_SELL.isAuthorized(context.getSource()))
+        // TODO perms for sell/Buy maybe?
+        MarketSignData data = manager.getCurrentData(context);
+        if (data == null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to create admin sell signs!");
+            i18n.sendTranslated(context, NEGATIVE, "No active sign!");
             return;
         }
-        if (!sign.isAdminSign() && !module.perms().SIGN_CREATE_USER_SELL.isAuthorized(context.getSource()))
-        {
-            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to create player sell signs!");
-            return;
-        }
-        sign.setTypeSell();
-        showInfoAndUpdate(sign, (User)context.getSource());
+
+        data.setSignType(SignType.SELL);
+
+        Location<World> loc = manager.updateData(data, context);
+        manager.executeShowInfo(data, context, loc);
     }
 
-    @Restricted(Player.class)
     @Command(desc = "Changes the demand of a sign")
-    public void demand(CommandSource context, Integer demand)
+    public void demand(Player context, Integer demand)
     {
-        MarketSign sign = getSign((User)context.getSource());
-        if (!module.perms().SIGN_CREATE_USER_DEMAND.isAuthorized(context.getSource()))
+        MarketSignData data = manager.getCurrentData(context);
+        if (data == null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to set a demand!");
+            i18n.sendTranslated(context, NEGATIVE, "No active sign!");
             return;
         }
-        if (!sign.hasType())
+
+        if (data.getSignType() == null)
         {
-            sign.setTypeSell();
+            data.setSignType(SignType.SELL);
         }
-        if (sign.isTypeBuy())
+        else if (data.getSignType() == SignType.BUY)
         {
             i18n.sendTranslated(context, NEGATIVE, "Buy signs cannot have a demand!");
             return;
         }
-        if (sign.isAdminSign())
+
+        data.setDemand(demand);
+        Location<World> loc = manager.updateData(data, context);
+        manager.executeShowInfo(data, context, loc);
+    }
+
+    @Command(desc = "Changes the demand of a sign")
+    public void nodemand(Player context)
+    {
+        MarketSignData data = manager.getCurrentData(context);
+        if (data == null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "Admin signs cannot have a demand!");
+            i18n.sendTranslated(context, NEGATIVE, "No active sign!");
             return;
         }
-        if (demand == -1)
+
+        data.setDemand(null);
+        Location<World> loc = manager.updateData(data, context);
+        manager.executeShowInfo(data, context, loc);
+    }
+
+    @Command(desc = "Changes the sign to an admin-sign")
+    public void admin(Player context)
+    {
+        if (!context.hasPermission(module.perms().EDIT_ADMIN.getId()))
         {
-            sign.setNoDemand();
+            throw new PermissionDeniedException(module.perms().EDIT_ADMIN);
+        }
+
+        MarketSignData data = manager.getCurrentData(context);
+        if (data == null)
+        {
+            i18n.sendTranslated(context, NEGATIVE, "No active sign!");
+            return;
+        }
+
+        data.setOwner(IMarketSignData.ADMIN_SIGN);
+
+        Location<World> loc = manager.updateData(data, context);
+        manager.executeShowInfo(data, context, loc);
+    }
+
+    @Command(desc = "Changes the sign to an player-sign")
+    public void player(Player context)
+    {
+        if (!context.hasPermission(module.perms().EDIT_PLAYER_SELF.getId()))
+        {
+            throw new PermissionDeniedException(module.perms().EDIT_PLAYER_SELF);
+        }
+
+        MarketSignData data = manager.getCurrentData(context);
+        if (data == null)
+        {
+            i18n.sendTranslated(context, NEGATIVE, "No active sign!");
+            return;
+        }
+
+        if (data.isAdminOwner())
+        {
+            data.setSize(6);
+        }
+        data.setOwner(context.getUniqueId());
+        data.setStock(0);
+
+        Location<World> loc = manager.updateData(data, context);
+        manager.executeShowInfo(data, context, loc);
+    }
+
+    @Command(desc = "Changes the signs owner")
+    public void owner(Player context, Player owner)
+    {
+        if (!context.equals(owner))
+        {
+            if (!context.hasPermission(module.perms().EDIT_PLAYER_OTHER.getId()))
+            {
+                throw new PermissionDeniedException(module.perms().EDIT_PLAYER_OTHER);
+            }
         }
         else
         {
-            sign.setDemand(demand);
+            if (!context.hasPermission(module.perms().EDIT_PLAYER_SELF.getId()))
+            {
+                throw new PermissionDeniedException(module.perms().EDIT_PLAYER_SELF);
+            }
         }
-        showInfoAndUpdate(sign, (User)context.getSource());
-    }
 
-    @Restricted(Player.class)
-    @Command(desc = "Changes the demand of a sign")
-    public void nodemand(CommandSource context)
-    {
-        MarketSign sign = getSign((User)context.getSource());
-        sign.setNoDemand();
-        showInfoAndUpdate(sign, (User)context.getSource());
-    }
-
-    @Restricted(Player.class)
-    @Command(desc = "Changes the sign to an admin-sign")
-    public void admin(CommandSource context)
-    {
-        MarketSign sign = getSign((User)context.getSource());
-        if (!module.perms().SIGN_CREATE_ADMIN_CREATE.isAuthorized(context.getSource()))
+        MarketSignData data = manager.getCurrentData(context);
+        if (data == null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to create admin signs");
+            i18n.sendTranslated(context, NEGATIVE, "No active sign!");
             return;
         }
-        sign.setAdminSign();
-        if (this.module.getConfig().maxAdminStock != -1 && (sign.hasInfiniteSize()
-            || sign.getChestSize() > this.module.getConfig().maxAdminStock))
-        {
-            sign.setSize(this.module.getConfig().maxAdminStock);
-        }
-        showInfoAndUpdate(sign, (User)context.getSource());
+
+        data.setOwner(owner.getUniqueId());
+        Location<World> loc = manager.updateData(data, context);
+        manager.executeShowInfo(data, context, loc);
     }
 
-    @Restricted(Player.class)
-    @Command(desc = "Changes the sign to an player-sign")
-    public void player(CommandSource context)
-    {
-        MarketSign sign = getSign((User)context.getSource());
-        if (!module.perms().SIGN_CREATE_USER_CREATE.isAuthorized(context.getSource()))
-        {
-            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to create player signs");
-            return;
-        }
-        sign.setOwner((User)context.getSource());
-        if (this.module.getConfig().maxUserStock != -1 && (sign.hasInfiniteSize()
-            || sign.getChestSize() > this.module.getConfig().maxUserStock))
-        {
-            sign.setSize(this.module.getConfig().maxUserStock);
-        }
-        showInfoAndUpdate(sign, (User)context.getSource());
-    }
-
-    @Restricted(Player.class)
-    @Command(desc = "Changes the signs owner")
-    public void owner(CommandSource context, Player owner)
-    {
-        MarketSign sign = getSign((User)context.getSource());
-        if (!module.perms().SIGN_CREATE_USER_OTHER.isAuthorized(context.getSource()))
-        {
-            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to create player signs for other players");
-            return;
-        }
-        sign.setOwner(owner);
-        showInfoAndUpdate(sign, (User)context.getSource());
-    }
-
-    @Restricted(Player.class)
     @Command(desc = "Changes whether the sign has stock")
-    public void stock(CommandSource context)
+    public void stock(Player context)
     {
-        MarketSign sign = getSign((User)context.getSource());
-        if (!sign.isAdminSign())
+        MarketSignData data = manager.getCurrentData(context);
+        if (data == null)
+        {
+            i18n.sendTranslated(context, NEGATIVE, "No active sign!");
+            return;
+        }
+
+        if (!data.isAdminOwner())
         {
             i18n.sendTranslated(context, NEGATIVE, "Player signs cannot have no stock!");
             return;
         }
-        if (sign.hasStock())
+
+        if (data.getStock() == null)
         {
-            if (!this.module.getConfig().allowAdminNoStock)
-            {
-                i18n.sendTranslated(context, NEGATIVE, "Admin-signs without stock are not allowed!");
-                return;
-            }
-            if (!module.perms().SIGN_CREATE_ADMIN_NOSTOCK.isAuthorized(context.getSource()))
-            {
-                i18n.sendTranslated(context, NEGATIVE, "You are not allowed to create admin-signs with no stock");
-                return;
-            }
-            sign.setNoStock();
-            showInfoAndUpdate(sign, (User)context.getSource());
-            return;
+            data.setStock(0);
         }
-        if (!this.module.getConfig().allowAdminStock)
+        else
         {
-            i18n.sendTranslated(context, NEGATIVE, "Admin-signs with stock are not allowed!");
-            return;
+            data.setStock(null);
         }
-        if (!module.perms().SIGN_CREATE_ADMIN_STOCK.isAuthorized(context.getSource()))
-        {
-            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to create admin-signs with stock");
-            return;
-        }
-        sign.setStock(0);
-        showInfoAndUpdate(sign, (User)context.getSource());
+        Location<World> loc = manager.updateData(data, context);
+        manager.executeShowInfo(data, context, loc);
     }
 
-    @Restricted(Player.class)
     @Command(desc = "Sets the signs stock")
-    public void setstock(CommandSource context, Integer amount)
+    public void setstock(Player context, Integer amount)
     {
-        MarketSign sign = getSign((User)context.getSource());
-        if (!module.perms().SIGN_SETSTOCK.isAuthorized(context.getSource()))
+        MarketSignData data = manager.getCurrentData(context);
+        if (data == null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to set the stock!");
+            i18n.sendTranslated(context, NEGATIVE, "No active sign!");
             return;
         }
-        if (!sign.hasStock())
+
+        if (data.getStock() == null)
         {
             i18n.sendTranslated(context, NEGATIVE, "This sign has no stock! Use \"stock\" first to enable it!");
             return;
         }
-        sign.setStock(amount);
-        sign.syncOnMe = true;
-        showInfoAndUpdate(sign, (User)context.getSource());
+
+        data.setStock(amount);
+        Location<World> loc = manager.updateData(data, context);
+        manager.executeShowInfo(data, context, loc);
     }
 
-    @Restricted(Player.class)
     @Command(desc = "Sets the price")
-    public void price(CommandSource context, Double price)
+    public void price(Player context, Double price)
     {
-        MarketSign sign = getSign((User)context.getSource());
         if (price < 0)
         {
             i18n.sendTranslated(context, NEGATIVE, "A negative price!? Are you serious?");
             return;
         }
-        sign.setPrice((long)(price * sign.economy.fractionalDigitsFactor()));
-        showInfoAndUpdate(sign, (User)context.getSource());
+
+        MarketSignData data = manager.getCurrentData(context);
+        if (data == null)
+        {
+            i18n.sendTranslated(context, NEGATIVE, "No active sign!");
+            return;
+        }
+
+        data.setPrice(price);
+        Location<World> loc = manager.updateData(data, context);
+        manager.executeShowInfo(data, context, loc);
     }
 
-    @Restricted(Player.class)
     @Command(desc = "Sets the amount")
-    public void amount(CommandSource context, Integer amount)
+    public void amount(Player context, Integer amount)
     {
-        MarketSign sign = getSign((User)context.getSource());
         if (amount < 0)
         {
             i18n.sendTranslated(context, NEGATIVE, "Negative amounts could be unfair! Just sayin'");
             return;
         }
-        sign.setAmount(amount);
-        showInfoAndUpdate(sign, (User)context.getSource());
-    }
 
-    @Restricted(Player.class)
-    @Command(desc = "Sets the item")
-    public void item(CommandSource context, ItemStack item)
-    {
-        MarketSign sign = getSign((User)context.getSource());
-        if (sign.isAdminSign())
+        MarketSignData data = manager.getCurrentData(context);
+        if (data == null)
         {
-            sign.setItemStack(item, false);
-            showInfoAndUpdate(sign, (User)context.getSource());
+            i18n.sendTranslated(context, NEGATIVE, "No active sign!");
             return;
         }
-        if (sign.hasStock() && sign.getStock() != 0)
+
+        data.setAmount(amount);
+        Location<World> loc = manager.updateData(data, context);
+        manager.executeShowInfo(data, context, loc);
+    }
+
+    @Command(desc = "Sets the item")
+    public void item(Player context, ItemStack item)
+    {
+        MarketSignData data = manager.getCurrentData(context);
+        if (data == null)
+        {
+            i18n.sendTranslated(context, NEGATIVE, "No active sign!");
+            return;
+        }
+
+        if (!data.isAdminOwner() && data.getStock() != 0)
         {
             i18n.sendTranslated(context, NEGATIVE, "You have to take all items out of the market-sign to be able to change the item in it!");
             return;
         }
-        sign.setItemStack(item, false);
-        showInfoAndUpdate(sign, (User)context.getSource());
+        data.setItem(item, false);
+        Location<World> loc = manager.updateData(data, context);
+        manager.executeShowInfo(data, context, loc);
     }
 
-    @Restricted(Player.class)
     @Command(desc = "Sets the signs inventory size")
-    public void size(CommandSource context, Integer size)
+    public void size(Player context, @org.cubeengine.butler.parametric.Optional Integer size,
+                                     @ParameterPermission @Flag boolean infinite)
     {
-        MarketSign sign = getSign((User)context.getSource());
-        if (!module.perms().SIGN_SIZE_CHANGE.isAuthorized(context.getSource()))
+        if (size == null || size < 0)
         {
-            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to change the sign inventory-size.");
+            size = infinite ? -1 : 0;
+        }
+        if (size == 0 || size > 6)
+        {
+            i18n.sendTranslated(context, NEGATIVE, "Invalid size! Use -i for infinite OR 1-6 inventory-lines!");
             return;
         }
-        if (size == 0 || size > 6 || size < -1)
+
+        MarketSignData data = manager.getCurrentData(context);
+        if (data == null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "Invalid size! Use -1 for infinite OR 1-6 inventory-lines!");
+            i18n.sendTranslated(context, NEGATIVE, "No active sign!");
             return;
         }
-        if (size == -1 && !module.perms().SIGN_SIZE_INFINITE.isAuthorized(context.getSource()))
-        {
-            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to set infinite inventories!");
-            return;
-        }
-        if (sign.isAdminSign())
-        {
-            int maxAdmin = this.module.getConfig().maxAdminStock;
-            if (maxAdmin != -1 && (size > maxAdmin || size == -1))
-            {
-                i18n.sendTranslated(context, NEGATIVE, "The maximum size of admin-signs is set to {amount}!", maxAdmin);
-                return;
-            }
-        }
-        else // user-sign
-        {
-            int maxPlayer = this.module.getConfig().maxUserStock;
-            if (maxPlayer != -1 && (size > maxPlayer || size == -1))
-            {
-                i18n.sendTranslated(context, NEGATIVE, "The maximum size of player signs is set to {amount}!", maxUser);
-                return;
-            }
-        }
-        sign.setSize(size);
-        sign.syncOnMe = true;
-        showInfoAndUpdate(sign, (User)context.getSource());
+        data.setSize(size);
+        Location<World> loc = manager.updateData(data, context);
+        manager.executeShowInfo(data, context, loc);
     }
 
-    private void showInfoAndUpdate(MarketSign sign, Player user)
+    @Listener
+    public void onClick(InteractBlockEvent event, @First Player player)
     {
-        sign.showInfo(user);
-        sign.updateSignText();
-    }
-
-    @EventHandler(priority = EventPriority.LOW)
-    public void onClick(PlayerInteractEvent event)
-    {
-        if (event.useItemInHand().equals(DENY))
+        if (!this.hasUser(player))
+        {
+            return;
+        }
+        Optional<Location<World>> loc = event.getTargetBlock().getLocation();
+        if (!loc.isPresent())
         {
             return;
         }
 
-        Player Player = this.getModule().getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
-        if (!this.hasUser(user))
+        if (!player.hasPermission(module.perms().EDIT_USE.getId()))
         {
+            i18n.sendTranslated(player, NEGATIVE, "You are not allowed to edit MarketSigns here");
+            manager.exitEditMode(player);
+            removeUser(player);
             return;
         }
-        if (this.module.getConfig().disableInWorlds.contains(event.getPlayer().getWorld().getName()))
+
+        boolean punch = event instanceof Primary;
+        Boolean sneaking = player.get(Keys.IS_SNEAKING).get();
+
+        if (manager.isActive(loc.get(), player)) // Its the active MarketSign -> Break or Modify Item
         {
-            i18n.sendTranslated(user, NEUTRAL, "MarketSigns are disabled in the configuration for this world!");
-            return;
-        }
-        if (event.getAction().equals(Action.LEFT_CLICK_BLOCK))
-        {
-            if (!(event.getClickedBlock().getState() instanceof Sign))
+            if (sneaking) // Do nothing if sneaking
             {
                 return;
             }
-            event.setCancelled(true);
-            event.setUseItemInHand(DENY);
-            Location newLoc = event.getClickedBlock().getLocation();
-            if (!newLoc.equals(this.currentSignLocation.get(user.getUniqueId()))
-                && this.currentSignLocation.values().contains(newLoc))
+            if (punch)
             {
-                i18n.sendTranslated(user, NEGATIVE, "Someone else is editing this sign!");
-                return;
-            }
-            MarketSign curSign = this.signFactory.getSignAt(newLoc);
-            if (curSign == null)
-            {
-                if (!user.isSneaking())
+                if (manager.tryBreakActive(player))
                 {
-                    i18n.sendTranslated(user, NEGATIVE, "That is not a market sign!");
-                    i18n.sendTranslated(user, NEUTRAL, "Use shift leftclick to convert the sign.");
                     return;
                 }
-                curSign = this.signFactory.createSignAt(user, newLoc);
-                this.setEditingSign(user, curSign);
-                return;
             }
-            if (curSign.isInEditMode())
+            else if (player.getItemInHand().isPresent())
             {
-                if (curSign.tryBreak(user))
-                {
-                    this.previousMarketSign.put(user.getUniqueId(), curSign);
-                    this.currentSignLocation.remove(user.getUniqueId());
-                }
-                return;
+                manager.modifyItemActive(player, player.getItemInHand().get());
             }
-            this.setEditingSign(user, curSign);
-            return;
-        }
-        // else:
-        if (event.getPlayer().isSneaking())
-        {
-            return;
-        }
-        BlockState signFound = null;
-        if (event.getAction() == RIGHT_CLICK_AIR)
-        {
-            if (event.getPlayer().getItemInHand() != null && event.getPlayer().getItemInHand().getTypeId() != 0)
-            {
-                signFound = MarketSignListener.getTargettedSign(event.getPlayer());
-            }
-        }
-        else if (event.getAction() == RIGHT_CLICK_BLOCK && event.getClickedBlock().getState() instanceof Sign)
-        {
-            signFound = event.getClickedBlock().getState();
-        }
-        if (signFound == null)
-        {
-            return;
-        }
-        event.setCancelled(true);
-        event.setUseItemInHand(DENY);
-        Location curLoc = signFound.getLocation();
-        MarketSign curSign = this.signFactory.getSignAt(curLoc);
-        if (curSign == null)
-        {
-            i18n.sendTranslated(user, NEUTRAL, "This sign is not a market-sign!");
-            return; // not a market-sign
-        }
-        if (!this.setEditingSign(user, curSign))
-        {
-            if (user.getItemInHand() == null || user.getItemInHand().getTypeId() == 0)
-            {
-                return;
-            }
-            if (!curSign.isAdminSign() && curSign.hasStock() && curSign.getStock() != 0)
-            {
-                i18n.sendTranslated(user, NEGATIVE, "You have to take all items out of the market sign to be able to change the item in it!");
-                return;
-            }
-            curSign.setItemStack(user.getItemInHand(), true);
-            curSign.updateSignText();
-            i18n.sendTranslated(user, POSITIVE, "Item in sign updated!");
-        }
-    }
-
-    @EventHandler
-    public void onSignPlace(BlockPlaceEvent event)
-    {
-        if (!(event.getBlockPlaced().getState() instanceof Sign))
-        {
-            return;
-        }
-        Player Player = this.getModule().getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
-        if (!this.hasUser(user))
-        {
-            return;
-        }
-        if (this.module.getConfig().disableInWorlds.contains(event.getPlayer().getWorld().getName()))
-        {
-            i18n.sendTranslated(user, NEUTRAL, "MarketSigns are disabled in the configuration for this world!");
-            return;
-        }
-        if (!module.perms().SIGN_CREATE_ADMIN_CREATE.isAuthorized(user))
-        {
-            if (!module.perms().SIGN_CREATE_USER_CREATE.isAuthorized(user))
-            {
-                i18n.sendTranslated(user, NEGATIVE, "You are not allowed to create market signs!");
-                event.setCancelled(true);
-                return;
-            }
-        }
-        this.setEditingSign(user, this.signFactory.createSignAt(user, event.getBlockPlaced().getLocation()));
-    }
-
-    @EventHandler
-    public void onSignChange(SignChangeEvent event)
-    {
-        Player Player = this.getModule().getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
-        if (!this.hasUser(user))
-        {
-            return;
-        }
-        if (this.module.getConfig().disableInWorlds.contains(event.getPlayer().getWorld().getName()))
-        {
-            i18n.sendTranslated(user, NEUTRAL, "MarketSigns are disabled in the configuration for this world!");
-            return;
-        }
-        Location loc = event.getBlock().getLocation();
-        if (loc.equals(this.currentSignLocation.get(user.getUniqueId())))
-        {
             event.setCancelled(true);
+            return;
         }
+
+        if (loc.get().get(MarketSignData.class).isPresent()) // Its another MarketSign
+        {
+            manager.setSign(loc.get(), player); // Set Current Sign
+            event.setCancelled(true);
+            return;
+        }
+
+        if (loc.get().getBlockType() != BlockTypes.STANDING_SIGN && loc.get().getBlockType() != BlockTypes.WALL_SIGN)
+        {
+            // Not even a sign -> ignore
+            return;
+        }
+        // Its a sign ; but no data yet
+        if (sneaking && !punch)
+        {
+            return;
+        }
+        if (!sneaking || !punch)
+        {
+            i18n.sendTranslated(player, NEGATIVE, "That is not a market sign!");
+            i18n.sendTranslated(player, NEUTRAL, "Sneak and punch the sign convert it.");
+            event.setCancelled(true);
+            return;
+        }
+        // sneark + punch -> convert it!
+        MarketSignData data = new MarketSignData();
+        data.setID(UUID.randomUUID());
+        data.setOwner(player.getUniqueId());
+        loc.get().offer(data); // Sign converted! Now set active
+        manager.setSign(loc.get(), player);
+        event.setCancelled(true);
     }
 
-    private class SignSizeCompleter implements Completer
+    @Listener(order = Order.POST)
+    public void onSignPlace(ChangeBlockEvent.Place event, @First Player player)
     {
-        @Override
-        public List<String> getSuggestions(CommandInvocation invocation)
+        /*
+        if (event.getTransactions().size() > 1 || !hasUser(player))
         {
-            CommandSource commandSource = invocation.getCommandSource();
-            if (commandSource instanceof CommandSender)
+            return;
+        }
+
+        for (Transaction<BlockSnapshot> trans : event.getTransactions())
+        {
+            BlockType type = trans.getFinal().getState().getType();
+            if (type == BlockTypes.STANDING_SIGN || type == BlockTypes.WALL_SIGN) // placed sign
             {
-                if (module.perms().SIGN_SIZE_INFINITE.isAuthorized((CommandSender)commandSource))
+                if (!player.hasPermission(module.perms().EDIT_USE.getId()))
                 {
-                    return Arrays.asList("6", "5", "4", "3", "2", "1", "-1");
+                    event.setCancelled(true);
+                    i18n.sendTranslated(player, NEGATIVE, "You are not allowed to create market signs!");
+                    return;
                 }
-                return Arrays.asList("6", "5", "4", "3", "2", "1");
+
+                MarketSignData data = new MarketSignData();
+                data.setID(UUID.randomUUID());
+                trans.setCustom(trans.getFinal().with(data.asImmutable()).get());
+               // TODO this is too soon manager.setSign(trans.getFinal().getLocation().get(), player);
             }
-            return new ArrayList<>();
+        }
+        */
+    }
+
+    @Listener
+    public void onSignChange(ChangeSignEvent event)
+    {
+        Optional<MarketSignData> data = event.getTargetTile().get(MarketSignData.class);
+        if (data.isPresent())
+        {
+            manager.updateSignText(data.get(), event.getTargetTile().getLocation());
         }
     }
 }

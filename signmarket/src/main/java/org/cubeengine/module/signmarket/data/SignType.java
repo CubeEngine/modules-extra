@@ -1,28 +1,35 @@
+/**
+ * This file is part of CubeEngine.
+ * CubeEngine is licensed under the GNU General Public License Version 3.
+ *
+ * CubeEngine is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * CubeEngine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.cubeengine.module.signmarket.data;
 
-import org.spongepowered.api.data.DataContainer;
-import org.spongepowered.api.data.DataQuery;
-import org.spongepowered.api.data.DataSerializable;
-import org.spongepowered.api.data.MemoryDataContainer;
-import org.spongepowered.api.data.Queries;
-import org.spongepowered.api.data.key.Key;
-import org.spongepowered.api.data.key.KeyFactory;
-import org.spongepowered.api.data.value.mutable.Value;
-
-public enum SignType implements DataSerializable
+public enum SignType
 {
-    BUY, SELL;
+    BUY("Buy"), SELL("Sell");
 
-    public static final Key<Value<String>> SIGN_TYPE = KeyFactory.makeSingleKey(String.class, Value.class, DataQuery.of("type"));
-    @Override
-    public int getContentVersion()
+    private final String name;
+
+    SignType(String name)
     {
-        return 1;
+        this.name = name;
     }
 
-    @Override
-    public DataContainer toContainer()
+    public String getName()
     {
-        return new MemoryDataContainer().set(Queries.CONTENT_VERSION, getContentVersion()).set(SIGN_TYPE, name());
+        return name;
     }
 }

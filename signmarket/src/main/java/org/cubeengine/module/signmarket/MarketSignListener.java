@@ -17,150 +17,114 @@
  */
 package org.cubeengine.module.signmarket;
 
-import org.cubeengine.service.user.User;
+import java.util.Optional;
 import org.cubeengine.module.core.util.BlockUtil;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.BlockState;
-import org.spongepowered.api.entity.player.Player;
-import org.bukkit.event.Cancellable;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPistonExtendEvent;
-import org.bukkit.event.block.BlockPistonRetractEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.material.Sign;
-import org.bukkit.util.BlockIterator;
+import org.cubeengine.module.signmarket.data.ImmutableMarketSignData;
+import org.cubeengine.module.signmarket.data.MarketSignData;
+import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.data.Transaction;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.manipulator.immutable.tileentity.ImmutableSignData;
+import org.spongepowered.api.data.manipulator.mutable.tileentity.SignData;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.block.ChangeBlockEvent;
+import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.util.Direction;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
-import static org.bukkit.Material.AIR;
-import static org.bukkit.event.Event.Result.DENY;
-import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;
+import static org.spongepowered.api.block.BlockTypes.AIR;
+import static org.spongepowered.api.block.BlockTypes.STANDING_SIGN;
+import static org.spongepowered.api.block.BlockTypes.WALL_SIGN;
+import static org.spongepowered.api.util.Direction.DOWN;
+import static org.spongepowered.api.util.Direction.UP;
 
-public class MarketSignListener implements Listener
+public class MarketSignListener
 {
+    private final  MarketSignManager manager;
 
-    private final Signmarket module;
-
-    public MarketSignListener(Signmarket module)
+    public MarketSignListener(MarketSignManager manager)
     {
-        this.module = module;
+        this.manager = manager;
     }
 
-    @EventHandler
-    public void onBlockBreak(BlockBreakEvent event)
+    @Listener
+    public void onBlockBreak(ChangeBlockEvent.Break event, @First Player player)
     {
-        if (event.getPlayer() == null)
+        for (Transaction<BlockSnapshot> transaction : event.getTransactions())
         {
-            return;
-        }
-        if (this.module.getMarketSignFactory().getSignAt(event.getBlock().getLocation()) != null)
-        {
-            event.setCancelled(true);
-            return;
-        }
-        this.handleBlock(event.getBlock(), event);
-    }
-
-    private boolean handleBlock(Block block, Cancellable event)
-    {
-        for (BlockFace blockFace : BlockUtil.CARDINAL_DIRECTIONS)
-        {
-            Block relative = block.getRelative(blockFace);
-            if (relative.getState().getData() instanceof Sign)
+            BlockSnapshot orig = transaction.getOriginal();
+            BlockType type = orig.getState().getType();
+            if (type == STANDING_SIGN || type == BlockTypes.WALL_SIGN)
             {
-                if (this.module.getMarketSignFactory().getSignAt(relative.getLocation()) != null)
+                if (orig.get(ImmutableMarketSignData.class).isPresent())
                 {
-                    Block originalBlock = relative.getRelative(((Sign)relative.getState().getData()).getAttachedFace());
-                    if (originalBlock.equals(block))
+                    event.setCancelled(true);
+                    return;
+                }
+            }
+
+            Location<World> origLoc = orig.getLocation().get();
+            for (Direction blockFace : BlockUtil.BLOCK_FACES)
+            {
+                if (blockFace == DOWN)
+                {
+                    continue;
+                }
+                Location<World> relative = origLoc.getRelative(blockFace);
+                if (!relative.get(MarketSignData.class).isPresent())
+                {
+                    continue;
+                }
+                if (blockFace == UP)
+                {
+                    if (relative.getBlockType() == STANDING_SIGN)
                     {
                         event.setCancelled(true);
-                        return true;
+                        return;
+                    }
+                }
+                else
+                {
+                    if (relative.getBlockType() == WALL_SIGN
+                     && relative.get(Keys.DIRECTION).get().getOpposite() == blockFace) // TODO right direction check?
+                    {
+                        event.setCancelled(true);
+                        return;
                     }
                 }
             }
         }
-        return false;
     }
 
-    @EventHandler
-    public void onPistonExtend(BlockPistonExtendEvent event)
+    @Listener
+    public void onPlayerInteract(InteractBlockEvent event, @First Player player)
     {
-        for (Block block : event.getBlocks())
-        {
-            if (this.handleBlock(block, event)) return;
-        }
-    }
-
-    @EventHandler
-    public void onPistonRetract(BlockPistonRetractEvent event)
-    {
-        this.handleBlock(event.getRetractLocation().getBlock(), event);
-    }
-
-    @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent event)
-    {
-        if (event.useItemInHand().equals(DENY))
+        if (!event.getTargetBlock().getLocation().isPresent())
         {
             return;
         }
-        if (event.getClickedBlock() != null && event.getClickedBlock().getState().getData() instanceof Sign)
+
+        Optional<ImmutableMarketSignData> mSignData = event.getTargetBlock().get(ImmutableMarketSignData.class);
+        if (!mSignData.isPresent())
         {
-            MarketSign marketSign = this.module.getMarketSignFactory().getSignAt(event.getClickedBlock().getLocation());
-            if (marketSign == null)
-            {
-                return;
-            }
-            User user = this.module.getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
-            marketSign.executeAction(user, event.getAction());
-            event.setUseInteractedBlock(DENY);
-            event.setUseItemInHand(DENY);
-            event.setCancelled(true);
-            event.getPlayer().updateInventory();
+            return;
         }
-        else if (event.getAction().equals(Action.RIGHT_CLICK_AIR)) // when placing a block is not possible -> RIGHT_CLICK_AIR instead of RIGHT_CLICK_BLOCK
+
+        MarketSignData data = mSignData.get().asMutable();
+        Location<World> loc = event.getTargetBlock().getLocation().get();
+        manager.executeSignAction(data, loc, player, event instanceof InteractBlockEvent.Secondary);
+        if (loc.getBlockType() != AIR)
         {
-            if (event.getPlayer().getItemInHand() != null && event.getPlayer().getItemInHand().getType() != AIR)
-            {
-                BlockState lastSignFound = getTargettedSign(event.getPlayer());
-                if (lastSignFound == null)
-                {
-                    return;
-                }
-                MarketSign marketSign = this.module.getMarketSignFactory().getSignAt(lastSignFound.getLocation());
-                if (marketSign == null)
-                {
-                    return;
-                }
-                User user = this.module.getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
-                marketSign.executeAction(user, RIGHT_CLICK_BLOCK);
-                event.setUseInteractedBlock(DENY);
-                event.setUseItemInHand(DENY);
-                event.setCancelled(true);
-                marketSign.updateSignText();
-                event.getPlayer().updateInventory();
-            }
+            // TODO sign somehow is retained /w some invalid data
+            loc.offer(data);
+            manager.updateSignText(data, loc);
+            event.setCancelled(true);
         }
     }
 
-    public static BlockState getTargettedSign(Player player)
-    {
-        BlockIterator blockIterator = new BlockIterator(player.getWorld(), player.getEyeLocation().toVector(), player.getEyeLocation().getDirection(), 0, 7);
-        BlockState lastSignFound = null;
-        while (blockIterator.hasNext())
-        {
-            Block block = blockIterator.next();
-            if (block.getState() instanceof Sign)
-            {
-                lastSignFound = block.getState();
-            }
-            else if (lastSignFound != null && block.getType() != AIR)
-            {
-                break;
-            }
-        }
-        return lastSignFound;
-    }
 }

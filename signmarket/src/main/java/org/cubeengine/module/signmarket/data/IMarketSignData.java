@@ -1,84 +1,57 @@
+/**
+ * This file is part of CubeEngine.
+ * CubeEngine is licensed under the GNU General Public License Version 3.
+ *
+ * CubeEngine is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * CubeEngine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.cubeengine.module.signmarket.data;
 
-import java.util.Comparator;
-import java.util.function.Function;
+import java.util.UUID;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.KeyFactory;
 import org.spongepowered.api.data.value.mutable.Value;
-import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.util.Identifiable;
-
-import static org.spongepowered.api.item.inventory.ItemStackComparators.ALL;
 
 public interface IMarketSignData
 {
+    UUID ADMIN_SIGN = UUID.nameUUIDFromBytes("ADMIN".getBytes());
+
+    Key<Value<UUID>> ID = KeyFactory.makeSingleKey(UUID.class, Value.class, DataQuery.of("id"));
     Key<Value<SignType>> SIGN_TYPE = KeyFactory.makeSingleKey(SignType.class, Value.class, DataQuery.of("signType"));
-    Key<Value<User>> OWNER = KeyFactory.makeSingleKey(User.class, Value.class, DataQuery.of("owner"));
+    Key<Value<UUID>> OWNER = KeyFactory.makeSingleKey(UUID.class, Value.class, DataQuery.of("owner"));
     Key<Value<Integer>> AMOUNT = KeyFactory.makeSingleKey(Integer.class, Value.class, DataQuery.of("amount"));
     Key<Value<Integer>> DEMAND = KeyFactory.makeSingleKey(Integer.class, Value.class, DataQuery.of("demand"));
     Key<Value<Double>> PRICE = KeyFactory.makeSingleKey(Double.class, Value.class, DataQuery.of("price"));
     Key<Value<ItemStack>> ITEM = KeyFactory.makeSingleKey(ItemStack.class, Value.class, DataQuery.of("item"));
+    Key<Value<Integer>> STOCK = KeyFactory.makeSingleKey(Integer.class, Value.class, DataQuery.of("stock"));
     Key<Value<Integer>> SIZE = KeyFactory.makeSingleKey(Integer.class, Value.class, DataQuery.of("size"));
 
+    UUID getID();
     SignType getSignType();
-    User getOwner();
+    UUID getOwner();
     Integer getAmount();
     Integer getDemand();
     Double getPrice();
     ItemStack getItem();
+    Integer getStock();
     Integer getSize();
 
     static int compare(IMarketSignData o1, IMarketSignData o2)
     {
-        int val = cp(o1.getSignType(), o2.getSignType());
-        if (val != 0)
-        {
-            return val;
-        }
-        val = cp(o1.getOwner(), o2.getOwner(), Identifiable::getUniqueId);
-        if (val != 0)
-        {
-            return val;
-        }
-        val = cp(o1.getAmount(), o2.getAmount());
-        if (val != 0)
-        {
-            return val;
-        }
-        val = cp(o1.getDemand(), o2.getDemand());
-        if (val != 0)
-        {
-            return val;
-        }
-        val = cp(o1.getPrice(), o2.getPrice());
-        if (val != 0)
-        {
-            return val;
-        }
-
-        val = cp(o1.getItem(), o2.getItem(), ALL);
-        if (val != 0)
-        {
-            return val;
-        }
-        val = cp(o1.getSize(), o2.getSize());
-        return val;
+        return o1.getID().compareTo(o2.getID());
     }
 
-    static <T extends Comparable<T>> int cp(T a, T b)
-    {
-        return a == null ? (b == null ? 0 : -1) : (b == null ? 1 : a.compareTo(b));
-    }
-
-    static <A, B extends Comparable<B>> int cp(A a, A b, Function<A, B> func)
-    {
-        return a == null ? (b == null ? 0 : -1) : (b == null ? 1 : func.apply(a).compareTo(func.apply(b)));
-    }
-
-    static <T> int cp(T a, T b, Comparator<T> comparator)
-    {
-        return a == null ? (b == null ? 0 : -1) : (b == null ? 1 : comparator.compare(a, b));
-    }
+    MarketSignData asMutable();
 }

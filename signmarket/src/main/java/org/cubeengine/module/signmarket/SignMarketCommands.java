@@ -22,7 +22,6 @@ import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.service.command.ContainerCommand;
 import org.cubeengine.service.i18n.I18n;
-import org.cubeengine.service.user.User;
 import org.spongepowered.api.entity.living.player.Player;
 
 import static org.cubeengine.service.i18n.formatter.MessageType.NEUTRAL;
@@ -46,14 +45,9 @@ public class SignMarketCommands extends ContainerCommand
     @Restricted(value = Player.class, msg = "Only players can edit market signs!")
     public void editMode(Player context)
     {
-        if (this.module.getEditModeListener().hasUser(context);
+        if (this.module.getEditModeListener().hasUser(context))
         {
             this.module.getEditModeListener().removeUser(context);
-            return;
-        }
-        if (this.module.getConfig().disableInWorlds.contains(context.getWorld().getName()))
-        {
-            i18n.sendTranslated(context, NEUTRAL, "MarketSigns are disabled in the configuration for this world!");
             return;
         }
         this.module.getEditModeListener().addUser(context);
