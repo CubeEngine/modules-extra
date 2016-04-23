@@ -272,7 +272,7 @@ public class Observe
         }
         else // FallingBlock, WeatherEffect, Projectile, Explosive, Projectile
         {
-            data.put(EntityReport.ENTITY_DATA + ".EntityType", entity.getType().getId());
+            data.put(EntityReport.ENTITY_DATA + "_EntityType", entity.getType().getId());
         }
 
         return data;
