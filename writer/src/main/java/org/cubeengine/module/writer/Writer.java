@@ -66,7 +66,6 @@ public class Writer extends Module
     @Disable
     public void onDisable()
     {
-        cm.removeCommands(this);
     }
 
     @Command(alias = "rewrite", desc = "Edit a sign or a signed book")

@@ -17,18 +17,25 @@
  */
 package org.cubeengine.module.itemrepair;
 
-import de.cubeisland.engine.module.core.module.Module;
+import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
+import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.modularity.core.marker.Enable;
 import org.cubeengine.module.itemrepair.material.BaseMaterialContainer;
 import org.cubeengine.module.itemrepair.material.BaseMaterialContainerConverter;
 import org.cubeengine.module.itemrepair.repair.RepairBlockManager;
 import org.cubeengine.module.itemrepair.repair.storage.TableRepairBlock;
 
+@ModuleInfo(name = "ItemRepair", description = "Repair your tools for money")
+/*
+TODO blocked by custom inventories
+TODO blocked by custom data on any block
+*/
 public class Itemrepair extends Module
 {
     private ItemrepairConfig config;
     public RepairBlockManager repairBlockManager;
 
-    @Override
+    @Enable
     public void onEnable()
     {
         this.getCore().getDB().registerTable(TableRepairBlock.class);

@@ -35,6 +35,7 @@ public class Kits extends Module
     @ModulePermissions private KitsPerm perms;
 
     @Inject private CommandManager cm;
+
     @Inject
     public Kits(Reflector reflector)
     {

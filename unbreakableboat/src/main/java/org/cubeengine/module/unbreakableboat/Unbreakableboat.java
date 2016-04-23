@@ -71,7 +71,7 @@ public class Unbreakableboat extends Module
 
         ItemStack log = ItemStack.of(ItemTypes.LOG, 1);
 
-        Sponge.getRegistry().createBuilder(ShapedRecipe.Builder.class)
+        ShapedRecipe recipe = Sponge.getRegistry().createBuilder(ShapedRecipe.Builder.class)
             .width(3).height(2)
             .row(0, log, null, log)
             .row(1, log, log, log)
@@ -79,7 +79,8 @@ public class Unbreakableboat extends Module
         // TODO SpongePR#1098 .where('l', log)
             .addResult(boat)
             .build();
-        // TODO register recipe
+
+        Sponge.getRegistry().getRecipeRegistry().register(recipe);
 
         Sponge.getDataManager().register(UnbreakableData.class, ImmutableUnbreakableData.class, new UnbreakableDataBuilder());
     }
