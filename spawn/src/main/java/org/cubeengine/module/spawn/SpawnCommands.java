@@ -17,218 +17,136 @@
  */
 package org.cubeengine.module.spawn;
 
+import java.util.UUID;
+import com.flowpowered.math.vector.Vector3d;
 import org.cubeengine.butler.parametric.Command;
-import org.cubeengine.butler.parametric.Flag;
-import org.cubeengine.butler.parametric.Complete;
 import org.cubeengine.butler.parametric.Default;
+import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Named;
-import org.cubeengine.butler.parametric.Optional;
-import org.cubeengine.butler.parameter.TooFewArgumentsException;
-import org.cubeengine.service.command.CommandSender;
-import org.cubeengine.service.i18n.I18n;
-import org.cubeengine.service.i18n.formatter.MessageType;
-import org.cubeengine.service.user.User;
+import org.cubeengine.butler.parametric.Reader;
 import org.cubeengine.module.core.util.StringUtils;
-import org.cubeengine.module.core.util.math.BlockVector3;
-import de.cubeisland.engine.module.roles.RoleCompleter;
-import org.cubeengine.module.roles.Roles;
-import de.cubeisland.engine.module.roles.role.ResolvedDataHolder;
-import de.cubeisland.engine.module.roles.role.Role;
-import de.cubeisland.engine.module.roles.role.RolesAttachment;
-import de.cubeisland.engine.module.roles.role.RolesManager;
-import de.cubeisland.engine.module.roles.role.resolved.ResolvedMetadata;
+import org.cubeengine.service.ContextUtil;
+import org.cubeengine.service.command.annotation.ParameterPermission;
+import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.service.permission.PermissionManager;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.world.Location;
-import org.bukkit.World;
-import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.service.context.Context;
+import org.spongepowered.api.service.permission.PermissionService;
+import org.spongepowered.api.service.permission.option.OptionSubject;
+import org.spongepowered.api.service.user.UserStorageService;
+import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.World;
 
-import static org.cubeengine.service.i18n.formatter.MessageType.CRITICAL;
-import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
-import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.service.ContextUtil.toSet;
+import static org.cubeengine.service.i18n.formatter.MessageType.*;
 
 public class SpawnCommands
 {
+    public static final String ROLESPAWN = "rolespawn";
     private final Spawn module;
     private I18n i18n;
+    private PermissionService pm;
 
-    public SpawnCommands(Spawn module, I18n i18n)
+    public SpawnCommands(Spawn module, I18n i18n, PermissionService pm)
     {
         this.module = module;
         this.i18n = i18n;
-        manager = roles.getRolesManager();
+        this.pm = pm;
     }
 
     @Command(desc = "Changes the respawnpoint")
-    public void setRoleSpawn(CommandSource context, @Complete(RoleCompleter.class) String role, @Default World world, @Optional Double x, @Optional Double y, @Optional Double z)
+    public void setRoleSpawn(Player ctx, @Reader(SubjectReader.class) OptionSubject role, @Default Context context)
     {
-        float yaw = 0;
-        float pitch = 0;
-        if (z == null)
-        {
-            if (!(context instanceof Player))
-            {
-                throw new TooFewArgumentsException();
-            }
-            final Location loc = ((User)context).getLocation();
-            x = loc.getX();
-            y = loc.getY();
-            z = loc.getZ();
-            yaw = loc.getYaw();
-            pitch = loc.getPitch();
-        }
-        Role r = manager.getProvider(world).getRole(role);
-        if (r == null)
-        {
-            i18n.sendTranslated(context, NEGATIVE, "Could not find the role {input} in {world}!", role, world);
-            return;
-        }
-        setRoleSpawn(world, x, y, z, yaw, pitch, r);
-        i18n.sendTranslated(context, POSITIVE, "The spawn in {world} for the role {name#role} is now set to {vector}", world, r.getName(), new BlockVector3(x.intValue(),y.intValue(),z.intValue()));
+        setRoleSpawn(context, ctx.getTransform(), role);
+        i18n.sendTranslated(ctx, POSITIVE, "The spawn in {world} for the role {name#role} is now set to {vector}",
+                            context, role.getIdentifier(),
+                            ctx.getLocation().getPosition());
     }
 
-    private void setRoleSpawn(World world, Double x, Double y, Double z, float yaw, float pitch, Role role)
+    private void setRoleSpawn(Context context, Transform<World> transform, OptionSubject role)
     {
         String[] locStrings = new String[6];
-        locStrings[0] = String.valueOf(x.intValue());
-        locStrings[1] = String.valueOf(y.intValue());
-        locStrings[2] = String.valueOf(z.intValue());
-        locStrings[3] = String.valueOf(yaw);
-        locStrings[4] = String.valueOf(pitch);
-        locStrings[5] = world.getName();
-        role.setMetadata("rolespawn", StringUtils.implode(":", locStrings));
-        role.save();
-        manager.getProvider(world).recalculateRoles();
+        locStrings[0] = String.valueOf(transform.getPosition().getFloorX());
+        locStrings[1] = String.valueOf(transform.getPosition().getFloorY());
+        locStrings[2] = String.valueOf(transform.getPosition().getFloorZ());
+        locStrings[3] = String.valueOf(transform.getYaw());
+        locStrings[4] = String.valueOf(transform.getPitch());
+        role.getSubjectData().setOption(toSet(context), "rolespawn", StringUtils.implode(":", locStrings));
     }
 
     // TODO teleport all players to spawn
 
-    @Command(desc = "Teleports a player to spawn (of a role)")
-    public void spawn(CommandSource context, @Default Player player, @Optional World world,
-                      @Named({"role", "r"}) @Complete(RoleCompleter.class) String role, // TODO Role Reader & DefaultProvider
-                      @Flag boolean force, @Flag boolean worldSpawn)
+    @Command(desc = "Teleports a player to the configured rolespawn")
+    public void roleSpawn(CommandSource ctx, @Default Player player, @Default Context context,
+                      @Named({"role", "r"}) @Default @Reader(SubjectReader.class) OptionSubject role,
+                      @ParameterPermission @Flag boolean force)
     {
-        if (world == null)
+        java.util.Optional<String> spawnString = role.getOption(toSet(context), ROLESPAWN);
+        String name = role.getIdentifier();
+        if (pm.getGroupSubjects() == role.getContainingCollection())
         {
-            world = module.getConfiguration().mainWorld.getWorld();
-            if (world == null)
-            {
-                module.getLog().warn("Unknown main world configured!");
-                world = player.getWorld();
-            }
+            name = Sponge.getServiceManager().provideUnchecked(UserStorageService.class).get(UUID.fromString(name)).get().getName();
         }
 
-        if (worldSpawn)
+        if (!spawnString.isPresent())
         {
-            Location spawnLocation = world.getSpawnLocation().add(0.5, 0, 0.5);
-            Location playerLocation = player.getLocation();
-            spawnLocation.setPitch(playerLocation.getPitch());
-            spawnLocation.setYaw(playerLocation.getYaw());
-            if (!this.tpTo(player, spawnLocation, force))
-            {
-                i18n.sendTranslated(context, NEGATIVE, "Teleport failed!");
-                return;
-            }
-            i18n.sendTranslated(context, POSITIVE, "You are now standing at the spawn in {world}!", world);
+            i18n.sendTranslated(ctx, NEGATIVE, "No rolespawn set for {name} in {ctx}", name, context);
             return;
         }
 
-        ResolvedDataHolder r;
-        String roleSpawn;
-        if (role != null)
+        Transform<World> spawnPoint = getSpawnLocation(spawnString.get());
+        if (!player.isOnline()) // TODO tp users
         {
-            r = manager.getProvider(world).getRole(role);
-            if (r == null)
-            {
-                i18n.sendTranslated(context, NEGATIVE, "Could not find the role {input} in {world}!", role, world);
-                return;
-            }
+            i18n.sendTranslated(ctx, NEGATIVE, "You cannot teleport an offline player to spawn!");
+            return;
+        }
+        if (!this.tpTo(player, spawnPoint, force))
+        {
+            i18n.sendTranslated(ctx, NEGATIVE, "Teleport failed!");
+            return;
+        }
+        if (!ctx.equals(player))
+        {
+            i18n.sendTranslated(ctx, POSITIVE, "Teleported {user} to the spawn of the role {name#role} in {ctx}", player, name, context);
+        }
+        else if (pm.getGroupSubjects() == role.getContainingCollection())
+        {
+            i18n.sendTranslated(ctx, POSITIVE, "You are now standing at your role's spawn in {ctx}!", context);
         }
         else
         {
-            RolesAttachment rolesAttachment = player.get(RolesAttachment.class);
-            if (rolesAttachment == null)
-            {
-                this.roles.getLog().warn("Missing RolesAttachment!");
-                return;
-            }
-            r = rolesAttachment.getDataHolder(world);
-        }
-        ResolvedMetadata rolespawn = r.getMetadata().get("rolespawn");
-        String roleName = rolespawn == null ? r.getName() : rolespawn.getOrigin().getName();
-        if (rolespawn == null || rolespawn.getValue() == null)
-        {
-            i18n.sendTranslated(context, NEGATIVE, "No spawn point for {name} in {world}!", roleName, world);
-            return;
-        }
-        roleSpawn = rolespawn.getValue();
-        Location spawnLocation = this.getSpawnLocation(roleSpawn);
-        if (spawnLocation == null)
-        {
-            i18n.sendTranslated(context, CRITICAL, "Invalid spawn location for {name} in {world}!", roleName, world);
-            context.sendMessage(roleSpawn);
-        }
-
-        force = force && module.perms().COMMAND_SPAWN_FORCE.isAuthorized(context);
-
-        if (!player.isOnline())
-        {
-            i18n.sendTranslated(context, NEGATIVE, "You cannot teleport an offline player to spawn!");
-            return;
-        }
-        if (!context.equals(player) && !force && module.perms().COMMAND_SPAWN_PREVENT.isAuthorized(player))
-        {
-            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to spawn {user}!", player);
-            return;
-        }
-        if (!this.tpTo(player, spawnLocation, force))
-        {
-            i18n.sendTranslated(context, NEGATIVE, "Teleport failed!");
-            return;
-        }
-        if (!context.equals(player))
-        {
-            i18n.sendTranslated(context, POSITIVE, "Teleported {user} to the spawn of the role {name#role} in {world}", player, roleName, world);
-        }
-        else if (role == null)
-        {
-            i18n.sendTranslated(context, POSITIVE, "You are now standing at your role's spawn in {world}!", world);
-        }
-        else
-        {
-            i18n.sendTranslated(context, POSITIVE, "You are now standing at the spawn of {name#role} in {world}!", roleName, world);
+            i18n.sendTranslated(ctx, POSITIVE, "You are now standing at the spawn of {name#role} in {ctx}!", name, context);
         }
     }
 
-    private Location getSpawnLocation(String value)
+    public static Transform<World> getSpawnLocation(String value)
     {
-        try
-        {
-            String[] spawnStrings = StringUtils.explode(":",value);
-            int x = Integer.valueOf(spawnStrings[0]);
-            int y = Integer.valueOf(spawnStrings[1]);
-            int z = Integer.valueOf(spawnStrings[2]);
-            float yaw = Float.valueOf(spawnStrings[3]);
-            float pitch = Float.valueOf(spawnStrings[4]);
-            World world = this.module.getCore().getWorldManager().getWorld(spawnStrings[5]);
-            return new Location(world,x,y,z,yaw, pitch);
-        }
-        catch (Exception ex)
-        {
-            return null;
-        }
+        String[] spawnStrings = StringUtils.explode(":",value);
+        int x = Integer.valueOf(spawnStrings[0]);
+        int y = Integer.valueOf(spawnStrings[1]);
+        int z = Integer.valueOf(spawnStrings[2]);
+        float yaw = Float.valueOf(spawnStrings[3]);
+        float pitch = Float.valueOf(spawnStrings[4]);
+        World world = Sponge.getServer().getWorld(spawnStrings[5]).get();
+        return new Transform<>(world, new Vector3d(x + .5, y + .5, z), new Vector3d(yaw, pitch, 0));
     }
 
-    private boolean tpTo(User user, Location location, boolean force)
+    private boolean tpTo(Player user, Transform<World> transform, boolean force)
     {
         if (force)
         {
-            return user.teleport(location, TeleportCause.COMMAND);
+            user.setTransform(transform);
+            return true;
         }
-        else
+        if (user.setLocationSafely(transform.getLocation()))
         {
-            return user.safeTeleport(location,TeleportCause.COMMAND,false);
+            user.setRotation(transform.getRotation());
+            return true;
         }
+        return false;
     }
 }

@@ -18,42 +18,33 @@
 package org.cubeengine.module.spawn;
 
 import javax.inject.Inject;
+import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.modularity.core.marker.Enable;
 import org.cubeengine.service.command.CommandManager;
 import org.cubeengine.service.event.EventManager;
+import org.cubeengine.service.i18n.I18n;
+import org.spongepowered.api.service.permission.PermissionService;
+import org.spongepowered.api.service.permission.option.OptionSubjectData;
 
+@ModuleInfo(name = "spawn", description ="Modifies the default spawn behaviour")
 public class Spawn extends Module
 {
-    private SpawnConfig config;
     @Inject private EventManager em;
     @Inject private CommandManager cm;
-    private SpawnPerms perms;
+    @Inject private PermissionService pm;
+    @Inject private I18n i18n;
 
-    @Override
+    @Enable
     public void onEnable()
     {
-        this.config = this.loadConfig(SpawnConfig.class);
-        em.registerListener(this, new SpawnListener());
+        em.registerListener(this, new SpawnListener(pm));
         cm.removeCommand("spawn", true); // unregister basics commands
-        cm.addCommands(cm, this, new SpawnCommands(this));
-        perms = new SpawnPerms(this); // PermContainer registers itself
+        cm.addCommands(cm, this, new SpawnCommands(this, i18n, pm));
 
-        // TODO per world spawn with rotation
-    }
-
-    @Override
-    public void onDisable()
-    {
-        // TODO if not complete shutdown reregister basics commands OR do not unregister simply override (let CommandManager handle it)
-    }
-
-    public SpawnConfig getConfiguration()
-    {
-        return config;
-    }
-
-    public SpawnPerms perms()
-    {
-        return this.perms;
+        if (!(pm.getDefaultData() instanceof OptionSubjectData))
+        {
+            throw new IllegalStateException("Module cannot be used without OptionSubjects");
+        }
     }
 }

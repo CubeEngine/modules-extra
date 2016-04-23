@@ -17,82 +17,54 @@
  */
 package org.cubeengine.module.spawn;
 
+import java.util.Optional;
 import org.cubeengine.module.core.util.StringUtils;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.entity.living.humanoid.player.RespawnPlayerEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.service.permission.PermissionService;
+import org.spongepowered.api.service.permission.option.OptionSubject;
 import org.spongepowered.api.world.Location;
+
+import static org.cubeengine.module.spawn.SpawnCommands.getSpawnLocation;
 
 public class SpawnListener
 {
-    @Listener(order = Order.LATE) // has to be called after roles could assign data
-    public void onJoin(ClientConnectionEvent.Join event)
+    private PermissionService pm;
+
+    public SpawnListener(PermissionService pm)
     {
-        if (!event.getTargetEntity().lastPlayed().exists()) // has played before?
+        this.pm = pm;
+    }
+
+    public void onJoin(ClientConnectionEvent.Login event)
+    {
+        if (event.getTargetUser().get(Keys.LAST_DATE_PLAYED).isPresent())
         {
-            User user = um.getExactUser(event.getPlayer().getUniqueId());
-            RolesAttachment rolesAttachment = user.get(RolesAttachment.class);
-            if (rolesAttachment == null)
-            {
-                this.roles.getLog().warn("Missing RolesAttachment!");
-                return;
-            }
-            String spawnString = rolesAttachment.getCurrentMetadataString("rolespawn");
-            if (spawnString != null)
-            {
-                Location spawnLoc = this.getSpawnLocation(spawnString);
-                if (spawnLoc == null)
-                {
-                    roles.getLog().warn("Invalid Location. Check your role configuration!");
-                    return;
-                }
-                user.teleport(spawnLoc.add(0.5,0,0.5), TeleportCause.PLUGIN);
-            }
+            return;
+        }
+        OptionSubject subject = (OptionSubject)pm.getUserSubjects().get(event.getTargetUser().getIdentifier());
+        Optional<String> option = subject.getOption(SpawnCommands.ROLESPAWN);
+        if (option.isPresent())
+        {
+            event.setToTransform(getSpawnLocation(option.get()));
         }
     }
 
-    @Listener
-    public void onSpawn(PlayerRespawnEvent event)
+    @Listener(order = Order.LATE)
+    public void onSpawn(RespawnPlayerEvent event)
     {
         if (!event.isBedSpawn())
         {
-            User user = um.getExactUser(event.getPlayer().getUniqueId());
-            RolesAttachment rolesAttachment = user.get(RolesAttachment.class);
-            if (rolesAttachment == null)
+            OptionSubject subject = (OptionSubject)pm.getUserSubjects().get(event.getTargetEntity().getIdentifier());
+            Optional<String> option = subject.getOption(SpawnCommands.ROLESPAWN);
+            if (option.isPresent())
             {
-                this.roles.getLog().warn("Missing RolesAttachment!");
-                return;
+                event.setToTransform(getSpawnLocation(option.get()));
             }
-            ResolvedMetadata roleSpawnMeta = rolesAttachment.getDataHolder(event.getRespawnLocation().getWorld()).getMetadata().get("rolespawn");
-            if (roleSpawnMeta != null && roleSpawnMeta.getValue() != null)
-            {
-                Location spawnLoc = this.getSpawnLocation(roleSpawnMeta.getValue());
-                if (spawnLoc == null)
-                {
-                    roles.getLog().warn("Invalid Location. Check your role configuration!");
-                    return;
-                }
-                event.setRespawnLocation(spawnLoc.add(0.5,0,0.5));
-            }
-        }
-    }
-
-    private Location getSpawnLocation(String value)
-    {
-        try
-        {
-            String[] spawnStrings = StringUtils.explode(":",value);
-            int x = Integer.valueOf(spawnStrings[0]);
-            int y = Integer.valueOf(spawnStrings[1]);
-            int z = Integer.valueOf(spawnStrings[2]);
-            float yaw = Float.valueOf(spawnStrings[3]);
-            float pitch = Float.valueOf(spawnStrings[4]);
-            World world = this.wm.getWorld(spawnStrings[5]);
-            return new Location(world,x,y,z,yaw, pitch);
-        }
-        catch (Exception ex)
-        {
-            return null;
         }
     }
 }
