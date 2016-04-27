@@ -17,39 +17,32 @@
  */
 package org.cubeengine.module.customcommands;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map.Entry;
-import de.cubeisland.engine.butler.CommandInvocation;
-import org.cubeengine.butler.CommandInvocation;
-import org.cubeengine.butler.completer.Completer;
+import java.util.stream.Collectors;
 import org.cubeengine.butler.parametric.Command;
-import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Complete;
+import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Greed;
-import org.cubeengine.butler.result.CommandResult;
 import org.cubeengine.service.command.ContainerCommand;
-import org.cubeengine.service.command.CommandContext;
 import org.cubeengine.service.i18n.I18n;
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.service.pagination.PaginationList;
+import org.spongepowered.api.text.Text;
 
+import static java.util.Locale.ENGLISH;
 import static org.cubeengine.butler.parameter.Parameter.INFINITE;
 import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
 import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
-import static java.util.Locale.ENGLISH;
 
 @Command(name = "customcommands", desc = "Commands to modify custom commands.")
 public class ManagementCommands extends ContainerCommand
 {
-    private final Customcommands module;
     private I18n i18n;
     private final CustomCommandsConfig config;
 
     public ManagementCommands(Customcommands module, I18n i18n)
     {
         super(module);
-        this.module = module;
         this.i18n = i18n;
         this.config = module.getConfig();
     }
@@ -93,74 +86,13 @@ public class ManagementCommands extends ContainerCommand
 
 
     @Command(name = "help", desc = "Prints out all the custom chat commands.")
-    public CommandResult showHelp(CommandContext context)
+    public void showHelp(CommandSource context)
     {
-        return new PaginatedResult(context, new CustomCommandIterator());
-    }
+        List<Text> list = config.commands.entrySet().stream()
+             .map(e -> Text.of("!", e.getKey(), " -> ", e.getValue()))
+             .collect(Collectors.toList());
 
-    private class CustomCommandIterator implements PaginationIterator
-    {
-
-        @Override
-        public List<String> getPage(int page, int numberOfLines)
-        {
-            int counter = 0;
-            int commandsSize = config.commands.size();
-            int offset = page * numberOfLines;
-
-            ArrayList<String> lines = new ArrayList<>();
-
-            if (offset < commandsSize)
-            {
-                int lastItem = Math.min(offset + numberOfLines, commandsSize);
-
-                for (Entry<String, String> entry : config.commands.entrySet())
-                {
-                    if (counter < offset)
-                    {
-                        counter++;
-                        continue;
-                    }
-                    else if (counter > lastItem)
-                    {
-                        return lines;
-                    }
-
-                    lines.add("!" + entry.getKey() + " -> " + entry.getValue());
-                }
-            }
-            return lines;
-        }
-
-        @Override
-        public int pageCount(int numberOfLinesPerPage)
-        {
-            return (int) Math.ceil((float) config.commands.size() / (float) numberOfLinesPerPage);
-        }
-    }
-
-    public static class CustomCommandCompleter implements Completer
-    {
-        private Customcommands module;
-
-        public CustomCommandCompleter(Customcommands module)
-        {
-            this.module = module;
-        }
-
-        @Override
-        public List<String> getSuggestions(CommandInvocation invocation)
-        {
-            ArrayList<String> list = new ArrayList<>();
-            for (String item : module.getConfig().commands.keySet())
-            {
-                if (item.startsWith(invocation.currentToken().toLowerCase(ENGLISH)))
-                {
-                    list.add(item);
-                }
-            }
-            Collections.sort(list);
-            return list;
-        }
+        PaginationList pages = PaginationList.builder().contents(list).build();
+        pages.sendTo(context);
     }
 }
