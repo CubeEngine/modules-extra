@@ -19,10 +19,9 @@ package org.cubeengine.service.webapi;
 
 import java.util.List;
 import java.util.Map;
+import com.google.common.base.Preconditions;
 import org.cubeengine.butler.CommandInvocation;
 import org.cubeengine.butler.ProviderManager;
-
-import static org.cubeengine.module.core.util.contract.Contract.expectNotNull;
 
 public class Parameters
 {
@@ -54,7 +53,7 @@ public class Parameters
     @SuppressWarnings("unchecked")
     public <T> T get(String name, int index, T def)
     {
-        expectNotNull(def, "The default value must not be null!");
+        Preconditions.checkNotNull(name, "The default value must not be null!");
 
         T value = (T)this.get(name, index, def.getClass());
         if (value == null)

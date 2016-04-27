@@ -21,9 +21,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.cubeengine.module.core.util.contract.Contract;
-
-import static org.cubeengine.module.core.util.contract.Contract.expectNotNull;
+import com.google.common.base.Preconditions;
 
 /**
  * this class wrapps the data which will be send to the client
@@ -70,7 +68,7 @@ public final class ApiResponse
      */
     public ApiResponse setHeader(String name, String value)
     {
-        Contract.expectNotNull(name, "name must not be null!");
+        Preconditions.checkNotNull(name, "The name must not be null!");
 
         if (value == null)
         {
@@ -87,8 +85,8 @@ public final class ApiResponse
 
     public ApiResponse addHeader(String name, String value)
     {
-        Contract.expectNotNull(name, "The name must not be null!");
-        Contract.expectNotNull(value, "The value must not be null!");
+        Preconditions.checkNotNull(name, "The name must not be null!");
+        Preconditions.checkNotNull(value, "The alue must not be null!");
 
         List<String> values = this.headers.get(name);
         if (values == null)

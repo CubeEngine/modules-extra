@@ -39,7 +39,9 @@ import io.netty.handler.codec.http.QueryStringDecoder;
 import org.cubeengine.module.authorization.Authorization;
 import org.cubeengine.service.command.CommandManager;
 import org.cubeengine.service.webapi.exception.ApiRequestException;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.service.user.UserStorageService;
 
 import static io.netty.buffer.Unpooled.EMPTY_BUFFER;
 import static io.netty.channel.ChannelFutureListener.CLOSE;
@@ -112,7 +114,7 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
                 return;
             }
 
-            Optional<User> byName = um.getByName(user);
+            Optional<User> byName = Sponge.getServiceManager().provide(UserStorageService.class).get().get(user);
             if (!byName.isPresent())
             {
                 this.error(ctx, AUTHENTICATION_FAILURE, new ApiRequestException("Could not complete authentication", 200));
