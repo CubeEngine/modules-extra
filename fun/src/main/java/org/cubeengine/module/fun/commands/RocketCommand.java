@@ -27,6 +27,7 @@ import org.cubeengine.butler.parametric.Optional;
 import de.cubeisland.engine.module.core.CubeEngine;
 import org.cubeengine.module.fun.Fun;
 import org.cubeengine.service.command.CommandContext;
+import org.cubeengine.service.event.EventManager;
 import org.cubeengine.service.user.User;
 import org.cubeengine.service.user.UserManager;
 import org.bukkit.Effect;
@@ -44,11 +45,11 @@ public class RocketCommand
     private final Fun module;
     private final RocketListener rocketListener;
 
-    public RocketCommand(Fun module)
+    public RocketCommand(Fun module, EventManager em)
     {
         this.module = module;
         this.rocketListener = new RocketListener();
-        module.getCore().getEventManager().registerListener(module, rocketListener);
+        em.registerListener(module, rocketListener);
     }
 
     public RocketListener getRocketListener()

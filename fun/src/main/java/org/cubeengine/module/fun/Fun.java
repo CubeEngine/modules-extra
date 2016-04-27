@@ -17,34 +17,45 @@
  */
 package org.cubeengine.module.fun;
 
+import javax.inject.Inject;
+import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
+import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.modularity.core.marker.Enable;
 import org.cubeengine.module.fun.commands.DiscoCommand;
 import org.cubeengine.module.fun.commands.ThrowCommands;
 import org.cubeengine.service.command.CommandManager;
-import de.cubeisland.engine.module.core.module.Module;
 import org.cubeengine.module.fun.commands.InvasionCommand;
 import org.cubeengine.module.fun.commands.NukeCommand;
 import org.cubeengine.module.fun.commands.PlayerCommands;
 import org.cubeengine.module.fun.commands.RocketCommand;
+import org.cubeengine.service.event.EventManager;
+import org.cubeengine.service.filesystem.ModuleConfig;
+import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.service.matcher.EntityMatcher;
+import org.cubeengine.service.permission.ModulePermissions;
+import org.cubeengine.service.task.TaskManager;
 
+@ModuleInfo(name = "Fun", description = "A collection of fun commands")
 public class Fun extends Module
 {
-    private FunConfiguration config;
-    private FunPerm perms;
+    @ModuleConfig private FunConfiguration config;
+    @ModulePermissions private FunPerm perms;
 
-    @Override
+    @Inject private TaskManager tm;
+    @Inject private I18n i18n;
+    @Inject private CommandManager cm;
+    @Inject private EventManager em;
+    @Inject private EntityMatcher entityMatcher;
+
+    @Enable
     public void onEnable()
     {
-        this.config = this.loadConfig(FunConfiguration.class);
-        // this.getCore().getFileManager().dropResources(FunResource.values());
-        perms = new FunPerm(this);
-
-        final CommandManager cm = this.getCore().getCommandManager();
-        cm.addCommands(cm, this, new ThrowCommands(this));
-        cm.addCommands(cm, this, new NukeCommand(this));
-        cm.addCommands(cm, this, new PlayerCommands(this));
-        cm.addCommands(cm, this, new DiscoCommand(this));
-        cm.addCommands(cm, this, new InvasionCommand(this));
-        cm.addCommands(cm, this, new RocketCommand(this));
+        cm.addCommands(this, new ThrowCommands(this));
+        cm.addCommands(this, new NukeCommand(this, i18n, em));
+        cm.addCommands(this, new PlayerCommands(this, em, i18n, tm));
+        cm.addCommands(this, new DiscoCommand(this, i18n, tm));
+        cm.addCommands(this, new InvasionCommand(this, i18n, entityMatcher));
+        cm.addCommands(this, new RocketCommand(this, em));
     }
 
     public FunConfiguration getConfig()

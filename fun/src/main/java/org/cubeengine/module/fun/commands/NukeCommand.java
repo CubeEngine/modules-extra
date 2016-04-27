@@ -27,6 +27,8 @@ import org.cubeengine.butler.parametric.Named;
 import org.cubeengine.butler.parametric.Optional;
 import org.cubeengine.module.fun.Fun;
 import org.cubeengine.service.command.CommandSender;
+import org.cubeengine.service.event.EventManager;
+import org.cubeengine.service.i18n.I18n;
 import org.cubeengine.service.task.TaskManager;
 import org.cubeengine.service.user.User;
 import org.cubeengine.module.core.util.math.Vector3;
@@ -34,6 +36,8 @@ import org.cubeengine.module.core.util.math.shape.Cuboid;
 import org.cubeengine.module.core.util.math.shape.Cylinder;
 import org.cubeengine.module.core.util.math.shape.Shape;
 import org.cubeengine.module.core.util.math.shape.Sphere;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.world.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -46,27 +50,31 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.util.Vector;
 
 import org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
+import org.spongepowered.api.world.World;
+
+import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
 import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
 
 public class NukeCommand
 {
     private final Fun module;
     private final NukeListener nukeListener;
+    private final I18n i18n;
 
-    public NukeCommand(Fun module)
+    public NukeCommand(Fun module, I18n i18n, EventManager em)
     {
         this.module = module;
+        this.i18n = i18n;
         this.nukeListener = new NukeListener();
-
-        module.getCore().getEventManager().registerListener(module, this.nukeListener);
+        em.registerListener(module, this.nukeListener);
     }
 
     @Command(desc = "Makes a carpet of TNT fall on a player or where you're looking")
-    public void nuke(CommandSender context,
+    public void nuke(CommandSource context,
                      @Optional Integer param1,
                      @Optional Integer param2,
                      @Optional Integer param3,
-                     @Named({"player", "p"}) User player,
+                     @Named({"player", "p"}) Player player,
                      @Named({"height", "h"}) Integer height,
                      @Named({"range", "r"}) Integer range,
                      @Named({"shape", "s"}) String shape,
@@ -79,12 +87,12 @@ public class NukeCommand
 
         if(range != 4 && !module.perms().COMMAND_NUKE_CHANGE_RANGE.isAuthorized(context))
         {
-            context.sendTranslated(NEGATIVE, "You are not allowed to change the explosion range of the nuke carpet!");
+            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to change the explosion range of the nuke carpet!");
             return;
         }
         if(range < 0 || range > this.module.getConfig().command.nuke.maxExplosionRange)
         {
-            context.sendTranslated(NEGATIVE, "The explosion range can't be less than 0 or greater than {integer}", this.module.getConfig().command.nuke.maxExplosionRange);
+            i18n.sendTranslated(context, NEGATIVE, "The explosion range can't be less than 0 or greater than {integer}", this.module.getConfig().command.nuke.maxExplosionRange);
             return;
         }
 
@@ -92,7 +100,7 @@ public class NukeCommand
         {
             if (!context.equals(player) && !module.perms().COMMAND_NUKE_OTHER.isAuthorized(context))
             {
-                context.sendTranslated(NEGATIVE, "You are not allowed to specify a player!");
+                i18n.sendTranslated(context, NEGATIVE, "You are not allowed to specify a player!");
                 return;
             }
             location = ((User)context).getLocation();
@@ -101,7 +109,7 @@ public class NukeCommand
         {
             if(!(context instanceof User))
             {
-                context.sendTranslated(NEGATIVE, "This command can only be used by a player!");
+                i18n.sendTranslated(context, NEGATIVE, "This command can only be used by a player!");
                 return;
             }
             location = ((User)context).getTargetBlock(Collections.<Material>emptySet(), this.module.getConfig().command.nuke.distance).getLocation();
@@ -117,11 +125,11 @@ public class NukeCommand
 
         if(!quiet)
         {
-            context.sendTranslated(POSITIVE, "You spawned {integer} blocks of tnt.", blockAmount);
+            i18n.sendTranslated(context, POSITIVE, "You spawned {integer} blocks of tnt.", blockAmount);
         }
     }
 
-    private Shape getShape(CommandSender context, String shape, Location location, int locationHeight, Integer param1,
+    private Shape getShape(CommandSource context, String shape, Location location, int locationHeight, Integer param1,
                            Integer param2, Integer param3)
     {
         shape = shape == null ? "cylinder" : shape;
@@ -147,7 +155,7 @@ public class NukeCommand
             location = this.getSpawnLocation(location, locationHeight);
             return new Sphere(new Vector3(location.getX(), location.getY(), location.getZ()), radius);
         default:
-            context.sendTranslated(NEGATIVE, "The shape {input} was not found!", shape);
+            i18n.sendTranslated(context, NEGATIVE, "The shape {input} was not found!", shape);
             break;
         }
         return null;

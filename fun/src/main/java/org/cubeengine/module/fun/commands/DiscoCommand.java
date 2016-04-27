@@ -18,116 +18,89 @@
 package org.cubeengine.module.fun.commands;
 
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.UUID;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Default;
 import org.cubeengine.butler.parametric.Optional;
-import org.cubeengine.service.command.CommandSender;
 import org.cubeengine.module.fun.Fun;
-import org.bukkit.World;
+import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.service.task.TaskManager;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.world.World;
 
-import org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
 import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
 
 public class DiscoCommand
 {
     private final Fun module;
-    private final Map<String, DiscoTask> activeTasks;
+    private final HashMap<UUID, DiscoTask> activeTasks;
+    private I18n i18n;
+    private TaskManager tm;
 
-    public DiscoCommand(Fun module)
+    public DiscoCommand(Fun module, I18n i18n, TaskManager tm)
     {
         this.module = module;
+        this.i18n = i18n;
+        this.tm = tm;
         this.activeTasks = new HashMap<>();
     }
 
     @Command(desc = "Rapidly changes from day to night")
-    public void disco(CommandSender context, @Default World world, @Optional Integer delay)
+    public void disco(CommandSource context, @Default World world, @Optional Integer delay)
     {
         delay = delay == null ? this.module.getConfig().command.disco.defaultDelay : delay;
         if (delay < this.module.getConfig().command.disco.minDelay || delay > this.module.getConfig().command.disco.maxDelay)
         {
-            context.sendTranslated(NEGATIVE, "The delay has to be a number between {integer} and {integer}", this.module.getConfig().command.disco.minDelay, this.module.getConfig().command.disco.maxDelay);
+            i18n.sendTranslated(context, NEGATIVE, "The delay has to be a number between {integer} and {integer}", this.module.getConfig().command.disco.minDelay, this.module.getConfig().command.disco.maxDelay);
             return;
         }
 
-        DiscoTask task = this.activeTasks.remove(world.getName());
-        if (task != null)
+        DiscoTask runningTask = activeTasks.remove(world.getUniqueId());
+        if (runningTask != null)
         {
-            task.stop();
-            Iterator<Map.Entry<String, DiscoTask>> iter = this.activeTasks.entrySet().iterator();
-            while (iter.hasNext())
-            {
-                if (iter.next().getValue() == task)
-                {
-                    iter.remove();
-                }
-            }
-            context.sendTranslated(POSITIVE, "The disco has been stopped!");
-            return;
-        }
-        task = new DiscoTask(world, delay);
-        if (task.start())
-        {
-            this.activeTasks.put(world.getName(), task);
-            context.sendTranslated(POSITIVE, "The disco started!");
+            runningTask.stop();
+            i18n.sendTranslated(context, POSITIVE, "The disco has been stopped!");
         }
         else
         {
-            context.sendTranslated(NEGATIVE, "The disco can't be started!");
+            activeTasks.put(world.getUniqueId(), new DiscoTask(world, delay, tm, module));
+            i18n.sendTranslated(context, POSITIVE, "The disco started!");
+
         }
     }
 
     private class DiscoTask implements Runnable
     {
+        private TaskManager tm;
         private final World world;
         private long originalTime;
-        private int taskID;
-        private final long interval;
+        private UUID taskID;
 
-        public DiscoTask(World world, final long delay)
+        public DiscoTask(World world, final long delay, TaskManager tm, Fun module)
         {
             this.world = world;
-            this.originalTime = -1;
-            this.taskID = -1;
-            this.interval = delay;
-        }
-
-        public World getWorld()
-        {
-            return this.world;
-        }
-
-        public boolean start()
-        {
-            this.originalTime = this.world.getTime();
-            this.taskID = module.getCore().getTaskManager().runTimer(module, this, 0, this.interval);
-            return this.taskID != -1;
+            this.tm = tm;
+            this.originalTime = world.getProperties().getTotalTime();
+            this.taskID = tm.runTimer(module, this, delay, delay);
         }
 
         public void stop()
         {
-            if (this.taskID != -1)
-            {
-                module.getCore().getTaskManager().cancelTask(module, this.taskID);
-                this.taskID = -1;
-                if (this.originalTime != -1)
-                {
-                    this.world.setTime(this.originalTime);
-                }
-            }
+            tm.cancelTask(module, taskID);
+            world.getProperties().setWorldTime(originalTime);
         }
 
         @Override
         public void run()
         {
-            if (this.world.getTime() > 12000)
+            if (this.world.getProperties().getWorldTime() > 12000)
             {
-                this.world.setTime(6000);
+                this.world.getProperties().setWorldTime(6000);
             }
             else
             {
-                this.world.setTime(18000);
+                this.world.getProperties().setWorldTime(18000);
             }
         }
     }

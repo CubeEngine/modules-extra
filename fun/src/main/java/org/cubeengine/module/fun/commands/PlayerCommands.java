@@ -18,14 +18,29 @@
 package org.cubeengine.module.fun.commands;
 
 import java.util.Collections;
+import com.flowpowered.math.vector.Vector3d;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Named;
 import org.cubeengine.butler.parametric.Optional;
 import org.cubeengine.module.fun.Fun;
 import org.cubeengine.service.command.CommandSender;
+import org.cubeengine.service.event.EventManager;
+import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.service.task.TaskManager;
 import org.cubeengine.service.user.User;
 import de.cubeisland.engine.module.core.util.matcher.Match;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.property.item.ArmorTypeProperty;
+import org.spongepowered.api.data.property.item.EquipmentProperty;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
+import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.inventory.equipment.EquipmentType;
+import org.spongepowered.api.item.inventory.equipment.EquipmentTypes;
 import org.spongepowered.api.world.Location;
 import org.bukkit.Material;
 import org.spongepowered.api.entity.player.Player;
@@ -35,23 +50,32 @@ import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.Vector;
+import org.spongepowered.api.world.World;
 
 import static org.bukkit.Material.AIR;
+import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.service.i18n.formatter.MessageType.NEUTRAL;
+import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.spongepowered.api.item.ItemTypes.LEATHER_BOOTS;
 
 public class PlayerCommands
 {
     private final Fun module;
     private final ExplosionListener explosionListener;
+    private final I18n i18n;
+    private final TaskManager tm;
 
-    public PlayerCommands(Fun module)
+    public PlayerCommands(Fun module, EventManager em, I18n i18n, TaskManager tm)
     {
         this.module = module;
+        this.i18n = i18n;
+        this.tm = tm;
         this.explosionListener = new ExplosionListener();
-        this.module.getCore().getEventManager().registerListener(module, explosionListener);
+        em.registerListener(module, explosionListener);
     }
     
     @Command(desc = "Gives a player a hat")
-    public void hat(CommandSender context, @Optional String item, @Named({"player", "p"}) User player, @Flag boolean quiet)
+    public void hat(CommandSource context, @Optional String item, @Named({"player", "p"}) Player player, @Flag boolean quiet)
     {
         ItemStack head;
         PlayerInventory senderInventory = null;
@@ -61,7 +85,7 @@ public class PlayerCommands
         {
             if(!module.perms().COMMAND_HAT_OTHER.isAuthorized( context ) )
             {
-                context.sendTranslated(NEGATIVE, "You can't set the hat of an other player.");
+                i18n.sendTranslated(context, NEGATIVE, "You can't set the hat of an other player.");
                 return;
             }
         }
@@ -71,7 +95,7 @@ public class PlayerCommands
         }
         else
         {
-            context.sendTranslated(NEGATIVE, "You have to specify a player!");
+            i18n.sendTranslated(context, NEGATIVE, "You have to specify a player!");
             return;
         }
         
@@ -79,13 +103,13 @@ public class PlayerCommands
         {
             if(!module.perms().COMMAND_HAT_ITEM.isAuthorized(context))
             {
-                context.sendTranslated(NEGATIVE, "You can only use your item in hand!");
+                i18n.sendTranslated(context, NEGATIVE, "You can only use your item in hand!");
                 return;
             }
             head = Match.material().itemStack(item);
             if(head == null)
             {
-                context.sendTranslated(NEGATIVE, "Item not found!");
+                i18n.sendTranslated(context, NEGATIVE, "Item not found!");
                 return;
             }
         }
@@ -96,45 +120,33 @@ public class PlayerCommands
         }
         else
         {
-            context.sendTranslated(NEGATIVE, "Trying to be Notch? No hat for you!");
-            context.sendTranslated(NEUTRAL, "Please specify an item!");
+            i18n.sendTranslated(context, NEGATIVE, "Trying to be Notch? No hat for you!");
+            i18n.sendTranslated(context, NEUTRAL, "Please specify an item!");
             return;
         }
-        if (head.getType() == AIR)
+        if (head.getItem() == ItemTypes.NONE)
         {
-            context.sendTranslated(NEGATIVE, "You do not have any item in your hand!");
+            i18n.sendTranslated(context, NEGATIVE, "You do not have any item in your hand!");
             return;
         }
-        switch (head.getType())
+        EquipmentType type = head.getItem().getDefaultProperty(EquipmentProperty.class)
+                         .map(EquipmentProperty::getValue).orElse(null);
+        if (type == null || type != EquipmentTypes.HEADWEAR)
         {
-            case LEATHER_BOOTS:
-            case LEATHER_CHESTPLATE:
-            case LEATHER_LEGGINGS:
-            case IRON_BOOTS:
-            case IRON_CHESTPLATE:
-            case IRON_LEGGINGS:
-            case DIAMOND_BOOTS:
-            case DIAMOND_CHESTPLATE:
-            case DIAMOND_LEGGINGS:
-            case CHAINMAIL_BOOTS:
-            case CHAINMAIL_CHESTPLATE:
-            case CHAINMAIL_LEGGINGS:
-                if (!module.perms().COMMAND_HAT_MORE_ARMOR.isAuthorized(context))
-                {
-                    context.sendTranslated(NEGATIVE, "You are not allowed to use other armor as headpiece");
-                }
-                return;
+            if (!context.hasPermission(module.perms().COMMAND_HAT_MORE_ARMOR.getId()))
+            {
+                i18n.sendTranslated(context, NEGATIVE, "You are not allowed to use other armor as headpiece");
+            }
         }
+
         userInventory = player.getInventory();
         
-        int amount = head.getAmount();
-        head.setAmount(1);
+        head.setQuantity(1);
         
         if(item == null && senderInventory != null)
         {
             ItemStack clone = head.clone();
             clone.setAmount(amount - 1);
-
             senderInventory.setItemInHand( clone );
         }
         if(userInventory.getHelmet() != null)
@@ -146,18 +158,18 @@ public class PlayerCommands
         
         if(!(quiet && module.perms().COMMAND_HAT_QUIET.isAuthorized(context)) && module.perms().COMMAND_HAT_NOTIFY.isAuthorized(player))
         {
-            player.sendTranslated(POSITIVE, "Your hat was changed");
+            i18n.sendTranslated(player, POSITIVE, "Your hat was changed");
         }        
     }
 
     @Command(desc = "Creates an explosion")
-    public void explosion(CommandSender context, @Optional Integer damage, @Named({"player", "p"}) User player,
+    public void explosion(CommandSource context, @Optional Integer damage, @Named({"player", "p"}) User player,
                           @Flag boolean unsafe, @Flag boolean fire, @Flag boolean blockDamage, @Flag boolean playerDamage)
     {
         damage = damage == null ? 1 : damage;
         if (damage > this.module.getConfig().command.explosion.power)
         {
-            context.sendTranslated(NEGATIVE, "The power of the explosion shouldn't be greater than {integer}", this.module.getConfig().command.explosion.power);
+            i18n.sendTranslated(context, NEGATIVE, "The power of the explosion shouldn't be greater than {integer}", this.module.getConfig().command.explosion.power);
             return;
         }
         Location loc;
@@ -167,7 +179,7 @@ public class PlayerCommands
             {
                 if (!module.perms().COMMAND_EXPLOSION_OTHER.isAuthorized(context))
                 {
-                    context.sendTranslated(NEGATIVE, "You are not allowed to specify a player.");
+                    i18n.sendTranslated(context, NEGATIVE, "You are not allowed to specify a player.");
                     return;
                 }
             }
@@ -175,9 +187,9 @@ public class PlayerCommands
         }
         else
         {
-            if (!(context instanceof User))
+            if (!(context instanceof Player))
             {
-                context.sendTranslated(NEGATIVE, "This command can only be used by a player!");
+                i18n.sendTranslated(context, NEGATIVE, "This command can only be used by a player!");
                 return;
             }
             loc = ((User)context).getTargetBlock(Collections.<Material>emptySet(), this.module.getConfig().command.explosion.distance).getLocation();
@@ -185,17 +197,17 @@ public class PlayerCommands
 
         if (!module.perms().COMMAND_EXPLOSION_BLOCK_DAMAGE.isAuthorized(context) && (blockDamage || unsafe))
         {
-            context.sendTranslated(NEGATIVE, "You are not allowed to break blocks");
+            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to break blocks");
             return;
         }
         if (!module.perms().COMMAND_EXPLOSION_FIRE.isAuthorized(context) && (fire || unsafe))
         {
-            context.sendTranslated(NEGATIVE, "You are not allowed to set fireticks");
+            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to set fireticks");
             return;
         }
         if (!module.perms().COMMAND_EXPLOSION_PLAYER_DAMAGE.isAuthorized(context) && (playerDamage || unsafe))
         {
-            context.sendTranslated(NEGATIVE, "You are not allowed to damage another player");
+            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to damage another player");
             return;
         }
 
@@ -208,32 +220,32 @@ public class PlayerCommands
     }
 
     @Command(alias = "strike", desc = "Throws a lightning bolt at a player or where you're looking")
-    public void lightning(CommandSender context, @Optional Integer damage, @Named({"player","p"}) User player,
+    public void lightning(CommandSource context, @Optional Integer damage, @Named({"player","p"}) Player player,
                           @Named({"fireticks", "f"}) Integer seconds, @Flag boolean unsafe)
     {
         damage = damage == null ? -1 : damage;
 
         if (damage != -1 && !module.perms().COMMAND_LIGHTNING_PLAYER_DAMAGE.isAuthorized(context))
         {
-            context.sendTranslated(NEGATIVE, "You are not allowed to specify the damage!");
+            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to specify the damage!");
             return;
         }
         if ((damage != -1 && damage < 0) || damage > 20)
         {
-            context.sendTranslated(NEGATIVE, "The damage value has to be a number from 1 to 20");
+            i18n.sendTranslated(context, NEGATIVE, "The damage value has to be a number from 1 to 20");
             return;
         }
         if (unsafe && !module.perms().COMMAND_LIGHTNING_UNSAFE.isAuthorized(context))
         {
-            context.sendTranslated(NEGATIVE, "You are not allowed to use the unsafe flag");
+            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to use the unsafe flag");
             return;
         }
 
-        Location location;
+        Location<World> location;
         if (player != null)
         {
             location = player.getLocation();
-            player.setFireTicks(20 * seconds);
+            player.offer(Keys.FIRE_TICKS, 20 * seconds);
             if (damage != -1)
             {
                 player.damage(damage);
@@ -241,43 +253,43 @@ public class PlayerCommands
         }
         else
         {
-            if (!(context instanceof User))
+            if (!(context instanceof Player))
             {
-                context.sendTranslated(NEGATIVE, "This command can only be used by a player!");
+                i18n.sendTranslated(context, NEGATIVE, "This command can only be used by a player!");
                 return;
             }
-            location = ((User)context).getTargetBlock(Collections.emptySet(), this.module.getConfig().command.lightning.distance).getLocation();
+            location = ((Player)context).getTargetBlock(Collections.emptySet(), this.module.getConfig().command.lightning.distance).getLocation();
         }
 
         if (unsafe)
         {
-            location.getWorld().strikeLightning(location);
+            location.getExtent().strikeLightning(location);
         }
         else
         {
-            location.getWorld().strikeLightningEffect(location);
+            location.getExtent().strikeLightningEffect(location);
         }
 
     }
 
     @Command(desc = "Slaps a player")
-    public void slap(CommandSender context, User player, @Optional Integer damage)
+    public void slap(CommandSource context, Player player, @Optional Integer damage)
     {
         damage = damage == null ? 3 : damage;
 
         if (damage < 1 || damage > 20)
         {
-            context.sendTranslated(NEGATIVE, "Only damage values from 1 to 20 are allowed!");
+            i18n.sendTranslated(context, NEGATIVE, "Only damage values from 1 to 20 are allowed!");
             return;
         }
 
-        final Vector userDirection = player.getLocation().getDirection();
-        player.damage(damage);
+        final Vector3d userDirection = player.getRotation();
+        player.damage(damage, DamageSource.builder().absolute().build(), Cause.of(NamedCause.source(context)));
         player.setVelocity(new Vector(userDirection.getX() * damage / 2, 0.05 * damage, userDirection.getZ() * damage / 2));
     }
 
     @Command(desc = "Burns a player")
-    public void burn(CommandSender context, User player, @Optional Integer seconds, @Flag boolean unset)
+    public void burn(CommandSource context, Player player, @Optional Integer seconds, @Flag boolean unset)
     {
         seconds = seconds == null ? 5 : seconds;
         if (unset)
@@ -286,14 +298,14 @@ public class PlayerCommands
         }
         else if (seconds < 1 || seconds > this.module.getConfig().command.burn.maxTime)
         {
-            context.sendTranslated(NEGATIVE, "Only 1 to {integer} seconds are allowed!", this.module.getConfig().command.burn.maxTime);
+            i18n.sendTranslated(context, NEGATIVE, "Only 1 to {integer} seconds are allowed!", this.module.getConfig().command.burn.maxTime);
             return;
         }
 
-        player.setFireTicks(seconds * 20);
+        player.offer(Keys.FIRE_TICKS, seconds * 20);
     }
 
-    private class ExplosionListener implements Listener
+    private class ExplosionListener
     {
         private Location location;
 
@@ -302,7 +314,7 @@ public class PlayerCommands
 
             this.location = location;
 
-            module.getCore().getTaskManager().runTaskDelayed(module, new Runnable()
+            tm.runTaskDelayed(module, new Runnable()
             {
                 @Override
                 public void run()

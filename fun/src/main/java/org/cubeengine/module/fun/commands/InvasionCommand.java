@@ -17,48 +17,57 @@
  */
 package org.cubeengine.module.fun.commands;
 
-import java.util.Collections;
+import java.util.Optional;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.module.fun.Fun;
-import org.cubeengine.service.command.CommandContext;
-import de.cubeisland.engine.module.core.util.matcher.Match;
-import org.bukkit.Bukkit;
+import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.service.i18n.formatter.MessageType;
+import org.cubeengine.service.matcher.EntityMatcher;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntityType;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.util.blockray.BlockRay;
+import org.spongepowered.api.util.blockray.BlockRayHit;
 import org.spongepowered.api.world.Location;
-import org.bukkit.Material;
-import org.bukkit.entity.EntityType;
-import org.spongepowered.api.entity.player.Player;
-
-import org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
+import org.spongepowered.api.world.World;
 
 public class InvasionCommand
 {
     private final Fun module;
+    private I18n i18n;
+    private EntityMatcher em;
 
-    public InvasionCommand(Fun module)
+    public InvasionCommand(Fun module, I18n i18n, EntityMatcher entityMatcher)
     {
         this.module = module;
+        this.i18n = i18n;
+        this.em = entityMatcher;
     }
 
     @Command(desc = "Spawns a mob next to every player on the server")
-    public void invasion(CommandContext context, String mob)
+    public void invasion(CommandSource context, String mob)
     {
-        EntityType entityType = Match.entity().mob(mob);
+        EntityType entityType = em.mob(mob, context.getLocale());
         if (entityType == null)
         {
-            context.sendTranslated(NEGATIVE, "EntityType {input} not found", mob);
+            i18n.sendTranslated(context, MessageType.NEGATIVE, "EntityType {input} not found", mob);
             return;
         }
-        final Location helperLocation = new Location(null, 0, 0, 0);
-        for (Player player : Bukkit.getOnlinePlayers())
+        for (Player player : Sponge.getServer().getOnlinePlayers())
         {
-            Location location = player.getTargetBlock(Collections.<Material>emptySet(), this.module.getConfig().command.invasion.distance).getLocation(
-                helperLocation);
-            if (location.getBlock().getType() != Material.AIR)
+            Optional<BlockRayHit<World>> end =
+                BlockRay.from(player).filter(BlockRay.onlyAirFilter())
+                    .blockLimit(module.getConfig().command.invasion.distance).build().end();
+            if (end.isPresent())
             {
-                location = location.clone();
-                location.subtract(player.getLocation(helperLocation).getDirection().multiply(2));
+                Location<World> location = end.get().getLocation();
+                Entity entity = location.getExtent().createEntity(entityType, location.getPosition()).get();
+                location.getExtent().spawnEntity(entity, Cause.of(NamedCause.source(context)));
             }
-            player.getWorld().spawnEntity(location, entityType);
         }
     }
 }
