@@ -19,33 +19,44 @@ package org.cubeengine.module.module.kits;
 
 import java.util.ArrayList;
 import java.util.List;
-import de.cubeisland.engine.butler.CommandInvocation;
+import java.util.Optional;
+import org.cubeengine.butler.CommandInvocation;
 import org.cubeengine.butler.alias.Alias;
 import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parametric.Command;
-import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Default;
-import org.cubeengine.service.command.ContainerCommand;
-import org.cubeengine.service.command.CommandContext;
-import org.cubeengine.service.command.CommandSender;
-import org.cubeengine.service.user.User;
+import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.module.core.util.FileUtil;
+import org.cubeengine.service.command.ContainerCommand;
+import org.cubeengine.service.command.annotation.ParameterPermission;
+import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.service.inventoryguard.InventoryGuardFactory;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.custom.CustomInventory;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.translation.Translation;
 
-import org.cubeengine.module.core.util.ChatFormat.WHITE;
-import org.cubeengine.module.core.util.ChatFormat.YELLOW;
-import static org.bukkit.Material.AIR;
+import static org.cubeengine.service.i18n.formatter.MessageType.*;
+import static org.spongepowered.api.text.serializer.TextSerializers.FORMATTING_CODE;
 
 @Command(name = "kit", desc = "Manages item-kits")
 public class KitCommand extends ContainerCommand
 {
     private final KitManager manager;
     private final Kits module;
+    private I18n i18n;
+    private InventoryGuardFactory igf;
 
-    public KitCommand(Kits module)
+    public KitCommand(Kits module, I18n i18n, InventoryGuardFactory igf)
     {
         super(module);
         this.module = module;
+        this.i18n = i18n;
+        this.igf = igf;
         this.manager = module.getKitManager();
     }
 
@@ -59,166 +70,119 @@ public class KitCommand extends ContainerCommand
         return super.selfExecute(invocation);
     }
 
-    @Command(desc = "Creates a new kit with the items in your inventory.")
-    @Restricted(value = User.class, msg = "Just log in or use the config!")
-    public void create(User context, String kitname, @Flag boolean toolbar)
+    // TODO edit command - /w click to Edit
+
+    @Command(alias = "open", desc = "Opens the configured kit if the kit does not exists a new is created")
+    @Restricted(value = Player.class, msg = "Just log in or use the config!")
+    public void create(Player context, String kitname)
     {
-        List<KitItem> itemList = new ArrayList<>();
-        if (toolbar)
+        if (!FileUtil.isValidFileName(kitname))
         {
-            ItemStack[] items = context.getInventory().getContents();
-            for (int i = 0; i <= 8; ++i)
-            {
-                if (items[i] == null || items[i].getType() == AIR)
-                {
-                    break;
-                }
-                itemList.add(
-                        new KitItem(items[i].getType(),
-                            items[i].getDurability(),
-                            items[i].getAmount(),
-                            items[i].getItemMeta().getDisplayName(),
-                            items[i].getEnchantments()));
-            }
-        }
-        else
-        {
-            for (ItemStack item : context.getInventory().getContents())
-            {
-                if (item == null || item.getTypeId() == 0)
-                {
-                    break;
-                }
-                itemList.add(
-                        new KitItem(item.getType(),
-                            item.getDurability(),
-                            item.getQuantity(),
-                            item.getItemMeta().getDisplayName(),
-                            item.getEnchantments()));
-            }
-        }
-        Kit kit = new Kit(module, kitname, false, 0, -1, true, "", new ArrayList<>(), itemList);
-        if (!FileUtil.isValidFileName(kit.getKitName()))
-        {
-            context.sendTranslated(NEGATIVE, "{name#kit} is is not a valid name! Do not use characters like *, | or ?", kit.getKitName());
+            i18n.sendTranslated(context, NEGATIVE,
+                                "{name#kit} is is not a valid name! Do not use characters like *, | or ?", kitname);
             return;
         }
-        manager.saveKit(kit);
-        if (kit.getPermission() != null)
-        {
-            module.getCore().getPermissionManager().registerPermission(module, kit.getPermission());
-        }
-        context.sendTranslated(POSITIVE, "Created the {name#kit} kit!", kit.getKitName());
+        List<ItemStack> itemList = new ArrayList<>();
+        Kit kit = new Kit(module, kitname, false, 0, -1, true, "", new ArrayList<>(), itemList);
+
+        Translation name = null; // Put all KitItems into here
+        CustomInventory inventory = CustomInventory.builder().name(name).size(6).build();
+        igf.prepareInv(inventory, context.getUniqueId()).onClose(() -> {
+            inventory.slots().forEach(slot -> {
+                Optional<ItemStack> item = slot.peek();
+                if (item.isPresent())
+                {
+                    itemList.add(item.get());
+                    context.getInventory().offer(item.get()); // Give the item back
+                }
+            });
+            manager.saveKit(kit);
+            i18n.sendTranslated(context, POSITIVE, "Created the {name#kit} kit!", kit.getKitName());
+        }).submitInventory(module, true);
     }
 
 
     @Alias(value = "kitlist")
     @Command(desc = "Lists all currently available kits.")
-    public void list(CommandContext context)
+    public void list(CommandSource context)
     {
-        context.sendTranslated(POSITIVE, "The following kits are available:");
-        String format = "  " + WHITE + "-" + YELLOW;
+        i18n.sendTranslated(context, POSITIVE, "The following kits are available:");
         for (String kitName : manager.getKitsNames())
         {
-            context.sendMessage(format + kitName);
+            context.sendMessage(Text.of(" ", TextColors.WHITE, "-", TextColors.YELLOW, kitName));
+        }
+    }
+
+    @Command(desc = "Gives a kit to every online player")
+    public void giveall(CommandSource context, Kit kit, @ParameterPermission @Flag boolean force)
+    {
+        boolean gaveKit = false;
+        int kitNotReceived = 0;
+        for (Player receiver : Sponge.getServer().getOnlinePlayers())
+        {
+            try
+            {
+                if (kit.give(context, receiver, force))
+                {
+                    if (receiver.equals(context))
+                    {
+                        i18n.sendTranslated(context, POSITIVE, "Received the {name#kit} kit!", kit.getKitName());
+                    }
+                    else
+                    {
+                        i18n.sendTranslated(context, POSITIVE, "You gave {user} the {name#kit} kit!", receiver, kit.getKitName());
+                        i18n.sendTranslated(receiver, POSITIVE, "Received the {name#kit} kit. Enjoy.", kit.getKitName());
+                    }
+                    gaveKit = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                kitNotReceived++;
+            }
+        }
+        if (!gaveKit)
+        {
+            i18n.sendTranslated(context, NEGATIVE, "No one received the kit!");
+        }
+        else if (kitNotReceived > 0)
+        {
+            i18n.sendTranslated(context, NEGATIVE, "{amount} players did not receive a kit!",
+                                kitNotReceived); // TODO Have a string for if there is only one player, so non-plural
         }
     }
 
     @Command(desc = "Gives a set of items.")
-    public void give(CommandSender context, String kitname, @Default User player, @Flag boolean all, @Flag boolean force)
+    public void give(CommandSource context, Kit kit, @Default Player player, @ParameterPermission @Flag boolean force)
     {
-        Kit kit = manager.getKit(kitname);
-        force = force && module.perms().COMMAND_KIT_GIVE_FORCE.isAuthorized(context);
-        if (kit == null)
-        {
-            context.sendTranslated(NEGATIVE, "Kit {input} not found!", kitname);
-            return;
-        }
-        // TODO extract to giveall cmd
-        if (all)
-        {
-            boolean gaveKit = false;
-            int kitNotreceived = 0;
-            for (User receiver : module.getCore().getUserManager().getOnlineUsers())
-            {
-                try
-                {
-                    if (kit.give(context, receiver, force))
-                    {
-                        if (receiver.equals(context))
-                        {
-                            context.sendTranslated(POSITIVE, "Received the {name#kit} kit!", kit.getKitName());
-                        }
-                        else
-                        {
-                            context.sendTranslated(POSITIVE, "You gave {user} the {name#kit} kit!", receiver, kit.getKitName());
-                            receiver.sendTranslated(POSITIVE, "Received the {name#kit} kit. Enjoy.", kit.getKitName());
-                        }
-                        gaveKit = true;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    kitNotreceived++;
-                }
-            }
-            if (!gaveKit)
-            {
-                context.sendTranslated(NEGATIVE, "No one received the kit!");
-            }
-            else if (kitNotreceived > 0)
-            {
-                context.sendTranslated(NEGATIVE, "{amount} players did not receive a kit!", kitNotreceived); // TODO Have a string for if there is only one player, so non-plural
-            }
-            return;
-        }
-        boolean other = false;
-        User user;
-        if (player != null)
-        {
-            user = player;
-            other = true;
-        }
-        else if (context instanceof User)
-        {
-            user = (User)context;
-        }
-        else
-        {
-            context.sendTranslated(NEGATIVE, "You need to specify a player!");
-            return;
-        }
-        if (!user.isOnline())
-        {
-            context.sendTranslated(NEGATIVE, "{user} is not online!", user.getDisplayName());
-            return;
-        }
-        if (kit.give(context, user, force))
+        boolean other = !context.getIdentifier().equals(player.getIdentifier());
+        if (kit.give(context, player, force))
         {
             if (other)
             {
-                context.sendTranslated(POSITIVE, "You gave {user} the {name#kit} kit!", user, kit.getKitName());
+                i18n.sendTranslated(context, POSITIVE, "You gave {user} the {name#kit} kit!", player, kit.getKitName());
                 if (kit.getCustomMessage().isEmpty())
                 {
-                    user.sendTranslated(POSITIVE, "Received the {name#kit} kit. Enjoy.", kit.getKitName());
+                    i18n.sendTranslated(player, POSITIVE, "Received the {name#kit} kit. Enjoy.", kit.getKitName());
                     return;
                 }
-                user.sendMessage(kit.getCustomMessage());
+                player.sendMessage(FORMATTING_CODE.deserialize(kit.getCustomMessage()));
                 return;
             }
             if (kit.getCustomMessage().isEmpty())
             {
-                context.sendTranslated(POSITIVE, "Received the {name#kit} kit. Enjoy.", kit.getKitName());
+                i18n.sendTranslated(context, POSITIVE, "Received the {name#kit} kit. Enjoy.", kit.getKitName());
                 return;
             }
-            context.sendMessage(kit.getCustomMessage());
+            context.sendMessage(FORMATTING_CODE.deserialize(kit.getCustomMessage()));
             return;
         }
         if (other)
         {
-            context.sendTranslated(NEUTRAL, "{user} has not enough space in your inventory for this kit!", user);
+            i18n.sendTranslated(context, NEUTRAL, "{user} has not enough space in your inventory for this kit!",
+                                player);
             return;
         }
-        context.sendTranslated(NEUTRAL, "You don't have enough space in your inventory for this kit!");
+        i18n.sendTranslated(context, NEUTRAL, "You don't have enough space in your inventory for this kit!");
     }
 }

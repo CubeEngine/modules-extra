@@ -21,11 +21,15 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import javax.persistence.Transient;
+import de.cubeisland.engine.reflect.annotations.Converter;
 import org.cubeengine.module.core.util.StringUtils;
 import de.cubeisland.engine.reflect.annotations.Comment;
 import de.cubeisland.engine.reflect.annotations.Name;
 import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
+import org.cubeengine.service.config.ItemStackConverter;
 import org.joda.time.Duration;
+import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.item.inventory.ItemStack;
 
 @SuppressWarnings("all")
 public class KitConfiguration extends ReflectedYaml
@@ -39,7 +43,8 @@ public class KitConfiguration extends ReflectedYaml
     @Comment("amount*itemName/Id:Data customName\n"
         + "example: 64*STONE:0 MyFirstStoneBlocks")
     @Name("items")
-    public List<KitItem> kitItems = new LinkedList<>();
+    @Converter(ItemStackConverter.class) // Full Item Data
+    public List<ItemStack> kitItems = new LinkedList<>();
     @Name("commands")
     public List<String> kitCommands = new LinkedList<>();
     @Comment("If a permission is generated the user needs the permission to be able to receive this kit")

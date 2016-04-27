@@ -17,8 +17,8 @@
  */
 package org.cubeengine.module.module.kits;
 
-import de.cubeisland.engine.service.permission.Permission;
 import org.cubeengine.service.permission.PermissionContainer;
+import org.spongepowered.api.service.permission.PermissionDescription;
 
 @SuppressWarnings("all")
 public class KitsPerm extends PermissionContainer<Kits>
@@ -26,10 +26,7 @@ public class KitsPerm extends PermissionContainer<Kits>
     public KitsPerm(Kits module)
     {
         super(module);
-        this.registerAllPermissions();
     }
 
-    private final Permission COMMAND = getBasePerm().childWildcard("command");
-    public final Permission KITS = getBasePerm().childWildcard("kits");
-    public final Permission COMMAND_KIT_GIVE_FORCE = COMMAND.child("kit.give.force");
+    public final PermissionDescription KITS = register("kits", "Grants access to all kits", null);
 }

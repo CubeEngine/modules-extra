@@ -25,36 +25,39 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import de.cubeisland.engine.service.user.UserLoadedEvent;
+import de.cubeisland.engine.reflect.Reflector;
 import org.cubeengine.module.core.util.StringUtils;
-import de.cubeisland.engine.module.core.util.matcher.Match;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
+import org.cubeengine.service.matcher.StringMatcher;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
 
-import org.cubeengine.service.filesystem.FileExtensionFilter.YAML;
+import static org.cubeengine.service.filesystem.FileExtensionFilter.YAML;
 
-public class KitManager implements Listener
+public class KitManager
 {
     private final Kits module;
-
-    public KitManager(Kits module)
-    {
-        this.module = module;
-        this.module.getCore().getEventManager().registerListener(module, this);
-    }
-
-    @EventHandler
-    public void onJoin(UserLoadedEvent event)
-    {
-        if (!event.getUser().hasPlayedBefore())
-        {
-            kitMap.values().stream().filter(Kit::isGiveKitOnFirstJoin).forEach(kit -> kit.give(event.getUser(), true));
-        }
-    }
-
     private final Map<String, Kit> kitMap = new HashMap<>();
     private final Map<Kit, KitConfiguration> kitConfigMap = new HashMap<>();
+    private Reflector reflector;
+    private StringMatcher sm;
+
+
+    public KitManager(Kits module, Reflector reflector, StringMatcher sm)
+    {
+        this.module = module;
+        this.reflector = reflector;
+        this.sm = sm;
+    }
+
+    @Listener
+    public void onJoin(ClientConnectionEvent.Join event)
+    {
+        if (!event.getTargetEntity().get(Keys.LAST_DATE_PLAYED).isPresent())
+        {
+            kitMap.values().stream().filter(Kit::isGiveKitOnFirstJoin).forEach(kit -> kit.give(event.getTargetEntity(), true));
+        }
+    }
 
     public Kit getKit(String name)
     {
@@ -62,7 +65,7 @@ public class KitManager implements Listener
         {
             return null;
         }
-        Set<String> match = Match.string().getBestMatches(name.toLowerCase(Locale.ENGLISH), kitMap.keySet(), 2);
+        Set<String> match = sm.getBestMatches(name.toLowerCase(Locale.ENGLISH), kitMap.keySet(), 2);
         if (match.isEmpty())
         {
             return null;
@@ -75,7 +78,7 @@ public class KitManager implements Listener
         KitConfiguration config = kitConfigMap.get(kit);
         if (config == null)
         {
-            config = this.module.getCore().getConfigFactory().create(KitConfiguration.class);
+            config = reflector.create(KitConfiguration.class);
             kitConfigMap.put(kit, config);
             kitMap.put(kit.getKitName(), kit);
         }
@@ -85,22 +88,11 @@ public class KitManager implements Listener
 
     public void loadKit(Path file)
     {
-        try
-        {
-            KitConfiguration config = this.module.getCore().getConfigFactory().load(KitConfiguration.class, file.toFile());
-            config.kitName = StringUtils.stripFileExtension(file.getFileName().toString());
-            Kit kit = config.getKit(module);
-            kitConfigMap.put(kit, config);
-            kitMap.put(config.kitName.toLowerCase(Locale.ENGLISH), kit);
-            if (kit.getPermission() != null)
-            {
-                this.module.getCore().getPermissionManager().registerPermission(this.module, kit.getPermission());
-            }
-        }
-        catch (Exception ex)
-        {
-            module.getLog().warn(ex, "Could not load the kit configuration!");
-        }
+        KitConfiguration config = reflector.load(KitConfiguration.class, file.toFile());
+        config.kitName = StringUtils.stripFileExtension(file.getFileName().toString());
+        Kit kit = config.getKit(module);
+        kitConfigMap.put(kit, config);
+        kitMap.put(config.kitName.toLowerCase(Locale.ENGLISH), kit);
     }
 
     public void loadKits()
@@ -119,7 +111,7 @@ public class KitManager implements Listener
         }
         catch (IOException ex)
         {
-            this.module.getLog().warn(ex, "Failed load the modules!");
+            throw new IllegalStateException(ex);
         }
     }
 
