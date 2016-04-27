@@ -16,12 +16,12 @@
     <repository>
       <id>cubeengine-repo</id>
       <name>Release</name>
-      <url>http://maven.cubeengine.org/content/repositories/releases</url>
+      <url>http://maven.cubyte.org/content/repositories/releases</url>
     </repository>
     <snapshotRepository>
       <id>cubeengine-repo</id>
       <name>Snapshot</name>
-      <url>http://maven.cubeengine.org/content/repositories/snapshots</url>
+      <url>http://maven.cubyte.org/content/repositories/snapshots</url>
     </snapshotRepository>
   </distributionManagement>
 
@@ -29,7 +29,6 @@
     <module>fly</module>
     <module>customcommands</module>
     <module>fun</module>
-    <module>log</module>
     <module>writer</module>
     <module>shout</module>
     <module>rulebook</module>
@@ -43,7 +42,6 @@
     <module>backpack</module>
     <module>faq</module>
     <module>selector</module>
-    <module>vaultlink</module>
     <module>powertools</module>
     <module>kits</module>
     <module>spawner</module>
