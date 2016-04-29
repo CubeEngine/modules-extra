@@ -20,7 +20,7 @@ package org.cubeengine.module.log.storage;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
-import org.cubeengine.service.user.User;
+import org.cubeengine.libcube.service.user.User;
 import org.cubeengine.module.log.Log;
 import org.cubeengine.module.log.LogAttachment;
 import org.cubeengine.module.log.action.ActionCategory;

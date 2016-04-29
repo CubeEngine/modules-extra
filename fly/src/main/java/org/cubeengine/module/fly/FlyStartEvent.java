@@ -18,7 +18,7 @@
 package org.cubeengine.module.fly;
 
 import de.cubeisland.engine.modularity.core.Module;
-import org.cubeengine.service.event.CubeEvent;
+import org.cubeengine.libcube.service.event.CubeEvent;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.cause.Cause;

@@ -19,13 +19,13 @@ package org.cubeengine.module.log.action.block.player;
 
 import org.cubeengine.module.log.action.block.player.bucket.BucketLava;
 import org.cubeengine.module.log.action.block.player.bucket.BucketWater;
-import org.cubeengine.service.user.User;
+import org.cubeengine.libcube.service.user.User;
 import org.cubeengine.module.log.LoggingConfiguration;
 import org.cubeengine.module.log.action.ActionCategory;
 import org.cubeengine.module.log.action.BaseAction;
 import org.spongepowered.api.text.Text;
 
-import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 import static org.cubeengine.module.log.action.ActionCategory.BLOCK;
 import static org.bukkit.Material.AIR;
 import static org.spongepowered.api.block.BlockTypes.AIR;

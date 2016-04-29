@@ -18,11 +18,11 @@
 package org.cubeengine.module.log.action.block.entity.explosion;
 
 import org.cubeengine.module.log.action.BaseAction;
-import org.cubeengine.service.user.User;
+import org.cubeengine.libcube.service.user.User;
 import org.cubeengine.module.log.LoggingConfiguration;
 import org.spongepowered.api.text.Text;
 
-import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 
 /**
  * Represents a primed tnt exploding

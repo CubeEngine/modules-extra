@@ -27,11 +27,11 @@ import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Default;
 import org.cubeengine.butler.parametric.Desc;
 import org.cubeengine.butler.parametric.Optional;
-import org.cubeengine.service.command.annotation.CommandPermission;
-import org.cubeengine.service.command.annotation.Unloggable;
-import org.cubeengine.service.command.exception.PermissionDeniedException;
-import org.cubeengine.service.i18n.I18n;
-import org.cubeengine.service.user.UserList;
+import org.cubeengine.libcube.service.command.annotation.CommandPermission;
+import org.cubeengine.libcube.service.command.annotation.Unloggable;
+import org.cubeengine.libcube.service.command.exception.PermissionDeniedException;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.command.readers.UserList;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
@@ -41,7 +41,7 @@ import org.spongepowered.api.util.ban.Ban;
 
 import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.cubeengine.service.i18n.formatter.MessageType.*;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
 
 public class AuthCommands
 {

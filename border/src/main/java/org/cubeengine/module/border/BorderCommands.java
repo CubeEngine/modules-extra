@@ -26,18 +26,17 @@ import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Default;
 import org.cubeengine.butler.parametric.Named;
 import org.cubeengine.butler.parametric.Optional;
-import org.cubeengine.service.command.ContainerCommand;
-import org.cubeengine.module.core.util.Triplet;
-import org.cubeengine.service.i18n.I18n;
-import org.cubeengine.service.task.TaskManager;
-import org.jooq.types.UInteger;
+import org.cubeengine.libcube.service.command.ContainerCommand;
+import org.cubeengine.libcube.util.Triplet;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.task.TaskManager;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.World;
 
-import static org.cubeengine.service.i18n.formatter.MessageType.*;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
 
 @Command(name = "border", desc = "border commands")
 public class BorderCommands extends ContainerCommand

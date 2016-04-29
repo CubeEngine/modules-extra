@@ -20,7 +20,7 @@ package org.cubeengine.module.log.action.death;
 import org.cubeengine.module.log.LoggingConfiguration;
 import org.cubeengine.module.log.action.BaseAction;
 import org.cubeengine.module.log.action.block.player.ActionPlayerBlock.PlayerSection;
-import org.cubeengine.service.user.User;
+import org.cubeengine.libcube.service.user.User;
 import org.bukkit.entity.AnimalTamer;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.Tamer;
@@ -28,7 +28,7 @@ import org.spongepowered.api.entity.player.Player;
 import org.bukkit.entity.Tameable;
 import org.spongepowered.api.text.Text;
 
-import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 
 /**
  * Represents a pet dying

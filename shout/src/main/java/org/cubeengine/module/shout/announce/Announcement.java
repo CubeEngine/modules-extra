@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.Locale;
 import org.cubeengine.module.shout.Shout;
 import org.cubeengine.module.shout.ShoutUtil;
-import org.cubeengine.service.permission.PermissionManager;
+import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.service.permission.PermissionDescription;
 import org.spongepowered.api.text.Text;

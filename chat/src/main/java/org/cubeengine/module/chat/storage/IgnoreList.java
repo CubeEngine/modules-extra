@@ -18,7 +18,7 @@
 package org.cubeengine.module.chat.storage;
 
 import java.util.UUID;
-import org.cubeengine.service.database.AsyncRecord;
+import org.cubeengine.libcube.service.database.AsyncRecord;
 
 import static org.cubeengine.module.chat.storage.TableIgnorelist.TABLE_IGNORE_LIST;
 

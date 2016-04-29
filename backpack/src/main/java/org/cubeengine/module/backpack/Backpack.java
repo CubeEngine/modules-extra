@@ -25,10 +25,10 @@ import de.cubeisland.engine.modularity.core.marker.Enable;
 import de.cubeisland.engine.reflect.Reflector;
 import de.cubeisland.engine.reflect.codec.nbt.NBTCodec;
 import org.cubeengine.module.backpack.converter.NBTItemStackConverter;
-import org.cubeengine.service.command.CommandManager;
-import org.cubeengine.service.event.EventManager;
-import org.cubeengine.service.i18n.I18n;
-import org.cubeengine.service.inventoryguard.InventoryGuardFactory;
+import org.cubeengine.libcube.service.command.CommandManager;
+import org.cubeengine.libcube.service.event.EventManager;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.inventoryguard.InventoryGuardFactory;
 import org.spongepowered.api.item.inventory.ItemStack;
 
 @ModuleInfo(name = "Backpack", description = "Expand your inventory")

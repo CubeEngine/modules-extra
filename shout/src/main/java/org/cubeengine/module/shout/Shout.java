@@ -28,12 +28,12 @@ import de.cubeisland.engine.reflect.Reflector;
 import org.cubeengine.module.shout.announce.AnnouncementManager;
 import org.cubeengine.module.shout.interactions.ShoutCommand;
 import org.cubeengine.module.shout.interactions.ShoutListener;
-import org.cubeengine.service.command.CommandManager;
-import org.cubeengine.service.event.EventManager;
-import org.cubeengine.service.i18n.I18n;
-import org.cubeengine.service.matcher.StringMatcher;
-import org.cubeengine.service.permission.PermissionManager;
-import org.cubeengine.service.task.TaskManager;
+import org.cubeengine.libcube.service.command.CommandManager;
+import org.cubeengine.libcube.service.event.EventManager;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.matcher.StringMatcher;
+import org.cubeengine.libcube.service.permission.PermissionManager;
+import org.cubeengine.libcube.service.task.TaskManager;
 import org.spongepowered.api.service.permission.PermissionDescription;
 
 @ModuleInfo(name = "Shout", description = "Announce things!")

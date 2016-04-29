@@ -20,7 +20,7 @@ package org.cubeengine.module.authorization.storage;
 import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import org.cubeengine.service.database.AsyncRecord;
+import org.cubeengine.libcube.service.database.AsyncRecord;
 
 import static org.cubeengine.module.authorization.storage.TableAuth.TABLE_AUTH;
 

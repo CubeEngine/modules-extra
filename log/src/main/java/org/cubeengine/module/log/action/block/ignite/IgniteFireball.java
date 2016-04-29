@@ -22,7 +22,7 @@ import java.util.UUID;
 import org.cubeengine.module.log.LoggingConfiguration;
 import org.cubeengine.module.log.action.BaseAction;
 import org.cubeengine.module.log.action.block.player.ActionPlayerBlock.PlayerSection;
-import org.cubeengine.service.user.User;
+import org.cubeengine.libcube.service.user.User;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityType;
 import static org.spongepowered.api.entity.EntityTypes.*;
@@ -30,7 +30,7 @@ import static org.spongepowered.api.entity.EntityTypes.*;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.text.Text;
 
-import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 
 /**
  * Represents a fireball setting a block on fire

@@ -18,16 +18,13 @@
 package org.cubeengine.module.spawn;
 
 import java.util.Optional;
-import org.cubeengine.module.core.util.StringUtils;
 import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.entity.living.humanoid.player.RespawnPlayerEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.option.OptionSubject;
-import org.spongepowered.api.world.Location;
 
 import static org.cubeengine.module.spawn.SpawnCommands.getSpawnLocation;
 

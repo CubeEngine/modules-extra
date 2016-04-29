@@ -19,8 +19,8 @@ package org.cubeengine.module.customcommands;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.cubeengine.module.core.util.StringUtils;
-import org.cubeengine.service.user.Broadcaster;
+import org.cubeengine.libcube.util.StringUtils;
+import org.cubeengine.libcube.service.Broadcaster;
 import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.Listener;

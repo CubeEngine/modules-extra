@@ -18,13 +18,13 @@
 package org.cubeengine.module.log.action;
 
 import org.cubeengine.module.log.LoggingConfiguration;
-import org.cubeengine.service.user.User;
+import org.cubeengine.libcube.service.user.User;
 import org.cubeengine.module.log.action.player.item.container.ContainerType;
 import org.bukkit.block.BlockFace;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
 
-import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 import static org.cubeengine.module.log.action.ActionCategory.ITEM;
 
 /**

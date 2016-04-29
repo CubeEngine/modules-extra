@@ -36,7 +36,7 @@ import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.Report;
 import org.cubeengine.module.vigil.report.ReportActions;
 import org.cubeengine.module.vigil.report.ReportManager;
-import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.libcube.service.i18n.I18n;
 import org.spongepowered.api.entity.living.player.Player;
 
 import static java.util.concurrent.Executors.newSingleThreadExecutor;

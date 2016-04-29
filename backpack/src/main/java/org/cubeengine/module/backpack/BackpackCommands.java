@@ -22,23 +22,17 @@ import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Default;
 import org.cubeengine.butler.parametric.Flag;
-import org.cubeengine.butler.parametric.Label;
 import org.cubeengine.butler.parametric.Named;
 import org.cubeengine.butler.parametric.Optional;
-import org.cubeengine.module.core.util.ChatFormat;
-import org.cubeengine.module.core.util.StringUtils;
-import org.cubeengine.service.command.CommandContext;
-import org.cubeengine.service.command.ContainerCommand;
-import org.cubeengine.service.command.annotation.ParameterPermission;
-import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.libcube.service.command.ContainerCommand;
+import org.cubeengine.libcube.service.command.annotation.ParameterPermission;
+import org.cubeengine.libcube.service.i18n.I18n;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.service.context.Context;
-import org.spongepowered.api.world.World;
 
-import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
 
 @Command(name = "backpack", desc = "The Backpack commands", alias = "bp")
 public class BackpackCommands extends ContainerCommand

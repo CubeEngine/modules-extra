@@ -28,15 +28,15 @@ import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Reader;
 import org.cubeengine.module.chat.Chat;
 import org.cubeengine.module.chat.storage.IgnoreList;
-import org.cubeengine.module.core.util.ChatFormat;
-import org.cubeengine.module.core.util.StringUtils;
-import org.cubeengine.service.database.Database;
-import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.libcube.util.ChatFormat;
+import org.cubeengine.libcube.util.StringUtils;
+import org.cubeengine.libcube.service.database.Database;
+import org.cubeengine.libcube.service.i18n.I18n;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 
 import static org.cubeengine.module.chat.storage.TableIgnorelist.TABLE_IGNORE_LIST;
-import static org.cubeengine.service.i18n.formatter.MessageType.*;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
 
 public class IgnoreCommands
 {

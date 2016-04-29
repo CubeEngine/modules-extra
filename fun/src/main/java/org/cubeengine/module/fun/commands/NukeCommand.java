@@ -26,16 +26,16 @@ import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Named;
 import org.cubeengine.butler.parametric.Optional;
 import org.cubeengine.module.fun.Fun;
-import org.cubeengine.service.command.CommandSender;
-import org.cubeengine.service.event.EventManager;
-import org.cubeengine.service.i18n.I18n;
-import org.cubeengine.service.task.TaskManager;
-import org.cubeengine.service.user.User;
-import org.cubeengine.module.core.util.math.Vector3;
-import org.cubeengine.module.core.util.math.shape.Cuboid;
-import org.cubeengine.module.core.util.math.shape.Cylinder;
-import org.cubeengine.module.core.util.math.shape.Shape;
-import org.cubeengine.module.core.util.math.shape.Sphere;
+import org.cubeengine.libcube.service.command.CommandSender;
+import org.cubeengine.libcube.service.event.EventManager;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.task.TaskManager;
+import org.cubeengine.libcube.service.user.User;
+import org.cubeengine.libcube.util.math.Vector3;
+import org.cubeengine.libcube.util.math.shape.Cuboid;
+import org.cubeengine.libcube.util.math.shape.Cylinder;
+import org.cubeengine.libcube.util.math.shape.Shape;
+import org.cubeengine.libcube.util.math.shape.Sphere;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.world.Location;
@@ -49,11 +49,11 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.util.Vector;
 
-import org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
+import org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
 import org.spongepowered.api.world.World;
 
-import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
-import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 
 public class NukeCommand
 {

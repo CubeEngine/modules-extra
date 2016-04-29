@@ -18,8 +18,8 @@
 package org.cubeengine.module.hide.event;
 
 import de.cubeisland.engine.module.core.Core;
-import org.cubeengine.service.user.User;
-import org.cubeengine.service.user.UserEvent;
+import org.cubeengine.libcube.service.user.User;
+import org.cubeengine.libcube.service.user.UserEvent;
 import org.bukkit.event.HandlerList;
 
 public class UserHideEvent extends UserEvent

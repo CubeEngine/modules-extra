@@ -18,13 +18,13 @@
 package org.cubeengine.module.log.action.player.item;
 
 import java.util.Map;
-import org.cubeengine.service.user.User;
+import org.cubeengine.libcube.service.user.User;
 import org.cubeengine.module.log.LoggingConfiguration;
 import org.cubeengine.module.log.action.BaseAction;
 import org.spongepowered.api.item.Enchantment;
 import org.spongepowered.api.text.Text;
 
-import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 import static org.cubeengine.module.log.action.ActionCategory.ITEM;
 
 /**

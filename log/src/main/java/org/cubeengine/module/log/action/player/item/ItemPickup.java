@@ -20,12 +20,12 @@ package org.cubeengine.module.log.action.player.item;
 import org.cubeengine.module.log.LoggingConfiguration;
 import org.cubeengine.module.log.action.BaseAction;
 import org.cubeengine.module.log.action.block.entity.ActionEntityBlock.EntitySection;
-import org.cubeengine.service.user.User;
+import org.cubeengine.libcube.service.user.User;
 import org.bukkit.entity.Item;
 import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.text.Text;
 
-import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 import static org.cubeengine.module.log.action.ActionCategory.ITEM;
 
 /**

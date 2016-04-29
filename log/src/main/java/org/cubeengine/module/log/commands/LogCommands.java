@@ -24,10 +24,10 @@ import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Label;
 import org.cubeengine.butler.parametric.Optional;
-import org.cubeengine.service.command.ContainerCommand;
-import org.cubeengine.service.command.CommandContext;
-import org.cubeengine.service.command.CommandSender;
-import org.cubeengine.service.user.User;
+import org.cubeengine.libcube.service.command.ContainerCommand;
+import org.cubeengine.libcube.service.command.CommandContext;
+import org.cubeengine.libcube.service.command.CommandSender;
+import org.cubeengine.libcube.service.user.User;
 import de.cubeisland.engine.module.core.util.matcher.Match;
 import org.cubeengine.module.log.Log;
 import org.cubeengine.module.log.LogAttachment;
@@ -35,12 +35,12 @@ import org.bukkit.Material;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
+import org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
 import org.spongepowered.api.text.format.TextColors;
 
-import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 import static org.bukkit.Material.WOOD_AXE;
 
 @Command(name = "log", desc = "log-module commands.")

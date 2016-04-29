@@ -32,7 +32,7 @@ import org.cubeengine.module.log.action.BaseAction.Coordinate;
 import org.cubeengine.module.log.action.Redoable;
 import org.cubeengine.module.log.action.Rollbackable;
 import org.cubeengine.module.log.action.death.DeathMonster;
-import org.cubeengine.service.user.User;
+import org.cubeengine.libcube.service.user.User;
 import org.cubeengine.module.log.LogAttachment;
 
 public class QueryResults

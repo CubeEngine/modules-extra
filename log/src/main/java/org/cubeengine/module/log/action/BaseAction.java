@@ -26,9 +26,9 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import de.cubeisland.engine.module.core.CubeEngine;
 import org.cubeengine.module.log.storage.ShowParameter;
-import org.cubeengine.service.user.User;
-import org.cubeengine.module.core.util.math.BlockVector3;
-import org.cubeengine.service.world.ConfigWorld;
+import org.cubeengine.libcube.service.user.User;
+import org.cubeengine.libcube.util.math.BlockVector3;
+import org.cubeengine.libcube.service.config.ConfigWorld;
 import org.cubeengine.module.log.LoggingConfiguration;
 import de.cubeisland.engine.reflect.Section;
 import de.cubeisland.engine.reflect.codec.mongo.ReflectedDBObject;
@@ -37,9 +37,9 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.world.Location;
 import org.bukkit.World;
 
-import org.cubeengine.service.i18n.formatter.MessageType.NONE;
+import org.cubeengine.libcube.service.i18n.formatter.MessageType.NONE;
 
-import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 import static org.bukkit.ChatColor.GRAY;
 
 /**

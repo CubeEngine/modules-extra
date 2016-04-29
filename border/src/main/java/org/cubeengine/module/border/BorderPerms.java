@@ -17,7 +17,7 @@
  */
 package org.cubeengine.module.border;
 
-import org.cubeengine.service.permission.PermissionContainer;
+import org.cubeengine.libcube.service.permission.PermissionContainer;
 
 @SuppressWarnings("all")
 public class BorderPerms extends PermissionContainer<Border>

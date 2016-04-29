@@ -24,11 +24,11 @@ import de.cubeisland.engine.modularity.core.Module;
 import org.cubeengine.module.powertools.data.ImmutablePowertoolData;
 import org.cubeengine.module.powertools.data.PowertoolData;
 import org.cubeengine.module.powertools.data.PowertoolDataBuilder;
-import org.cubeengine.service.command.CommandManager;
-import org.cubeengine.service.event.EventManager;
-import org.cubeengine.service.i18n.I18n;
-import org.cubeengine.service.matcher.MaterialMatcher;
-import org.cubeengine.service.permission.ModulePermissions;
+import org.cubeengine.libcube.service.command.CommandManager;
+import org.cubeengine.libcube.service.event.EventManager;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.matcher.MaterialMatcher;
+import org.cubeengine.libcube.service.permission.ModulePermissions;
 import org.spongepowered.api.Sponge;
 
 @ModuleInfo(name = "Powertools", description = "Empower your tools")

@@ -18,14 +18,14 @@
 package org.cubeengine.module.vote.storage;
 
 import java.sql.Timestamp;
-import org.cubeengine.module.core.util.Version;
-import org.cubeengine.service.database.Database;
-import org.cubeengine.service.database.Table;
+import org.cubeengine.libcube.util.Version;
+import org.cubeengine.libcube.service.database.Database;
+import org.cubeengine.libcube.service.database.Table;
 import org.jooq.TableField;
 import org.jooq.types.UInteger;
 import org.jooq.types.UShort;
 
-import static org.cubeengine.service.user.TableUser.TABLE_USER;
+import static org.cubeengine.libcube.service.user.TableUser.TABLE_USER;
 import static org.jooq.util.mysql.MySQLDataType.DATETIME;
 
 public class TableVote extends Table<VoteModel>

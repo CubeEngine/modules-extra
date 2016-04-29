@@ -18,7 +18,7 @@
 package org.cubeengine.module.log.action.death;
 
 import org.cubeengine.module.log.action.player.item.ItemDrop;
-import org.cubeengine.service.user.User;
+import org.cubeengine.libcube.service.user.User;
 import org.cubeengine.module.log.LoggingConfiguration;
 import org.cubeengine.module.log.action.BaseAction;
 import org.cubeengine.module.log.action.ReferenceHolder;
@@ -26,7 +26,7 @@ import de.cubeisland.engine.reflect.codec.mongo.Reference;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
 
-import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 import static org.cubeengine.module.log.action.ActionCategory.DEATH;
 
 /**

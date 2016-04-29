@@ -21,10 +21,10 @@ import org.cubeengine.module.log.LoggingConfiguration;
 import org.cubeengine.module.log.action.ActionCategory;
 import org.cubeengine.module.log.action.BaseAction;
 import org.cubeengine.module.log.action.block.player.ActionPlayerBlock;
-import org.cubeengine.service.user.User;
+import org.cubeengine.libcube.service.user.User;
 import org.spongepowered.api.text.Text;
 
-import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 
 /**
  * Represents a player accessing an {@link org.spongepowered.api.item.inventory.Carrier}

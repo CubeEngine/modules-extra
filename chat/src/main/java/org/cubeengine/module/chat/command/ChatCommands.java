@@ -17,7 +17,6 @@
  */
 package org.cubeengine.module.chat.command;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -27,10 +26,10 @@ import org.cubeengine.butler.parametric.Greed;
 import org.cubeengine.butler.parametric.Label;
 import org.cubeengine.butler.parametric.Optional;
 import org.cubeengine.module.chat.Chat;
-import org.cubeengine.module.core.util.ChatFormat;
-import org.cubeengine.service.command.CommandManager;
-import org.cubeengine.service.i18n.I18n;
-import org.cubeengine.service.user.Broadcaster;
+import org.cubeengine.libcube.util.ChatFormat;
+import org.cubeengine.libcube.service.command.CommandManager;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.Broadcaster;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
@@ -42,13 +41,10 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Text.Builder;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.text.format.TextStyle;
-import org.spongepowered.api.text.format.TextStyles;
-import org.spongepowered.api.text.serializer.TextSerializers;
 
 import static org.cubeengine.butler.parameter.Parameter.INFINITE;
-import static org.cubeengine.service.i18n.formatter.MessageType.*;
-import static org.cubeengine.service.i18n.formatter.MessageType.NONE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NONE;
 import static org.spongepowered.api.text.format.TextStyles.*;
 import static org.spongepowered.api.text.format.TextStyles.BOLD;
 import static org.spongepowered.api.text.format.TextStyles.ITALIC;

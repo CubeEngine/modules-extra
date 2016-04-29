@@ -26,13 +26,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import de.cubeisland.engine.reflect.Reflector;
-import org.cubeengine.module.core.util.StringUtils;
-import org.cubeengine.service.matcher.StringMatcher;
+import org.cubeengine.libcube.util.StringUtils;
+import org.cubeengine.libcube.service.matcher.StringMatcher;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 
-import static org.cubeengine.service.filesystem.FileExtensionFilter.YAML;
+import static org.cubeengine.libcube.service.filesystem.FileExtensionFilter.YAML;
 
 public class KitManager
 {

@@ -24,7 +24,7 @@ import org.cubeengine.butler.completer.Completer;
 import org.cubeengine.butler.parameter.reader.ArgumentReader;
 import org.cubeengine.butler.parameter.reader.ReaderException;
 
-import static org.cubeengine.module.core.util.StringUtils.startsWithIgnoreCase;
+import static org.cubeengine.libcube.util.StringUtils.startsWithIgnoreCase;
 
 public class KitReader implements ArgumentReader<Kit>, Completer
 {

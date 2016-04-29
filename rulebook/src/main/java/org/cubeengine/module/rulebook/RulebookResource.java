@@ -17,7 +17,7 @@
  */
 package org.cubeengine.module.rulebook;
 
-import org.cubeengine.service.filesystem.Resource;
+import org.cubeengine.libcube.service.filesystem.Resource;
 
 public enum RulebookResource implements Resource
 {

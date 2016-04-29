@@ -34,7 +34,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.bson.Document;
 import org.cubeengine.module.bigdata.MongoDBConfiguration.Authentication;
-import org.cubeengine.service.filesystem.ModuleConfig;
+import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 
 import static java.util.Arrays.asList;
 import static org.apache.logging.log4j.Level.ERROR;

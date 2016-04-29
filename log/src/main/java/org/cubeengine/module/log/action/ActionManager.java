@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.cubeengine.module.core.sponge.EventManager;
-import org.cubeengine.module.core.util.StringUtils;
+import org.cubeengine.libcube.util.StringUtils;
 import org.cubeengine.module.log.Log;
 import org.cubeengine.module.log.LoggingConfiguration;
 import org.cubeengine.module.log.action.block.ListenerBlock;
@@ -45,7 +45,7 @@ import org.cubeengine.module.log.action.player.entity.ListenerPlayerEntity;
 import org.cubeengine.module.log.action.player.item.ListenerItem;
 import org.cubeengine.module.log.action.player.item.container.ListenerContainerItem;
 import org.cubeengine.module.log.action.vehicle.ListenerVehicle;
-import org.cubeengine.service.command.CommandManager;
+import org.cubeengine.libcube.service.command.CommandManager;
 import org.bukkit.ChatColor;
 
 public class ActionManager

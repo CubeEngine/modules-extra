@@ -18,9 +18,9 @@
 package org.cubeengine.module.authorization.storage;
 
 import java.util.UUID;
-import org.cubeengine.module.core.util.Version;
-import org.cubeengine.service.database.Database;
-import org.cubeengine.service.database.Table;
+import org.cubeengine.libcube.util.Version;
+import org.cubeengine.libcube.service.database.Database;
+import org.cubeengine.libcube.service.database.Table;
 import org.jooq.TableField;
 import org.jooq.impl.SQLDataType;
 

@@ -18,7 +18,7 @@
 package org.cubeengine.module.signmarket;
 
 import java.util.Optional;
-import org.cubeengine.module.core.util.BlockUtil;
+import org.cubeengine.libcube.util.BlockUtil;
 import org.cubeengine.module.signmarket.data.ImmutableMarketSignData;
 import org.cubeengine.module.signmarket.data.MarketSignData;
 import org.spongepowered.api.block.BlockSnapshot;
@@ -26,8 +26,6 @@ import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.manipulator.immutable.tileentity.ImmutableSignData;
-import org.spongepowered.api.data.manipulator.mutable.tileentity.SignData;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;

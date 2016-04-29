@@ -18,9 +18,8 @@
 package org.cubeengine.module.signmarket.data;
 
 import java.util.UUID;
-import org.cubeengine.service.data.AbstractImmutableData;
+import org.cubeengine.libcube.util.data.AbstractImmutableData;
 import org.spongepowered.api.data.DataContainer;
-import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.item.inventory.ItemStack;
 
 public class ImmutableMarketSignData extends AbstractImmutableData<ImmutableMarketSignData, MarketSignData> implements IMarketSignData

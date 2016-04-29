@@ -31,16 +31,16 @@ import java.util.Set;
 import java.util.UUID;
 import de.cubeisland.engine.reflect.Reflector;
 import org.cubeengine.module.shout.Shout;
-import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.libcube.service.i18n.I18n;
 import de.cubeisland.engine.logscribe.Log;
 import org.cubeengine.module.shout.announce.task.DynamicCycleTask;
-import org.cubeengine.service.matcher.StringMatcher;
-import org.cubeengine.service.permission.PermissionManager;
-import org.cubeengine.service.task.TaskManager;
+import org.cubeengine.libcube.service.matcher.StringMatcher;
+import org.cubeengine.libcube.service.permission.PermissionManager;
+import org.cubeengine.libcube.service.task.TaskManager;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 
-import static org.cubeengine.service.filesystem.FileExtensionFilter.YAML;
+import static org.cubeengine.libcube.service.filesystem.FileExtensionFilter.YAML;
 
 /**
  * Class to manage all the announcements and their receivers

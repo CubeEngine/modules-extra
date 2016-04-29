@@ -21,11 +21,11 @@ import java.util.Set;
 import java.util.UUID;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Default;
-import org.cubeengine.service.command.CommandContext;
-import org.cubeengine.service.command.CommandSender;
-import org.cubeengine.service.user.User;
+import org.cubeengine.libcube.service.command.CommandContext;
+import org.cubeengine.libcube.service.command.CommandSender;
+import org.cubeengine.libcube.service.user.User;
 
-import org.cubeengine.module.core.util.ChatFormat.YELLOW;
+import org.cubeengine.libcube.util.ChatFormat.YELLOW;
 
 public class HideCommands
 {

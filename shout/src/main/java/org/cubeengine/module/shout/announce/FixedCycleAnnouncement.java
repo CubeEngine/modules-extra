@@ -19,8 +19,8 @@ package org.cubeengine.module.shout.announce;
 
 import org.cubeengine.module.shout.Shout;
 import org.cubeengine.module.shout.announce.task.FixedCycleTask;
-import org.cubeengine.service.permission.PermissionManager;
-import org.cubeengine.service.task.TaskManager;
+import org.cubeengine.libcube.service.permission.PermissionManager;
+import org.cubeengine.libcube.service.task.TaskManager;
 
 public class FixedCycleAnnouncement extends Announcement
 {

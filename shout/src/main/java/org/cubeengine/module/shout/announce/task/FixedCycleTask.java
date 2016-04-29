@@ -20,7 +20,7 @@ package org.cubeengine.module.shout.announce.task;
 import java.util.UUID;
 import org.cubeengine.module.shout.Shout;
 import org.cubeengine.module.shout.announce.FixedCycleAnnouncement;
-import org.cubeengine.service.task.TaskManager;
+import org.cubeengine.libcube.service.task.TaskManager;
 
 public class FixedCycleTask implements Runnable
 {

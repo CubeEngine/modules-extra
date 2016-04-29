@@ -26,15 +26,15 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import org.cubeengine.module.log.Log;
 import org.cubeengine.module.log.action.BaseAction;
-import org.cubeengine.service.user.User;
-import org.cubeengine.module.core.util.math.BlockVector3;
+import org.cubeengine.libcube.service.user.User;
+import org.cubeengine.libcube.util.math.BlockVector3;
 import org.cubeengine.module.log.action.block.ActionBlock.BlockSection;
 import org.spongepowered.api.world.Location;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.spongepowered.api.entity.EntityType;
 
-import org.cubeengine.service.i18n.formatter.MessageType.NEUTRAL;
+import org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
 
 public class QueryParameter implements Cloneable
 {

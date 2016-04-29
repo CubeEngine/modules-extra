@@ -29,16 +29,16 @@ import org.cubeengine.module.chat.listener.ChatFormatListener;
 import org.cubeengine.module.chat.listener.MuteListener;
 import org.cubeengine.module.chat.storage.TableIgnorelist;
 import org.cubeengine.module.chat.storage.TableMuted;
-import org.cubeengine.service.command.CommandManager;
-import org.cubeengine.service.database.Database;
-import org.cubeengine.service.database.ModuleTables;
-import org.cubeengine.service.event.EventManager;
-import org.cubeengine.service.filesystem.ModuleConfig;
-import org.cubeengine.service.i18n.I18n;
-import org.cubeengine.service.permission.ModulePermissions;
-import org.cubeengine.service.permission.PermissionManager;
-import org.cubeengine.service.task.TaskManager;
-import org.cubeengine.service.user.Broadcaster;
+import org.cubeengine.libcube.service.command.CommandManager;
+import org.cubeengine.libcube.service.database.Database;
+import org.cubeengine.libcube.service.database.ModuleTables;
+import org.cubeengine.libcube.service.event.EventManager;
+import org.cubeengine.libcube.service.filesystem.ModuleConfig;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.permission.ModulePermissions;
+import org.cubeengine.libcube.service.permission.PermissionManager;
+import org.cubeengine.libcube.service.task.TaskManager;
+import org.cubeengine.libcube.service.Broadcaster;
 import org.spongepowered.api.Game;
 
 

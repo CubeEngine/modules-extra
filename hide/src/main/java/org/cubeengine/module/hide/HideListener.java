@@ -20,8 +20,8 @@ package org.cubeengine.module.hide;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
-import org.cubeengine.service.user.User;
-import org.cubeengine.service.user.UserManager;
+import org.cubeengine.libcube.service.user.User;
+import org.cubeengine.libcube.service.user.UserManager;
 import org.cubeengine.module.hide.event.UserHideEvent;
 import org.cubeengine.module.hide.event.UserShowEvent;
 import org.spongepowered.api.entity.Entity;
@@ -39,8 +39,8 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 
-import org.cubeengine.service.i18n.formatter.MessageType.NEUTRAL;
-import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
+import org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 import static org.bukkit.event.block.Action.PHYSICAL;
 
 public class HideListener implements Listener

@@ -22,15 +22,15 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cubeengine.module.donations.DonationsConfig.DonationGoal;
-import org.cubeengine.service.command.CommandManager;
-import org.cubeengine.service.i18n.formatter.MessageType;
-import org.cubeengine.service.task.TaskManager;
-import org.cubeengine.service.user.Broadcaster;
-import org.cubeengine.service.webapi.Action;
-import org.cubeengine.service.webapi.ApiRequest;
-import org.cubeengine.service.webapi.ApiResponse;
-import org.cubeengine.service.webapi.Method;
-import org.cubeengine.service.webapi.RequestMethod;
+import org.cubeengine.libcube.service.command.CommandManager;
+import org.cubeengine.libcube.service.i18n.formatter.MessageType;
+import org.cubeengine.libcube.service.task.TaskManager;
+import org.cubeengine.libcube.service.Broadcaster;
+import org.cubeengine.libcube.service.webapi.Action;
+import org.cubeengine.libcube.service.webapi.ApiRequest;
+import org.cubeengine.libcube.service.webapi.ApiResponse;
+import org.cubeengine.libcube.service.webapi.Method;
+import org.cubeengine.libcube.service.webapi.RequestMethod;
 
 public class DonationController
 {

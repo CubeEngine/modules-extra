@@ -20,7 +20,7 @@ package org.cubeengine.module.log.action.block;
 import java.util.HashMap;
 import java.util.Map;
 import org.cubeengine.module.core.sponge.EventManager;
-import org.cubeengine.module.core.util.BlockUtil;
+import org.cubeengine.libcube.util.BlockUtil;
 import org.cubeengine.module.log.Log;
 import org.cubeengine.module.log.action.LogListener;
 import org.cubeengine.module.log.action.block.player.ActionPlayerBlock;

@@ -17,9 +17,9 @@
  */
 package org.cubeengine.module.selector;
 
-import org.cubeengine.module.core.util.math.Vector3;
-import org.cubeengine.module.core.util.math.shape.Cuboid;
-import org.cubeengine.module.core.util.math.shape.Shape;
+import org.cubeengine.libcube.util.math.Vector3;
+import org.cubeengine.libcube.util.math.shape.Cuboid;
+import org.cubeengine.libcube.util.math.shape.Shape;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 

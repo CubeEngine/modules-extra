@@ -17,9 +17,9 @@
  */
 package org.cubeengine.module.itemrepair.repair.storage;
 
-import org.cubeengine.service.database.AsyncRecord;
+import org.cubeengine.libcube.service.database.AsyncRecord;
 import de.cubeisland.engine.module.core.storage.database.AsyncRecord;
-import org.cubeengine.service.world.WorldManager;
+import org.cubeengine.libcube.service.config.world.WorldManager;
 import org.spongepowered.api.world.Location;
 import org.bukkit.block.Block;
 

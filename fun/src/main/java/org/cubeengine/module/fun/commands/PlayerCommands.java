@@ -24,11 +24,11 @@ import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Named;
 import org.cubeengine.butler.parametric.Optional;
 import org.cubeengine.module.fun.Fun;
-import org.cubeengine.service.command.CommandSender;
-import org.cubeengine.service.event.EventManager;
-import org.cubeengine.service.i18n.I18n;
-import org.cubeengine.service.task.TaskManager;
-import org.cubeengine.service.user.User;
+import org.cubeengine.libcube.service.command.CommandSender;
+import org.cubeengine.libcube.service.event.EventManager;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.task.TaskManager;
+import org.cubeengine.libcube.service.user.User;
 import de.cubeisland.engine.module.core.util.matcher.Match;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.data.key.Keys;
@@ -53,9 +53,9 @@ import org.bukkit.util.Vector;
 import org.spongepowered.api.world.World;
 
 import static org.bukkit.Material.AIR;
-import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
-import static org.cubeengine.service.i18n.formatter.MessageType.NEUTRAL;
-import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 import static org.spongepowered.api.item.ItemTypes.LEATHER_BOOTS;
 
 public class PlayerCommands

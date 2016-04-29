@@ -24,23 +24,22 @@ import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.modularity.core.marker.Enable;
 import org.cubeengine.module.holiday.storage.HolidayModel;
 import org.cubeengine.module.holiday.storage.TableHoliday;
-import org.cubeengine.service.command.CommandManager;
-import org.cubeengine.service.database.Database;
-import org.cubeengine.service.database.ModuleTables;
-import org.cubeengine.service.event.EventManager;
-import org.cubeengine.service.i18n.I18n;
-import org.cubeengine.service.task.TaskManager;
+import org.cubeengine.libcube.service.command.CommandManager;
+import org.cubeengine.libcube.service.database.Database;
+import org.cubeengine.libcube.service.database.ModuleTables;
+import org.cubeengine.libcube.service.event.EventManager;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.task.TaskManager;
 import org.jooq.DSLContext;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 
-import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 import static org.cubeengine.module.holiday.storage.TableHoliday.TABLE_HOLIDAY;
 
 
 @ModuleInfo(name = "Holiday", description = "Marks you as being on holiday")
-@ModuleTables(TableHoliday.class)
 public class Holiday extends Module
 {
     private DSLContext dsl;

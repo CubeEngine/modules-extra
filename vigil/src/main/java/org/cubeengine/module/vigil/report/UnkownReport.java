@@ -19,7 +19,7 @@ package org.cubeengine.module.vigil.report;
 
 import java.util.List;
 import org.cubeengine.module.vigil.Receiver;
-import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.libcube.service.i18n.I18n;
 
 public class UnkownReport implements Report, Report.Readonly, Report.SimpleGrouping
 {

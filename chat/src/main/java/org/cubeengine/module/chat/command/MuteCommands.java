@@ -27,10 +27,10 @@ import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Optional;
 import org.cubeengine.module.chat.Chat;
 import org.cubeengine.module.chat.storage.Muted;
-import org.cubeengine.module.core.util.TimeUtil;
-import org.cubeengine.service.config.DurationConverter;
-import org.cubeengine.service.database.Database;
-import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.libcube.util.TimeUtil;
+import org.cubeengine.libcube.service.config.DurationConverter;
+import org.cubeengine.libcube.service.database.Database;
+import org.cubeengine.libcube.service.i18n.I18n;
 import org.joda.time.Duration;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
@@ -38,7 +38,7 @@ import org.spongepowered.api.text.Text;
 
 import static java.util.concurrent.TimeUnit.DAYS;
 import static org.cubeengine.module.chat.storage.TableMuted.TABLE_MUTED;
-import static org.cubeengine.service.i18n.formatter.MessageType.*;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
 
 public class MuteCommands
 {

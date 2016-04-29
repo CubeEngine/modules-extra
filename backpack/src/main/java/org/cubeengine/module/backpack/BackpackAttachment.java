@@ -22,7 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import org.cubeengine.service.user.UserAttachment;
+import org.cubeengine.libcube.service.user.UserAttachment;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.world.World;
 

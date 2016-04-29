@@ -25,8 +25,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import de.cubeisland.engine.reflect.Reflector;
-import org.cubeengine.module.core.util.StringUtils;
-import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.libcube.util.StringUtils;
+import org.cubeengine.libcube.service.i18n.I18n;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
@@ -38,9 +38,9 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.type.CarriedInventory;
 import org.spongepowered.api.service.context.Context;
 
-import static org.cubeengine.service.filesystem.FileExtensionFilter.DAT;
-import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
-import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.libcube.service.filesystem.FileExtensionFilter.DAT;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 
 public class BackpackManager
 {

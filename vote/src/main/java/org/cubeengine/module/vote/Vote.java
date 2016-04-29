@@ -23,20 +23,20 @@ import de.cubeisland.engine.logscribe.Log;
 import de.cubeisland.engine.modularity.core.marker.Enable;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
-import org.cubeengine.service.filesystem.FileManager;
+import org.cubeengine.libcube.service.filesystem.FileManager;
 import org.cubeengine.module.core.sponge.EventManager;
-import org.cubeengine.module.core.util.ChatFormat;
-import org.cubeengine.service.Economy;
-import org.cubeengine.service.command.CommandManager;
-import org.cubeengine.service.database.Database;
-import org.cubeengine.service.user.User;
-import org.cubeengine.service.user.UserManager;
+import org.cubeengine.libcube.util.ChatFormat;
+import org.cubeengine.libcube.service.Economy;
+import org.cubeengine.libcube.service.command.CommandManager;
+import org.cubeengine.libcube.service.database.Database;
+import org.cubeengine.libcube.service.user.User;
+import org.cubeengine.libcube.service.user.UserManager;
 import org.cubeengine.module.vote.storage.TableVote;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.jooq.DSLContext;
 
-import static org.cubeengine.service.i18n.formatter.MessageType.NONE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NONE;
 import static org.cubeengine.module.vote.storage.TableVote.TABLE_VOTE;
 import static java.lang.Math.pow;
 

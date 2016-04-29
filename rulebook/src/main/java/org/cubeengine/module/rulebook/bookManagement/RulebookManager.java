@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import org.cubeengine.module.core.util.StringUtils;
+import org.cubeengine.libcube.util.StringUtils;
 import de.cubeisland.engine.i18n.language.Language;
 import org.cubeengine.module.rulebook.Rulebook;
 import org.bukkit.Bukkit;

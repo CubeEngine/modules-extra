@@ -19,7 +19,7 @@ package org.cubeengine.module.hide;
 
 import de.cubeisland.engine.service.permission.PermDefault;
 import de.cubeisland.engine.service.permission.Permission;
-import org.cubeengine.service.permission.PermissionContainer;
+import org.cubeengine.libcube.service.permission.PermissionContainer;
 
 @SuppressWarnings("all")
 public class HidePerm extends PermissionContainer<Hide>

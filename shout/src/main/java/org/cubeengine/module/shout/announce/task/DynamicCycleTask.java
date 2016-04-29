@@ -23,7 +23,7 @@ import java.util.UUID;
 import org.cubeengine.module.shout.Shout;
 import org.cubeengine.module.shout.announce.Announcement;
 import org.cubeengine.module.shout.announce.AnnouncementManager;
-import org.cubeengine.service.task.TaskManager;
+import org.cubeengine.libcube.service.task.TaskManager;
 import org.spongepowered.api.entity.living.player.Player;
 
 public class DynamicCycleTask implements Runnable

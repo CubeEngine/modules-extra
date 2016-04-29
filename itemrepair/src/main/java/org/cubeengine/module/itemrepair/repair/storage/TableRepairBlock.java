@@ -17,13 +17,13 @@
  */
 package org.cubeengine.module.itemrepair.repair.storage;
 
-import org.cubeengine.service.database.AutoIncrementTable;
-import org.cubeengine.service.database.Database;
-import org.cubeengine.module.core.util.Version;
+import org.cubeengine.libcube.service.database.AutoIncrementTable;
+import org.cubeengine.libcube.service.database.Database;
+import org.cubeengine.libcube.util.Version;
 import org.jooq.TableField;
 import org.jooq.types.UInteger;
 
-import static org.cubeengine.service.world.TableWorld.TABLE_WORLD;
+import static org.cubeengine.libcube.service.config.world.TableWorld.TABLE_WORLD;
 import static org.jooq.impl.SQLDataType.INTEGER;
 import static org.jooq.impl.SQLDataType.VARCHAR;
 

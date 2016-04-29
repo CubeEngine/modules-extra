@@ -26,11 +26,11 @@ import org.cubeengine.module.bigdata.Bigdata;
 import org.cubeengine.module.vigil.commands.VigilCommands;
 import org.cubeengine.module.vigil.report.ReportManager;
 import org.cubeengine.module.vigil.storage.QueryManager;
-import org.cubeengine.service.command.CommandManager;
-import org.cubeengine.service.event.EventManager;
-import org.cubeengine.service.i18n.I18n;
-import org.cubeengine.service.matcher.StringMatcher;
-import org.cubeengine.service.permission.PermissionManager;
+import org.cubeengine.libcube.service.command.CommandManager;
+import org.cubeengine.libcube.service.event.EventManager;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.matcher.StringMatcher;
+import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.spongepowered.api.Game;
 
 @ModuleInfo(name = "Vigil", description = "Keeps a vigilant eye on your server")

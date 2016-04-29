@@ -40,7 +40,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.InventoryHolder;
 
-import org.cubeengine.module.core.util.BlockUtil.BLOCK_FACES;
+import org.cubeengine.libcube.util.BlockUtil.BLOCK_FACES;
 import org.cubeengine.module.log.action.block.ListenerBlock;
 
 import static org.bukkit.Material.*;

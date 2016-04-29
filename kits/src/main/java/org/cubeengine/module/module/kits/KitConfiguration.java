@@ -22,13 +22,12 @@ import java.util.LinkedList;
 import java.util.List;
 import javax.persistence.Transient;
 import de.cubeisland.engine.reflect.annotations.Converter;
-import org.cubeengine.module.core.util.StringUtils;
+import org.cubeengine.libcube.util.StringUtils;
 import de.cubeisland.engine.reflect.annotations.Comment;
 import de.cubeisland.engine.reflect.annotations.Name;
 import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
-import org.cubeengine.service.config.ItemStackConverter;
+import org.cubeengine.libcube.service.config.ItemStackConverter;
 import org.joda.time.Duration;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.item.inventory.ItemStack;
 
 @SuppressWarnings("all")

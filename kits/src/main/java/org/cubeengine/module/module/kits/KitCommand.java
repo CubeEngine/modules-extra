@@ -26,11 +26,11 @@ import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Default;
 import org.cubeengine.butler.parametric.Flag;
-import org.cubeengine.module.core.util.FileUtil;
-import org.cubeengine.service.command.ContainerCommand;
-import org.cubeengine.service.command.annotation.ParameterPermission;
-import org.cubeengine.service.i18n.I18n;
-import org.cubeengine.service.inventoryguard.InventoryGuardFactory;
+import org.cubeengine.libcube.util.FileUtil;
+import org.cubeengine.libcube.service.command.ContainerCommand;
+import org.cubeengine.libcube.service.command.annotation.ParameterPermission;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.inventoryguard.InventoryGuardFactory;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
@@ -40,7 +40,7 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.translation.Translation;
 
-import static org.cubeengine.service.i18n.formatter.MessageType.*;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
 import static org.spongepowered.api.text.serializer.TextSerializers.FORMATTING_CODE;
 
 @Command(name = "kit", desc = "Manages item-kits")

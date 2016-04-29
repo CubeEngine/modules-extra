@@ -46,8 +46,8 @@ import org.cubeengine.module.vigil.report.entity.player.ChatReport;
 import org.cubeengine.module.vigil.report.entity.player.JoinReport;
 import org.cubeengine.module.vigil.report.entity.player.QuitReport;
 import org.cubeengine.module.vigil.report.inventory.InventoryOpenReport;
-import org.cubeengine.service.event.EventManager;
-import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.libcube.service.event.EventManager;
+import org.cubeengine.libcube.service.i18n.I18n;
 
 public class ReportManager
 {

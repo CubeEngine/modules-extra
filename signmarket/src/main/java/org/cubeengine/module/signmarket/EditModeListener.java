@@ -26,10 +26,10 @@ import org.cubeengine.module.signmarket.data.IMarketSignData;
 import org.cubeengine.module.signmarket.data.ImmutableMarketSignData;
 import org.cubeengine.module.signmarket.data.MarketSignData;
 import org.cubeengine.module.signmarket.data.SignType;
-import org.cubeengine.service.command.annotation.ParameterPermission;
-import org.cubeengine.service.command.conversation.ConversationCommand;
-import org.cubeengine.service.command.exception.PermissionDeniedException;
-import org.cubeengine.service.i18n.I18n;
+import org.cubeengine.libcube.service.command.annotation.ParameterPermission;
+import org.cubeengine.libcube.service.command.conversation.ConversationCommand;
+import org.cubeengine.libcube.service.command.exception.PermissionDeniedException;
+import org.cubeengine.libcube.service.i18n.I18n;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
@@ -45,9 +45,9 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.world.World;
 
-import static org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
-import static org.cubeengine.service.i18n.formatter.MessageType.NEUTRAL;
-import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 
 @Command(name = "MarketSign", desc = "Edit Signmarket signs")
 public class EditModeListener extends ConversationCommand

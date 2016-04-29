@@ -43,16 +43,16 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.QueryOperators;
 import de.cubeisland.engine.module.core.CubeEngine;
-import org.cubeengine.service.user.User;
-import org.cubeengine.module.core.util.Profiler;
-import org.cubeengine.module.core.util.math.BlockVector3;
+import org.cubeengine.libcube.service.user.User;
+import org.cubeengine.libcube.util.Profiler;
+import org.cubeengine.libcube.util.math.BlockVector3;
 import org.cubeengine.module.log.Log;
 import org.cubeengine.module.log.action.BaseAction;
 import org.cubeengine.module.log.action.ReferenceHolder;
 import org.cubeengine.module.log.action.block.ActionBlock.BlockSection;
 
-import org.cubeengine.service.i18n.formatter.MessageType.NEGATIVE;
-import org.cubeengine.service.i18n.formatter.MessageType.NEUTRAL;
+import org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
+import org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
 
 public class QueryManager
 {

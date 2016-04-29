@@ -19,16 +19,16 @@ package org.cubeengine.module.vote;
 
 import java.util.Date;
 import org.cubeengine.butler.parametric.Command;
-import org.cubeengine.module.core.util.TimeUtil;
-import org.cubeengine.service.command.CommandContext;
-import org.cubeengine.service.database.Database;
-import org.cubeengine.service.user.User;
+import org.cubeengine.libcube.util.TimeUtil;
+import org.cubeengine.libcube.service.command.CommandContext;
+import org.cubeengine.libcube.service.database.Database;
+import org.cubeengine.libcube.service.user.User;
 import org.cubeengine.module.vote.storage.VoteModel;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 
-import static org.cubeengine.service.i18n.formatter.MessageType.NEUTRAL;
-import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 import static org.cubeengine.module.vote.storage.TableVote.TABLE_VOTE;
 import static java.util.concurrent.TimeUnit.DAYS;
 

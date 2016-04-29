@@ -17,13 +17,13 @@
  */
 package org.cubeengine.module.log.action.block;
 
-import org.cubeengine.service.user.User;
-import org.cubeengine.module.core.util.ChatFormat;
-import org.cubeengine.module.core.util.StringUtils;
+import org.cubeengine.libcube.service.user.User;
+import org.cubeengine.libcube.util.ChatFormat;
+import org.cubeengine.libcube.util.StringUtils;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
 
-import static org.cubeengine.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 import static org.cubeengine.module.log.action.ActionCategory.SIGN;
 
 /**

@@ -30,7 +30,7 @@ import org.cubeengine.module.log.Log;
 import org.cubeengine.module.log.LoggingConfiguration;
 import org.cubeengine.module.log.action.BaseAction;
 import org.cubeengine.module.log.storage.QueryManager.QueryAction;
-import org.cubeengine.service.user.User;
+import org.cubeengine.libcube.service.user.User;
 import org.cubeengine.module.bigdata.Bigdata;
 import org.bukkit.World;
 import org.spongepowered.api.entity.living.player.Player;

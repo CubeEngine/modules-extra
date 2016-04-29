@@ -19,8 +19,8 @@ package org.cubeengine.module.vigil;
 
 import java.util.Optional;
 import org.cubeengine.module.vigil.storage.QueryManager;
-import org.cubeengine.service.i18n.I18n;
-import org.cubeengine.service.permission.PermissionManager;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.data.manipulator.mutable.DisplayNameData;

@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.UUID;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
-import org.cubeengine.service.data.AbstractData;
+import org.cubeengine.libcube.util.data.AbstractData;
 import org.spongepowered.api.block.tileentity.Sign;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
