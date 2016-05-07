@@ -21,6 +21,8 @@ import javax.inject.Inject;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.modularity.core.marker.Enable;
+import org.cubeengine.libcube.service.command.ModuleCommand;
+import org.cubeengine.libcube.service.event.ModuleListener;
 import org.cubeengine.module.chat.command.AfkCommand;
 import org.cubeengine.module.chat.command.ChatCommands;
 import org.cubeengine.module.chat.command.IgnoreCommands;
@@ -35,7 +37,6 @@ import org.cubeengine.libcube.service.database.ModuleTables;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.libcube.service.permission.ModulePermissions;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.libcube.service.Broadcaster;
@@ -52,7 +53,7 @@ public class Chat extends Module
 {
     // TODO tablist-prefix data from subject or other module?
     @ModuleConfig private ChatConfig config;
-    @ModulePermissions private ChatPerm perms;
+    @Inject private ChatPerm perms;
 
     @Inject private EventManager em;
     @Inject private CommandManager cm;
@@ -63,16 +64,22 @@ public class Chat extends Module
     @Inject private TaskManager tm;
     @Inject private Broadcaster bc;
 
+    @Inject @ModuleCommand private MuteCommands muteCommands;
+    @Inject @ModuleCommand private IgnoreCommands ignoreCommands;
+    @Inject @ModuleListener private ChatFormatListener chatFormatListener;
+    @Inject @ModuleListener private MuteListener muteListener;
+
     @Enable
     public void onEnable()
     {
-        MuteCommands muteCmd = new MuteCommands(this, db, i18n);
-        cm.addCommands(this, muteCmd);
-        IgnoreCommands ignoreCmd = new IgnoreCommands(this, db);
+        //MuteCommands muteCmd = new MuteCommands(this, db, i18n);
+        //cm.addCommands(this, muteCmd);
 
-        cm.addCommands(this, ignoreCmd);
-        em.registerListener(this, new ChatFormatListener(this, game, i18n));
-        em.registerListener(this, new MuteListener(ignoreCmd, muteCmd, i18n));
+        //IgnoreCommands ignoreCmd = new IgnoreCommands(this, db);
+
+        //cm.addCommands(this, ignoreCmd);
+        //em.registerListener(Chat.class, new ChatFormatListener(this, game, i18n));
+        //em.registerListener(Chat.class, new MuteListener(ignoreCmd, muteCmd, i18n));
 
         AfkCommand afkCmd = new AfkCommand(this, config.autoAfk.after.getMillis(), config.autoAfk.check.getMillis(), bc, tm, em, game);
         cm.addCommands(this, afkCmd);

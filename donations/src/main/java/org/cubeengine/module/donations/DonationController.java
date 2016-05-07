@@ -31,19 +31,18 @@ import org.cubeengine.libcube.service.webapi.ApiRequest;
 import org.cubeengine.libcube.service.webapi.ApiResponse;
 import org.cubeengine.libcube.service.webapi.Method;
 import org.cubeengine.libcube.service.webapi.RequestMethod;
+import org.spongepowered.api.Sponge;
 
 public class DonationController
 {
     private ObjectMapper mapper = new ObjectMapper();
-    private Donations module;
     private DonationsConfig config;
     private CommandManager cm;
     private TaskManager tm;
     private Broadcaster bc;
 
-    public DonationController(Donations module, DonationsConfig config, CommandManager cm, TaskManager tm, Broadcaster bc)
+    public DonationController(DonationsConfig config, CommandManager cm, TaskManager tm, Broadcaster bc)
     {
-        this.module = module;
         this.config = config;
         this.cm = cm;
         this.tm = tm;
@@ -62,7 +61,7 @@ public class DonationController
             final String userName = user.asText();
             this.broadcastDonation(userName);
 
-            tm.runTask(module, (Runnable)() -> {
+            tm.runTask(Donations.class, () -> {
                 for (String cmd : config.forUser)
                 {
                     if (cmd.contains("{NAME}"))
@@ -74,7 +73,7 @@ public class DonationController
                         cmd = cmd.replace("{NAME}", userName);
                     }
                     cmd = cmd.replace("{TOTAL}", String.format("%.2f", newTotal));
-                    cm.runCommand(cm.getConsoleSender(), cmd);
+                    cm.runCommand(Sponge.getServer().getConsole(), cmd);
                 }
             });
         }
@@ -118,7 +117,7 @@ public class DonationController
                 }
             }
         }
-        tm.runTask(module, () -> {
+        tm.runTask(Donations.class, () -> {
             for (String cmd : cmds)
             {
                 if (cmd.contains("{NAME}"))
@@ -130,7 +129,7 @@ public class DonationController
                     cmd = cmd.replace("{NAME}", user);
                 }
                 cmd = cmd.replace("{TOTAL}", String.format("%.2f", newTotal));
-                cm.runCommand(cm.getConsoleSender(), cmd);
+                cm.runCommand(Sponge.getServer().getConsole(), cmd);
             }
         });
 

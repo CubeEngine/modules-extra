@@ -40,7 +40,7 @@ public class ToolListener
     private I18n i18n;
     private final PermissionManager pm;
     private QueryManager qm;
-    private final PermissionDescription toolPerm;
+    private final Permission toolPerm;
 
     public ToolListener(Vigil module, I18n i18n, PermissionManager pm, QueryManager qm, Game game)
     {

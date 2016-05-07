@@ -17,17 +17,19 @@
  */
 package org.cubeengine.module.powertools;
 
+import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionContainer;
+import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.spongepowered.api.service.permission.PermissionDescription;
 
 @SuppressWarnings("all")
-public class PowertoolsPerm extends PermissionContainer<Powertools>
+public class PowertoolsPerm extends PermissionContainer
 {
-    public PowertoolsPerm(Powertools module)
+    public PowertoolsPerm(PermissionManager pm)
     {
-        super(module);
+        super(pm, Powertools.class);
     }
 
-    public final PermissionDescription POWERTOOL_USE = register("use", "Allows the usage of Powertools", null);
+    public final Permission POWERTOOL_USE = register("use", "Allows the usage of Powertools");
 }
 

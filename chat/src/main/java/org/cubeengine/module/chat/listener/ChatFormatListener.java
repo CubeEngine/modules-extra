@@ -20,10 +20,12 @@ package org.cubeengine.module.chat.listener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
+import javax.inject.Inject;
 import org.cubeengine.module.chat.Chat;
 import org.cubeengine.module.chat.CubeMessageChannel;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.spongepowered.api.Game;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.manipulator.mutable.DisplayNameData;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
@@ -43,15 +45,14 @@ import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
 public class ChatFormatListener
 {
     private final Chat module;
-    private final Game game;
-    private final I18n i18n;
+    private PermissionService ps;
     private static final Pattern chatColors = Pattern.compile("&[0123456789aAbBcCdDeEfFgkKlLmMnNoOrR]");
 
-    public ChatFormatListener(Chat module, Game game, I18n i18n)
+    @Inject
+    public ChatFormatListener(Chat module, PermissionService ps)
     {
         this.module = module;
-        this.game = game;
-        this.i18n = i18n;
+        this.ps = ps;
     }
 
     @Listener
@@ -73,7 +74,7 @@ public class ChatFormatListener
             }
         }
 
-        Subject subject = game.getServiceManager().provideUnchecked(PermissionService.class).getUserSubjects().get(player.getUniqueId().toString());
+        Subject subject = ps.getUserSubjects().get(player.getUniqueId().toString());
 
         Map<String, Text> replacements = new HashMap<>();
         String name = player.getName();

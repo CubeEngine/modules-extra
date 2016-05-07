@@ -38,7 +38,7 @@ public class Spawn extends Module
     @Enable
     public void onEnable()
     {
-        em.registerListener(this, new SpawnListener(pm));
+        em.registerListener(Spawn.class, new SpawnListener(pm));
         cm.removeCommand("spawn", true); // unregister basics commands
         cm.addCommands(cm, this, new SpawnCommands(this, i18n, pm));
 

@@ -53,7 +53,6 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.cubeengine.module.authorization.Authorization;
-import org.cubeengine.module.core.CoreModule;
 import org.cubeengine.libcube.util.StringUtils;
 import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.filesystem.FileManager;
@@ -104,12 +103,10 @@ public class ApiServer
     @Inject private TaskManager tm;
     @Inject private PermissionManager pm;
     @Inject private Maybe<Authorization> am;
-    private CoreModule module;
 
     @Inject
-    public ApiServer(CoreModule module, LogFactory logFactory, FileManager fm, ThreadFactory tf)
+    public ApiServer(LogFactory logFactory, FileManager fm, ThreadFactory tf)
     {
-        this.module = module;
         this.log = logFactory.getLog(ApiServer.class, "WebAPI");
         this.log.addTarget(new AsyncFileTarget(LoggingUtil.getLogFile(fm, "WebAPI"),
                                                   LoggingUtil.getFileFormat(true, true),
@@ -253,7 +250,7 @@ public class ApiServer
         return this.handlers.get(route);
     }
 
-    public void registerApiHandlers(final Module owner, final Object holder)
+    public void registerApiHandlers(final Class owner, final Object holder)
     {
         checkNotNull(holder, "The API holder must not be null!");
 
@@ -272,7 +269,7 @@ public class ApiServer
                 String perm = null;
                 if (aAction.needsAuth())
                 {
-                    perm = pm.getModulePermission(owner).getId() + ".webapi.";
+                    perm = pm.getBasePermission(owner).getId() + ".webapi.";
                     if (method.isAnnotationPresent(ApiPermission.class))
                     {
                         ApiPermission apiPerm = method.getAnnotation(ApiPermission.class);

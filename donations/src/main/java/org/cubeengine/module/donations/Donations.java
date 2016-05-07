@@ -39,7 +39,7 @@ public class Donations extends Module
     @Enable
     public void onEnable()
     {
-        DonationController controller = new DonationController(this, fm.loadConfig(this, DonationsConfig.class), cm, tm, bc);
+        DonationController controller = new DonationController(fm.loadConfig(this, DonationsConfig.class), cm, tm, bc);
         apiServer.registerApiHandlers(this, controller);
     }
 }

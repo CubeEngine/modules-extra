@@ -55,7 +55,7 @@ public class Unbreakableboat extends Module
     @Enable
     public void onEnable()
     {
-        em.registerListener(this, this);
+        em.registerListener(Unbreakableboat.class, this);
         boat.offer(Keys.ITEM_ENCHANTMENTS, singletonList(new ItemEnchantment(Enchantments.UNBREAKING, 5)));
         boat.offer(Keys.DISPLAY_NAME, Text.of(TextColors.GOLD, "Sturdy Boat"));
         boat.offer(Keys.ITEM_LORE, Arrays.asList(Text.of(TextColors.YELLOW, "Can take a lot!")));

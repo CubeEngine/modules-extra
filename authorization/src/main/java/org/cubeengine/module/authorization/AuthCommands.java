@@ -31,7 +31,7 @@ import org.cubeengine.libcube.service.command.annotation.CommandPermission;
 import org.cubeengine.libcube.service.command.annotation.Unloggable;
 import org.cubeengine.libcube.service.command.exception.PermissionDeniedException;
 import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.libcube.service.command.readers.UserList;
+import org.cubeengine.libcube.service.command.readers.PlayerList;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
@@ -82,7 +82,7 @@ public class AuthCommands
 
     @Command(alias = "clearpw", desc = "Clears your password.")
     public void clearPassword(CommandSource context,
-                              @Optional @Desc("* or a list of Players delimited by ,") UserList players)
+                              @Optional @Desc("* or a list of Players delimited by ,") PlayerList players)
     {
         if (players == null)
         {

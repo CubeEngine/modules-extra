@@ -36,7 +36,7 @@ import static org.spongepowered.api.text.serializer.TextSerializers.FORMATTING_C
 public class Announcement
 {
     private final String name;
-    private final PermissionDescription permission;
+    private final Permission permission;
     private final AnnouncementConfig config;
     private long delay;
 

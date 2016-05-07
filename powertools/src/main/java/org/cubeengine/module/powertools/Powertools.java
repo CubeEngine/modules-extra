@@ -28,13 +28,12 @@ import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.matcher.MaterialMatcher;
-import org.cubeengine.libcube.service.permission.ModulePermissions;
 import org.spongepowered.api.Sponge;
 
 @ModuleInfo(name = "Powertools", description = "Empower your tools")
 public class Powertools extends Module
 {
-    @ModulePermissions private PowertoolsPerm perm;
+    @Inject private PowertoolsPerm perm;
 
     @Inject private CommandManager cm;
     @Inject private EventManager em;
@@ -47,7 +46,7 @@ public class Powertools extends Module
         Sponge.getDataManager().register(PowertoolData.class, ImmutablePowertoolData.class, new PowertoolDataBuilder());
         PowertoolCommand ptCommands = new PowertoolCommand(this, materialMatcher, i18n);
         cm.addCommand(ptCommands);
-        em.registerListener(this, ptCommands);
+        em.registerListener(Powertools.class, ptCommands);
     }
 
     public PowertoolsPerm perms()

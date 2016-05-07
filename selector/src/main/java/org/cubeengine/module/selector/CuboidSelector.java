@@ -57,7 +57,7 @@ public class CuboidSelector implements Selector
     @Enable
     public void onEnable()
     {
-        em.registerListener(module, this);
+        em.registerListener(Selector.class, this);
     }
 
     @Override

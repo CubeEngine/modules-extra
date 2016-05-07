@@ -561,7 +561,7 @@ public final class MarketSignManager
             {
                 igf.notBlockTakeOut(item);
             }
-            igf.submitInventory(module, true);
+            igf.submitInventory(Signmarket.class, true);
             return;
         }
         if (player.hasPermission(module.perms().INTERACT_INVENTORY.getId()) || data.isOwner(player.getUniqueId()))
@@ -570,7 +570,7 @@ public final class MarketSignManager
             // TODO Dispenser sized
             CustomInventory inventory = CustomInventory.builder().name(name).size(1).build();
             inventory.set(SlotIndex.of(4), data.getItem().copy()); // middle of dispenser
-            igf.prepareInv(inventory, player.getUniqueId()).blockPutInAll().blockTakeOutAll().submitInventory(module, true);
+            igf.prepareInv(inventory, player.getUniqueId()).blockPutInAll().blockTakeOutAll().submitInventory(Signmarket.class, true);
             return;
         }
         i18n.sendTranslated(player, NEGATIVE, "You are not allowed to see the market signs inventories");
@@ -653,11 +653,13 @@ public final class MarketSignManager
 
         if (data.getSignType() == SignType.BUY)
         {
+            // TODO no amount yet causes NPE
             i18n.sendTranslated(player, NONE, "{text:Buy:color=DARK_BLUE}: {amount} for {txt#price} from {user#owner}",
                                 data.getAmount(), formatPrice(data), getOwnerName(data));
         }
         else
         {
+            // TODO no amount yet causes NPE
             i18n.sendTranslated(player, NONE, "{text:Sell:color=DARK_BLUE}: {amount} for {txt#price} to {user#owner}",
                                 data.getAmount(), formatPrice(data), getOwnerName(data));
         }

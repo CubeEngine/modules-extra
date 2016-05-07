@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import javax.inject.Inject;
 import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Reader;
@@ -46,6 +47,7 @@ public class IgnoreCommands
 
     private Map<UUID, List<IgnoreList>> ignored = new HashMap<>();
 
+    @Inject
     public IgnoreCommands(Chat basics, Database db)
     {
         this.module = basics;

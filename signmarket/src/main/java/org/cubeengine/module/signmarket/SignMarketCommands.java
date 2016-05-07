@@ -20,6 +20,7 @@ package org.cubeengine.module.signmarket;
 import org.cubeengine.butler.alias.Alias;
 import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parametric.Command;
+import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.command.ContainerCommand;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.spongepowered.api.entity.living.player.Player;
@@ -33,9 +34,9 @@ public class SignMarketCommands extends ContainerCommand
     private final Signmarket module;
     private I18n i18n;
 
-    public SignMarketCommands(Signmarket module, I18n i18n)
+    public SignMarketCommands(CommandManager base, Signmarket module, I18n i18n)
     {
-        super(module);
+        super(base, Signmarket.class);
         this.module = module;
         this.i18n = i18n;
     }
@@ -45,12 +46,12 @@ public class SignMarketCommands extends ContainerCommand
     @Restricted(value = Player.class, msg = "Only players can edit market signs!")
     public void editMode(Player context)
     {
-        if (this.module.getEditModeListener().hasUser(context))
+        if (this.module.getEditModeCommand().hasUser(context))
         {
-            this.module.getEditModeListener().removeUser(context);
+            this.module.getEditModeCommand().removeUser(context);
             return;
         }
-        this.module.getEditModeListener().addUser(context);
+        this.module.getEditModeCommand().addUser(context);
         i18n.sendTranslated(context, POSITIVE, "You are now in edit mode!");
         i18n.sendTranslated(context, POSITIVE, "Chat will now work as commands.");
         i18n.sendTranslated(context, NEUTRAL, "Type exit or use this command again to leave the edit mode.");

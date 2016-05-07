@@ -19,6 +19,7 @@ package org.cubeengine.module.authorization;
 
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.impl.AbstractEvent;
 
 public class PlayerAuthEvent extends AbstractEvent
@@ -38,6 +39,6 @@ public class PlayerAuthEvent extends AbstractEvent
     @Override
     public Cause getCause()
     {
-        return Cause.of(player);
+        return Cause.of(NamedCause.source(player));
     }
 }

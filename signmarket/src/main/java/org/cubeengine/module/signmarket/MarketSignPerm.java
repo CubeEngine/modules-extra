@@ -17,27 +17,29 @@
  */
 package org.cubeengine.module.signmarket;
 
+import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionContainer;
+import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.spongepowered.api.service.permission.PermissionDescription;
 
 @SuppressWarnings("all")
-public class MarketSignPerm extends PermissionContainer<Signmarket>
+public class MarketSignPerm extends PermissionContainer
 {
-    public MarketSignPerm(Signmarket module, SignMarketCommands smCmds)
+    public MarketSignPerm(PermissionManager pm, SignMarketCommands smCmds)
     {
-        super(module);
+        super(pm, Signmarket.class);
     }
 
-    public final PermissionDescription INTERACT = register("interact", "Allows buy and sell interactions with MarketSigns", null);
-    public final PermissionDescription INTERACT_SELL = register("sell", "Allows selling to MarketSigns", INTERACT);
-    public final PermissionDescription INTERACT_BUY = register("buy", "Allows buying from MarketSigns", INTERACT);
-    public final PermissionDescription INTERACT_INVENTORY = register("inventory", "Allows seeing a MarketSigns Inventory", INTERACT);
+    public final Permission INTERACT = register("interact", "Allows buy and sell interactions with MarketSigns", null);
+    public final Permission INTERACT_SELL = register("sell", "Allows selling to MarketSigns", INTERACT);
+    public final Permission INTERACT_BUY = register("buy", "Allows buying from MarketSigns", INTERACT);
+    public final Permission INTERACT_INVENTORY = register("inventory", "Allows seeing a MarketSigns Inventory", INTERACT);
 
-    public final PermissionDescription EDIT = register("edit", "Allows creating and modifying all MarketSigns", null);
-    public final PermissionDescription EDIT_ADMIN = register("admin", "Allows creating and modifying Admin MarketSigns", EDIT);
-    public final PermissionDescription EDIT_PLAYER = register("player", "Allows creating and modifying all Player MarketSigns", EDIT);
-    public final PermissionDescription EDIT_PLAYER_SELF = register("self", "Allows creating and modifying your own Player MarketSigns", EDIT_PLAYER);
-    public final PermissionDescription EDIT_PLAYER_OTHER = register("other", "Allows creating and modifying Player MarketSigns of other players", EDIT_PLAYER);
+    public final Permission EDIT = register("edit", "Allows creating and modifying all MarketSigns", null);
+    public final Permission EDIT_ADMIN = register("admin", "Allows creating and modifying Admin MarketSigns", EDIT);
+    public final Permission EDIT_PLAYER = register("player", "Allows creating and modifying all Player MarketSigns", EDIT);
+    public final Permission EDIT_PLAYER_SELF = register("self", "Allows creating and modifying your own Player MarketSigns", EDIT_PLAYER);
+    public final Permission EDIT_PLAYER_OTHER = register("other", "Allows creating and modifying Player MarketSigns of other players", EDIT_PLAYER);
 
-    public final PermissionDescription EDIT_USE = register("use", "Allows creating and modifying MarketSigns", EDIT, EDIT_PLAYER, EDIT_PLAYER_SELF, EDIT_PLAYER_OTHER);
+    public final Permission EDIT_USE = register("use", "Allows creating and modifying MarketSigns", EDIT, EDIT_PLAYER, EDIT_PLAYER_SELF, EDIT_PLAYER_OTHER);
 }

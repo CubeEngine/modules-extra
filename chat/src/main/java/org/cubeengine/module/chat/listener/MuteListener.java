@@ -19,6 +19,7 @@ package org.cubeengine.module.chat.listener;
 
 import java.sql.Date;
 import java.util.Iterator;
+import javax.inject.Inject;
 import org.cubeengine.module.chat.command.IgnoreCommands;
 import org.cubeengine.module.chat.command.MuteCommands;
 import org.cubeengine.libcube.service.i18n.I18n;
@@ -36,6 +37,7 @@ public class MuteListener
     private MuteCommands muteCmd;
     private I18n i18n;
 
+    @Inject
     public MuteListener(IgnoreCommands ignore, MuteCommands muteCmd, I18n i18n)
     {
         this.ignoreCmd = ignore;

@@ -22,6 +22,7 @@ import de.cubeisland.engine.logscribe.Log;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.modularity.core.marker.Enable;
+import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.module.signmarket.data.ImmutableMarketSignData;
 import org.cubeengine.module.signmarket.data.MarketSignData;
 import org.cubeengine.module.signmarket.data.MarketSignDataBuilder;
@@ -42,11 +43,13 @@ public class Signmarket extends Module
     @Inject private EventManager em;
     @Inject private I18n i18n;
     @Inject private InventoryGuardFactory igf;
+    @Inject private PermissionManager pm;
 
     private MarketSignManager manager;
-    private EditModeListener editModeListener;
+    private EditModeCommand editModeListener;
     private MarketSignPerm perms;
     private SignMarketCommands smCmds;
+
 
     public Signmarket()
     {
@@ -58,14 +61,14 @@ public class Signmarket extends Module
     public void onEnable(EconomyService es)
     {
         manager = new MarketSignManager(i18n, es, this, igf);
-        this.editModeListener = new EditModeListener(this, i18n, manager);
-        em.registerListener(this, new MarketSignListener(manager));
-        smCmds = new SignMarketCommands(this, i18n);
+        editModeListener = new EditModeCommand(getModularity(), cm, this, i18n, manager);
+        em.registerListener(Signmarket.class, new MarketSignListener(manager, this, i18n));
+        smCmds = new SignMarketCommands(cm, this, i18n);
         cm.addCommand(smCmds);
-        this.perms = new MarketSignPerm(this, smCmds);
+        perms = new MarketSignPerm(pm, smCmds);
     }
 
-    public EditModeListener getEditModeListener()
+    public EditModeCommand getEditModeCommand()
     {
         return this.editModeListener;
     }

@@ -73,7 +73,7 @@ public class FreezeDetection extends Module
 
     public void start()
     {
-        this.taskId = this.taskManager.runAsynchronousTimer(this, new HeartbeatLogger(), 0, 1);
+        this.taskId = this.taskManager.runAsynchronousTimer(FreezeDetection.class, new HeartbeatLogger(), 0, 1);
         if (this.taskId == null)
         {
             throw new RuntimeException("Failed to schedule the heartbeat logging for freeze detection");
@@ -88,7 +88,7 @@ public class FreezeDetection extends Module
     {
         if (this.taskId != null)
         {
-            this.taskManager.cancelTask(this, this.taskId);
+            this.taskManager.cancelTask(FreezeDetection.class, this.taskId);
             this.taskId = null;
         }
         if (this.executor != null)

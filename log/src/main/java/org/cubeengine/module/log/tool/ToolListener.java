@@ -40,7 +40,7 @@ public class ToolListener
 {
     private final Log module;
     private I18n i18n;
-    private final PermissionDescription toolPerm;
+    private final Permission toolPerm;
 
     public ToolListener(Log module, I18n i18n, PermissionManager pm)
     {

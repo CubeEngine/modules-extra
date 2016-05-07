@@ -49,29 +49,29 @@ public class FunPerm extends PermissionContainer<Fun>
         }
     }
 
-    private final PermissionDescription COMMAND = getBasePerm().childWildcard("command");
+    private final Permission COMMAND = getBasePerm().childWildcard("command");
 
-    private final PermissionDescription COMMAND_EXPLOSION = COMMAND.childWildcard("explosion");
-    public final PermissionDescription COMMAND_EXPLOSION_OTHER = COMMAND_EXPLOSION.child("other");
-    public final PermissionDescription COMMAND_EXPLOSION_PLAYER_DAMAGE = COMMAND_EXPLOSION.child("player.damage");
-    public final PermissionDescription COMMAND_EXPLOSION_BLOCK_DAMAGE = COMMAND_EXPLOSION.child("block.damage");
-    public final PermissionDescription COMMAND_EXPLOSION_FIRE = COMMAND_EXPLOSION.child("fire");
+    private final Permission COMMAND_EXPLOSION = COMMAND.childWildcard("explosion");
+    public final Permission COMMAND_EXPLOSION_OTHER = COMMAND_EXPLOSION.child("other");
+    public final Permission COMMAND_EXPLOSION_PLAYER_DAMAGE = COMMAND_EXPLOSION.child("player.damage");
+    public final Permission COMMAND_EXPLOSION_BLOCK_DAMAGE = COMMAND_EXPLOSION.child("block.damage");
+    public final Permission COMMAND_EXPLOSION_FIRE = COMMAND_EXPLOSION.child("fire");
 
-    private final PermissionDescription COMMAND_HAT = COMMAND.childWildcard("hat");
-    public final PermissionDescription COMMAND_HAT_OTHER = COMMAND_HAT.child("other");
-    public final PermissionDescription COMMAND_HAT_ITEM = COMMAND_HAT.child("item");
-    public final PermissionDescription COMMAND_HAT_MORE_ARMOR = COMMAND_HAT.child("more-armor");
-    public final PermissionDescription COMMAND_HAT_QUIET = COMMAND_HAT.child("quit");
-    public final PermissionDescription COMMAND_HAT_NOTIFY = COMMAND_HAT.child("notify", PermDefault.TRUE);
+    private final Permission COMMAND_HAT = COMMAND.childWildcard("hat");
+    public final Permission COMMAND_HAT_OTHER = COMMAND_HAT.child("other");
+    public final Permission COMMAND_HAT_ITEM = COMMAND_HAT.child("item");
+    public final Permission COMMAND_HAT_MORE_ARMOR = COMMAND_HAT.child("more-armor");
+    public final Permission COMMAND_HAT_QUIET = COMMAND_HAT.child("quit");
+    public final Permission COMMAND_HAT_NOTIFY = COMMAND_HAT.child("notify", PermDefault.TRUE);
 
-    private final PermissionDescription COMMAND_LIGHTNING = COMMAND.childWildcard("lightning");
-    public final PermissionDescription COMMAND_LIGHTNING_PLAYER_DAMAGE = COMMAND_LIGHTNING.child("player.damage");
-    public final PermissionDescription COMMAND_LIGHTNING_UNSAFE = COMMAND_LIGHTNING.child("unsafe");
+    private final Permission COMMAND_LIGHTNING = COMMAND.childWildcard("lightning");
+    public final Permission COMMAND_LIGHTNING_PLAYER_DAMAGE = COMMAND_LIGHTNING.child("player.damage");
+    public final Permission COMMAND_LIGHTNING_UNSAFE = COMMAND_LIGHTNING.child("unsafe");
 
-    public final PermissionDescription COMMAND_THROW = COMMAND.childWildcard("throw");
-    public final PermissionDescription COMMAND_THROW_UNSAFE = COMMAND_THROW.child("unsafe");
+    public final Permission COMMAND_THROW = COMMAND.childWildcard("throw");
+    public final Permission COMMAND_THROW_UNSAFE = COMMAND_THROW.child("unsafe");
 
-    private final PermissionDescription COMMAND_NUKE = COMMAND.childWildcard("nuke");
-    public final PermissionDescription COMMAND_NUKE_CHANGE_RANGE = COMMAND_NUKE.child("change_range");
-    public final PermissionDescription COMMAND_NUKE_OTHER = COMMAND_NUKE.child("other");
+    private final Permission COMMAND_NUKE = COMMAND.childWildcard("nuke");
+    public final Permission COMMAND_NUKE_CHANGE_RANGE = COMMAND_NUKE.child("change_range");
+    public final Permission COMMAND_NUKE_OTHER = COMMAND_NUKE.child("other");
 }

@@ -28,5 +28,5 @@ public class KitsPerm extends PermissionContainer<Kits>
         super(module);
     }
 
-    public final PermissionDescription KITS = register("kits", "Grants access to all kits", null);
+    public final Permission KITS = register("kits", "Grants access to all kits", null);
 }

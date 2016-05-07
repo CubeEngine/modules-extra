@@ -61,7 +61,7 @@ public class ControlC extends Module implements SignalHandler
         if (time - lastReceived <= 5000)
         {
             logger.info("Shutting down the server now!");
-            tm.runTask(this, () -> {
+            tm.runTask(ControlC.class, () -> {
                 Sponge.getServer().shutdown(Text.of()); // tODO default message?
                 lastReceived = -1;
             });

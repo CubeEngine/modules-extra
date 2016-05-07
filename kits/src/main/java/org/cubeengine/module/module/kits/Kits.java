@@ -28,7 +28,6 @@ import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.inventoryguard.InventoryGuardFactory;
 import org.cubeengine.libcube.service.matcher.StringMatcher;
-import org.cubeengine.libcube.service.permission.ModulePermissions;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 
 @ModuleInfo(name = "Kits", description = "Hand kits to your players")
@@ -36,7 +35,7 @@ public class Kits extends Module
 {
     private KitManager kitManager;
 
-    @ModulePermissions private KitsPerm perms;
+    @Inject private KitsPerm perms;
 
     @Inject private CommandManager cm;
     @Inject private EventManager em;
@@ -52,7 +51,7 @@ public class Kits extends Module
     {
         this.kitManager = new KitManager(this, reflector, sm);
         this.kitManager.loadKits();
-        em.registerListener(this, kitManager);
+        em.registerListener(Kits.class, kitManager);
         cm.addCommand(new KitCommand(this, i18n, igf));
         cm.getProviderManager().register(this, new KitReader(kitManager));
     }

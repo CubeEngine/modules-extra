@@ -17,27 +17,31 @@
  */
 package org.cubeengine.module.chat;
 
+import javax.inject.Inject;
+import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionContainer;
+import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.spongepowered.api.service.permission.PermissionDescription;
 
 @SuppressWarnings("all")
-public class ChatPerm extends PermissionContainer<Chat>
+public class ChatPerm extends PermissionContainer
 {
-    public ChatPerm(Chat module)
+    @Inject
+    public ChatPerm(PermissionManager pm)
     {
-        super(module);
+        super(pm, Chat.class);
     }
 
-    private final PermissionDescription COMMAND = register("command", "Base Commands Permission", null);
+    private final Permission COMMAND = register("command", "Base Commands Permission", null);
 
-    public final PermissionDescription COLOR = register("color", "Allows using color codes in chat", null);
+    public final Permission COLOR = register("color", "Allows using color codes in chat", null);
 
-    public final PermissionDescription COMMAND_NICK_OTHER = register("nick.other", "", COMMAND);
-    public final PermissionDescription COMMAND_NICK_OFOTHER = register("nick.of-other", "Allows to set the nickname to a players name that plays on this server", COMMAND);
+    public final Permission COMMAND_NICK_OTHER = register("nick.other", "", COMMAND);
+    public final Permission COMMAND_NICK_OFOTHER = register("nick.of-other", "Allows to set the nickname to a players name that plays on this server", COMMAND);
 
-    public final PermissionDescription PREVENT_AUTOUNAFK = register("afk.prevent.autounafk", "Prevents from being displayed as no longer afk automatically unless using chat", COMMAND);
-    public final PermissionDescription PREVENT_AUTOAFK = register("afk.prevent.autoafk", "Prevents from being displayed as afk automatically", COMMAND);
-    public final PermissionDescription COMMAND_AFK_OTHER = register("afk.other", "Allows to set or unset the afk status of other players", COMMAND);
+    public final Permission PREVENT_AUTOUNAFK = register("afk.prevent.autounafk", "Prevents from being displayed as no longer afk automatically unless using chat", COMMAND);
+    public final Permission PREVENT_AUTOAFK = register("afk.prevent.autoafk", "Prevents from being displayed as afk automatically", COMMAND);
+    public final Permission COMMAND_AFK_OTHER = register("afk.other", "Allows to set or unset the afk status of other players", COMMAND);
 
-    public final PermissionDescription COMMAND_IGNORE_PREVENT = register("ignore.prevent", "Prevents adding the player with this permission to an ignore-list", COMMAND);
+    public final Permission COMMAND_IGNORE_PREVENT = register("ignore.prevent", "Prevents adding the player with this permission to an ignore-list", COMMAND);
 }

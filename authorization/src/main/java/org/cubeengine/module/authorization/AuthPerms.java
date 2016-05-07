@@ -18,18 +18,19 @@
 package org.cubeengine.module.authorization;
 
 import org.cubeengine.libcube.service.permission.PermissionContainer;
+import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.spongepowered.api.service.permission.PermissionDescription;
 
-public class AuthPerms extends PermissionContainer<Authorization>
+public class AuthPerms extends PermissionContainer
 {
-    public AuthPerms(Authorization module)
+    public AuthPerms(PermissionManager pm)
     {
-        super(module);
+        super(pm, Authorization.class);
     }
 
-    private final PermissionDescription COMMAND = register("command.", "Base Commands Permission", null);
+    private final Permission COMMAND = register("command.", "Base Commands Permission", null);
 
-    public final PermissionDescription COMMAND_CLEARPASSWORD_ALL = register("clearpassword.all", "Allows clearing all passwords", COMMAND);
-    public final PermissionDescription COMMAND_CLEARPASSWORD_OTHER = register("clearpassword.other", "Allows clearing passwords of other players", COMMAND);
-    public final PermissionDescription COMMAND_SETPASSWORD_OTHER = register("setpassword.other", "Allows setting passwords of other players", COMMAND);
+    public final Permission COMMAND_CLEARPASSWORD_ALL = register("clearpassword.all", "Allows clearing all passwords", COMMAND);
+    public final Permission COMMAND_CLEARPASSWORD_OTHER = register("clearpassword.other", "Allows clearing passwords of other players", COMMAND);
+    public final Permission COMMAND_SETPASSWORD_OTHER = register("setpassword.other", "Allows setting passwords of other players", COMMAND);
 }

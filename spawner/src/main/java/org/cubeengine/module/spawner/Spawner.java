@@ -60,6 +60,7 @@ import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
 import static org.spongepowered.api.block.BlockTypes.MOB_SPAWNER;
 import static org.spongepowered.api.entity.EntityTypes.*;
 import static org.spongepowered.api.entity.living.player.gamemode.GameModes.CREATIVE;
+import static org.spongepowered.api.entity.living.player.gamemode.GameModes.SPECTATOR;
 import static org.spongepowered.api.event.Order.POST;
 import static org.spongepowered.api.item.Enchantments.LURE;
 import static org.spongepowered.api.item.Enchantments.SILK_TOUCH;
@@ -81,21 +82,21 @@ public class Spawner extends Module
     @Enable
     public void onEnable()
     {
-        this.eggPerms = pm.register(this, "egg", "", null);
+        this.eggPerms = pm.register(Spawner.class, "egg", "", null);
         this.initPerm(CREEPER, SKELETON, SPIDER, ZOMBIE, SLIME, GHAST, PIG_ZOMBIE, ENDERMAN,
                       CAVE_SPIDER, SILVERFISH, BLAZE, MAGMA_CUBE, WITCH, BAT, PIG, SHEEP, COW,
                       CHICKEN, SQUID, WOLF, MUSHROOM_COW, OCELOT, HORSE, VILLAGER);
 
         this.spawnerItem = ItemStack.of(ItemTypes.MOB_SPAWNER, 1);
         spawnerItem.offer(Keys.ITEM_ENCHANTMENTS, singletonList(new ItemEnchantment(Enchantments.LURE, 1)));
-        em.registerListener(this, this);
+        em.registerListener(Spawner.class, this);
     }
 
     private void initPerm(EntityType... types)
     {
         for (EntityType type : types)
         {
-            PermissionDescription child = pm.register(this, type.getName(), "", eggPerms);
+            PermissionDescription child = pm.register(Spawner.class, type.getName(), "", eggPerms);
             this.perms.put(type, child);
         }
     }

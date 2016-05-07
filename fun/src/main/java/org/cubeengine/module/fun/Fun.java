@@ -32,14 +32,13 @@ import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.matcher.EntityMatcher;
-import org.cubeengine.libcube.service.permission.ModulePermissions;
 import org.cubeengine.libcube.service.task.TaskManager;
 
 @ModuleInfo(name = "Fun", description = "A collection of fun commands")
 public class Fun extends Module
 {
     @ModuleConfig private FunConfiguration config;
-    @ModulePermissions private FunPerm perms;
+    @Inject private FunPerm perms;
 
     @Inject private TaskManager tm;
     @Inject private I18n i18n;

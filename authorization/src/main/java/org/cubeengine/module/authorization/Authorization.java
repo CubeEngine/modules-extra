@@ -50,7 +50,6 @@ import org.cubeengine.libcube.service.filesystem.FileManager;
 import org.cubeengine.libcube.service.filesystem.FileUtil;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.libcube.service.permission.ModulePermissions;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.jooq.DSLContext;
 import org.spongepowered.api.Game;
@@ -75,7 +74,7 @@ public class Authorization extends Module
     @Inject private Database db;
     @Inject private EventManager em;
 
-    @ModulePermissions private AuthPerms perms;
+    @Inject private AuthPerms perms;
     @ModuleConfig private AuthConfiguration config;
 
     private final MessageDigest messageDigest;

@@ -42,7 +42,7 @@ public class FlyListener
     private I18n i18n;
     private final Location helperLocation = new Location(null, 0, 0, 0);
 
-    private final PermissionDescription FLY_FEATHER;
+    private final Permission FLY_FEATHER;
 
     public FlyListener(Fly module, PermissionManager pm, I18n i18n)
     {

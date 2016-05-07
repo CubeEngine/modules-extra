@@ -21,6 +21,7 @@ import java.sql.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import javax.inject.Inject;
 import de.cubeisland.engine.converter.ConversionException;
 import de.cubeisland.engine.converter.node.StringNode;
 import org.cubeengine.butler.parametric.Command;
@@ -49,6 +50,7 @@ public class MuteCommands
 
     private Map<UUID, java.util.Optional<Muted>> mutedMap = new HashMap<>();
 
+    @Inject
     public MuteCommands(Chat module, Database db, I18n i18n)
     {
         this.module = module;

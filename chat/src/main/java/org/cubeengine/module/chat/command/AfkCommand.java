@@ -57,10 +57,10 @@ public class AfkCommand implements Runnable
         this.listener = new AfkListener(module, this);
         if (afkCheck > 0)
         {
-            em.registerListener(module, listener);
+            em.registerListener(Chat.class, listener);
             if (autoAfk > 0)
             {
-                tm.runTimer(module, this, 20, afkCheck / 50); // this is in ticks so /50
+                tm.runTimer(Chat.class, this, 20, afkCheck / 50); // this is in ticks so /50
             }
         }
         this.bc = bc;

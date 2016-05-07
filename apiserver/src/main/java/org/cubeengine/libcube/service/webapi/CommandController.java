@@ -24,6 +24,7 @@ import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.libcube.service.webapi.sender.ApiCommandSource;
 import org.cubeengine.libcube.service.webapi.sender.ApiServerSender;
 import org.cubeengine.libcube.service.webapi.sender.ApiUser;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.User;
 
 public class CommandController
@@ -45,7 +46,7 @@ public class CommandController
     {
         User authUser = request.getAuthUser();
         final ApiCommandSource sender = authUser == null
-                                        ? new ApiServerSender(request.getConnection(), mapper, cm.getConsoleSender())
+                                        ? new ApiServerSender(request.getConnection(), mapper, Sponge.getServer().getConsole())
                                         : new ApiUser(request.getConnection(), mapper, authUser);
 
         cm.runCommand(sender, command);
