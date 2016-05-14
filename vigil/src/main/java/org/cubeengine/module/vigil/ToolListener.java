@@ -18,6 +18,7 @@
 package org.cubeengine.module.vigil;
 
 import java.util.Optional;
+import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.module.vigil.storage.QueryManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.permission.PermissionManager;
@@ -29,7 +30,6 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.service.permission.PermissionDescription;
 import org.spongepowered.api.world.Location;
 
 import static org.cubeengine.module.vigil.commands.VigilCommands.toolName;
@@ -42,13 +42,13 @@ public class ToolListener
     private QueryManager qm;
     private final Permission toolPerm;
 
-    public ToolListener(Vigil module, I18n i18n, PermissionManager pm, QueryManager qm, Game game)
+    public ToolListener(I18n i18n, PermissionManager pm, QueryManager qm, Game game)
     {
         this.i18n = i18n;
         this.pm = pm;
         this.qm = qm;
         this.game = game;
-        toolPerm = pm.register(module, "use-logtool", "Allows using log-tools", null);
+        toolPerm = pm.register(Vigil.class, "use-logtool", "Allows using log-tools", null);
     }
 
     @Listener

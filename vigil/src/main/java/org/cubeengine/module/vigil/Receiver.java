@@ -17,7 +17,9 @@
  */
 package org.cubeengine.module.vigil;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import org.cubeengine.libcube.util.StringUtils;
@@ -29,10 +31,14 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.service.pagination.PaginationList.Builder;
 import org.spongepowered.api.service.pagination.PaginationService;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
 
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
+import static org.spongepowered.api.text.format.TextColors.GRAY;
+import static org.spongepowered.api.text.format.TextColors.RED;
 
 public class Receiver
 {
@@ -52,16 +58,59 @@ public class Receiver
     // TODO translate msgs on this method
     public void sendReport(List<Action> actions, String msg, Object... args)
     {
-        Text trans = i18n.getTranslation(cmdSource, NEUTRAL, msg, args);
-        // TODO add info (where when etc.)
-        lines.add(trans);
+        sendReport(actions, i18n.getTranslation(cmdSource, NEUTRAL, msg, args));
     }
 
     public void sendReport(List<Action> actions, int size, String msgSingular, String msgPlural, Object... args)
     {
-        Text trans = i18n.getTranslationN(cmdSource, NEUTRAL, size, msgSingular, msgPlural, args);
+        sendReport(actions, i18n.getTranslationN(cmdSource, NEUTRAL, size, msgSingular, msgPlural, args));
+    }
+
+    private static final SimpleDateFormat dateShort = new SimpleDateFormat("yy-MM-dd");
+    private static final SimpleDateFormat dateLong = new SimpleDateFormat("yyyy-MM-dd");
+    private static final SimpleDateFormat timeLong = new SimpleDateFormat("HH:mm:ss");
+    private static final SimpleDateFormat timeShort = new SimpleDateFormat("HH:mm");
+
+    private void sendReport(List<Action> actions, Text trans)
+    {
+        Action firstAction = actions.get(0);
+        Action lastAction = actions.get(actions.size() - 1);
+
+        Text date = getDatePrefix(firstAction, lastAction, false); // TODO fulldate?
         // TODO add info (where when etc.)
-        lines.add(trans);
+        lines.add(Text.of(date, RED, " - ", trans));
+    }
+
+    private Text getDatePrefix(Action firstAction, Action lastAction, boolean fullDate)
+    {
+
+        if (firstAction == lastAction)
+        {
+            Date date = firstAction.getDate();
+            String dLong = dateLong.format(date);
+            boolean sameDay = dateLong.format(new Date()).equals(dLong);
+            String tLong = timeLong.format(date);
+            Text full = Text.of(GRAY, dLong, " ", tLong);
+            if (fullDate)
+            {
+                return full;
+            }
+            String tShort = timeShort.format(date);
+            if (sameDay) // Today?
+            {
+                return Text.of(GRAY, tShort).toBuilder().onHover(TextActions.showText(full)).build();
+            }
+            else
+            {
+                return Text.of(GRAY, dateShort.format(date), " ", tShort).toBuilder().onHover(TextActions.showText(full)).build();
+            }
+        }
+        else
+        {
+            Date firstDate = firstAction.getData(Action.DATE);
+            Date lastDate = lastAction.getData(Action.DATE);
+            return Text.of("range"); // TODO
+        }
     }
 
     public void sendReports(List<ReportActions> reportActions)
@@ -77,7 +126,8 @@ public class Receiver
             reportAction.showReport(this);
         }
         Builder builder = Sponge.getGame().getServiceManager().provideUnchecked(PaginationService.class).builder();
-        builder.title(Text.of("Logs")).padding(Text.of("-")).contents(lines).sendTo(cmdSource);
+        builder.title(i18n.getTranslation(cmdSource, POSITIVE, "Showing {amount} Logs", lines.size())).padding(Text.of("-"))
+               .contents(lines).sendTo(cmdSource);
     }
 
     public Locale getLocale()

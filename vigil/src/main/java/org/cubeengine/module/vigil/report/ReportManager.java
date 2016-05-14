@@ -85,7 +85,7 @@ public class ReportManager
                 ((BaseReport) instance).init(module);
             }
             reports.put(report.getName(), instance);
-            em.registerListener(module, instance);
+            em.registerListener(Vigil.class, instance);
         }
         catch (InstantiationException | IllegalAccessException e)
         {

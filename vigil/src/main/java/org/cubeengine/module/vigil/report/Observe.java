@@ -43,6 +43,8 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.vehicle.Boat;
 import org.spongepowered.api.entity.vehicle.minecart.Minecart;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.entity.damage.source.EntityDamageSource;
+import org.spongepowered.api.event.cause.entity.damage.source.IndirectEntityDamageSource;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -57,7 +59,6 @@ public class Observe
 {
     public static Map<String, Object> causes(Cause causes)
     {
-        // TODO EntityDamageSource as Cause
         Map<String, Object> data = new LinkedHashMap<>();
         for (Map.Entry<String, Object> namedCause : causes.getNamedCauses().entrySet())
         {
@@ -72,6 +73,23 @@ public class Observe
 
     public static Map<String, Object> cause(Object cause)
     {
+        if (cause instanceof EntityDamageSource)
+        {
+            Entity source = ((EntityDamageSource)cause).getSource();
+            Map<String, Object> sourceCause = Observe.cause(source);
+            Map<String, Object> indirectCause = null;
+            if (cause instanceof IndirectEntityDamageSource)
+            {
+                indirectCause = Observe.cause(((IndirectEntityDamageSource)cause).getIndirectSource());
+                if (sourceCause == null)
+                {
+                    return indirectCause;
+                }
+            }
+            // TODO indirectCause
+            return sourceCause;
+        }
+
         if (cause instanceof Player)
         {
             return playerCause(((Player) cause));

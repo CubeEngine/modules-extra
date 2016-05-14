@@ -19,13 +19,17 @@ package org.cubeengine.module.vigil.report;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.cubeengine.module.vigil.report.entity.EntityReport;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.MemoryDataContainer;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
@@ -152,5 +156,23 @@ public class Recall
                 break;
         }
         return text;
+    }
+
+    public static EntitySnapshot entity(Action action)
+    {
+        MemoryDataContainer data = new MemoryDataContainer();
+        Map<String, Object> map = ((Map<String, Object>) ((Map<String, Object>)action.getData(EntityReport.ENTITY)).get(EntityReport.ENTITY_DATA));
+        for (Entry<String, Object> entry : map.entrySet())
+        {
+            data.set(DataQuery.of(entry.getKey()), entry.getValue());
+        }
+        return EntitySnapshot.builder().build(data).orElse(null);
+    }
+
+    public static Entity restoredEntity(Action action)
+    {
+        Entity entity = Recall.entity(action).restore().get();
+        entity.remove();
+        return entity;
     }
 }

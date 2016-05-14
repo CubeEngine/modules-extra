@@ -81,4 +81,9 @@ public class Action
         }
         return result;
     }
+
+    public Date getDate()
+    {
+        return document.getDate(DATE);
+    }
 }
