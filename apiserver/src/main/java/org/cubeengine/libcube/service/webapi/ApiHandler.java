@@ -22,15 +22,15 @@ import de.cubeisland.engine.modularity.core.Module;
 
 public abstract class ApiHandler
 {
-    private final Module module;
+    private final Class owner;
     private final String route; // and command (for ws)
     private final String permission;
     private final LinkedHashMap<String, Class> parameters;
     private final RequestMethod reqMethod;
 
-    protected ApiHandler(Module module, String route, String perm, LinkedHashMap<String, Class> params, RequestMethod reqMethod)
+    protected ApiHandler(Class owner, String route, String perm, LinkedHashMap<String, Class> params, RequestMethod reqMethod)
     {
-        this.module = module;
+        this.owner = owner;
         this.route = route;
         this.permission = perm;
         this.parameters = params;
@@ -39,9 +39,9 @@ public abstract class ApiHandler
 
     public abstract ApiResponse execute(ApiRequest request);
 
-    public Module getModule()
+    public Class getOwner()
     {
-        return module;
+        return owner;
     }
 
     public String getRoute()

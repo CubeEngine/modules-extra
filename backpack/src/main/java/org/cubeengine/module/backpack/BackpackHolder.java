@@ -31,11 +31,11 @@ public class BackpackHolder implements Carrier
     {
         this.backBackInventories = backBackInventories;
         this.index = index;
-        this.inventory = CustomInventory.builder().name(title).size(size).build();
+        this.inventory = ((CarriedInventory<BackpackHolder>)CustomInventory.builder().name(null).size(size).build()); // TODO
     }
 
     @Override
-    public CarriedInventory getInventory()
+    public CarriedInventory<BackpackHolder> getInventory()
     {
         return this.inventory;
     }

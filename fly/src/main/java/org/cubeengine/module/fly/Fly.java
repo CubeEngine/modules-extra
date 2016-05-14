@@ -24,20 +24,18 @@ import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.permission.PermissionManager;
+import org.cubeengine.libcube.service.task.TaskManager;
 
 public class Fly extends Module
 {
-    @ModuleConfig private FlyConfig config;
     @Inject private PermissionManager pm;
     @Inject private EventManager em;
     @Inject private I18n i18n;
+    @Inject private TaskManager tm;
 
     @Enable
     public void onEnable()
     {
-        if (this.config.flyfeather)
-        {
-            em.registerListener(this, new FlyListener(this, pm, i18n));
-        }
+        em.registerListener(Fly.class, new FlyListener(this, pm, i18n, tm));
     }
 }

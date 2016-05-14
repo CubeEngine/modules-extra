@@ -24,6 +24,7 @@ import org.cubeengine.butler.parametric.Default;
 import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Named;
 import org.cubeengine.butler.parametric.Optional;
+import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.command.ContainerCommand;
 import org.cubeengine.libcube.service.command.annotation.ParameterPermission;
 import org.cubeengine.libcube.service.i18n.I18n;
@@ -41,9 +42,9 @@ public class BackpackCommands extends ContainerCommand
     private final BackpackManager manager;
     private I18n i18n;
 
-    public BackpackCommands(Backpack module, BackpackManager manager, I18n i18n)
+    public BackpackCommands(Backpack module, BackpackManager manager, I18n i18n, CommandManager base)
     {
-        super(module);
+        super(base, Backpack.class);
         this.module = module;
         this.manager = manager;
         this.i18n = i18n;

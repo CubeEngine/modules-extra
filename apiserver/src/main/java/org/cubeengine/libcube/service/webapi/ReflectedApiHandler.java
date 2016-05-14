@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
-import de.cubeisland.engine.modularity.core.Module;
 import org.cubeengine.butler.CommandInvocation;
 import org.cubeengine.butler.ProviderManager;
 import org.cubeengine.libcube.service.command.CommandManager;
@@ -34,15 +33,14 @@ public final class ReflectedApiHandler extends ApiHandler
     private final Object holder;
     private final ProviderManager providerManager;
 
-    public ReflectedApiHandler(Module module, String route, String permission,
-                               LinkedHashMap<String, Class> params, RequestMethod reqMethod, Method method,
-                               Object holder)
+    public ReflectedApiHandler(Class clazz, String route, String permission, LinkedHashMap<String, Class> params,
+                               RequestMethod reqMethod, Method method, Object holder, CommandManager cm)
     {
-        super(module, route, permission, params, reqMethod);
+        super(clazz, route, permission, params, reqMethod);
         this.method = method;
         this.method.setAccessible(true);
         this.holder = holder;
-        this.providerManager = module.getModularity().provide(CommandManager.class).getProviderManager();
+        this.providerManager = cm.getProviderManager();
     }
 
     @Override

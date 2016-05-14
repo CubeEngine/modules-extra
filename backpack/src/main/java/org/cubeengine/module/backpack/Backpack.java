@@ -23,13 +23,10 @@ import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.modularity.core.marker.Enable;
 import de.cubeisland.engine.reflect.Reflector;
-import de.cubeisland.engine.reflect.codec.nbt.NBTCodec;
-import org.cubeengine.module.backpack.converter.NBTItemStackConverter;
 import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.inventoryguard.InventoryGuardFactory;
-import org.spongepowered.api.item.inventory.ItemStack;
 
 @ModuleInfo(name = "Backpack", description = "Expand your inventory")
 /*
@@ -49,24 +46,19 @@ public class Backpack extends Module
     @Inject private CommandManager cm;
     @Inject private EventManager em;
     @Inject private InventoryGuardFactory igf;
+    @Inject private BackpackPermissions perms;
 
     public BackpackPermissions perms()
     {
         return perms;
     }
 
-    private BackpackPermissions perms;
-
     @Enable
     public void onEnable()
     {
-        perms = new BackpackPermissions(this);
-        reflector.getCodecManager().getCodec(NBTCodec.class).getConverterManager().
-            registerConverter(new NBTItemStackConverter(), ItemStack.class);
-
         manager = new BackpackManager(this, reflector, i18n);
-        cm.addCommand(new BackpackCommands(this, manager, i18n));
-        em.registerListener(this, manager);
+        cm.addCommand(new BackpackCommands(this, manager, i18n, cm));
+        em.registerListener(Backpack.class, manager);
     }
 
     public Path getModulePath()

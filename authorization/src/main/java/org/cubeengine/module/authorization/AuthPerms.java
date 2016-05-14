@@ -17,9 +17,9 @@
  */
 package org.cubeengine.module.authorization;
 
+import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionContainer;
 import org.cubeengine.libcube.service.permission.PermissionManager;
-import org.spongepowered.api.service.permission.PermissionDescription;
 
 public class AuthPerms extends PermissionContainer
 {

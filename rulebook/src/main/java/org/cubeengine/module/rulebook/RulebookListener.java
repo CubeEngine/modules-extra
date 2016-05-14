@@ -18,46 +18,56 @@
 package org.cubeengine.module.rulebook;
 
 import java.util.Locale;
+import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.module.rulebook.bookManagement.RulebookManager;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntityTypes;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 
-class RulebookListener implements Listener
+class RulebookListener
 {
 
     private final Rulebook module;
     private final RulebookManager rulebookManager;
+    private I18n i18n;
 
-    public RulebookListener(Rulebook module)
+    public RulebookListener(Rulebook module, I18n i18n)
     {
         this.module = module;
         this.rulebookManager = module.getRuleBookManager();
+        this.i18n = i18n;
     }
 
-    @EventHandler
-    public void onPlayerLanguageReceived(AfterJoinEvent event)
+    @Listener
+    public void onPlayerLanguageReceived(ClientConnectionEvent.Join event)
     {
-        User user = this.module.getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
-        if(!user.hasPlayedBefore() && !this.rulebookManager.getLocales().isEmpty())
+        Player player = event.getTargetEntity();
+        if (!player.hasPlayedBefore() && !rulebookManager.getLocales().isEmpty())
         {
-            Locale locale = user.getLocale();
+            Locale locale = player.getLocale();
             if (!this.rulebookManager.contains(locale))
             {
-                locale = this.module.getCore().getI18n().getDefaultLanguage().getLocale();
+                locale = i18n.getDefaultLanguage().getLocale();
                 if (!this.rulebookManager.contains(locale))
                 {
                     locale = this.rulebookManager.getLocales().iterator().next();
                 }
             }
-            
-            ItemStack hand = user.getItemInHand();
-            user.setItemInHand(this.rulebookManager.getBook(locale));
 
-            if(hand != null && hand.getType() != Material.AIR)
+            ItemStack hand = player.getItemInHand().orElse(null);
+            player.setItemInHand(this.rulebookManager.getBook(locale));
+            player.getInventory().offer(hand);
+            if (hand.getQuantity() != 0)
             {
-                for(ItemStack item : user.getInventory().addItem(hand).values())
-                {
-                    user.getWorld().dropItemNaturally(user.getLocation(), item);
-                }
+                Entity entity = player.getWorld().createEntity(EntityTypes.ITEM, player.getLocation().getPosition()).get();
+                entity.offer(Keys.REPRESENTED_ITEM, hand.createSnapshot());
+                player.getWorld().spawnEntity(entity, Cause.of(NamedCause.source(player)));
             }
         }
     }

@@ -17,33 +17,47 @@
  */
 package org.cubeengine.module.rulebook;
 
-import de.cubeisland.engine.module.core.module.Module;
-import de.cubeisland.engine.service.permission.Permission;
+import java.nio.file.Path;
+import javax.inject.Inject;
+import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
+import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.modularity.core.marker.Enable;
+import org.cubeengine.libcube.service.command.CommandManager;
+import org.cubeengine.libcube.service.event.EventManager;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.permission.Permission;
+import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.module.rulebook.bookManagement.RulebookCommands;
 import org.cubeengine.module.rulebook.bookManagement.RulebookManager;
-
+@ModuleInfo(name = "Rulebook", description = "Puts a book in the inventory of new players.")
 public class Rulebook extends Module
 {
     private RulebookManager rulebookManager;
 
-    @Override
+    @Inject private PermissionManager pm;
+    @Inject private CommandManager cm;
+    @Inject private EventManager em;
+    @Inject private I18n i18n;
+    @Inject private Path folder;
+
+    @Enable
     public void onEnable()
     {
         // this.getCore().getFileManager().dropResources(RulebookResource.values());
-        Permission perm = this.getBasePermission().
-            childWildcard("command").
-                                  childWildcard("get").
-            child("other");
-        this.getCore().getPermissionManager().registerPermission(this, perm);
+        Permission getOtherPerm = pm.register(Rulebook.class, "command.get.other", "Allows adding a rulebook to another players inventory", null);
+        this.rulebookManager = new RulebookManager(this, i18n);
 
-        this.rulebookManager = new RulebookManager(this);
-
-        this.getCore().getCommandManager().addCommand(new RulebookCommands(this));
-        this.getCore().getEventManager().registerListener(this, new RulebookListener(this));
+        cm.addCommand(new RulebookCommands(cm, this, getOtherPerm, i18n));
+        em.registerListener(Rulebook.class, new RulebookListener(this, i18n));
     }
 
     public RulebookManager getRuleBookManager()
     {
         return this.rulebookManager;
+    }
+
+    public Path getFolder()
+    {
+        return folder;
     }
 }

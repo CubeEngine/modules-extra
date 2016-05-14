@@ -24,15 +24,11 @@ import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Named;
 import org.cubeengine.butler.parametric.Optional;
 import org.cubeengine.module.fun.Fun;
-import org.cubeengine.libcube.service.command.CommandSender;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.task.TaskManager;
-import org.cubeengine.libcube.service.user.User;
-import de.cubeisland.engine.module.core.util.matcher.Match;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.property.item.ArmorTypeProperty;
 import org.spongepowered.api.data.property.item.EquipmentProperty;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
@@ -42,21 +38,12 @@ import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.equipment.EquipmentType;
 import org.spongepowered.api.item.inventory.equipment.EquipmentTypes;
 import org.spongepowered.api.world.Location;
-import org.bukkit.Material;
-import org.spongepowered.api.entity.player.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.util.Vector;
 import org.spongepowered.api.world.World;
 
-import static org.bukkit.Material.AIR;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
-import static org.spongepowered.api.item.ItemTypes.LEATHER_BOOTS;
 
 public class PlayerCommands
 {
@@ -71,7 +58,7 @@ public class PlayerCommands
         this.i18n = i18n;
         this.tm = tm;
         this.explosionListener = new ExplosionListener();
-        em.registerListener(module, explosionListener);
+        em.registerListener(Fun.class, explosionListener);
     }
     
     @Command(desc = "Gives a player a hat")

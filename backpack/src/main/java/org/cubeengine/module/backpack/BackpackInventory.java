@@ -28,9 +28,11 @@ import org.cubeengine.libcube.util.ContextUtil;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.item.inventory.Container;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.custom.CustomInventory;
+import org.spongepowered.api.item.inventory.entity.HumanInventory;
 import org.spongepowered.api.service.context.Context;
 
 public class BackpackInventory
@@ -56,8 +58,8 @@ public class BackpackInventory
 
     private Inventory getInventory(int index)
     {
-        CustomInventory.builder()
-            // TODO create custom inventory that is a CarriedInventory
+        CustomInventory inv = CustomInventory.builder().name(null).build();
+        // TODO create custom inventory that is a CarriedInventory
 
         BackpackHolder holder = this.views.get(index);
         if (holder == null)
@@ -69,25 +71,36 @@ public class BackpackInventory
         for (int i = 0; i < data.size * 9; i++)
         {
             ItemStack itemStack = data.contents.get(i + offset);
-            contents[i] = itemStack == null ? null : itemStack.clone();
+            contents[i] = itemStack == null ? null : itemStack.copy();
         }
-        holder.getInventory().setContents(contents);
+
+        int i = 0;
+        for (Inventory slot : holder.getInventory())
+        {
+            if (contents[i] != null)
+            {
+                slot.set(contents[i]);
+            }
+        }
+
         return holder.getInventory();
     }
 
     private void saveData(int index, Inventory inventory)
     {
-        Iterable<Inventory> slots = inventory.slots();
         int offset = index * data.size * 9;
-        for (int i = 0; i < data.size * 9; i++)
+        ItemStack[] contents = new ItemStack[data.size];
+        int i = 0;
+        for (Inventory slot : inventory)
         {
-            if (contents[i] == null)
+            i++;
+            if (slot.peek().isPresent())
             {
-                data.contents.remove(i + offset);
+                 data.contents.put(offset + i, slot.peek().get());
             }
             else
             {
-                data.contents.put(i + offset, contents[i].clone());
+                data.contents.remove(offset + i);
             }
         }
         data.save();
@@ -103,13 +116,13 @@ public class BackpackInventory
         else
         {
             module.getInventoryGuardFactory().prepareInv(this.getInventory(index), player.getUniqueId()).
-                blockPutInAll().submitInventory(module, true);
+                blockPutInAll().submitInventory(Backpack.class, true);
         }
     }
 
     public void showNextPage(Player player)
     {
-        showPage(player, 1);
+        showPage(player, true);
     }
 
     private void showPage(Player player, boolean next)
@@ -160,9 +173,10 @@ public class BackpackInventory
             return;
         }
         this.saveData(index, holder.getInventory());
-        if (holder.getInventory().getViewers().isEmpty()
-            || (holder.getInventory().getViewers().size() == 1
-            && holder.getInventory().getViewers().get(0) == player))
+
+        if (((Container)holder.getInventory()).getViewers().isEmpty()
+            || (((Container)holder.getInventory()).getViewers().size() == 1
+            && ((Container)holder.getInventory()).getViewers().iterator().next() == player))
         {
             this.views.remove(index);
         }
@@ -170,15 +184,15 @@ public class BackpackInventory
 
     public void closeInventory()
     {
-        viewers.keySet().forEach(p -> p.closeInventory(Cause.of(NamedCause.source(this)))); // TODO better cause
+        Cause cause = Cause.of(NamedCause.source(this));// TODO better cause
+        viewers.keySet().forEach(p -> p.closeInventory(cause));
 
-        // TODO save changes
-        for (InventoryHolder holder : new ArrayList<>(this.views.values()))
+        for (BackpackHolder holder : views.values())
         {
-            for (HumanEntity humanEntity : new ArrayList<>(holder.getInventory().getViewers()))
+            for (Player player : ((Container)holder).getViewers())
             {
-                this.saveData(this.viewers.remove((Player)humanEntity), holder.getInventory());
-                humanEntity.closeInventory();
+                player.closeInventory(cause);
+                saveData(viewers.remove(player), holder.getInventory());
             }
         }
     }
@@ -187,17 +201,19 @@ public class BackpackInventory
     {
         closeInventory();
 
-        LinkedList<ItemStack> itemStacks = new LinkedList<>(Arrays.asList(InventoryUtil.splitIntoMaxItems(toGive, toGive.getMaxStackSize())));
-        for (int i = 0 ; itemStacks.size() > 0; i++)
+        for (int i = 0; i < data.pages; i++)
         {
-            if (this.data.contents.get(i) == null)
+            Inventory inventory = getInventory(0);
+            inventory.offer(toGive);
+            saveData(0, inventory);
+            if (toGive.getQuantity() == 0)
             {
-                this.data.contents.put(i, itemStacks.poll());
-                if (i > this.data.pages * data.size * 9)
-                {
-                    this.data.pages = this.data.pages + 1;
-                }
+                break;
             }
+        }
+        if (toGive.getQuantity() != 0)
+        {
+            throw new IllegalStateException();
         }
         this.data.save();
     }

@@ -41,9 +41,9 @@ public class Customcommands extends Module
     {
         if (this.config.commands.size() > 0)
         {
-            em.registerListener(this, new CustomCommandsListener(this, bc));
+            em.registerListener(Customcommands.class, new CustomCommandsListener(this, bc));
         }
-        cm.addCommand(new ManagementCommands(this, i18n));
+        cm.addCommand(new ManagementCommands(this, i18n, cm));
         cm.getProviderManager().register(this, new CustomCommandCompleter(this));
     }
 

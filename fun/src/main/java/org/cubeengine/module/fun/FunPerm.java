@@ -18,15 +18,12 @@
 package org.cubeengine.module.fun;
 
 import java.util.Locale;
-import de.cubeisland.engine.service.permission.PermDefault;
-import de.cubeisland.engine.service.permission.Permission;
+import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionContainer;
 import org.cubeengine.libcube.service.permission.PermissionManager;
-import org.bukkit.entity.EntityType;
-import org.spongepowered.api.service.permission.PermissionDescription;
 
 @SuppressWarnings("all")
-public class FunPerm extends PermissionContainer<Fun>
+public class FunPerm extends PermissionContainer
 {
     public boolean ARE_THROW_ITEMS_REGISTERED = false;
 

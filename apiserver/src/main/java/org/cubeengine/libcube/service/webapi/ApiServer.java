@@ -42,7 +42,10 @@ import de.cubeisland.engine.logscribe.LogFactory;
 import de.cubeisland.engine.logscribe.target.file.AsyncFileTarget;
 import de.cubeisland.engine.modularity.asm.marker.ServiceProvider;
 import de.cubeisland.engine.modularity.core.Maybe;
+import de.cubeisland.engine.modularity.core.Modularity;
 import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.modularity.core.graph.DependencyInformation;
+import de.cubeisland.engine.modularity.core.graph.meta.ModuleMetadata;
 import de.cubeisland.engine.modularity.core.marker.Enable;
 import de.cubeisland.engine.reflect.Reflector;
 import io.netty.bootstrap.ServerBootstrap;
@@ -64,6 +67,7 @@ import org.cubeengine.libcube.service.webapi.exception.ApiStartupException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.Locale.ENGLISH;
+import static org.cubeengine.libcube.util.StringUtils.deCamelCase;
 
 /**
  * This class represents the API server and provides methods to configure and control it
@@ -102,7 +106,9 @@ public class ApiServer
     @Inject private I18n i18n;
     @Inject private TaskManager tm;
     @Inject private PermissionManager pm;
+    @Inject private ThreadFactory tf;
     @Inject private Maybe<Authorization> am;
+    @Inject private Modularity modularity;
 
     @Inject
     public ApiServer(LogFactory logFactory, FileManager fm, ThreadFactory tf)
@@ -142,7 +148,7 @@ public class ApiServer
             this.logger.error(ex, "The web API will not be available as the server failed to start properly...");
         }
 
-        this.registerApiHandlers(module, new CommandController(i18n, tm, cm));
+        this.registerApiHandlers(ApiServer.class, new CommandController(i18n, tm, cm));
     }
 
     public Log getLog()
@@ -195,7 +201,8 @@ public class ApiServer
 
             try
             {
-                this.eventLoopGroup.set(new NioEventLoopGroup(this.maxThreads.get(), this.module.getProvided(ThreadFactory.class)));
+                this.eventLoopGroup.set(new NioEventLoopGroup(this.maxThreads.get(),
+                                  tf));
                 serverBootstrap.group(this.eventLoopGroup.get())
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new ApiServerInitializer(cm, am, this))
@@ -262,9 +269,17 @@ public class ApiServer
                 String route = aAction.value();
                 if (route.isEmpty())
                 {
-                    route = StringUtils.deCamelCase(method.getName(), "/");
+                    route = deCamelCase(method.getName(), "/");
                 }
-                route = owner.getInformation().getName() + "/" + route;
+                DependencyInformation info = modularity.getLifecycle(owner).getInformation();
+                if (info instanceof ModuleMetadata)
+                {
+                    route = deCamelCase(((ModuleMetadata)info).getName().toLowerCase(), "-") + "/" + route;;
+                }
+                else
+                {
+                    route = deCamelCase(owner.getSimpleName().toLowerCase(), "-") + "/" + route;
+                }
                 route = HttpRequestHandler.normalizePath(route);
                 String perm = null;
                 if (aAction.needsAuth())
@@ -316,7 +331,8 @@ public class ApiServer
                 {
                     reqMethod = method.getAnnotation(org.cubeengine.libcube.service.webapi.Method.class).value();
                 }
-                this.handlers.put(route, new ReflectedApiHandler(owner, route, perm, params, reqMethod, method, holder));
+                this.handlers.put(route, new ReflectedApiHandler(owner, route, perm, params, reqMethod, method, holder,
+                                                                 cm));
             }
         }
     }
@@ -326,7 +342,7 @@ public class ApiServer
         this.handlers.remove(route);
     }
 
-    public void unregisterApiHandlers(Module module)
+    public void unregisterApiHandlers(Class module)
     {
         Iterator<Map.Entry<String, ApiHandler>> iter = this.handlers.entrySet().iterator();
 
@@ -334,7 +350,7 @@ public class ApiServer
         while (iter.hasNext())
         {
             handler = iter.next().getValue();
-            if (handler.getModule() == module)
+            if (handler.getOwner() == module)
             {
                 iter.remove();
             }

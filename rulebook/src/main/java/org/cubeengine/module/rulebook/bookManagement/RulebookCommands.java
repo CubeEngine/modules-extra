@@ -29,21 +29,32 @@ import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Default;
 import org.cubeengine.butler.parametric.Named;
 import org.cubeengine.butler.parametric.Optional;
+import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.command.ContainerCommand;
 import org.cubeengine.libcube.service.command.CommandContext;
-import org.cubeengine.libcube.service.command.CommandSender;
 import org.cubeengine.libcube.service.command.annotation.CommandPermission;
-import de.cubeisland.engine.service.permission.Permission;
-import org.cubeengine.libcube.service.user.User;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.i18n.formatter.MessageType;
+import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.util.ChatFormat;
 import de.cubeisland.engine.i18n.language.Language;
 import org.cubeengine.module.rulebook.Rulebook;
+import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
+import org.spongepowered.api.item.inventory.Slot;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
 
-import de.cubeisland.engine.service.permission.PermDefault.TRUE;
-import static org.bukkit.Material.BOOK_AND_QUILL;
-import static org.bukkit.Material.WRITTEN_BOOK;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
+import static org.spongepowered.api.item.ItemTypes.WRITABLE_BOOK;
+import static org.spongepowered.api.item.ItemTypes.WRITTEN_BOOK;
+import static org.spongepowered.api.text.format.TextColors.YELLOW;
 
 @Command(name = "rulebook", desc = "Shows all commands of the rulebook module")
 public class RulebookCommands extends ContainerCommand
@@ -51,37 +62,36 @@ public class RulebookCommands extends ContainerCommand
     private final RulebookManager rulebookManager;
     private final Rulebook module;
 
-    private final Permission getPermission;
-    
-    public RulebookCommands(Rulebook module)
+    private final Permission getOtherPerm;
+    private I18n i18n;
+
+    public RulebookCommands(CommandManager base, Rulebook module, Permission getOtherPerm, I18n i18n)
     {
-        super(module);
+        super(base, Rulebook.class);
         this.rulebookManager = module.getRuleBookManager();
         this.module = module;
-        this.getPermission = module.getBasePermission().childWildcard("command").childWildcard("get").child("other");
-        this.module.getCore().getPermissionManager().registerPermission(module, getPermission);
+        this.getOtherPerm = getOtherPerm;
+        this.i18n = i18n;
     }
 
     @Alias(value = {"getrules", "rules"})
     @Command(desc = "gets the player the rulebook in the inventory")
-    @CommandPermission(permDefault = TRUE)
-    public void getRuleBook(CommandSender context, @Optional String language, @Default @Named({"player", "p"}) User player)
+    public void getRuleBook(CommandSource context, @Optional String language, @Default @Named({"player", "p"}) Player player)
     {
-        // console msg /wo player: context.sendTranslated(NEGATIVE, "The post office will give you your book!");
-
+        // console msg /wo player: i18n.sendTranslated(context, NEGATIVE, "The post office will give you your book!");
         Locale locale;
         if (!context.equals(player))
         {
-            if(!getPermission.isAuthorized(context))
+            if(!context.hasPermission(getOtherPerm.getId()))
             {
-                context.sendTranslated(NEGATIVE, "You do not have the permissions to add the rulebook to the inventory of an other player");
+                i18n.sendTranslated(context, NEGATIVE, "You do not have the permissions to add the rulebook to the inventory of an other player");
                 return;
             }
         }
 
         if(this.rulebookManager.getLocales().isEmpty())
         {
-            context.sendTranslated(NEUTRAL, "It does not exist a rulebook yet");
+            i18n.sendTranslated(context, NEUTRAL, "It does not exist a rulebook yet");
             return;
         }
         if (language != null)
@@ -89,13 +99,13 @@ public class RulebookCommands extends ContainerCommand
             Language l = this.rulebookManager.getLanguage(language);
             if(l == null)
             {
-                context.sendTranslated(NEGATIVE, "Can't match the language");
+                i18n.sendTranslated(context, NEGATIVE, "Can't match the language");
                 return;
             }
             locale = l.getLocale();
             if(!this.rulebookManager.contains(locale))
             {
-                context.sendTranslated(NEUTRAL, "The language {name} is not supported yet.", locale.getDisplayLanguage(context.getLocale()));
+                i18n.sendTranslated(context, NEUTRAL, "The language {name} is not supported yet.", locale.getDisplayLanguage(context.getLocale()));
                 return;
             }
         }
@@ -104,185 +114,161 @@ public class RulebookCommands extends ContainerCommand
             locale = player.getLocale();
             if(!this.rulebookManager.contains(locale))
             {
-                locale = this.module.getCore().getI18n().getDefaultLanguage().getLocale();
+                locale = i18n.getDefaultLanguage().getLocale();
                 if(!this.rulebookManager.contains(locale))
                 {
                     locale = this.rulebookManager.getLocales().iterator().next();
                 }
             }
         }
-        Set<Integer> books = this.inventoryRulebookSearching(player.getInventory(), locale);
-
-        Iterator<Integer> iter = books.iterator();
-        while(iter.hasNext())
+        Set<Inventory> books = this.inventoryRulebookSearching(player.getInventory(), locale);
+        for (Inventory book : books)
         {
-            player.getInventory().clear(iter.next());
+            book.clear();
         }
 
-        player.getInventory().addItem(this.rulebookManager.getBook(locale));
-        player.sendTranslated(POSITIVE, "Lots of fun with your rulebook.");
+        player.getInventory().offer(this.rulebookManager.getBook(locale));
+        i18n.sendTranslated(player, POSITIVE, "Lots of fun with your rulebook.");
         if(!books.isEmpty())
         {
-            player.sendTranslated(POSITIVE, "Your old rulebook was removed");
+            i18n.sendTranslated(player, POSITIVE, "Your old rulebook was removed");
         }
     }
 
     @Alias(value = "listrules")
     @Command(desc = "list all available languages of the rulebooks.")
-    @CommandPermission(permDefault = TRUE)
-    public void list(CommandContext context, @Flag boolean supported)
+    public void list(CommandSource context, @Flag boolean supported)
     {
         if (supported)
         {
-            context.sendTranslated(NEUTRAL, "supported languages:");
-            for(Language language : this.module.getCore().getI18n().getLanguages())
+            i18n.sendTranslated(context, NEUTRAL, "supported languages:");
+            for(Language language : i18n.getLanguages())
             {
-                context.sendMessage(ChatFormat.YELLOW +  "* " + language.getLocale().getDisplayLanguage(context.getSource().getLocale()));
+                context.sendMessage(Text.of(YELLOW, "* ", language.getLocale().getDisplayLanguage(context.getLocale())));
             }
             return;
         }
         if (this.rulebookManager.getLocales().isEmpty())
         {
-            context.sendTranslated(NEUTRAL, "No rulebook available at the moment");
+            i18n.sendTranslated(context, NEUTRAL, "No rulebook available at the moment");
             return;
         }
-        context.sendTranslated(NEUTRAL, "available languages:");
+        i18n.sendTranslated(context, NEUTRAL, "available languages:");
         for (Locale locale : this.rulebookManager.getLocales())
         {
-            context.sendMessage(ChatFormat.YELLOW + "* " + locale.getDisplayLanguage(
-                context.getSource().getLocale()));
+            context.sendMessage(Text.of(YELLOW, "* ", locale.getDisplayLanguage(context.getLocale())));
         }
     }
 
     @Alias(value = "removerules")
     @Command(desc = "removes the declared language and languagefiles!")
-    public void remove(CommandContext context, String language)
+    public void remove(CommandSource context, String language)
     {
         Language lang = this.rulebookManager.getLanguage(language);
 
         if(lang == null)
         {
-            context.sendTranslated(NEGATIVE, "More than one or no language is matched with {input}", language);
+            i18n.sendTranslated(context, NEGATIVE, "More than one or no language is matched with {input}", language);
             return;
         }
         if(!this.rulebookManager.contains(lang.getLocale()))
         {
-            context.sendTranslated(POSITIVE, "The languagefile of {input} doesn't exist at the moment", lang.getLocale().getDisplayLanguage(context.getSource().getLocale()));
+            i18n.sendTranslated(context, POSITIVE, "The languagefile of {input} doesn't exist at the moment", lang.getLocale().getDisplayLanguage(context.getLocale()));
             return;
         }
         
         try
         {
             this.rulebookManager.removeBook(lang.getLocale());
-            context.sendTranslated(POSITIVE, "The languagefiles of {input} was deleted", lang.getLocale().getDisplayLanguage(context.getSource().getLocale()));
+            i18n.sendTranslated(context, POSITIVE, "The languagefiles of {input} was deleted", lang.getLocale().getDisplayLanguage(context.getLocale()));
         }
         catch(IOException ex)
         {
-            context.sendTranslated(NEGATIVE, "The language file of {input} couldn't be deleted",
-                                   lang.getLocale().getDisplayLanguage(context.getSource().getLocale()));
-            this.module.getLog().error(ex, "Error when deleting the files!");
+            throw new IllegalStateException(ex);
         }
 
     }
 
     @Alias(value = "modifyrules")
     @Command(desc = "modified the rulebook of the declared language with the book in hand")
-    public void modify(CommandContext context, String language)
+    public void modify(Player context, String language)
     {
-        if(!(context.getSource() instanceof User))
-        {
-            context.sendTranslated(NEUTRAL, "You're able to write, right?");
-        }
-        User user = (User) context.getSource();
+        ItemStack item = context.getItemInHand().orElse(null);
 
-        ItemStack item = user.getItemInHand();
-
-        if(!(item.getType() == WRITTEN_BOOK) && !(item.getType() == BOOK_AND_QUILL))
+        if(item != null && !(item.getItem() == WRITABLE_BOOK || item.getItem() == WRITTEN_BOOK))
         {
-            context.sendTranslated(NEGATIVE, "I would try it with a book as item in hand");
+            i18n.sendTranslated(context, NEGATIVE, "I would try it with a book as item in hand");
             return;
         }
 
         Language lang = this.rulebookManager.getLanguage(language);
         if(lang == null)
         {
-            context.sendTranslated(NEGATIVE, "More than one or no language is matched with {input}", language);
+            i18n.sendTranslated(context, NEGATIVE, "More than one or no language is matched with {input}", language);
             return;
         }
         Locale locale = lang.getLocale();
 
         if (!this.rulebookManager.contains(locale))
         {
-            context.sendTranslated(NEGATIVE, "You can't modify a non-existent book.");
+            i18n.sendTranslated(context, NEGATIVE, "You can't modify a non-existent book.");
             return;
         }
         try
         {
             this.rulebookManager.removeBook(locale);
             this.rulebookManager.addBook(item, locale);
-            context.sendTranslated(POSITIVE, "The rulebook {name} was succesful modified.", locale
-                .getDisplayLanguage(context.getSource().getLocale()));
+            i18n.sendTranslated(context, POSITIVE, "The rulebook {name} was succesful modified.", locale
+                .getDisplayLanguage(context.getLocale()));
         }
         catch(IOException ex)
         {
-            context.sendTranslated(NEUTRAL, "An error ocurred while deleting the old rulebook");
-            this.module.getLog().error(ex, "Error when deleting the files!");
+            throw new IllegalStateException(ex);
         }
     }
 
     @Alias(value = "addrules")
     @Command(desc = "adds the book in hand as rulebook of the declared language")
-    public void add(CommandContext context, String language)
+    public void add(Player context, String language)
     {
-        if(!(context.getSource() instanceof User))
-        {
-            context.sendTranslated(NEUTRAL, "Are you illiterate?");
-        }
-        User user = (User) context.getSource();
+        ItemStack item = context.getItemInHand().orElse(null);
 
-        ItemStack item = user.getItemInHand();
-
-        if(!(item.getType() == WRITTEN_BOOK) && !(item.getType() == BOOK_AND_QUILL))
+        if(item != null && !(item.getItem() == WRITABLE_BOOK || item.getItem() == WRITTEN_BOOK))
         {
-            context.sendTranslated(NEGATIVE, "I would try it with a book as item in hand");
+            i18n.sendTranslated(context, NEGATIVE, "I would try it with a book as item in hand");
             return;
         }
 
         Language lang = this.rulebookManager.getLanguage(language);
         if(lang == null)
         {
-            context.sendTranslated(NEGATIVE, "More than one or no language is matched with {input}", language);
+            i18n.sendTranslated(context, NEGATIVE, "More than one or no language is matched with {input}", language);
             return;
         }
         Locale locale = lang.getLocale();
 
         if (this.rulebookManager.contains(locale))
         {
-            context.sendTranslated(NEUTRAL, "There is already a book in that language.");
+            i18n.sendTranslated(context, NEUTRAL, "There is already a book in that language.");
             return;
         }
         this.rulebookManager.addBook(item, locale);
-        context.sendTranslated(POSITIVE, "Rulebook for the language {input} was added succesfully",
-                               lang.getLocale().getDisplayLanguage(context.getSource().getLocale()));
+        i18n.sendTranslated(context, POSITIVE, "Rulebook for the language {input} was added succesfully",
+                               lang.getLocale().getDisplayLanguage(context.getLocale()));
     }
 
-    private Set<Integer> inventoryRulebookSearching(PlayerInventory inventory, Locale locale)
+    private Set<Inventory> inventoryRulebookSearching(Inventory inventory, Locale locale)
     {
-        Set<Integer> books = new HashSet<>();
+        Set<Inventory> books = new HashSet<>();
 
-        for(int i = 0; i < inventory.getSize(); i++)
+        for (Inventory inv : inventory.query(WRITTEN_BOOK).slots())
         {
-            ItemStack item = inventory.getItem(i);
-
-            if(item != null && item.getType() == WRITTEN_BOOK)
+            if (inv.peek().isPresent())
             {
-                List<String> lore = item.getItemMeta().getLore();
-                if(lore != null)
+                // TODO check for CustomData
+                // if (inv.peek().get().get(RulebookData.class).isPresent())
                 {
-                    if(lore.size() > 0 && locale.getLanguage().equalsIgnoreCase(lore.get(0)))
-                    {
-                        books.add(i);
-                    }
+                    books.add(inv);
                 }
             }
         }

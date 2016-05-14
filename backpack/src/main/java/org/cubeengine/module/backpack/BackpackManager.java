@@ -34,6 +34,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.item.inventory.ClickInventoryEvent;
 import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
+import org.spongepowered.api.item.inventory.Container;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.type.CarriedInventory;
 import org.spongepowered.api.service.context.Context;
@@ -61,6 +62,7 @@ public class BackpackManager
 
     protected void loadBackpacks(UUID player)
     {
+        // TODO replace using custom data
         try
         {
             Path folder = this.backpackPath.resolve(player.toString());
@@ -299,20 +301,21 @@ public class BackpackManager
     }
 
     @Listener
-    public void onInventoryClick(ClickInventoryEvent event)
+    public void onInventoryClick(ClickInventoryEvent.Drop event, @First Player player)
     {
-        if (event.getWhoClicked() instanceof Player
-            && event.getInventory().getHolder() instanceof BackpackHolder)
+        Container inventory = event.getTargetInventory();
+        if (inventory instanceof CarriedInventory)
         {
-            if (event.getSlotType() == SlotType.OUTSIDE)
+            if (((CarriedInventory)inventory).getCarrier().orElse(null) instanceof BackpackHolder)
             {
-                if (event.isLeftClick())
+                BackpackHolder holder = (BackpackHolder)((CarriedInventory)inventory).getCarrier().get();
+                if (event instanceof ClickInventoryEvent.Drop.Primary)
                 {
-                    ((BackpackHolder)event.getInventory().getHolder()).getBackpack().showNextPage((Player)event.getWhoClicked());
+                    holder.getBackpack().showNextPage(player);
                 }
-                else if (event.isRightClick())
+                if (event instanceof ClickInventoryEvent.Drop.Secondary)
                 {
-                    ((BackpackHolder)event.getInventory().getHolder()).getBackpack().showPrevPage((Player)event.getWhoClicked());
+                    holder.getBackpack().showPrevPage(player);
                 }
             }
         }
@@ -321,13 +324,14 @@ public class BackpackManager
     @Listener
     public void onInventoryClose(InteractInventoryEvent.Close event, @First Player player)
     {
-        if (event.getTargetInventory() instanceof CarriedInventory)
+        Container inventory = event.getTargetInventory();
+        if (inventory instanceof CarriedInventory)
         {
-
-        }
-        if (event.getInventory().getHolder() instanceof BackpackHolder)
-        {
-            ((BackpackHolder)event.getInventory().getHolder()).getBackpack().closeInventory(player);
+            if (((CarriedInventory)inventory).getCarrier().orElse(null) instanceof BackpackHolder)
+            {
+                BackpackHolder holder = (BackpackHolder)((CarriedInventory)inventory).getCarrier().get();
+                holder.getBackpack().closeInventory(player);
+            }
         }
     }
 }

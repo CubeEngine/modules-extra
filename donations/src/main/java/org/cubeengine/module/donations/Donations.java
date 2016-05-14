@@ -40,6 +40,6 @@ public class Donations extends Module
     public void onEnable()
     {
         DonationController controller = new DonationController(fm.loadConfig(this, DonationsConfig.class), cm, tm, bc);
-        apiServer.registerApiHandlers(this, controller);
+        apiServer.registerApiHandlers(Donations.class, controller);
     }
 }

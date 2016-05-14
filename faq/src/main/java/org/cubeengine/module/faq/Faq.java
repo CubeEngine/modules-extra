@@ -52,7 +52,7 @@ public class Faq extends Module
     public void onEnable()
     {
         this.questions.addAll(config.questions);
-        em.registerListener(this, this);
+        em.registerListener(Faq.class, this);
     }
 
     @Listener(order = POST)
@@ -92,7 +92,7 @@ public class Faq extends Module
             {
                 bestFaq.hit();
                 final Text answer = Text.of(bestFaq.getAnswer());
-                tm.runTaskDelayed(this, () -> player.sendMessage(answer), 5L);
+                tm.runTaskDelayed(Faq.class, () -> player.sendMessage(answer), 5L);
             }
         }
     }

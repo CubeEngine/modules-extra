@@ -21,24 +21,19 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import org.cubeengine.butler.parametric.Command;
-import org.cubeengine.butler.parametric.Default;
-import org.cubeengine.butler.parametric.Optional;
 import de.cubeisland.engine.module.core.CubeEngine;
-import org.cubeengine.module.fun.Fun;
-import org.cubeengine.libcube.service.command.CommandContext;
-import org.cubeengine.libcube.service.event.EventManager;
-import org.cubeengine.libcube.service.user.User;
-import org.cubeengine.libcube.service.user.UserManager;
 import org.bukkit.Effect;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.entity.player.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.util.Vector;
-
-import org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
+import org.cubeengine.butler.parametric.Command;
+import org.cubeengine.butler.parametric.Default;
+import org.cubeengine.butler.parametric.Optional;
+import org.cubeengine.libcube.service.command.CommandContext;
+import org.cubeengine.libcube.service.event.EventManager;
+import org.cubeengine.module.fun.Fun;
+import org.spongepowered.api.world.Location;
 
 public class RocketCommand
 {

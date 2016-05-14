@@ -17,15 +17,19 @@
  */
 package org.cubeengine.module.backpack;
 
+import javax.inject.Inject;
+import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionContainer;
+import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.spongepowered.api.service.permission.PermissionDescription;
 
 @SuppressWarnings("all")
-public class BackpackPermissions extends PermissionContainer<Backpack>
+public class BackpackPermissions extends PermissionContainer
 {
-    public BackpackPermissions(Backpack module)
+    @Inject
+    public BackpackPermissions(PermissionManager pm)
     {
-        super(module);
+        super(pm, Backpack.class);
     }
 
     private final Permission COMMAND_OPEN = register("command.open", "Allows using the open command without restriction", null);

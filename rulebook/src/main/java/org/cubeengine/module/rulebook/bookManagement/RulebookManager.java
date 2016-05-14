@@ -20,33 +20,40 @@ package org.cubeengine.module.rulebook.bookManagement;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import org.cubeengine.libcube.util.StringUtils;
 import de.cubeisland.engine.i18n.language.Language;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.util.StringUtils;
 import org.cubeengine.module.rulebook.Rulebook;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.bukkit.inventory.meta.BookMeta;
+import org.spongepowered.api.text.Text;
+
+import static java.util.Arrays.stream;
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 
 public final class RulebookManager
 {
     private final Rulebook module;
     private final Map<Locale, String[]> rulebooks;
+    private I18n i18n;
 
-    public RulebookManager(Rulebook module)
+    public RulebookManager(Rulebook module, I18n i18n)
     {
         this.module = module;
+        this.i18n = i18n;
 
         this.rulebooks = new HashMap<>();
 
-        for(Path book : RuleBookFile.getLanguageFiles(this.module.getFolder()))
+        for(Path book : RuleBookFile.getLanguageFiles(i18n, this.module.getFolder()))
         {
             Language language = this.getLanguage(StringUtils.stripFileExtension(book.getFileName().toString()));
             try
@@ -55,14 +62,14 @@ public final class RulebookManager
             }
             catch(IOException ex)
             {
-                this.module.getLog().error("Can't read the file {}", book.getFileName());
+                throw new IllegalStateException(ex);
             }
         }
     }
 
     public Language getLanguage(String name)
     {
-        Set<Language> languages = this.module.getCore().getI18n().searchLanguages(name, 2);
+        Set<Language> languages = i18n.searchLanguages(name, 2);
         if(languages.size() == 1)
         {
             return languages.iterator().next();
@@ -87,28 +94,22 @@ public final class RulebookManager
 
     public ItemStack getBook(Locale locale)
     {
-        if(this.contains(locale))
+        if (!this.contains(locale))
         {
-            ItemStack ruleBook = new ItemStack(Material.WRITTEN_BOOK);
-            BookMeta meta = ((BookMeta) ruleBook.getItemMeta());
-            meta.setAuthor(Bukkit.getServerName());
-            meta.setTitle(this.module.getCore().getI18n().translate(locale, "rulebook"));
-            meta.setPages(this.getPages(locale));
-
-            List<String> lore = new ArrayList<>();
-            lore.add(locale.getLanguage());
-
-            meta.setLore(lore);
-            ruleBook.setItemMeta(meta);
-
-            return ruleBook;
+            locale = Locale.getDefault();
         }
-        return null;
+        ItemStack ruleBook = ItemStack.of(ItemTypes.WRITTEN_BOOK, 1);
+        ruleBook.offer(Keys.BOOK_AUTHOR, Text.of("Server"));
+        ruleBook.offer(Keys.DISPLAY_NAME, i18n.getTranslation(locale, POSITIVE, "rulebook"));
+        ruleBook.offer(Keys.BOOK_PAGES, stream(getPages(locale)).map(Text::of).collect(toList()));
+        // TODO add custom data
+        ruleBook.offer(Keys.ITEM_LORE, singletonList(Text.of(locale.getLanguage())));
+        return ruleBook;
     }
 
     public void removeBook(Locale locale) throws IOException
     {
-        for(Path file : RuleBookFile.getLanguageFiles(this.module.getFolder()))
+        for(Path file : RuleBookFile.getLanguageFiles(i18n, this.module.getFolder()))
         {
             Locale fileLocale = this.getLanguage(StringUtils.stripFileExtension(file.getFileName().toString())).getLocale();
             if(fileLocale.equals(locale))
@@ -127,14 +128,13 @@ public final class RulebookManager
             try
             {
                 Path file = this.module.getFolder().resolve(locale.getDisplayLanguage() + ".txt");
-                List<String> pages = ((BookMeta) book.getItemMeta()).getPages();
-                RuleBookFile.createFile(file, pages.toArray(new String[pages.size()]));
-
+                List<String> list = book.get(Keys.BOOK_PAGES).get().stream().map(Text::toPlain).collect(toList());
+                RuleBookFile.createFile(file, list.toArray(new String[list.size()]));
                 this.rulebooks.put(locale, RuleBookFile.convertToPages(file));
             }
             catch(IOException ex)
             {
-                this.module.getLog().error(ex, "Error when creating the book!");
+                throw new IllegalStateException(ex);
             }
         }
     }

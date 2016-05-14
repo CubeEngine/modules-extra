@@ -19,16 +19,17 @@ package org.cubeengine.module.fly;
 
 import java.util.HashMap;
 import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.libcube.service.i18n.formatter.MessageType;
+import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionManager;
+import org.cubeengine.libcube.service.task.Task;
+import org.cubeengine.libcube.service.task.TaskManager;
+import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.action.InteractEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.service.permission.PermissionDescription;
 import org.spongepowered.api.world.Location;
 
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
@@ -40,15 +41,16 @@ public class FlyListener
     private final HashMap<Player, Task> tasks = new HashMap<>();
     private final Fly module;
     private I18n i18n;
-    private final Location helperLocation = new Location(null, 0, 0, 0);
 
     private final Permission FLY_FEATHER;
+    private TaskManager tm;
 
-    public FlyListener(Fly module, PermissionManager pm, I18n i18n)
+    public FlyListener(Fly module, PermissionManager pm, I18n i18n, TaskManager tm)
     {
         this.module = module;
         this.i18n = i18n;
-        FLY_FEATHER = pm.register(module, "feather", "", null);
+        FLY_FEATHER = pm.register(Fly.class, "feather", "", null);
+        this.tm = tm;
     }
 
     @Listener
@@ -62,44 +64,38 @@ public class FlyListener
         if (!player.hasPermission(FLY_FEATHER.getId()))
         {
             i18n.sendTranslated(player, NEGATIVE, "You dont have permission to use this!");
-            player.setAllowFlight(false); //Disable when player is flying
+            player.offer(Keys.CAN_FLY, false); //Disable when player is flying
+            player.offer(Keys.IS_FLYING, false);
             return;
         }
 
-        FlyStartEvent flyStartEvent = new FlyStartEvent(module, player);
-        if (flyStartEvent.isCancelled())
+        //I Believe I Can Fly ...
+        player.offer(Keys.CAN_FLY, !player.get(Keys.CAN_FLY).get());
+        if (player.get(Keys.CAN_FLY).get())
         {
-            i18n.sendTranslated(player, NEGATIVE, "You are not allowed to fly now!");
-            player.setAllowFlight(false); //Disable when player is flying
-            return;
-        }
-        //I Believe I Can Fly ...     
-        player.setAllowFlight(!player.getAllowFlight());
-        if (player.getAllowFlight())
-        {
-            final ItemStack feather = new ItemStack(Material.FEATHER, 1);
-            player.getInventory().removeItem(feather);
-            player.setVelocity(player.getVelocity().setY(player.getVelocity().getY() + 1));
-            player.teleport(player.getLocation(this.helperLocation).add(new Vector(0, 0.05, 0))); //make sure the player stays flying
-            player.setFlying(true);
+            final ItemStack feather = ItemStack.of(ItemTypes.FEATHER, -1);
+            player.getInventory().query(feather).poll(1);
+            player.setVelocity(player.getVelocity().add(0, 1, 0));
+            player.setLocation(player.getLocation().add(0, 0.05, 0)); //make sure the player stays flying
+            player.offer(Keys.IS_FLYING, true);
             i18n.sendTranslated(player, POSITIVE, "You can now fly!");
-            Task flymore = new Task(module)
+            Task flymore = new Task(Fly.class, tm)
             {
                 public void run()//2 feather/min
                 {
-                    if (!player.isFlying())
+                    if (!player.get(Keys.IS_FLYING).get())
                     {
-                        player.setAllowFlight(false);
+                        player.offer(Keys.CAN_FLY, false);
                         this.cancelTask();
                         return;
                     }
-                    if (player.getInventory().contains(Material.FEATHER))
+                    if (player.getInventory().contains(ItemTypes.FEATHER))
                     {
-                        player.getInventory().removeItem(feather);
+                        player.getInventory().query(feather).poll(1);
                     }
                     else
                     {
-                        player.setAllowFlight(false);
+                        player.offer(Keys.CAN_FLY, false);
                         this.cancelTask();
                     }
                 }
@@ -113,7 +109,7 @@ public class FlyListener
         }
         else
         {//or not
-            player.setFallDistance(0);
+            player.offer(Keys.FALL_DISTANCE, 0f);
             i18n.sendTranslated(player, NEUTRAL, "You cannot fly anymore!");
         }
     }

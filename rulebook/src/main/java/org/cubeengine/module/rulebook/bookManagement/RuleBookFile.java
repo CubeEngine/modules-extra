@@ -17,6 +17,7 @@
  */
 package org.cubeengine.module.rulebook.bookManagement;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -25,14 +26,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import de.cubeisland.engine.module.core.CubeEngine;
 import org.cubeengine.libcube.service.filesystem.FileUtil;
+import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.util.StringUtils;
 import de.cubeisland.engine.i18n.I18nUtil;
 import de.cubeisland.engine.i18n.language.Language;
+
+import static java.util.Collections.singletonList;
 
 public class RuleBookFile
 {
@@ -44,7 +49,7 @@ public class RuleBookFile
         return Paths.get(parent, child);
     }
 
-    public static Set<Path> getLanguageFiles(Path directory)
+    public static Set<Path> getLanguageFiles(I18n i18n, Path directory)
     {
         Set<Path> files = new HashSet<>();
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directory))
@@ -77,10 +82,7 @@ public class RuleBookFile
             return "";
         }
 
-        try (FileChannel in = FileChannel.open(file))
-        {
-            return FileUtil.readToString(in, CubeEngine.CHARSET);
-        }
+        return String.join("\n", Files.readAllLines(file));
     }
 
     public static void createFile(Path file, String[] txt) throws IOException
@@ -90,10 +92,7 @@ public class RuleBookFile
 
     public static void createFile(Path file, String txt) throws IOException
     {
-        try (BufferedWriter writer = Files.newBufferedWriter(file, CubeEngine.CHARSET))
-        {
-            writer.write(txt);
-        }
+        Files.write(file, singletonList(txt));
     }
 
     private static String[] convertToBookPageArray(List<String> lines)

@@ -23,6 +23,7 @@ import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Complete;
 import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Greed;
+import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.command.ContainerCommand;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.spongepowered.api.command.CommandSource;
@@ -40,9 +41,9 @@ public class ManagementCommands extends ContainerCommand
     private I18n i18n;
     private final CustomCommandsConfig config;
 
-    public ManagementCommands(Customcommands module, I18n i18n)
+    public ManagementCommands(Customcommands module, I18n i18n, CommandManager cm)
     {
-        super(module);
+        super(cm, Customcommands.class);
         this.i18n = i18n;
         this.config = module.getConfig();
     }

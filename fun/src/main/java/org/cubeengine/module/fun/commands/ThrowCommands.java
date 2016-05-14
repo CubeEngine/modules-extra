@@ -29,24 +29,9 @@ import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Named;
 import org.cubeengine.butler.parametric.Optional;
-import de.cubeisland.engine.service.permission.Permission;
-import org.cubeengine.libcube.service.user.User;
-import de.cubeisland.engine.module.core.util.matcher.Match;
 import org.cubeengine.module.fun.Fun;
 import org.spongepowered.api.world.Location;
-import org.bukkit.entity.Arrow;
 import org.spongepowered.api.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.ExperienceOrb;
-import org.bukkit.entity.Explosive;
-import org.bukkit.entity.Projectile;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.util.Vector;
 
 public class ThrowCommands
 {

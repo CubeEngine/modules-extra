@@ -33,7 +33,6 @@
     <module>shout</module>
     <module>rulebook</module>
     <module>chat</module>
-    <module>border</module>
     <module>signmarket</module>
     <module>vote</module>
     <module>spawn</module>
