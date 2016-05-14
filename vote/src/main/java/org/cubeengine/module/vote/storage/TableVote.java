@@ -17,15 +17,18 @@
  */
 package org.cubeengine.module.vote.storage;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.UUID;
+import org.cubeengine.libcube.service.database.TableUpdateCreator;
 import org.cubeengine.libcube.util.Version;
 import org.cubeengine.libcube.service.database.Database;
 import org.cubeengine.libcube.service.database.Table;
 import org.jooq.TableField;
-import org.jooq.types.UInteger;
+import org.jooq.impl.SQLDataType;
 import org.jooq.types.UShort;
 
-import static org.cubeengine.libcube.service.user.TableUser.TABLE_USER;
 import static org.jooq.util.mysql.MySQLDataType.DATETIME;
 
 public class TableVote extends Table<VoteModel>
@@ -34,14 +37,13 @@ public class TableVote extends Table<VoteModel>
 
     public TableVote(String prefix, Database db)
     {
-        super(prefix + "votes", new Version(1), db);
-        this.setPrimaryKey(USERID);
-        this.addForeignKey(TABLE_USER.getPrimaryKey(), USERID);
-        this.addFields(USERID, LASTVOTE, VOTEAMOUNT);
+        super(prefix + "votecount", new Version(1), db);
+        this.setPrimaryKey(ID);
+        this.addFields(ID, LASTVOTE, VOTEAMOUNT);
         TABLE_VOTE = this;
     }
 
-    public final TableField<VoteModel, UInteger> USERID = createField("userid", U_INTEGER.nullable(false), this);
+    public final TableField<VoteModel, UUID> ID = createField("userid", SQLDataType.UUID.nullable(false), this);
     public final TableField<VoteModel, Timestamp> LASTVOTE = createField("lastvote", DATETIME.nullable(false), this);
     public final TableField<VoteModel, UShort> VOTEAMOUNT = createField("voteamount", U_SMALLINT.nullable(false), this);
 
