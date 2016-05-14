@@ -72,9 +72,9 @@ public class DynamicCycleTask implements Runnable
     {
         if (task != null)
         {
-            tm.cancelTask(module, task);
+            tm.cancelTask(Shout.class, task);
         }
-        task = tm.runTaskDelayed(module, this, 600); // 30s
+        task = tm.runTaskDelayed(Shout.class, this, 600); // 30s
     }
 
     private void runNext()
@@ -89,9 +89,9 @@ public class DynamicCycleTask implements Runnable
             {
                 if (task != null)
                 {
-                    tm.cancelTask(module, task);
+                    tm.cancelTask(Shout.class, task);
                 }
-                task = tm.runTaskDelayed(module, this, next.getDelay());
+                task = tm.runTaskDelayed(Shout.class, this, next.getDelay());
                 return;
             }
         }
@@ -101,7 +101,7 @@ public class DynamicCycleTask implements Runnable
 
     public void stop()
     {
-        tm.cancelTask(module, task);
+        tm.cancelTask(Shout.class, task);
         task = null;
         next = null;
     }

@@ -20,26 +20,13 @@ package org.cubeengine.module.itemrepair;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import org.cubeengine.libcube.service.user.User;
 import org.cubeengine.module.itemrepair.repair.RepairBlockManager;
 import org.cubeengine.module.itemrepair.repair.RepairRequest;
 import org.cubeengine.module.itemrepair.repair.blocks.RepairBlock;
 import org.cubeengine.module.itemrepair.repair.blocks.RepairBlock.RepairBlockInventory;
-import org.bukkit.block.Block;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.spongepowered.api.event.Listener;
 
-import org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
-import org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
-import static org.bukkit.event.Event.Result.DENY;
-import static org.bukkit.event.block.Action.LEFT_CLICK_BLOCK;
-import static org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK;
-
-public class ItemRepairListener implements Listener
+public class ItemRepairListener
 {
     private final Itemrepair module;
     private final RepairBlockManager rbm;
@@ -52,7 +39,7 @@ public class ItemRepairListener implements Listener
         this.repairRequests = new HashMap<>();
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @Listener
     public void onPlayerQuit(PlayerQuitEvent event)
     {
         this.repairRequests.remove(event.getPlayer().getUniqueId());

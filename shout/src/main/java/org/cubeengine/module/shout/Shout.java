@@ -25,6 +25,7 @@ import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.modularity.core.marker.Disable;
 import de.cubeisland.engine.modularity.core.marker.Enable;
 import de.cubeisland.engine.reflect.Reflector;
+import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.module.shout.announce.AnnouncementManager;
 import org.cubeengine.module.shout.interactions.ShoutCommand;
 import org.cubeengine.module.shout.interactions.ShoutListener;
@@ -50,10 +51,10 @@ public class Shout extends Module
     @Inject private Reflector reflector;
 
     private AnnouncementManager announcementManager;
-    private PermissionDescription announcePerm;
+    private Permission announcePerm;
 
 
-    public PermissionDescription getAnnouncePerm()
+    public Permission getAnnouncePerm()
     {
         return announcePerm;
     }
@@ -61,12 +62,12 @@ public class Shout extends Module
     @Enable
     public void onEnable()
     {
-        announcePerm = pm.register(this, "announcement", "", null);
+        announcePerm = pm.register(Shout.class, "announcement", "", null);
 
         announcementManager = new AnnouncementManager(this, modulePath, i18n, pm, tm, sm, reflector);
         announcementManager.loadAnnouncements();
-        em.registerListener(this, new ShoutListener(announcementManager));
-        cm.addCommand(new ShoutCommand(this, i18n));
+        em.registerListener(Shout.class, new ShoutListener(announcementManager));
+        cm.addCommand(new ShoutCommand(cm, this, i18n));
 
         announcementManager.initUsers();
     }

@@ -166,7 +166,7 @@ public class AnnouncementManager
         fixedCycleAnnouncements.values().forEach(FixedCycleAnnouncement::stop);
         fixedCycleAnnouncements.clear();
 
-        tm.cancelTasks(this.module);
+        tm.cancelTasks(Shout.class);
 
         loadAnnouncements();
         initUsers();

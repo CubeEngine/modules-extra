@@ -26,6 +26,8 @@ import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Greed;
 import org.cubeengine.butler.parametric.Optional;
+import org.cubeengine.libcube.service.command.CommandManager;
+import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.libcube.util.ChatFormat;
 import org.cubeengine.module.powertools.data.IPowertoolData;
 import org.cubeengine.module.powertools.data.PowertoolData;
@@ -61,9 +63,9 @@ public class PowertoolCommand extends ContainerCommand
     private MaterialMatcher materialMatcher;
     private I18n i18n;
 
-    public PowertoolCommand(Powertools module, MaterialMatcher materialMatcher, I18n i18n)
+    public PowertoolCommand(CommandManager cm, Powertools module, MaterialMatcher materialMatcher, I18n i18n)
     {
-        super(module);
+        super(cm, Powertools.class);
         this.module = module;
         this.materialMatcher = materialMatcher;
         this.i18n = i18n;

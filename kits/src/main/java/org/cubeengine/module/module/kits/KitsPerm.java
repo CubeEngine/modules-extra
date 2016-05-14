@@ -17,15 +17,18 @@
  */
 package org.cubeengine.module.module.kits;
 
+import javax.inject.Inject;
+import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionContainer;
-import org.spongepowered.api.service.permission.PermissionDescription;
+import org.cubeengine.libcube.service.permission.PermissionManager;
 
 @SuppressWarnings("all")
-public class KitsPerm extends PermissionContainer<Kits>
+public class KitsPerm extends PermissionContainer
 {
-    public KitsPerm(Kits module)
+    @Inject
+    public KitsPerm(PermissionManager pm)
     {
-        super(module);
+        super(pm, Kits.class);
     }
 
     public final Permission KITS = register("kits", "Grants access to all kits", null);

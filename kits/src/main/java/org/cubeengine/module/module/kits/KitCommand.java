@@ -26,6 +26,7 @@ import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Default;
 import org.cubeengine.butler.parametric.Flag;
+import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.util.FileUtil;
 import org.cubeengine.libcube.service.command.ContainerCommand;
 import org.cubeengine.libcube.service.command.annotation.ParameterPermission;
@@ -51,9 +52,9 @@ public class KitCommand extends ContainerCommand
     private I18n i18n;
     private InventoryGuardFactory igf;
 
-    public KitCommand(Kits module, I18n i18n, InventoryGuardFactory igf)
+    public KitCommand(Kits module, I18n i18n, InventoryGuardFactory igf, CommandManager cm)
     {
-        super(module);
+        super(cm, Kits.class);
         this.module = module;
         this.i18n = i18n;
         this.igf = igf;
@@ -98,7 +99,7 @@ public class KitCommand extends ContainerCommand
             });
             manager.saveKit(kit);
             i18n.sendTranslated(context, POSITIVE, "Created the {name#kit} kit!", kit.getKitName());
-        }).submitInventory(module, true);
+        }).submitInventory(Kits.class, true);
     }
 
 

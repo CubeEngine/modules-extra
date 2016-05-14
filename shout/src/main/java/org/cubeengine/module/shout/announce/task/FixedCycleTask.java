@@ -42,14 +42,14 @@ public class FixedCycleTask implements Runnable
         announcement.announce();
         if (task != null)
         {
-            tm.cancelTask(module, task);
+            tm.cancelTask(Shout.class, task);
         }
-        task = tm.runTaskDelayed(module, this, announcement.getDelay());
+        task = tm.runTaskDelayed(Shout.class, this, announcement.getDelay());
     }
 
     public void stop()
     {
-        tm.cancelTask(module, task);
+        tm.cancelTask(Shout.class, task);
         task = null;
     }
 }

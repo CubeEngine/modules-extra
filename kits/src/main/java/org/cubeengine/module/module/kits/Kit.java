@@ -20,6 +20,7 @@ package org.cubeengine.module.module.kits;
 import java.util.List;
 import org.cubeengine.butler.parameter.IncorrectUsageException;
 import org.cubeengine.libcube.service.command.exception.PermissionDeniedException;
+import org.cubeengine.libcube.service.permission.Permission;
 import org.joda.time.Duration;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
@@ -38,7 +39,7 @@ public class Kit
     private boolean giveKitOnFirstJoin;
     private int limitUsagePerPlayer;
     private long limitUsageDelay;
-    private PermissionDescription permission;
+    private Permission permission;
     private String customMessage;
     private List<String> commands;
 
@@ -53,7 +54,7 @@ public class Kit
         this.customMessage = customMessage;
         if (usePermission)
         {
-            this.permission = module.getPermissionManager().register(module, name, "Permission for the kit: " + name, module.perms().KITS);
+            this.permission = module.getPermissionManager().register(Kits.class, name, "Permission for the kit: " + name, module.perms().KITS);
         }
         else
         {
@@ -124,7 +125,7 @@ public class Kit
         }
     }
 
-    public PermissionDescription getPermission()
+    public Permission getPermission()
     {
         return this.permission;
     }

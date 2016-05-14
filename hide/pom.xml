@@ -27,12 +27,5 @@
       <scope>provided</scope>
       <type>jar</type>
     </dependency>
-    <dependency>
-      <groupId>org.dynmap</groupId>
-      <artifactId>dynmap-api</artifactId>
-      <version>1.9.4</version>
-      <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
   </dependencies>
 </project>

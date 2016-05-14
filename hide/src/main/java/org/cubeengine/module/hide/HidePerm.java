@@ -17,24 +17,24 @@
  */
 package org.cubeengine.module.hide;
 
-import de.cubeisland.engine.service.permission.PermDefault;
-import de.cubeisland.engine.service.permission.Permission;
+import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionContainer;
+import org.cubeengine.libcube.service.permission.PermissionManager;
 
 @SuppressWarnings("all")
-public class HidePerm extends PermissionContainer<Hide>
+public class HidePerm extends PermissionContainer
 {
-    public HidePerm(Hide module)
+    public HidePerm(PermissionManager pm)
     {
-        super(module);
-        this.registerAllPermissions();
+        super(pm, Hide.class);
     }
 
-    private final Permission AUTO = getBasePerm().childWildcard("auto");
-    public final Permission AUTO_HIDE = AUTO.child("hide", PermDefault.FALSE);
-    public final Permission AUTO_SEEHIDDENS = AUTO.child("seehiddens", PermDefault.FALSE);
+    private final Permission AUTO = register("auto", "");
+    public final Permission AUTO_HIDE = register("hide", "", AUTO);
+    public final Permission AUTO_SEEHIDDENS = register("see-hidden", "", AUTO);
 
-    public final Permission INTERACT = getBasePerm().child("interact", PermDefault.FALSE);
-    public final Permission DROP = getBasePerm().child("drop", PermDefault.FALSE);
-    public final Permission CHAT = getBasePerm().child("chat", PermDefault.FALSE);
+    public final Permission INTERACT = register("interact", "");
+    public final Permission PICKUP = register("pickup", "");
+    public final Permission DROP = register("drop", "");
+    public final Permission CHAT = register("chat", "");
 }

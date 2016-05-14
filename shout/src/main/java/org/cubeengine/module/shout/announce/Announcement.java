@@ -19,6 +19,7 @@ package org.cubeengine.module.shout.announce;
 
 import java.util.Collection;
 import java.util.Locale;
+import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.module.shout.Shout;
 import org.cubeengine.module.shout.ShoutUtil;
 import org.cubeengine.libcube.service.permission.PermissionManager;
@@ -42,7 +43,7 @@ public class Announcement
 
     public Announcement(Shout module, String name, AnnouncementConfig config, PermissionManager pm)
     {
-        this.permission = "*".equals(config.permName) ? null : pm.register(module, config.permName, "", module.getAnnouncePerm());
+        this.permission = "*".equals(config.permName) ? null : pm.register(Shout.class, config.permName, "", module.getAnnouncePerm());
         this.config = config;
         this.name = name;
         this.delay = ShoutUtil.parseDelay(config.delay) * 20 / 1000;
@@ -75,7 +76,7 @@ public class Announcement
      *
      * @return	the permission node for this announcement
      */
-    public PermissionDescription getPermission()
+    public Permission getPermission()
     {
         return this.permission;
     }

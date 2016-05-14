@@ -20,20 +20,32 @@ package org.cubeengine.module.hide;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import de.cubeisland.engine.module.core.module.Module;
-import de.cubeisland.engine.module.core.module.Reloadable;
-import org.cubeengine.libcube.service.user.User;
-import org.cubeengine.module.hide.event.UserHideEvent;
-import org.cubeengine.module.hide.event.UserShowEvent;
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
-import org.dynmap.DynmapAPI;
+import javax.inject.Inject;
+import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
+import de.cubeisland.engine.modularity.core.Module;
+import de.cubeisland.engine.modularity.core.marker.Disable;
+import de.cubeisland.engine.modularity.core.marker.Enable;
+import org.cubeengine.libcube.service.Broadcaster;
+import org.cubeengine.libcube.service.command.CommandManager;
+import org.cubeengine.libcube.service.event.EventManager;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.permission.PermissionManager;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.manipulator.mutable.entity.InvisibilityData;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 
-public class Hide extends Module implements Reloadable
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
+
+// TODO hide on Dynmap SpongeAPI
+// TODO event for hide and show
+// TODO contextual - can see hidden players
+@ModuleInfo(name = "Hide", description = "Hide yourself from the world")
+public class Hide extends Module
 {
-    private HideConfig config;
     private Set<UUID> hiddenUsers;
-    private Set<UUID> canSeeHiddens;
 
     public HidePerm perms()
     {
@@ -42,101 +54,48 @@ public class Hide extends Module implements Reloadable
 
     private HidePerm perms;
 
-    @Override
+    @Inject private CommandManager cm;
+    @Inject private EventManager em;
+    @Inject private I18n i18n;
+    @Inject private Broadcaster bc;
+    @Inject private PermissionManager pm;
+
+    @Enable
     public void onEnable()
     {
         hiddenUsers = new HashSet<>();
-        canSeeHiddens = new HashSet<>();
-        this.getCore().getCommandManager().addCommands(this.getCore().getCommandManager(), this, new HideCommands(this));
-        this.getCore().getEventManager().registerListener(this, new HideListener(this));
-
-        this.perms = new HidePerm(this);
-
-        Plugin p = Bukkit.getPluginManager().getPlugin("dynmap");
-        if (p != null && p.isEnabled() && p instanceof DynmapAPI)
-        {
-            getCore().getEventManager().registerListener(this, new DynmapListener((DynmapAPI)p));
-        }
+        // canSeeHiddens = new HashSet<>();
+        cm.addCommands(cm, this, new HideCommands(this, i18n));
+        em.registerListener(Hide.class, new HideListener(this, i18n));
+        this.perms = new HidePerm(pm);
     }
 
-    @Override
+    @Disable
     public void onDisable()
     {
-        this.canSeeHiddens.clear();
-        Set<User> onlineUsers = getCore().getUserManager().getOnlineUsers();
         for (UUID hiddenId : hiddenUsers)
         {
-            User hidden = getCore().getUserManager().getExactUser(hiddenId);
-            for (User user : onlineUsers)
-            {
-                user.showPlayer(hidden);
-            }
+            Sponge.getServer().getPlayer(hiddenId).ifPresent(this::showPlayer);
         }
         this.hiddenUsers.clear();
     }
 
-    @Override
-    public void reload()
+    public void hidePlayer(final Player player)
     {
-        this.onDisable();
+        player.offer(Keys.INVISIBLE, true);
+        player.offer(Keys.INVISIBILITY_IGNORES_COLLISION, true);
+        player.offer(Keys.INVISIBILITY_PREVENTS_TARGETING, true);
+
+        bc.broadcastTranslated(NEUTRAL, "{user:color=YELLOW} left the game", player);
+        // can see hidden + msg
     }
 
-    public void hidePlayer(final User user)
+    public void showPlayer(final User player)
     {
-        this.hidePlayer(user, true);
-    }
+        player.remove(InvisibilityData.class);
 
-    public void hidePlayer(final User user, boolean printMessage)
-    {
-        this.hiddenUsers.add(user.getUniqueId());
-
-        getCore().getEventManager().fireEvent(new UserHideEvent(user.getCore(), user, printMessage));
-
-        for (User onlineUser : getCore().getUserManager().getOnlineUsers())
-        {
-            if (!this.canSeeHiddens.contains(onlineUser.getUniqueId()))
-            {
-                onlineUser.hidePlayer(user);
-            }
-        }
-
-        for (UUID hiddenId : this.hiddenUsers)
-        {
-            User hiddenUser = getCore().getUserManager().getExactUser(hiddenId);
-            if (hiddenUser != user && !this.canSeeHiddens.contains(hiddenId))
-            {
-                hiddenUser.hidePlayer(user);
-            }
-        }
-    }
-
-    public void showPlayer(final User user)
-    {
-        this.hiddenUsers.remove(user.getUniqueId());
-
-        getCore().getEventManager().fireEvent(new UserShowEvent(user.getCore(), user));
-
-        for (User onlineUser : getCore().getUserManager().getOnlineUsers())
-        {
-            if (!this.canSeeHiddens.contains(onlineUser.getUniqueId()))
-            {
-                onlineUser.showPlayer(user);
-            }
-        }
-
-        for (UUID hiddenId : this.hiddenUsers)
-        {
-            User hiddenUser = getCore().getUserManager().getExactUser(hiddenId);
-            if (hiddenUser != user && !this.canSeeHiddens.contains(hiddenId))
-            {
-                hiddenUser.showPlayer(user);
-            }
-        }
-    }
-
-    public HideConfig getConfig()
-    {
-        return config;
+        bc.broadcastTranslated(NEUTRAL, "{user:color=YELLOW} joined the game", player);
+        // can see hidden + msg
     }
 
     public Set<UUID> getHiddenUsers()
@@ -144,40 +103,8 @@ public class Hide extends Module implements Reloadable
         return hiddenUsers;
     }
 
-    public Set<UUID> getCanSeeHiddens()
+    public boolean isHidden(Player player)
     {
-        return canSeeHiddens;
-    }
-
-    public boolean isHidden(User user)
-    {
-        return this.hiddenUsers.contains(user.getUniqueId());
-    }
-
-    public boolean canSeeHiddens(User user)
-    {
-        return this.canSeeHiddens.contains(user.getUniqueId());
-    }
-
-    public boolean toggleCanSeeHiddens(User user)
-    {
-        if (canSeeHiddens(user))
-        {
-            for (UUID hiddenName : hiddenUsers)
-            {
-                user.hidePlayer(getCore().getUserManager().getExactUser(hiddenName));
-            }
-            canSeeHiddens.remove(user.getUniqueId());
-            return false;
-        }
-        else
-        {
-            for (UUID hiddenName : hiddenUsers)
-            {
-                user.showPlayer(getCore().getUserManager().getExactUser(hiddenName));
-            }
-            canSeeHiddens.add(user.getUniqueId());
-            return true;
-        }
+        return this.hiddenUsers.contains(player.getUniqueId());
     }
 }

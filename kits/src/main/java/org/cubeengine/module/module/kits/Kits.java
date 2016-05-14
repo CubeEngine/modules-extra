@@ -52,7 +52,7 @@ public class Kits extends Module
         this.kitManager = new KitManager(this, reflector, sm);
         this.kitManager.loadKits();
         em.registerListener(Kits.class, kitManager);
-        cm.addCommand(new KitCommand(this, i18n, igf));
+        cm.addCommand(new KitCommand(this, i18n, igf, cm));
         cm.getProviderManager().register(this, new KitReader(kitManager));
     }
 

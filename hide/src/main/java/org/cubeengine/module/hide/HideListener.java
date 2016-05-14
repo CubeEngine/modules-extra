@@ -18,206 +18,116 @@
 package org.cubeengine.module.hide;
 
 import java.util.Iterator;
-import java.util.Set;
 import java.util.UUID;
-import org.cubeengine.libcube.service.user.User;
-import org.cubeengine.libcube.service.user.UserManager;
-import org.cubeengine.module.hide.event.UserHideEvent;
-import org.cubeengine.module.hide.event.UserShowEvent;
+import java.util.concurrent.ExecutionException;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Entity;
-import org.spongepowered.api.entity.player.Player;
-import org.bukkit.event.Event.Result;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityTargetEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.server.ServerListPingEvent;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.action.InteractEvent;
+import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
+import org.spongepowered.api.event.item.inventory.DropItemEvent;
+import org.spongepowered.api.event.message.MessageChannelEvent;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.event.server.ClientPingServerEvent;
+import org.spongepowered.api.profile.GameProfile;
+import org.spongepowered.api.profile.GameProfileManager;
 
-import org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
-import static org.bukkit.event.block.Action.PHYSICAL;
 
-public class HideListener implements Listener
+public class HideListener
 {
     private final Hide module;
-    private final UserManager um;
-    private final Set<UUID> hiddens;
-    private final Set<UUID> canSeeHiddens;
+    private I18n i18n;
 
-    public HideListener(Hide module)
+    public HideListener(Hide module, I18n i18n)
     {
         this.module = module;
-        this.um = module.getCore().getUserManager();
-        this.hiddens = module.getHiddenUsers();
-        this.canSeeHiddens = module.getCanSeeHiddens();
+        this.i18n = i18n;
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onJoin(PlayerJoinEvent event)
+    @Listener
+    public void onJoin(ClientConnectionEvent.Join event)
     {
-        final UUID uuid = event.getPlayer().getUniqueId();
-        final User joined = this.um.getExactUser(uuid);
-
-        if (!canSeeHiddens.contains(uuid))
+        Player player = event.getTargetEntity();
+        if (module.isHidden(player))
         {
-            for (UUID hidden : hiddens)
+            module.hidePlayer(player);
+        }
+
+        if (player.hasPermission(module.perms().AUTO_HIDE.getId()))
+        {
+            event.setMessageCancelled(true);
+            module.hidePlayer(player);
+            i18n.sendTranslated(player, POSITIVE, "You were automatically hidden!");
+        }
+    }
+    
+    @Listener
+    public void onQuit(ClientConnectionEvent.Disconnect event)
+    {
+        
+        if (module.isHidden(event.getTargetEntity()))
+        {
+            event.setMessageCancelled(true);
+            module.showPlayer(event.getTargetEntity());
+        }
+    }
+
+    @Listener
+    public void onInteract(InteractEvent event, @First Player player)
+    {
+        if (module.isHidden(player) && !player.hasPermission(module.perms().INTERACT.getId()))
+        {
+            event.setCancelled(true);
+        }
+    }
+
+    @Listener
+    public void onPickupItem(ChangeInventoryEvent.Pickup event, @First Player player)
+    {
+        if (module.isHidden(player) && !player.hasPermission(module.perms().PICKUP.getId()))
+        {
+            event.setCancelled(true);
+        }
+    }
+
+    @Listener
+    public void onChat(MessageChannelEvent.Chat event, @First Player player)
+    {
+        if (module.isHidden(player) && !player.hasPermission(module.perms().CHAT.getId()))
+        {
+            event.setCancelled(true);
+        }
+    }
+
+
+    @Listener
+    public void onDropItem(DropItemEvent event, @First Player player)
+    {
+        if (module.isHidden(player) && !player.hasPermission(module.perms().DROP.getId()))
+        {
+            event.setCancelled(true);
+        }
+    }
+
+    @Listener
+    public void onServerPingList(ClientPingServerEvent event)
+    {
+        GameProfileManager gpm = Sponge.getServer().getGameProfileManager();
+        event.getResponse().getPlayers().ifPresent(l -> {
+            for (UUID uuid : module.getHiddenUsers())
             {
-                joined.hidePlayer(um.getExactUser(hidden));
-            }
-        }
-    }
-
-    @EventHandler
-    public void onShow(UserShowEvent event)
-    {
-        UUID uuid = event.getUser().getUniqueId();
-        for (UUID canSeeHidden : canSeeHiddens)
-        {
-            if (!uuid.equals(canSeeHidden))
-            {
-                um.getExactUser(canSeeHidden).sendTranslated(POSITIVE, "Player {user} is now visible", event.getUser());
-            }
-        }
-        um.broadcastTranslated(NEUTRAL, "{user:color=YELLOW} joined the game", event.getUser()); // TODO do we want/need translation here?
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void autoHide(PlayerJoinEvent event)
-    {
-        final User user = um.getExactUser(event.getPlayer().getUniqueId());
-        if (module.perms().AUTO_HIDE.isAuthorized(user))
-        {
-            event.setJoinMessage(null);
-            this.module.hidePlayer(user, false);
-
-            user.sendTranslated(POSITIVE, "You were automatically hidden!");
-        }
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void autoSeehiddens(PlayerJoinEvent event)
-    {
-        final UUID uuid = event.getPlayer().getUniqueId();
-        final User user = um.getExactUser(uuid);
-        if (module.perms().AUTO_SEEHIDDENS.isAuthorized(user) && !module.getCanSeeHiddens().contains(uuid))
-        {
-            canSeeHiddens.add(uuid);
-            user.sendTranslated(POSITIVE, "You can automatically see hidden players!");
-        }
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onQuit(PlayerQuitEvent event)
-    {
-        final UUID uuid = event.getPlayer().getUniqueId();
-
-        if (event.getQuitMessage() != null)
-        {
-            if (hiddens.contains(uuid))
-            {
-                for (UUID canSeeHidden : canSeeHiddens)
+                try
                 {
-                    um.getExactUser(canSeeHidden).sendMessage(event.getQuitMessage());
+                    GameProfile gp = gpm.get(uuid).get();
+                    l.getProfiles().remove(gp);
                 }
-                event.setQuitMessage(null);
-                hiddens.remove(uuid);
+                catch (InterruptedException | ExecutionException e)
+                {}
             }
-        }
-    }
-
-    @EventHandler
-    public void onHide(UserHideEvent event)
-    {
-        final UUID uuid = event.getUser().getUniqueId();
-        for (UUID canSeeHidden : canSeeHiddens)
-        {
-            if (!uuid.equals(canSeeHidden))
-            {
-                um.getExactUser(canSeeHidden).sendTranslated(POSITIVE, "Player {user} is now hidden!", event.getUser());
-            }
-        }
-        if (event.isAlreadyOnline())
-        {
-            um.broadcastTranslated(NEUTRAL, "{user:color=YELLOW} left the game", event.getUser()); // TODO do we want/need translation here?
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onInteract(PlayerInteractEvent event)
-    {
-        if (event.getAction() != PHYSICAL && hiddens.contains(event.getPlayer().getUniqueId()) && !module.perms().INTERACT.isAuthorized(event.getPlayer()))
-        {
-            event.setCancelled(true);
-            event.setUseInteractedBlock(Result.DENY);
-            event.setUseItemInHand(Result.DENY);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPickupItem(PlayerPickupItemEvent event)
-    {
-        if (hiddens.contains(event.getPlayer().getUniqueId()))
-        {
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onChat(AsyncPlayerChatEvent event)
-    {
-        if (hiddens.contains(event.getPlayer().getUniqueId()) && !module.perms().CHAT.isAuthorized(event.getPlayer()))
-        {
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onEntityTarget(EntityTargetEvent event)
-    {
-        final Entity entity = event.getEntity();
-        if (entity instanceof Player)
-        {
-            if (hiddens.contains(entity.getUniqueId()))
-            {
-                event.setCancelled(true);
-            }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onDropItem(PlayerDropItemEvent event)
-    {
-        if (hiddens.contains(event.getPlayer().getUniqueId()) && !module.perms().DROP.isAuthorized(event.getPlayer()))
-        {
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerPressurePlate(PlayerInteractEvent event)
-    {
-        if (event.getAction() == PHYSICAL && hiddens.contains(event.getPlayer().getUniqueId()))
-        {
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler
-    public void onServerPingList(ServerListPingEvent event)
-    {
-        Iterator<Player> it = event.iterator();
-        while (it.hasNext())
-        {
-            if (hiddens.contains(it.next().getUniqueId()))
-            {
-                it.remove();
-            }
-        }
+        });
     }
 }

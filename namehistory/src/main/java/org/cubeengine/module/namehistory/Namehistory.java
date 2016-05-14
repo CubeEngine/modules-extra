@@ -52,7 +52,7 @@ public class Namehistory extends Module
     @Enable
     public void onEnable()
     {
-        em.registerListener(this, this);
+        em.registerListener(Namehistory.class, this);
         cm.addCommands(this, this);
     }
 

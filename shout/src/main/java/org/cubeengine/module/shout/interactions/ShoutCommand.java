@@ -25,6 +25,7 @@ import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Label;
 import org.cubeengine.butler.parametric.Named;
+import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.module.shout.Shout;
 import org.cubeengine.module.shout.announce.Announcement;
 import org.cubeengine.libcube.service.command.CommandContext;
@@ -41,9 +42,9 @@ public class ShoutCommand extends ContainerCommand
     private final Shout module;
     private I18n i18n;
 
-    public ShoutCommand(Shout module, I18n i18n)
+    public ShoutCommand(CommandManager cm, Shout module, I18n i18n)
     {
-        super(module);
+        super(cm, Shout.class);
         this.module = module;
         this.i18n = i18n;
     }

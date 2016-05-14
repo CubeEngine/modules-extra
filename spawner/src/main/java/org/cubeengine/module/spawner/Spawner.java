@@ -28,6 +28,7 @@ import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.modularity.core.marker.Enable;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
@@ -72,8 +73,8 @@ import static org.spongepowered.api.item.Enchantments.SILK_TOUCH;
 public class Spawner extends Module
 {
     private ItemStack spawnerItem;
-    private PermissionDescription eggPerms;
-    private Map<EntityType, PermissionDescription> perms = new HashMap<>();
+    private Permission eggPerms;
+    private Map<EntityType, Permission> perms = new HashMap<>();
 
     @Inject private PermissionManager pm;
     @Inject private EventManager em;
@@ -96,7 +97,7 @@ public class Spawner extends Module
     {
         for (EntityType type : types)
         {
-            PermissionDescription child = pm.register(Spawner.class, type.getName(), "", eggPerms);
+            Permission child = pm.register(Spawner.class, type.getName(), "", eggPerms);
             this.perms.put(type, child);
         }
     }
@@ -209,7 +210,7 @@ public class Spawner extends Module
                 ItemStack itemInHand = player.getItemInHand().get();
                 EntityType type = itemInHand.get(Keys.SPAWNABLE_ENTITY_TYPE).get();
 
-                PermissionDescription perm = this.perms.get(type);
+                Permission perm = this.perms.get(type);
                 if (perm == null && !player.hasPermission(eggPerms.getId()))
                 {
                     i18n.sendTranslated(player, NEGATIVE, "Invalid SpawnEgg!");
