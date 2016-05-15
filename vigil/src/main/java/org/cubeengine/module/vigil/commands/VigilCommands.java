@@ -17,6 +17,7 @@
  */
 package org.cubeengine.module.vigil.commands;
 
+import java.util.Collections;
 import org.cubeengine.butler.alias.Alias;
 import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parametric.Command;
@@ -27,6 +28,7 @@ import org.cubeengine.libcube.service.command.ContainerCommand;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.matcher.StringMatcher;
 import org.cubeengine.module.vigil.Vigil;
+import org.cubeengine.module.vigil.data.LookupData;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
@@ -129,10 +131,11 @@ public class VigilCommands extends ContainerCommand
         ItemStack itemStack = game.getRegistry().createBuilder(ItemStack.Builder.class).itemType(type).quantity(1).build();
         itemStack.offer(Keys.DISPLAY_NAME, toolName);
         itemStack.offer(Keys.ITEM_LORE, asList(i18n.getTranslation(player, NONE, "created by {name}", player.getName())));
+        itemStack.offer(Keys.ITEM_ENCHANTMENTS, Collections.emptyList());
+        itemStack.offer(new LookupData().with(player.getUniqueId()));
         player.setItemInHand(itemStack);
         // TODO search in inventory
         // TODO put item in hand back into inventory
         i18n.sendTranslated(player, POSITIVE, "Received a new Log-Tool!");
-        // TODO LookupAttachment?
     }
 }

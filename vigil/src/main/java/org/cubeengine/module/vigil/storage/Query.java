@@ -20,7 +20,9 @@ package org.cubeengine.module.vigil.storage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import com.flowpowered.math.vector.Vector3d;
+import com.flowpowered.math.vector.Vector3i;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
@@ -50,30 +52,30 @@ public class Query
         return collection.find(query);
     }
 
-    public Query world(World world)
+    public Query world(UUID world)
     {
         Document block = new Document();
         Document other = new Document();
 
-        block.put(String.join(".", DATA, BLOCK_CHANGES, LOCATION, WORLD.asString("_")), world.getUniqueId().toString());
-        other.put(String.join(".", DATA, LOCATION, WORLD.asString("_")), world.getUniqueId().toString());
+        block.put(String.join(".", DATA, BLOCK_CHANGES, LOCATION, WORLD.asString("_")), world.toString());
+        other.put(String.join(".", DATA, LOCATION, WORLD.asString("_")), world.toString());
 
         and.add(new Document(OR, Arrays.asList(block, other)));
         return this;
     }
 
-    public Query position(Vector3d pos)
+    public Query position(Vector3i pos)
     {
         Document block = new Document();
         Document other = new Document();
 
-        block.put(String.join(".", DATA, BLOCK_CHANGES, LOCATION, X.asString("_")), pos.getFloorX());
-        block.put(String.join(".", DATA, BLOCK_CHANGES, LOCATION, Y.asString("_")), pos.getFloorY());
-        block.put(String.join(".", DATA, BLOCK_CHANGES, LOCATION, Z.asString("_")), pos.getFloorZ());
+        block.put(String.join(".", DATA, BLOCK_CHANGES, LOCATION, X.asString("_")), pos.getX());
+        block.put(String.join(".", DATA, BLOCK_CHANGES, LOCATION, Y.asString("_")), pos.getY());
+        block.put(String.join(".", DATA, BLOCK_CHANGES, LOCATION, Z.asString("_")), pos.getZ());
 
-        other.put(String.join(".", DATA, LOCATION, X.asString("_")), pos.getFloorX());
-        other.put(String.join(".", DATA, LOCATION, Y.asString("_")), pos.getFloorY());
-        other.put(String.join(".", DATA, LOCATION, Z.asString("_")), pos.getFloorZ());
+        other.put(String.join(".", DATA, LOCATION, X.asString("_")), pos.getX());
+        other.put(String.join(".", DATA, LOCATION, Y.asString("_")), pos.getY());
+        other.put(String.join(".", DATA, LOCATION, Z.asString("_")), pos.getZ());
 
         and.add(new Document(OR, Arrays.asList(block, other)));
         return this;

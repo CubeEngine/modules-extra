@@ -31,6 +31,7 @@ import com.mongodb.MongoTimeoutException;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
+import org.cubeengine.module.vigil.Lookup;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.Report;
@@ -131,16 +132,17 @@ public class QueryManager
         }
     }
 
-    public void queryAndShow(Object lookup, Player player) // TODO lookup object
+    public void queryAndShow(Lookup lookup, Player player) // TODO lookup object
     {
         // Build query from lookup
         Query query = new Query();
 
         // TODO lookup settings
-        query.world(player.getWorld());
-        if (lookup instanceof Vector3d)
+        query.world(lookup.getWorld());
+
+        if (lookup.getPosition() != null)
         {
-            query.position(((Vector3d) lookup));
+            query.position(lookup.getPosition());
         }
 
         FindIterable<Document> results = query.find(db);

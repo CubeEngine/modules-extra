@@ -31,23 +31,18 @@ import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 import static org.cubeengine.module.vigil.commands.VigilCommands.toolName;
 
 public class ToolListener
 {
-    private Game game;
-    private I18n i18n;
-    private final PermissionManager pm;
     private QueryManager qm;
     private final Permission toolPerm;
 
-    public ToolListener(I18n i18n, PermissionManager pm, QueryManager qm, Game game)
+    public ToolListener(PermissionManager pm, QueryManager qm)
     {
-        this.i18n = i18n;
-        this.pm = pm;
         this.qm = qm;
-        this.game = game;
         toolPerm = pm.register(Vigil.class, "use-logtool", "Allows using log-tools", null);
     }
 
@@ -63,7 +58,7 @@ public class ToolListener
                                         .map(data -> data.displayName().get().toPlain().equals(toolName.toPlain()))
                                         .orElse(false))
         {
-            Location loc;
+            Location<World> loc;
             if (event instanceof InteractBlockEvent.Primary)
             {
                 loc = event.getTargetBlock().getLocation().get();
@@ -72,9 +67,8 @@ public class ToolListener
             {
                 loc = event.getTargetBlock().getLocation().get().getRelative(event.getTargetSide());
             }
-            // TODO generate and pass Lookup with parameters and show settings
-            // TODO set lookuplocation to Block ; left: clicked block ; righ: would placed block
-            qm.queryAndShow(loc.getPosition(), player);
+
+            qm.queryAndShow(Lookup.builder().with(loc).build(), player);
             event.setCancelled(true);
         }
     }

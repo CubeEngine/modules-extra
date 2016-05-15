@@ -58,7 +58,7 @@ public class Vigil extends Module
         ReportManager reportManager = new ReportManager(this, em, i18n);
         qm = new QueryManager(tf, bd.getDatabase().getCollection("vigil"), reportManager, i18n);
         cm.addCommand(new VigilCommands(sm, i18n, game, cm));
-        em.registerListener(Vigil.class, new ToolListener(i18n, pm, qm, game));
+        em.registerListener(Vigil.class, new ToolListener(pm, qm));
     }
 
     public QueryManager getQueryManager()
