@@ -21,7 +21,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
-import com.vexsoftware.votifier.model.VotifierEvent;
+import com.vexsoftware.votifier.sponge.event.VotifierEvent;
 import de.cubeisland.engine.logscribe.Log;
 import de.cubeisland.engine.modularity.core.marker.Enable;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
@@ -34,11 +34,10 @@ import org.cubeengine.libcube.util.ChatFormat;
 import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.database.Database;
 import org.cubeengine.module.vote.storage.TableVote;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.jooq.DSLContext;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.service.economy.EconomyService;
@@ -55,7 +54,7 @@ import static java.lang.Math.pow;
  */
 // TODO updater from old db
 @ModuleInfo(name = "Vote", description = "Get rewards for votes")
-public class Vote extends Module implements Listener
+public class Vote extends Module
 {
     private VoteConfiguration config;
 
@@ -77,7 +76,7 @@ public class Vote extends Module implements Listener
         cm.addCommands(this, new VoteCommands(this, db, i18n));
     }
 
-    @EventHandler
+    @Listener
     private void onVote(VotifierEvent event) throws ExecutionException, InterruptedException
     {
         final com.vexsoftware.votifier.model.Vote vote = event.getVote();
