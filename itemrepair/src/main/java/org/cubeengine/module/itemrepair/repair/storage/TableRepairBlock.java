@@ -17,13 +17,14 @@
  */
 package org.cubeengine.module.itemrepair.repair.storage;
 
+import java.util.UUID;
 import org.cubeengine.libcube.service.database.AutoIncrementTable;
 import org.cubeengine.libcube.service.database.Database;
 import org.cubeengine.libcube.util.Version;
 import org.jooq.TableField;
+import org.jooq.impl.SQLDataType;
 import org.jooq.types.UInteger;
 
-import static org.cubeengine.libcube.service.config.world.TableWorld.TABLE_WORLD;
 import static org.jooq.impl.SQLDataType.INTEGER;
 import static org.jooq.impl.SQLDataType.VARCHAR;
 
@@ -31,7 +32,7 @@ public class TableRepairBlock extends AutoIncrementTable<RepairBlockModel, UInte
 {
     public static TableRepairBlock TABLE_REPAIR_BLOCK;
     public final TableField<RepairBlockModel, UInteger> ID = createField("id", U_INTEGER.nullable(false), this);
-    public final TableField<RepairBlockModel, UInteger> WORLD = createField("world", U_INTEGER.nullable(false), this);
+    public final TableField<RepairBlockModel, UUID> WORLD = createField("world", SQLDataType.UUID.nullable(false), this);
     public final TableField<RepairBlockModel, Integer> X = createField("x", INTEGER.nullable(false), this);
     public final TableField<RepairBlockModel, Integer> Y = createField("y", INTEGER.nullable(false), this);
     public final TableField<RepairBlockModel, Integer> Z = createField("z", INTEGER.nullable(false), this);
@@ -39,10 +40,9 @@ public class TableRepairBlock extends AutoIncrementTable<RepairBlockModel, UInte
 
     public TableRepairBlock(String prefix, Database database)
     {
-        super(prefix + "repairblocks", new Version(1), database);
+        super(prefix + "itemrepair_blocks", new Version(1), database);
         this.setAIKey(ID);
         this.addUniqueKey(WORLD, X, Y, Z);
-        this.addForeignKey(TABLE_WORLD.getPrimaryKey(), WORLD);
         this.addFields(ID, WORLD, X, Y, Z, TYPE);
         TABLE_REPAIR_BLOCK = this;
     }

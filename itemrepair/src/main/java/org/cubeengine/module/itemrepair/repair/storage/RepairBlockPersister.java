@@ -20,26 +20,27 @@ package org.cubeengine.module.itemrepair.repair.storage;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import de.cubeisland.engine.module.core.module.Module;
-import org.bukkit.World;
-import org.bukkit.block.Block;
+import org.cubeengine.libcube.service.database.Database;
+import org.cubeengine.module.itemrepair.Itemrepair;
 import org.jooq.DSLContext;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 import static org.cubeengine.module.itemrepair.repair.storage.TableRepairBlock.TABLE_REPAIR_BLOCK;
 
 public class RepairBlockPersister
 {
-    private final Map<Block,RepairBlockModel> models = new HashMap<>();
-    private final Module module;
+    private final Map<Location<World>,RepairBlockModel> models = new HashMap<>();
+    private final Itemrepair module;
     private final DSLContext dsl;
 
-    public RepairBlockPersister(Module module)
+    public RepairBlockPersister(Itemrepair module, Database db)
     {
-        this.dsl = module.getCore().getDB().getDSL();
+        this.dsl = db.getDSL();
         this.module = module;
     }
 
-    public void deleteByBlock(Block block)
+    public void deleteByBlock(Location<World> block)
     {
         RepairBlockModel repairBlockModel = this.models.remove(block);
         if (repairBlockModel != null)
@@ -54,15 +55,15 @@ public class RepairBlockPersister
 
     public Collection<RepairBlockModel> getAll(World world)
     {
-        Collection <RepairBlockModel> all = this.dsl.selectFrom(TABLE_REPAIR_BLOCK).where(TABLE_REPAIR_BLOCK.WORLD.eq(this.module.getCore().getWorldManager().getWorldId(world))).fetch();
+        Collection <RepairBlockModel> all = this.dsl.selectFrom(TABLE_REPAIR_BLOCK).where(TABLE_REPAIR_BLOCK.WORLD.eq(world.getUniqueId())).fetch();
         for (RepairBlockModel repairBlockModel : all)
         {
-            this.models.put(repairBlockModel.getBlock(this.module.getCore().getWorldManager()),repairBlockModel);
+            this.models.put(repairBlockModel.getBlock(),repairBlockModel);
         }
         return all;
     }
 
-    public void storeBlock(Block block, RepairBlockModel repairBlockModel)
+    public void storeBlock(Location<World> block, RepairBlockModel repairBlockModel)
     {
         repairBlockModel.insertAsync();
         this.models.put(block,repairBlockModel);

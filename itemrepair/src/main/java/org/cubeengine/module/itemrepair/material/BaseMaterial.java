@@ -17,14 +17,14 @@
  */
 package org.cubeengine.module.itemrepair.material;
 
-import org.bukkit.Material;
+import org.spongepowered.api.item.ItemType;
 
 public class BaseMaterial
 {
     private final double price;
-    private final Material material;
+    private final ItemType material;
 
-    public BaseMaterial(Material material, double price)
+    public BaseMaterial(ItemType material, double price)
     {
         this.price = price;
         this.material = material;
@@ -35,7 +35,7 @@ public class BaseMaterial
         return price;
     }
 
-    public Material getMaterial()
+    public ItemType getMaterial()
     {
         return material;
     }

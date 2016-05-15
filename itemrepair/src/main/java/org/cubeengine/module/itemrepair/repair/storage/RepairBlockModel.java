@@ -17,11 +17,12 @@
  */
 package org.cubeengine.module.itemrepair.repair.storage;
 
+import com.flowpowered.math.vector.Vector3i;
+import com.sun.org.apache.bcel.internal.generic.RET;
 import org.cubeengine.libcube.service.database.AsyncRecord;
-import de.cubeisland.engine.module.core.storage.database.AsyncRecord;
-import org.cubeengine.libcube.service.config.world.WorldManager;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.world.Location;
-import org.bukkit.block.Block;
+import org.spongepowered.api.world.World;
 
 import static org.cubeengine.module.itemrepair.repair.storage.TableRepairBlock.TABLE_REPAIR_BLOCK;
 
@@ -32,20 +33,19 @@ public class RepairBlockModel extends AsyncRecord<RepairBlockModel>
         super(TABLE_REPAIR_BLOCK);
     }
 
-    public RepairBlockModel newRepairBlock(Block block, WorldManager worldManager)
+    public RepairBlockModel newRepairBlock(Location<World> block)
     {
-        this.setValue(TABLE_REPAIR_BLOCK.WORLD, worldManager.getWorldId(block.getWorld()));
-        this.setValue(TABLE_REPAIR_BLOCK.X, block.getX());
-        this.setValue(TABLE_REPAIR_BLOCK.Y, block.getY());
-        this.setValue(TABLE_REPAIR_BLOCK.Z, block.getZ());
-        this.setValue(TABLE_REPAIR_BLOCK.TYPE, block.getType().name());
+        this.setValue(TABLE_REPAIR_BLOCK.WORLD, block.getExtent().getUniqueId());
+        Vector3i pos = block.getBlockPosition();
+        this.setValue(TABLE_REPAIR_BLOCK.X, pos.getX());
+        this.setValue(TABLE_REPAIR_BLOCK.Y, pos.getY());
+        this.setValue(TABLE_REPAIR_BLOCK.Z, pos.getZ());
+        this.setValue(TABLE_REPAIR_BLOCK.TYPE, block.getBlockType().getName());
         return this;
     }
 
-    public Block getBlock(WorldManager wm)
+    public Location<World> getBlock()
     {
-        Location loc = new Location(wm.getWorld(this.getValue(TABLE_REPAIR_BLOCK.WORLD)), this.getValue(
-            TABLE_REPAIR_BLOCK.X), this.getValue(TABLE_REPAIR_BLOCK.Y), this.getValue(TABLE_REPAIR_BLOCK.Z));
-        return loc.getBlock();
+        return new Location<>(Sponge.getServer().getWorld(getValue(TABLE_REPAIR_BLOCK.WORLD)).get(), this.getValue(TABLE_REPAIR_BLOCK.X), this.getValue(TABLE_REPAIR_BLOCK.Y), this.getValue(TABLE_REPAIR_BLOCK.Z));
     }
 }

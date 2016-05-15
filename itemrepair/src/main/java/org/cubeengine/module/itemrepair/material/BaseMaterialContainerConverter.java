@@ -27,12 +27,12 @@ import de.cubeisland.engine.converter.converter.SingleClassConverter;
 import de.cubeisland.engine.converter.node.MapNode;
 import de.cubeisland.engine.converter.node.Node;
 import de.cubeisland.engine.converter.node.NullNode;
-import org.bukkit.Material;
+import org.spongepowered.api.item.ItemType;
 
 public class BaseMaterialContainerConverter extends SingleClassConverter<BaseMaterialContainer>
 {
     private final Type fieldType;
-    private Map<Material, Double> map; // Needed for GenericType
+    private Map<ItemType, Double> map; // Needed for GenericType
 
     public BaseMaterialContainerConverter()
     {
@@ -49,12 +49,12 @@ public class BaseMaterialContainerConverter extends SingleClassConverter<BaseMat
     @Override
     public Node toNode(BaseMaterialContainer object, ConverterManager manager) throws ConversionException
     {
-        Map<Material,Double> result = new TreeMap<>(new Comparator<Material>()
+        Map<ItemType,Double> result = new TreeMap<>(new Comparator<ItemType>()
         {
             @Override
-            public int compare(Material o1, Material o2)
+            public int compare(ItemType o1, ItemType o2)
             {
-                return o1.name().compareTo(o2.name());
+                return o1.getName().compareTo(o2.getName());
             }
         });
         for (BaseMaterial baseMaterial : object.getBaseMaterials().values())

@@ -17,18 +17,17 @@
  */
 package org.cubeengine.module.itemrepair.material;
 
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
-import org.bukkit.Material;
-import org.bukkit.inventory.Inventory;
+import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 
-import static org.bukkit.Material.*;
+import static org.spongepowered.api.item.ItemTypes.*;
 
 public class RepairItemContainer
 {
-    private final Map<Material, RepairItem> repairItems = new EnumMap<>(Material.class);
+    private final Map<ItemType, RepairItem> repairItems = new HashMap<>();
     private final BaseMaterialContainer baseMat;
 
     public RepairItemContainer(BaseMaterialContainer baseMat)
@@ -41,7 +40,7 @@ public class RepairItemContainer
     {
         // TOOLS
         // IRON
-        this.registerRepairItem(RepairItem.of(IRON_SPADE,baseMat.of(IRON_INGOT),1))
+        this.registerRepairItem(RepairItem.of(IRON_SHOVEL, baseMat.of(IRON_INGOT), 1))
             .registerRepairItem(RepairItem.of(IRON_PICKAXE,baseMat.of(IRON_INGOT),3))
             .registerRepairItem(RepairItem.of(IRON_AXE,baseMat.of(IRON_INGOT),3))
             .registerRepairItem(RepairItem.of(FLINT_AND_STEEL,baseMat.of(IRON_INGOT),1))
@@ -49,30 +48,30 @@ public class RepairItemContainer
             .registerRepairItem(RepairItem.of(IRON_HOE,baseMat.of(IRON_INGOT),2))
             .registerRepairItem(RepairItem.of(SHEARS,baseMat.of(IRON_INGOT),2))
         // WOOD
-            .registerRepairItem(RepairItem.of(BOW, baseMat.of(WOOD), 2))
-            .registerRepairItem(RepairItem.of(WOOD_SWORD, baseMat.of(WOOD), 2))
-            .registerRepairItem(RepairItem.of(WOOD_SPADE, baseMat.of(WOOD), 1))
-            .registerRepairItem(RepairItem.of(WOOD_PICKAXE, baseMat.of(WOOD), 3))
-            .registerRepairItem(RepairItem.of(WOOD_AXE, baseMat.of(WOOD), 3))
-            .registerRepairItem(RepairItem.of(WOOD_HOE, baseMat.of(WOOD), 2))
-            .registerRepairItem(RepairItem.of(FISHING_ROD, baseMat.of(WOOD), 2))
+            .registerRepairItem(RepairItem.of(BOW, baseMat.of(LOG), 2))
+            .registerRepairItem(RepairItem.of(WOODEN_SWORD, baseMat.of(LOG), 2))
+            .registerRepairItem(RepairItem.of(WOODEN_SHOVEL, baseMat.of(LOG), 1))
+            .registerRepairItem(RepairItem.of(WOODEN_PICKAXE, baseMat.of(LOG), 3))
+            .registerRepairItem(RepairItem.of(WOODEN_AXE, baseMat.of(LOG), 3))
+            .registerRepairItem(RepairItem.of(WOODEN_HOE, baseMat.of(LOG), 2))
+            .registerRepairItem(RepairItem.of(FISHING_ROD, baseMat.of(LOG), 2))
         // STONE
             .registerRepairItem(RepairItem.of(STONE_SWORD, baseMat.of(STONE), 2))
-            .registerRepairItem(RepairItem.of(STONE_SPADE, baseMat.of(STONE), 1))
+            .registerRepairItem(RepairItem.of(STONE_SHOVEL, baseMat.of(STONE), 1))
             .registerRepairItem(RepairItem.of(STONE_PICKAXE, baseMat.of(STONE), 3))
             .registerRepairItem(RepairItem.of(STONE_AXE, baseMat.of(STONE), 3))
         // DIAMOND
             .registerRepairItem(RepairItem.of(DIAMOND_SWORD, baseMat.of(DIAMOND), 2))
-            .registerRepairItem(RepairItem.of(DIAMOND_SPADE, baseMat.of(DIAMOND), 1))
+            .registerRepairItem(RepairItem.of(DIAMOND_SHOVEL, baseMat.of(DIAMOND), 1))
             .registerRepairItem(RepairItem.of(DIAMOND_PICKAXE, baseMat.of(DIAMOND), 3))
             .registerRepairItem(RepairItem.of(DIAMOND_AXE, baseMat.of(DIAMOND), 3))
             .registerRepairItem(RepairItem.of(DIAMOND_HOE, baseMat.of(DIAMOND), 2))
         // GOLD
-            .registerRepairItem(RepairItem.of(GOLD_SWORD, baseMat.of(GOLD_INGOT), 2))
-            .registerRepairItem(RepairItem.of(GOLD_SPADE, baseMat.of(GOLD_INGOT), 1))
-            .registerRepairItem(RepairItem.of(GOLD_PICKAXE, baseMat.of(GOLD_INGOT), 3))
-            .registerRepairItem(RepairItem.of(GOLD_AXE, baseMat.of(GOLD_INGOT), 3))
-            .registerRepairItem(RepairItem.of(GOLD_HOE, baseMat.of(GOLD_INGOT), 2))
+            .registerRepairItem(RepairItem.of(GOLDEN_SWORD, baseMat.of(GOLD_INGOT), 2))
+            .registerRepairItem(RepairItem.of(GOLDEN_SHOVEL, baseMat.of(GOLD_INGOT), 1))
+            .registerRepairItem(RepairItem.of(GOLDEN_PICKAXE, baseMat.of(GOLD_INGOT), 3))
+            .registerRepairItem(RepairItem.of(GOLDEN_AXE, baseMat.of(GOLD_INGOT), 3))
+            .registerRepairItem(RepairItem.of(GOLDEN_HOE, baseMat.of(GOLD_INGOT), 2))
         // ARMOR
         // LEATHER
             .registerRepairItem(RepairItem.of(LEATHER_HELMET, baseMat.of(LEATHER), 5))
@@ -80,10 +79,10 @@ public class RepairItemContainer
             .registerRepairItem(RepairItem.of(LEATHER_LEGGINGS, baseMat.of(LEATHER), 7))
             .registerRepairItem(RepairItem.of(LEATHER_BOOTS, baseMat.of(LEATHER), 4))
         // CHAINMAIL
-            .registerRepairItem(RepairItem.of(CHAINMAIL_HELMET, baseMat.of(FIRE), 5))
-            .registerRepairItem(RepairItem.of(CHAINMAIL_CHESTPLATE, baseMat.of(FIRE), 8))
-            .registerRepairItem(RepairItem.of(CHAINMAIL_LEGGINGS, baseMat.of(FIRE), 7))
-            .registerRepairItem(RepairItem.of(CHAINMAIL_BOOTS, baseMat.of(FIRE), 4))
+            .registerRepairItem(RepairItem.of(CHAINMAIL_HELMET, baseMat.of(IRON_BARS), 5))
+            .registerRepairItem(RepairItem.of(CHAINMAIL_CHESTPLATE, baseMat.of(IRON_BARS), 8))
+            .registerRepairItem(RepairItem.of(CHAINMAIL_LEGGINGS, baseMat.of(IRON_BARS), 7))
+            .registerRepairItem(RepairItem.of(CHAINMAIL_BOOTS, baseMat.of(IRON_BARS), 4))
         // IRON
             .registerRepairItem(RepairItem.of(IRON_HELMET, baseMat.of(IRON_INGOT), 5))
             .registerRepairItem(RepairItem.of(IRON_CHESTPLATE, baseMat.of(IRON_INGOT), 8))
@@ -95,10 +94,10 @@ public class RepairItemContainer
             .registerRepairItem(RepairItem.of(DIAMOND_LEGGINGS, baseMat.of(DIAMOND), 7))
             .registerRepairItem(RepairItem.of(DIAMOND_BOOTS, baseMat.of(DIAMOND), 4))
         // GOLD
-            .registerRepairItem(RepairItem.of(GOLD_HELMET, baseMat.of(GOLD_INGOT), 5))
-            .registerRepairItem(RepairItem.of(GOLD_CHESTPLATE, baseMat.of(GOLD_INGOT), 8))
-            .registerRepairItem(RepairItem.of(GOLD_LEGGINGS, baseMat.of(GOLD_INGOT), 7))
-            .registerRepairItem(RepairItem.of(GOLD_BOOTS, baseMat.of(GOLD_INGOT), 4));
+            .registerRepairItem(RepairItem.of(GOLDEN_HELMET, baseMat.of(GOLD_INGOT), 5))
+            .registerRepairItem(RepairItem.of(GOLDEN_CHESTPLATE, baseMat.of(GOLD_INGOT), 8))
+            .registerRepairItem(RepairItem.of(GOLDEN_LEGGINGS, baseMat.of(GOLD_INGOT), 7))
+            .registerRepairItem(RepairItem.of(GOLDEN_BOOTS, baseMat.of(GOLD_INGOT), 4));
     }
 
     public Map<Integer, ItemStack> getRepairableItems(Inventory inventory)
@@ -130,7 +129,7 @@ public class RepairItemContainer
         return this.baseMat;
     }
 
-    public RepairItem of(Material mat)
+    public RepairItem of(ItemType mat)
     {
         return this.repairItems.get(mat);
     }

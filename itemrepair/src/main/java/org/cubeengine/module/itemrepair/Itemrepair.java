@@ -17,9 +17,19 @@
  */
 package org.cubeengine.module.itemrepair;
 
+import javax.inject.Inject;
+import de.cubeisland.engine.logscribe.Log;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.modularity.core.marker.Enable;
+import de.cubeisland.engine.reflect.Reflector;
+import org.cubeengine.libcube.service.command.CommandManager;
+import org.cubeengine.libcube.service.database.Database;
+import org.cubeengine.libcube.service.database.ModuleTables;
+import org.cubeengine.libcube.service.event.EventManager;
+import org.cubeengine.libcube.service.filesystem.ModuleConfig;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.module.itemrepair.material.BaseMaterialContainer;
 import org.cubeengine.module.itemrepair.material.BaseMaterialContainerConverter;
 import org.cubeengine.module.itemrepair.repair.RepairBlockManager;
@@ -30,21 +40,31 @@ import org.cubeengine.module.itemrepair.repair.storage.TableRepairBlock;
 TODO blocked by custom inventories
 TODO blocked by custom data on any block
 */
+@ModuleTables(TableRepairBlock.class)
 public class Itemrepair extends Module
 {
-    private ItemrepairConfig config;
+    @ModuleConfig private ItemrepairConfig config;
     public RepairBlockManager repairBlockManager;
+    @Inject private Database db;
+    @Inject private EventManager em;
+    @Inject private CommandManager cm;
+    @Inject private I18n i18n;
+    @Inject private Log logger;
+    @Inject private PermissionManager pm;
+
+
+    @Inject
+    public Itemrepair(Reflector reflector)
+    {
+        reflector.getDefaultConverterManager().registerConverter(new BaseMaterialContainerConverter(), BaseMaterialContainer.class);
+    }
 
     @Enable
     public void onEnable()
     {
-        this.getCore().getDB().registerTable(TableRepairBlock.class);
-        this.getCore().getConfigFactory().getDefaultConverterManager().
-            registerConverter(new BaseMaterialContainerConverter(), BaseMaterialContainer.class);
-        this.config = this.loadConfig(ItemrepairConfig.class);
-        this.repairBlockManager = new RepairBlockManager(this);
-        this.getCore().getEventManager().registerListener(this, new ItemRepairListener(this));
-        this.getCore().getCommandManager().addCommand(new ItemRepairCommands(this));
+        this.repairBlockManager = new RepairBlockManager(this, db, em, pm, economy, pm);
+        em.registerListener(Itemrepair.class, new ItemRepairListener(this, i18n));
+        cm.addCommand(new ItemRepairCommands(cm, this, em, i18n));
     }
 
     public ItemrepairConfig getConfig()
@@ -55,5 +75,10 @@ public class Itemrepair extends Module
     public RepairBlockManager getRepairBlockManager()
     {
         return repairBlockManager;
+    }
+
+    public Log getLog()
+    {
+        return logger;
     }
 }

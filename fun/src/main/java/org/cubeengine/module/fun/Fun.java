@@ -54,7 +54,7 @@ public class Fun extends Module
         cm.addCommands(this, new PlayerCommands(this, em, i18n, tm));
         cm.addCommands(this, new DiscoCommand(this, i18n, tm));
         cm.addCommands(this, new InvasionCommand(this, i18n, entityMatcher));
-        cm.addCommands(this, new RocketCommand(this, em));
+        cm.addCommands(this, new RocketCommand(this, em, tm));
     }
 
     public FunConfiguration getConfig()

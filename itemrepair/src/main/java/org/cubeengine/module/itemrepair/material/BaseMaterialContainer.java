@@ -20,26 +20,28 @@ package org.cubeengine.module.itemrepair.material;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import org.bukkit.Material;
+import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.ItemTypes;
 
 public class BaseMaterialContainer
 {
-    private final Map<Material,BaseMaterial> baseMaterials = new HashMap<>();
+    private final Map<ItemType, BaseMaterial> baseMaterials = new HashMap<>();
 
     public BaseMaterialContainer()
     {
-        this.registerBaseMaterial(new BaseMaterial(Material.WOOD, 0.30));
-        this.registerBaseMaterial(new BaseMaterial(Material.STONE, 1.00));
-        this.registerBaseMaterial(new BaseMaterial(Material.IRON_INGOT, 2.10));
-        this.registerBaseMaterial(new BaseMaterial(Material.GOLD_INGOT, 4.10));
-        this.registerBaseMaterial(new BaseMaterial(Material.DIAMOND, 300.00));
-        this.registerBaseMaterial(new BaseMaterial(Material.LEATHER, 0.80));
-        this.registerBaseMaterial(new BaseMaterial(Material.FIRE, 3.00));
+        this.registerBaseMaterial(new BaseMaterial(ItemTypes.LOG, 0.30));
+        this.registerBaseMaterial(new BaseMaterial(ItemTypes.STONE, 1.00));
+        this.registerBaseMaterial(new BaseMaterial(ItemTypes.IRON_INGOT, 2.10));
+        this.registerBaseMaterial(new BaseMaterial(ItemTypes.GOLD_INGOT, 4.10));
+        this.registerBaseMaterial(new BaseMaterial(ItemTypes.DIAMOND, 300.00));
+        this.registerBaseMaterial(new BaseMaterial(ItemTypes.LEATHER, 0.80));
+        // For ChainArmor
+        this.registerBaseMaterial(new BaseMaterial(ItemTypes.IRON_BARS, 3.00));
     }
 
-    public BaseMaterialContainer(Map<Material, Double> map)
+    public BaseMaterialContainer(Map<ItemType, Double> map)
     {
-        for (Entry<Material, Double> entry : map.entrySet())
+        for (Entry<ItemType, Double> entry : map.entrySet())
         {
             this.registerBaseMaterial(new BaseMaterial(entry.getKey(),entry.getValue()));
         }
@@ -50,12 +52,12 @@ public class BaseMaterialContainer
         this.baseMaterials.put(baseMaterial.getMaterial(),baseMaterial);
     }
 
-    public BaseMaterial of(Material mat)
+    public BaseMaterial of(ItemType mat)
     {
         return this.baseMaterials.get(mat);
     }
 
-    public Map<Material, BaseMaterial> getBaseMaterials()
+    public Map<ItemType, BaseMaterial> getBaseMaterials()
     {
         return baseMaterials;
     }

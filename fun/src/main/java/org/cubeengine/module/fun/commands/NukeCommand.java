@@ -17,32 +17,40 @@
  */
 package org.cubeengine.module.fun.commands;
 
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import com.flowpowered.math.vector.Vector3d;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Named;
 import org.cubeengine.butler.parametric.Optional;
-import org.cubeengine.module.fun.Fun;
-import org.cubeengine.libcube.service.command.CommandSender;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.task.TaskManager;
-import org.cubeengine.libcube.service.user.User;
 import org.cubeengine.libcube.util.math.Vector3;
 import org.cubeengine.libcube.util.math.shape.Cuboid;
 import org.cubeengine.libcube.util.math.shape.Cylinder;
 import org.cubeengine.libcube.util.math.shape.Shape;
 import org.cubeengine.libcube.util.math.shape.Sphere;
+import org.cubeengine.module.fun.Fun;
+import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntityTypes;
+import org.spongepowered.api.entity.explosive.PrimedTNT;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.event.world.ExplosionEvent;
+import org.spongepowered.api.util.blockray.BlockRay;
+import org.spongepowered.api.util.blockray.BlockRayHit;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
+import static org.spongepowered.api.entity.EntityTypes.PRIMED_TNT;
+import static org.spongepowered.api.util.blockray.BlockRay.onlyAirFilter;
 
 public class NukeCommand
 {
@@ -55,7 +63,7 @@ public class NukeCommand
         this.module = module;
         this.i18n = i18n;
         this.nukeListener = new NukeListener();
-        em.registerListener(module, this.nukeListener);
+        em.registerListener(Fun.class, this.nukeListener);
     }
 
     @Command(desc = "Makes a carpet of TNT fall on a player or where you're looking")
@@ -70,11 +78,11 @@ public class NukeCommand
                      @Flag boolean unsafe,
                      @Flag boolean quiet)
     {
-        Location location;
+        Location<World> location;
         range = range == null ? 4 : range;
         height = height == null ? 5 : height;
 
-        if(range != 4 && !module.perms().COMMAND_NUKE_CHANGE_RANGE.isAuthorized(context))
+        if(range != 4 && !context.hasPermission(module.perms().COMMAND_NUKE_CHANGE_RANGE.getId()))
         {
             i18n.sendTranslated(context, NEGATIVE, "You are not allowed to change the explosion range of the nuke carpet!");
             return;
@@ -87,21 +95,26 @@ public class NukeCommand
 
         if(player != null)
         {
-            if (!context.equals(player) && !module.perms().COMMAND_NUKE_OTHER.isAuthorized(context))
+            if (!context.equals(player) && !context.hasPermission(module.perms().COMMAND_NUKE_OTHER.getId()))
             {
                 i18n.sendTranslated(context, NEGATIVE, "You are not allowed to specify a player!");
                 return;
             }
-            location = ((User)context).getLocation();
+            location = ((Player)context).getLocation();
         }
         else
         {
-            if(!(context instanceof User))
+            if(!(context instanceof Player))
             {
                 i18n.sendTranslated(context, NEGATIVE, "This command can only be used by a player!");
                 return;
             }
-            location = ((User)context).getTargetBlock(Collections.<Material>emptySet(), this.module.getConfig().command.nuke.distance).getLocation();
+            java.util.Optional<BlockRayHit<World>> end = BlockRay.from(((Player)context)).filter(onlyAirFilter()).blockLimit(100).build().end();
+            if (!end.isPresent())
+            {
+                throw new IllegalStateException();
+            }
+            location = end.get().getLocation();
         }
 
         Shape aShape = this.getShape(context, shape, location, height, param1, param2, param3);
@@ -110,7 +123,7 @@ public class NukeCommand
             return;
         }
 
-        int blockAmount = this.spawnNuke(aShape, location.getWorld(), range, unsafe);
+        int blockAmount = this.spawnNuke(aShape, location.getExtent(), range, unsafe);
 
         if(!quiet)
         {
@@ -136,7 +149,7 @@ public class NukeCommand
             int height = shape.equals("cube") ? width : param2 == null ? width : param2;
             int depth = shape.equals("cube") ? width : param3 == null ? width : param3;
 
-            location = location.subtract(width / 2d, 0, depth / 2d);
+            location = location.add(- width / 2d, 0, - depth / 2d);
             location = this.getSpawnLocation(location, locationHeight);
             return new Cuboid(new Vector3(location.getX(), location.getY(), location.getZ()), width, height, depth);
         case "sphere":
@@ -156,7 +169,7 @@ public class NukeCommand
         while (noBlock != Math.abs(height))
         {
             location.add(0, height > 0 ? 1 : -1, 0);
-            if (location.getBlock().getType() == Material.AIR)
+            if (location.getBlock().getType() == BlockTypes.AIR)
             {
                 noBlock++;
             }
@@ -178,6 +191,11 @@ public class NukeCommand
         int numberOfBlocks = 0;
         for (Vector3 vector : shape)
         {
+            PrimedTNT entity = (PrimedTNT)world.createEntity(PRIMED_TNT, new Vector3d(vector.x, vector.y, vector.z)).get();
+            entity.setVelocity(new Vector3d(0,0,0));
+            entity.set
+            world.spawnEntity(entity, Cause.of(NamedCause.source(this))); // TODO cause
+
             TNTPrimed tnt = world.spawn(new Location(world, vector.x, vector.y, vector.z), TNTPrimed.class);
             tnt.setVelocity(new Vector(0, 0, 0));
             tnt.setYield(range);
@@ -197,7 +215,7 @@ public class NukeCommand
         return numberOfBlocks;
     }
 
-    private class NukeListener implements Listener
+    private class NukeListener
     {
         private final Set<TNTPrimed> noBlockDamageSet;
         private final TaskManager taskManager;
@@ -234,8 +252,8 @@ public class NukeCommand
             return this.noBlockDamageSet.contains(tnt);
         }
 
-        @EventHandler
-        public void onEntityExplode(final EntityExplodeEvent event)
+        @Listener
+        public void onEntityExplode(final ExplosionEvent event)
         {
             try
             {
@@ -260,7 +278,7 @@ public class NukeCommand
             {}
         }
 
-        @EventHandler
+        @Listener
         public void onEntityDamageByEntity(final EntityDamageByEntityEvent event)
         {
             if(event.getDamager() instanceof TNTPrimed && this.contains((TNTPrimed)event.getDamager()))

@@ -21,30 +21,41 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import de.cubeisland.engine.module.core.CubeEngine;
-import org.bukkit.Effect;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.util.Vector;
+import com.flowpowered.math.vector.Vector3d;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Default;
 import org.cubeengine.butler.parametric.Optional;
 import org.cubeengine.libcube.service.command.CommandContext;
 import org.cubeengine.libcube.service.event.EventManager;
+import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.module.fun.Fun;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.effect.particle.ParticleEffect;
+import org.spongepowered.api.effect.particle.ParticleType;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
+import org.spongepowered.api.event.cause.entity.damage.source.DamageSources;
+import org.spongepowered.api.event.entity.DamageEntityEvent;
+import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
+
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.spongepowered.api.effect.particle.ParticleTypes.SMOKE_NORMAL;
 
 public class RocketCommand
 {
     private final Fun module;
+    private TaskManager tm;
     private final RocketListener rocketListener;
 
-    public RocketCommand(Fun module, EventManager em)
+    public RocketCommand(Fun module, EventManager em, TaskManager tm)
     {
         this.module = module;
+        this.tm = tm;
         this.rocketListener = new RocketListener();
-        em.registerListener(module, rocketListener);
+        em.registerListener(Fun.class, rocketListener);
     }
 
     public RocketListener getRocketListener()
@@ -53,7 +64,7 @@ public class RocketCommand
     }
 
     @Command(desc = "Shoots a player upwards with a cool smoke effect")
-    public void rocket(CommandContext context, @Default User player, @Optional Integer height)
+    public void rocket(CommandContext context, @Default Player player, @Optional Integer height)
     {
         height = height == null ? 10 : height;
         if (height > this.module.getConfig().command.rocket.maxHeight)
@@ -70,35 +81,27 @@ public class RocketCommand
         rocketListener.addInstance(player, height);
     }
 
-    public class RocketListener implements Listener, Runnable
+    public class RocketListener implements Runnable
     {
-        private final UserManager userManager;
-        private final Set<RocketCMDInstance> instances;
-        private int taskId = -1;
-        private final Location helper = new Location(null, 0, 0, 0);
+        private final Set<RocketCMDInstance> instances = new HashSet<>();
+        private UUID taskId;
 
-        public RocketListener()
-        {
-            this.userManager = module.getCore().getUserManager();
-            this.instances = new HashSet<>();
-        }
-
-        public void addInstance(User user, int height)
+        public void addInstance(Player user, int height)
         {
             if (!this.contains(user))
             {
                 instances.add(new RocketCMDInstance(user.getUniqueId(), height));
 
-                if (taskId == -1)
+                if (taskId == null)
                 {
-                    this.taskId = module.getCore().getTaskManager().runTimer(module, this, 0, 2);
+                    this.taskId = tm.runTimer(Fun.class, this, 0, 2);
                 }
             }
         }
 
-        public Collection<User> getUsers()
+        public Collection<Player> getUsers()
         {
-            Set<User> users = new HashSet<>();
+            Set<Player> users = new HashSet<>();
             for (RocketCMDInstance instance : instances)
             {
                 users.add(instance.getUser());
@@ -106,9 +109,9 @@ public class RocketCommand
             return users;
         }
 
-        public boolean contains(User aUser)
+        public boolean contains(Player aUser)
         {
-            for (User user : this.getUsers())
+            for (Player user : this.getUsers())
             {
                 if (user.equals(aUser))
                 {
@@ -118,7 +121,7 @@ public class RocketCommand
             return false;
         }
 
-        public void removeInstance(User user)
+        public void removeInstance(Player user)
         {
             RocketCMDInstance trash = null;
             
@@ -137,8 +140,8 @@ public class RocketCommand
 
                 if (instances.isEmpty())
                 {
-                    module.getCore().getTaskManager().cancelTask(module, taskId);
-                    taskId = -1;
+                    tm.cancelTask(Fun.class, taskId);
+                    taskId = null;
                 }
             }
         }
@@ -148,21 +151,15 @@ public class RocketCommand
             return this.instances;
         }
 
-        @EventHandler
-        public void onEntityDamage(EntityDamageEvent event)
+        @Listener
+        public void onEntityDamage(DamageEntityEvent event, @First DamageSource source)
         {
-            if (event.getEntity() instanceof Player && event.getCause() == EntityDamageEvent.DamageCause.FALL)
+            if (event.getTargetEntity() instanceof Player && source.getType() == DamageSources.FALLING)
             {
-                User user = this.userManager.getExactUser(event.getEntity().getUniqueId());
-                if (user == null)
-                {
-                    return;
-                }
-
-                if (this.contains(user))
+                if (this.contains(((Player)event.getTargetEntity())))
                 {
                     event.setCancelled(true);
-                    this.removeInstance(user);
+                    this.removeInstance(((Player)event.getTargetEntity()));
                 }
             }
         }
@@ -172,37 +169,32 @@ public class RocketCommand
         {
             for (RocketCMDInstance instance : this.getInstances())
             {
-                final User user = instance.getUser();
+                final Player player = instance.getUser();
 
-                if (user.isOnline())
+                if (player.isOnline())
                 {
                     if (!instance.getDown())
                     {
-                        Location userLocation = user.getLocation(this.helper);
-                        user.getWorld().playEffect(userLocation, Effect.SMOKE, 0);
-                        user.getWorld().playEffect(userLocation.add(1, 0, 0), Effect.SMOKE, 0);
-                        user.getWorld().playEffect(userLocation.add(-1, 0, 0), Effect.SMOKE, 0);
-                        user.getWorld().playEffect(userLocation.add(0, 0, 1), Effect.SMOKE, 0);
-                        user.getWorld().playEffect(userLocation.add(0, 0, -1), Effect.SMOKE, 0);
+                        Location userLocation = player.getLocation();
+                        Vector3d pos = userLocation.getPosition();
+                        ParticleEffect effect = ParticleEffect.builder().type(SMOKE_NORMAL).build();
+                        player.getWorld().spawnParticles(effect, pos);
+                        player.getWorld().spawnParticles(effect, pos.add(1, 0, 0));
+                        player.getWorld().spawnParticles(effect, pos.add(-1, 0, 0));
+                        player.getWorld().spawnParticles(effect, pos.add(0, 0, 1));
+                        player.getWorld().spawnParticles(effect, pos.add(0, 0, -1));
                     }
 
                     if (instance.getNumberOfAirBlocksUnderFeet() == 0 && instance.getDown())
                     {
-                        module.getCore().getTaskManager().runTaskDelayed(module, new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                removeInstance(user);
-                            }
-                        }, 1);
+                        tm.runTaskDelayed(Fun.class, () -> removeInstance(player), 1);
                     }
 
                     if (instance.getNumberOfAirBlocksUnderFeet() < instance.getHeight() && instance.getNumberOfAirBlocksOverHead() > 2 && !instance.getDown())
                     {
                         double y = (double)(instance.getHeight() - instance.getNumberOfAirBlocksUnderFeet()) / 10;
                         y = (y < 10) ? y : 10;
-                        user.setVelocity(new Vector(0, (y < 9) ? (y + 1) : y, 0));
+                        player.setVelocity(new Vector3d(0, (y < 9) ? (y + 1) : y, 0));
                     }
                     else if (!instance.getDown())
                     {
@@ -211,7 +203,7 @@ public class RocketCommand
                 }
                 else
                 {
-                    this.removeInstance(user);
+                    this.removeInstance(player);
                 }
             }
         }
@@ -244,9 +236,9 @@ public class RocketCommand
                 return this.height;
             }
 
-            public User getUser()
+            public Player getUser()
             {
-                return CubeEngine.getUserManager().getExactUser(uuid);
+                return Sponge.getServer().getPlayer(uuid).orElse(null);
             }
 
             public UUID getUuid()
@@ -256,12 +248,12 @@ public class RocketCommand
 
             public int getNumberOfAirBlocksOverHead()
             {
-                final User user = this.getUser();
+                final Player user = this.getUser();
                 if (user == null)
                 {
                     return 0;
                 }
-                final Location location = this.getUser().getLocation();
+                final Location<World> location = this.getUser().getLocation();
                 if (location == null)
                 {
                     return 0;
@@ -269,7 +261,7 @@ public class RocketCommand
                 location.add(0, 1, 0);
                 int numberOfAirBlocks = 0;
 
-                while (!location.getBlock().getType().isSolid() && location.getY() < location.getWorld().getMaxHeight())
+                while (!location.getBlock().getType().isSolid() && location.getY() < location.getExtent().getDimension().getHeight())
                 {
                     numberOfAirBlocks++;
                     location.add(0, 1, 0);
@@ -280,23 +272,23 @@ public class RocketCommand
 
             public int getNumberOfAirBlocksUnderFeet()
             {
-                final User user = this.getUser();
+                final Player user = this.getUser();
                 if (user == null)
                 {
                     return 0;
                 }
-                final Location location = this.getUser().getLocation();
+                final Location<World> location = this.getUser().getLocation();
                 if (location == null)
                 {
                     return 0;
                 }
-                location.subtract(0, 1, 0);
+                location.add(0, -1, 0);
                 int numberOfAirBlocks = 0;
 
-                while (!location.getBlock().getType().isSolid() || location.getY() > location.getWorld().getMaxHeight())
+                while (!location.getBlock().getType().isSolid() || location.getY() > location.getExtent().getDimension().getHeight())
                 {
                     numberOfAirBlocks++;
-                    location.subtract(0, 1, 0);
+                    location.add(0, -1, 0);
                 }
 
                 return numberOfAirBlocks;

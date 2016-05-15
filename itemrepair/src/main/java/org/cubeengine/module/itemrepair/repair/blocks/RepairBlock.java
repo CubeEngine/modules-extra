@@ -21,28 +21,28 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.permission.Permission;
+import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.module.itemrepair.Itemrepair;
 import org.cubeengine.module.itemrepair.material.BaseMaterial;
 import org.cubeengine.module.itemrepair.material.BaseMaterialContainer;
+import org.cubeengine.module.itemrepair.material.RepairItem;
 import org.cubeengine.module.itemrepair.material.RepairItemContainer;
 import org.cubeengine.module.itemrepair.repair.RepairBlockManager;
 import org.cubeengine.module.itemrepair.repair.RepairRequest;
-import org.cubeengine.libcube.service.Economy;
-import de.cubeisland.engine.service.permission.Permission;
-import org.cubeengine.libcube.service.user.User;
-import org.cubeengine.module.itemrepair.material.RepairItem;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
-import org.spongepowered.api.entity.player.Player;
-import org.bukkit.inventory.Inventory;
-import org.spongepowered.api.item.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
+import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.effect.sound.SoundTypes;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.item.Enchantment;
+import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.inventory.Inventory;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.service.economy.EconomyService;
 
-import static org.bukkit.Effect.GHAST_SHRIEK;
-import static org.bukkit.Sound.ANVIL_BREAK;
-import static org.bukkit.Sound.BURP;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
+import static org.spongepowered.api.effect.sound.SoundTypes.ANVIL_BREAK;
+import static org.spongepowered.api.effect.sound.SoundTypes.BURP;
 
 public class RepairBlock
 {
@@ -60,20 +60,23 @@ public class RepairBlock
     private final Random rand;
     private final String name;
 
-    private final Economy economy;
+    private final EconomyService economy;
+    private I18n i18n;
 
-    public RepairBlock(Itemrepair module, RepairBlockManager manager, String name, RepairBlockConfig config)
+    public RepairBlock(Itemrepair module, RepairBlockManager manager, String name, RepairBlockConfig config,
+                       PermissionManager pm, EconomyService economy, I18n i18n)
     {
         this.module = module;
         this.name = name;
         this.repairBlockManager = manager;
+        this.economy = economy;
+        this.i18n = i18n;
         this.itemProvider = repairBlockManager.getItemProvider();
         this.priceProvider = itemProvider.getPriceProvider();
-        this.permission = this.module.getBasePermission().childWildcard("block").child(name);
+        this.permission = pm.register(Itemrepair.class, "block." + name, "", null);
         this.inventoryMap = new HashMap<>();
         this.rand = new Random(System.currentTimeMillis());
         this.config = config;
-        this.economy = module.getCore().getModuleManager().getServiceManager().getServiceImplementation(Economy.class);
     }
 
     public final String getName()
@@ -91,7 +94,7 @@ public class RepairBlock
         return this.permission;
     }
 
-    public final Material getMaterial()
+    public final BlockType getMaterial()
     {
         return this.config.block;
     }
@@ -106,12 +109,12 @@ public class RepairBlock
     {
         double price = 0.0;
 
-        Material type;
+        ItemType type;
         RepairItem item;
         double currentPrice;
         for (ItemStack itemStack : items)
         {
-            type = itemStack.getType();
+            type = itemStack.getItem();
             item = itemProvider.of(type);
             currentPrice = 0;
             for (Entry<BaseMaterial, Integer> entry : item.getBaseMaterials().entrySet())
@@ -159,7 +162,7 @@ public class RepairBlock
         }
     }
 
-    public boolean withdrawPlayer(User user, double price)
+    public boolean withdrawPlayer(Player user, double price)
     {
         economy.createAccount(user.getUniqueId()); // Make sure account exists
         if (economy.has(user.getUniqueId(), price) && economy.withdraw(user.getUniqueId(), price))
@@ -188,7 +191,7 @@ public class RepairBlock
 
     public RepairRequest requestRepair(RepairBlockInventory inventory)
     {
-        User user = this.module.getCore().getUserManager().getExactUser(inventory.player.getUniqueId());
+        Player player = inventory.player;
         Map<Integer, ItemStack> items = this.itemProvider.getRepairableItems(inventory.inventory);
         if (items.size() > 0)
         {
@@ -196,36 +199,36 @@ public class RepairBlock
             String format = economy.format(price);
             if (this.config.breakPercentage > 0)
             {
-                user.sendTranslated(NEGATIVE, "Items will break with a chance of {decimal:2}%", this.config.breakPercentage);
+                i18n.sendTranslated(player, NEGATIVE, "Items will break with a chance of {decimal:2}%", this.config.breakPercentage);
             }
             if (this.config.failPercentage > 0)
             {
-                user.sendTranslated(NEGATIVE, "Items will not repair with a chance of {decimal:2}%", this.config.failPercentage);
+                i18n.sendTranslated(player, NEGATIVE, "Items will not repair with a chance of {decimal:2}%", this.config.failPercentage);
             }
             if (this.config.looseEnchantmentsPercentage > 0)
             {
-                user.sendTranslated(NEGATIVE, "Items will loose all enchantments with a chance of {decimal:2}%", this.config.looseEnchantmentsPercentage);
+                i18n.sendTranslated(player, NEGATIVE, "Items will loose all enchantments with a chance of {decimal:2}%", this.config.looseEnchantmentsPercentage);
             }
             if (this.config.costPercentage > 100)
             {
-                user.sendTranslated(NEUTRAL, "The repair would cost {input#amount} (+{decimal:2}%)", format, this.config.costPercentage - 100);
+                i18n.sendTranslated(player, NEUTRAL, "The repair would cost {input#amount} (+{decimal:2}%)", format, this.config.costPercentage - 100);
             }
             else if (this.config.costPercentage < 100)
             {
-               user.sendTranslated(NEUTRAL, "The repair would cost {input#amount} (-{decimal:2}%)", format, 100 - this.config.costPercentage);
+               i18n.sendTranslated(player, NEUTRAL, "The repair would cost {input#amount} (-{decimal:2}%)", format, 100 - this.config.costPercentage);
             }
             else
             {
-                user.sendTranslated(NEUTRAL, "The repair would cost {input#amount}", format);
+                i18n.sendTranslated(player, NEUTRAL, "The repair would cost {input#amount}", format);
             }
-            economy.createAccount(user.getUniqueId());
-            user.sendTranslated(NEUTRAL, "You currently have {input#balance}", economy.format(user.getLocale(), economy.getBalance(user.getUniqueId())));
-            user.sendTranslated(POSITIVE, "{text:Leftclick} again to repair all your damaged items.");
+            economy.createAccount(player.getUniqueId());
+            i18n.sendTranslated(player, NEUTRAL, "You currently have {input#balance}", economy.format(player.getLocale(), economy.getBalance(player.getUniqueId())));
+            i18n.sendTranslated(player, POSITIVE, "{text:Leftclick} again to repair all your damaged items.");
             return new RepairRequest(this, inventory, items, price);
         }
         else
         {
-            user.sendTranslated(NEGATIVE, "There are no items to repair!");
+            i18n.sendTranslated(player, NEGATIVE, "There are no items to repair!");
         }
         return null;
     }
@@ -234,8 +237,8 @@ public class RepairBlock
     {
         double price = request.getPrice();
         RepairBlockInventory inventory = request.getInventory();
-        User user = this.module.getCore().getUserManager().getExactUser(inventory.player.getUniqueId());
-        if (withdrawPlayer(user, price))
+        Player player = inventory.player;
+        if (withdrawPlayer(player, price))
         {
             boolean itemsBroken = false;
             boolean repairFail = false;
@@ -284,32 +287,32 @@ public class RepairBlock
             }
             if (itemsBroken)
             {
-                user.sendTranslated(NEGATIVE, "You broke some of your items when repairing!");
-                user.playSound(user.getLocation(), ANVIL_BREAK,1,0);
+                i18n.sendTranslated(player, NEGATIVE, "You broke some of your items when repairing!");
+                player.playSound(ANVIL_BREAK, player.getLocation().getPosition(), 1, 0);
             }
             if (repairFail)
             {
-                user.sendTranslated(NEGATIVE, "You failed to repair some of your items!");
-                user.playSound(user.getLocation(), BURP,1,0);
+                i18n.sendTranslated(player, NEGATIVE, "You failed to repair some of your items!");
+                player.playSound(BURP,player.getLocation().getPosition(), 1,0);
             }
             if (looseEnch)
             {
-                user.sendTranslated(NEGATIVE, "Oh no! Some of your items lost their magical power.");
-                user.playSound(SoundTypes.GHAST_SCREAM, user.getLocation().getPosition(), 1);
+                i18n.sendTranslated(player, NEGATIVE, "Oh no! Some of your items lost their magical power.");
+                player.playSound(SoundTypes.GHAST_SCREAM, player.getLocation().getPosition(), 1);
             }
-            user.sendTranslated(POSITIVE, "You paid {input#amount} to repair your items!", economy.format(price));
+            i18n.sendTranslated(player, POSITIVE, "You paid {input#amount} to repair your items!", economy.format(price));
             if (this.config.costPercentage > 100)
             {
-                user.sendTranslated(POSITIVE, "Thats {decimal#percent:2}% of the normal price!", this.config.costPercentage);
+                i18n.sendTranslated(player, POSITIVE, "Thats {decimal#percent:2}% of the normal price!", this.config.costPercentage);
             }
             else if (this.config.costPercentage < 100)
             {
-                user.sendTranslated(POSITIVE, "Thats {decimal#percent:2}% less then the normal price!", 100 - this.config.costPercentage);
+                i18n.sendTranslated(player, POSITIVE, "Thats {decimal#percent:2}% less then the normal price!", 100 - this.config.costPercentage);
             }
         }
         else
         {
-           user.sendTranslated(NEGATIVE, "You don't have enough money to repair these items!");
+           i18n.sendTranslated(player, NEGATIVE, "You don't have enough money to repair these items!");
         }
     }
 

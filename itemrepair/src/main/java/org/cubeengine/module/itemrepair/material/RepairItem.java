@@ -19,27 +19,27 @@ package org.cubeengine.module.itemrepair.material;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.bukkit.Material;
+import org.spongepowered.api.item.ItemType;
 
 public class RepairItem
 {
-    private final Material material;
+    private final ItemType material;
     private final Map<BaseMaterial,Integer> baseMaterials;
 
-    private RepairItem(Material material, BaseMaterial baseMaterial, int baseMaterialCount)
+    private RepairItem(ItemType material, BaseMaterial baseMaterial, int baseMaterialCount)
     {
         this.material = material;
         this.baseMaterials = new HashMap<>();
         this.baseMaterials.put(baseMaterial,baseMaterialCount);
     }
 
-    public RepairItem(Material material, Map<BaseMaterial,Integer> baseMaterials)
+    public RepairItem(ItemType material, Map<BaseMaterial,Integer> baseMaterials)
     {
         this.material = material;
         this.baseMaterials = new HashMap<>(baseMaterials);
     }
 
-    public static RepairItem of(Material material, BaseMaterial baseMaterial, int baseMaterialCount)
+    public static RepairItem of(ItemType material, BaseMaterial baseMaterial, int baseMaterialCount)
     {
         if (material == null || baseMaterial == null)
         {
@@ -53,7 +53,7 @@ public class RepairItem
      *
      * @return the material
      */
-    public Material getMaterial()
+    public ItemType getMaterial()
     {
         return this.material;
     }

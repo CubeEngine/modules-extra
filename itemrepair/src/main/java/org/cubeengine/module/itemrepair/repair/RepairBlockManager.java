@@ -18,34 +18,38 @@
 package org.cubeengine.module.itemrepair.repair;
 
 import java.util.Collection;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.cubeengine.libcube.service.database.Database;
+import org.cubeengine.libcube.service.event.EventManager;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.module.itemrepair.Itemrepair;
 import org.cubeengine.module.itemrepair.material.RepairItemContainer;
+import org.cubeengine.module.itemrepair.repair.blocks.RepairBlock;
+import org.cubeengine.module.itemrepair.repair.blocks.RepairBlock.RepairBlockInventory;
 import org.cubeengine.module.itemrepair.repair.blocks.RepairBlockConfig;
 import org.cubeengine.module.itemrepair.repair.storage.RepairBlockModel;
 import org.cubeengine.module.itemrepair.repair.storage.RepairBlockPersister;
-import org.cubeengine.module.itemrepair.repair.blocks.RepairBlock;
-import org.cubeengine.module.itemrepair.repair.blocks.RepairBlock.RepairBlockInventory;
-import org.spongepowered.api.world.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.spongepowered.api.entity.player.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.world.WorldLoadEvent;
-import org.spongepowered.api.item.inventory.ItemStack;
 import org.jooq.DSLContext;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.world.LoadWorldEvent;
+import org.spongepowered.api.item.inventory.Inventory;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.service.economy.EconomyService;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 import static org.cubeengine.module.itemrepair.repair.storage.TableRepairBlock.TABLE_REPAIR_BLOCK;
 
-public class RepairBlockManager implements Listener
+public class RepairBlockManager
 {
-    private final Map<Material, RepairBlock> repairBlocks;
-    private final Map<Block, Material> blockMap;
+    private final Map<BlockType, RepairBlock> repairBlocks;
+    private final Map<Location<World>, BlockType> blockMap;
     private final RepairBlockPersister persister;
 
     protected final Itemrepair module;
@@ -53,22 +57,23 @@ public class RepairBlockManager implements Listener
 
     private final DSLContext dsl;
 
-    public RepairBlockManager(Itemrepair module)
+    public RepairBlockManager(Itemrepair module, Database db, EventManager em, I18n i18n, EconomyService economy,
+                              PermissionManager pm)
     {
-        this.dsl = module.getCore().getDB().getDSL();
+        this.dsl = db.getDSL();
         this.module = module;
-        this.repairBlocks = new EnumMap<>(Material.class);
+        this.repairBlocks = new HashMap<>();
         this.itemProvider = new RepairItemContainer(module.getConfig().price.baseMaterials);
 
         for (Entry<String, RepairBlockConfig> entry : module.getConfig().repairBlockConfigs.entrySet())
         {
-            RepairBlock repairBlock = new RepairBlock(module,this,entry.getKey(),entry.getValue());
+            RepairBlock repairBlock = new RepairBlock(module, this, entry.getKey(), entry.getValue(), pm, economy, i18n);
             this.addRepairBlock(repairBlock);
         }
         this.blockMap = new HashMap<>();
-        this.persister = new RepairBlockPersister(module);
-        this.module.getCore().getEventManager().registerListener(module, this);
-        for (World world : this.module.getCore().getWorldManager().getWorlds())
+        this.persister = new RepairBlockPersister(module, db);
+        em.registerListener(Itemrepair.class, this);
+        for (World world : Sponge.getServer().getWorlds())
         {
             this.loadRepairBlocks(this.persister.getAll(world));
         }
@@ -78,33 +83,33 @@ public class RepairBlockManager implements Listener
     {
         for (RepairBlockModel model : models)
         {
-            Block block = model.getBlock(this.module.getCore().getWorldManager());
-            if (block.getType().name().equals(model.getValue(TABLE_REPAIR_BLOCK.TYPE)))
+            Location<World> block = model.getBlock();
+            if (block.getBlockType().getName().equals(model.getValue(TABLE_REPAIR_BLOCK.TYPE)))
             {
-                if (this.repairBlocks.containsKey(block.getType()))
+                if (this.repairBlocks.containsKey(block.getBlockType()))
                 {
-                    this.blockMap.put(block,block.getType());
+                    this.blockMap.put(block,block.getBlockType());
                 }
                 else
                 {
                     this.module.getLog().info("Deleting saved RepairBlock that is no longer a RepairBlock at {}:{}:{} in {}",
-                                              block.getX(), block.getY(), block.getZ(), block.getWorld().getName());
+                                              block.getX(), block.getY(), block.getZ(), block.getExtent().getName());
                     model.deleteAsync();
                 }
             }
             else
             {
                 this.module.getLog().info("Deleting saved RepairBlock that does not correspond to block at {}:{}:{} in {}",
-                                          block.getX(), block.getY(), block.getZ(), block.getWorld().getName());
+                                          block.getX(), block.getY(), block.getZ(), block.getExtent().getName());
                 model.deleteAsync();
             }
         }
     }
 
-    @EventHandler
-    public void onWorldLoad(WorldLoadEvent event)
+    @Listener
+    public void onWorldLoad(LoadWorldEvent event)
     {
-        this.loadRepairBlocks(this.persister.getAll(event.getWorld()));
+        this.loadRepairBlocks(this.persister.getAll(event.getTargetWorld()));
     }
 
     /**
@@ -115,7 +120,6 @@ public class RepairBlockManager implements Listener
      */
     public RepairBlockManager addRepairBlock(RepairBlock block)
     {
-        this.module.getCore().getPermissionManager().registerPermission(this.module, block.getPermission());
         this.repairBlocks.put(block.getMaterial(), block);
         this.module.getLog().debug("Added a repair block: {} on ID: {}", block.getName(), block.getMaterial());
         return this;
@@ -127,7 +131,7 @@ public class RepairBlockManager implements Listener
      * @param material the material
      * @return the repair block
      */
-    public RepairBlock getRepairBlock(Material material)
+    public RepairBlock getRepairBlock(BlockType material)
     {
         return this.repairBlocks.get(material);
     }
@@ -138,9 +142,9 @@ public class RepairBlockManager implements Listener
      * @param block the block
      * @return the attached repair block
      */
-    public RepairBlock getRepairBlock(Block block)
+    public RepairBlock getRepairBlock(Location<World> block)
     {
-        Material repairBlockMaterial = this.blockMap.get(block);
+        BlockType repairBlockMaterial = this.blockMap.get(block);
         if (repairBlockMaterial != null)
         {
             return this.getRepairBlock(repairBlockMaterial);
@@ -154,7 +158,7 @@ public class RepairBlockManager implements Listener
      * @param block the block to check
      * @return true if it is one
      */
-    public boolean isRepairBlock(Block block)
+    public boolean isRepairBlock(Location<World> block)
     {
         return this.blockMap.containsKey(block);
     }
@@ -165,15 +169,15 @@ public class RepairBlockManager implements Listener
      * @param block the block to attach to
      * @return true on success
      */
-    public boolean attachRepairBlock(Block block)
+    public boolean attachRepairBlock(Location<World> block)
     {
-        Material material = block.getType();
+        BlockType material = block.getBlockType();
         if (!this.isRepairBlock(block))
         {
             if (this.repairBlocks.containsKey(material))
             {
                 this.blockMap.put(block, material);
-                this.persister.storeBlock(block, this.dsl.newRecord(TABLE_REPAIR_BLOCK).newRepairBlock(block, this.module.getCore().getWorldManager()));
+                this.persister.storeBlock(block, this.dsl.newRecord(TABLE_REPAIR_BLOCK).newRepairBlock(block));
                 return true;
             }
         }
@@ -186,7 +190,7 @@ public class RepairBlockManager implements Listener
      * @param block the block to detach from
      * @return true on success
      */
-    public boolean detachRepairBlock(Block block)
+    public boolean detachRepairBlock(Location<World> block)
     {
         if (this.isRepairBlock(block))
         {
@@ -211,9 +215,9 @@ public class RepairBlockManager implements Listener
             {
                 final World world = player.getWorld();
                 final Location loc = player.getLocation();
-                for (ItemStack stack : inventory.inventory)
+                for (Inventory slot : inventory.inventory)
                 {
-                    if (stack != null && stack.getType() != Material.AIR)
+                    if (slot.peek().isPresent())
                     {
                         world.dropItemNaturally(loc, stack);
                     }

@@ -18,12 +18,13 @@
 package org.cubeengine.module.itemrepair.repair.blocks;
 
 import de.cubeisland.engine.reflect.Section;
-import org.bukkit.Material;
+import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.block.BlockTypes;
 
 public class RepairBlockConfig implements Section
 {
     public String title;
-    public Material block;
+    public BlockType block;
     public float breakPercentage;
     public float failPercentage;
     public float costPercentage;
@@ -33,7 +34,7 @@ public class RepairBlockConfig implements Section
     {
         RepairBlockConfig config = new RepairBlockConfig();
         config.title = "Normal Repair";
-        config.block = Material.IRON_BLOCK;
+        config.block = BlockTypes.IRON_BLOCK;
         config.breakPercentage = 0;
         config.costPercentage = 100;
         config.looseEnchantmentsPercentage = 0;
@@ -45,7 +46,7 @@ public class RepairBlockConfig implements Section
     {
         RepairBlockConfig config = new RepairBlockConfig();
         config.title = "Cheap Repair";
-        config.block = Material.DIAMOND_BLOCK;
+        config.block = BlockTypes.DIAMOND_BLOCK;
         config.breakPercentage = 0;
         config.costPercentage = 70;
         config.looseEnchantmentsPercentage = 5;
