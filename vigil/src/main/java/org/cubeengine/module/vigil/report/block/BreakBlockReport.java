@@ -91,7 +91,7 @@ public class BreakBlockReport extends BlockReport<ChangeBlockEvent.Break>
             {
                 throw new IllegalStateException();
             }
-            if (!orig.get().getLocation().get().getPosition().equals(((Vector3d)receiver.getLookup())))
+            if (!orig.get().getLocation().get().getBlockPosition().equals((receiver.getLookup().getPosition())))
             {
                 continue;
             }

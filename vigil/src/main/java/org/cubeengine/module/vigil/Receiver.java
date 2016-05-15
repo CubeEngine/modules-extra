@@ -44,11 +44,11 @@ public class Receiver
 {
     private final CommandSource cmdSource;
     private final I18n i18n;
-    private Object lookup;
+    private Lookup lookup;
 
     private List<Text> lines = new ArrayList<>();
 
-    public Receiver(CommandSource cmdSource, I18n i18n, Object lookup)
+    public Receiver(CommandSource cmdSource, I18n i18n, Lookup lookup)
     {
         this.cmdSource = cmdSource;
         this.i18n = i18n;
@@ -135,7 +135,7 @@ public class Receiver
         return cmdSource.getLocale();
     }
 
-    public Object getLookup()
+    public Lookup getLookup()
     {
         return lookup;
     }

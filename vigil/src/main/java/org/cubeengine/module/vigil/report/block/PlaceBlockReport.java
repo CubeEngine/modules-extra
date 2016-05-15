@@ -104,7 +104,7 @@ public class PlaceBlockReport extends BlockReport<ChangeBlockEvent.Place>
             {
                 throw new IllegalStateException();
             }
-            if (!repl.get().getLocation().get().getPosition().equals(((Vector3d)receiver.getLookup())))
+            if (!repl.get().getLocation().get().getBlockPosition().equals(receiver.getLookup().getPosition()))
             {
                 continue;
             }
