@@ -27,13 +27,18 @@ import org.cubeengine.module.itemrepair.repair.blocks.RepairBlock;
 import org.cubeengine.module.itemrepair.repair.blocks.RepairBlock.RepairBlockInventory;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.action.InteractEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.block.InteractBlockEvent.Primary;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
 
 public class ItemRepairListener
 {
@@ -79,13 +84,15 @@ public class ItemRepairListener
         }
 
         RepairBlockInventory inventory = repairBlock.getInventory(player);
-        
-        if (event.getAction() == RIGHT_CLICK_BLOCK)
+
+        boolean primary = event instanceof Primary;
+
+        if (!primary)
         {
-            this.cancelRequest(event);
-            player.openInventory(inventory.inventory);
+            this.cancelRequest(event, player);
+            player.openInventory(inventory.inventory, Cause.of(NamedCause.source(player)));
         }
-        else if (event.getAction() == LEFT_CLICK_BLOCK)
+        else
         {
             event.setCancelled(true);
             if (this.repairRequests.containsKey(player.getUniqueId()))
@@ -109,29 +116,21 @@ public class ItemRepairListener
                 }
             }
         }
-        else
-        {
-            this.cancelRequest(event);
-        }
     }
 
     @Listener
-    public void onCancelRepair(PlayerInteractEvent event)
+    public void onCancelRepair(InteractEvent event, @First Player player)
     {
-        this.cancelRequest(event);
+        this.cancelRequest(event, player);
     }
 
-    private void cancelRequest(PlayerInteractEvent event)
+    private void cancelRequest(InteractEvent event, Player player)
     {
-        if (event.getAction() != Action.PHYSICAL)
+        if (this.repairRequests.containsKey(player.getUniqueId()))
         {
-            final User user = this.module.getCore().getUserManager().getExactUser(event.getPlayer().getUniqueId());
-            if (this.repairRequests.containsKey(user.getUniqueId()))
-            {
-                user.sendTranslated(NEUTRAL, "The repair has been cancelled!");
-                this.repairRequests.remove(user.getUniqueId());
-                event.setCancelled(true);
-            }
+            i18n.sendTranslated(player, NEUTRAL, "The repair has been cancelled!");
+            this.repairRequests.remove(player.getUniqueId());
+            event.setCancelled(true);
         }
     }
 }

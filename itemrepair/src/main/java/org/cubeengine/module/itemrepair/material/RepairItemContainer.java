@@ -105,15 +105,15 @@ public class RepairItemContainer
         Map<Integer, ItemStack> items = new HashMap<>();
 
         ItemStack item;
-        for (int i = 0; i < inventory.getSize(); ++i)
+        int i = 0;
+        for (Inventory slot : inventory)
         {
-            item = inventory.getItem(i);
-            if (item != null && this.of(item.getType()) != null && item.getDurability() > 0)
+            i++;
+            if (slot.peek().isPresent())
             {
-                items.put(i, item);
+                items.put(i, slot.peek().get());
             }
         }
-
         return items;
     }
 

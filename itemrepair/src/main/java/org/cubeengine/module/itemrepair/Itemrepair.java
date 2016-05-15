@@ -34,6 +34,7 @@ import org.cubeengine.module.itemrepair.material.BaseMaterialContainer;
 import org.cubeengine.module.itemrepair.material.BaseMaterialContainerConverter;
 import org.cubeengine.module.itemrepair.repair.RepairBlockManager;
 import org.cubeengine.module.itemrepair.repair.storage.TableRepairBlock;
+import org.spongepowered.api.service.economy.EconomyService;
 
 @ModuleInfo(name = "ItemRepair", description = "Repair your tools for money")
 /*
@@ -51,6 +52,7 @@ public class Itemrepair extends Module
     @Inject private I18n i18n;
     @Inject private Log logger;
     @Inject private PermissionManager pm;
+    @Inject private EconomyService economy;
 
 
     @Inject
@@ -62,7 +64,7 @@ public class Itemrepair extends Module
     @Enable
     public void onEnable()
     {
-        this.repairBlockManager = new RepairBlockManager(this, db, em, pm, economy, pm);
+        this.repairBlockManager = new RepairBlockManager(this, db, em, i18n, economy, pm);
         em.registerListener(Itemrepair.class, new ItemRepairListener(this, i18n));
         cm.addCommand(new ItemRepairCommands(cm, this, em, i18n));
     }

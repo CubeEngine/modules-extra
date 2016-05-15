@@ -17,9 +17,12 @@
  */
 package org.cubeengine.module.itemrepair.repair.blocks;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Random;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.permission.Permission;
@@ -32,13 +35,25 @@ import org.cubeengine.module.itemrepair.material.RepairItemContainer;
 import org.cubeengine.module.itemrepair.repair.RepairBlockManager;
 import org.cubeengine.module.itemrepair.repair.RepairRequest;
 import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.manipulator.mutable.item.DurabilityData;
+import org.spongepowered.api.data.meta.ItemEnchantment;
+import org.spongepowered.api.data.value.mutable.MutableBoundedValue;
 import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.item.Enchantment;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.custom.CustomInventory;
+import org.spongepowered.api.item.inventory.property.SlotIndex;
 import org.spongepowered.api.service.economy.EconomyService;
+import org.spongepowered.api.service.economy.account.UniqueAccount;
+import org.spongepowered.api.service.economy.transaction.ResultType;
+import org.spongepowered.api.service.economy.transaction.TransactionResult;
+import org.spongepowered.api.text.Text;
 
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
 import static org.spongepowered.api.effect.sound.SoundTypes.ANVIL_BREAK;
@@ -121,7 +136,8 @@ public class RepairBlock
             {
                 currentPrice += entry.getKey().getPrice() * entry.getValue();
             }
-            currentPrice *= (double)Math.min(itemStack.getDurability(), type.getMaxDurability()) / (double)type.getMaxDurability();
+            MutableBoundedValue<Integer> dura = itemStack.getValue(Keys.ITEM_DURABILITY).get();
+            currentPrice *= (double)Math.min(dura.get(), dura.getMaxValue()) / dura.getMaxValue();
             currentPrice *= getEnchantmentMultiplier(itemStack, enchantmentFactor, enchantmentBase);
 
             price += currentPrice;
@@ -144,7 +160,8 @@ public class RepairBlock
         RepairBlockInventory inventory = this.inventoryMap.get(player.getName());
         if (inventory == null)
         {
-            inventory = new RepairBlockInventory(Bukkit.createInventory(player, 9 * 4, this.config.title), player);
+            CustomInventory inv = CustomInventory.builder().name(null).size(9 * 4).build(); // TODO title
+            inventory = new RepairBlockInventory(inv, player);
             this.inventoryMap.put(player.getName(), inventory);
         }
         return inventory;
@@ -162,31 +179,16 @@ public class RepairBlock
         }
     }
 
-    public boolean withdrawPlayer(Player user, double price)
+    public boolean withdrawPlayer(Player player, double price)
     {
-        economy.createAccount(user.getUniqueId()); // Make sure account exists
-        if (economy.has(user.getUniqueId(), price) && economy.withdraw(user.getUniqueId(), price))
+        UniqueAccount acc = economy.getOrCreateAccount(player.getUniqueId()).get();// Make sure account exists
+        TransactionResult result = acc.withdraw(economy.getDefaultCurrency(), new BigDecimal(price), Cause.of(NamedCause.source(player)));
+        if (result.getResult() == ResultType.SUCCESS)
         {
             // TODO bankAccounts
-            /*
-            String account = this.plugin.getServerBank();
-            if (eco.hasBankSupport() && !("".equals(account)))
-            {
-                eco.bankDeposit(account, amount);
-            }
-            else
-            {
-                account = this.plugin.getServerPlayer();
-                if (!("".equals(account)) && eco.hasAccount(account))
-                {
-                    eco.depositPlayer(account, amount);
-                }
-            }
-            */
             return true;
         }
         return false;
-
     }
 
     public RepairRequest requestRepair(RepairBlockInventory inventory)
@@ -196,7 +198,7 @@ public class RepairBlock
         if (items.size() > 0)
         {
             Double price = calculatePrice(items.values());
-            String format = economy.format(price);
+            Text format = economy.getDefaultCurrency().format(new BigDecimal(price));
             if (this.config.breakPercentage > 0)
             {
                 i18n.sendTranslated(player, NEGATIVE, "Items will break with a chance of {decimal:2}%", this.config.breakPercentage);
@@ -211,18 +213,18 @@ public class RepairBlock
             }
             if (this.config.costPercentage > 100)
             {
-                i18n.sendTranslated(player, NEUTRAL, "The repair would cost {input#amount} (+{decimal:2}%)", format, this.config.costPercentage - 100);
+                i18n.sendTranslated(player, NEUTRAL, "The repair would cost {txt#amount} (+{decimal:2}%)", format, this.config.costPercentage - 100);
             }
             else if (this.config.costPercentage < 100)
             {
-               i18n.sendTranslated(player, NEUTRAL, "The repair would cost {input#amount} (-{decimal:2}%)", format, 100 - this.config.costPercentage);
+               i18n.sendTranslated(player, NEUTRAL, "The repair would cost {txt#amount} (-{decimal:2}%)", format, 100 - this.config.costPercentage);
             }
             else
             {
-                i18n.sendTranslated(player, NEUTRAL, "The repair would cost {input#amount}", format);
+                i18n.sendTranslated(player, NEUTRAL, "The repair would cost {txt#amount}", format);
             }
-            economy.createAccount(player.getUniqueId());
-            i18n.sendTranslated(player, NEUTRAL, "You currently have {input#balance}", economy.format(player.getLocale(), economy.getBalance(player.getUniqueId())));
+            UniqueAccount acc = economy.getOrCreateAccount(player.getUniqueId()).get();
+            i18n.sendTranslated(player, NEUTRAL, "You currently have {input#balance}", economy.getDefaultCurrency().format(acc.getBalance(economy.getDefaultCurrency())));
             i18n.sendTranslated(player, POSITIVE, "{text:Leftclick} again to repair all your damaged items.");
             return new RepairRequest(this, inventory, items, price);
         }
@@ -258,15 +260,13 @@ public class RepairBlock
                     {
                         repairFail = true;
                     }
-                    if (!entry.getValue().getEnchantments().isEmpty())
+                    Optional<List<ItemEnchantment>> enchs = entry.getValue().get(Keys.ITEM_ENCHANTMENTS);
+                    if (enchs.isPresent() && !enchs.get().isEmpty())
                     {
                         if (this.rand.nextInt(100) < this.config.looseEnchantmentsPercentage)
                         {
                             looseEnch = true;
-                            for (Enchantment enchantment : entry.getValue().getEnchantments().keySet())
-                            {
-                                entry.getValue().removeEnchantment(enchantment);
-                            }
+                            entry.getValue().remove(Keys.ITEM_ENCHANTMENTS);
                         }
                     }
                 }
@@ -276,11 +276,11 @@ public class RepairBlock
                     amount = item.getQuantity();
                     if (amount == 1)
                     {
-                        inventory.inventory.clear(entry.getKey());
+                        inventory.inventory.query(SlotIndex.of(entry.getKey())).clear();
                     }
                     else
                     {
-                        item.setAmount(amount - 1);
+                        item.setQuantity(amount - 1);
                         repairItem(item);
                     }
                 }
@@ -300,7 +300,7 @@ public class RepairBlock
                 i18n.sendTranslated(player, NEGATIVE, "Oh no! Some of your items lost their magical power.");
                 player.playSound(SoundTypes.GHAST_SCREAM, player.getLocation().getPosition(), 1);
             }
-            i18n.sendTranslated(player, POSITIVE, "You paid {input#amount} to repair your items!", economy.format(price));
+            i18n.sendTranslated(player, POSITIVE, "You paid {input#amount} to repair your items!", economy.getDefaultCurrency().format(new BigDecimal(price)));
             if (this.config.costPercentage > 100)
             {
                 i18n.sendTranslated(player, POSITIVE, "Thats {decimal#percent:2}% of the normal price!", this.config.costPercentage);
@@ -323,9 +323,13 @@ public class RepairBlock
     public static double getEnchantmentMultiplier(ItemStack item, double factor, double base)
     {
         double enchantmentLevel = 0;
-        for (Integer level : item.getEnchantments().values())
+        Optional<List<ItemEnchantment>> enchs = item.get(Keys.ITEM_ENCHANTMENTS);
+        if (enchs.isPresent() && !enchs.get().isEmpty())
         {
-            enchantmentLevel += level;
+            for (ItemEnchantment enchantment : enchs.get())
+            {
+                enchantmentLevel += enchantment.getLevel();
+            }
         }
 
         if (enchantmentLevel > 0)
@@ -365,17 +369,11 @@ public class RepairBlock
         repairItem(item, (short)0);
     }
 
-    public static void repairItem(ItemStack item, short durability)
+    public static void repairItem(ItemStack item, int durability)
     {
         if (item != null)
         {
-            item.setDurability(durability);
+            item.offer(Keys.ITEM_DURABILITY, durability);
         }
-    }
-
-    public static void removeHeldItem(Player player)
-    {
-        PlayerInventory inventory = player.getInventory();
-        inventory.clear(inventory.getHeldItemSlot());
     }
 }

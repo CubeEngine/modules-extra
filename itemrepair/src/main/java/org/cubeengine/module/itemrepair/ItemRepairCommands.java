@@ -30,7 +30,9 @@ import org.cubeengine.module.itemrepair.repair.RepairBlockManager;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.block.InteractBlockEvent.Primary;
 import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.event.item.inventory.ClickInventoryEvent.Secondary;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -93,40 +95,30 @@ public class ItemRepairCommands extends ContainerCommand
     }
 
     @Listener
-    public void onAdd(InteractBlockEvent.Secondary event, @First Player player)
+    public void onAdd(InteractBlockEvent event, @First Player player)
     {
         if (!this.addRequests.contains(player.getUniqueId()) || !event.getTargetBlock().getLocation().isPresent())
         {
             return;
         }
-        if (rbm.isRepairBlock(event.getTargetBlock().getLocation().get()))
-        {
-            
-        }
-        if (event.getAction() == RIGHT_CLICK_BLOCK)
-        {
-            final Location<World> block = event.getTargetBlock().getLocation().get();
-            if (!this.rbm.isRepairBlock(block))
-            {
-                if (this.rbm.attachRepairBlock(block))
-                {
-                    i18n.sendTranslated(player, POSITIVE, "Repair block successfully added!");
-                }
-                else
-                {
-                    i18n.sendTranslated(player, NEGATIVE, "This block can't be used as a repair block!");
-                }
-            }
-            else
-            {
-                i18n.sendTranslated(player, NEGATIVE, "This block is already a repair block!");
-            }
-        }
-        if (event.getAction() != Action.PHYSICAL)
+        if (event instanceof InteractBlockEvent.Primary)
         {
             this.addRequests.remove(player.getUniqueId());
-            event.setCancelled(true);
+            return;
         }
+        event.setCancelled(true);
+        Location<World> block = event.getTargetBlock().getLocation().get();
+        if (rbm.isRepairBlock(block))
+        {
+            i18n.sendTranslated(player, NEGATIVE, "This block is already a repair block!");
+        }
+        this.addRequests.remove(player.getUniqueId());
+        if (rbm.attachRepairBlock(block))
+        {
+            i18n.sendTranslated(player, POSITIVE, "Repair block successfully added!");
+            return;
+        }
+        i18n.sendTranslated(player, NEGATIVE, "This block can't be used as a repair block!");
     }
 
     @Listener
@@ -136,9 +128,10 @@ public class ItemRepairCommands extends ContainerCommand
         {
             return;
         }
-        if (event.getAction() == RIGHT_CLICK_BLOCK)
+        if (event instanceof Secondary)
         {
-            if (this.rbm.detachRepairBlock(event.getClickedBlock()))
+            event.setCancelled(true);
+            if (this.rbm.detachRepairBlock(event.getTargetBlock().getLocation().get()))
             {
                 i18n.sendTranslated(player, POSITIVE, "Repair block successfully removed!");
             }
@@ -146,11 +139,7 @@ public class ItemRepairCommands extends ContainerCommand
             {
                 i18n.sendTranslated(player, NEGATIVE, "This block is not a repair block!");
             }
-        }
-        if (event.getAction() != Action.PHYSICAL)
-        {
             this.removeRequests.remove(player.getUniqueId());
-            event.setCancelled(true);
         }
     }
 }
