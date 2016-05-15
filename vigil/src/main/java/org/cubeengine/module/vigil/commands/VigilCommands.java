@@ -22,8 +22,11 @@ import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Label;
 import org.cubeengine.butler.parametric.Optional;
+import org.cubeengine.libcube.service.command.CommandManager;
+import org.cubeengine.libcube.service.command.ContainerCommand;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.matcher.StringMatcher;
+import org.cubeengine.module.vigil.Vigil;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
@@ -37,7 +40,7 @@ import static java.util.Arrays.asList;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
 
 @Command(name = "vigil", alias = "log", desc = "Vigil-Module Commands")
-public class VigilCommands
+public class VigilCommands extends ContainerCommand
 {
     public static final Text toolName = Text.of(TextColors.DARK_AQUA, "Logging-ToolBlock");
     public static final Text selectorToolName = Text.of(TextColors.DARK_AQUA, "Selector-Tool");
@@ -46,8 +49,9 @@ public class VigilCommands
     private I18n i18n;
     private Game game;
 
-    public VigilCommands(StringMatcher sm, I18n i18n, Game game)
+    public VigilCommands(StringMatcher sm, I18n i18n, Game game, CommandManager cm)
     {
+        super(cm, Vigil.class);
         this.sm = sm;
         this.i18n = i18n;
         this.game = game;
