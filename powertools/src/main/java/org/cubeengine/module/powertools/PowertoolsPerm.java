@@ -17,6 +17,7 @@
  */
 package org.cubeengine.module.powertools;
 
+import javax.inject.Inject;
 import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionContainer;
 import org.cubeengine.libcube.service.permission.PermissionManager;
@@ -25,6 +26,7 @@ import org.spongepowered.api.service.permission.PermissionDescription;
 @SuppressWarnings("all")
 public class PowertoolsPerm extends PermissionContainer
 {
+    @Inject
     public PowertoolsPerm(PermissionManager pm)
     {
         super(pm, Powertools.class);
