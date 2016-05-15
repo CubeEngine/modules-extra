@@ -17,49 +17,90 @@
  */
 package org.cubeengine.module.fun.commands;
 
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import com.flowpowered.math.vector.Vector3d;
 import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Named;
 import org.cubeengine.butler.parametric.Optional;
+import org.cubeengine.libcube.service.event.EventManager;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.matcher.EntityMatcher;
+import org.cubeengine.libcube.service.permission.Permission;
+import org.cubeengine.libcube.service.permission.PermissionManager;
+import org.cubeengine.libcube.service.task.SpongeTaskManager;
+import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.module.fun.Fun;
-import org.spongepowered.api.world.Location;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.Property;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.property.entity.EyeHeightProperty;
 import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntityType;
+import org.spongepowered.api.entity.EntityTypes;
+import org.spongepowered.api.entity.ExperienceOrb;
+import org.spongepowered.api.entity.explosive.Explosive;
+import org.spongepowered.api.entity.explosive.PrimedTNT;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.projectile.Arrow;
+import org.spongepowered.api.entity.projectile.Projectile;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.event.world.ExplosionEvent;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.explosion.Explosion;
+
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 
 public class ThrowCommands
 {
     private final Map<UUID, ThrowTask> thrownItems;
+    
     // entities that can't be safe due to sponge flaws
-    private final EnumSet<EntityType> BUGGED_ENTITIES = EnumSet.of(EntityType.SMALL_FIREBALL, EntityType.FIREBALL);
+    private final Set<EntityType> BUGGED_ENTITIES = new HashSet<>();
 
+    {
+        BUGGED_ENTITIES.add(EntityTypes.SMALL_FIREBALL);
+        BUGGED_ENTITIES.add(EntityTypes.FIREBALL);
+    }
+
+    private TaskManager tm;
     private final Fun module;
+    private EntityMatcher entityMatcher;
     private final ThrowListener throwListener;
+    private I18n i18n;
 
     Map<EntityType, Permission> perms = new HashMap<>();
 
-    public ThrowCommands(Fun module)
+    public ThrowCommands(Fun module, EventManager em, PermissionManager pm, TaskManager tm, EntityMatcher entityMatcher, I18n i18n)
     {
         this.module = module;
+        this.tm = tm;
+        this.entityMatcher = entityMatcher;
+        this.i18n = i18n;
         this.thrownItems = new HashMap<>();
         this.throwListener = new ThrowListener();
-        module.getCore().getEventManager().registerListener(module, this.throwListener);
-        for (EntityType type : EntityType.values()) // TODO only entities that can be thrown
+        em.registerListener(Fun.class, this.throwListener);
+        for (EntityType type : Sponge.getRegistry().getAllOf(EntityType.class)) // TODO only entities that can be thrown
         {
-            perms.put(type, module.perms().COMMAND_THROW.child(type.name().toLowerCase(Locale.ENGLISH).replace("_", "-")));
-            module.getCore().getPermissionManager().registerPermission(module, perms.get(type));
+            Permission perm = pm.register(Fun.class, type.getName().toLowerCase().replace("_", "-"), "", module.perms().COMMAND_THROW);
+            perms.put(type, perm);
         }
     }
 
     @Command(name = "throw", desc = "Throw something!")
-    @Restricted(value = User.class, msg = "This command can only be used by a player!")
-    public void throwCommand(User context, String material, @Optional Integer amount,
+    @Restricted(value = Player.class, msg = "This command can only be used by a player!")
+    public void throwCommand(Player context, String material, @Optional Integer amount,
                              @Named({ "delay", "d" }) Integer delay, @Flag boolean unsafe)
     {
         EntityType type = null;
@@ -69,7 +110,7 @@ public class ThrowCommands
         if (task != null)
         {
             int aDelay = delay == null ? task.getInterval() : delay;
-            if (material == null || (type = Match.entity().any(material)) == task.getType()
+            if (material == null || (type = entityMatcher.any(material, context.getLocale())) == task.getType()
                 && task.getInterval() == aDelay
                 && task.getPreventDamage() != unsafe && delay == null)
             {
@@ -82,47 +123,51 @@ public class ThrowCommands
         amount = amount == null ? -1 : 1;
         if ((amount > this.module.getConfig().command.throwSection.maxAmount || amount < 1) && amount != -1)
         {
-            context.sendTranslated(NEGATIVE, "The amount must be a number from 1 to {integer}", this.module.getConfig().command.throwSection.maxAmount);
+            i18n.sendTranslated(context, NEGATIVE, "The amount must be a number from 1 to {integer}", this.module.getConfig().command.throwSection.maxAmount);
             return;
         }
 
         delay = delay == null ? 3 : delay;
         if (delay > this.module.getConfig().command.throwSection.maxDelay || delay < 0)
         {
-            context.sendTranslated(NEGATIVE, "The delay must be a number from 0 to {integer}", this.module.getConfig().command.throwSection.maxDelay);
+            i18n.sendTranslated(context, NEGATIVE, "The delay must be a number from 0 to {integer}", this.module.getConfig().command.throwSection.maxDelay);
             return;
         }
         
-        if(unsafe && !module.perms().COMMAND_THROW_UNSAFE.isAuthorized( context ) )
+        if(unsafe && !context.hasPermission(module.perms().COMMAND_THROW_UNSAFE.getId()))
         {
-            context.sendTranslated(NEGATIVE, "You are not allowed to execute this command in unsafe mode.");
+            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to execute this command in unsafe mode.");
             return;
         }
 
         if (type == null)
         {
-            type = Match.entity().any(material);
+            type = entityMatcher.any(material, context.getLocale());
         }
         if (type == null)
         {
-            context.sendTranslated(NEGATIVE, "The given object was not found!");
+            i18n.sendTranslated(context, NEGATIVE, "The given object was not found!");
             return;
         }
+
+        // TODO
+        /*
         if (!type.isSpawnable())
         {
-            context.sendTranslated(NEGATIVE, "The Item {name#item} is not supported!", material);
+            i18n.sendTranslated(context, NEGATIVE, "The Item {name#item} is not supported!", material);
+            return;
+        }
+        */
+
+        if (!context.hasPermission(perms.get(type).getId()))
+        {
+            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to throw this.");
             return;
         }
 
-        if (!perms.get(type).isAuthorized(context))
+        if ((BUGGED_ENTITIES.contains(type) || entityMatcher.isMonster(type)) && !unsafe)
         {
-            context.sendTranslated(NEGATIVE, "You are not allowed to throw this.");
-            return;
-        }
-
-        if ((BUGGED_ENTITIES.contains(type) || Match.entity().isMonster(type)) && !unsafe)
-        {
-            context.sendTranslated(NEUTRAL, "This object can only be thrown in unsafe mode. Add -u to enable the unsafe mode.");
+            i18n.sendTranslated(context, NEUTRAL, "This object can only be thrown in unsafe mode. Add -u to enable the unsafe mode.");
             return;
         }
 
@@ -133,23 +178,23 @@ public class ThrowCommands
         }
         else
         {
-            context.sendTranslated(NEGATIVE, "Failed to throw this!");
+            i18n.sendTranslated(context, NEGATIVE, "Failed to throw this!");
         }
     }
 
     private class ThrowTask implements Runnable
     {
         private final EntityType type;
-        private final User user;
+        private final Player player;
         private final int interval;
         private final boolean save;
         private final boolean preventDamage;
         private int amount;
-        private int taskId;
+        private UUID taskId;
 
-        public ThrowTask(User user, EntityType type, int amount, int interval, boolean preventDamage)
+        public ThrowTask(Player player, EntityType type, int amount, int interval, boolean preventDamage)
         {
-            this.user = user;
+            this.player = player;
             this.type = type;
             this.amount = amount;
             this.interval = interval;
@@ -162,9 +207,9 @@ public class ThrowCommands
             return !(Explosive.class.isAssignableFrom(entityClass) || Arrow.class == entityClass);
         }
 
-        public User getUser()
+        public Player getPlayer()
         {
-            return this.user;
+            return this.player;
         }
 
         public EntityType getType()
@@ -191,11 +236,11 @@ public class ThrowCommands
         {
             if (this.amount == -1 && notify)
             {
-                this.user.sendTranslated(POSITIVE, "Started throwing!");
-                this.user.sendTranslated(POSITIVE, "You will keep throwing until you run this command again.");
+                i18n.sendTranslated(this.player, POSITIVE, "Started throwing!");
+                i18n.sendTranslated(this.player, POSITIVE, "You will keep throwing until you run this command again.");
             }
-            this.taskId = module.getCore().getTaskManager().runTimer(module, this, 0, this.interval);
-            return this.taskId != -1;
+            this.taskId = tm.runTimer(Fun.class, this, 0, this.interval);
+            return this.taskId != null;
         }
 
         public void stop()
@@ -205,43 +250,45 @@ public class ThrowCommands
 
         public void stop(boolean notify)
         {
-            if (this.taskId != -1)
+            if (this.taskId != null)
             {
                 if (notify)
                 {
                     if (this.amount == -1)
                     {
-                        this.user.sendTranslated(POSITIVE, "You are no longer throwing.");
+                        i18n.sendTranslated(this.player, POSITIVE, "You are no longer throwing.");
                     }
                     else
                     {
-                        this.user.sendTranslated(POSITIVE, "All objects thrown.");
+                        i18n.sendTranslated(this.player, POSITIVE, "All objects thrown.");
                     }
                 }
-                module.getCore().getTaskManager().cancelTask(module, this.taskId);
-                this.taskId = -1;
+                tm.cancelTask(Fun.class, this.taskId);
+                this.taskId = null;
             }
         }
 
         @SuppressWarnings("unchecked")
         private void throwItem()
         {
-            final Location location = this.user.getEyeLocation();
-            final Vector direction = location.getDirection();
-            location.add(direction).add(direction);
+
+            final Location location = this.player.getLocation().add(0, player.getProperty(EyeHeightProperty.class).get().getValue(), 0);
+            Vector3d rotation = player.getRotation().normalize();
+            location.add(rotation.mul(2));
 
             Entity entity;
             if (Projectile.class.isAssignableFrom(this.type.getEntityClass()))
             {
-                entity = this.user.launchProjectile((Class<? extends Projectile>)this.type.getEntityClass());
+                entity = this.player.launchProjectile((Class<? extends Projectile>)this.type.getEntityClass()).get();
             }
             else
             {
-                entity = this.user.getWorld().spawnEntity(location, type);
-                entity.setVelocity(direction.multiply(8));
+                entity = player.getWorld().createEntity(type, location.getPosition()).get();
+                player.getWorld().spawnEntity(entity, Cause.of(NamedCause.source(player)));
+                entity.setVelocity(rotation.mul(8));
                 if (entity instanceof ExperienceOrb)
                 {
-                    ((ExperienceOrb)entity).setExperience(0);
+                    entity.offer(Keys.HELD_EXPERIENCE, 0);
                 }
             }
             if (this.preventDamage && !this.save)
@@ -261,12 +308,12 @@ public class ThrowCommands
             if (amount == 0)
             {
                 this.stop();
-                thrownItems.remove(this.user.getUniqueId());
+                thrownItems.remove(this.player.getUniqueId());
             }
         }
     }
 
-    public class ThrowListener implements Listener
+    public class ThrowListener
     {
         private final Set<Entity> entities;
         private Entity removal;
@@ -282,31 +329,22 @@ public class ThrowCommands
             this.entities.add(entity);
         }
 
-        @EventHandler
-        public void onPlayerQuit(PlayerQuitEvent event)
+        @Listener
+        public void onPlayerQuit(ClientConnectionEvent.Disconnect event)
         {
-            ThrowTask task = thrownItems.remove(event.getPlayer().getUniqueId());
+            ThrowTask task = thrownItems.remove(event.getTargetEntity().getUniqueId());
             if (task != null)
             {
                 task.stop();
             }
         }
 
-        @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-        public void onBlockDamage(EntityExplodeEvent event)
+        @Listener
+        public void onBlockDamage(ExplosionEvent.Pre event, @First Entity cause)
         {
-            if (this.handleEntity(event.getEntity()))
+            if (this.handleEntity(cause))
             {
-                event.blockList().clear();
-            }
-        }
-
-        @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-        public void onEntityByEntityDamage(EntityDamageByEntityEvent event)
-        {
-            if (this.handleEntity(event.getEntity()))
-            {
-                event.setDamage(0);
+                event.setExplosion(Explosion.builder().from(event.getExplosion()).shouldBreakBlocks(false).shouldDamageEntities(false).build());
             }
         }
 
@@ -314,14 +352,9 @@ public class ThrowCommands
         {
             if (this.entities.contains(entity) && this.removal != entity)
             {
-                module.getCore().getTaskManager().runTask(module, new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        entities.remove(removal);
-                        removal = null;
-                    }
+                tm.runTask(Fun.class, () -> {
+                    entities.remove(removal);
+                    removal = null;
                 });
                 return true;
             }

@@ -23,62 +23,60 @@ import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Named;
 import org.cubeengine.butler.parametric.Optional;
-import org.cubeengine.module.fun.Fun;
-import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.libcube.service.task.TaskManager;
+import org.cubeengine.libcube.service.matcher.MaterialMatcher;
+import org.cubeengine.module.fun.Fun;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.property.item.EquipmentProperty;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.weather.Lightning;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.event.cause.entity.damage.DamageTypes;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
-import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.equipment.EquipmentType;
 import org.spongepowered.api.item.inventory.equipment.EquipmentTypes;
+import org.spongepowered.api.util.blockray.BlockRay;
+import org.spongepowered.api.util.blockray.BlockRayHit;
 import org.spongepowered.api.world.Location;
-import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.explosion.Explosion;
 
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
 
 public class PlayerCommands
 {
     private final Fun module;
-    private final ExplosionListener explosionListener;
     private final I18n i18n;
-    private final TaskManager tm;
+    private MaterialMatcher materialMatcher;
 
-    public PlayerCommands(Fun module, EventManager em, I18n i18n, TaskManager tm)
+    public PlayerCommands(Fun module, I18n i18n, MaterialMatcher materialMatcher)
     {
         this.module = module;
         this.i18n = i18n;
-        this.tm = tm;
-        this.explosionListener = new ExplosionListener();
-        em.registerListener(Fun.class, explosionListener);
+        this.materialMatcher = materialMatcher;
     }
     
     @Command(desc = "Gives a player a hat")
     public void hat(CommandSource context, @Optional String item, @Named({"player", "p"}) Player player, @Flag boolean quiet)
     {
         ItemStack head;
-        PlayerInventory senderInventory = null;
-        PlayerInventory userInventory;
-        
+
         if(player != null)
         {
-            if(!module.perms().COMMAND_HAT_OTHER.isAuthorized( context ) )
+            if(!context.hasPermission(module.perms().COMMAND_HAT_OTHER.getId()))
             {
                 i18n.sendTranslated(context, NEGATIVE, "You can't set the hat of an other player.");
                 return;
             }
         }
-        else if(context instanceof User)
+        else if(context instanceof Player)
         {
-            player = (User)context;
+            player = (Player)context;
         }
         else
         {
@@ -88,22 +86,21 @@ public class PlayerCommands
         
         if(item != null)
         {
-            if(!module.perms().COMMAND_HAT_ITEM.isAuthorized(context))
+            if(!context.hasPermission(module.perms().COMMAND_HAT_ITEM.getId()))
             {
                 i18n.sendTranslated(context, NEGATIVE, "You can only use your item in hand!");
                 return;
             }
-            head = Match.material().itemStack(item);
+            head = materialMatcher.itemStack(item);
             if(head == null)
             {
                 i18n.sendTranslated(context, NEGATIVE, "Item not found!");
                 return;
             }
         }
-        else if (context instanceof User)
+        else if (context instanceof Player)
         {
-            senderInventory = ((User)context).getInventory();
-            head = senderInventory.getItemInHand().clone();
+            head = ((Player)context).getItemInHand().orElse(null);
         }
         else
         {
@@ -111,7 +108,7 @@ public class PlayerCommands
             i18n.sendTranslated(context, NEUTRAL, "Please specify an item!");
             return;
         }
-        if (head.getItem() == ItemTypes.NONE)
+        if (head == null)
         {
             i18n.sendTranslated(context, NEGATIVE, "You do not have any item in your hand!");
             return;
@@ -126,31 +123,29 @@ public class PlayerCommands
             }
         }
 
-        userInventory = player.getInventory();
-        
         head.setQuantity(1);
         
-        if(item == null && senderInventory != null)
+        if(item == null && context instanceof Player)
         {
-            ItemStack clone = head.clone();
-            clone.setAmount(amount - 1);
-            senderInventory.setItemInHand( clone );
+            ItemStack clone = head.copy();
+            clone.setQuantity(head.getQuantity() - 1);
+            ((Player)context).setItemInHand(clone);
         }
-        if(userInventory.getHelmet() != null)
+        if(player.getHelmet().isPresent())
         {
-            userInventory.addItem(userInventory.getHelmet());
+            player.getInventory().offer(player.getHelmet().get());
         }
-        
-        userInventory.setHelmet(head);
-        
-        if(!(quiet && module.perms().COMMAND_HAT_QUIET.isAuthorized(context)) && module.perms().COMMAND_HAT_NOTIFY.isAuthorized(player))
+
+        player.setHelmet(head);
+
+        if(!(quiet && context.hasPermission(module.perms().COMMAND_HAT_QUIET.getId())) && player.hasPermission(module.perms().COMMAND_HAT_NOTIFY.getId()))
         {
             i18n.sendTranslated(player, POSITIVE, "Your hat was changed");
         }        
     }
 
     @Command(desc = "Creates an explosion")
-    public void explosion(CommandSource context, @Optional Integer damage, @Named({"player", "p"}) User player,
+    public void explosion(CommandSource context, @Optional Integer damage, @Named({"player", "p"}) Player player,
                           @Flag boolean unsafe, @Flag boolean fire, @Flag boolean blockDamage, @Flag boolean playerDamage)
     {
         damage = damage == null ? 1 : damage;
@@ -159,12 +154,12 @@ public class PlayerCommands
             i18n.sendTranslated(context, NEGATIVE, "The power of the explosion shouldn't be greater than {integer}", this.module.getConfig().command.explosion.power);
             return;
         }
-        Location loc;
+        Location<World> loc;
         if (player != null)
         {
             if (!context.equals(player))
             {
-                if (!module.perms().COMMAND_EXPLOSION_OTHER.isAuthorized(context))
+                if (!context.hasPermission(module.perms().COMMAND_EXPLOSION_OTHER.getId()))
                 {
                     i18n.sendTranslated(context, NEGATIVE, "You are not allowed to specify a player.");
                     return;
@@ -179,31 +174,39 @@ public class PlayerCommands
                 i18n.sendTranslated(context, NEGATIVE, "This command can only be used by a player!");
                 return;
             }
-            loc = ((User)context).getTargetBlock(Collections.<Material>emptySet(), this.module.getConfig().command.explosion.distance).getLocation();
+            java.util.Optional<BlockRayHit<World>> end = BlockRay.from(((Player)context)).blockLimit(
+                module.getConfig().command.explosion.distance).filter(BlockRay.onlyAirFilter()).build().end();
+            if (end.isPresent())
+            {
+                loc = end.get().getLocation();
+            }
+            else
+            {
+                throw new IllegalStateException();
+            }
         }
 
-        if (!module.perms().COMMAND_EXPLOSION_BLOCK_DAMAGE.isAuthorized(context) && (blockDamage || unsafe))
+        if (!context.hasPermission(module.perms().COMMAND_EXPLOSION_BLOCK_DAMAGE.getId()) && (blockDamage || unsafe))
         {
             i18n.sendTranslated(context, NEGATIVE, "You are not allowed to break blocks");
             return;
         }
-        if (!module.perms().COMMAND_EXPLOSION_FIRE.isAuthorized(context) && (fire || unsafe))
+        if (!context.hasPermission(module.perms().COMMAND_EXPLOSION_FIRE.getId()) && (fire || unsafe))
         {
             i18n.sendTranslated(context, NEGATIVE, "You are not allowed to set fireticks");
             return;
         }
-        if (!module.perms().COMMAND_EXPLOSION_PLAYER_DAMAGE.isAuthorized(context) && (playerDamage || unsafe))
+        if (!context.hasPermission(module.perms().COMMAND_EXPLOSION_PLAYER_DAMAGE.getId()) && (playerDamage || unsafe))
         {
             i18n.sendTranslated(context, NEGATIVE, "You are not allowed to damage another player");
             return;
         }
 
-        if (!unsafe && !playerDamage)
-        {
-            explosionListener.add(loc);
-        }
+        Explosion explosion = Explosion.builder().world(loc.getExtent()).origin(loc.getPosition()).canCauseFire(
+            fire || unsafe).shouldDamageEntities(playerDamage || unsafe).shouldBreakBlocks(
+            blockDamage || unsafe).build();
 
-        loc.getWorld().createExplosion(loc.getX(), loc.getY(), loc.getZ(), damage, fire || unsafe, blockDamage || unsafe);
+        loc.getExtent().triggerExplosion(explosion);
     }
 
     @Command(alias = "strike", desc = "Throws a lightning bolt at a player or where you're looking")
@@ -212,7 +215,7 @@ public class PlayerCommands
     {
         damage = damage == null ? -1 : damage;
 
-        if (damage != -1 && !module.perms().COMMAND_LIGHTNING_PLAYER_DAMAGE.isAuthorized(context))
+        if (damage != -1 && !context.hasPermission(module.perms().COMMAND_LIGHTNING_PLAYER_DAMAGE.getId()))
         {
             i18n.sendTranslated(context, NEGATIVE, "You are not allowed to specify the damage!");
             return;
@@ -222,7 +225,7 @@ public class PlayerCommands
             i18n.sendTranslated(context, NEGATIVE, "The damage value has to be a number from 1 to 20");
             return;
         }
-        if (unsafe && !module.perms().COMMAND_LIGHTNING_UNSAFE.isAuthorized(context))
+        if (unsafe && !context.hasPermission(module.perms().COMMAND_LIGHTNING_UNSAFE.getId()))
         {
             i18n.sendTranslated(context, NEGATIVE, "You are not allowed to use the unsafe flag");
             return;
@@ -235,7 +238,7 @@ public class PlayerCommands
             player.offer(Keys.FIRE_TICKS, 20 * seconds);
             if (damage != -1)
             {
-                player.damage(damage);
+                player.damage(damage, DamageSource.builder().type(DamageTypes.CONTACT).build()); // TODO better source
             }
         }
         else
@@ -245,18 +248,24 @@ public class PlayerCommands
                 i18n.sendTranslated(context, NEGATIVE, "This command can only be used by a player!");
                 return;
             }
-            location = ((Player)context).getTargetBlock(Collections.emptySet(), this.module.getConfig().command.lightning.distance).getLocation();
+            java.util.Optional<BlockRayHit<World>> end = BlockRay.from(((Player)context)).blockLimit(
+                module.getConfig().command.lightning.distance).filter(BlockRay.onlyAirFilter()).build().end();
+            if (end.isPresent())
+            {
+                location = end.get().getLocation();
+            }
+            else
+            {
+                throw new IllegalStateException();
+            }
         }
 
-        if (unsafe)
+        Entity entity = location.getExtent().createEntity(EntityTypes.LIGHTNING, location.getPosition()).get();
+        if (!unsafe)
         {
-            location.getExtent().strikeLightning(location);
+            ((Lightning)entity).setEffect(true);
         }
-        else
-        {
-            location.getExtent().strikeLightningEffect(location);
-        }
-
+        location.getExtent().spawnEntity(entity, Cause.of(NamedCause.source(context)));
     }
 
     @Command(desc = "Slaps a player")
@@ -272,7 +281,7 @@ public class PlayerCommands
 
         final Vector3d userDirection = player.getRotation();
         player.damage(damage, DamageSource.builder().absolute().build(), Cause.of(NamedCause.source(context)));
-        player.setVelocity(new Vector(userDirection.getX() * damage / 2, 0.05 * damage, userDirection.getZ() * damage / 2));
+        player.setVelocity(new Vector3d(userDirection.getX() * damage / 2, 0.05 * damage, userDirection.getZ() * damage / 2));
     }
 
     @Command(desc = "Burns a player")
@@ -290,39 +299,5 @@ public class PlayerCommands
         }
 
         player.offer(Keys.FIRE_TICKS, seconds * 20);
-    }
-
-    private class ExplosionListener
-    {
-        private Location location;
-
-        public void add(Location location)
-        {
-
-            this.location = location;
-
-            tm.runTaskDelayed(module, new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    remove();
-                }
-            }, 1);
-        }
-
-        private void remove()
-        {
-            this.location = null;
-        }
-
-        @EventHandler
-        public void onEntityDamageByBlock(EntityDamageByBlockEvent event)
-        {
-            if (this.location != null && event.getDamager() == null && event.getEntity() instanceof Player)
-            {
-                event.setCancelled(true);
-            }
-        }
     }
 }

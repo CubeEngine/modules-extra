@@ -18,6 +18,7 @@
 package org.cubeengine.module.fun.commands;
 
 import java.util.HashSet;
+import java.util.Set;
 import com.flowpowered.math.vector.Vector3d;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Flag;
@@ -34,18 +35,19 @@ import org.cubeengine.libcube.util.math.shape.Sphere;
 import org.cubeengine.module.fun.Fun;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.entity.Entity;
-import org.spongepowered.api.entity.EntityTypes;
+import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.explosive.PrimedTNT;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.world.ExplosionEvent;
 import org.spongepowered.api.util.blockray.BlockRay;
 import org.spongepowered.api.util.blockray.BlockRayHit;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.explosion.Explosion;
 
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
@@ -191,14 +193,10 @@ public class NukeCommand
         int numberOfBlocks = 0;
         for (Vector3 vector : shape)
         {
-            PrimedTNT entity = (PrimedTNT)world.createEntity(PRIMED_TNT, new Vector3d(vector.x, vector.y, vector.z)).get();
-            entity.setVelocity(new Vector3d(0,0,0));
-            entity.set
-            world.spawnEntity(entity, Cause.of(NamedCause.source(this))); // TODO cause
-
-            TNTPrimed tnt = world.spawn(new Location(world, vector.x, vector.y, vector.z), TNTPrimed.class);
-            tnt.setVelocity(new Vector(0, 0, 0));
-            tnt.setYield(range);
+            PrimedTNT tnt = (PrimedTNT)world.createEntity(PRIMED_TNT, new Vector3d(vector.x, vector.y, vector.z)).get();
+            tnt.setVelocity(new Vector3d(0,0,0));
+            tnt.offer(Keys.EXPLOSIVE_RADIUS, range);
+            world.spawnEntity(tnt, Cause.of(NamedCause.source(this))); // TODO cause
 
             numberOfBlocks++;
 
@@ -217,73 +215,22 @@ public class NukeCommand
 
     private class NukeListener
     {
-        private final Set<TNTPrimed> noBlockDamageSet;
-        private final TaskManager taskManager;
-        private int taskID;
+        private final Set<PrimedTNT> noBlockDamageSet = new HashSet<>();
 
-        public NukeListener()
-        {
-            this.noBlockDamageSet = new HashSet<>();
-
-            this.taskManager = module.getCore().getTaskManager();
-            this.taskID = -1;
-        }
-
-        public void add(TNTPrimed tnt)
+        public void add(PrimedTNT tnt)
         {
             this.noBlockDamageSet.add(tnt);
         }
 
-        public void removeDeadTNT()
-        {
-            Iterator<TNTPrimed> tntIterator = this.noBlockDamageSet.iterator();
-            while(tntIterator.hasNext())
-            {
-                TNTPrimed tnt = tntIterator.next();
-                if(tnt.isDead())
-                {
-                    tntIterator.remove();
-                }
-            }
-        }
-
-        public boolean contains(TNTPrimed tnt)
-        {
-            return this.noBlockDamageSet.contains(tnt);
-        }
-
         @Listener
-        public void onEntityExplode(final ExplosionEvent event)
+        public void onEntityExplode(final ExplosionEvent.Pre event, @First PrimedTNT cause)
         {
-            try
+            if (noBlockDamageSet.contains(cause))
             {
-                if (event.getEntityType() == EntityType.PRIMED_TNT && this.contains((TNTPrimed)event.getEntity()))
-                {
-                    event.blockList().clear();
-
-                    if(!this.taskManager.isQueued(this.taskID) && !this.taskManager.isCurrentlyRunning(this.taskID))
-                    {
-                        this.taskID = this.taskManager.runTaskDelayed(module, new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                removeDeadTNT();
-                            }
-                        }, 1);
-                    }
-                }
-            }
-            catch (NullPointerException ignored)
-            {}
-        }
-
-        @Listener
-        public void onEntityDamageByEntity(final EntityDamageByEntityEvent event)
-        {
-            if(event.getDamager() instanceof TNTPrimed && this.contains((TNTPrimed)event.getDamager()))
-            {
-                event.setCancelled(true);
+                noBlockDamageSet.remove(cause);
+                event.setExplosion(Explosion.builder().from(event.getExplosion())
+                                            .shouldBreakBlocks(false)
+                                            .shouldDamageEntities(false).build());
             }
         }
     }

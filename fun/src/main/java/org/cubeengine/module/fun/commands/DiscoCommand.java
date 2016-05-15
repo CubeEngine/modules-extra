@@ -64,7 +64,7 @@ public class DiscoCommand
         }
         else
         {
-            activeTasks.put(world.getUniqueId(), new DiscoTask(world, delay, tm, module));
+            activeTasks.put(world.getUniqueId(), new DiscoTask(world, delay, tm));
             i18n.sendTranslated(context, POSITIVE, "The disco started!");
 
         }
@@ -77,17 +77,17 @@ public class DiscoCommand
         private long originalTime;
         private UUID taskID;
 
-        public DiscoTask(World world, final long delay, TaskManager tm, Fun module)
+        public DiscoTask(World world, final long delay, TaskManager tm)
         {
             this.world = world;
             this.tm = tm;
             this.originalTime = world.getProperties().getTotalTime();
-            this.taskID = tm.runTimer(module, this, delay, delay);
+            this.taskID = tm.runTimer(Fun.class, this, delay, delay);
         }
 
         public void stop()
         {
-            tm.cancelTask(module, taskID);
+            tm.cancelTask(Fun.class, taskID);
             world.getProperties().setWorldTime(originalTime);
         }
 

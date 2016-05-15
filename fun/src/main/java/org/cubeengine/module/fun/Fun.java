@@ -21,6 +21,8 @@ import javax.inject.Inject;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.modularity.core.marker.Enable;
+import org.cubeengine.libcube.service.matcher.MaterialMatcher;
+import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.module.fun.commands.DiscoCommand;
 import org.cubeengine.module.fun.commands.ThrowCommands;
 import org.cubeengine.libcube.service.command.CommandManager;
@@ -45,13 +47,15 @@ public class Fun extends Module
     @Inject private CommandManager cm;
     @Inject private EventManager em;
     @Inject private EntityMatcher entityMatcher;
+    @Inject private PermissionManager pm;
+    @Inject private MaterialMatcher materialMatcher;
 
     @Enable
     public void onEnable()
     {
-        cm.addCommands(this, new ThrowCommands(this));
+        cm.addCommands(this, new ThrowCommands(this, em, pm, tm, entityMatcher, i18n));
         cm.addCommands(this, new NukeCommand(this, i18n, em));
-        cm.addCommands(this, new PlayerCommands(this, em, i18n, tm));
+        cm.addCommands(this, new PlayerCommands(this, i18n, materialMatcher));
         cm.addCommands(this, new DiscoCommand(this, i18n, tm));
         cm.addCommands(this, new InvasionCommand(this, i18n, entityMatcher));
         cm.addCommands(this, new RocketCommand(this, em, tm));

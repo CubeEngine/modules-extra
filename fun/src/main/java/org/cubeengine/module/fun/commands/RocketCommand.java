@@ -30,6 +30,7 @@ import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.module.fun.Fun;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.property.block.SolidCubeProperty;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.effect.particle.ParticleType;
 import org.spongepowered.api.entity.living.player.Player;
@@ -261,7 +262,7 @@ public class RocketCommand
                 location.add(0, 1, 0);
                 int numberOfAirBlocks = 0;
 
-                while (!location.getBlock().getType().isSolid() && location.getY() < location.getExtent().getDimension().getHeight())
+                while (!location.getBlock().getType().getProperty(SolidCubeProperty.class).isPresent() && location.getY() < location.getExtent().getDimension().getHeight())
                 {
                     numberOfAirBlocks++;
                     location.add(0, 1, 0);
@@ -285,7 +286,7 @@ public class RocketCommand
                 location.add(0, -1, 0);
                 int numberOfAirBlocks = 0;
 
-                while (!location.getBlock().getType().isSolid() || location.getY() > location.getExtent().getDimension().getHeight())
+                while (!location.getBlock().getProperty(SolidCubeProperty.class).isPresent() || location.getY() > location.getExtent().getDimension().getHeight())
                 {
                     numberOfAirBlocks++;
                     location.add(0, -1, 0);
