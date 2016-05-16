@@ -42,7 +42,20 @@ public class ReportActions
 
     public void showReport(Receiver receiver)
     {
-        report.showReport(actions, receiver);
+        try
+        {
+            report.showReport(actions, receiver);
+        }
+        catch (Exception e)
+        {
+            System.err.println("An error occurred while displaying actions using " + report.getClass().getSimpleName());
+            e.printStackTrace();
+            System.err.println("Actions:");
+            for (Action action : actions)
+            {
+                System.err.println(action.getDocument());
+            }
+        }
     }
 
 }
