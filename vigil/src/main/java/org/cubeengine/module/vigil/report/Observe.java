@@ -262,37 +262,7 @@ public class Observe
     public static Map<String, Object> entity(EntitySnapshot entity)
     {
         Map<String, Object> data = new HashMap<>();
-
-        Class<? extends Entity> clazz = entity.getType().getEntityClass();
-        if (Living.class.isAssignableFrom(clazz))
-        {
-            data.put(EntityReport.ENTITY_DATA, toRawData(entity.toContainer()));
-        }
-        else if (Item.class.isAssignableFrom(clazz))
-        {
-            data.put(EntityReport.ENTITY_DATA, toRawData(entity.toContainer()));
-        }
-        else if (Boat.class.isAssignableFrom(clazz) || Minecart.class.isAssignableFrom(clazz))
-        {
-            data.put(EntityReport.ENTITY_DATA, toRawData(entity.toContainer()));
-        }
-        else if (Hanging.class.isAssignableFrom(clazz))
-        {
-            data.put(EntityReport.ENTITY_DATA, toRawData(entity.toContainer()));
-        }
-        else if (ExperienceOrb.class.isAssignableFrom(clazz))
-        {
-            data.put(EntityReport.ENTITY_DATA, toRawData(entity.toContainer()));
-        }
-        else if (EnderCrystal.class.isAssignableFrom(clazz))
-        {
-            data.put(EntityReport.ENTITY_DATA, toRawData(entity.toContainer()));
-        }
-        else // FallingBlock, WeatherEffect, Projectile, Explosive, Projectile
-        {
-            data.put(EntityReport.ENTITY_DATA + "_EntityType", entity.getType().getId());
-        }
-
+        data.put(EntityReport.ENTITY_DATA, toRawData(entity.toContainer()));
         return data;
     }
 }
