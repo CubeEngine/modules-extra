@@ -18,7 +18,10 @@
 package org.cubeengine.module.vigil.report;
 
 import java.util.LinkedList;
+import org.cubeengine.libcube.service.i18n.formatter.MessageType;
 import org.cubeengine.module.vigil.Receiver;
+
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.CRITICAL;
 
 public class ReportActions
 {
@@ -48,6 +51,7 @@ public class ReportActions
         }
         catch (Exception e)
         {
+            receiver.getI18n().sendTranslated(receiver.getSender(), CRITICAL, "An error occurred in a report: {input}", report.getClass().getSimpleName());
             System.err.println("An error occurred while displaying actions using " + report.getClass().getSimpleName());
             e.printStackTrace();
             System.err.println("Actions:");

@@ -17,40 +17,28 @@
  */
 package org.cubeengine.module.vigil.report.entity;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import com.google.common.collect.Maps;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.Observe;
 import org.cubeengine.module.vigil.report.Recall;
 import org.cubeengine.module.vigil.report.Report;
-import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.value.mutable.MutableBoundedValue;
-import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
-import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.ExperienceOrb;
 import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.AttackEntityEvent;
-import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackComparators;
-import org.spongepowered.api.text.LiteralText.Builder;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.action.TextActions;
-import org.spongepowered.api.text.format.TextColors;
 
-import static java.util.stream.Collectors.toList;
-import static org.cubeengine.module.vigil.report.ReportUtil.name;
-import static org.spongepowered.api.text.format.TextColors.GOLD;
-import static org.spongepowered.api.text.format.TextColors.YELLOW;
+import static org.spongepowered.api.text.action.TextActions.showText;
 
 /* TODO
 death
@@ -77,17 +65,19 @@ public class DestructReport extends EntityReport<DestructEntityEvent>
 
         Text cause = Recall.cause(action);
         EntitySnapshot entity = Recall.entity(action);
-        Entity restored = Recall.restoredEntity(action);
         if (entity.getType() == EntityTypes.ITEM)
         {
             String name = entity.getType().getTranslation().get(receiver.getLocale());
-            ItemStack i = restored.get(Keys.REPRESENTED_ITEM).get().createStack();
-            Builder item = Text.of(i.getTranslation().get(receiver.getLocale())).toBuilder().onHover(
-                TextActions.showText(Text.of(i.getItem().getId())));
+            ItemStack i = entity.get(Keys.REPRESENTED_ITEM).map(ItemStackSnapshot::createStack).orElse(null);
+            Text item = Text.of("?");
+            if (i != null)
+            {
+                item = Text.of(i.getTranslation().get(receiver.getLocale())).toBuilder().onHover(showText(Text.of(i.getItem().getId()))).build();
+            }
             int count = 0;
             for (Action a : actions)
             {
-                count += Recall.restoredEntity(a).get(Keys.REPRESENTED_ITEM).get().getCount();
+                count += Recall.entity(a).get(Keys.REPRESENTED_ITEM).map(ItemStackSnapshot::getCount).orElse(0);
             }
 
             receiver.sendReport(actions, count,
@@ -95,19 +85,19 @@ public class DestructReport extends EntityReport<DestructEntityEvent>
                                 "{txt} destroyed {txt} x{}",
                                 cause, Text.of(name, ": ", item), count);
         }
-        else if (restored instanceof Living)
+        else if (Living.class.isAssignableFrom(entity.getType().getEntityClass()))
         {
             receiver.sendReport(actions, actions.size(),
                                 "{txt} killed {name}",
                                 "{txt} killed {name} x{}",
                                 cause, entity.getType().getTranslation().get(receiver.getLocale()), actions.size());
         }
-        else if (restored instanceof ExperienceOrb)
+        else if (ExperienceOrb.class.isAssignableFrom(entity.getType().getEntityClass()))
         {
             Integer exp = 0;
             for (Action a : actions)
             {
-                Entity orb = Recall.restoredEntity(a);
+                EntitySnapshot orb = Recall.entity(a);
                 exp += orb.get(Keys.CONTAINED_EXPERIENCE).orElse(0);
             }
 
@@ -148,9 +138,15 @@ public class DestructReport extends EntityReport<DestructEntityEvent>
 
         if (e1.getType() == EntityTypes.ITEM)
         {
+            Optional<ItemStackSnapshot> i1 = Recall.entity(otherAction).get(Keys.REPRESENTED_ITEM);
+            Optional<ItemStackSnapshot> i2 = Recall.entity(action).get(Keys.REPRESENTED_ITEM);
+            if (!i1.isPresent() && i2.isPresent())
+            {
+                return false;
+            }
             if (ItemStackComparators.DEFAULT.compare(
-                Recall.restoredEntity(otherAction).get(Keys.REPRESENTED_ITEM).get().createStack(),
-                Recall.restoredEntity(action).get(Keys.REPRESENTED_ITEM).get().createStack()) != 0)
+                i1.map(ItemStackSnapshot::createStack).orElse(null),
+                i2.map(ItemStackSnapshot::createStack).orElse(null)) != 0)
             {
                 return false;
             }
@@ -186,6 +182,7 @@ public class DestructReport extends EntityReport<DestructEntityEvent>
     @Listener
     public void onDesctruct(DestructEntityEvent event)
     {
+        System.out.print("####" + event.getCause() + "\n");
         if (event.getTargetEntity() instanceof Item
         && ((Item)event.getTargetEntity()).item().get().getCount() == 0)
         {

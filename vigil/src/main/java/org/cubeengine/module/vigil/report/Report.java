@@ -94,6 +94,7 @@ public interface Report
         CAUSE_BLOCK_AIR, // Indirect
         CAUSE_BLOCK_FIRE,
         CAUSE_TNT,
+        CAUSE_DAMAGE
     }
 
     interface SimpleGrouping extends Report

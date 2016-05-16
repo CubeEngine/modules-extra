@@ -27,7 +27,10 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.MemoryDataContainer;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.manipulator.immutable.ImmutableRepresentedItemData;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.event.cause.NamedCause;
@@ -158,21 +161,27 @@ public class Recall
         return text;
     }
 
-    public static EntitySnapshot entity(Action action)
+    public static Object toContainer(Object data)
     {
-        MemoryDataContainer data = new MemoryDataContainer();
-        Map<String, Object> map = ((Map<String, Object>) ((Map<String, Object>)action.getData(EntityReport.ENTITY)).get(EntityReport.ENTITY_DATA));
-        for (Entry<String, Object> entry : map.entrySet())
+        if (data instanceof Map)
         {
-            data.set(DataQuery.of(entry.getKey()), entry.getValue());
+            MemoryDataContainer container = new MemoryDataContainer();
+            for (Entry<String, Object> entry : ((Map<String, Object>)data).entrySet())
+            {
+                container.set(DataQuery.of(entry.getKey()), toContainer(entry.getValue()));
+            }
+            return container;
         }
-        return EntitySnapshot.builder().build(data).orElse(null);
+        if (data instanceof List)
+        {
+            return ((List)data).stream().map(Recall::toContainer).collect(Collectors.toList());
+        }
+        return data;
     }
 
-    public static Entity restoredEntity(Action action)
+    public static EntitySnapshot entity(Action action)
     {
-        Entity entity = Recall.entity(action).restore().get();
-        entity.remove();
-        return entity;
+        Map<String, Object> map = ((Map<String, Object>) ((Map<String, Object>)action.getData(EntityReport.ENTITY)).get(EntityReport.ENTITY_DATA));
+        return EntitySnapshot.builder().build(((DataView)toContainer(map))).orElse(null);
     }
 }

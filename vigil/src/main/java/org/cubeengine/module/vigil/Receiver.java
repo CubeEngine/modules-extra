@@ -139,4 +139,14 @@ public class Receiver
     {
         return lookup;
     }
+
+    public CommandSource getSender()
+    {
+        return cmdSource;
+    }
+
+    public I18n getI18n()
+    {
+        return i18n;
+    }
 }

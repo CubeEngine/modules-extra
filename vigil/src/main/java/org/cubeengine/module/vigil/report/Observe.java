@@ -30,27 +30,27 @@ import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.Transaction;
-import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.entity.EnderCrystal;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
-import org.spongepowered.api.entity.ExperienceOrb;
-import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.explosive.PrimedTNT;
-import org.spongepowered.api.entity.hanging.Hanging;
-import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.entity.vehicle.Boat;
-import org.spongepowered.api.entity.vehicle.minecart.Minecart;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.entity.damage.source.BlockDamageSource;
+import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
 import org.spongepowered.api.event.cause.entity.damage.source.EntityDamageSource;
 import org.spongepowered.api.event.cause.entity.damage.source.IndirectEntityDamageSource;
-import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import static org.cubeengine.module.vigil.report.Report.*;
+import static org.cubeengine.module.vigil.report.Report.CAUSE_NAME;
+import static org.cubeengine.module.vigil.report.Report.CAUSE_PLAYER_UUID;
+import static org.cubeengine.module.vigil.report.Report.CAUSE_TYPE;
 import static org.cubeengine.module.vigil.report.Report.CauseType.*;
+import static org.cubeengine.module.vigil.report.Report.LOCATION;
+import static org.cubeengine.module.vigil.report.Report.WORLD;
+import static org.cubeengine.module.vigil.report.Report.X;
+import static org.cubeengine.module.vigil.report.Report.Y;
+import static org.cubeengine.module.vigil.report.Report.Z;
 import static org.cubeengine.module.vigil.report.block.BlockReport.*;
 import static org.spongepowered.api.block.BlockTypes.AIR;
 import static org.spongepowered.api.block.BlockTypes.FIRE;
@@ -89,6 +89,14 @@ public class Observe
             // TODO indirectCause
             return sourceCause;
         }
+        else if (cause instanceof BlockDamageSource)
+        {
+            return Observe.cause(((BlockDamageSource)cause).getBlockSnapshot());
+        }
+        else if (cause instanceof DamageSource)
+        {
+            return Observe.damageCause(((DamageSource)cause));
+        }
 
         if (cause instanceof Player)
         {
@@ -104,6 +112,14 @@ public class Observe
         }
         // TODO other causes that interest us
         return null;
+    }
+
+    private static Map<String, Object> damageCause(DamageSource cause)
+    {
+        Map<String, Object> data = new HashMap<>();
+        data.put(CAUSE_TYPE, CAUSE_DAMAGE);
+        data.put(CAUSE_TYPE, cause.getType().getId());
+        return data;
     }
 
     private static Map<String, Object> tntCause(PrimedTNT cause)
