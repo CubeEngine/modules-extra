@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import org.cubeengine.module.vigil.report.block.BlockReport;
 import org.cubeengine.module.vigil.report.entity.EntityReport;
 import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataView;
@@ -52,8 +53,7 @@ import static org.cubeengine.module.vigil.report.Report.X;
 import static org.cubeengine.module.vigil.report.Report.Y;
 import static org.cubeengine.module.vigil.report.Report.Z;
 import static org.cubeengine.module.vigil.report.block.BlockReport.*;
-import static org.spongepowered.api.block.BlockTypes.AIR;
-import static org.spongepowered.api.block.BlockTypes.FIRE;
+import static org.spongepowered.api.block.BlockTypes.*;
 
 public class Observe
 {
@@ -117,8 +117,8 @@ public class Observe
     private static Map<String, Object> damageCause(DamageSource cause)
     {
         Map<String, Object> data = new HashMap<>();
-        data.put(CAUSE_TYPE, CAUSE_DAMAGE);
-        data.put(CAUSE_TYPE, cause.getType().getId());
+        data.put(CAUSE_TYPE, CAUSE_DAMAGE.toString());
+        data.put(CAUSE_NAME, cause.getType().getId());
         return data;
     }
 
@@ -144,19 +144,11 @@ public class Observe
 
     public static Map<String, Object> blockCause(BlockSnapshot block)
     {
-        if (FIRE.equals(block.getState().getType()))
-        {
-            Map<String, Object> data = new HashMap<>();
-            data.put(CAUSE_TYPE, CAUSE_BLOCK_FIRE.toString());
-            return data;
-        }
-        if (AIR.equals(block.getState().getType()))
-        {
-            Map<String, Object> data = new HashMap<>();
-            data.put(CAUSE_TYPE, CAUSE_BLOCK_AIR.toString());
-            return data;
-        }
-        return null;
+        BlockType type = block.getState().getType();
+        Map<String, Object> data = new HashMap<>();
+        data.put(CAUSE_TYPE, CAUSE_BLOCK.toString());
+        data.put(CAUSE_NAME, type.getId());
+        return data;
     }
 
     public static Map<String, Object> playerCause(Player player)

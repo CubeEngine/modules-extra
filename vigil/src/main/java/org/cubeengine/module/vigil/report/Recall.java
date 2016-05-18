@@ -25,6 +25,8 @@ import java.util.stream.Collectors;
 import org.cubeengine.module.vigil.report.entity.EntityReport;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataView;
@@ -100,9 +102,11 @@ public class Recall
     public static Text cause(Action action)
     {
         Map<String, Object> data = action.getData(CAUSE);
-        return cause((Map<String, Object>) data.get(NamedCause.SOURCE),
-                (Map<String, Object>) data.get(NamedCause.NOTIFIER),
-                     (Map<String, Object>) data.get(NamedCause.SOURCE + "1"));
+        Map<String, Object> source = (Map<String, Object>)data.get(NamedCause.SOURCE);
+        Map<String, Object> playerSource = (Map<String, Object>)data.get("PlayerSource");
+        Map<String, Object> notifier = (Map<String, Object>)data.get(NamedCause.NOTIFIER);
+        Map<String, Object> source2 = (Map<String, Object>)data.get(NamedCause.SOURCE + "1");
+        return cause(source, notifier, playerSource == null ? source2 : playerSource);
     }
 
     public static Text cause(Map<String, Object> source, Map<String, Object> notifier, Map<String, Object> source2)
@@ -133,32 +137,48 @@ public class Recall
 
     private static Text cause(Map<String, Object> source, Text text, CauseType type)
     {
+        Object causeName = source.get(CAUSE_NAME);
         switch (type)
         {
             case CAUSE_PLAYER:
-                text = Text.of(DARK_GREEN, source.get(CAUSE_NAME)).toBuilder()
+                text = Text.of(DARK_GREEN, causeName).toBuilder()
                            .onHover(TextActions.showText(Text.of(YELLOW, source.get(CAUSE_PLAYER_UUID)))).build();
                 break;
-            case CAUSE_BLOCK_FIRE:
-                text = Text.of(TextColors.RED, "Fire"); // TODO translate
-                break;
-            case CAUSE_BLOCK_AIR:
-                text = Text.of(TextColors.GOLD, "Indirect"); // TODO translate
+            case CAUSE_BLOCK:
+                Optional<BlockType> bType = Sponge.getRegistry().getType(BlockType.class, causeName.toString());
+                if (!bType.isPresent())
+                {
+                    text = Text.of(TextColors.GOLD, "unknown Block"); // TODO translate
+                }
+                else
+                {
+                    if (bType.get() == BlockTypes.LAVA || bType.get() == BlockTypes.FLOWING_LAVA || bType.get() == BlockTypes.FIRE)
+                    {
+                        text = Text.of(TextColors.RED, bType.get().getTranslation());
+                    }
+                    else
+                    {
+                        text = Text.of(TextColors.GOLD, bType.get().getTranslation());
+                    }
+                }
                 break;
             case CAUSE_TNT:
                 text = Text.of(TextColors.RED, "TNT"); // TODO translatable
                 if (source.get(CAUSE_PLAYER_UUID) == null)
                 {
-                    text = text.toBuilder().append(Text.of(" (", Text.of(TextColors.GOLD, source.get(CAUSE_NAME)), ")")).build();
+                    text = text.toBuilder().append(Text.of(" (", Text.of(TextColors.GOLD, causeName), ")")).build();
                 }
                 else
                 {
-                    text = text.toBuilder().append(Text.of(" (", Text.of(DARK_GREEN, source.get(CAUSE_NAME)).toBuilder()
-                                 .onHover(TextActions.showText(Text.of(YELLOW, source.get(CAUSE_PLAYER_UUID)))).build(), ")")).build();
+                    text = text.toBuilder().append(Text.of(" (", Text.of(DARK_GREEN, causeName).toBuilder()
+                                                                     .onHover(TextActions.showText(Text.of(YELLOW, source.get(CAUSE_PLAYER_UUID)))).build(), ")")).build();
                 }
                 break;
+            case CAUSE_DAMAGE:
+                text = Text.of(TextColors.GOLD, causeName);
+                break;
         }
-        return text;
+         return text;
     }
 
     public static Object toContainer(Object data)

@@ -91,8 +91,7 @@ public interface Report
     enum CauseType
     {
         CAUSE_PLAYER,
-        CAUSE_BLOCK_AIR, // Indirect
-        CAUSE_BLOCK_FIRE,
+        CAUSE_BLOCK, // Indirect
         CAUSE_TNT,
         CAUSE_DAMAGE
     }

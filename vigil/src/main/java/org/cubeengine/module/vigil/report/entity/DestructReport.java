@@ -79,6 +79,10 @@ public class DestructReport extends EntityReport<DestructEntityEvent>
             {
                 count += Recall.entity(a).get(Keys.REPRESENTED_ITEM).map(ItemStackSnapshot::getCount).orElse(0);
             }
+            if (count == 0)
+            {
+                count = actions.size();
+            }
 
             receiver.sendReport(actions, count,
                                 "{txt} destroyed {txt}",

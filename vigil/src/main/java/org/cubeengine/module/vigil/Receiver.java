@@ -37,8 +37,10 @@ import org.spongepowered.api.text.format.TextColors;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
+import static org.spongepowered.api.text.action.TextActions.showText;
 import static org.spongepowered.api.text.format.TextColors.GRAY;
 import static org.spongepowered.api.text.format.TextColors.RED;
+import static org.spongepowered.api.text.format.TextColors.WHITE;
 
 public class Receiver
 {
@@ -98,18 +100,51 @@ public class Receiver
             String tShort = timeShort.format(date);
             if (sameDay) // Today?
             {
-                return Text.of(GRAY, tShort).toBuilder().onHover(TextActions.showText(full)).build();
+                return Text.of(GRAY, tShort).toBuilder().onHover(showText(full)).build();
             }
             else
             {
-                return Text.of(GRAY, dateShort.format(date), " ", tShort).toBuilder().onHover(TextActions.showText(full)).build();
+                return Text.of(GRAY, dateShort.format(date), " ", tShort).toBuilder().onHover(showText(full)).build();
             }
         }
         else
         {
-            Date firstDate = firstAction.getData(Action.DATE);
-            Date lastDate = lastAction.getData(Action.DATE);
-            return Text.of("range"); // TODO
+            Date firstDate = firstAction.getDate();
+            Date lastDate = lastAction.getDate();
+
+            String fdLong = dateLong.format(firstDate);
+            String ldLong = dateLong.format(lastDate);
+            boolean sameDay = fdLong.equals(ldLong);
+            boolean toDay = dateLong.format(new Date()).equals(fdLong);
+            String ftLong = timeLong.format(firstDate);
+            String ltLong = timeLong.format(lastDate);
+            Text fFull = Text.of(GRAY, fdLong, " ", ftLong);
+            Text lFull = Text.of(GRAY, ldLong, " ", ltLong);
+            if (fullDate)
+            {
+                return Text.of(fFull, TextColors.WHITE, " - ", lFull);
+            }
+            String fdShort = dateShort.format(firstDate);
+            String ftShort = timeShort.format(firstDate);
+            String ltShort = timeShort.format(lastDate);
+            if (sameDay)
+            {
+                if (toDay)
+                {
+
+                    return Text.of(Text.of(GRAY, ftShort).toBuilder().onHover(showText(fFull)).build()
+                                ,WHITE, " - ",Text.of(GRAY, ltShort).toBuilder().onHover(showText(lFull)).build());
+                }
+
+                return Text.of(Text.of(GRAY, fdShort, " ", ftShort).toBuilder().onHover(showText(fFull)).build()
+                              , WHITE, " - " ,Text.of(GRAY, ltShort).toBuilder().onHover(showText(lFull)).build());
+            }
+            else
+            {
+                String ldShort = dateShort.format(firstDate);
+                return Text.of(Text.of(GRAY, fdShort, " ", ftShort).toBuilder().onHover(showText(fFull)).build()
+                             ,  WHITE,    " - "  ,Text.of(GRAY, ldShort, " ", ltShort).toBuilder().onHover(showText(fFull)).build());
+            }
         }
     }
 
