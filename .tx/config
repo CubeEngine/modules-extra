@@ -2,113 +2,147 @@
 host = https://www.transifex.com
 type = PO
 
-[cubeengine.backpack]
-file_filter = backpack/src/main/resources/translations/<lang>.po
-source_file = backpack/src/main/resources/translations/messages.pot
+[cubeengine.apiserver]
+file_filter = apiserver/src/main/resources/assets/org/cubeengine/translations/<lang>_apiserver.po
+source_file = apiserver/src/main/resources/assets/org/cubeengine/translations/messages_apiserver.pot
 source_lang = en_US
 
-[cubeengine.border]
-file_filter = border/src/main/resources/translations/<lang>.po
-source_file = border/src/main/resources/translations/messages.pot
+[cubeengine.authorization]
+file_filter = authorization/src/main/resources/assets/org/cubeengine/translations/<lang>_authorization.po
+source_file = authorization/src/main/resources/assets/org/cubeengine/translations/messages_authorization.pot
+source_lang = en_US
+
+[cubeengine.backpack]
+file_filter = backpack/src/main/resources/assets/org/cubeengine/translations/<lang>_backpack.po
+source_file = backpack/src/main/resources/assets/org/cubeengine/translations/messages_backpack.pot
+source_lang = en_US
+
+[cubeengine.bigdata]
+file_filter = bigdata/src/main/resources/assets/org/cubeengine/translations/<lang>_bigdata.po
+source_file = bigdata/src/main/resources/assets/org/cubeengine/translations/messages_bigdata.pot
 source_lang = en_US
 
 [cubeengine.chat]
-file_filter = chat/src/main/resources/translations/<lang>.po
-source_file = chat/src/main/resources/translations/messages.pot
+file_filter = chat/src/main/resources/assets/org/cubeengine/translations/<lang>_chat.po
+source_file = chat/src/main/resources/assets/org/cubeengine/translations/messages_chat.pot
+source_lang = en_US
+
+[cubeengine.chopchop]
+file_filter = chopchop/src/main/resources/assets/org/cubeengine/translations/<lang>_chopchop.po
+source_file = chopchop/src/main/resources/assets/org/cubeengine/translations/messages_chopchop.pot
+source_lang = en_US
+
+[cubeengine.controlc]
+file_filter = controlc/src/main/resources/assets/org/cubeengine/translations/<lang>_controlc.po
+source_file = controlc/src/main/resources/assets/org/cubeengine/translations/messages_controlc.pot
 source_lang = en_US
 
 [cubeengine.customcommands]
-file_filter = customcommands/src/main/resources/translations/<lang>.po
-source_file = customcommands/src/main/resources/translations/messages.pot
+file_filter = customcommands/src/main/resources/assets/org/cubeengine/translations/<lang>_customcommands.po
+source_file = customcommands/src/main/resources/assets/org/cubeengine/translations/messages_customcommands.pot
 source_lang = en_US
 
 [cubeengine.donations]
-file_filter = donations/src/main/resources/translations/<lang>.po
-source_file = donations/src/main/resources/translations/messages.pot
+file_filter = donations/src/main/resources/assets/org/cubeengine/translations/<lang>_donations.po
+source_file = donations/src/main/resources/assets/org/cubeengine/translations/messages_donations.pot
+source_lang = en_US
+
+[cubeengine.faq]
+file_filter = faq/src/main/resources/assets/org/cubeengine/translations/<lang>_faq.po
+source_file = faq/src/main/resources/assets/org/cubeengine/translations/messages_faq.pot
 source_lang = en_US
 
 [cubeengine.fly]
-file_filter = fly/src/main/resources/translations/<lang>.po
-source_file = fly/src/main/resources/translations/messages.pot
+file_filter = fly/src/main/resources/assets/org/cubeengine/translations/<lang>_fly.po
+source_file = fly/src/main/resources/assets/org/cubeengine/translations/messages_fly.pot
+source_lang = en_US
+
+[cubeengine.freezedetection]
+file_filter = freezedetection/src/main/resources/assets/org/cubeengine/translations/<lang>_freezedetection.po
+source_file = freezedetection/src/main/resources/assets/org/cubeengine/translations/messages_freezedetection.pot
 source_lang = en_US
 
 [cubeengine.fun]
-file_filter = fun/src/main/resources/translations/<lang>.po
-source_file = fun/src/main/resources/translations/messages.pot
+file_filter = fun/src/main/resources/assets/org/cubeengine/translations/<lang>_fun.po
+source_file = fun/src/main/resources/assets/org/cubeengine/translations/messages_fun.pot
 source_lang = en_US
 
 [cubeengine.hide]
-file_filter = hide/src/main/resources/translations/<lang>.po
-source_file = hide/src/main/resources/translations/messages.pot
-source_lang = en_US
-
-[cubeengine.holiday]
-file_filter = holiday/src/main/resources/translations/<lang>.po
-source_file = holiday/src/main/resources/translations/messages.pot
+file_filter = hide/src/main/resources/assets/org/cubeengine/translations/<lang>_hide.po
+source_file = hide/src/main/resources/assets/org/cubeengine/translations/messages_hide.pot
 source_lang = en_US
 
 [cubeengine.itemrepair]
-file_filter = itemrepair/src/main/resources/translations/<lang>.po
-source_file = itemrepair/src/main/resources/translations/messages.pot
+file_filter = itemrepair/src/main/resources/assets/org/cubeengine/translations/<lang>_itemrepair.po
+source_file = itemrepair/src/main/resources/assets/org/cubeengine/translations/messages_itemrepair.pot
 source_lang = en_US
 
 [cubeengine.kits]
-file_filter = kits/src/main/resources/translations/<lang>.po
-source_file = kits/src/main/resources/translations/messages.pot
+file_filter = kits/src/main/resources/assets/org/cubeengine/translations/<lang>_kits.po
+source_file = kits/src/main/resources/assets/org/cubeengine/translations/messages_kits.pot
 source_lang = en_US
 
-[cubeengine.log]
-file_filter = log/src/main/resources/translations/<lang>.po
-source_file = log/src/main/resources/translations/messages.pot
+[cubeengine.namehistory]
+file_filter = namehistory/src/main/resources/assets/org/cubeengine/translations/<lang>_namehistory.po
+source_file = namehistory/src/main/resources/assets/org/cubeengine/translations/messages_namehistory.pot
 source_lang = en_US
 
 [cubeengine.powertools]
-file_filter = powertools/src/main/resources/translations/<lang>.po
-source_file = powertools/src/main/resources/translations/messages.pot
+file_filter = powertools/src/main/resources/assets/org/cubeengine/translations/<lang>_powertools.po
+source_file = powertools/src/main/resources/assets/org/cubeengine/translations/messages_powertools.pot
 source_lang = en_US
 
 [cubeengine.rulebook]
-file_filter = rulebook/src/main/resources/translations/<lang>.po
-source_file = rulebook/src/main/resources/translations/messages.pot
+file_filter = rulebook/src/main/resources/assets/org/cubeengine/translations/<lang>_rulebook.po
+source_file = rulebook/src/main/resources/assets/org/cubeengine/translations/messages_rulebook.pot
 source_lang = en_US
 
 [cubeengine.selector]
-file_filter = selector/src/main/resources/translations/<lang>.po
-source_file = selector/src/main/resources/translations/messages.pot
+file_filter = selector/src/main/resources/assets/org/cubeengine/translations/<lang>_selector.po
+source_file = selector/src/main/resources/assets/org/cubeengine/translations/messages_selector.pot
 source_lang = en_US
 
 [cubeengine.shout]
-file_filter = shout/src/main/resources/translations/<lang>.po
-source_file = shout/src/main/resources/translations/messages.pot
+file_filter = shout/src/main/resources/assets/org/cubeengine/translations/<lang>_shout.po
+source_file = shout/src/main/resources/assets/org/cubeengine/translations/messages_shout.pot
 source_lang = en_US
 
 [cubeengine.signmarket]
-file_filter = signmarket/src/main/resources/translations/<lang>.po
-source_file = signmarket/src/main/resources/translations/messages.pot
+file_filter = signmarket/src/main/resources/assets/org/cubeengine/translations/<lang>_signmarket.po
+source_file = signmarket/src/main/resources/assets/org/cubeengine/translations/messages_signmarket.pot
 source_lang = en_US
 
 [cubeengine.spawn]
-file_filter = spawn/src/main/resources/translations/<lang>.po
-source_file = spawn/src/main/resources/translations/messages.pot
+file_filter = spawn/src/main/resources/assets/org/cubeengine/translations/<lang>_spawn.po
+source_file = spawn/src/main/resources/assets/org/cubeengine/translations/messages_spawn.pot
 source_lang = en_US
 
 [cubeengine.spawner]
-file_filter = spawner/src/main/resources/translations/<lang>.po
-source_file = spawner/src/main/resources/translations/messages.pot
+file_filter = spawner/src/main/resources/assets/org/cubeengine/translations/<lang>_spawner.po
+source_file = spawner/src/main/resources/assets/org/cubeengine/translations/messages_spawner.pot
 source_lang = en_US
 
-[cubeengine.vaultlink]
-file_filter = vaultlink/src/main/resources/translations/<lang>.po
-source_file = vaultlink/src/main/resources/translations/messages.pot
+[cubeengine.unbreakableboat]
+file_filter = unbreakableboat/src/main/resources/assets/org/cubeengine/translations/<lang>_unbreakableboat.po
+source_file = unbreakableboat/src/main/resources/assets/org/cubeengine/translations/messages_unbreakableboat.pot
+source_lang = en_US
+
+[cubeengine.vigil]
+file_filter = vigil/src/main/resources/assets/org/cubeengine/translations/<lang>_vigil.po
+source_file = vigil/src/main/resources/assets/org/cubeengine/translations/messages_vigil.pot
 source_lang = en_US
 
 [cubeengine.vote]
-file_filter = vote/src/main/resources/translations/<lang>.po
-source_file = vote/src/main/resources/translations/messages.pot
+file_filter = vote/src/main/resources/assets/org/cubeengine/translations/<lang>_vote.po
+source_file = vote/src/main/resources/assets/org/cubeengine/translations/messages_vote.pot
 source_lang = en_US
 
 [cubeengine.writer]
-file_filter = writer/src/main/resources/translations/<lang>.po
-source_file = writer/src/main/resources/translations/messages.pot
+file_filter = writer/src/main/resources/assets/org/cubeengine/translations/<lang>_writer.po
+source_file = writer/src/main/resources/assets/org/cubeengine/translations/messages_writer.pot
 source_lang = en_US
 
+[cubeengine.xxx]
+file_filter = xxx/src/main/resources/assets/org/cubeengine/translations/<lang>_.po
+source_file = xxx/src/main/resources/assets/org/cubeengine/translations/messages_.pot
+source_lang = en_US

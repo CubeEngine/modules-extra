@@ -72,9 +72,9 @@ public class Writer extends Module
     @Restricted(value = Player.class, msg = "Edit what?")
     public void edit(Player context,
                      @Named({"1", "Line1"}) @Label("1st line") String line1,
-                     @Named({"2", "Line2"}) @Label("2st line") String line2,
-                     @Named({"3", "Line3"}) @Label("3st line") String line3,
-                     @Named({"4", "Line4"}) @Label("4st line") String line4)
+                     @Named({"2", "Line2"}) @Label("2nd line") String line2,
+                     @Named({"3", "Line3"}) @Label("3rd line") String line3,
+                     @Named({"4", "Line4"}) @Label("4th line") String line4)
     {
         if (line1 == null && line2 == null && line3 == null && line4 == null)
         {

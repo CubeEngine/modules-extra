@@ -1,0 +1,104 @@
+# This file is part of CubeEngine.
+# CubeEngine is licensed under the GNU General Public License Version 3.
+# 
+# CubeEngine is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# CubeEngine is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
+# Translators:
+# Faithcaio <Faithcaio@cubeisland.de>, 2016
+msgid ""
+msgstr ""
+"Project-Id-Version: CubeEngine\n"
+"Report-Msgid-Bugs-To: development@cubeisland.de\n"
+"POT-Creation-Date: 2016-05-17 23:36:04+0200\n"
+"PO-Revision-Date: 2016-05-18 19:16+0000\n"
+"Last-Translator: Faithcaio <Faithcaio@cubeisland.de>\n"
+"Language-Team: German (http://www.transifex.com/quick_wango/cubeengine/language/de/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: de\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. Extracted by:
+#. 1. Annotation
+#. 	Name: org.cubeengine.butler.parametric.Command:desc
+#: org/cubeengine/module/vigil/commands/VigilCommands.java:63
+msgid ""
+"Gives you a block to check logs with.no log-type: Shows everything\n"
+"chest: Shows chest-interactions only\n"
+"player: Shows player-interacions only\n"
+"kills: Shows kill-interactions only\n"
+"block: Shows block-changes only"
+msgstr "Gibt einen Block um Logs zu prüfen.\nkein Typ: Zeigt alles\nchest: Zeigt nur Kisteninteraktionen\nplayer: Zeigt nur Spielerinteraktionen\nkills: Zeigt nur Tode\nblock: Zeigt nur Blockänderungen"
+
+#. Extracted by:
+#. 1. Annotation
+#. 	Name: org.cubeengine.butler.parametric.Command:desc
+#: org/cubeengine/module/vigil/commands/VigilCommands.java:84
+msgid ""
+"Gives you an item to check logs with.\n"
+"no log-type: Shows everything\n"
+"chest: Shows chest-interactions only\n"
+"player: Shows player-interacions only\n"
+"kills: Shows kill-interactions only\n"
+"block: Shows block-changes only"
+msgstr "Gibt ein Item um Logs zu prüfen.\nkein Typ: Zeigt alles\nchest: Zeigt nur Kisteninteraktionen\nplayer: Zeigt nur Spielerinteraktionen\nkills: Zeigt nur Tode\nblock: Zeigt nur Blockänderungen"
+
+#. Extracted by:
+#. 1. Method
+#.         Name:
+#. org.cubeengine.libcube.service.i18n.I18n#getTranslation(org.spongepowered.api.text.channel.MessageReceiver,
+#. org.spongepowered.api.text.format.TextFormat, java.lang.String,
+#. java.lang.Object[])
+#: org/cubeengine/module/vigil/Receiver.java:129
+msgid "Showing {amount} Logs"
+msgstr "Zeige {amount} Logeinträge"
+
+#. Extracted by:
+#. 1. Annotation
+#. 	Name: org.cubeengine.butler.parametric.Command:desc
+#: org/cubeengine/module/vigil/commands/VigilCommands.java:44
+msgid "Vigil-Module Commands"
+msgstr "Vigil Befehle"
+
+#. Extracted by:
+#. 1. Annotation
+#. 	Name: org.cubeengine.butler.filter.Restricted:msg
+#: org/cubeengine/module/vigil/commands/VigilCommands.java:69
+msgid "Why don't you check in your log-file? You won't need a block there!"
+msgstr "Warum schaust du nicht in deiner Logdatei nach? Da brauchst du keinen Block!"
+
+#. Extracted by:
+#. 1. Annotation
+#. 	Name: org.cubeengine.butler.filter.Restricted:msg
+#: org/cubeengine/module/vigil/commands/VigilCommands.java:90
+msgid "Why don't you check in your log-file? You won't need an item there!"
+msgstr "Warum schaust du nicht in deiner Logdatei nach? Da brauchst du keine Item!"
+
+#. Extracted by:
+#. 1. Method
+#.         Name:
+#. org.cubeengine.libcube.service.i18n.I18n#getTranslation(org.spongepowered.api.text.channel.MessageReceiver,
+#. org.spongepowered.api.text.format.TextFormat, java.lang.String,
+#. java.lang.Object[])
+#: org/cubeengine/module/vigil/commands/VigilCommands.java:133
+msgid "created by {name}"
+msgstr "erstellt von {name}"
+
+#. Extracted by:
+#. 1, 2. Annotation
+#. 	Name: org.cubeengine.butler.parametric.Label:value
+#: org/cubeengine/module/vigil/commands/VigilCommands.java:70
+#: org/cubeengine/module/vigil/commands/VigilCommands.java:91
+msgid "log-type"
+msgstr "Log-Typ"

@@ -13,16 +13,21 @@
 # 
 # You should have received a copy of the GNU General Public License
 # along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
-#, fuzzy
+# Translators:
+# Faithcaio <Faithcaio@cubeisland.de>, 2013,2015-2016
+# Sebastian Raupach <s.raupach92@googlemail.com>, 2013
 msgid ""
 msgstr ""
-"Project-Id-Version: org.cubeengine:writer:1.0.0-SNAPSHOT\n"
+"Project-Id-Version: CubeEngine\n"
 "Report-Msgid-Bugs-To: development@cubeisland.de\n"
 "POT-Creation-Date: 2016-05-18 21:22:11+0200\n"
+"PO-Revision-Date: 2016-05-18 19:24+0000\n"
+"Last-Translator: Faithcaio <Faithcaio@cubeisland.de>\n"
+"Language-Team: German (http://www.transifex.com/quick_wango/cubeengine/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: en_US\n"
+"Language: de\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. Extracted by:
@@ -30,45 +35,42 @@ msgstr ""
 #. 	Name: org.cubeengine.butler.parametric.Label:value
 #: org/cubeengine/module/writer/Writer.java:74
 msgid "1st line"
-msgstr ""
+msgstr "erste Zeile"
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
 #: org/cubeengine/module/writer/Writer.java:71
 msgid "Edit a sign or a signed book"
-msgstr ""
+msgstr "Editiere ein Schild oder entfernt die Signierung von einem Buch"
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.filter.Restricted:msg
 #: org/cubeengine/module/writer/Writer.java:72
 msgid "Edit what?"
-msgstr ""
+msgstr "Was willst du editieren?"
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Label:value
 #: org/cubeengine/module/writer/Writer.java:75
-#, fuzzy
 #| msgid "2st line"
 msgid "2nd line"
-msgstr ""
+msgstr "zweite Zeile"
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Label:value
 #: org/cubeengine/module/writer/Writer.java:76
-#, fuzzy
 #| msgid "3st line"
 msgid "3rd line"
-msgstr ""
+msgstr "dritte Zeile"
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Label:value
 #: org/cubeengine/module/writer/Writer.java:77
-#, fuzzy
 #| msgid "4st line"
 msgid "4th line"
-msgstr ""
+msgstr "vierte Zeile"
