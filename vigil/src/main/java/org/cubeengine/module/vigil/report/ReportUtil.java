@@ -26,12 +26,17 @@ import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.MemoryDataContainer;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Text.Builder;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.translation.Translation;
+
+import static org.spongepowered.api.text.action.TextActions.showItem;
+import static org.spongepowered.api.text.action.TextActions.showText;
 
 public class ReportUtil
 {
@@ -47,7 +52,7 @@ public class ReportUtil
         Builder builder = Text.builder();
 
         builder.append(Text.of(TextColors.GOLD, trans).toBuilder().onHover(
-            TextActions.showText(Text.of(type.getName()))).build());
+            showText(Text.of(type.getName()))).build());
 
         Optional<List<DataView>> items = snapshot.toContainer().getViewList(BlockReport.BLOCK_ITEMS);
         if (items.isPresent() && !items.get().isEmpty())
@@ -70,16 +75,26 @@ public class ReportUtil
                 ItemStack item = ItemStack.builder().fromContainer(itemData).build();
 
                 builder.append(Text.of(dataView.getInt(DataQuery.of("Slot")).get()).toBuilder()
-                                   .onHover(TextActions.showItem(item)).build());
+                                   .onHover(showItem(item)).build());
                 builder.append(Text.of(" "));
             }
             builder.append(Text.of("]"));
         }
 
-        // TODO sign lines
+        Optional<List<Text>> sign = snapshot.get(Keys.SIGN_LINES);
+        if (sign.isPresent())
+        {
+            builder.append(Text.of(" "), Text.of("[I]").toBuilder().onHover(showText(Text.joinWith(Text.NEW_LINE, sign.get()))).build());
+        }
 
-        return  builder.build();
+        return builder.build();
 
+    }
+
+    public static Text name(EntitySnapshot entity)
+    {
+        return Text.of(entity.getType().getTranslation()).toBuilder()
+                   .onHover(showText(Text.of(entity.getType().getId()))).build();
     }
 
     public static <LT, T> boolean containsSingle(List<LT> list, Function<LT, T> func)
@@ -99,4 +114,6 @@ public class ReportUtil
         }
         return true;
     }
+
+
 }

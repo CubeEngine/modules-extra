@@ -18,13 +18,17 @@
 package org.cubeengine.module.vigil.report.block;
 
 import java.util.Optional;
+import java.util.UUID;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.BaseReport;
 import org.cubeengine.module.vigil.report.Observe;
 import org.cubeengine.module.vigil.report.Recall;
+import org.cubeengine.module.vigil.report.Report;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
+import org.spongepowered.api.event.block.ChangeBlockEvent.Place;
 
 import static java.util.stream.Collectors.toList;
 
@@ -44,34 +48,58 @@ public abstract class BlockReport<T extends ChangeBlockEvent> extends BaseReport
     protected Action observe(T event)
     {
         Action action = newReport();
-        action.addData(BLOCK_CHANGES, event.getTransactions().stream().map(Observe::transactions).collect(toList()));
         action.addData(CAUSE, Observe.causes(event.getCause()));
         return action;
+    }
+
+    protected void report(T event)
+    {
+        UUID multi = UUID.randomUUID();
+        for (Transaction<BlockSnapshot> trans : event.getTransactions())
+        {
+            Action action = observe(event);
+            action.addData(BLOCK_CHANGES, Observe.transactions(trans));
+            action.addData(LOCATION, Observe.location(trans.getOriginal().getLocation().get()));
+            if (event.getTransactions().size() > 1)
+            {
+                action.addData(MULTIACTION, multi.toString());
+            }
+            report(action);
+        }
+    }
+
+    protected boolean group(Optional<BlockSnapshot> repl1, Optional<BlockSnapshot> repl2)
+    {
+        if ((repl1.isPresent() && !repl2.isPresent()) || (!repl1.isPresent() && repl2.isPresent()))
+        {
+            return false;
+        }
+
+        if (repl1.isPresent() && repl2.isPresent())
+        {
+            if (!repl1.get().getWorldUniqueId().equals(repl2.get().getWorldUniqueId()))
+            {
+                return false;
+            }
+            if (!repl1.get().getState().equals(repl2.get().getState()))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
     public void apply(Action action, boolean noOp)
     {
         // TODO noOp
-        for (Optional<BlockSnapshot> snapshot : action.getCached(BLOCKS_REPL, Recall::replSnapshot))
-        {
-            if (snapshot.isPresent())
-            {
-                snapshot.get().restore(true, false);
-            }
-        }
+        action.getCached(BLOCKS_REPL, Recall::replSnapshot).get().restore(true, false);
     }
 
     @Override
     public void unapply(Action action, boolean noOp)
     {
         // TODO noOp
-        for (Optional<BlockSnapshot> snapshot : action.getCached(BLOCKS_ORIG, Recall::origSnapshot))
-        {
-            if (snapshot.isPresent())
-            {
-                snapshot.get().restore(true, false);
-            }
-        }
+        action.getCached(BLOCKS_ORIG, Recall::origSnapshot).get().restore(true, false);
     }
 }

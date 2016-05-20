@@ -24,6 +24,11 @@ import org.spongepowered.api.world.World;
 
 public class Lookup
 {
+    private boolean fullDate = false;
+    private boolean noDate = false;
+    private boolean showLocation = true;
+    private boolean fullLocation = true;
+
     private UUID world;
     private Vector3i position;
 
@@ -65,5 +70,25 @@ public class Lookup
     public Vector3i getPosition()
     {
         return position;
+    }
+
+    public boolean isFullDate()
+    {
+        return fullDate;
+    }
+
+    public boolean isShowLocation()
+    {
+        return showLocation;
+    }
+
+    public boolean isNoDate()
+    {
+        return noDate;
+    }
+
+    public boolean isFullLocation()
+    {
+        return fullLocation;
     }
 }

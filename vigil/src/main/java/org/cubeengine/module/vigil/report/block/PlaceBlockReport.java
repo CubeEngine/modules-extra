@@ -17,16 +17,13 @@
  */
 package org.cubeengine.module.vigil.report.block;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import com.flowpowered.math.vector.Vector3d;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.Recall;
 import org.cubeengine.module.vigil.report.Report;
 import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
@@ -34,7 +31,6 @@ import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.text.Text;
 
-import static org.cubeengine.module.vigil.report.ReportUtil.containsSingle;
 import static org.cubeengine.module.vigil.report.ReportUtil.name;
 import static org.spongepowered.api.block.BlockTypes.AIR;
 
@@ -73,17 +69,18 @@ public class PlaceBlockReport extends BlockReport<ChangeBlockEvent.Place>
         {
             return false;
         }
-        List<Optional<BlockSnapshot>> snaps = action.getCached(BLOCKS_ORIG, Recall::origSnapshot);
-        snaps.addAll(otherAction.getCached(BLOCKS_ORIG, Recall::origSnapshot));
-        if (!containsSingle(snaps, el -> el.map(BlockSnapshot::getState).map(BlockState::getType).orElse(null))
-                || !containsSingle(snaps, el -> el.map(BlockSnapshot::getWorldUniqueId)))
+        Optional<BlockSnapshot> orig1 = action.getCached(BLOCKS_ORIG, Recall::origSnapshot);
+        Optional<BlockSnapshot> orig2 = otherAction.getCached(BLOCKS_ORIG, Recall::origSnapshot);
+
+        if (!group(orig1, orig2))
         {
             return false;
         }
 
-        snaps = action.getCached(BLOCKS_REPL, Recall::replSnapshot);
-        snaps.addAll(otherAction.getCached(BLOCKS_REPL, Recall::replSnapshot));
-        if (!containsSingle(snaps, el -> el.map(BlockSnapshot::getState).map(BlockState::getType).orElse(null)))
+        Optional<BlockSnapshot> repl1 = action.getCached(BLOCKS_ORIG, Recall::origSnapshot);
+        Optional<BlockSnapshot> repl2 = otherAction.getCached(BLOCKS_ORIG, Recall::origSnapshot);
+
+        if (!group(repl1, repl2))
         {
             return false;
         }
@@ -97,19 +94,14 @@ public class PlaceBlockReport extends BlockReport<ChangeBlockEvent.Place>
     {
         Action action = actions.get(0);
 
-        Iterator<Optional<BlockSnapshot>> orig = action.getCached(BLOCKS_ORIG, Recall::origSnapshot).iterator();
-        for (Optional<BlockSnapshot> repl : action.getCached(BLOCKS_REPL, Recall::replSnapshot))
+        Optional<BlockSnapshot> orig = action.getCached(BLOCKS_ORIG, Recall::origSnapshot);
+        Optional<BlockSnapshot> repl = action.getCached(BLOCKS_REPL, Recall::replSnapshot);
+
+        if (!repl.isPresent())
         {
-            if (!repl.isPresent())
-            {
-                throw new IllegalStateException();
-            }
-            if (!repl.get().getLocation().get().getBlockPosition().equals(receiver.getLookup().getPosition()))
-            {
-                continue;
-            }
-            showReport(actions, receiver, action, orig.next(), repl.get());
+            throw new IllegalStateException();
         }
+        showReport(actions, receiver, action, orig, repl.get());
     }
 
     private void showReport(List<Action> actions, Receiver receiver, Action action, Optional<BlockSnapshot> orig, BlockSnapshot repl)
@@ -136,6 +128,6 @@ public class PlaceBlockReport extends BlockReport<ChangeBlockEvent.Place>
     public void listen(ChangeBlockEvent.Place event, @First Player player)
     {
         // TODO cause filtering
-        report(observe(event));
+        report(event);
     }
 }

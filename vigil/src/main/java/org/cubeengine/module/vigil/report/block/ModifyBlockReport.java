@@ -34,7 +34,6 @@ import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.text.Text;
 
 import static org.cubeengine.module.vigil.report.ReportUtil.name;
-import static org.spongepowered.api.block.BlockTypes.AIR;
 
 /* TODO change
 sign
@@ -56,8 +55,8 @@ public class ModifyBlockReport extends BlockReport<ChangeBlockEvent.Modify>
     public void showReport(List<Action> actions, Receiver receiver)
     {
         Action action = actions.get(0);
-        Optional<BlockSnapshot> orig = action.getCached(BLOCKS_ORIG, Recall::origSnapshot).get(0);
-        Optional<BlockSnapshot> repl = action.getCached(BLOCKS_REPL, Recall::replSnapshot).get(0);
+        Optional<BlockSnapshot> orig = action.getCached(BLOCKS_ORIG, Recall::origSnapshot);
+        Optional<BlockSnapshot> repl = action.getCached(BLOCKS_REPL, Recall::replSnapshot);
 
         Text cause = Recall.cause(action);
         if (!repl.isPresent() || !orig.isPresent())
@@ -99,6 +98,6 @@ public class ModifyBlockReport extends BlockReport<ChangeBlockEvent.Modify>
     public void listen(ChangeBlockEvent.Modify event, @First Player player)
     {
         // TODO cause filtering
-        report(observe(event));
+        report(event);
     }
 }

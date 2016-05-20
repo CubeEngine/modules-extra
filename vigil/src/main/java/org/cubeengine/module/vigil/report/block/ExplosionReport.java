@@ -26,7 +26,6 @@ import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
-import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.world.ExplosionEvent;
 
@@ -48,7 +47,7 @@ public class ExplosionReport extends BlockReport<ExplosionEvent.Detonate> implem
     {
         // TODO test
         Action action = actions.get(0);
-        BlockSnapshot snap = action.getCached(BLOCKS_ORIG, Recall::origSnapshot).get(0).get();
+        BlockSnapshot snap = action.getCached(BLOCKS_ORIG, Recall::origSnapshot).get();
         receiver.sendReport(actions, actions.size(),
                             "{txt} made boom {txt}",
                             "{txt} made boom {txt} x{}",
@@ -65,6 +64,6 @@ public class ExplosionReport extends BlockReport<ExplosionEvent.Detonate> implem
     public void listen(ExplosionEvent.Detonate event, @First Player player)
     {
         // TODO cause filtering
-        report(observe(event));
+        report(event);
     }
 }

@@ -53,6 +53,8 @@ public interface Report
     String CAUSE_NAME = "name";
     String LOCATION = "location";
 
+    String MULTIACTION = "multiaction";
+
     /**
      * Shows the action to given CommandSource
      *  @param actions   the action to show

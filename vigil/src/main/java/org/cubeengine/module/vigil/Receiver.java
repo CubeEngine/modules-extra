@@ -22,21 +22,26 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Consumer;
+import org.cubeengine.libcube.util.ConfirmManager;
 import org.cubeengine.libcube.util.StringUtils;
 import org.cubeengine.module.vigil.report.Action;
+import org.cubeengine.module.vigil.report.Recall;
 import org.cubeengine.module.vigil.report.ReportActions;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.pagination.PaginationList.Builder;
 import org.spongepowered.api.service.pagination.PaginationService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
+import static org.spongepowered.api.text.action.TextActions.executeCallback;
 import static org.spongepowered.api.text.action.TextActions.showText;
 import static org.spongepowered.api.text.format.TextColors.GRAY;
 import static org.spongepowered.api.text.format.TextColors.RED;
@@ -73,19 +78,73 @@ public class Receiver
     private static final SimpleDateFormat timeLong = new SimpleDateFormat("HH:mm:ss");
     private static final SimpleDateFormat timeShort = new SimpleDateFormat("HH:mm");
 
+    private static final Text RED_SEPARATOR = Text.of(RED, " - ");
+
     private void sendReport(List<Action> actions, Text trans)
     {
         Action firstAction = actions.get(0);
         Action lastAction = actions.get(actions.size() - 1);
 
-        Text date = getDatePrefix(firstAction, lastAction, false); // TODO fulldate?
-        // TODO add info (where when etc.)
-        lines.add(Text.of(date, RED, " - ", trans));
+        Text date = getDatePrefix(firstAction, lastAction);
+        Text loc = getLocation(firstAction, lastAction);
+        if (!date.isEmpty() && !loc.isEmpty())
+        {
+            lines.add(Text.of(date, WHITE, " ", i18n.getTranslation(cmdSource, NONE, "at"), " ", loc, Text.NEW_LINE, "  ", trans));
+        }
+        else
+        {
+            Text prefix = Text.EMPTY;
+            if (!date.isEmpty())
+            {
+                prefix = Text.of(date, RED_SEPARATOR);
+            }
+            else if (!loc.isEmpty())
+            {
+                prefix = Text.of(loc, RED_SEPARATOR);
+            }
+            lines.add(Text.of(prefix, trans));
+        }
     }
 
-    private Text getDatePrefix(Action firstAction, Action lastAction, boolean fullDate)
+    private Text getLocation(Action firstAction, Action lastAction)
     {
+        if (!lookup.isShowLocation())
+        {
+            return Text.EMPTY;
+        }
+        if (firstAction == lastAction)
+        {
+            Location<World> location = Recall.location(firstAction);
+            Text.Builder builder = Text.of(GRAY, location.getBlockX(), WHITE, ":", GRAY, location.getBlockY(), WHITE, ":", GRAY, location.getBlockZ()).toBuilder();
+            builder.onHover(showText(i18n.getTranslation(cmdSource, NEUTRAL, "Click to teleport to the location in {world}", location.getExtent())))
+                   .onClick(executeCallback(c -> showTeleport(location)));
+            if (lookup.isFullLocation())
+            {
+                builder.append(Text.of(" ", i18n.getTranslation(cmdSource, NONE, "in"), " ", GRAY, location.getExtent().getName()));
+            }
+            return builder.build();
+        }
+        return Text.of("range"); // TODO
+    }
 
+    private void showTeleport(Location<World> loc)
+    {
+        if (cmdSource instanceof Player)
+        {
+            ((Player)cmdSource).setLocation(loc.add(0.5,0.5,0.5));
+        }
+        else
+        {
+            i18n.sendTranslated(cmdSource, CRITICAL, "Cannot tp non player!");
+        }
+    }
+
+    private Text getDatePrefix(Action firstAction, Action lastAction)
+    {
+        if (lookup.isNoDate())
+        {
+            return Text.EMPTY;
+        }
         if (firstAction == lastAction)
         {
             Date date = firstAction.getDate();
@@ -93,7 +152,7 @@ public class Receiver
             boolean sameDay = dateLong.format(new Date()).equals(dLong);
             String tLong = timeLong.format(date);
             Text full = Text.of(GRAY, dLong, " ", tLong);
-            if (fullDate)
+            if (lookup.isFullDate())
             {
                 return full;
             }
@@ -120,7 +179,7 @@ public class Receiver
             String ltLong = timeLong.format(lastDate);
             Text fFull = Text.of(GRAY, fdLong, " ", ftLong);
             Text lFull = Text.of(GRAY, ldLong, " ", ltLong);
-            if (fullDate)
+            if (lookup.isFullDate())
             {
                 return Text.of(fFull, TextColors.WHITE, " - ", lFull);
             }
@@ -162,7 +221,8 @@ public class Receiver
         }
         Builder builder = Sponge.getGame().getServiceManager().provideUnchecked(PaginationService.class).builder();
         builder.title(i18n.getTranslation(cmdSource, POSITIVE, "Showing {amount} Logs", lines.size())).padding(Text.of("-"))
-               .contents(lines).sendTo(cmdSource);
+               .contents(lines).linesPerPage(2 + Math.min(lines.size(), 18)).sendTo(cmdSource);
+        // TODO remove linesPerPage when Sponge puts the lines to the bottom
     }
 
     public Locale getLocale()

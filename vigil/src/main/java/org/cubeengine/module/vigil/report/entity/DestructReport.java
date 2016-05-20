@@ -24,11 +24,11 @@ import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.Observe;
 import org.cubeengine.module.vigil.report.Recall;
 import org.cubeengine.module.vigil.report.Report;
+import org.cubeengine.module.vigil.report.ReportUtil;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.ExperienceOrb;
-import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.AttackEntityEvent;
@@ -67,7 +67,7 @@ public class DestructReport extends EntityReport<DestructEntityEvent>
         EntitySnapshot entity = Recall.entity(action);
         if (entity.getType() == EntityTypes.ITEM)
         {
-            String name = entity.getType().getTranslation().get(receiver.getLocale());
+            Text name = ReportUtil.name(entity);
             ItemStack i = entity.get(Keys.REPRESENTED_ITEM).map(ItemStackSnapshot::createStack).orElse(null);
             Text item = Text.of("?");
             if (i != null)
@@ -92,9 +92,9 @@ public class DestructReport extends EntityReport<DestructEntityEvent>
         else if (Living.class.isAssignableFrom(entity.getType().getEntityClass()))
         {
             receiver.sendReport(actions, actions.size(),
-                                "{txt} killed {name}",
-                                "{txt} killed {name} x{}",
-                                cause, entity.getType().getTranslation().get(receiver.getLocale()), actions.size());
+                                "{txt} killed {txt}",
+                                "{txt} killed {txt} x{}",
+                                cause, ReportUtil.name(entity), actions.size());
         }
         else if (ExperienceOrb.class.isAssignableFrom(entity.getType().getEntityClass()))
         {
@@ -113,9 +113,9 @@ public class DestructReport extends EntityReport<DestructEntityEvent>
         else
         {
             receiver.sendReport(actions, actions.size(),
-                                "{txt} destroyed {name}",
-                                "{txt} destroyed {name} x{}",
-                                cause, entity.getType().getTranslation().get(receiver.getLocale()), actions.size());
+                                "{txt} destroyed {txt}",
+                                "{txt} destroyed {txt} x{}",
+                                cause, ReportUtil.name(entity), actions.size());
         }
     }
 
@@ -186,13 +186,20 @@ public class DestructReport extends EntityReport<DestructEntityEvent>
     @Listener
     public void onDesctruct(DestructEntityEvent event)
     {
-        System.out.print("####" + event.getCause() + "\n");
-        if (event.getTargetEntity() instanceof Item
-        && ((Item)event.getTargetEntity()).item().get().getCount() == 0)
+        if (event.getCause().get("CombinedItem", Object.class).isPresent())
         {
-            // ItemPickup is handled in ChangeInventoryEvent
+            // Ignore CombinedItem
             return;
         }
+
+        if (event.getCause().get("PickedUp", Object.class).isPresent())
+        {
+            // Ignore CombinedItem
+            return;
+        }
+
+        System.out.print("####" + event.getCause() + "\n");
+
         report(observe(event));
     }
 }

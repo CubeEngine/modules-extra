@@ -66,18 +66,13 @@ public class Query
 
     public Query position(Vector3i pos)
     {
-        Document block = new Document();
-        Document other = new Document();
+        Document position = new Document();
 
-        block.put(String.join(".", DATA, BLOCK_CHANGES, LOCATION, X.asString("_")), pos.getX());
-        block.put(String.join(".", DATA, BLOCK_CHANGES, LOCATION, Y.asString("_")), pos.getY());
-        block.put(String.join(".", DATA, BLOCK_CHANGES, LOCATION, Z.asString("_")), pos.getZ());
+        position.put(String.join(".", DATA, LOCATION, X.asString("_")), pos.getX());
+        position.put(String.join(".", DATA, LOCATION, Y.asString("_")), pos.getY());
+        position.put(String.join(".", DATA, LOCATION, Z.asString("_")), pos.getZ());
 
-        other.put(String.join(".", DATA, LOCATION, X.asString("_")), pos.getX());
-        other.put(String.join(".", DATA, LOCATION, Y.asString("_")), pos.getY());
-        other.put(String.join(".", DATA, LOCATION, Z.asString("_")), pos.getZ());
-
-        and.add(new Document(OR, Arrays.asList(block, other)));
+        and.add(position);
         return this;
     }
 }

@@ -255,7 +255,7 @@ public class Observe
         if (original.getLocation().isPresent())
         {
             //System.out.print(transaction.getFinal().getLocation().get().getPosition() +  " " + transaction.getFinal().getState().getType() + "\n");
-            data.put(LOCATION, location(transaction.getFinal().getLocation().get()));
+            //data.put(LOCATION, location(transaction.getFinal().getLocation().get()));
             data.put(BlockReport.ORIGINAL, blockSnapshot(original));
             data.put(BlockReport.REPLACEMENT, blockSnapshot(transaction.getFinal()));
         }

@@ -17,23 +17,19 @@
  */
 package org.cubeengine.module.vigil.report.block;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import com.flowpowered.math.vector.Vector3d;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.Recall;
 import org.cubeengine.module.vigil.report.Report;
 import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
 
-import static org.cubeengine.module.vigil.report.ReportUtil.containsSingle;
 import static org.cubeengine.module.vigil.report.ReportUtil.name;
 
 /* TODO Break
@@ -61,10 +57,11 @@ public class BreakBlockReport extends BlockReport<ChangeBlockEvent.Break>
         {
             return false;
         }
-        List<Optional<BlockSnapshot>> snaps = action.getCached(BLOCKS_ORIG, Recall::origSnapshot);
-        snaps.addAll(otherAction.getCached(BLOCKS_ORIG, Recall::origSnapshot));
-        if (!containsSingle(snaps, el -> el.map(BlockSnapshot::getState).map(BlockState::getType).orElse(null))
-                || !containsSingle(snaps, el -> el.map(BlockSnapshot::getWorldUniqueId)))
+
+        Optional<BlockSnapshot> orig1 = action.getCached(BLOCKS_ORIG, Recall::origSnapshot);
+        Optional<BlockSnapshot> orig2 = otherAction.getCached(BLOCKS_ORIG, Recall::origSnapshot);
+
+        if (!group(orig1, orig2))
         {
             return false;
         }
@@ -76,7 +73,6 @@ public class BreakBlockReport extends BlockReport<ChangeBlockEvent.Break>
         }
 
         // TODO in short timeframe (minutes? configurable)
-
         return true;
     }
 
@@ -85,19 +81,12 @@ public class BreakBlockReport extends BlockReport<ChangeBlockEvent.Break>
     {
         Action action = actions.get(0);
 
-        for (Optional<BlockSnapshot> orig : action.getCached(BLOCKS_ORIG, Recall::origSnapshot))
+        Optional<BlockSnapshot> orig = action.getCached(BLOCKS_ORIG, Recall::origSnapshot);
+        if (!orig.isPresent())
         {
-            if (!orig.isPresent())
-            {
-                throw new IllegalStateException();
-            }
-            if (!orig.get().getLocation().get().getBlockPosition().equals((receiver.getLookup().getPosition())))
-            {
-                continue;
-            }
-            showReport(actions, receiver, action, orig.get());
+            throw new IllegalStateException();
         }
-
+        showReport(actions, receiver, action, orig.get());
     }
 
     private void showReport(List<Action> actions, Receiver receiver, Action action, BlockSnapshot orig)
@@ -115,8 +104,7 @@ public class BreakBlockReport extends BlockReport<ChangeBlockEvent.Break>
         // TODO player is source when destroying block /w hanging blocks on it but should be notifier? source is the block
 
         // TODO cause filtering ?
-        report(observe(event));
-
+        report(event);
         // TODO remove
         /*
         System.out.print("ChangeBlockEvent.Break caused by\n");

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.cubeengine.module.vigil.report.entity.EntityReport;
 import org.spongepowered.api.Sponge;
@@ -40,6 +41,8 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
 
 import static org.cubeengine.module.vigil.report.Report.LOCATION;
 import static org.cubeengine.module.vigil.report.block.BlockReport.*;
@@ -74,28 +77,16 @@ public class Recall
         return Sponge.getGame().getRegistry().createBuilder(BlockSnapshot.Builder.class).build(container);
     }
 
-    public static List<Optional<BlockSnapshot>> origSnapshot(Action action)
+    public static Optional<BlockSnapshot> origSnapshot(Action action)
     {
-        List<Map<String, Object>> changes = action.getData(BLOCK_CHANGES);
-
-        @SuppressWarnings("unchecked")
-        List<Optional<BlockSnapshot>> collect = changes.stream()
-                .map(data -> blockSnapShot(((Map<String, Object>) data.get(ORIGINAL)),
-                        ((Map<String, Object>) data.get(LOCATION))))
-                .collect(Collectors.toList());
-        return collect;
+        Map<String, Object> changes = action.getData(BLOCK_CHANGES);
+        return blockSnapShot(((Map<String, Object>)changes.get(ORIGINAL)), action.getData(LOCATION));
     }
 
-    public static List<Optional<BlockSnapshot>> replSnapshot(Action action)
+    public static Optional<BlockSnapshot> replSnapshot(Action action)
     {
-        List<Map<String, Object>> changes = action.getData(BLOCK_CHANGES);
-
-        @SuppressWarnings("unchecked")
-        List<Optional<BlockSnapshot>> collect = changes.stream()
-                .map(data -> blockSnapShot(((Map<String, Object>) data.get(REPLACEMENT)),
-                        ((Map<String, Object>) data.get(LOCATION))))
-                .collect(Collectors.toList());
-        return collect;
+        Map<String, Object> changes = action.getData(BLOCK_CHANGES);
+        return blockSnapShot(((Map<String, Object>)changes.get(REPLACEMENT)), action.getData(LOCATION));
     }
 
     @SuppressWarnings("unchecked")
@@ -103,10 +94,11 @@ public class Recall
     {
         Map<String, Object> data = action.getData(CAUSE);
         Map<String, Object> source = (Map<String, Object>)data.get(NamedCause.SOURCE);
+        Map<String, Object> attacker = (Map<String, Object>)data.get("Attacker");
         Map<String, Object> playerSource = (Map<String, Object>)data.get("PlayerSource");
         Map<String, Object> notifier = (Map<String, Object>)data.get(NamedCause.NOTIFIER);
         Map<String, Object> source2 = (Map<String, Object>)data.get(NamedCause.SOURCE + "1");
-        return cause(source, notifier, playerSource == null ? source2 : playerSource);
+        return cause(source == null ? attacker : source, notifier, playerSource == null ? source2 : playerSource);
     }
 
     public static Text cause(Map<String, Object> source, Map<String, Object> notifier, Map<String, Object> source2)
@@ -203,5 +195,15 @@ public class Recall
     {
         Map<String, Object> map = ((Map<String, Object>) ((Map<String, Object>)action.getData(EntityReport.ENTITY)).get(EntityReport.ENTITY_DATA));
         return EntitySnapshot.builder().build(((DataView)toContainer(map))).orElse(null);
+    }
+
+    public static Location<World> location(Action action)
+    {
+        Map<String, Object> data = action.getData(LOCATION);
+        World world = Sponge.getServer().getWorld(UUID.fromString(data.get(WORLD.asString("_")).toString())).get();
+        Integer x = (Integer)data.get(X.asString("_"));
+        Integer y = (Integer)data.get(Y.asString("_"));
+        Integer z = (Integer)data.get(Z.asString("_"));
+        return new Location<>(world, x, y, z);
     }
 }
