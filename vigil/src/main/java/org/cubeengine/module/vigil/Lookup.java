@@ -26,8 +26,8 @@ public class Lookup
 {
     private boolean fullDate = false;
     private boolean noDate = false;
-    private boolean showLocation = true;
-    private boolean fullLocation = true;
+    private boolean showLocation = false;
+    private boolean fullLocation = false;
 
     private UUID world;
     private Vector3i position;
