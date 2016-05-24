@@ -35,6 +35,7 @@ import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.libcube.service.task.SpongeTaskManager;
 import org.cubeengine.libcube.service.task.TaskManager;
+import org.cubeengine.libcube.util.CauseUtil;
 import org.cubeengine.module.fun.Fun;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.Property;
@@ -284,7 +285,7 @@ public class ThrowCommands
             else
             {
                 entity = player.getWorld().createEntity(type, location.getPosition()).get();
-                player.getWorld().spawnEntity(entity, Cause.of(NamedCause.source(player)));
+                player.getWorld().spawnEntity(entity, CauseUtil.spawnCause(player));
                 entity.setVelocity(rotation.mul(8));
                 if (entity instanceof ExperienceOrb)
                 {

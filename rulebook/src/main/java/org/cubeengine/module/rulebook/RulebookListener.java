@@ -19,6 +19,7 @@ package org.cubeengine.module.rulebook;
 
 import java.util.Locale;
 import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.util.CauseUtil;
 import org.cubeengine.module.rulebook.bookManagement.RulebookManager;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Entity;
@@ -67,7 +68,7 @@ class RulebookListener
             {
                 Entity entity = player.getWorld().createEntity(EntityTypes.ITEM, player.getLocation().getPosition()).get();
                 entity.offer(Keys.REPRESENTED_ITEM, hand.createSnapshot());
-                player.getWorld().spawnEntity(entity, Cause.of(NamedCause.source(player)));
+                player.getWorld().spawnEntity(entity, CauseUtil.spawnCause(player));
             }
         }
     }

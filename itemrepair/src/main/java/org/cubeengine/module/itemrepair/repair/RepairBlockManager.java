@@ -25,6 +25,7 @@ import org.cubeengine.libcube.service.database.Database;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.permission.PermissionManager;
+import org.cubeengine.libcube.util.CauseUtil;
 import org.cubeengine.module.itemrepair.Itemrepair;
 import org.cubeengine.module.itemrepair.material.RepairItemContainer;
 import org.cubeengine.module.itemrepair.repair.blocks.RepairBlock;
@@ -226,7 +227,7 @@ public class RepairBlockManager
                     {
                         Entity drop = world.createEntity(EntityTypes.ITEM, loc.getPosition()).get();
                         drop.offer(Keys.REPRESENTED_ITEM, slot.peek().get().createSnapshot());
-                        world.spawnEntity(drop, Cause.of(NamedCause.source(player)));
+                        world.spawnEntity(drop, CauseUtil.spawnCause(player));
                     }
                 }
             }

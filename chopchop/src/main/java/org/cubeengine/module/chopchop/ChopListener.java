@@ -21,6 +21,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import com.flowpowered.math.vector.Vector3i;
+import org.cubeengine.libcube.util.CauseUtil;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
@@ -172,7 +173,7 @@ public class ChopListener
                 World world = player.getWorld();
                 Entity itemEntity = world.createEntity(ITEM, orig.getPosition()).get();
                 itemEntity.offer(REPRESENTED_ITEM, sap.createSnapshot());
-                Cause playerCause = Cause.of(NamedCause.source(player));
+                Cause playerCause = CauseUtil.spawnCause(player);
                 world.spawnEntity(itemEntity, playerCause);
 
                 itemEntity = world.createEntity(ITEM, orig.getPosition()).get();

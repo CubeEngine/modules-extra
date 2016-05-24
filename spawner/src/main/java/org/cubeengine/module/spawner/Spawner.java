@@ -30,6 +30,7 @@ import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionManager;
+import org.cubeengine.libcube.util.CauseUtil;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
@@ -157,7 +158,7 @@ public class Spawner extends Module
             if (item.isPresent())
             {
                 item.get().offer(Keys.REPRESENTED_ITEM, clone.createSnapshot());
-                player.getWorld().spawnEntity(item.get(), Cause.of(NamedCause.source(player))); // TODO instead drop naturally at blockpos
+                player.getWorld().spawnEntity(item.get(), CauseUtil.spawnCause(player)); // TODO instead drop naturally at blockpos
                 i18n.sendTranslated(player, POSITIVE, "Dropped inactive Monster Spawner!");
                 // TODO cancel exp drops
                 return;

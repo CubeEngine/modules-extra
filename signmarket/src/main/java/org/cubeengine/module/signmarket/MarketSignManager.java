@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import org.cubeengine.libcube.util.CauseUtil;
 import org.cubeengine.module.signmarket.data.IMarketSignData;
 import org.cubeengine.module.signmarket.data.ImmutableMarketSignData;
 import org.cubeengine.module.signmarket.data.MarketSignData;
@@ -318,10 +319,10 @@ public final class MarketSignManager
             if (data.getStock() != null && data.getStock() == 1337)  //pssst i am not here
             {
                 Entity lightning = at.getExtent().createEntity(EntityTypes.LIGHTNING, at.getPosition()).get();
-                at.getExtent().spawnEntity(lightning, Cause.of(NamedCause.source(player)));
+                at.getExtent().spawnEntity(lightning, CauseUtil.spawnCause(player));
             }
 
-            dropContents(data, at, Cause.of(NamedCause.source(player)));
+            dropContents(data, at, CauseUtil.spawnCause(player));
             at.remove(MarketSignData.class);
             at.remove(SignData.class);
             at.setBlock(BlockTypes.AIR.getDefaultState()); // TODO break particles + sound?

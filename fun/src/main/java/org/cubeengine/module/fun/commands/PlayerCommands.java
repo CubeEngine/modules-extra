@@ -25,6 +25,7 @@ import org.cubeengine.butler.parametric.Named;
 import org.cubeengine.butler.parametric.Optional;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.matcher.MaterialMatcher;
+import org.cubeengine.libcube.util.CauseUtil;
 import org.cubeengine.module.fun.Fun;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.data.key.Keys;
@@ -265,7 +266,7 @@ public class PlayerCommands
         {
             ((Lightning)entity).setEffect(true);
         }
-        location.getExtent().spawnEntity(entity, Cause.of(NamedCause.source(context)));
+        location.getExtent().spawnEntity(entity, CauseUtil.spawnCause(context));
     }
 
     @Command(desc = "Slaps a player")

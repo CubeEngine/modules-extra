@@ -19,6 +19,7 @@ package org.cubeengine.module.fun.commands;
 
 import java.util.Optional;
 import org.cubeengine.butler.parametric.Command;
+import org.cubeengine.libcube.util.CauseUtil;
 import org.cubeengine.module.fun.Fun;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.i18n.formatter.MessageType;
@@ -66,7 +67,7 @@ public class InvasionCommand
             {
                 Location<World> location = end.get().getLocation();
                 Entity entity = location.getExtent().createEntity(entityType, location.getPosition()).get();
-                location.getExtent().spawnEntity(entity, Cause.of(NamedCause.source(context)));
+                location.getExtent().spawnEntity(entity, CauseUtil.spawnCause(context));
             }
         }
     }
