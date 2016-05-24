@@ -201,10 +201,12 @@ public class ChatCommands
             if (context instanceof Player)
             {
                 lastWhispers.put(((Player)context).getUniqueId(), ((Player)whisperTarget).getUniqueId());
+                lastWhispers.put(((Player)whisperTarget).getUniqueId(), ((Player)context).getUniqueId());
             }
             else
             {
                 lastWhispers.put(consoleUUID, ((Player)whisperTarget).getUniqueId());
+                lastWhispers.put(((Player)whisperTarget).getUniqueId(), consoleUUID);
             }
             return true;
         }
