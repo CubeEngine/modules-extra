@@ -198,8 +198,6 @@ public class DestructReport extends EntityReport<DestructEntityEvent>
             return;
         }
 
-        System.out.print("####" + event.getCause() + "\n");
-
         report(observe(event));
     }
 }
