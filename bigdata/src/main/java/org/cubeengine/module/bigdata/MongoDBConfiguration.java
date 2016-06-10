@@ -17,6 +17,7 @@
  */
 package org.cubeengine.module.bigdata;
 
+import de.cubeisland.engine.reflect.Section;
 import de.cubeisland.engine.reflect.annotations.Comment;
 import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
 
@@ -29,7 +30,7 @@ public class MongoDBConfiguration extends ReflectedYaml
 
     public Authentication authentication;
 
-    public static class Authentication
+    public static class Authentication implements Section
     {
         public String database = "cubeengine";
         public String username;
