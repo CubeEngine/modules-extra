@@ -52,9 +52,9 @@ public class LogManager
         this.module = module;
         this.bigdata = bigdata;
         this.collection = bigdata.getDatabase().getCollection("log");
-        this.collection.ensureIndex(new BasicDBObject("coord.vector.y", 1).append("coord.vector.x", 1).append("coord.vector.z", 1));
-        this.collection.ensureIndex(new BasicDBObject("coord.world-uuid", 1));
-        this.collection.ensureIndex(new BasicDBObject("action", 1));
+        this.collection.createIndex(new BasicDBObject("coord.vector.y", 1).append("coord.vector.x", 1).append("coord.vector.z", 1));
+        this.collection.createIndex(new BasicDBObject("coord.world-uuid", 1));
+        this.collection.createIndex(new BasicDBObject("action", 1));
         // TODO more indices
 
         this.mapper = new ObjectMapper();
