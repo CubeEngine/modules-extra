@@ -98,7 +98,7 @@ public class Bigdata extends Module
             List<MongoCredential> credentialList = Collections.emptyList();
             if (authConfig != null && authConfig.username != null && authConfig.password != null)
             {
-                MongoCredential credential = MongoCredential.createMongoCRCredential(authConfig.username, db, authConfig.password.toCharArray());
+                MongoCredential credential = MongoCredential.createCredential(authConfig.username, db, authConfig.password.toCharArray());
                 credentialList = Arrays.asList(credential);
             }
             MongoClientOptions options = MongoClientOptions.builder().connectTimeout(this.config.connectionTimeout).build();
