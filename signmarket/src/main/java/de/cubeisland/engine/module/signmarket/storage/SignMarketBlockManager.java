@@ -65,17 +65,17 @@ public class SignMarketBlockManager
                               model.getLocation().getBlockY(),
                               model.getLocation().getBlockZ(),
                               model.getValue(TABLE_SIGN_BLOCK.ITEMKEY));
-        model.deleteAsync();
+        model.delete();
     }
 
     public void store(BlockModel blockModel)
     {
         this.blockModels.put(blockModel.getLocation(),blockModel);
-        blockModel.insertAsync();
+        blockModel.insert();
     }
 
     public void update(BlockModel blockItemModel)
     {
-        blockItemModel.updateAsync();
+        blockItemModel.update();
     }
 }
