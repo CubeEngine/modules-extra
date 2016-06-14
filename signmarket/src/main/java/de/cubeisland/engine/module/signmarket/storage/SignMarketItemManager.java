@@ -57,7 +57,7 @@ public class SignMarketItemManager
 
     public void store(ItemModel itemInfo)
     {
-        itemInfo.insertAsync();
+        itemInfo.insert();
         this.itemInfoModels.put(itemInfo.getValue(TABLE_SIGN_ITEM.KEY), itemInfo);
     }
 
