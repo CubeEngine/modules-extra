@@ -60,6 +60,11 @@ public class SignMarketBlockManager
         this.blockModels.remove(model.getLocation());
         UInteger key = model.getValue(TABLE_SIGN_BLOCK.KEY);
         if (key == null || key.longValue() == 0) return; // unsaved model
+        module.getLog().debug("Delete BlockModel @{}:{}:{} with #{}",
+                              model.getLocation().getBlockX(),
+                              model.getLocation().getBlockY(),
+                              model.getLocation().getBlockZ(),
+                              model.getValue(TABLE_SIGN_BLOCK.ITEMKEY));
         model.deleteAsync();
     }
 

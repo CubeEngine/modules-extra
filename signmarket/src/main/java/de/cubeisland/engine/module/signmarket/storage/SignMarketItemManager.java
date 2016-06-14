@@ -25,6 +25,7 @@ import de.cubeisland.engine.module.signmarket.Signmarket;
 import org.jooq.DSLContext;
 import org.jooq.types.UInteger;
 
+import static de.cubeisland.engine.module.signmarket.storage.TableSignBlock.TABLE_SIGN_BLOCK;
 import static de.cubeisland.engine.module.signmarket.storage.TableSignItem.TABLE_SIGN_ITEM;
 
 public class SignMarketItemManager
@@ -82,6 +83,7 @@ public class SignMarketItemManager
         {
             return; // unsaved model
         }
+        module.getLog().debug("Delete ItemModel with #{}", itemInfo.getItemStack().toString());
         this.itemInfoModels.remove(key).deleteAsync();
     }
 
