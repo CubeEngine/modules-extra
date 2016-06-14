@@ -83,7 +83,7 @@ public class SignMarketItemManager
         {
             return; // unsaved model
         }
-        module.getLog().debug("Delete ItemModel with #{}", itemInfo.getItemStack().toString());
+        module.getLog().debug("Delete ItemModel with #{}", itemInfo.getValue(TABLE_SIGN_ITEM.ITEM));
         this.itemInfoModels.remove(key).deleteAsync();
     }
 
