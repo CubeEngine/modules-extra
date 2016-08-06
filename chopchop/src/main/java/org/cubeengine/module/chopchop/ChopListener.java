@@ -73,7 +73,7 @@ public class ChopListener
     private static boolean isLog(Location<World> block, TreeType species)
     {
         BlockType type = block.getBlockType();
-        return !(type != LOG && type != LOG2) && block.get(TREE_TYPE).get() == species;
+        return !(type != BlockTypes.LOG && type != BlockTypes.LOG2) && block.get(TREE_TYPE).get() == species;
     }
 
     @Listener
@@ -93,7 +93,7 @@ public class ChopListener
         {
             BlockType type = transaction.getOriginal().getState().getType();
             Location<World> orig = transaction.getOriginal().getLocation().get();
-            BlockType belowType = orig.getRelative(DOWN).getBlockType();
+            BlockType belowType = orig.getBlockRelative(DOWN).getBlockType();
             if (isLog(type) && (belowType == DIRT || belowType == GRASS))
             {
                 TreeType treeType = transaction.getOriginal().get(TREE_TYPE).get();
@@ -103,7 +103,6 @@ public class ChopListener
                     return;
                 }
 
-                event.setCancelled(true);
                 int logs = 0;
                 int leaves = 0;
                 Set<Location> saplings = new HashSet<>();
@@ -117,7 +116,7 @@ public class ChopListener
                         }
                         logs++;
                         block.setBlockType(AIR);
-                        BlockType belowTyp = block.getRelative(DOWN).getBlockType();
+                        BlockType belowTyp = block.getBlockRelative(DOWN).getBlockType();
                         if (belowTyp == DIRT || belowTyp == GRASS)
                         {
                             saplings.add(block);
@@ -167,23 +166,26 @@ public class ChopListener
                 axe.offer(Keys.ITEM_DURABILITY, uses);
                 player.setItemInHand(axe);
 
-                ItemStack sap = ItemStack.builder().itemType(SAPLING).quantity(leaves).build();
-                ItemStack apple = ItemStack.builder().itemType(APPLE).quantity(apples).build();
-
                 World world = player.getWorld();
-                Entity itemEntity = world.createEntity(ITEM, orig.getPosition()).get();
-                itemEntity.offer(REPRESENTED_ITEM, sap.createSnapshot());
+                Entity itemEntity;
                 Cause playerCause = CauseUtil.spawnCause(player);
+
+                if (apples != 0)
+                {
+                    ItemStack apple = ItemStack.builder().itemType(APPLE).quantity(apples).build();
+                    itemEntity = world.createEntity(ITEM, orig.getPosition()).get();
+                    itemEntity.offer(REPRESENTED_ITEM, apple.createSnapshot());
+                    world.spawnEntity(itemEntity, playerCause);
+                }
+
+                ItemStack sap = ItemStack.builder().itemType(SAPLING).quantity(leaves).build();
+                itemEntity = world.createEntity(ITEM, orig.getPosition()).get();
+                itemEntity.offer(REPRESENTED_ITEM, sap.createSnapshot());
                 world.spawnEntity(itemEntity, playerCause);
 
                 itemEntity = world.createEntity(ITEM, orig.getPosition()).get();
                 itemEntity.offer(REPRESENTED_ITEM, log.createSnapshot());
                 world.spawnEntity(itemEntity, playerCause);
-
-                itemEntity = world.createEntity(ITEM, orig.getPosition()).get();
-                itemEntity.offer(REPRESENTED_ITEM, apple.createSnapshot());
-                world.spawnEntity(itemEntity, playerCause);
-
                 return;
             }
         }
@@ -191,7 +193,7 @@ public class ChopListener
 
     private boolean isLog(BlockType type)
     {
-        return type == LOG || type == LOG2;
+        return BlockTypes.LOG.equals(type) || BlockTypes.LOG.equals(type);
     }
 
     private Set<Location<World>> findTreeBlocks(Location<World> block, TreeType species)
@@ -260,18 +262,17 @@ public class ChopListener
         Set<Location<World>> blocks = new HashSet<>();
         for (Direction face : dir8)
         {
-            Location<World> relative = base.getRelative(face);
+            Location<World> relative = base.getBlockRelative(face);
             if (!trunk.contains(relative) && isLog(relative, species))
             {
-                relative = relative.add(0, root.getY(), 0);
-                if (root.getBlockPosition().distanceSquared(relative.getBlockPosition()) <= 25)
+                if (base.getBlockPosition().distanceSquared(relative.getBlockPosition()) <= 25)
                 {
                     blocks.add(relative);
                 }
             }
         }
 
-        Location<World> up = base.getRelative(UP);
+        Location<World> up = base.getBlockRelative(UP);
         if (!trunk.contains(up) && isLog(up, species))
         {
             blocks.add(up);
@@ -279,10 +280,9 @@ public class ChopListener
 
         for (Direction face : dir8)
         {
-            Location<World> relative = up.getRelative(face);
+            Location<World> relative = up.getBlockRelative(face);
             if (!trunk.contains(relative) && isLog(relative, species))
             {
-                relative = relative.add(0, root.getY(), 0);
                 if (root.getBlockPosition().distanceSquared(relative.getBlockPosition()) <= 256)
                 {
                     blocks.add(relative);

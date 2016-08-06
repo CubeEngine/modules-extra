@@ -53,7 +53,7 @@ public class Chopchop extends Module
     public void onEnable()
     {
         em.registerListener(Chopchop.class, new ChopListener());
-        tm.runTaskDelayed(Chopchop.class, this::registerRecipe, 1);
+        // TODO tm.runTaskDelayed(Chopchop.class, this::registerRecipe, 1);
     }
 
     @Disable
