@@ -57,10 +57,8 @@ public class Chat extends Module
 
     @Inject private EventManager em;
     @Inject private CommandManager cm;
-    @Inject private PermissionManager pm;
     @Inject private I18n i18n;
     @Inject private Game game;
-    @Inject private Database db;
     @Inject private TaskManager tm;
     @Inject private Broadcaster bc;
 
@@ -83,7 +81,7 @@ public class Chat extends Module
 
         AfkCommand afkCmd = new AfkCommand(this, config.autoAfk.after.getMillis(), config.autoAfk.check.getMillis(), bc, tm, em, game);
         cm.addCommands(this, afkCmd);
-        cm.addCommands(this, new ChatCommands(this, game, cm, i18n, bc, afkCmd));
+        cm.addCommands(this, new ChatCommands(this, i18n, bc, afkCmd));
     }
 
     public ChatConfig getConfig()

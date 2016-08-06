@@ -55,8 +55,6 @@ import static org.spongepowered.api.text.serializer.TextSerializers.FORMATTING_C
 public class ChatCommands
 {
     private final Chat module;
-    private Game game;
-    private CommandManager cm;
     private I18n i18n;
     private Broadcaster bc;
     private AfkCommand afkCmd;
@@ -64,11 +62,9 @@ public class ChatCommands
 
     private Map<UUID, UUID> lastWhispers = new HashMap<>();
 
-    public ChatCommands(Chat module, Game game, CommandManager cm, I18n i18n, Broadcaster broadcaster, AfkCommand afkCmd)
+    public ChatCommands(Chat module, I18n i18n, Broadcaster broadcaster, AfkCommand afkCmd)
     {
         this.module = module;
-        this.game = game;
-        this.cm = cm;
         this.i18n = i18n;
         this.bc = broadcaster;
         this.afkCmd = afkCmd;
@@ -83,6 +79,7 @@ public class ChatCommands
     @Command(desc = "Changes your display name")
     public void nick(CommandSource context, @Label("<name>|-reset") String name, @Optional Player player)
     {
+        // TODO this only works when ChatFormat uses {DISPLAYNAME}
         if (player == null)
         {
             if (!(context instanceof Player))
@@ -148,11 +145,11 @@ public class ChatCommands
         CommandSource target;
         if (lastWhisper.equals(consoleUUID))
         {
-            target = game.getServer().getConsole();
+            target = Sponge.getServer().getConsole();
         }
         else
         {
-            target = game.getServer().getPlayer(lastWhisper).orElse(null);
+            target = Sponge.getServer().getPlayer(lastWhisper).orElse(null);
         }
         if (!this.sendWhisperTo(target, message, context))
         {

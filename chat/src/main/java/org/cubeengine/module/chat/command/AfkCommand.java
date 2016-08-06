@@ -114,8 +114,6 @@ public class AfkCommand implements Runnable
         actions.remove(player.getUniqueId());
     }
 
-
-
     @Override
     public void run()
     {

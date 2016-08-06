@@ -41,7 +41,7 @@ import static java.util.concurrent.TimeUnit.DAYS;
 import static org.cubeengine.module.chat.storage.TableMuted.TABLE_MUTED;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
 
-public class MuteCommands
+public class  MuteCommands
 {
     private Chat module;
     private Database db;

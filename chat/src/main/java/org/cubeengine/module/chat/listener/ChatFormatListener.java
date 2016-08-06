@@ -17,30 +17,27 @@
  */
 package org.cubeengine.module.chat.listener;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Pattern;
-import javax.inject.Inject;
+import static org.cubeengine.libcube.util.ChatFormat.fromLegacy;
+import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
+
 import org.cubeengine.module.chat.Chat;
-import org.cubeengine.module.chat.CubeMessageChannel;
-import org.cubeengine.libcube.service.i18n.I18n;
-import org.spongepowered.api.Game;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.manipulator.mutable.DisplayNameData;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.message.MessageChannelEvent;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.permission.option.OptionSubject;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 
-import static org.cubeengine.libcube.util.ChatFormat.fromLegacy;
-import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+import javax.inject.Inject;
 
 public class ChatFormatListener
 {
@@ -53,12 +50,6 @@ public class ChatFormatListener
     {
         this.module = module;
         this.ps = ps;
-    }
-
-    @Listener
-    public void onPlayerJoin(ClientConnectionEvent.Join event)
-    {
-        event.getTargetEntity().setMessageChannel(new CubeMessageChannel());
     }
 
     @Listener(order = Order.EARLY)

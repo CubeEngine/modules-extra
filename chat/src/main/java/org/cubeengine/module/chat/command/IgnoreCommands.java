@@ -45,13 +45,14 @@ public class IgnoreCommands
     private Database db;
     private I18n i18n;
 
-    private Map<UUID, List<IgnoreList>> ignored = new HashMap<>();
+    private Map<UUID, List<IgnoreList>> ignored = new HashMap<>(); // TODO chacheing
 
     @Inject
-    public IgnoreCommands(Chat basics, Database db)
+    public IgnoreCommands(I18n i18n, Chat basics, Database db)
     {
         this.module = basics;
         this.db = db;
+        this.i18n = i18n;
     }
 
     private boolean addIgnore(Player user, Player ignored)
@@ -90,7 +91,7 @@ public class IgnoreCommands
     }
 
     @Command(desc = "Ignores all messages from players")
-    public void ignore(CommandSource context, @Reader(Player.class) List<Player> players)
+    public void ignore(CommandSource context, List<Player> players)
     {
         if (!(context instanceof Player))
         {
@@ -123,12 +124,16 @@ public class IgnoreCommands
                 added.add(user.getName());
             }
         }
+        if (added.isEmpty())
+        {
+            return;
+        }
         i18n.sendTranslated(context, POSITIVE, "You added {user#list} to your ignore list!", StringUtils.implode(ChatFormat.WHITE + ", " + ChatFormat.DARK_GREEN, added));
     }
 
     @Command(desc = "Stops ignoring all messages from a player")
     @Restricted(value = Player.class, msg = "Congratulations! You are now looking at this text!")
-    public void unignore(Player context, @Reader(Player.class) List<Player> players)
+    public void unignore(Player context, List<Player> players)
     {
         List<String> added = new ArrayList<>();
         for (Player user : players)
@@ -141,6 +146,10 @@ public class IgnoreCommands
             {
                 added.add(user.getName());
             }
+        }
+        if (added.isEmpty())
+        {
+            return;
         }
         i18n.sendTranslated(context, POSITIVE, "You removed {user#list} from your ignore list!", StringUtils.implode(ChatFormat.WHITE + ", " + ChatFormat.DARK_GREEN, added));
     }
