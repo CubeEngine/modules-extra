@@ -38,6 +38,7 @@ import javax.inject.Inject;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.modularity.core.marker.Enable;
+import org.cubeengine.libcube.service.command.ModuleCommand;
 import org.cubeengine.module.authorization.storage.Auth;
 import org.cubeengine.module.authorization.storage.TableAuth;
 import org.cubeengine.libcube.util.StringUtils;
@@ -57,6 +58,7 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.manipulator.mutable.entity.JoinData;
 import org.spongepowered.api.data.value.BaseValue;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.user.UserStorageService;
 
 import static org.cubeengine.module.authorization.storage.TableAuth.TABLE_AUTH;
@@ -66,16 +68,12 @@ import static org.cubeengine.module.authorization.storage.TableAuth.TABLE_AUTH;
 public class Authorization extends Module
 {
     @Inject private FileManager fm;
-    @Inject private CommandManager cm;
-    @Inject private Game game;
-    @Inject private PermissionManager pm;
-    @Inject private I18n i18n;
-
+    @Inject private PermissionService ps;
     @Inject private Database db;
-    @Inject private EventManager em;
-
     @Inject private AuthPerms perms;
+
     @ModuleConfig private AuthConfiguration config;
+    @Inject @ModuleCommand private AuthCommands authCommands;
 
     private final MessageDigest messageDigest;
     private String salt;
@@ -93,12 +91,11 @@ public class Authorization extends Module
         }
     }
 
-
     @Enable
     public void onEnable()
     {
         loadSalt();
-        cm.addCommands(this, new AuthCommands(this, game, i18n, config));
+        ps.registerContextCalculator(new AuthContextCalculator(this));
     }
 
     private void loadSalt()
@@ -247,7 +244,6 @@ public class Authorization extends Module
             if (this.checkPassword(player.getUniqueId(), password))
             {
                 loggedIn.add(player.getUniqueId());
-                em.fireEvent(new PlayerAuthEvent(player));
             }
         }
         return isLoggedIn(player.getUniqueId());
@@ -262,5 +258,10 @@ public class Authorization extends Module
     public AuthPerms perms()
     {
         return perms;
+    }
+
+    public AuthConfiguration getConfig()
+    {
+        return config;
     }
 }

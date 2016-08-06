@@ -21,8 +21,11 @@ import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionContainer;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 
+import javax.inject.Inject;
+
 public class AuthPerms extends PermissionContainer
 {
+    @Inject
     public AuthPerms(PermissionManager pm)
     {
         super(pm, Authorization.class);

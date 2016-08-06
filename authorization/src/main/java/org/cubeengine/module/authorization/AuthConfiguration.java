@@ -25,6 +25,6 @@ public class AuthConfiguration extends ReflectedYaml
     @Comment("Enable fail2ban on login")
     public boolean fail2ban = true;
 
-    @Comment("Ban duration on fail2ban")
+    @Comment("Ban duration on fail2ban in seconds")
     public int banDuration = 10;
 }

@@ -32,7 +32,7 @@ import org.cubeengine.libcube.service.command.annotation.Unloggable;
 import org.cubeengine.libcube.service.command.exception.PermissionDeniedException;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.command.readers.PlayerList;
-import org.spongepowered.api.Game;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.ban.BanService;
@@ -43,23 +43,22 @@ import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
 
+import javax.inject.Inject;
+
 public class AuthCommands
 {
     private final Authorization module;
-    private final Game game;
-    private AuthConfiguration config;
     private final BanService bs;
     private I18n i18n;
 
     private final ConcurrentHashMap<UUID, Long> fails = new ConcurrentHashMap<>();
 
-    public AuthCommands(Authorization module, Game game, I18n i18n, AuthConfiguration config)
+    @Inject
+    public AuthCommands(Authorization module, I18n i18n)
     {
         this.module = module;
-        this.game = game;
-        this.config = config;
-        this.bs = game.getServiceManager().provideUnchecked(BanService.class);
         this.i18n = i18n;
+        this.bs = Sponge.getServiceManager().provideUnchecked(BanService.class);
     }
 
     @Unloggable
@@ -133,7 +132,7 @@ public class AuthCommands
             return;
         }
         i18n.sendTranslated(context, NEGATIVE, "Wrong password!");
-        if (config.fail2ban)
+        if (module.getConfig().fail2ban)
         {
             if (fails.get(context.getUniqueId()) != null)
             {
@@ -141,13 +140,13 @@ public class AuthCommands
                 {
                     Text msg = Text.of(i18n.getTranslation(context, NEGATIVE, "Too many wrong passwords!") + "\n"
                             + i18n.getTranslation(context, NEUTRAL, "For your security you were banned 10 seconds."));
-                    Instant expires = Instant.now().plus(config.banDuration, ChronoUnit.SECONDS);
-                    this.bs.addBan(Ban.builder().profile(context.getProfile()).reason(msg).expirationDate(expires).source(
-                        context).build());
-                    if (!game.getServer().getOnlineMode())
+                    Instant expires = Instant.now().plus(module.getConfig().banDuration, ChronoUnit.SECONDS);
+                    this.bs.addBan(Ban.builder().profile(context.getProfile()).reason(msg)
+                                      .expirationDate(expires).source(context).build());
+                    if (!Sponge.getServer().getOnlineMode())
                     {
-                        this.bs.addBan(Ban.builder().address(context.getConnection().getAddress().getAddress()).reason(
-                            msg).expirationDate(expires).source(context).build());
+                        this.bs.addBan(Ban.builder().address(context.getConnection().getAddress().getAddress()).reason(msg)
+                                          .expirationDate(expires).source(context).build());
                     }
                     context.kick(msg);
                 }
