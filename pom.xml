@@ -54,6 +54,7 @@
     <module>apiserver</module>
     <module>controlc</module>
     <module>freezedetection</module>
+    <module>discworld</module>
   </modules>
 
   <build>
