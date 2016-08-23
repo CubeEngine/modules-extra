@@ -32,6 +32,7 @@ import org.cubeengine.libcube.service.i18n.I18n;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.data.manipulator.mutable.item.PagedData;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.SignData;
+import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.data.value.mutable.ListValue;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -101,7 +102,7 @@ public class Writer extends Module
      */
     public boolean editBookInHand(Player user)
     {
-        Optional<ItemStack> oItem = user.getItemInHand();
+        Optional<ItemStack> oItem = user.getItemInHand(HandTypes.MAIN_HAND);
         if (!oItem.isPresent() || oItem.get().getItem() != WRITTEN_BOOK)
         {
             return false;
@@ -110,7 +111,7 @@ public class Writer extends Module
         ItemStack item = oItem.get();
         PagedData pages = item.get(PagedData.class).get();
         item = ItemStack.builder().itemType(WRITABLE_BOOK).itemData(pages).build();
-        user.setItemInHand(item);
+        user.setItemInHand(HandTypes.MAIN_HAND, item);
         i18n.sendTranslated(user, POSITIVE, "Your book is now unsigned and ready to be edited.");
         return true;
     }

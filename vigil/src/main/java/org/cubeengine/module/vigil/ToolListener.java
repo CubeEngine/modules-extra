@@ -25,6 +25,7 @@ import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.data.manipulator.mutable.DisplayNameData;
+import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
@@ -53,7 +54,7 @@ public class ToolListener
         {
             return;
         }
-        Optional<ItemStack> itemInHand = player.getItemInHand();
+        Optional<ItemStack> itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
         if (itemInHand.isPresent() && itemInHand.get().get(DisplayNameData.class)
                                         .map(data -> data.displayName().get().toPlain().equals(toolName.toPlain()))
                                         .orElse(false))

@@ -28,6 +28,7 @@ import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.meta.ItemEnchantment;
+import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.data.type.TreeType;
 import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.Entity;
@@ -79,16 +80,17 @@ public class ChopListener
     @Listener
     public void onChop(final ChangeBlockEvent.Break event, @First Player player)
     {
-        if (!player.getItemInHand().isPresent())
+        if (!player.getItemInHand(HandTypes.MAIN_HAND).isPresent())
         {
             return;
         }
-        ItemStack axe = player.getItemInHand().orElse(null);
+        ItemStack axe = player.getItemInHand(HandTypes.MAIN_HAND).orElse(null);
         if (axe == null || axe.getItem() != DIAMOND_AXE || axe.get(Keys.ITEM_DURABILITY).orElse(0) <= 0 ||
            !axe.get(Keys.ITEM_ENCHANTMENTS).orElse(emptyList()).contains(new ItemEnchantment(PUNCH, 5)))
         {
             return;
         }
+        Cause blockPlayerCause = Cause.of(NamedCause.source(player));
         for (Transaction<BlockSnapshot> transaction : event.getTransactions())
         {
             BlockType type = transaction.getOriginal().getState().getType();
@@ -112,10 +114,10 @@ public class ChopListener
                     {
                         if (!block.equals(orig))
                         {
-                            block.getExtent().playSound(SoundTypes.STEP_WOOD, block.getPosition(), 1);
+                            block.getExtent().playSound(SoundTypes.BLOCK_WOOD_STEP, block.getPosition(), 1);
                         }
                         logs++;
-                        block.setBlockType(AIR);
+                        block.setBlockType(AIR, blockPlayerCause);
                         BlockType belowTyp = block.getBlockRelative(DOWN).getBlockType();
                         if (belowTyp == DIRT || belowTyp == GRASS)
                         {
@@ -124,8 +126,8 @@ public class ChopListener
                     }
                     if (block.getBlockType() == LEAVES || block.getBlockType() == LEAVES2)
                     {
-                        block.setBlockType(AIR);
-                        block.getExtent().playSound(SoundTypes.STEP_GRASS, block.getPosition(), 1); // TODO leaves sound?
+                        block.setBlockType(AIR, blockPlayerCause);
+                        block.getExtent().playSound(SoundTypes.BLOCK_GRASS_STEP, block.getPosition(), 1); // TODO leaves sound?
                         leaves++;
                     }
                 }
@@ -155,7 +157,7 @@ public class ChopListener
                 {
                     if (leaves > 0)
                     {
-                        block.setBlockType(BlockTypes.SAPLING);
+                        block.setBlockType(BlockTypes.SAPLING, blockPlayerCause);
                         block.offer(TREE_TYPE, treeType);
                         leaves--;
                     }
@@ -164,7 +166,7 @@ public class ChopListener
 
                 final int uses = axe.get(Keys.ITEM_DURABILITY).get() - logs;
                 axe.offer(Keys.ITEM_DURABILITY, uses);
-                player.setItemInHand(axe);
+                player.setItemInHand(HandTypes.MAIN_HAND, axe);
 
                 World world = player.getWorld();
                 Entity itemEntity;
@@ -173,17 +175,17 @@ public class ChopListener
                 if (apples != 0)
                 {
                     ItemStack apple = ItemStack.builder().itemType(APPLE).quantity(apples).build();
-                    itemEntity = world.createEntity(ITEM, orig.getPosition()).get();
+                    itemEntity = world.createEntity(ITEM, orig.getPosition());
                     itemEntity.offer(REPRESENTED_ITEM, apple.createSnapshot());
                     world.spawnEntity(itemEntity, playerCause);
                 }
 
                 ItemStack sap = ItemStack.builder().itemType(SAPLING).quantity(leaves).build();
-                itemEntity = world.createEntity(ITEM, orig.getPosition()).get();
+                itemEntity = world.createEntity(ITEM, orig.getPosition());
                 itemEntity.offer(REPRESENTED_ITEM, sap.createSnapshot());
                 world.spawnEntity(itemEntity, playerCause);
 
-                itemEntity = world.createEntity(ITEM, orig.getPosition()).get();
+                itemEntity = world.createEntity(ITEM, orig.getPosition());
                 itemEntity.offer(REPRESENTED_ITEM, log.createSnapshot());
                 world.spawnEntity(itemEntity, playerCause);
                 return;

@@ -35,6 +35,7 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.SignData;
+import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
@@ -44,6 +45,7 @@ import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.Inventory;
+import org.spongepowered.api.item.inventory.InventoryArchetype;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.custom.CustomInventory;
 import org.spongepowered.api.item.inventory.property.SlotIndex;
@@ -88,7 +90,7 @@ public final class MarketSignManager
     private Map<UUID, ImmutableMarketSignData> previousSign = new HashMap<>(); // Player -> SignData
     private Map<UUID, Location<World>> activeSigns = new HashMap<>(); // Player -> SignLocs
     private Map<UUID, Long> breakingSign = new HashMap<>(); // Player -> currentTimeMillis
-    private Map<UUID, CustomInventory> signInventories = new HashMap<>(); // SignID -> Inventory
+    private Map<UUID, Inventory> signInventories = new HashMap<>(); // SignID -> Inventory
     private Map<UUID, Integer> signInventoryStock = new HashMap<>(); // InventoryID -> initialStock
 
     /**
@@ -214,9 +216,9 @@ public final class MarketSignManager
                 executeShowInfo(data, player, at);
                 return;
             } // else left
-            if (isOwner && player.getItemInHand().isPresent() && data.isItem(player.getItemInHand().get()))
+            if (isOwner && player.getItemInHand(HandTypes.MAIN_HAND).isPresent() && data.isItem(player.getItemInHand().get()))
             {
-                executeFill(data, player, player.getItemInHand().get(), at, false); // TODO last param true when oversized stacks are possible
+                executeFill(data, player, player.getItemInHand(HandTypes.MAIN_HAND).get(), at, false); // TODO last param true when oversized stacks are possible
                 return;
             }
             executeShowInventory(data, player, isOwner, at);
@@ -229,9 +231,9 @@ public final class MarketSignManager
         } // else left
         if (isOwner)
         {
-            if (player.getItemInHand().isPresent() && data.isItem(player.getItemInHand().get()))
+            if (player.getItemInHand(HandTypes.MAIN_HAND).isPresent() && data.isItem(player.getItemInHand(HandTypes.MAIN_HAND).get()))
             {
-                executeFill(data, player, player.getItemInHand().get(), at, false);
+                executeFill(data, player, player.getItemInHand(HandTypes.MAIN_HAND).get(), at, false);
                 return;
             }
             executeTryBreak(data, player, at);
@@ -307,7 +309,7 @@ public final class MarketSignManager
             }
         }
 
-        if (player.getItemInHand().isPresent())
+        if (player.getItemInHand(HandTypes.MAIN_HAND).isPresent())
         {
             i18n.sendTranslated(player, NEGATIVE, "Use your bare hands to break the sign!");
             return false;
@@ -318,14 +320,14 @@ public final class MarketSignManager
         {
             if (data.getStock() != null && data.getStock() == 1337)  //pssst i am not here
             {
-                Entity lightning = at.getExtent().createEntity(EntityTypes.LIGHTNING, at.getPosition()).get();
+                Entity lightning = at.getExtent().createEntity(EntityTypes.LIGHTNING, at.getPosition());
                 at.getExtent().spawnEntity(lightning, CauseUtil.spawnCause(player));
             }
 
             dropContents(data, at, CauseUtil.spawnCause(player));
             at.remove(MarketSignData.class);
             at.remove(SignData.class);
-            at.setBlock(BlockTypes.AIR.getDefaultState()); // TODO break particles + sound?
+            at.setBlock(BlockTypes.AIR.getDefaultState(), Cause.of(NamedCause.source(player))); // TODO break particles + sound?
             if (player.gameMode().get() != GameModes.CREATIVE)
             {
                 spawn(at, Cause.of(NamedCause.source(player)), ItemStack.builder().itemType(ItemTypes.SIGN).quantity(1).build());
@@ -509,7 +511,7 @@ public final class MarketSignManager
     {
         try // TODO remove once implemented
         {
-            CustomInventory.builder();
+            InventoryArchetype.builder();
         }
         catch (Exception e)
         {
@@ -523,7 +525,7 @@ public final class MarketSignManager
         }
         if (isOwner || (!data.isAdminOwner() && player.hasPermission(module.perms().EDIT_PLAYER_OTHER.getId())))
         {
-            CustomInventory inventory = signInventories.get(data.getID());
+            Inventory inventory = signInventories.get(data.getID());
             ItemStack item = data.getItem();
             if (inventory != null)
             {
@@ -536,7 +538,7 @@ public final class MarketSignManager
             {
                 size = 6;
             }
-            CustomInventory inv = CustomInventory.builder().name(name).size(size).build();
+            Inventory inv = Inventory.builder().name(name).size(size).build();
             signInventories.put(data.getID(), inv);
             signInventoryStock.put(inv.getUniqueId(), size * item.getMaxStackQuantity());
 
@@ -569,7 +571,7 @@ public final class MarketSignManager
         {
             Translation name = null; // TODO name marketsign owner
             // TODO Dispenser sized
-            CustomInventory inventory = CustomInventory.builder().name(name).size(1).build();
+            Inventory inventory = Inventory.builder().name(name).size(1).build();
             inventory.set(SlotIndex.of(4), data.getItem().copy()); // middle of dispenser
             igf.prepareInv(inventory, player.getUniqueId()).blockPutInAll().blockTakeOutAll().submitInventory(Signmarket.class, true);
             return;
@@ -626,7 +628,7 @@ public final class MarketSignManager
         else
         {
             item.setQuantity(item.getQuantity() - quantity);
-            player.setItemInHand(item.getQuantity() == 0 ? null : item);
+            player.setItemInHand(HandTypes.MAIN_HAND, item.getQuantity() == 0 ? null : item);
             i18n.sendTranslated(player, POSITIVE, "Added {amount}x {name#material} to the stock!", quantity,
                                 item.getTranslation().get(player.getLocale()));
         }

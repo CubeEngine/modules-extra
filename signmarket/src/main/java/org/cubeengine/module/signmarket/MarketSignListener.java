@@ -28,6 +28,8 @@ import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.type.HandType;
+import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
@@ -35,7 +37,7 @@ import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent.Primary;
 import org.spongepowered.api.event.block.tileentity.ChangeSignEvent;
-import org.spongepowered.api.event.entity.DisplaceEntityEvent;
+import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
@@ -138,7 +140,7 @@ public class MarketSignListener
     }
 
     @Listener
-    public void changeWorld(DisplaceEntityEvent.Teleport event)
+    public void changeWorld(MoveEntityEvent.Teleport event)
     {
         if (!(event.getTargetEntity() instanceof Player))
         {
@@ -187,9 +189,9 @@ public class MarketSignListener
                     return;
                 }
             }
-            else if (player.getItemInHand().isPresent())
+            else if (player.getItemInHand(HandTypes.MAIN_HAND).isPresent())
             {
-                manager.modifyItemActive(player, player.getItemInHand().get());
+                manager.modifyItemActive(player, player.getItemInHand(HandTypes.MAIN_HAND).get());
             }
             event.setCancelled(true);
             return;

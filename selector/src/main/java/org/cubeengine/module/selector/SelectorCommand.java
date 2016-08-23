@@ -23,6 +23,7 @@ import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.spongepowered.api.Game;
+import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.transaction.InventoryTransactionResult;
@@ -65,14 +66,14 @@ public class SelectorCommand
             }
         }
 */
-        Optional<ItemStack> itemInHand = user.getItemInHand();
+        Optional<ItemStack> itemInHand = user.getItemInHand(HandTypes.MAIN_HAND);
         if (found == null)
         {
             found = game.getRegistry().createBuilder(ItemStack.Builder.class).itemType(WOODEN_AXE).quantity(1).build();
             found.offer(DISPLAY_NAME, Text.of(TextColors.BLUE, "Selector-Tool"));
             found.offer(ITEM_LORE, Arrays.asList(Text.of("created by ", user.getName())));
 
-            user.setItemInHand(found);
+            user.setItemInHand(HandTypes.MAIN_HAND, found);
             if (itemInHand.isPresent())
             {
                 if (user.getInventory().offer(itemInHand.get()).getType() != InventoryTransactionResult.Type.SUCCESS)
@@ -84,7 +85,7 @@ public class SelectorCommand
             return;
         }
 
-        user.setItemInHand(found);
+        user.setItemInHand(HandTypes.MAIN_HAND, found);
         if (itemInHand.isPresent())
         {
             user.getInventory().offer(itemInHand.get());

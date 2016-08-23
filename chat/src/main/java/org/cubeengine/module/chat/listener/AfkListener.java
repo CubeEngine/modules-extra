@@ -24,8 +24,8 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.command.SendCommandEvent;
 import org.spongepowered.api.event.command.TabCompleteEvent;
-import org.spongepowered.api.event.entity.DisplaceEntityEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
+import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.entity.projectile.LaunchProjectileEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
@@ -46,14 +46,18 @@ public class AfkListener
     }
 
     @Listener(order = POST)
-    public void onMove(DisplaceEntityEvent.Move.TargetPlayer event)
+    public void onMove(MoveEntityEvent event)
     {
-        if (event.getFromTransform().getLocation().getBlockX() == event.getToTransform().getLocation().getBlockX()
-            && event.getFromTransform().getLocation().getBlockZ() == event.getToTransform().getLocation().getBlockZ())
+        if (event.getTargetEntity() instanceof Player)
         {
-            return;
+            if (event.getFromTransform().getLocation().getBlockX() == event.getToTransform().getLocation().getBlockX()
+                    && event.getFromTransform().getLocation().getBlockZ() == event.getToTransform().getLocation().getBlockZ())
+            {
+                return;
+            }
+            this.updateLastAction(((Player) event.getTargetEntity()));
         }
-        this.updateLastAction(event.getTargetEntity());
+
     }
 
     @Listener(order = POST)

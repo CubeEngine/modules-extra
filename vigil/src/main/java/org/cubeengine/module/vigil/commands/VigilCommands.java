@@ -31,6 +31,8 @@ import org.cubeengine.module.vigil.Vigil;
 import org.cubeengine.module.vigil.data.LookupData;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.type.HandType;
+import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
@@ -133,7 +135,7 @@ public class VigilCommands extends ContainerCommand
         itemStack.offer(Keys.ITEM_LORE, asList(i18n.getTranslation(player, NONE, "created by {name}", player.getName())));
         itemStack.offer(Keys.ITEM_ENCHANTMENTS, Collections.emptyList());
         itemStack.offer(new LookupData().with(player.getUniqueId()));
-        player.setItemInHand(itemStack);
+        player.setItemInHand(HandTypes.MAIN_HAND, itemStack);
         // TODO search in inventory
         // TODO put item in hand back into inventory
         i18n.sendTranslated(player, POSITIVE, "Received a new Log-Tool!");

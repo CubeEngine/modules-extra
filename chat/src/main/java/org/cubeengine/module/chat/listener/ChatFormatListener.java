@@ -29,7 +29,6 @@ import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
-import org.spongepowered.api.service.permission.option.OptionSubject;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 
@@ -81,11 +80,8 @@ public class ChatFormatListener
         replacements.put("{MESSAGE}", fromLegacy(msg, '&'));
         replacements.put("{PREFIX}", Text.of());
         replacements.put("{SUFFIX}", Text.of());
-        if (subject instanceof OptionSubject)
-        {
-            replacements.put("{PREFIX}", fromLegacy(((OptionSubject)subject).getOption("chat-prefix").orElse(""), '&'));
-            replacements.put("{SUFFIX}", fromLegacy(((OptionSubject)subject).getOption("chat-suffix").orElse(""), '&'));
-        }
+        replacements.put("{PREFIX}", fromLegacy(subject.getOption("chat-prefix").orElse(""), '&'));
+        replacements.put("{SUFFIX}", fromLegacy(subject.getOption("chat-suffix").orElse(""), '&'));
 
         event.setMessage(fromLegacy(this.getFormat(subject), replacements, '&'));
     }
@@ -93,10 +89,7 @@ public class ChatFormatListener
     protected String getFormat(Subject subject)
     {
         String format = this.module.getConfig().format;
-        if (subject instanceof OptionSubject)
-        {
-            format = ((OptionSubject)subject).getOption("chat-format").orElse(format);
-        }
+        subject.getOption("chat-format").orElse(format);
         return format;
     }
 }

@@ -31,6 +31,7 @@ import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
@@ -114,7 +115,7 @@ public class CuboidSelector implements Selector
         {
             return;
         }
-        Optional<ItemStack> itemInHand = player.getItemInHand();
+        Optional<ItemStack> itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
         if (!itemInHand.isPresent() || !"Selector-Tool".equals(itemInHand.get().get(Keys.DISPLAY_NAME).map(Text::toPlain).orElse("")))
         {
             return;
