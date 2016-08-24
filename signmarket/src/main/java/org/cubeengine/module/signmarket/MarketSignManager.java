@@ -17,20 +17,23 @@
  */
 package org.cubeengine.module.signmarket;
 
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.CRITICAL;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NONE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.module.signmarket.data.IMarketSignData.ADMIN_SIGN;
+import static org.spongepowered.api.text.format.TextColors.DARK_PURPLE;
+import static org.spongepowered.api.text.format.TextColors.GOLD;
+
+import org.cubeengine.libcube.service.command.exception.PermissionDeniedException;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.inventoryguard.InventoryGuardFactory;
 import org.cubeengine.libcube.util.CauseUtil;
 import org.cubeengine.module.signmarket.data.IMarketSignData;
 import org.cubeengine.module.signmarket.data.ImmutableMarketSignData;
 import org.cubeengine.module.signmarket.data.MarketSignData;
 import org.cubeengine.module.signmarket.data.SignType;
-import org.cubeengine.libcube.service.command.exception.PermissionDeniedException;
-import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.libcube.service.inventoryguard.InventoryGuardFactory;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.key.Keys;
@@ -46,9 +49,11 @@ import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.InventoryArchetype;
+import org.spongepowered.api.item.inventory.InventoryArchetypes;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.item.inventory.custom.CustomInventory;
+import org.spongepowered.api.item.inventory.property.IdentifiableProperty;
 import org.spongepowered.api.item.inventory.property.SlotIndex;
+import org.spongepowered.api.item.inventory.property.TitleProperty;
 import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
 import org.spongepowered.api.service.economy.transaction.ResultType;
@@ -65,11 +70,12 @@ import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import static org.cubeengine.module.signmarket.data.IMarketSignData.ADMIN_SIGN;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
-import static org.spongepowered.api.text.format.TextColors.DARK_PURPLE;
-import static org.spongepowered.api.text.format.TextColors.GOLD;
-import static org.spongepowered.api.text.format.TextColors.WHITE;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 public final class MarketSignManager
 {
@@ -165,7 +171,7 @@ public final class MarketSignManager
 
     private void spawn(Location<World> at, Cause cause, ItemStack copy)
     {
-        Entity spawn = at.getExtent().createEntity(EntityTypes.ITEM, at.getPosition()).get();
+        Entity spawn = at.getExtent().createEntity(EntityTypes.ITEM, at.getPosition());
         spawn.offer(Keys.REPRESENTED_ITEM, copy.createSnapshot());
         at.getExtent().spawnEntity(spawn, cause); // TODO random spawn velocity?
     }
@@ -216,7 +222,7 @@ public final class MarketSignManager
                 executeShowInfo(data, player, at);
                 return;
             } // else left
-            if (isOwner && player.getItemInHand(HandTypes.MAIN_HAND).isPresent() && data.isItem(player.getItemInHand().get()))
+            if (isOwner && player.getItemInHand(HandTypes.MAIN_HAND).isPresent() && data.isItem(player.getItemInHand(HandTypes.MAIN_HAND).get()))
             {
                 executeFill(data, player, player.getItemInHand(HandTypes.MAIN_HAND).get(), at, false); // TODO last param true when oversized stacks are possible
                 return;
@@ -538,9 +544,11 @@ public final class MarketSignManager
             {
                 size = 6;
             }
-            Inventory inv = Inventory.builder().name(name).size(size).build();
+            Inventory inv = Inventory.builder()
+                    .of(InventoryArchetypes.DISPENSER)
+                    .property("TitleProperty", TitleProperty.of(Text.of(name))).build();
             signInventories.put(data.getID(), inv);
-            signInventoryStock.put(inv.getUniqueId(), size * item.getMaxStackQuantity());
+            signInventoryStock.put(inv.getProperty(IdentifiableProperty.class, "IdentifiableProperty").get().getValue(), size * item.getMaxStackQuantity());
 
             ItemStack copy = item.copy();
             copy.setQuantity(-1);
@@ -550,7 +558,7 @@ public final class MarketSignManager
                 {
                     int newStock = inv.query(copy).totalItems();
                     Integer oldStock = data.getStock();
-                    Integer inventoryStock = signInventoryStock.get(inv.getUniqueId());
+                    Integer inventoryStock = signInventoryStock.get(inv.getProperty(IdentifiableProperty.class, "IdentifiableProperty").get().getValue());
                     data.setStock(oldStock - inventoryStock + newStock);
                 }
             };
@@ -571,8 +579,8 @@ public final class MarketSignManager
         {
             Translation name = null; // TODO name marketsign owner
             // TODO Dispenser sized
-            Inventory inventory = Inventory.builder().name(name).size(1).build();
-            inventory.set(SlotIndex.of(4), data.getItem().copy()); // middle of dispenser
+            Inventory inventory = Inventory.builder().of(InventoryArchetypes.DISPENSER).property("TitleProperty", TitleProperty.of(Text.of(name))).build();
+            inventory.query(SlotIndex.of(4)).set(data.getItem().copy()); // middle of dispenser
             igf.prepareInv(inventory, player.getUniqueId()).blockPutInAll().blockTakeOutAll().submitInventory(Signmarket.class, true);
             return;
         }
