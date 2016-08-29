@@ -23,19 +23,28 @@ import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.MemoryDataContainer;
-import org.spongepowered.api.data.Queries;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.KeyFactory;
-import org.spongepowered.api.data.persistence.DataBuilder;
-import org.spongepowered.api.data.persistence.DataSerializer;
+import org.spongepowered.api.data.persistence.DataTranslator;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.api.data.value.mutable.Value;
 
-public class SignTypeSerializer implements DataSerializer<SignType>
+public class SignTypeSerializer implements DataTranslator<SignType>
 {
     public static final Key<Value<String>> SIGN_TYPE = KeyFactory.makeSingleKey(String.class, Value.class, DataQuery.of("type"));
-
     private final TypeToken<SignType> token = TypeToken.of(SignType.class);
+
+    @Override
+    public String getId()
+    {
+        return "cubeengine:signmarket:signtype";
+    }
+
+    @Override
+    public String getName()
+    {
+        return "SignType Translator";
+    }
 
     @Override
     public TypeToken<SignType> getToken()
@@ -44,18 +53,18 @@ public class SignTypeSerializer implements DataSerializer<SignType>
     }
 
     @Override
-    public Optional<SignType> deserialize(DataView view) throws InvalidDataException
+    public SignType translate(DataView view) throws InvalidDataException
     {
         Optional<String> name = view.getString(SIGN_TYPE.getQuery());
         if (name.isPresent())
         {
-            return Optional.of(SignType.valueOf(name.get()));
+            return SignType.valueOf(name.get());
         }
-        return Optional.empty();
+        throw new InvalidDataException("Missing SignType Data");
     }
 
     @Override
-    public DataContainer serialize(SignType obj) throws InvalidDataException
+    public DataContainer translate(SignType obj) throws InvalidDataException
     {
         return new MemoryDataContainer().set(SIGN_TYPE, obj.name());
     }

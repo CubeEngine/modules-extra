@@ -536,29 +536,41 @@ public final class MarketSignManager
             if (inventory != null)
             {
                 i18n.sendTranslated(player, NEGATIVE, "This signs inventory is being edited right now!");
-                return;
+                // TODO dont allow this return;
             }
-            Translation name = null; // TODO name marketsign owner
+
             Integer size = data.getSize();
             if (size == -1)
             {
                 size = 6;
             }
             Inventory inv = Inventory.builder()
-                    .of(InventoryArchetypes.DISPENSER)
-                    .property("TitleProperty", TitleProperty.of(Text.of(name))).build();
+                    .of(InventoryArchetypes.CHEST)
+                    .property("TitleProperty", TitleProperty.of(Text.of("TODO Owner")))
+                    .property("IdentifiableProperty", new IdentifiableProperty()).build();
             signInventories.put(data.getID(), inv);
-            signInventoryStock.put(inv.getProperty(IdentifiableProperty.class, "IdentifiableProperty").get().getValue(), size * item.getMaxStackQuantity());
+            UUID key = UUID.randomUUID();
+            signInventoryStock.put(/*TODO getProperty is always empty MinecraftInventoryAdapter inv.getProperty(IdentifiableProperty.class,
+            "IdentifiableProperty").get().getValue()*/ key, size * item
+                    .getMaxStackQuantity());
+
+            ItemStack addAll = item.copy();
+            addAll.setQuantity(data.getStock());
+            inv.offer(addAll);
 
             ItemStack copy = item.copy();
             copy.setQuantity(-1);
 
             Runnable onClose = () -> {
+                signInventories.remove(data.getID());
                 if (data.getStock() != null)
                 {
                     int newStock = inv.query(copy).totalItems();
                     Integer oldStock = data.getStock();
-                    Integer inventoryStock = signInventoryStock.get(inv.getProperty(IdentifiableProperty.class, "IdentifiableProperty").get().getValue());
+                    Integer inventoryStock = signInventoryStock.get(key
+                            /*TODO getProperty is always empty MinecraftInventoryAdapter
+                            inv.getProperty(IdentifiableProperty.class, "IdentifiableProperty").get().getValue()*/);
+                    inventoryStock = inventoryStock == null ? 0 : inventoryStock;
                     data.setStock(oldStock - inventoryStock + newStock);
                 }
             };
@@ -653,7 +665,7 @@ public final class MarketSignManager
         else
         {
             player.sendMessage(Text.of());
-            i18n.sendTranslated(player, NONE, "--------- {text:Sign Market} ---------");   
+            i18n.sendTranslated(player, NONE, "--------- {text:Sign Market} ---------");
         }
 
         if (data.getSignType() == null)
@@ -664,15 +676,13 @@ public final class MarketSignManager
 
         if (data.getSignType() == SignType.BUY)
         {
-            // TODO no amount yet causes NPE
             i18n.sendTranslated(player, NONE, "{text:Buy:color=DARK_BLUE}: {amount} for {txt#price} from {user#owner}",
-                                data.getAmount(), formatPrice(data), getOwnerName(data));
+                                data.getAmount() == null ? 0 : data.getAmount(), formatPrice(data), getOwnerName(data));
         }
         else
         {
-            // TODO no amount yet causes NPE
             i18n.sendTranslated(player, NONE, "{text:Sell:color=DARK_BLUE}: {amount} for {txt#price} to {user#owner}",
-                                data.getAmount(), formatPrice(data), getOwnerName(data));
+                                data.getAmount() == null ? 0 : data.getAmount(), formatPrice(data), getOwnerName(data));
         }
 
         if (data.getItem() == null)
@@ -681,7 +691,7 @@ public final class MarketSignManager
             {
                 i18n.sendTranslated(player, TextFormat.of(TextColors.DARK_PURPLE), "No Item");
             }
-            else 
+            else
             {
                 i18n.sendTranslated(player, TextFormat.of(TextColors.DARK_RED), "No Item");
             }

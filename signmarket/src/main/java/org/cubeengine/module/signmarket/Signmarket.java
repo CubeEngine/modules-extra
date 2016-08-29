@@ -53,7 +53,7 @@ public class Signmarket extends Module
 
     public Signmarket()
     {
-        Sponge.getDataManager().registerSerializer(SignType.class, new SignTypeSerializer());
+        Sponge.getDataManager().registerTranslator(SignType.class, new SignTypeSerializer());
         Sponge.getDataManager().register(MarketSignData.class, ImmutableMarketSignData.class, new MarketSignDataBuilder());
     }
 
