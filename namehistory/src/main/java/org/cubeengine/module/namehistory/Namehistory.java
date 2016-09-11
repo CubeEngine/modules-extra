@@ -79,7 +79,7 @@ public class Namehistory extends Module
         HistoryFetcher.get(player.getUniqueId()).thenAccept(historyData -> {
             if (!historyData.isPresent() || historyData.get().names.size() <= 1)
             {
-                i18n.sendTranslated(context, NEGATIVE, "No NameHistory available for {user}", player);
+                i18n.sendTranslated(context, NEGATIVE, "No namehistory available for {user}", player);
                 return;
             }
             i18n.sendTranslated(context, POSITIVE, "The following names were known for {user}", player);
