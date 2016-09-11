@@ -46,6 +46,8 @@ import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.event.cause.entity.spawn.SpawnCause;
+import org.spongepowered.api.event.cause.entity.spawn.SpawnTypes;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.InventoryArchetype;
@@ -54,6 +56,7 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.property.IdentifiableProperty;
 import org.spongepowered.api.item.inventory.property.SlotIndex;
 import org.spongepowered.api.item.inventory.property.TitleProperty;
+import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
 import org.spongepowered.api.service.economy.transaction.ResultType;
@@ -159,6 +162,7 @@ public final class MarketSignManager
         copy.setQuantity(copy.getMaxStackQuantity());
         while (stock > copy.getMaxStackQuantity())
         {
+            // TODO SpawnTypes.DROPPED_ITEM cause?
             spawn(at, cause, copy);
             stock -= copy.getMaxStackQuantity();
         }
@@ -306,7 +310,7 @@ public final class MarketSignManager
                     return false;
                 }
                 // empty the sign first
-                takeItem(data, Cause.of(NamedCause.source(player)), at, player);
+                takeItem(data, CauseUtil.spawnCause(player), at, player); // TODO spawnType DISPENSE?
                 if (data.getStock() == 0)
                 {
                     breakingSign.remove(player.getUniqueId()); // double click again to actually break the sign
@@ -336,7 +340,7 @@ public final class MarketSignManager
             at.setBlock(BlockTypes.AIR.getDefaultState(), Cause.of(NamedCause.source(player))); // TODO break particles + sound?
             if (player.gameMode().get() != GameModes.CREATIVE)
             {
-                spawn(at, Cause.of(NamedCause.source(player)), ItemStack.builder().itemType(ItemTypes.SIGN).quantity(1).build());
+                spawn(at, CauseUtil.spawnCause(player), ItemStack.builder().itemType(ItemTypes.SIGN).quantity(1).build());
             }
             i18n.sendTranslated(player, POSITIVE, "MarketSign destroyed!");
             return true;
@@ -374,7 +378,7 @@ public final class MarketSignManager
 
         if (data.isOwner(player.getUniqueId()))
         {
-            takeItem(data, Cause.of(NamedCause.source(player)), loc, player);
+            takeItem(data, CauseUtil.spawnCause(player), loc, player);
             return;
         }
 
@@ -546,17 +550,26 @@ public final class MarketSignManager
             }
             Inventory inv = Inventory.builder()
                     .of(InventoryArchetypes.CHEST)
-                    .property("TitleProperty", TitleProperty.of(Text.of("TODO Owner")))
+                    .property("TitleProperty", TitleProperty.of(Text.of(getOwnerName(data))))
                     .property("IdentifiableProperty", new IdentifiableProperty()).build();
             signInventories.put(data.getID(), inv);
             UUID key = UUID.randomUUID();
             signInventoryStock.put(/*TODO getProperty is always empty MinecraftInventoryAdapter inv.getProperty(IdentifiableProperty.class,
-            "IdentifiableProperty").get().getValue()*/ key, size * item
-                    .getMaxStackQuantity());
+            "IdentifiableProperty").get().getValue()*/ key, Math.min(size * item
+                    .getMaxStackQuantity(), data.getStock()));
 
-            ItemStack addAll = item.copy();
-            addAll.setQuantity(data.getStock());
-            inv.offer(addAll);
+            // TODO would be nice to just offer a 64+ item stack and split it up in inventory impl.
+            // Offer stock to signinventory -->
+            Integer stockToAdd = data.getStock();
+            int maxStackSize = item.getMaxStackQuantity();
+            while (stockToAdd > 0)
+            {
+                ItemStack addAll = item.copy();
+                addAll.setQuantity(Math.min(stockToAdd, maxStackSize));
+                stockToAdd -= addAll.getQuantity();
+                inv.offer(addAll);
+            }
+            // --<
 
             ItemStack copy = item.copy();
             copy.setQuantity(-1);
@@ -565,13 +578,16 @@ public final class MarketSignManager
                 signInventories.remove(data.getID());
                 if (data.getStock() != null)
                 {
-                    int newStock = inv.query(copy).totalItems();
-                    Integer oldStock = data.getStock();
-                    Integer inventoryStock = signInventoryStock.get(key
+                    int newPageStock = inv.query(copy).totalItems();
+                    Integer totalStock = data.getStock();
+                    Integer oldPageStock = signInventoryStock.get(key
                             /*TODO getProperty is always empty MinecraftInventoryAdapter
                             inv.getProperty(IdentifiableProperty.class, "IdentifiableProperty").get().getValue()*/);
-                    inventoryStock = inventoryStock == null ? 0 : inventoryStock;
-                    data.setStock(oldStock - inventoryStock + newStock);
+                    oldPageStock = oldPageStock == null ? 0 : oldPageStock;
+                    data.setStock(totalStock - (oldPageStock - newPageStock));
+
+                    loc.offer(data);
+                    updateSignText(data, loc);
                 }
             };
 
@@ -858,8 +874,10 @@ public final class MarketSignManager
         {
             return "Server";
         }
+
         UserStorageService uss = Sponge.getServiceManager().provide(UserStorageService.class).get();
-        return uss.get(data.getOwner()).map(User::getName).orElse("???");
+
+        return uss.get(GameProfile.of(data.getOwner(), null)).map(User::getName).orElse("???");
     }
 
     public boolean isActive(Location<World> loc, Player player)

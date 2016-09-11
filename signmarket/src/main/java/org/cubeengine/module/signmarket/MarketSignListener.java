@@ -17,6 +17,7 @@
  */
 package org.cubeengine.module.signmarket;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 import org.cubeengine.libcube.service.i18n.I18n;
@@ -71,7 +72,7 @@ public class MarketSignListener
         {
             BlockSnapshot orig = transaction.getOriginal();
             BlockType type = orig.getState().getType();
-            if (type == STANDING_SIGN || type == BlockTypes.WALL_SIGN)
+            if (type == STANDING_SIGN || type == WALL_SIGN)
             {
                 if (orig.get(ImmutableMarketSignData.class).isPresent())
                 {
@@ -114,32 +115,6 @@ public class MarketSignListener
     }
 
     @Listener
-    public void onPlayerInteract(InteractBlockEvent event, @First Player player)
-    {
-        if (!event.getTargetBlock().getLocation().isPresent())
-        {
-            return;
-        }
-
-        Optional<ImmutableMarketSignData> mSignData = event.getTargetBlock().get(ImmutableMarketSignData.class);
-        if (!mSignData.isPresent())
-        {
-            return;
-        }
-
-        MarketSignData data = mSignData.get().asMutable();
-        Location<World> loc = event.getTargetBlock().getLocation().get();
-        manager.executeSignAction(data, loc, player, event instanceof InteractBlockEvent.Secondary);
-        if (loc.getBlockType() != AIR)
-        {
-            // TODO sign somehow is retained /w some invalid data
-            loc.offer(data);
-            manager.updateSignText(data, loc);
-            event.setCancelled(true);
-        }
-    }
-
-    @Listener
     public void changeWorld(MoveEntityEvent.Teleport event)
     {
         if (!(event.getTargetEntity() instanceof Player))
@@ -155,79 +130,96 @@ public class MarketSignListener
     @Listener
     public void onClick(InteractBlockEvent event, @First Player player)
     {
-        if (!module.getEditModeCommand().hasUser(player))
+        if (!event.getTargetBlock().getLocation().isPresent())
         {
             return;
         }
-        Optional<Location<World>> loc = event.getTargetBlock().getLocation();
-        if (!loc.isPresent())
+        Location<World> loc = event.getTargetBlock().getLocation().get();
+        BlockType blockType = loc.getBlockType();
+        if (!Arrays.asList(STANDING_SIGN, WALL_SIGN).contains(blockType))
         {
-            return;
-        }
-
-        if (!player.hasPermission(module.perms().EDIT_USE.getId()))
-        {
-            i18n.sendTranslated(player, NEGATIVE, "You are not allowed to edit MarketSigns here");
-            manager.exitEditMode(player);
-            module.getEditModeCommand().removeUser(player);
-            return;
+            return; // Not even a sign -> ignore
         }
 
-        boolean punch = event instanceof Primary;
+        boolean editMode = module.getEditModeCommand().hasUser(player);
         Boolean sneaking = player.get(Keys.IS_SNEAKING).get();
+        boolean punch = event instanceof Primary;
 
-        if (manager.isActive(loc.get(), player)) // Its the active MarketSign -> Break or Modify Item
+        Optional<MarketSignData> mSignData = event.getTargetBlock().get(ImmutableMarketSignData.class).map(ImmutableMarketSignData::asMutable);
+
+        if (editMode)
         {
-            if (sneaking) // Do nothing if sneaking
+            if (!player.hasPermission(module.perms().EDIT_USE.getId()))
             {
+                i18n.sendTranslated(player, NEGATIVE, "You are not allowed to edit MarketSigns here");
+                manager.exitEditMode(player);
+                module.getEditModeCommand().removeUser(player);
                 return;
             }
-            if (punch)
+
+            if (manager.isActive(loc, player)) // Its the active MarketSign -> Break or Modify Item
             {
-                if (manager.tryBreakActive(player))
+                if (sneaking) // Do nothing if sneaking
                 {
                     return;
                 }
+                if (punch)
+                {
+                    if (manager.tryBreakActive(player))
+                    {
+                        return;
+                    }
+                }
+                else if (player.getItemInHand(HandTypes.MAIN_HAND).isPresent())
+                {
+                    manager.modifyItemActive(player, player.getItemInHand(HandTypes.MAIN_HAND).get());
+                }
+                event.setCancelled(true);
+                return;
             }
-            else if (player.getItemInHand(HandTypes.MAIN_HAND).isPresent())
+
+            if (mSignData.isPresent()) // Its another MarketSign
             {
-                manager.modifyItemActive(player, player.getItemInHand(HandTypes.MAIN_HAND).get());
+                manager.setSign(loc, player); // Set Current Sign
+                event.setCancelled(true);
+                return;
             }
-            event.setCancelled(true);
-            return;
-        }
 
-        if (loc.get().get(MarketSignData.class).isPresent()) // Its another MarketSign
-        {
-            manager.setSign(loc.get(), player); // Set Current Sign
-            event.setCancelled(true);
-            return;
-        }
-
-        if (loc.get().getBlockType() != BlockTypes.STANDING_SIGN && loc.get().getBlockType() != BlockTypes.WALL_SIGN)
-        {
-            // Not even a sign -> ignore
-            return;
-        }
-        // Its a sign ; but no data yet
-        if (sneaking && !punch)
-        {
-            return;
-        }
-        if (!sneaking || !punch)
-        {
+            // Its a sign ; but no data yet
+            if (sneaking && !punch) // Sneak Interact -> Allow Interaction
+            {
+                return;
+            }
+            if (sneaking && punch) // Sneak AND Punch to convert sign
+            {
+                // sneak + punch -> convert it!
+                MarketSignData data = new MarketSignData();
+                data.setID(UUID.randomUUID());
+                data.setOwner(player.getUniqueId());
+                loc.offer(data); // Sign converted! Now set active
+                manager.setSign(loc, player);
+                event.setCancelled(true);
+                return;
+            }
             i18n.sendTranslated(player, NEGATIVE, "That is not a market sign!");
             i18n.sendTranslated(player, NEUTRAL, "Sneak and punch the sign convert it.");
             event.setCancelled(true);
             return;
         }
-        // sneark + punch -> convert it!
-        MarketSignData data = new MarketSignData();
-        data.setID(UUID.randomUUID());
-        data.setOwner(player.getUniqueId());
-        loc.get().offer(data); // Sign converted! Now set active
-        manager.setSign(loc.get(), player);
-        event.setCancelled(true);
+        if (!mSignData.isPresent())
+        {
+            return;
+        }
+
+        MarketSignData data = mSignData.get();
+        manager.executeSignAction(data, loc, player, event instanceof InteractBlockEvent.Secondary);
+        if (blockType != AIR)
+        {
+            // TODO sign somehow is retained /w some invalid data
+            loc.offer(data);
+            manager.updateSignText(data, loc);
+            event.setCancelled(true);
+        }
     }
 
     @Listener(order = Order.POST)
