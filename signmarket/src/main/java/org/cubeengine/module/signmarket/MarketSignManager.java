@@ -56,6 +56,7 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.property.IdentifiableProperty;
 import org.spongepowered.api.item.inventory.property.SlotIndex;
 import org.spongepowered.api.item.inventory.property.TitleProperty;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
@@ -87,13 +88,15 @@ public final class MarketSignManager
     private final EconomyService es;
     private Signmarket module;
     private InventoryGuardFactory igf;
+    private PluginContainer plugin;
 
-    public MarketSignManager(I18n i18n, EconomyService es, Signmarket module, InventoryGuardFactory igf)
+    public MarketSignManager(I18n i18n, EconomyService es, Signmarket module, InventoryGuardFactory igf, PluginContainer plugin)
     {
         this.i18n = i18n;
         this.es = es;
         this.module = module;
         this.igf = igf;
+        this.plugin = plugin;
     }
 
     private Map<UUID, ImmutableMarketSignData> previousSign = new HashMap<>(); // Player -> SignData
@@ -551,7 +554,7 @@ public final class MarketSignManager
             Inventory inv = Inventory.builder()
                     .of(InventoryArchetypes.CHEST)
                     .property("TitleProperty", TitleProperty.of(Text.of(getOwnerName(data))))
-                    .property("IdentifiableProperty", new IdentifiableProperty()).build();
+                    .property("IdentifiableProperty", new IdentifiableProperty()).build(plugin);
             signInventories.put(data.getID(), inv);
             UUID key = UUID.randomUUID();
             signInventoryStock.put(/*TODO getProperty is always empty MinecraftInventoryAdapter inv.getProperty(IdentifiableProperty.class,
@@ -607,7 +610,7 @@ public final class MarketSignManager
         {
             Translation name = null; // TODO name marketsign owner
             // TODO Dispenser sized
-            Inventory inventory = Inventory.builder().of(InventoryArchetypes.DISPENSER).property("TitleProperty", TitleProperty.of(Text.of(name))).build();
+            Inventory inventory = Inventory.builder().of(InventoryArchetypes.DISPENSER).property("TitleProperty", TitleProperty.of(Text.of(name))).build(plugin);
             inventory.query(SlotIndex.of(4)).set(data.getItem().copy()); // middle of dispenser
             igf.prepareInv(inventory, player.getUniqueId()).blockPutInAll().blockTakeOutAll().submitInventory(Signmarket.class, true);
             return;

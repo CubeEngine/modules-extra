@@ -33,6 +33,7 @@ import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.inventoryguard.InventoryGuardFactory;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.economy.EconomyService;
 
 @ModuleInfo(name = "SignMarket", description = "Adds a sign-based market")
@@ -44,6 +45,7 @@ public class Signmarket extends Module
     @Inject private I18n i18n;
     @Inject private InventoryGuardFactory igf;
     @Inject private PermissionManager pm;
+    @Inject private PluginContainer plugin;
 
     private MarketSignManager manager;
     private EditModeCommand editModeListener;
@@ -60,7 +62,7 @@ public class Signmarket extends Module
     @Inject @Enable
     public void onEnable(EconomyService es)
     {
-        manager = new MarketSignManager(i18n, es, this, igf);
+        manager = new MarketSignManager(i18n, es, this, igf, plugin);
         editModeListener = new EditModeCommand(getModularity(), cm, this, i18n, manager);
         em.registerListener(Signmarket.class, new MarketSignListener(manager, this, i18n));
         smCmds = new SignMarketCommands(cm, this, i18n);
