@@ -122,12 +122,6 @@ public class ImmutableMarketSignData extends AbstractImmutableData<ImmutableMark
     }
 
     @Override
-    public int compareTo(ImmutableMarketSignData o)
-    {
-        return IMarketSignData.compare(this, o);
-    }
-
-    @Override
     public int getContentVersion()
     {
         return 1;

@@ -97,12 +97,6 @@ public class LookupData extends AbstractData<LookupData, ImmutableLookupData> im
     }
 
     @Override
-    public int compareTo(LookupData o)
-    {
-        return ILookupData.compare(this, o);
-    }
-
-    @Override
     public LookupData copy()
     {
         return new LookupData().with(creator);

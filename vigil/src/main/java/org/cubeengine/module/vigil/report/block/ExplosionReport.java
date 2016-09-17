@@ -40,7 +40,7 @@ tnt
 wither
  */
 // TODO wait for Sponge implementation
-public class ExplosionReport extends BlockReport<ExplosionEvent.Detonate> implements Report.Readonly
+public class ExplosionReport extends BlockReport<ExplosionEvent.Post> implements Report.Readonly
 {
     @Override
     public void showReport(List<Action> actions, Receiver receiver)
@@ -61,7 +61,7 @@ public class ExplosionReport extends BlockReport<ExplosionEvent.Detonate> implem
     }
 
     @Listener(order = Order.POST)
-    public void listen(ExplosionEvent.Detonate event, @First Player player)
+    public void listen(ExplosionEvent.Post event, @First Player player)
     {
         // TODO cause filtering
         report(event);

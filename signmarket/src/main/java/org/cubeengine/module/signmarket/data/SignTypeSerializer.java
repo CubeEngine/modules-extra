@@ -17,6 +17,8 @@
  */
 package org.cubeengine.module.signmarket.data;
 
+import static org.spongepowered.api.data.DataQuery.of;
+
 import java.util.Optional;
 import com.google.common.reflect.TypeToken;
 import org.spongepowered.api.data.DataContainer;
@@ -31,7 +33,9 @@ import org.spongepowered.api.data.value.mutable.Value;
 
 public class SignTypeSerializer implements DataTranslator<SignType>
 {
-    public static final Key<Value<String>> SIGN_TYPE = KeyFactory.makeSingleKey(String.class, Value.class, DataQuery.of("type"));
+    public static final Key<Value<String>> SIGN_TYPE = KeyFactory.makeSingleKey(
+            new TypeToken<String>() {}, new TypeToken<Value<String>>() {},
+            of("type"), "cubeengine:signmarket:signtype", "Serializer");
     private final TypeToken<SignType> token = TypeToken.of(SignType.class);
 
     @Override

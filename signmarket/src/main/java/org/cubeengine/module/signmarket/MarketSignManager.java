@@ -23,6 +23,8 @@ import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NONE;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 import static org.cubeengine.module.signmarket.data.IMarketSignData.ADMIN_SIGN;
+import static org.spongepowered.api.item.inventory.InventoryArchetypes.CHEST;
+import static org.spongepowered.api.item.inventory.InventoryArchetypes.DISPENSER;
 import static org.spongepowered.api.text.format.TextColors.DARK_PURPLE;
 import static org.spongepowered.api.text.format.TextColors.GOLD;
 
@@ -46,16 +48,14 @@ import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
-import org.spongepowered.api.event.cause.entity.spawn.SpawnCause;
-import org.spongepowered.api.event.cause.entity.spawn.SpawnTypes;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.InventoryArchetype;
 import org.spongepowered.api.item.inventory.InventoryArchetypes;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.item.inventory.property.IdentifiableProperty;
+import org.spongepowered.api.item.inventory.property.Identifiable;
 import org.spongepowered.api.item.inventory.property.SlotIndex;
-import org.spongepowered.api.item.inventory.property.TitleProperty;
+import org.spongepowered.api.item.inventory.property.Title;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.service.economy.EconomyService;
@@ -552,9 +552,9 @@ public final class MarketSignManager
                 size = 6;
             }
             Inventory inv = Inventory.builder()
-                    .of(InventoryArchetypes.CHEST)
-                    .property("TitleProperty", TitleProperty.of(Text.of(getOwnerName(data))))
-                    .property("IdentifiableProperty", new IdentifiableProperty()).build(plugin);
+                    .of(CHEST)
+                    .property("TitleProperty", Title.of(Text.of(getOwnerName(data))))
+                    .property("IdentifiableProperty", new Identifiable()).build(plugin);
             signInventories.put(data.getID(), inv);
             UUID key = UUID.randomUUID();
             signInventoryStock.put(/*TODO getProperty is always empty MinecraftInventoryAdapter inv.getProperty(IdentifiableProperty.class,
@@ -610,7 +610,7 @@ public final class MarketSignManager
         {
             Translation name = null; // TODO name marketsign owner
             // TODO Dispenser sized
-            Inventory inventory = Inventory.builder().of(InventoryArchetypes.DISPENSER).property("TitleProperty", TitleProperty.of(Text.of(name))).build(plugin);
+            Inventory inventory = Inventory.builder().of(DISPENSER).property("TitleProperty", Title.of(Text.of(name))).build(plugin);
             inventory.query(SlotIndex.of(4)).set(data.getItem().copy()); // middle of dispenser
             igf.prepareInv(inventory, player.getUniqueId()).blockPutInAll().blockTakeOutAll().submitInventory(Signmarket.class, true);
             return;

@@ -109,12 +109,6 @@ public class PowertoolData extends AbstractData<PowertoolData, ImmutablePowertoo
     }
 
     @Override
-    public int compareTo(PowertoolData o)
-    {
-        return IPowertoolData.compare(this, o);
-    }
-
-    @Override
     public DataContainer toContainer()
     {
         return super.toContainer().set(POWERS, this.powers);

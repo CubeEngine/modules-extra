@@ -43,12 +43,6 @@ public class ImmutableLookupData extends AbstractImmutableData<ImmutableLookupDa
     }
 
     @Override
-    public int compareTo(ImmutableLookupData o)
-    {
-        return ILookupData.compare(this, o);
-    }
-
-    @Override
     public UUID getCreator()
     {
         return this.creator;

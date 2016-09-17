@@ -58,12 +58,6 @@ public class ImmutablePowertoolData extends AbstractImmutableData<ImmutablePower
     }
 
     @Override
-    public int compareTo(ImmutablePowertoolData o2)
-    {
-        return IPowertoolData.compare(this, o2);
-    }
-
-    @Override
     public int getContentVersion()
     {
         return 1;

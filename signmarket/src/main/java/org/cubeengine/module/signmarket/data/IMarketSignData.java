@@ -17,10 +17,13 @@
  */
 package org.cubeengine.module.signmarket.data;
 
+import static org.spongepowered.api.data.DataQuery.of;
+import static org.spongepowered.api.data.key.KeyFactory.makeSingleKey;
+
 import java.util.UUID;
-import org.spongepowered.api.data.DataQuery;
+
+import com.google.common.reflect.TypeToken;
 import org.spongepowered.api.data.key.Key;
-import org.spongepowered.api.data.key.KeyFactory;
 import org.spongepowered.api.data.value.mutable.Value;
 import org.spongepowered.api.item.inventory.ItemStack;
 
@@ -28,15 +31,26 @@ public interface IMarketSignData
 {
     UUID ADMIN_SIGN = UUID.nameUUIDFromBytes("ADMIN".getBytes());
 
-    Key<Value<UUID>> ID = KeyFactory.makeSingleKey(UUID.class, Value.class, DataQuery.of("id"));
-    Key<Value<SignType>> SIGN_TYPE = KeyFactory.makeSingleKey(SignType.class, Value.class, DataQuery.of("signType"));
-    Key<Value<UUID>> OWNER = KeyFactory.makeSingleKey(UUID.class, Value.class, DataQuery.of("owner"));
-    Key<Value<Integer>> AMOUNT = KeyFactory.makeSingleKey(Integer.class, Value.class, DataQuery.of("amount"));
-    Key<Value<Integer>> DEMAND = KeyFactory.makeSingleKey(Integer.class, Value.class, DataQuery.of("demand"));
-    Key<Value<Double>> PRICE = KeyFactory.makeSingleKey(Double.class, Value.class, DataQuery.of("price"));
-    Key<Value<ItemStack>> ITEM = KeyFactory.makeSingleKey(ItemStack.class, Value.class, DataQuery.of("item"));
-    Key<Value<Integer>> STOCK = KeyFactory.makeSingleKey(Integer.class, Value.class, DataQuery.of("stock"));
-    Key<Value<Integer>> SIZE = KeyFactory.makeSingleKey(Integer.class, Value.class, DataQuery.of("size"));
+    TypeToken<UUID> TT_UUID = new TypeToken<UUID>() {};
+    TypeToken<SignType> TT_SignType = new TypeToken<SignType>() {};
+    TypeToken<Value<UUID>> TTV_UUID = new TypeToken<Value<UUID>>() {};
+    TypeToken<Value<SignType>> TTV_SignType = new TypeToken<Value<SignType>>() {};
+    TypeToken<Integer> TT_Int = new TypeToken<Integer>() {};
+    TypeToken<Value<Integer>> TTV_Int = new TypeToken<Value<Integer>>() {};
+    TypeToken<Double> TT_Double = new TypeToken<Double>() {};
+    TypeToken<Value<Double>> TTV_Double = new TypeToken<Value<Double>>() {};
+    TypeToken<ItemStack> TT_ItemStack = new TypeToken<ItemStack>() {};
+    TypeToken<Value<ItemStack>> TTV_ItemStack = new TypeToken<Value<ItemStack>>() {};
+
+    Key<Value<UUID>> ID = makeSingleKey(TT_UUID, TTV_UUID, of("id"), "cubeengine:signmarket:signdata-id", "ID");
+    Key<Value<SignType>> SIGN_TYPE = makeSingleKey(TT_SignType, TTV_SignType, of("signType"), "cubeengine:signmarket:signdata-type", "SignType");
+    Key<Value<UUID>> OWNER = makeSingleKey(TT_UUID, TTV_UUID, of("owner"), "cubeengine:signmarket:signdata-owner", "Owner");
+    Key<Value<Integer>> AMOUNT = makeSingleKey(TT_Int, TTV_Int, of("amount"), "cubeengine:signmarket:signdata-amount", "Amount");
+    Key<Value<Integer>> DEMAND = makeSingleKey(TT_Int, TTV_Int, of("demand"), "cubeengine:signmarket:signdata-demand", "Demand");
+    Key<Value<Double>> PRICE = makeSingleKey(TT_Double, TTV_Double, of("price"), "cubeengine:signmarket:signdata-price", "Price");
+    Key<Value<ItemStack>> ITEM = makeSingleKey(TT_ItemStack, TTV_ItemStack, of("item"), "cubeengine:signmarket:signdata-item", "Item");
+    Key<Value<Integer>> STOCK = makeSingleKey(TT_Int, TTV_Int, of("stock"), "cubeengine:signmarket:signdata-stock", "Stock");
+    Key<Value<Integer>> SIZE = makeSingleKey(TT_Int, TTV_Int, of("size"), "cubeengine:signmarket:signdata-size", "Size");
 
     UUID getID();
     SignType getSignType();
@@ -47,11 +61,6 @@ public interface IMarketSignData
     ItemStack getItem();
     Integer getStock();
     Integer getSize();
-
-    static int compare(IMarketSignData o1, IMarketSignData o2)
-    {
-        return o1.getID().compareTo(o2.getID());
-    }
 
     MarketSignData asMutable();
 }

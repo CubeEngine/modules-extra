@@ -17,7 +17,12 @@
  */
 package org.cubeengine.module.vigil.data;
 
+import static org.spongepowered.api.data.DataQuery.of;
+import static org.spongepowered.api.data.key.KeyFactory.makeSingleKey;
+
 import java.util.UUID;
+
+import com.google.common.reflect.TypeToken;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.KeyFactory;
@@ -25,14 +30,12 @@ import org.spongepowered.api.data.value.mutable.Value;
 
 public interface ILookupData
 {
-    Key<Value<UUID>> CREATOR = KeyFactory.makeSingleKey(UUID.class, Value.class, DataQuery.of("creator"));
+
+    TypeToken<UUID> TT_UUID = new TypeToken<UUID>() {};
+    TypeToken<Value<UUID>> TTV_UUID = new TypeToken<Value<UUID>>() {};
+    Key<Value<UUID>> CREATOR = makeSingleKey(TT_UUID, TTV_UUID, of("creator"), "cubeengine:vigil:creator", "Creator");
 
     UUID getCreator();
 
     LookupData asMutable();
-
-    static int compare(ILookupData o1, ILookupData o2)
-    {
-        return o1.getCreator().compareTo(o2.getCreator());
-    }
 }

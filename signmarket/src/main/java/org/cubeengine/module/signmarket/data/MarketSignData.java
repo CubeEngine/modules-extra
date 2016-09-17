@@ -264,12 +264,6 @@ public class MarketSignData extends AbstractData<MarketSignData, ImmutableMarket
     }
 
     @Override
-    public int compareTo(MarketSignData o)
-    {
-        return IMarketSignData.compare(this, o);
-    }
-
-    @Override
     public MarketSignData asMutable()
     {
         return this;
