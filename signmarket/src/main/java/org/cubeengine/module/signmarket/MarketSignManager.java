@@ -54,6 +54,7 @@ import org.spongepowered.api.item.inventory.InventoryArchetype;
 import org.spongepowered.api.item.inventory.InventoryArchetypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.property.Identifiable;
+import org.spongepowered.api.item.inventory.property.InventoryDimension;
 import org.spongepowered.api.item.inventory.property.SlotIndex;
 import org.spongepowered.api.item.inventory.property.Title;
 import org.spongepowered.api.plugin.PluginContainer;
@@ -553,8 +554,9 @@ public final class MarketSignManager
             }
             Inventory inv = Inventory.builder()
                     .of(CHEST)
-                    .property("TitleProperty", Title.of(Text.of(getOwnerName(data))))
-                    .property("IdentifiableProperty", new Identifiable()).build(plugin);
+                    .property("title", Title.of(Text.of(getOwnerName(data))))
+                    .property("inventorydimension", new InventoryDimension(9, 6))
+                    .property("identifiable", new Identifiable()).build(plugin);
             signInventories.put(data.getID(), inv);
             UUID key = UUID.randomUUID();
             signInventoryStock.put(/*TODO getProperty is always empty MinecraftInventoryAdapter inv.getProperty(IdentifiableProperty.class,
@@ -610,7 +612,7 @@ public final class MarketSignManager
         {
             Translation name = null; // TODO name marketsign owner
             // TODO Dispenser sized
-            Inventory inventory = Inventory.builder().of(DISPENSER).property("TitleProperty", Title.of(Text.of(name))).build(plugin);
+            Inventory inventory = Inventory.builder().of(DISPENSER).property("title", Title.of(Text.of(name))).build(plugin);
             inventory.query(SlotIndex.of(4)).set(data.getItem().copy()); // middle of dispenser
             igf.prepareInv(inventory, player.getUniqueId()).blockPutInAll().blockTakeOutAll().submitInventory(Signmarket.class, true);
             return;
