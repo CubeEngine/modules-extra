@@ -104,7 +104,7 @@ public class MarketSignListener
                 else
                 {
                     if (relative.getBlockType() == WALL_SIGN
-                     && relative.get(Keys.DIRECTION).get().getOpposite() == blockFace) // TODO right direction check?
+                     && relative.get(Keys.DIRECTION).get() == blockFace)
                     {
                         event.setCancelled(true);
                         return;
@@ -218,7 +218,7 @@ public class MarketSignListener
             // TODO sign somehow is retained /w some invalid data
             loc.offer(data);
             manager.updateSignText(data, loc);
-            event.setCancelled(true);
+            //event.setCancelled(true);
         }
     }
 

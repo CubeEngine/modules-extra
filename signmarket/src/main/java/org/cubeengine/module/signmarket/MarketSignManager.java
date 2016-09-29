@@ -27,6 +27,7 @@ import static org.spongepowered.api.item.inventory.InventoryArchetypes.CHEST;
 import static org.spongepowered.api.item.inventory.InventoryArchetypes.DISPENSER;
 import static org.spongepowered.api.text.format.TextColors.DARK_PURPLE;
 import static org.spongepowered.api.text.format.TextColors.GOLD;
+import static org.spongepowered.api.text.format.TextColors.LIGHT_PURPLE;
 
 import org.cubeengine.libcube.service.command.exception.PermissionDeniedException;
 import org.cubeengine.libcube.service.i18n.I18n;
@@ -56,6 +57,7 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.property.Identifiable;
 import org.spongepowered.api.item.inventory.property.InventoryDimension;
 import org.spongepowered.api.item.inventory.property.SlotIndex;
+import org.spongepowered.api.item.inventory.property.SlotPos;
 import org.spongepowered.api.item.inventory.property.Title;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.profile.GameProfile;
@@ -220,8 +222,11 @@ public final class MarketSignManager
             return;
         }
 
-        // TODO prevent when inventory
-//        i18n.sendTranslated(player, NEGATIVE, "This signs inventory is being edited right now!");
+        if (this.signInventories.containsKey(data.getID()))
+        {
+            i18n.sendTranslated(player, NEGATIVE, "This signs inventory is being edited right now!");
+            return;
+        }
 
         if (player.get(Keys.IS_SNEAKING).get())
         {
@@ -558,6 +563,7 @@ public final class MarketSignManager
                     .property("inventorydimension", new InventoryDimension(9, 6))
                     .property("identifiable", new Identifiable()).build(plugin);
             signInventories.put(data.getID(), inv);
+            updateSignText(data, loc);
             UUID key = UUID.randomUUID();
             signInventoryStock.put(/*TODO getProperty is always empty MinecraftInventoryAdapter inv.getProperty(IdentifiableProperty.class,
             "IdentifiableProperty").get().getValue()*/ key, Math.min(size * item
@@ -597,6 +603,7 @@ public final class MarketSignManager
             };
 
             igf.prepareInv(inv, player.getUniqueId()).blockPutInAll().blockTakeOutAll().onClose(onClose);
+            item.setQuantity(0);
             if (data.getSignType() == SignType.BUY)
             {
                 igf.notBlockPutIn(item).notBlockTakeOut(item);
@@ -610,10 +617,9 @@ public final class MarketSignManager
         }
         if (player.hasPermission(module.perms().INTERACT_INVENTORY.getId()) || data.isOwner(player.getUniqueId()))
         {
-            Translation name = null; // TODO name marketsign owner
-            // TODO Dispenser sized
+            String name = getOwnerName(data);
             Inventory inventory = Inventory.builder().of(DISPENSER).property("title", Title.of(Text.of(name))).build(plugin);
-            inventory.query(SlotIndex.of(4)).set(data.getItem().copy()); // middle of dispenser
+            inventory.query(new SlotPos(1,1)).set(data.getItem().copy()); // middle of dispenser
             igf.prepareInv(inventory, player.getUniqueId()).blockPutInAll().blockTakeOutAll().submitInventory(Signmarket.class, true);
             return;
         }
@@ -758,6 +764,11 @@ public final class MarketSignManager
 
         // First Line: SignType
         TextColor color = inEditMode ? DARK_PURPLE : !isValid ? TextColors.DARK_RED : isAdmin ? TextColors.BLUE : TextColors.DARK_BLUE;
+        if (this.signInventories.containsKey(data.getID()))
+        {
+            color = LIGHT_PURPLE;
+        }
+
         String raw;
         if (data.getSignType() != null)
         {
