@@ -25,6 +25,7 @@ import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE
 import static org.cubeengine.module.signmarket.data.IMarketSignData.ADMIN_SIGN;
 import static org.spongepowered.api.item.inventory.InventoryArchetypes.CHEST;
 import static org.spongepowered.api.item.inventory.InventoryArchetypes.DISPENSER;
+import static org.spongepowered.api.text.chat.ChatTypes.ACTION_BAR;
 import static org.spongepowered.api.text.format.TextColors.DARK_PURPLE;
 import static org.spongepowered.api.text.format.TextColors.GOLD;
 import static org.spongepowered.api.text.format.TextColors.LIGHT_PURPLE;
@@ -69,6 +70,7 @@ import org.spongepowered.api.service.economy.transaction.TransferResult;
 import org.spongepowered.api.service.user.UserStorageService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
+import org.spongepowered.api.text.chat.ChatTypes;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextFormat;
@@ -206,12 +208,6 @@ public final class MarketSignManager
 
         boolean isOwner = data.isOwner(player.getUniqueId());
 
-        if (isOwner && !player.hasPermission(module.perms().EDIT_PLAYER_OTHER.getId()))
-        {
-            // TODO?
-            return;
-        }
-
         if (isInEditMode(at))
         {
             i18n.sendTranslated(player, NEGATIVE, "This sign is being edited right now!");
@@ -237,7 +233,7 @@ public final class MarketSignManager
             } // else left
             if (isOwner && player.getItemInHand(HandTypes.MAIN_HAND).isPresent() && data.isItem(player.getItemInHand(HandTypes.MAIN_HAND).get()))
             {
-                executeFill(data, player, player.getItemInHand(HandTypes.MAIN_HAND).get(), at, false); // TODO last param true when oversized stacks are possible
+                executeFill(data, player, player.getItemInHand(HandTypes.MAIN_HAND).get(), at, true);
                 return;
             }
             executeShowInventory(data, player, isOwner, at);
@@ -255,8 +251,8 @@ public final class MarketSignManager
                 executeFill(data, player, player.getItemInHand(HandTypes.MAIN_HAND).get(), at, false);
                 return;
             }
-            executeTryBreak(data, player, at);
         }
+        executeTryBreak(data, player, at);
     }
 
     public boolean tryBreakActive(Player player)
@@ -281,9 +277,8 @@ public final class MarketSignManager
         i18n.sendTranslated(player, POSITIVE, "Item in sign updated!");
     }
 
-    private boolean executeTryBreak(MarketSignData data, Player player, Location<World> at)
+    public boolean executeTryBreak(MarketSignData data, Player player, Location<World> at)
     {
-
         if (data.isOwner(player.getUniqueId()) && !player.hasPermission(module.perms().EDIT_PLAYER_SELF.getId()))
         {
             i18n.sendTranslated(player, NEGATIVE, "You are not allowed to break your own market signs!");
@@ -315,6 +310,7 @@ public final class MarketSignManager
             {
                 if (!isDoubleClick)
                 {
+                    breakingSign.put(player.getUniqueId(), System.currentTimeMillis());
                     i18n.sendTranslated(player, NEUTRAL, "Double click to empty and break the sign!");
                     return false;
                 }
@@ -330,7 +326,7 @@ public final class MarketSignManager
 
         if (player.getItemInHand(HandTypes.MAIN_HAND).isPresent())
         {
-            i18n.sendTranslated(player, NEGATIVE, "Use your bare hands to break the sign!");
+            i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "Use your bare hands to break the sign!");
             return false;
         }
 
@@ -346,7 +342,7 @@ public final class MarketSignManager
             dropContents(data, at, CauseUtil.spawnCause(player));
             at.remove(MarketSignData.class);
             at.remove(SignData.class);
-            at.setBlock(BlockTypes.AIR.getDefaultState(), Cause.of(NamedCause.source(player))); // TODO break particles + sound?
+            at.setBlock(BlockTypes.AIR.getDefaultState(), Cause.of(NamedCause.source(plugin))); // TODO break particles + sound?
             if (player.gameMode().get() != GameModes.CREATIVE)
             {
                 spawn(at, CauseUtil.spawnCause(player), ItemStack.builder().itemType(ItemTypes.SIGN).quantity(1).build());
@@ -355,7 +351,7 @@ public final class MarketSignManager
             return true;
         }
         breakingSign.put(player.getUniqueId(), System.currentTimeMillis());
-        i18n.sendTranslated(player, NEUTRAL, "Double click to break the sign!");
+        i18n.sendTranslated(ACTION_BAR, player, NEUTRAL, "Double click to break the sign!");
         return false;
     }
 
@@ -364,7 +360,7 @@ public final class MarketSignManager
         int amount = Math.min(data.getStock(), data.getItem().getMaxStackQuantity());
         if (amount == 0)
         {
-            i18n.sendTranslated(player, NEGATIVE, "There are no more items stored in the sign!");
+            i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "There are no more items stored in the sign!");
             return;
         }
         data.setStock(data.getStock() - amount);
@@ -377,7 +373,7 @@ public final class MarketSignManager
     {
         if (isInEditMode(loc))
         {
-            i18n.sendTranslated(player, NEGATIVE, "This sign is being edited right now!");
+            i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "This sign is being edited right now!");
             return;
         }
         if (!isValidSign(data, null))
@@ -411,19 +407,19 @@ public final class MarketSignManager
     {
         if (!player.hasPermission(module.perms().INTERACT_SELL.getId()))
         {
-            i18n.sendTranslated(player, NEGATIVE, "You are not allowed to use sell market signs!");
+            i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "You are not allowed to use sell market signs!");
             return;
         }
 
         if (data.isSatisfied())
         {
-            i18n.sendTranslated(player, NEGATIVE, "This market sign is {text:satisfied:color=DARK_RED}! You can no longer sell items to it.");
+            i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "This market sign is {text:satisfied:color=DARK_RED}! You can no longer sell items to it.");
             return;
         }
 
         if (data.getStock() != null && data.getMax() != -1 && data.getMax() < data.getStock() + data.getAmount())
         {
-            i18n.sendTranslated(player, NEGATIVE, "This market sign is {text:full:color=DARK_RED}! You can no longer sell items to it.");
+            i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "This market sign is {text:full:color=DARK_RED}! You can no longer sell items to it.");
             return;
         }
 
@@ -432,7 +428,7 @@ public final class MarketSignManager
         int itemsInInventory = player.getInventory().query(copy).totalItems(); // TODO ignore repaircost?
         if (data.getAmount() > itemsInInventory)
         {
-            i18n.sendTranslated(player, NEGATIVE, "You do not have enough items to sell!");
+            i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "You do not have enough items to sell!");
             return;
         }
 
@@ -442,7 +438,7 @@ public final class MarketSignManager
             TransferResult result = owner.transfer(seller, es.getDefaultCurrency(), getPrice(data), Cause.of(NamedCause.source(seller)));
             if (result.getResult() != ResultType.SUCCESS)
             {
-                i18n.sendTranslated(player, NEGATIVE, "The owner cannot afford the money to acquire your items!");
+                i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "The owner cannot afford the money to acquire your items!");
                 return;
             }
         }
@@ -469,13 +465,13 @@ public final class MarketSignManager
     {
         if (!player.hasPermission(module.perms().INTERACT_BUY.getId()))
         {
-            i18n.sendTranslated(player, NEGATIVE, "You are not allowed to use buy market signs!");
+            i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "You are not allowed to use buy market signs!");
             return;
         }
 
         if (data.getStock() != null && data.getStock() < data.getAmount())
         {
-            i18n.sendTranslated(player, NEGATIVE, "This market sign is {text:Sold Out:color=DARK_RED}!");
+            i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "This market sign is {text:Sold Out:color=DARK_RED}!");
             return;
         }
 
@@ -487,7 +483,7 @@ public final class MarketSignManager
         if (remaining != 0)
         {
             player.getInventory().query(copy).poll(remaining);
-            i18n.sendTranslated(player, NEGATIVE, "You don't have enough space in your inventory for these items!");
+            i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "You don't have enough space in your inventory for these items!");
             return;
         }
 
@@ -495,7 +491,7 @@ public final class MarketSignManager
         {
             player.getInventory().query(copy).poll(data.getAmount());
             account.deposit(es.getDefaultCurrency(), getPrice(data), Cause.of(NamedCause.source(player)));
-            i18n.sendTranslated(player, NEGATIVE, "You can't afford these items!");
+            i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "You can't afford these items!");
             return;
         }
         if (!data.isAdminOwner())
@@ -528,16 +524,6 @@ public final class MarketSignManager
 
     private void executeShowInventory(MarketSignData data, Player player, boolean isOwner, Location<World> loc)
     {
-        try // TODO remove once implemented
-        {
-            InventoryArchetype.builder();
-        }
-        catch (Exception e)
-        {
-            i18n.sendTranslated(player, CRITICAL, "Custom Inventories are still missing!");
-            return;
-        }
-
         if (isInEditMode(loc))
         {
             return;
@@ -548,7 +534,7 @@ public final class MarketSignManager
             ItemStack item = data.getItem();
             if (inventory != null)
             {
-                i18n.sendTranslated(player, NEGATIVE, "This signs inventory is being edited right now!");
+                i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "This signs inventory is being edited right now!");
                 // TODO dont allow this return;
             }
 
@@ -623,7 +609,7 @@ public final class MarketSignManager
             igf.prepareInv(inventory, player.getUniqueId()).blockPutInAll().blockTakeOutAll().submitInventory(Signmarket.class, true);
             return;
         }
-        i18n.sendTranslated(player, NEGATIVE, "You are not allowed to see the market signs inventories");
+        i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "You are not allowed to see the market signs inventories");
     }
 
     private void executeFill(MarketSignData data, Player player, ItemStack item, Location<World> loc, boolean all)
@@ -638,7 +624,7 @@ public final class MarketSignManager
         if (isInEditMode(loc))
         {
             // TODO viewers of inventory?
-            i18n.sendTranslated(player, NEGATIVE, "This signs inventory is being edited right now!");
+            i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "This signs inventory is being edited right now!");
             return;
         }
         ItemStack copy = item.copy();
@@ -657,11 +643,11 @@ public final class MarketSignManager
             if (quantity > max)
             {
                 quantity = max;
-                i18n.sendTranslated(player, NEGATIVE, "The market sign cannot hold all your items!");
+                i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "The market sign cannot hold all your items!");
             }
             if (max <= 0)
             {
-                i18n.sendTranslated(player, NEGATIVE, "The market sign inventory is full!");
+                i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "The market sign inventory is full!");
                 return;
             }
         }
@@ -669,14 +655,14 @@ public final class MarketSignManager
         if (all)
         {
             player.getInventory().query(copy).poll(quantity);
-            i18n.sendTranslated(player, POSITIVE, "Added all ({amount}) {name#material} to the stock!", quantity,
+            i18n.sendTranslated(ACTION_BAR, player, POSITIVE, "Added all ({amount}) {name#material} to the stock!", quantity,
                                 item.getTranslation().get(player.getLocale()));
         }
         else
         {
             item.setQuantity(item.getQuantity() - quantity);
             player.setItemInHand(HandTypes.MAIN_HAND, item.getQuantity() == 0 ? null : item);
-            i18n.sendTranslated(player, POSITIVE, "Added {amount}x {name#material} to the stock!", quantity,
+            i18n.sendTranslated(ACTION_BAR, player, POSITIVE, "Added {amount}x {name#material} to the stock!", quantity,
                                 item.getTranslation().get(player.getLocale()));
         }
     }
@@ -758,6 +744,12 @@ public final class MarketSignManager
 
     public void updateSignText(MarketSignData data, Location<World> loc)
     {
+        SignData sign = loc.get(SignData.class).orElse(null);
+        if (sign == null)
+        {
+            return;
+        }
+
         boolean isValid = isValidSign(data, null);
         boolean inEditMode = isInEditMode(loc);
         boolean isAdmin = data.isAdminOwner();
@@ -852,7 +844,6 @@ public final class MarketSignManager
                         .toBuilder().color(TextColors.BLACK).build();
         }
 
-        SignData sign = loc.get(SignData.class).get();
         sign.setElements(Arrays.asList(line1, line2, line3, line4));
         loc.offer(sign);
     }
@@ -905,7 +896,7 @@ public final class MarketSignManager
     {
         if (activeSigns.values().contains(loc))
         {
-            i18n.sendTranslated(player, NEGATIVE, "Someone else is editing this sign!");
+            i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "Someone else is editing this sign!");
             return;
         }
 
@@ -944,7 +935,7 @@ public final class MarketSignManager
             updateSignText(prevData.asMutable(), last);
         }
         updateSignText(loc.get(MarketSignData.class).get(), loc);
-        i18n.sendTranslated(player, POSITIVE, "Changed active sign!");
+        i18n.sendTranslated(ACTION_BAR, player, POSITIVE, "Changed active sign!");
     }
 
     public void exitEditMode(Player player)

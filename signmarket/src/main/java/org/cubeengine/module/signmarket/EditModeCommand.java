@@ -31,6 +31,7 @@ import org.cubeengine.module.signmarket.data.ImmutableMarketSignData;
 import org.cubeengine.module.signmarket.data.MarketSignData;
 import org.cubeengine.module.signmarket.data.SignType;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -73,7 +74,7 @@ public class EditModeCommand extends ConversationCommand
     public void copy(Player context)
     {
         ImmutableMarketSignData data = manager.getPreviousData(context);
-        if (data != null)
+        if (data == null)
         {
             i18n.sendTranslated(context, NEGATIVE, "No previous market sign");
             return;
@@ -225,7 +226,7 @@ public class EditModeCommand extends ConversationCommand
     }
 
     @Command(desc = "Changes the signs owner")
-    public void owner(Player context, Player owner)
+    public void owner(Player context, User owner)
     {
         if (!context.equals(owner))
         {

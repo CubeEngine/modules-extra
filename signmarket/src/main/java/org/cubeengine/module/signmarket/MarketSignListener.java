@@ -32,6 +32,7 @@ import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.type.HandType;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
@@ -74,10 +75,14 @@ public class MarketSignListener
             BlockType type = orig.getState().getType();
             if (type == STANDING_SIGN || type == WALL_SIGN)
             {
-                if (orig.get(ImmutableMarketSignData.class).isPresent())
+                Optional<ImmutableMarketSignData> signData = orig.get(ImmutableMarketSignData.class);
+                if (signData.isPresent())
                 {
-                    event.setCancelled(true);
-                    return;
+                    if (signData.get().getSignType() != null)
+                    {
+                        event.setCancelled(true);
+                        return;
+                    }
                 }
             }
 
@@ -169,8 +174,13 @@ public class MarketSignListener
                     {
                         return;
                     }
+                    else
+                    {
+                        event.setCancelled(true); // TODO resend signtext?
+                    }
                 }
-                else if (player.getItemInHand(HandTypes.MAIN_HAND).isPresent())
+
+                if (!punch && player.getItemInHand(HandTypes.MAIN_HAND).isPresent())
                 {
                     manager.modifyItemActive(player, player.getItemInHand(HandTypes.MAIN_HAND).get());
                 }
