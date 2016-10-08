@@ -75,7 +75,7 @@ public class ReportUtil
                 ItemStack item = ItemStack.builder().fromContainer(itemData).build();
 
                 builder.append(Text.of(dataView.getInt(DataQuery.of("Slot")).get()).toBuilder()
-                                   .onHover(showItem(item)).build());
+                                   .onHover(showItem(item.createSnapshot())).build());
                 builder.append(Text.of(" "));
             }
             builder.append(Text.of("]"));

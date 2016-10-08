@@ -725,7 +725,7 @@ public final class MarketSignManager
         }
         else
         {
-            Text itemText = getItemText(data, inEditMode).toBuilder().color(GOLD).onHover(TextActions.showItem(data.getItem())).build();
+            Text itemText = getItemText(data, inEditMode).toBuilder().color(GOLD).onHover(TextActions.showItem(data.getItem().createSnapshot())).build();
             player.sendMessage(itemText);
         }
 

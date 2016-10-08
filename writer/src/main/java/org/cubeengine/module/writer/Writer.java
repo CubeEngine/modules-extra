@@ -129,7 +129,7 @@ public class Writer extends Module
      */
     public boolean editSignInSight(Player user, String line1, String line2, String line3, String line4)
     {
-        Optional<BlockRayHit<World>> end = BlockRay.from(user.getLocation().add(0,1.62,0)).filter(BlockRay.onlyAirFilter()).blockLimit(10).end();
+        Optional<BlockRayHit<World>> end = BlockRay.from(user.getLocation().add(0,1.62,0)).stopFilter(BlockRay.onlyAirFilter()).distanceLimit(10).end();
         if (!end.isPresent())
         {
             return false;
