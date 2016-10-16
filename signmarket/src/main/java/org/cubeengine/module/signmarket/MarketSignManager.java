@@ -17,7 +17,6 @@
  */
 package org.cubeengine.module.signmarket;
 
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.CRITICAL;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NONE;
@@ -52,12 +51,9 @@ import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.Inventory;
-import org.spongepowered.api.item.inventory.InventoryArchetype;
-import org.spongepowered.api.item.inventory.InventoryArchetypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.property.Identifiable;
 import org.spongepowered.api.item.inventory.property.InventoryDimension;
-import org.spongepowered.api.item.inventory.property.SlotIndex;
 import org.spongepowered.api.item.inventory.property.SlotPos;
 import org.spongepowered.api.item.inventory.property.Title;
 import org.spongepowered.api.plugin.PluginContainer;
@@ -75,7 +71,6 @@ import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextFormat;
 import org.spongepowered.api.text.format.TextStyles;
-import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -215,6 +210,14 @@ public final class MarketSignManager
         }
         if (!isValidSign(data, null))
         {
+            if (!right)
+            {
+                executeTryBreak(data, player, at);
+            }
+            else
+            {
+                i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "This marketsign is invalid!");
+            }
             return;
         }
 
