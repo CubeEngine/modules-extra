@@ -54,8 +54,8 @@ import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.property.Identifiable;
 import org.spongepowered.api.item.inventory.property.InventoryDimension;
+import org.spongepowered.api.item.inventory.property.InventoryTitle;
 import org.spongepowered.api.item.inventory.property.SlotPos;
-import org.spongepowered.api.item.inventory.property.Title;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.service.economy.EconomyService;
@@ -66,7 +66,6 @@ import org.spongepowered.api.service.economy.transaction.TransferResult;
 import org.spongepowered.api.service.user.UserStorageService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
-import org.spongepowered.api.text.chat.ChatTypes;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextFormat;
@@ -548,8 +547,8 @@ public final class MarketSignManager
             }
             Inventory inv = Inventory.builder()
                     .of(CHEST)
-                    .property("title", Title.of(Text.of(getOwnerName(data))))
-                    .property("inventorydimension", new InventoryDimension(9, 6))
+                    .property(InventoryTitle.PROPERTY_NAME, InventoryTitle.of(Text.of(getOwnerName(data))))
+                    .property(InventoryDimension.PROPERTY_NAM, new InventoryDimension(9, 6))
                     .property("identifiable", new Identifiable()).build(plugin);
             signInventories.put(data.getID(), inv);
             updateSignText(data, loc);
@@ -607,7 +606,7 @@ public final class MarketSignManager
         if (player.hasPermission(module.perms().INTERACT_INVENTORY.getId()) || data.isOwner(player.getUniqueId()))
         {
             String name = getOwnerName(data);
-            Inventory inventory = Inventory.builder().of(DISPENSER).property("title", Title.of(Text.of(name))).build(plugin);
+            Inventory inventory = Inventory.builder().of(DISPENSER).property(InventoryTitle.PROPERTY_NAME, InventoryTitle.of(Text.of(name))).build(plugin);
             inventory.query(new SlotPos(1,1)).set(data.getItem().copy()); // middle of dispenser
             igf.prepareInv(inventory, player.getUniqueId()).blockPutInAll().blockTakeOutAll().submitInventory(Signmarket.class, true);
             return;
