@@ -36,6 +36,7 @@ import org.spongepowered.api.service.pagination.PaginationList.Builder;
 import org.spongepowered.api.service.pagination.PaginationService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
+import org.spongepowered.api.text.chat.ChatTypes;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -211,6 +212,11 @@ public class Receiver
     {
         if (reportActions.isEmpty())
         {
+            if (cmdSource instanceof Player)
+            {
+                i18n.sendTranslated(ChatTypes.ACTION_BAR, ((Player) cmdSource), NEGATIVE, "Nothing logged here");
+                return;
+            }
             i18n.sendTranslated(cmdSource, NEGATIVE, "Nothing logged here");
             return;
         }
