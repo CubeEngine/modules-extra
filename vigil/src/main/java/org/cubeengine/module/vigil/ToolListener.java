@@ -50,15 +50,15 @@ public class ToolListener
     @Listener
     public void onClick(InteractBlockEvent event, @First Player player)
     {
-        if (!player.hasPermission(toolPerm.getId()) || event.getTargetBlock() == BlockSnapshot.NONE)
-        {
-            return;
-        }
         Optional<ItemStack> itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
         if (itemInHand.isPresent() && itemInHand.get().get(DisplayNameData.class)
                                         .map(data -> data.displayName().get().toPlain().equals(toolName.toPlain()))
                                         .orElse(false))
         {
+            if (!player.hasPermission(toolPerm.getId()) || event.getTargetBlock() == BlockSnapshot.NONE)
+            {
+                return;
+            }
             Location<World> loc;
             if (event instanceof InteractBlockEvent.Primary)
             {

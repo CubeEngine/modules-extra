@@ -41,5 +41,5 @@ public class MarketSignPerm extends PermissionContainer
     public final Permission EDIT_PLAYER_SELF = register("self", "Allows creating and modifying your own Player MarketSigns", EDIT_PLAYER);
     public final Permission EDIT_PLAYER_OTHER = register("other", "Allows creating and modifying Player MarketSigns of other players", EDIT_PLAYER);
 
-    public final Permission EDIT_USE = register("use", "Allows creating and modifying MarketSigns", EDIT, EDIT_PLAYER, EDIT_PLAYER_SELF, EDIT_PLAYER_OTHER);
+    public final Permission EDIT_USE = register("use", "Allows creating and modifying MarketSigns", EDIT);
 }

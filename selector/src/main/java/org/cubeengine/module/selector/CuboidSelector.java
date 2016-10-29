@@ -111,12 +111,12 @@ public class CuboidSelector implements Selector
         {
             return;
         }
-        if (block.getBlockType() == AIR || !player.hasPermission(module.getSelectPerm().getId()))
+        Optional<ItemStack> itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
+        if (!itemInHand.isPresent() || !"Selector-Tool".equals(itemInHand.get().get(Keys.DISPLAY_NAME).map(Text::toPlain).orElse("")))
         {
             return;
         }
-        Optional<ItemStack> itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
-        if (!itemInHand.isPresent() || !"Selector-Tool".equals(itemInHand.get().get(Keys.DISPLAY_NAME).map(Text::toPlain).orElse("")))
+        if (block.getBlockType() == AIR || !player.hasPermission(module.getSelectPerm().getId()))
         {
             return;
         }
