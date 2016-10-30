@@ -225,7 +225,7 @@ public class RepairBlockManager
                 {
                     if (slot.peek().isPresent())
                     {
-                        Entity drop = world.createEntity(EntityTypes.ITEM, loc.getPosition()).get();
+                        Entity drop = world.createEntity(EntityTypes.ITEM, loc.getPosition());
                         drop.offer(Keys.REPRESENTED_ITEM, slot.peek().get().createSnapshot());
                         world.spawnEntity(drop, CauseUtil.spawnCause(player));
                     }
