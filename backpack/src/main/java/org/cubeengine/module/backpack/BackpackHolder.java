@@ -17,27 +17,36 @@
  */
 package org.cubeengine.module.backpack;
 
+import static org.spongepowered.api.item.inventory.InventoryArchetypes.CHEST;
+
 import org.spongepowered.api.item.inventory.Carrier;
-import org.spongepowered.api.item.inventory.custom.CustomInventory;
+import org.spongepowered.api.item.inventory.Inventory;
+import org.spongepowered.api.item.inventory.property.InventoryDimension;
+import org.spongepowered.api.item.inventory.property.InventoryTitle;
 import org.spongepowered.api.item.inventory.type.CarriedInventory;
+import org.spongepowered.api.text.Text;
 
 public class BackpackHolder implements Carrier
 {
     public final int index;
-    public final CarriedInventory inventory;
+    public final Inventory inventory;
     private final BackpackInventory backBackInventories;
 
     public BackpackHolder(BackpackInventory backBackInventories, int index, int size, String title)
     {
         this.backBackInventories = backBackInventories;
         this.index = index;
-        this.inventory = ((CarriedInventory<BackpackHolder>)CustomInventory.builder().name(null).size(size).build()); // TODO
+        this.inventory =
+                Inventory.builder().of(CHEST)
+                .property(InventoryDimension.PROPERTY_NAM, InventoryDimension.of(9, size / 9))
+                .property(InventoryTitle.PROPERTY_NAME, InventoryTitle.of(Text.of(title)))
+                .build(backBackInventories.module.getPlugin());
     }
 
     @Override
     public CarriedInventory<BackpackHolder> getInventory()
     {
-        return this.inventory;
+        return ((CarriedInventory<BackpackHolder>) this.inventory);
     }
 
     public BackpackInventory getBackpack()

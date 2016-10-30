@@ -29,6 +29,7 @@ import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.inventoryguard.InventoryGuardFactory;
 import org.cubeengine.libcube.service.matcher.StringMatcher;
 import org.cubeengine.libcube.service.permission.PermissionManager;
+import org.spongepowered.api.plugin.PluginContainer;
 
 @ModuleInfo(name = "Kits", description = "Hand kits to your players")
 public class Kits extends Module
@@ -45,6 +46,7 @@ public class Kits extends Module
     @Inject private Reflector reflector;
     @Inject private Path modulePath;
     @Inject private StringMatcher sm;
+    @Inject private PluginContainer plugin;
 
     @Enable
     public void onEnable()
@@ -79,5 +81,9 @@ public class Kits extends Module
     public Path getFolder()
     {
         return modulePath;
+    }
+
+    public PluginContainer getPlugin() {
+        return plugin;
     }
 }

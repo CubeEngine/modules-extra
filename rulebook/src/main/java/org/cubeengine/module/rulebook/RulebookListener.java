@@ -17,6 +17,8 @@
  */
 package org.cubeengine.module.rulebook;
 
+import static org.spongepowered.api.data.type.HandTypes.MAIN_HAND;
+
 import java.util.Locale;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.util.CauseUtil;
@@ -61,12 +63,12 @@ class RulebookListener
                 }
             }
 
-            ItemStack hand = player.getItemInHand().orElse(null);
-            player.setItemInHand(this.rulebookManager.getBook(locale));
+            ItemStack hand = player.getItemInHand(MAIN_HAND).orElse(null);
+            player.setItemInHand(MAIN_HAND, this.rulebookManager.getBook(locale));
             player.getInventory().offer(hand);
             if (hand.getQuantity() != 0)
             {
-                Entity entity = player.getWorld().createEntity(EntityTypes.ITEM, player.getLocation().getPosition()).get();
+                Entity entity = player.getWorld().createEntity(EntityTypes.ITEM, player.getLocation().getPosition());
                 entity.offer(Keys.REPRESENTED_ITEM, hand.createSnapshot());
                 player.getWorld().spawnEntity(entity, CauseUtil.spawnCause(player));
             }

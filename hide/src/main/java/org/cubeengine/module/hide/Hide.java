@@ -37,7 +37,6 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 
 // TODO hide on Dynmap SpongeAPI
 // TODO event for hide and show
@@ -83,8 +82,6 @@ public class Hide extends Module
     public void hidePlayer(final Player player)
     {
         player.offer(Keys.INVISIBLE, true);
-        player.offer(Keys.INVISIBILITY_IGNORES_COLLISION, true);
-        player.offer(Keys.INVISIBILITY_PREVENTS_TARGETING, true);
 
         bc.broadcastTranslated(NEUTRAL, "{user:color=YELLOW} left the game", player);
         // can see hidden + msg

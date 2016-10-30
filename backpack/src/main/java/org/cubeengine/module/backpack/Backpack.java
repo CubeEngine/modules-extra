@@ -27,6 +27,7 @@ import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.inventoryguard.InventoryGuardFactory;
+import org.spongepowered.api.plugin.PluginContainer;
 
 @ModuleInfo(name = "Backpack", description = "Expand your inventory")
 /*
@@ -47,6 +48,7 @@ public class Backpack extends Module
     @Inject private EventManager em;
     @Inject private InventoryGuardFactory igf;
     @Inject private BackpackPermissions perms;
+    @Inject private PluginContainer plugin;
 
     public BackpackPermissions perms()
     {
@@ -69,5 +71,9 @@ public class Backpack extends Module
     public InventoryGuardFactory getInventoryGuardFactory()
     {
         return igf;
+    }
+
+    public PluginContainer getPlugin() {
+        return plugin;
     }
 }

@@ -32,7 +32,6 @@ import org.cubeengine.module.fun.Fun;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.property.block.SolidCubeProperty;
 import org.spongepowered.api.effect.particle.ParticleEffect;
-import org.spongepowered.api.effect.particle.ParticleType;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
@@ -43,7 +42,7 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
-import static org.spongepowered.api.effect.particle.ParticleTypes.SMOKE_NORMAL;
+import static org.spongepowered.api.effect.particle.ParticleTypes.SMOKE;
 
 public class RocketCommand
 {
@@ -178,7 +177,7 @@ public class RocketCommand
                     {
                         Location userLocation = player.getLocation();
                         Vector3d pos = userLocation.getPosition();
-                        ParticleEffect effect = ParticleEffect.builder().type(SMOKE_NORMAL).build();
+                        ParticleEffect effect = ParticleEffect.builder().type(SMOKE).build();
                         player.getWorld().spawnParticles(effect, pos);
                         player.getWorld().spawnParticles(effect, pos.add(1, 0, 0));
                         player.getWorld().spawnParticles(effect, pos.add(-1, 0, 0));

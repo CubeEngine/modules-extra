@@ -33,7 +33,7 @@ import org.spongepowered.api.entity.Transform;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.PermissionService;
-import org.spongepowered.api.service.permission.option.OptionSubject;
+import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.service.user.UserStorageService;
 import org.spongepowered.api.world.World;
 
@@ -55,7 +55,7 @@ public class SpawnCommands
     }
 
     @Command(desc = "Changes the respawnpoint")
-    public void setRoleSpawn(Player ctx, @Reader(SubjectReader.class) OptionSubject role, @Default Context context)
+    public void setRoleSpawn(Player ctx, @Reader(SubjectReader.class) Subject role, @Default Context context)
     {
         setRoleSpawn(context, ctx.getTransform(), role);
         i18n.sendTranslated(ctx, POSITIVE, "The spawn in {world} for the role {name#role} is now set to {vector}",
@@ -63,7 +63,7 @@ public class SpawnCommands
                             ctx.getLocation().getPosition());
     }
 
-    private void setRoleSpawn(Context context, Transform<World> transform, OptionSubject role)
+    private void setRoleSpawn(Context context, Transform<World> transform, Subject role)
     {
         String[] locStrings = new String[6];
         locStrings[0] = String.valueOf(transform.getPosition().getFloorX());
@@ -78,7 +78,7 @@ public class SpawnCommands
 
     @Command(desc = "Teleports a player to the configured rolespawn")
     public void roleSpawn(CommandSource ctx, @Default Player player, @Default Context context,
-                      @Named({"role", "r"}) @Default @Reader(SubjectReader.class) OptionSubject role,
+                      @Named({"role", "r"}) @Default @Reader(SubjectReader.class) Subject role,
                       @ParameterPermission @Flag boolean force)
     {
         java.util.Optional<String> spawnString = role.getOption(toSet(context), ROLESPAWN);

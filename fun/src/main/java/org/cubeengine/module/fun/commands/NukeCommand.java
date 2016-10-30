@@ -17,8 +17,11 @@
  */
 package org.cubeengine.module.fun.commands;
 
-import java.util.HashSet;
-import java.util.Set;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
+import static org.spongepowered.api.entity.EntityTypes.PRIMED_TNT;
+import static org.spongepowered.api.util.blockray.BlockRay.onlyAirFilter;
+
 import com.flowpowered.math.vector.Vector3d;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Flag;
@@ -26,7 +29,6 @@ import org.cubeengine.butler.parametric.Named;
 import org.cubeengine.butler.parametric.Optional;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.libcube.util.math.Vector3;
 import org.cubeengine.libcube.util.math.shape.Cuboid;
 import org.cubeengine.libcube.util.math.shape.Cylinder;
@@ -49,10 +51,8 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.explosion.Explosion;
 
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
-import static org.spongepowered.api.entity.EntityTypes.PRIMED_TNT;
-import static org.spongepowered.api.util.blockray.BlockRay.onlyAirFilter;
+import java.util.HashSet;
+import java.util.Set;
 
 public class NukeCommand
 {
@@ -111,7 +111,7 @@ public class NukeCommand
                 i18n.sendTranslated(context, NEGATIVE, "This command can only be used by a player!");
                 return;
             }
-            java.util.Optional<BlockRayHit<World>> end = BlockRay.from(((Player)context)).filter(onlyAirFilter()).blockLimit(100).build().end();
+            java.util.Optional<BlockRayHit<World>> end = BlockRay.from(((Player)context)).stopFilter(onlyAirFilter()).distanceLimit(100).build().end();
             if (!end.isPresent())
             {
                 throw new IllegalStateException();
@@ -193,9 +193,9 @@ public class NukeCommand
         int numberOfBlocks = 0;
         for (Vector3 vector : shape)
         {
-            PrimedTNT tnt = (PrimedTNT)world.createEntity(PRIMED_TNT, new Vector3d(vector.x, vector.y, vector.z)).get();
+            PrimedTNT tnt = (PrimedTNT)world.createEntity(PRIMED_TNT, new Vector3d(vector.x, vector.y, vector.z));
             tnt.setVelocity(new Vector3d(0,0,0));
-            tnt.offer(Keys.EXPLOSIVE_RADIUS, range);
+            tnt.offer(Keys.EXPLOSION_RADIUS, java.util.Optional.of(range));
             world.spawnEntity(tnt, Cause.of(NamedCause.source(this))); // TODO cause
 
             numberOfBlocks++;

@@ -24,11 +24,8 @@ import org.cubeengine.butler.parameter.reader.ReaderException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
-import org.spongepowered.api.service.permission.option.OptionSubject;
 
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
-
-public class SubjectReader implements ArgumentReader<OptionSubject>, DefaultValue<OptionSubject>
+public class SubjectReader implements ArgumentReader<Subject>, DefaultValue<Subject>
 {
     private PermissionService pm;
 
@@ -38,12 +35,12 @@ public class SubjectReader implements ArgumentReader<OptionSubject>, DefaultValu
     }
 
     @Override
-    public OptionSubject read(Class aClass, CommandInvocation commandInvocation) throws ReaderException
+    public Subject read(Class aClass, CommandInvocation commandInvocation) throws ReaderException
     {
         String token = commandInvocation.currentToken();
         if (pm.getGroupSubjects().hasRegistered(token))
         {
-            return ((OptionSubject)pm.getGroupSubjects().get(token));
+            return pm.getGroupSubjects().get(token);
         }
 
         // TODO msg i18n.sendTranslated(ctx, NEGATIVE, "Could not find the role {input}!", role, context);
@@ -51,11 +48,11 @@ public class SubjectReader implements ArgumentReader<OptionSubject>, DefaultValu
     }
 
     @Override
-    public OptionSubject getDefault(CommandInvocation invocation)
+    public Subject getDefault(CommandInvocation invocation)
     {
         if (invocation.getCommandSource() instanceof Player)
         {
-            return ((OptionSubject)pm.getUserSubjects().get(((Player)invocation.getCommandSource()).getIdentifier()));
+            return pm.getUserSubjects().get(((Player)invocation.getCommandSource()).getIdentifier());
         }
         // TODO exception
         return null;

@@ -17,13 +17,12 @@
  */
 package org.cubeengine.module.itemrepair.repair.blocks;
 
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Random;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
+import static org.spongepowered.api.effect.sound.SoundTypes.BLOCK_ANVIL_BREAK;
+import static org.spongepowered.api.effect.sound.SoundTypes.ENTITY_PLAYER_BURP;
+
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionManager;
@@ -36,18 +35,18 @@ import org.cubeengine.module.itemrepair.repair.RepairBlockManager;
 import org.cubeengine.module.itemrepair.repair.RepairRequest;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.manipulator.mutable.item.DurabilityData;
 import org.spongepowered.api.data.meta.ItemEnchantment;
 import org.spongepowered.api.data.value.mutable.MutableBoundedValue;
 import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
-import org.spongepowered.api.item.Enchantment;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.Inventory;
+import org.spongepowered.api.item.inventory.InventoryArchetypes;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.item.inventory.custom.CustomInventory;
+import org.spongepowered.api.item.inventory.property.InventoryDimension;
+import org.spongepowered.api.item.inventory.property.InventoryTitle;
 import org.spongepowered.api.item.inventory.property.SlotIndex;
 import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
@@ -55,9 +54,13 @@ import org.spongepowered.api.service.economy.transaction.ResultType;
 import org.spongepowered.api.service.economy.transaction.TransactionResult;
 import org.spongepowered.api.text.Text;
 
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
-import static org.spongepowered.api.effect.sound.SoundTypes.ANVIL_BREAK;
-import static org.spongepowered.api.effect.sound.SoundTypes.BURP;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Random;
 
 public class RepairBlock
 {
@@ -160,7 +163,10 @@ public class RepairBlock
         RepairBlockInventory inventory = this.inventoryMap.get(player.getName());
         if (inventory == null)
         {
-            CustomInventory inv = CustomInventory.builder().name(null).size(9 * 4).build(); // TODO title
+            Inventory inv = Inventory.builder().of(InventoryArchetypes.CHEST)
+                    .property(InventoryDimension.PROPERTY_NAM, InventoryDimension.of(9,4))
+                    .property(InventoryTitle.PROPERTY_NAME, InventoryTitle.of(Text.of(getTitle())))
+                    .build(module.getPlugin());
             inventory = new RepairBlockInventory(inv, player);
             this.inventoryMap.put(player.getName(), inventory);
         }
@@ -288,17 +294,17 @@ public class RepairBlock
             if (itemsBroken)
             {
                 i18n.sendTranslated(player, NEGATIVE, "You broke some of your items when repairing!");
-                player.playSound(ANVIL_BREAK, player.getLocation().getPosition(), 1, 0);
+                player.playSound(BLOCK_ANVIL_BREAK, player.getLocation().getPosition(), 1, 0);
             }
             if (repairFail)
             {
                 i18n.sendTranslated(player, NEGATIVE, "You failed to repair some of your items!");
-                player.playSound(BURP,player.getLocation().getPosition(), 1,0);
+                player.playSound(ENTITY_PLAYER_BURP,player.getLocation().getPosition(), 1,0);
             }
             if (looseEnch)
             {
                 i18n.sendTranslated(player, NEGATIVE, "Oh no! Some of your items lost their magical power.");
-                player.playSound(SoundTypes.GHAST_SCREAM, player.getLocation().getPosition(), 1);
+                player.playSound(SoundTypes.ENTITY_GHAST_SCREAM, player.getLocation().getPosition(), 1);
             }
             i18n.sendTranslated(player, POSITIVE, "You paid {input#amount} to repair your items!", economy.getDefaultCurrency().format(new BigDecimal(price)));
             if (this.config.costPercentage > 100)

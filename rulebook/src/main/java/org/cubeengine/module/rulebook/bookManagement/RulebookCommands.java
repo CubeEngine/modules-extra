@@ -52,6 +52,7 @@ import org.spongepowered.api.text.format.TextColors;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
+import static org.spongepowered.api.data.type.HandTypes.MAIN_HAND;
 import static org.spongepowered.api.item.ItemTypes.WRITABLE_BOOK;
 import static org.spongepowered.api.item.ItemTypes.WRITTEN_BOOK;
 import static org.spongepowered.api.text.format.TextColors.YELLOW;
@@ -193,7 +194,7 @@ public class RulebookCommands extends ContainerCommand
     @Command(desc = "modified the rulebook of the declared language with the book in hand")
     public void modify(Player context, String language)
     {
-        ItemStack item = context.getItemInHand().orElse(null);
+        ItemStack item = context.getItemInHand(MAIN_HAND).orElse(null);
 
         if(item != null && !(item.getItem() == WRITABLE_BOOK || item.getItem() == WRITTEN_BOOK))
         {
@@ -231,7 +232,7 @@ public class RulebookCommands extends ContainerCommand
     @Command(desc = "adds the book in hand as rulebook of the declared language")
     public void add(Player context, String language)
     {
-        ItemStack item = context.getItemInHand().orElse(null);
+        ItemStack item = context.getItemInHand(MAIN_HAND).orElse(null);
 
         if(item != null && !(item.getItem() == WRITABLE_BOOK || item.getItem() == WRITTEN_BOOK))
         {

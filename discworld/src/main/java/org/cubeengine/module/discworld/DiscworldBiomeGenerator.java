@@ -1,8 +1,10 @@
 package org.cubeengine.module.discworld;
 
 import com.flowpowered.math.vector.Vector2i;
+import com.flowpowered.math.vector.Vector3i;
 import org.spongepowered.api.world.biome.BiomeTypes;
 import org.spongepowered.api.world.extent.MutableBiomeArea;
+import org.spongepowered.api.world.extent.MutableBiomeVolume;
 import org.spongepowered.api.world.gen.BiomeGenerator;
 
 public class DiscworldBiomeGenerator implements BiomeGenerator
@@ -15,21 +17,21 @@ public class DiscworldBiomeGenerator implements BiomeGenerator
     private static final double HILLS_RADIUS = HILLS_SIZE * HILLS_SIZE;
 
     @Override
-    public void generateBiomes(MutableBiomeArea buffer)
+    public void generateBiomes(MutableBiomeVolume buffer)
     {
-        Vector2i min = buffer.getBiomeMin();
-        Vector2i max = buffer.getBiomeMax();
+        Vector3i min = buffer.getBiomeMin();
+        Vector3i max = buffer.getBiomeMax();
 
         for (int x = min.getX(); x <= max.getX(); x++) {
             for (int y = min.getY(); y <= max.getY(); y++) {
                 if (x * x + y * y < HILLS_RADIUS) {
-                    buffer.setBiome(x, y, BiomeTypes.EXTREME_HILLS);
+                    buffer.setBiome(x, y, 0, BiomeTypes.EXTREME_HILLS);
                 } else if (x * x + y * y < FOREST_RADIUS) {
-                    buffer.setBiome(x, y, BiomeTypes.FOREST);
+                    buffer.setBiome(x, y, 0, BiomeTypes.FOREST);
                 } else if (x * x + y * y < BEACH_RADIUS) {
-                    buffer.setBiome(x, y, BiomeTypes.BEACH);
+                    buffer.setBiome(x, y, 0, BiomeTypes.BEACH);
                 } else {
-                    buffer.setBiome(x, y, BiomeTypes.OCEAN);
+                    buffer.setBiome(x, y, 0, BiomeTypes.OCEAN);
                     // TODO mushrooms islands
                 }
             }

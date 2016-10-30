@@ -30,6 +30,7 @@ import org.cubeengine.module.fun.Fun;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.property.item.EquipmentProperty;
+import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
@@ -48,6 +49,7 @@ import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.explosion.Explosion;
 
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
+import static org.spongepowered.api.data.type.HandTypes.MAIN_HAND;
 
 public class PlayerCommands
 {
@@ -101,7 +103,7 @@ public class PlayerCommands
         }
         else if (context instanceof Player)
         {
-            head = ((Player)context).getItemInHand().orElse(null);
+            head = ((Player)context).getItemInHand(MAIN_HAND).orElse(null);
         }
         else
         {
@@ -130,7 +132,7 @@ public class PlayerCommands
         {
             ItemStack clone = head.copy();
             clone.setQuantity(head.getQuantity() - 1);
-            ((Player)context).setItemInHand(clone);
+            ((Player)context).setItemInHand(MAIN_HAND, clone);
         }
         if(player.getHelmet().isPresent())
         {
@@ -175,8 +177,8 @@ public class PlayerCommands
                 i18n.sendTranslated(context, NEGATIVE, "This command can only be used by a player!");
                 return;
             }
-            java.util.Optional<BlockRayHit<World>> end = BlockRay.from(((Player)context)).blockLimit(
-                module.getConfig().command.explosion.distance).filter(BlockRay.onlyAirFilter()).build().end();
+            java.util.Optional<BlockRayHit<World>> end = BlockRay.from(((Player)context)).distanceLimit(
+                module.getConfig().command.explosion.distance).stopFilter(BlockRay.onlyAirFilter()).build().end();
             if (end.isPresent())
             {
                 loc = end.get().getLocation();
@@ -203,11 +205,11 @@ public class PlayerCommands
             return;
         }
 
-        Explosion explosion = Explosion.builder().world(loc.getExtent()).origin(loc.getPosition()).canCauseFire(
+        Explosion explosion = Explosion.builder().location(loc).canCauseFire(
             fire || unsafe).shouldDamageEntities(playerDamage || unsafe).shouldBreakBlocks(
             blockDamage || unsafe).build();
 
-        loc.getExtent().triggerExplosion(explosion);
+        loc.getExtent().triggerExplosion(explosion, Cause.of(NamedCause.source(player)));
     }
 
     @Command(alias = "strike", desc = "Throws a lightning bolt at a player or where you're looking")
@@ -249,8 +251,8 @@ public class PlayerCommands
                 i18n.sendTranslated(context, NEGATIVE, "This command can only be used by a player!");
                 return;
             }
-            java.util.Optional<BlockRayHit<World>> end = BlockRay.from(((Player)context)).blockLimit(
-                module.getConfig().command.lightning.distance).filter(BlockRay.onlyAirFilter()).build().end();
+            java.util.Optional<BlockRayHit<World>> end = BlockRay.from(((Player)context)).distanceLimit(
+                module.getConfig().command.lightning.distance).stopFilter(BlockRay.onlyAirFilter()).build().end();
             if (end.isPresent())
             {
                 location = end.get().getLocation();
@@ -261,7 +263,7 @@ public class PlayerCommands
             }
         }
 
-        Entity entity = location.getExtent().createEntity(EntityTypes.LIGHTNING, location.getPosition()).get();
+        Entity entity = location.getExtent().createEntity(EntityTypes.LIGHTNING, location.getPosition());
         if (!unsafe)
         {
             ((Lightning)entity).setEffect(true);

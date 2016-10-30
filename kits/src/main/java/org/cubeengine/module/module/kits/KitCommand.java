@@ -35,8 +35,10 @@ import org.cubeengine.libcube.service.inventoryguard.InventoryGuardFactory;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.item.inventory.Inventory;
+import org.spongepowered.api.item.inventory.InventoryArchetypes;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.item.inventory.custom.CustomInventory;
+import org.spongepowered.api.item.inventory.property.InventoryTitle;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.translation.Translation;
@@ -87,7 +89,9 @@ public class KitCommand extends ContainerCommand
         Kit kit = new Kit(module, kitname, false, 0, -1, true, "", new ArrayList<>(), itemList);
 
         Translation name = null; // Put all KitItems into here
-        CustomInventory inventory = CustomInventory.builder().name(name).size(6).build();
+        Inventory inventory = Inventory.builder().of(InventoryArchetypes.DOUBLE_CHEST)
+                .property(InventoryTitle.PROPERTY_NAME, InventoryTitle.of(Text.of(name)))
+                .build(module.getPlugin());
         igf.prepareInv(inventory, context.getUniqueId()).onClose(() -> {
             inventory.slots().forEach(slot -> {
                 Optional<ItemStack> item = slot.peek();

@@ -24,13 +24,13 @@ import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.libcube.service.task.Task;
 import org.cubeengine.libcube.service.task.TaskManager;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.world.Location;
 
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
@@ -56,7 +56,7 @@ public class FlyListener
     @Listener
     public void playerInteract(final InteractBlockEvent.Secondary event, @First Player player)
     {
-        if (!player.getItemInHand().map(i -> i.getItem().equals(ItemTypes.FEATHER)).orElse(false))
+        if (!player.getItemInHand(HandTypes.MAIN_HAND).map(i -> i.getItem().equals(ItemTypes.FEATHER)).orElse(false))
         {
             return;
         }

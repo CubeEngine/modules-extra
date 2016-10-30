@@ -17,12 +17,8 @@
  */
 package org.cubeengine.module.backpack;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
+import static org.spongepowered.api.item.inventory.InventoryArchetypes.CHEST;
+
 import org.cubeengine.libcube.util.ChatFormat;
 import org.cubeengine.libcube.util.ContextUtil;
 import org.spongepowered.api.entity.living.player.Player;
@@ -30,14 +26,17 @@ import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.item.inventory.Container;
 import org.spongepowered.api.item.inventory.Inventory;
+import org.spongepowered.api.item.inventory.InventoryArchetypes;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.item.inventory.custom.CustomInventory;
-import org.spongepowered.api.item.inventory.entity.HumanInventory;
 import org.spongepowered.api.service.context.Context;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class BackpackInventory
 {
-    private final Backpack module;
+    protected final Backpack module;
     protected BackpackData data;
 
     private final Map<Player, Integer> viewers = new HashMap<>();
@@ -58,8 +57,9 @@ public class BackpackInventory
 
     private Inventory getInventory(int index)
     {
-        CustomInventory inv = CustomInventory.builder().name(null).build();
-        // TODO create custom inventory that is a CarriedInventory
+        Inventory inv = Inventory.builder().of(CHEST).build(module.getPlugin());
+        // TODO create custom inventory that is a CarriedInventory .withCarrier()
+        // TODO size
 
         BackpackHolder holder = this.views.get(index);
         if (holder == null)
