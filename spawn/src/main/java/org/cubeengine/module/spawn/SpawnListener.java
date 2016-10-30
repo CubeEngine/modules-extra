@@ -24,7 +24,7 @@ import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.entity.living.humanoid.player.RespawnPlayerEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.service.permission.PermissionService;
-import org.spongepowered.api.service.permission.option.OptionSubject;
+import org.spongepowered.api.service.permission.Subject;
 
 import static org.cubeengine.module.spawn.SpawnCommands.getSpawnLocation;
 
@@ -43,7 +43,7 @@ public class SpawnListener
         {
             return;
         }
-        OptionSubject subject = (OptionSubject)pm.getUserSubjects().get(event.getTargetUser().getIdentifier());
+        Subject subject = pm.getUserSubjects().get(event.getTargetUser().getIdentifier());
         Optional<String> option = subject.getOption(SpawnCommands.ROLESPAWN);
         if (option.isPresent())
         {
@@ -56,7 +56,7 @@ public class SpawnListener
     {
         if (!event.isBedSpawn())
         {
-            OptionSubject subject = (OptionSubject)pm.getUserSubjects().get(event.getTargetEntity().getIdentifier());
+            Subject subject = pm.getUserSubjects().get(event.getTargetEntity().getIdentifier());
             Optional<String> option = subject.getOption(SpawnCommands.ROLESPAWN);
             if (option.isPresent())
             {

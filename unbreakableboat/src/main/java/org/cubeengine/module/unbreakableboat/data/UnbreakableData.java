@@ -18,6 +18,8 @@
 package org.cubeengine.module.unbreakableboat.data;
 
 import java.util.Optional;
+
+import com.google.common.reflect.TypeToken;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.DataQuery;
@@ -29,7 +31,10 @@ import org.spongepowered.api.data.value.mutable.Value;
 
 public class UnbreakableData extends AbstractBooleanData<UnbreakableData, ImmutableUnbreakableData>
 {
-    public final static Key<Value<Boolean>> UNBREAKING = KeyFactory.makeSingleKey(Boolean.class, Value.class, DataQuery.of("flymode"));
+    private static TypeToken<Boolean> TT_Bool = new TypeToken<Boolean>() {};
+    private static TypeToken<Value<Boolean>> TTV_Bool = new TypeToken<Value<Boolean>>() {};
+
+    public final static Key<Value<Boolean>> UNBREAKING = KeyFactory.makeSingleKey(TT_Bool, TTV_Bool, DataQuery.of("unbreakable"), "unbreakable", "Unbreakable");
 
     public UnbreakableData(Boolean value)
     {
