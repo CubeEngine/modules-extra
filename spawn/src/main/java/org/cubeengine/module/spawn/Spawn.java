@@ -25,7 +25,6 @@ import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.spongepowered.api.service.permission.PermissionService;
-import org.spongepowered.api.service.permission.option.OptionSubjectData;
 
 @ModuleInfo(name = "spawn", description ="Modifies the default spawn behaviour")
 public class Spawn extends Module
@@ -41,10 +40,5 @@ public class Spawn extends Module
         em.registerListener(Spawn.class, new SpawnListener(pm));
         cm.removeCommand("spawn", true); // unregister basics commands
         cm.addCommands(cm, this, new SpawnCommands(this, i18n, pm));
-
-        if (!(pm.getDefaultData() instanceof OptionSubjectData))
-        {
-            throw new IllegalStateException("Module cannot be used without OptionSubjects");
-        }
     }
 }

@@ -29,8 +29,6 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.util.blockray.BlockRay;
 import org.spongepowered.api.util.blockray.BlockRayHit;
 import org.spongepowered.api.world.Location;
@@ -61,12 +59,12 @@ public class InvasionCommand
         for (Player player : Sponge.getServer().getOnlinePlayers())
         {
             Optional<BlockRayHit<World>> end =
-                BlockRay.from(player).filter(BlockRay.onlyAirFilter())
-                    .blockLimit(module.getConfig().command.invasion.distance).build().end();
+                BlockRay.from(player).stopFilter(BlockRay.onlyAirFilter())
+                    .distanceLimit(module.getConfig().command.invasion.distance).build().end();
             if (end.isPresent())
             {
                 Location<World> location = end.get().getLocation();
-                Entity entity = location.getExtent().createEntity(entityType, location.getPosition()).get();
+                Entity entity = location.getExtent().createEntity(entityType, location.getPosition());
                 location.getExtent().spawnEntity(entity, CauseUtil.spawnCause(context));
             }
         }
