@@ -426,7 +426,7 @@ public final class MarketSignManager
         }
 
         ItemStack copy = data.getItem().copy();
-        copy.setQuantity(-1);
+        copy.setQuantity(1);
         int itemsInInventory = player.getInventory().query(copy).totalItems(); // TODO ignore repaircost?
         if (data.getAmount() > itemsInInventory)
         {
@@ -571,8 +571,6 @@ public final class MarketSignManager
             // --<
 
             ItemStack copy = item.copy();
-            copy.setQuantity(-1);
-
             Runnable onClose = () -> {
                 signInventories.remove(data.getID());
                 if (data.getStock() != null)
@@ -591,7 +589,6 @@ public final class MarketSignManager
             };
 
             igf.prepareInv(inv, player.getUniqueId()).blockPutInAll().blockTakeOutAll().onClose(onClose);
-            item.setQuantity(0);
             if (data.getSignType() == SignType.BUY)
             {
                 igf.notBlockPutIn(item).notBlockTakeOut(item);

@@ -162,7 +162,7 @@ public class MarketSignData extends AbstractData<MarketSignData, ImmutableMarket
     @Override
     public ItemStack getItem()
     {
-        return item; // TODO 0 items causes client to crash when collecting to cursor
+        return item;
     }
 
     public void setItem(ItemStack item)
