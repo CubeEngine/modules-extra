@@ -43,7 +43,7 @@ public class TableVote extends Table<VoteModel>
         TABLE_VOTE = this;
     }
 
-    public final TableField<VoteModel, UUID> ID = createField("userid", SQLDataType.UUID.nullable(false), this);
+    public final TableField<VoteModel, UUID> ID = createField("userid", SQLDataType.UUID.length(36).nullable(false), this);
     public final TableField<VoteModel, Timestamp> LASTVOTE = createField("lastvote", DATETIME.nullable(false), this);
     public final TableField<VoteModel, UShort> VOTEAMOUNT = createField("voteamount", U_SMALLINT.nullable(false), this);
 
