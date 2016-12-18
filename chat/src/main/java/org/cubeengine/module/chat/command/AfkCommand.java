@@ -31,6 +31,7 @@ import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.libcube.service.Broadcaster;
 import org.spongepowered.api.Game;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
@@ -41,19 +42,17 @@ public class AfkCommand implements Runnable
     private final Chat module;
     private long autoAfk;
     private long afkCheck;
-    private Game game;
     private final AfkListener listener;
     private Broadcaster bc;
 
     private Map<UUID, Boolean> afks = new HashMap<>();
     private Map<UUID, Long> actions = new HashMap<>();
 
-    public AfkCommand(Chat module, long autoAfk, long afkCheck, Broadcaster bc, TaskManager tm, EventManager em, Game game)
+    public AfkCommand(Chat module, long autoAfk, long afkCheck, Broadcaster bc, TaskManager tm, EventManager em)
     {
         this.module = module;
         this.autoAfk = autoAfk;
         this.afkCheck = afkCheck;
-        this.game = game;
         this.listener = new AfkListener(module, this);
         if (afkCheck > 0)
         {
@@ -118,7 +117,7 @@ public class AfkCommand implements Runnable
     public void run()
     {
         afks.entrySet().stream().filter(Entry::getValue)
-            .map(Entry::getKey).map(uuid -> game.getServiceManager().provide(UserStorageService.class).get().get(uuid))
+            .map(Entry::getKey).map(uuid -> Sponge.getGame().getServiceManager().provide(UserStorageService.class).get().get(uuid))
             .filter(Optional::isPresent)
             .map(Optional::get)
             .forEach(this::updateAfk);

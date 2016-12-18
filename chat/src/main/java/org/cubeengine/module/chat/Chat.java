@@ -58,7 +58,6 @@ public class Chat extends Module
     @Inject private EventManager em;
     @Inject private CommandManager cm;
     @Inject private I18n i18n;
-    @Inject private Game game;
     @Inject private TaskManager tm;
     @Inject private Broadcaster bc;
 
@@ -79,7 +78,7 @@ public class Chat extends Module
         //em.registerListener(Chat.class, new ChatFormatListener(this, game, i18n));
         //em.registerListener(Chat.class, new MuteListener(ignoreCmd, muteCmd, i18n));
 
-        AfkCommand afkCmd = new AfkCommand(this, config.autoAfk.after.getMillis(), config.autoAfk.check.getMillis(), bc, tm, em, game);
+        AfkCommand afkCmd = new AfkCommand(this, config.autoAfk.after.getMillis(), config.autoAfk.check.getMillis(), bc, tm, em);
         cm.addCommands(this, afkCmd);
         cm.addCommands(this, new ChatCommands(this, i18n, bc, afkCmd));
     }
