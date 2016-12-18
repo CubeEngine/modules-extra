@@ -42,9 +42,11 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.InventoryArchetypes;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.property.InventoryCapacity;
 import org.spongepowered.api.item.inventory.property.InventoryDimension;
 import org.spongepowered.api.item.inventory.property.InventoryTitle;
 import org.spongepowered.api.item.inventory.property.SlotIndex;
@@ -164,7 +166,8 @@ public class RepairBlock
         if (inventory == null)
         {
             Inventory inv = Inventory.builder().of(InventoryArchetypes.CHEST)
-                    .property(InventoryDimension.PROPERTY_NAM, InventoryDimension.of(9,4))
+                    .property(InventoryDimension.PROPERTY_NAME, InventoryDimension.of(9,4))
+                    .property(InventoryCapacity.class.getSimpleName().toLowerCase(), InventoryCapacity.of(9*4))
                     .property(InventoryTitle.PROPERTY_NAME, InventoryTitle.of(Text.of(getTitle())))
                     .build(module.getPlugin());
             inventory = new RepairBlockInventory(inv, player);
@@ -230,7 +233,7 @@ public class RepairBlock
                 i18n.sendTranslated(player, NEUTRAL, "The repair would cost {txt#amount}", format);
             }
             UniqueAccount acc = economy.getOrCreateAccount(player.getUniqueId()).get();
-            i18n.sendTranslated(player, NEUTRAL, "You currently have {input#balance}", economy.getDefaultCurrency().format(acc.getBalance(economy.getDefaultCurrency())));
+            i18n.sendTranslated(player, NEUTRAL, "You currently have {txt#balance}", economy.getDefaultCurrency().format(acc.getBalance(economy.getDefaultCurrency())));
             i18n.sendTranslated(player, POSITIVE, "{text:Leftclick} again to repair all your damaged items.");
             return new RepairRequest(this, inventory, items, price);
         }
@@ -280,16 +283,10 @@ public class RepairBlock
                 {
                     itemsBroken = true;
                     amount = item.getQuantity();
-                    if (amount == 1)
-                    {
-                        inventory.inventory.query(SlotIndex.of(entry.getKey())).clear();
-                    }
-                    else
-                    {
-                        item.setQuantity(amount - 1);
-                        repairItem(item);
-                    }
+                    item.setQuantity(amount - 1);
+                    repairItem(item);
                 }
+                inventory.inventory.query(SlotIndex.of(entry.getKey())).set(entry.getValue());
             }
             if (itemsBroken)
             {
@@ -306,7 +303,7 @@ public class RepairBlock
                 i18n.sendTranslated(player, NEGATIVE, "Oh no! Some of your items lost their magical power.");
                 player.playSound(SoundTypes.ENTITY_GHAST_SCREAM, player.getLocation().getPosition(), 1);
             }
-            i18n.sendTranslated(player, POSITIVE, "You paid {input#amount} to repair your items!", economy.getDefaultCurrency().format(new BigDecimal(price)));
+            i18n.sendTranslated(player, POSITIVE, "You paid {txt#amount} to repair your items!", economy.getDefaultCurrency().format(new BigDecimal(price)));
             if (this.config.costPercentage > 100)
             {
                 i18n.sendTranslated(player, POSITIVE, "Thats {decimal#percent:2}% of the normal price!", this.config.costPercentage);
@@ -372,7 +369,7 @@ public class RepairBlock
 
     public static void repairItem(ItemStack item)
     {
-        repairItem(item, (short)0);
+        repairItem(item, item.getValue(Keys.ITEM_DURABILITY).get().getMaxValue());
     }
 
     public static void repairItem(ItemStack item, int durability)

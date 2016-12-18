@@ -103,16 +103,14 @@ public class RepairItemContainer
     public Map<Integer, ItemStack> getRepairableItems(Inventory inventory)
     {
         Map<Integer, ItemStack> items = new HashMap<>();
-
-        ItemStack item;
         int i = 0;
-        for (Inventory slot : inventory)
+        for (Inventory slot : inventory.slots())
         {
-            i++;
             if (slot.peek().isPresent())
             {
                 items.put(i, slot.peek().get());
             }
+            i++;
         }
         return items;
     }

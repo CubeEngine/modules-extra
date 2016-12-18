@@ -38,10 +38,6 @@ import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.economy.EconomyService;
 
 @ModuleInfo(name = "ItemRepair", description = "Repair your tools for money")
-/*
-TODO blocked by custom inventories
-TODO blocked by custom data on any block
-*/
 @ModuleTables(TableRepairBlock.class)
 public class Itemrepair extends Module
 {
@@ -53,7 +49,6 @@ public class Itemrepair extends Module
     @Inject private I18n i18n;
     @Inject private Log logger;
     @Inject private PermissionManager pm;
-    @Inject private EconomyService economy;
     @Inject private PluginContainer plugin;
 
 
@@ -63,8 +58,8 @@ public class Itemrepair extends Module
         reflector.getDefaultConverterManager().registerConverter(new BaseMaterialContainerConverter(), BaseMaterialContainer.class);
     }
 
-    @Enable
-    public void onEnable()
+    @Inject @Enable
+    public void onEnable(EconomyService economy)
     {
         this.repairBlockManager = new RepairBlockManager(this, db, em, i18n, economy, pm);
         em.registerListener(Itemrepair.class, new ItemRepairListener(this, i18n));

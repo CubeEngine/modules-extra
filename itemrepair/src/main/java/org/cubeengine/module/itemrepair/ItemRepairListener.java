@@ -33,6 +33,7 @@ import org.spongepowered.api.event.block.InteractBlockEvent.Primary;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.event.item.inventory.InteractItemEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -121,6 +122,10 @@ public class ItemRepairListener
     @Listener
     public void onCancelRepair(InteractEvent event, @First Player player)
     {
+        if (event instanceof InteractBlockEvent || event instanceof InteractItemEvent)
+        {
+            return;
+        }
         this.cancelRequest(event, player);
     }
 

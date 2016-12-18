@@ -32,7 +32,7 @@ public class TableRepairBlock extends AutoIncrementTable<RepairBlockModel, UInte
 {
     public static TableRepairBlock TABLE_REPAIR_BLOCK;
     public final TableField<RepairBlockModel, UInteger> ID = createField("id", U_INTEGER.nullable(false), this);
-    public final TableField<RepairBlockModel, UUID> WORLD = createField("world", SQLDataType.UUID.nullable(false), this);
+    public final TableField<RepairBlockModel, UUID> WORLD = createField("world", SQLDataType.UUID.length(36).nullable(false), this);
     public final TableField<RepairBlockModel, Integer> X = createField("x", INTEGER.nullable(false), this);
     public final TableField<RepairBlockModel, Integer> Y = createField("y", INTEGER.nullable(false), this);
     public final TableField<RepairBlockModel, Integer> Z = createField("z", INTEGER.nullable(false), this);
