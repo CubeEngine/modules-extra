@@ -109,4 +109,16 @@ public class Announcement
     {
         getReceivers().forEach(this::announce);
     }
+
+    public void delete() {
+        this.config.getFile().delete();
+    }
+
+    public int weight() {
+        return this.config.weight;
+    }
+
+    public AnnouncementConfig getConfig() {
+        return config;
+    }
 }

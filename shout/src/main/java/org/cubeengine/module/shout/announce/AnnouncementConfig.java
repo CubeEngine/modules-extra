@@ -17,6 +17,7 @@
  */
 package org.cubeengine.module.shout.announce;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -27,6 +28,7 @@ import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
 @SuppressWarnings("all")
 public class AnnouncementConfig extends ReflectedYaml
 {
+    @Comment("The delay a previous announcement and this one")
     public String delay = "10 minutes";
 
     @Comment("The name that should be used in the permission. It'll end up like this: " +
@@ -43,8 +45,22 @@ public class AnnouncementConfig extends ReflectedYaml
     @Comment("The default announcment")
     public String announcement;
 
+    @Comment("Higher weights than other messages cause this message to appear more often\n"
+            + "e.g. an announcement with a weight of 2 is on average displays twice as much as an announcement with weight 1\n"
+            + "but not 2 times in a row if there are more than one message")
+    public int weight = 1;
+
     @Comment("The announcement for a locale\n"
         + "en_US: English_Version\n"
         + "de_DE: German_Version")
     public Map<Locale, String> translated = new HashMap<>();
+
+    @Override
+    public void onLoaded(File loadedFrom)
+    {
+        if (this.weight == 0)
+        {
+            this.weight = 1;
+        }
+    }
 }

@@ -89,7 +89,7 @@ public class AnnouncementManager
             Files.createFile(file);
             try
             {
-                this.createAnnouncement("Example", "This is an example announcement", "10 minutes", "*", false);
+                this.createAnnouncement("Example", "This is an example announcement", "10 minutes", "*", false, 1);
             }
             catch (Exception ex)
             {
@@ -220,6 +220,7 @@ public class AnnouncementManager
     {
         AnnouncementConfig config = reflector.load(AnnouncementConfig.class, file.toFile());
         String name = file.getFileName().toString().toLowerCase(Locale.US);
+        name = name.substring(0, name.lastIndexOf("."));
         if (config.fixedCycle)
         {
             return new FixedCycleAnnouncement(module, name, config, pm, tm);
@@ -233,7 +234,7 @@ public class AnnouncementManager
      * Create an announcement folder structure with the params specified.
      * This will not load the announcement into the plugin
      */
-    public Announcement createAnnouncement(String name, String message, String delay, String permName, boolean fc) throws IOException, IllegalArgumentException
+    public Announcement createAnnouncement(String name, String message, String delay, String permName, boolean fc, int weight) throws IOException, IllegalArgumentException
     {
         Path file = this.modulePath.resolve(name + YAML.getExtention());
 
@@ -243,6 +244,7 @@ public class AnnouncementManager
         config.permName = permName;
         config.fixedCycle = fc;
         config.announcement = message;
+        config.weight = weight;
         config.save();
 
         if (config.fixedCycle)
@@ -256,5 +258,18 @@ public class AnnouncementManager
     {
         DynamicCycleTask task = dynamicTasks.remove(player.getUniqueId());
         task.stop();
+    }
+
+    public boolean deleteAnnouncement(String announcement)
+    {
+        Announcement removed = this.fixedCycleAnnouncements.remove(announcement);
+        if (removed == null) {
+            removed = this.dynamicAnnouncements.remove(announcement);
+        }
+        if (removed == null) {
+            return false;
+        }
+        removed.delete();
+        return true;
     }
 }

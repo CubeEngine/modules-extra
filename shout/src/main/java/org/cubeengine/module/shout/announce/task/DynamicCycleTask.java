@@ -17,14 +17,15 @@
  */
 package org.cubeengine.module.shout.announce.task;
 
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.UUID;
+import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.module.shout.Shout;
 import org.cubeengine.module.shout.announce.Announcement;
 import org.cubeengine.module.shout.announce.AnnouncementManager;
-import org.cubeengine.libcube.service.task.TaskManager;
 import org.spongepowered.api.entity.living.player.Player;
+
+import java.util.Random;
+import java.util.TreeMap;
+import java.util.UUID;
 
 public class DynamicCycleTask implements Runnable
 {
@@ -32,9 +33,11 @@ public class DynamicCycleTask implements Runnable
     private Player src;
     private Shout module;
     private AnnouncementManager manager;
-    private Queue<Announcement> announcements = new LinkedList<>();
+    private TreeMap<Integer, Announcement> announcements = new TreeMap<>();
     private Announcement next;
     private UUID task;
+    private Random random = new Random();
+    private int weightCount = 0;
 
     public DynamicCycleTask(TaskManager tm, Player src, Shout module, AnnouncementManager manager)
     {
@@ -46,7 +49,8 @@ public class DynamicCycleTask implements Runnable
 
     public void addAnnouncement(Announcement announcement)
     {
-        announcements.offer(announcement);
+        announcements.put(weightCount, announcement);
+        weightCount += announcement.weight();
     }
 
     @Override
@@ -82,9 +86,7 @@ public class DynamicCycleTask implements Runnable
         int tries = announcements.size();
         do
         {
-            next = announcements.poll();
-            announcements.offer(next);
-
+            this.next = getNext();
             if (next.canAccess(src))
             {
                 if (task != null)
@@ -97,6 +99,17 @@ public class DynamicCycleTask implements Runnable
         }
         while (tries > 0);
         delayNext();
+    }
+
+    private Announcement getNext()
+    {
+        Announcement newNext;
+        do
+        {
+            newNext = announcements.floorEntry(((int) (random.nextDouble() * weightCount))).getValue();
+        }
+        while (newNext == null || newNext == next || announcements.size() == 1);
+        return newNext;
     }
 
     public void stop()

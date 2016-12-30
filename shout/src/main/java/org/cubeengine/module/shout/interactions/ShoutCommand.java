@@ -19,9 +19,13 @@ package org.cubeengine.module.shout.interactions;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Locale;
+
+import de.cubeisland.engine.reflect.annotations.Comment;
 import org.cubeengine.butler.CommandInvocation;
 import org.cubeengine.butler.alias.Alias;
 import org.cubeengine.butler.parametric.Command;
+import org.cubeengine.butler.parametric.Default;
 import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Label;
 import org.cubeengine.butler.parametric.Named;
@@ -94,8 +98,10 @@ public class ShoutCommand extends ContainerCommand
                        @Named({"message", "m"}) String message,
                        @Named({"delay", "d"}) @Label("<x> minutes|hours|days") String delay,
                        @Named({"permission", "p"}) String permission,
+                       @Named("weight") Integer weight,
                        @Flag(name = "fc", longName = "fixed-cycle") boolean fixedCycle)
     {
+        weight = weight == null ? 1 : weight;
         if (message == null)
         {
             i18n.sendTranslated(ctx, NEUTRAL, "You have to include a message!");
@@ -109,7 +115,7 @@ public class ShoutCommand extends ContainerCommand
                     name, message,
                     delay == null ? "10 minutes" : delay,
                     permission == null ? "*" : permission,
-                    fixedCycle));
+                    fixedCycle, weight));
         }
         catch (IllegalArgumentException ex)
         {
@@ -127,10 +133,44 @@ public class ShoutCommand extends ContainerCommand
         i18n.sendTranslated(ctx, POSITIVE, "Your announcement have been created and loaded into the plugin");
     }
 
-    @Command(desc = "clean all loaded announcements form memory and load from disk")
+    @Command(desc = "clean all loaded announcements from memory and load from disk")
     public void reload(CommandContext context)
     {
         module.getAnnouncementManager().reload();
         context.sendTranslated(POSITIVE, "All the announcements have now been reloaded, and the players have been re-added");
+    }
+
+    @Command(desc = "delete an announcement")
+    public void delete(CommandContext context, String announcement)
+    {
+        if (module.getAnnouncementManager().deleteAnnouncement(announcement))
+        {
+            context.sendTranslated(POSITIVE, "Announcement {name} was deleted!", announcement);
+        }
+        else
+        {
+            context.sendTranslated(POSITIVE, "There is now announcement named {}", announcement);
+        }
+    }
+
+    @Command(desc = "modifies an announcement")
+    public void modify(CommandContext context, String announcement, String message, @Named("locale") Locale locale)
+    {
+        Announcement a = module.getAnnouncementManager().getAnnouncement(announcement);
+        if (a == null)
+        {
+            context.sendTranslated(POSITIVE, "There is now announcement named {}", announcement);
+            return;
+        }
+        if (locale == null)
+        {
+            a.getConfig().announcement = message;
+        }
+        else
+        {
+            a.getConfig().translated.put(locale, message);
+        }
+        a.getConfig().save();
+        context.sendTranslated(POSITIVE, "Updated announcement");
     }
 }
