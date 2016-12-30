@@ -117,7 +117,7 @@ public class ChopListener
                             block.getExtent().playSound(SoundTypes.BLOCK_WOOD_STEP, block.getPosition(), 1);
                         }
                         logs++;
-                        block.setBlockType(AIR, blockPlayerCause);
+                        block.setBlockType(BlockTypes.AIR, blockPlayerCause);
                         BlockType belowTyp = block.getBlockRelative(DOWN).getBlockType();
                         if (belowTyp == DIRT || belowTyp == GRASS)
                         {
@@ -126,7 +126,7 @@ public class ChopListener
                     }
                     if (block.getBlockType() == LEAVES || block.getBlockType() == LEAVES2)
                     {
-                        block.setBlockType(AIR, blockPlayerCause);
+                        block.setBlockType(BlockTypes.AIR, blockPlayerCause);
                         block.getExtent().playSound(SoundTypes.BLOCK_GRASS_STEP, block.getPosition(), 1); // TODO leaves sound?
                         leaves++;
                     }
