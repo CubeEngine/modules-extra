@@ -481,7 +481,6 @@ public final class MarketSignManager
         copy.setQuantity(data.getAmount());
         player.getInventory().offer(copy);
         int remaining = copy.getQuantity();
-        copy.setQuantity(-1);
         if (remaining != 0)
         {
             player.getInventory().query(copy).poll(remaining);
@@ -627,7 +626,6 @@ public final class MarketSignManager
             return;
         }
         ItemStack copy = item.copy();
-        copy.setQuantity(-1);
 
         int quantity = item.getQuantity();
         if (all)
