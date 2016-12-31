@@ -18,10 +18,13 @@
 package org.cubeengine.module.unbreakableboat;
 
 import java.util.Arrays;
+import java.util.HashMap;
+
 import javax.inject.Inject;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.modularity.core.marker.Enable;
+import org.cubeengine.libcube.hack.RecipeHack;
 import org.cubeengine.module.unbreakableboat.data.ImmutableUnbreakableData;
 import org.cubeengine.module.unbreakableboat.data.UnbreakableData;
 import org.cubeengine.module.unbreakableboat.data.UnbreakableDataBuilder;
@@ -62,6 +65,7 @@ public class Unbreakableboat extends Module
 
         ItemStack log = ItemStack.of(ItemTypes.LOG, 1);
 
+        /*
         ShapedRecipe recipe = Sponge.getRegistry().createBuilder(ShapedRecipe.Builder.class)
             .width(3).height(2)
             .row(0, log, null, log)
@@ -71,7 +75,14 @@ public class Unbreakableboat extends Module
             .addResult(boat)
             .build();
 
+
+
         Sponge.getRegistry().getRecipeRegistry().register(recipe);
+        */
+
+        HashMap<Character, ItemStack> map = new HashMap<>();
+        map.put('l', log);
+        Object recipe = RecipeHack.addRecipe(boat, new String[]{"l l", "lll"}, map);
 
         Sponge.getDataManager().register(UnbreakableData.class, ImmutableUnbreakableData.class, new UnbreakableDataBuilder());
     }
