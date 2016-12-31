@@ -17,14 +17,16 @@
  */
 package org.cubeengine.module.fun;
 
-import java.util.Locale;
 import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionContainer;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 
+import javax.inject.Inject;
+
 @SuppressWarnings("all")
 public class FunPerm extends PermissionContainer
 {
+    @Inject
     public FunPerm(PermissionManager pm, Fun module)
     {
         super(pm, Fun.class);
