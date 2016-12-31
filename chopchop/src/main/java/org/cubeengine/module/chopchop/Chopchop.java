@@ -17,16 +17,21 @@
  */
 package org.cubeengine.module.chopchop;
 
-import javax.inject.Inject;
+import static java.util.Collections.singletonList;
+import static org.spongepowered.api.item.ItemTypes.DIAMOND_AXE;
+import static org.spongepowered.api.item.ItemTypes.LOG;
+import static org.spongepowered.api.text.format.TextColors.GOLD;
+import static org.spongepowered.api.text.format.TextColors.YELLOW;
+
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.modularity.core.marker.Disable;
 import de.cubeisland.engine.modularity.core.marker.Enable;
+import org.cubeengine.libcube.hack.RecipeHack;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.task.TaskManager;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.GameRegistry;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.meta.ItemEnchantment;
 import org.spongepowered.api.item.Enchantments;
@@ -34,11 +39,9 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.recipe.ShapedRecipe;
 import org.spongepowered.api.text.Text;
 
-import static java.util.Collections.singletonList;
-import static org.spongepowered.api.item.ItemTypes.DIAMOND_AXE;
-import static org.spongepowered.api.item.ItemTypes.LOG;
-import static org.spongepowered.api.text.format.TextColors.GOLD;
-import static org.spongepowered.api.text.format.TextColors.YELLOW;
+import java.util.HashMap;
+
+import javax.inject.Inject;
 
 @ModuleInfo(name = "ChopChop", description = "Chop whole trees down")
 public class Chopchop extends Module
@@ -53,7 +56,7 @@ public class Chopchop extends Module
     public void onEnable()
     {
         em.registerListener(Chopchop.class, new ChopListener());
-        // TODO tm.runTaskDelayed(Chopchop.class, this::registerRecipe, 1);
+        tm.runTaskDelayed(Chopchop.class, this::registerRecipe, 1);
     }
 
     @Disable
@@ -76,11 +79,17 @@ public class Chopchop extends Module
         ItemStack axeHead = ItemStack.builder().itemType(DIAMOND_AXE).build();
         ItemStack axeHandle = ItemStack.builder().itemType(LOG).build();
 
+        HashMap<Character, ItemStack> map = new HashMap<>();
+        map.put('a', axeHead);
+        map.put('s', axeHandle);
+        Object recipe = RecipeHack.addRecipe(axe, new String[]{"aa", "as", " s"}, map);
 
+        /*
         recipe = Sponge.getRegistry().createBuilder(ShapedRecipe.Builder.class).height(3).width(2)
                                              .row(0, axeHead, axeHead)
                                              .row(1, axeHead, axeHandle)
                                              .row(2, null, axeHandle).addResult(axe).build();
         registry.getRecipeRegistry().register(recipe);
+        */
     }
 }
