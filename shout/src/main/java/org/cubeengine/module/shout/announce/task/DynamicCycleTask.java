@@ -106,9 +106,9 @@ public class DynamicCycleTask implements Runnable
         Announcement newNext;
         do
         {
-            newNext = announcements.floorEntry(((int) (random.nextDouble() * weightCount))).getValue();
+             newNext = announcements.floorEntry(((int) (random.nextDouble() * weightCount))).getValue();
         }
-        while (newNext == null || newNext == next || announcements.size() == 1);
+        while ((newNext == null || newNext == next) && announcements.size() > 1);
         return newNext;
     }
 
