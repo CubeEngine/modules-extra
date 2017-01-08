@@ -28,8 +28,6 @@ import org.spongepowered.api.service.context.Context;
 public class BackpackData extends ReflectedNBT
 {
     public boolean allowItemsIn = true;
-    public int pages = 1;
-    public int size = 6;
     public Map<Integer, ItemStack> contents = new HashMap<>();
     public List<Context> activeIn = new ArrayList<>();
 

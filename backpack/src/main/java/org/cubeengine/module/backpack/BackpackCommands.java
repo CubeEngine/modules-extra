@@ -53,9 +53,14 @@ public class BackpackCommands extends ContainerCommand
     @Alias(value = "openbp")
     @Command(desc = "opens a backpack")
     @Restricted(value = Player.class, msg = "You cannot open a inventory in console!")
-    public void open(Player ctx, String name, @Default User player,
-                     @ParameterPermission(value = "other-context", desc = "Allows using the open command in another context")@Flag boolean outOfContext)
+    public void open(Player ctx, @Optional String name, @Default User player,
+                     @ParameterPermission(value = "other-context", desc = "Allows using the open command in another context")
+                     @Flag boolean outOfContext)
     {
+        if (name == null)
+        {
+            name = player.getName();
+        }
         if (ctx != player && !ctx.hasPermission(module.perms().COMMAND_OPEN_OTHER_PLAYER.getId()))
         {
             i18n.sendTranslated(ctx, NEGATIVE, "You are not allowed to open the backpacks of other users!");
@@ -66,31 +71,34 @@ public class BackpackCommands extends ContainerCommand
 
     @Alias(value = "createbp")
     @Command(desc = "creates a new backpack")
-    public void create(CommandSource ctx, String name,
+    public void create(CommandSource ctx,
                        @Default @Optional User player,
+                       @Optional String name,
                        @Default @Named("in") Context context,
-                       @Named({"p", "pages"}) Integer pages,
-                       @Named({"s","size"}) Integer size,
                        @Flag boolean blockinput)
     {
-        manager.createBackpack(ctx, player, name, context, blockinput, pages, size);
+        if (name == null)
+        {
+            name = player.getName();
+        }
+        manager.createBackpack(ctx, player, name, context, blockinput);
     }
 
     @Alias(value = "modifybp")
     @Command(desc = "modifies a backpack")
     public void modify(CommandSource ctx, String name, @Default User player,
-                       @Named({"p", "pages"}) Integer pages,
-                       @Named({"s","size"}) Integer size,
                        @Flag boolean blockinput)
     {
-        manager.modifyBackpack(ctx, player, name, blockinput, pages, size);
+        manager.modifyBackpack(ctx, player, name, blockinput);
     }
 
+    @Command(desc = "modifies a backpacks context")
     public void addContext(CommandSource ctx, String name, @Default User player, Context context)
     {
         manager.setBackpackContext(ctx, player, name, context, true);
     }
 
+    @Command(desc = "modifies a backpacks context")
     public void removeContext(CommandSource ctx, String name, @Default User player, Context context)
     {
         manager.setBackpackContext(ctx, player, name, context, false);

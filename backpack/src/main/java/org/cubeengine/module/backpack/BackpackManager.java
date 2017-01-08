@@ -76,7 +76,7 @@ public class BackpackManager
             backPacks = new HashMap<>();
             allPacks.put(player, backPacks);
 
-            for (Path path : Files.newDirectoryStream(folder, DAT.getExtention()))
+            for (Path path : Files.newDirectoryStream(folder, DAT))
             {
                 String name = StringUtils.stripFileExtension(path.getFileName().toString());
                 BackpackData load = reflector.load(BackpackData.class, path.toFile());
@@ -92,6 +92,10 @@ public class BackpackManager
 
     public void openBackpack(Player sender, User forUser, boolean outOfContext, String name)
     {
+        if (!allPacks.containsKey(forUser.getUniqueId()) || allPacks.get(forUser.getUniqueId()).isEmpty())
+        {
+            loadBackpacks(forUser.getUniqueId());
+        }
         BackpackInventory pack = getBackpack(forUser, name);
         if (pack == null)
         {
@@ -128,7 +132,7 @@ public class BackpackManager
         return pack;
     }
 
-    public void createBackpack(CommandSource sender, User player, String name, Context context, boolean blockInput, Integer pages, Integer size)
+    public void createBackpack(CommandSource sender, User player, String name, Context context, boolean blockInput)
     {
         BackpackInventory backpack = getBackpack(player, name);
         if (backpack != null)
@@ -144,8 +148,6 @@ public class BackpackManager
 
             BackpackData data = reflector.create(BackpackData.class);
             data.allowItemsIn = !blockInput;
-            data.pages = pages;
-            data.size = size;
             data.activeIn.add(context);
             data.setFile(folder.resolve(name + DAT.getExtention()).toFile());
             data.save();
@@ -201,7 +203,7 @@ public class BackpackManager
         }
     }
 
-    public void modifyBackpack(CommandSource sender, User player, String name, Boolean blockInput, Integer pages, Integer size)
+    public void modifyBackpack(CommandSource sender, User player, String name, Boolean blockInput)
     {
         BackpackInventory pack = getBackpack(player, name);
         if (pack == null)
@@ -210,50 +212,6 @@ public class BackpackManager
             return;
         }
         
-        if (pages != null)
-        {
-            if (pack.data.contents.size() > pages * pack.data.size)
-            {
-                i18n.sendTranslated(sender, NEGATIVE, "Could not change page amount! Not enough space!");
-            }
-            else
-            {
-                if (pack.data.pages > pages) // compact inventory
-                {
-                    Collection<ItemStack> values = pack.data.contents.values();
-                    pack.data.contents = new HashMap<>();
-                    int i = 0;
-                    for (ItemStack value : values)
-                    {
-                        pack.data.contents.put(i++, value);
-                    }
-                }
-                pack.data.pages = pages;
-                i18n.sendTranslated(sender, POSITIVE, "Pages changed!");
-            }
-        }
-        if (size != null)
-        {
-            if (pack.data.contents.size() > size * pack.data.pages)
-            {
-                i18n.sendTranslated(sender, NEGATIVE, "Could not change page size! Not enough space!");
-            }
-            else
-            {
-                if (pack.data.size > size) // compact inventory
-                {
-                    Collection<ItemStack> values = pack.data.contents.values();
-                    pack.data.contents = new HashMap<>();
-                    int i = 0;
-                    for (ItemStack value : values)
-                    {
-                        pack.data.contents.put(i++, value);
-                    }
-                }
-                pack.data.size = size;
-                i18n.sendTranslated(sender, POSITIVE, "Page-size changed!");
-            }
-        }
         if (blockInput != null)
         {
             pack.data.allowItemsIn = !blockInput;
@@ -301,30 +259,10 @@ public class BackpackManager
     }
 
     @Listener
-    public void onInventoryClick(ClickInventoryEvent.Drop event, @First Player player)
-    {
-        Container inventory = event.getTargetInventory();
-        if (inventory instanceof CarriedInventory)
-        {
-            if (((CarriedInventory)inventory).getCarrier().orElse(null) instanceof BackpackHolder)
-            {
-                BackpackHolder holder = (BackpackHolder)((CarriedInventory)inventory).getCarrier().get();
-                if (event instanceof ClickInventoryEvent.Drop.Primary)
-                {
-                    holder.getBackpack().showNextPage(player);
-                }
-                if (event instanceof ClickInventoryEvent.Drop.Secondary)
-                {
-                    holder.getBackpack().showPrevPage(player);
-                }
-            }
-        }
-    }
-
-    @Listener
     public void onInventoryClose(InteractInventoryEvent.Close event, @First Player player)
     {
         Container inventory = event.getTargetInventory();
+        // TODO detect closing inventory
         if (inventory instanceof CarriedInventory)
         {
             if (((CarriedInventory)inventory).getCarrier().orElse(null) instanceof BackpackHolder)

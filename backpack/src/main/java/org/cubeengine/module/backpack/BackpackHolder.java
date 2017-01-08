@@ -28,17 +28,15 @@ import org.spongepowered.api.text.Text;
 
 public class BackpackHolder implements Carrier
 {
-    public final int index;
     public final Inventory inventory;
     private final BackpackInventory backBackInventories;
 
-    public BackpackHolder(BackpackInventory backBackInventories, int index, int size, String title)
+    public BackpackHolder(BackpackInventory backBackInventories, String title)
     {
         this.backBackInventories = backBackInventories;
-        this.index = index;
         this.inventory =
                 Inventory.builder().of(CHEST)
-                .property(InventoryDimension.PROPERTY_NAM, InventoryDimension.of(9, size / 9))
+                .property(InventoryDimension.PROPERTY_NAME, InventoryDimension.of(9, 6))
                 .property(InventoryTitle.PROPERTY_NAME, InventoryTitle.of(Text.of(title)))
                 .build(backBackInventories.module.getPlugin());
     }
