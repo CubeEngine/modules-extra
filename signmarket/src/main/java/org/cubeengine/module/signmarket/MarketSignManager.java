@@ -427,7 +427,7 @@ public final class MarketSignManager
 
         ItemStack copy = data.getItem().copy();
         copy.setQuantity(1);
-        int itemsInInventory = player.getInventory().query(copy).totalItems(); // TODO ignore repaircost?
+        int itemsInInventory = player.getInventory().queryAny(copy).totalItems(); // TODO ignore repaircost?
         if (data.getAmount() > itemsInInventory)
         {
             i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "You do not have enough items to sell!");
@@ -452,7 +452,7 @@ public final class MarketSignManager
                 throw new IllegalStateException("Could not deposit");
             }
         }
-        player.getInventory().query(copy).poll(data.getAmount());
+        player.getInventory().queryAny(copy).poll(data.getAmount());
         if (data.getStock() != null)
         {
             data.setStock(data.getStock() + data.getAmount());
@@ -483,14 +483,14 @@ public final class MarketSignManager
         int remaining = copy.getQuantity();
         if (remaining != 0)
         {
-            player.getInventory().query(copy).poll(remaining);
+            player.getInventory().queryAny(copy).poll(remaining);
             i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "You don't have enough space in your inventory for these items!");
             return;
         }
 
         if (account.withdraw(es.getDefaultCurrency(), getPrice(data), Cause.of(NamedCause.source(player))).getResult() != ResultType.SUCCESS)
         {
-            player.getInventory().query(copy).poll(data.getAmount());
+            player.getInventory().queryAny(copy).poll(data.getAmount());
             account.deposit(es.getDefaultCurrency(), getPrice(data), Cause.of(NamedCause.source(player)));
             i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "You can't afford these items!");
             return;
@@ -547,7 +547,7 @@ public final class MarketSignManager
             Inventory inv = Inventory.builder()
                     .of(CHEST)
                     .property(InventoryTitle.PROPERTY_NAME, InventoryTitle.of(Text.of(getOwnerName(data))))
-                    .property(InventoryDimension.PROPERTY_NAM, new InventoryDimension(9, 6))
+                    .property(InventoryDimension.PROPERTY_NAME, new InventoryDimension(9, 6))
                     .property("identifiable", new Identifiable()).build(plugin);
             signInventories.put(data.getID(), inv);
             updateSignText(data, loc);
@@ -574,7 +574,7 @@ public final class MarketSignManager
                 signInventories.remove(data.getID());
                 if (data.getStock() != null)
                 {
-                    int newPageStock = inv.query(copy).totalItems();
+                    int newPageStock = inv.queryAny(copy).totalItems();
                     Integer totalStock = data.getStock();
                     Integer oldPageStock = signInventoryStock.get(key
                             /*TODO getProperty is always empty MinecraftInventoryAdapter
@@ -630,7 +630,7 @@ public final class MarketSignManager
         int quantity = item.getQuantity();
         if (all)
         {
-            Inventory slots = player.getInventory().query(copy);
+            Inventory slots = player.getInventory().queryAny(copy);
             quantity = slots.totalItems();
         }
 
@@ -651,7 +651,7 @@ public final class MarketSignManager
         data.setStock(data.getStock() + quantity);
         if (all)
         {
-            player.getInventory().query(copy).poll(quantity);
+            player.getInventory().queryAny(copy).poll(quantity);
             i18n.sendTranslated(ACTION_BAR, player, POSITIVE, "Added all ({amount}) {name#material} to the stock!", quantity,
                                 item.getTranslation().get(player.getLocale()));
         }
