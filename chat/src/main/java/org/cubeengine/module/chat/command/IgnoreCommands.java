@@ -35,6 +35,7 @@ import org.cubeengine.libcube.service.database.Database;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 
 import static org.cubeengine.module.chat.storage.TableIgnorelist.TABLE_IGNORE_LIST;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
@@ -55,7 +56,7 @@ public class IgnoreCommands
         this.i18n = i18n;
     }
 
-    private boolean addIgnore(Player user, Player ignored)
+    private boolean addIgnore(Player user, User ignored)
     {
         if (checkIgnored(user, ignored))
         {
@@ -67,7 +68,7 @@ public class IgnoreCommands
         return true;
     }
 
-    private boolean removeIgnore(Player user, Player ignored)
+    private boolean removeIgnore(Player user, User ignored)
     {
         if (checkIgnored(user, ignored))
         {
@@ -79,7 +80,7 @@ public class IgnoreCommands
         return true;
     }
 
-    public boolean checkIgnored(Player user, Player ignored)
+    public boolean checkIgnored(Player user, User ignored)
     {
         // TODO cache this shit
         IgnoreList ignore =
@@ -91,7 +92,7 @@ public class IgnoreCommands
     }
 
     @Command(desc = "Ignores all messages from players")
-    public void ignore(CommandSource context, List<Player> players)
+    public void ignore(CommandSource context, List<User> players)
     {
         if (!(context instanceof Player))
         {
@@ -104,7 +105,7 @@ public class IgnoreCommands
         
         Player sender = ((Player)context);
         List<String> added = new ArrayList<>();
-        for (Player user : players)
+        for (User user : players)
         {
             if (user == context)
             {
@@ -133,10 +134,10 @@ public class IgnoreCommands
 
     @Command(desc = "Stops ignoring all messages from a player")
     @Restricted(value = Player.class, msg = "Congratulations! You are now looking at this text!")
-    public void unignore(Player context, List<Player> players)
+    public void unignore(Player context, List<User> players)
     {
         List<String> added = new ArrayList<>();
-        for (Player user : players)
+        for (User user : players)
         {
             if (!this.removeIgnore(context, user))
             {
