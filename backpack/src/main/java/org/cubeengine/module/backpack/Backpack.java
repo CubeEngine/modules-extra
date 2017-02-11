@@ -23,10 +23,13 @@ import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.modularity.core.marker.Enable;
 import de.cubeisland.engine.reflect.Reflector;
+import de.cubeisland.engine.reflect.codec.nbt.NBTCodec;
 import org.cubeengine.libcube.service.command.CommandManager;
+import org.cubeengine.libcube.service.config.ItemStackConverter;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.inventoryguard.InventoryGuardFactory;
+import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.plugin.PluginContainer;
 
 @ModuleInfo(name = "Backpack", description = "Expand your inventory")
@@ -58,6 +61,7 @@ public class Backpack extends Module
     @Enable
     public void onEnable()
     {
+        reflector.getCodecManager().getCodec(NBTCodec.class).getConverterManager().registerConverter(new ItemStackConverter(), ItemStack.class);
         manager = new BackpackManager(this, reflector, i18n);
         cm.addCommand(new BackpackCommands(this, manager, i18n, cm));
         em.registerListener(Backpack.class, manager);

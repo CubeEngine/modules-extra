@@ -17,8 +17,6 @@
  */
 package org.cubeengine.module.backpack;
 
-import static org.spongepowered.api.item.inventory.InventoryArchetypes.CHEST;
-
 import org.cubeengine.libcube.util.ChatFormat;
 import org.cubeengine.libcube.util.ContextUtil;
 import org.spongepowered.api.Sponge;
@@ -42,8 +40,6 @@ public class BackpackInventory
     private final Set<UUID> viewers = new HashSet<>();
     private BackpackHolder view;
     
-    private static final String pageString = ChatFormat.GOLD + "Page";
-
     public BackpackInventory(Backpack module, BackpackData data)
     {
         this.module = module;
@@ -56,22 +52,16 @@ public class BackpackInventory
         {
             view = new BackpackHolder(this, "Backpack");
         }
-        // TODO create custom inventory that is a CarriedInventory .withCarrier()
-
-        ItemStack[] contents = new ItemStack[6 * 9];
-        for (int i = 0; i < 6 * 9; i++)
-        {
-            ItemStack itemStack = data.contents.get(i);
-            contents[i] = itemStack == null ? null : itemStack.copy();
-        }
 
         int i = 0;
-        for (Inventory slot : view.getInventory())
+        for (Inventory slot : view.getInventory().slots())
         {
-            if (contents[i] != null)
+            ItemStack itemStack = data.contents.get(i);
+            if (itemStack != null)
             {
-                slot.set(contents[i]);
+                slot.set(itemStack.copy());
             }
+            i++;
         }
 
         return view.getInventory();
@@ -80,9 +70,8 @@ public class BackpackInventory
     private void saveData(Inventory inventory)
     {
         int i = 0;
-        for (Inventory slot : inventory)
+        for (Inventory slot : inventory.slots())
         {
-            i++;
             if (slot.peek().isPresent())
             {
                  data.contents.put(i, slot.peek().get());
@@ -91,6 +80,7 @@ public class BackpackInventory
             {
                 data.contents.remove(i);
             }
+            i++;
         }
         data.save();
     }
@@ -109,7 +99,7 @@ public class BackpackInventory
         }
     }
 
-    public void closeInventory(Player player)
+    public void closeInventory(Container container, Player player)
     {
         viewers.remove(player.getUniqueId());
         if (view != null)
@@ -117,13 +107,6 @@ public class BackpackInventory
             this.saveData(view.getInventory());
         }
         if (viewers.isEmpty())
-        {
-
-        }
-
-        if (((Container)view.getInventory()).getViewers().isEmpty()
-            || (((Container)view.getInventory()).getViewers().size() == 1
-            && ((Container)view.getInventory()).getViewers().iterator().next() == player))
         {
             view = null;
         }

@@ -17,13 +17,14 @@
  */
 package org.cubeengine.module.backpack;
 
+import de.cubeisland.engine.reflect.codec.nbt.ReflectedNBT;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.service.context.Context;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import de.cubeisland.engine.reflect.codec.nbt.ReflectedNBT;
-import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.service.context.Context;
 
 public class BackpackData extends ReflectedNBT
 {
@@ -34,8 +35,6 @@ public class BackpackData extends ReflectedNBT
     @Override
     public void onSave()
     {
-        contents.keySet().stream()
-                .filter(next -> contents.get(next) == null)
-                .forEach(next -> contents.remove(next));
+        contents.values().remove(null);
     }
 }

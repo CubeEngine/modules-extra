@@ -38,6 +38,7 @@ public class BackpackHolder implements Carrier
                 Inventory.builder().of(CHEST)
                 .property(InventoryDimension.PROPERTY_NAME, InventoryDimension.of(9, 6))
                 .property(InventoryTitle.PROPERTY_NAME, InventoryTitle.of(Text.of(title)))
+                .withCarrier(this)
                 .build(backBackInventories.module.getPlugin());
     }
 

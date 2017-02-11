@@ -32,7 +32,6 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.filter.cause.First;
-import org.spongepowered.api.event.item.inventory.ClickInventoryEvent;
 import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
 import org.spongepowered.api.item.inventory.Container;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -262,13 +261,12 @@ public class BackpackManager
     public void onInventoryClose(InteractInventoryEvent.Close event, @First Player player)
     {
         Container inventory = event.getTargetInventory();
-        // TODO detect closing inventory
         if (inventory instanceof CarriedInventory)
         {
             if (((CarriedInventory)inventory).getCarrier().orElse(null) instanceof BackpackHolder)
             {
                 BackpackHolder holder = (BackpackHolder)((CarriedInventory)inventory).getCarrier().get();
-                holder.getBackpack().closeInventory(player);
+                holder.getBackpack().closeInventory(inventory, player);
             }
         }
     }
