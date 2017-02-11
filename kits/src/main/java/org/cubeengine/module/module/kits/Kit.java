@@ -96,7 +96,7 @@ public class Kit
                 // System.currentTimeMillis() - lastUsage < limitUsageDelay)
                 if (reached)
                 {
-                    throw new IncorrectUsageException(false, "This kit isn't available at the moment. Try again later!");
+                   // TODO throw new IncorrectUsageException(false, "This kit isn't available at the moment. Try again later!");
                 }
             }
         }
@@ -151,5 +151,10 @@ public class Kit
     public String getKitName()
     {
         return this.name;
+    }
+
+    public List<ItemStack> getItems()
+    {
+        return items;
     }
 }

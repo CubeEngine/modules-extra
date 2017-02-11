@@ -42,7 +42,6 @@ public class KitConfiguration extends ReflectedYaml
     @Comment("amount*itemName/Id:Data customName\n"
         + "example: 64*STONE:0 MyFirstStoneBlocks")
     @Name("items")
-    @Converter(ItemStackConverter.class) // Full Item Data
     public List<ItemStack> kitItems = new LinkedList<>();
     @Name("commands")
     public List<String> kitCommands = new LinkedList<>();

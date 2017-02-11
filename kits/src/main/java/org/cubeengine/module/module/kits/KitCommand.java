@@ -27,6 +27,7 @@ import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Default;
 import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.libcube.service.command.CommandManager;
+import org.cubeengine.libcube.util.CauseUtil;
 import org.cubeengine.libcube.util.FileUtil;
 import org.cubeengine.libcube.service.command.ContainerCommand;
 import org.cubeengine.libcube.service.command.annotation.ParameterPermission;
@@ -34,7 +35,12 @@ import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.inventoryguard.InventoryGuardFactory;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntityTypes;
+import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.cause.entity.spawn.SpawnTypes;
+import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.InventoryArchetypes;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -85,24 +91,46 @@ public class KitCommand extends ContainerCommand
                                 "{name#kit} is is not a valid name! Do not use characters like *, | or ?", kitname);
             return;
         }
-        List<ItemStack> itemList = new ArrayList<>();
-        Kit kit = new Kit(module, kitname, false, 0, -1, true, "", new ArrayList<>(), itemList);
 
-        Translation name = null; // Put all KitItems into here
         Inventory inventory = Inventory.builder().of(InventoryArchetypes.DOUBLE_CHEST)
-                .property(InventoryTitle.PROPERTY_NAME, InventoryTitle.of(Text.of(name)))
+                .property(InventoryTitle.PROPERTY_NAME, InventoryTitle.of(Text.of(i18n.translate(context, "Kit Contents: "), kitname)))
                 .build(module.getPlugin());
-        igf.prepareInv(inventory, context.getUniqueId()).onClose(() -> {
+
+        List<ItemStack> itemList = new ArrayList<>();
+        Kit kit = manager.getKit(kitname);
+        if (kit == null)
+        {
+            kit = new Kit(module, kitname, false, 0, -1, true, "", new ArrayList<>(), itemList);
+        }
+        else
+        {
+            itemList.addAll(kit.getItems());
+        }
+
+        showKit(context, inventory, itemList, kit);
+    }
+
+    private void showKit(Player player, Inventory inventory, List<ItemStack> itemList, Kit kit)
+    {
+        for (ItemStack stack : itemList)
+        {
+            inventory.offer(stack);
+        }
+
+        itemList.clear();
+        igf.prepareInv(inventory, player.getUniqueId()).onClose(() -> {
             inventory.slots().forEach(slot -> {
                 Optional<ItemStack> item = slot.peek();
                 if (item.isPresent())
                 {
-                    itemList.add(item.get());
-                    context.getInventory().offer(item.get()); // Give the item back
+                    itemList.add(item.get().copy());
+                    Entity itemEntity = player.getLocation().createEntity(EntityTypes.ITEM);
+                    player.getLocation().spawnEntity(itemEntity, CauseUtil.spawnCause(SpawnTypes.PLUGIN, player));
+                    //player.getInventory().offer(item.get()); // Give the item back
                 }
             });
             manager.saveKit(kit);
-            i18n.sendTranslated(context, POSITIVE, "Created the {name#kit} kit!", kit.getKitName());
+            i18n.sendTranslated(player, POSITIVE, "Created the {name#kit} kit!", kit.getKitName());
         }).submitInventory(Kits.class, true);
     }
 
