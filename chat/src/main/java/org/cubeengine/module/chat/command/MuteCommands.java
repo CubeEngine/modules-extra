@@ -62,10 +62,17 @@ public class  MuteCommands
     public void mute(CommandSource context, Player player, @Optional String duration)
     {
         Date muted = getMuted(player);
-        if (muted != null && muted.getTime() < System.currentTimeMillis())
+        if (muted != null && muted.getTime() > System.currentTimeMillis())
         {
             i18n.sendTranslated(context, NEUTRAL, "{user} was already muted!", player);
         }
+        try
+        {
+            Integer.parseInt(duration);
+            duration += "m";
+        }
+        catch (NumberFormatException ignored)
+        {}
         Duration dura = module.getConfig().defaultMuteTime;
         if (duration != null)
         {
@@ -82,10 +89,10 @@ public class  MuteCommands
 
         setMuted(player, new Date(System.currentTimeMillis() + (dura.getMillis() == 0 ? DAYS.toMillis(
             9001) : dura.getMillis())));
-        Text timeString = dura.getMillis() == 0 ? i18n.getTranslation(player, NONE, "ever") : Text.of(TimeUtil.format(
-            player.getLocale(), dura.getMillis()));
-        i18n.sendTranslated(player, NEGATIVE, "You are now muted for {input#amount}!", timeString);
-        i18n.sendTranslated(context, NEUTRAL, "You muted {user} globally for {input#amount}!", player, timeString);
+        Text timeString = dura.getMillis() == 0 ? i18n.getTranslation(player, NONE, "ever") :
+                Text.of(TimeUtil.format(player.getLocale(), dura.getMillis()));
+        i18n.sendTranslated(player, NEGATIVE, "You are now muted for {txt#amount}!", timeString);
+        i18n.sendTranslated(context, NEUTRAL, "You muted {user} globally for {txt#amount}!", player, timeString);
     }
 
     public Date getMuted(Player player)
