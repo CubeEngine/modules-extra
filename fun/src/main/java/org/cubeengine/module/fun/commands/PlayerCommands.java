@@ -17,7 +17,11 @@
  */
 package org.cubeengine.module.fun.commands;
 
-import java.util.Collections;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
+import static org.spongepowered.api.data.type.HandTypes.MAIN_HAND;
+
 import com.flowpowered.math.vector.Vector3d;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Flag;
@@ -30,7 +34,6 @@ import org.cubeengine.module.fun.Fun;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.property.item.EquipmentProperty;
-import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
@@ -47,9 +50,6 @@ import org.spongepowered.api.util.blockray.BlockRayHit;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.explosion.Explosion;
-
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
-import static org.spongepowered.api.data.type.HandTypes.MAIN_HAND;
 
 public class PlayerCommands
 {
@@ -209,7 +209,7 @@ public class PlayerCommands
             fire || unsafe).shouldDamageEntities(playerDamage || unsafe).shouldBreakBlocks(
             blockDamage || unsafe).build();
 
-        loc.getExtent().triggerExplosion(explosion, Cause.of(NamedCause.source(player)));
+        loc.getExtent().triggerExplosion(explosion, CauseUtil.spawnCause(context));
     }
 
     @Command(alias = "strike", desc = "Throws a lightning bolt at a player or where you're looking")
@@ -282,9 +282,9 @@ public class PlayerCommands
             return;
         }
 
-        final Vector3d userDirection = player.getRotation();
-        player.damage(damage, DamageSource.builder().absolute().build(), Cause.of(NamedCause.source(context)));
-        player.setVelocity(new Vector3d(userDirection.getX() * damage / 2, 0.05 * damage, userDirection.getZ() * damage / 2));
+        final Vector3d userDirection = player.getTransform().getRotationAsQuaternion().getDirection().mul(-1);
+        player.damage(damage, DamageSource.builder().type(DamageTypes.ATTACK).absolute().build(), Cause.of(NamedCause.source(context)));
+        player.setVelocity(new Vector3d(userDirection.getX() * damage / 2, userDirection.getY() * damage / 20, userDirection.getZ() * damage / 2));
     }
 
     @Command(desc = "Burns a player")

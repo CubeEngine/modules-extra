@@ -269,9 +269,10 @@ public class ThrowCommands
         private void throwItem()
         {
 
-            final Location location = this.player.getLocation().add(0, player.getProperty(EyeHeightProperty.class).get().getValue(), 0);
-            Vector3d rotation = player.getRotation().normalize();
-            location.add(rotation.mul(2));
+            Vector3d rotation = player.getTransform().getRotationAsQuaternion().getDirection().normalize();
+            Location location = this.player.getLocation()
+                    .add(0, player.getProperty(EyeHeightProperty.class).get().getValue(), 0)
+                    .add(rotation.mul(2));
 
             Entity entity;
             if (Projectile.class.isAssignableFrom(this.type.getEntityClass()))
