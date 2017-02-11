@@ -70,13 +70,10 @@ public class NukeCommand
 
     @Command(desc = "Makes a carpet of TNT fall on a player or where you're looking")
     public void nuke(CommandSource context,
-                     @Optional Integer param1,
-                     @Optional Integer param2,
-                     @Optional Integer param3,
+                     @Optional Integer diameter,
                      @Named({"player", "p"}) Player player,
                      @Named({"height", "h"}) Integer height,
                      @Named({"range", "r"}) Integer range,
-                     @Named({"shape", "s"}) String shape,
                      @Flag boolean unsafe,
                      @Flag boolean quiet)
     {
@@ -119,12 +116,8 @@ public class NukeCommand
             location = end.get().getLocation();
         }
 
-        Shape aShape = this.getShape(context, shape, location, height, param1, param2, param3);
-        if(aShape == null)
-        {
-            return;
-        }
-
+        location = this.getSpawnLocation(location, height);
+        Shape aShape = new Cuboid(new Vector3(location.getX() + .5, location.getY() + .5, location.getZ()+ .5) , diameter, 1, diameter);
         int blockAmount = this.spawnNuke(aShape, location.getExtent(), range, unsafe);
 
         if(!quiet)
@@ -133,39 +126,7 @@ public class NukeCommand
         }
     }
 
-    private Shape getShape(CommandSource context, String shape, Location location, int locationHeight, Integer param1,
-                           Integer param2, Integer param3)
-    {
-        shape = shape == null ? "cylinder" : shape;
-
-        switch (shape)
-        {
-        case "cylinder":
-            location = this.getSpawnLocation(location, locationHeight);
-            int radiusX = param1 == null ? 1 : param1;
-            return new Cylinder(new Vector3(location.getX(), location.getY(), location.getZ()), radiusX,
-                        param3 == null ? radiusX : param2, radiusX);
-        case "cube":
-        case "cuboid":
-            int width = param1 == null ? 1 : param1;
-            int height = shape.equals("cube") ? width : param2 == null ? width : param2;
-            int depth = shape.equals("cube") ? width : param3 == null ? width : param3;
-
-            location = location.add(- width / 2d, 0, - depth / 2d);
-            location = this.getSpawnLocation(location, locationHeight);
-            return new Cuboid(new Vector3(location.getX(), location.getY(), location.getZ()), width, height, depth);
-        case "sphere":
-            int radius = param1 == null ? 1 : param1;
-            location = this.getSpawnLocation(location, locationHeight);
-            return new Sphere(new Vector3(location.getX(), location.getY(), location.getZ()), radius);
-        default:
-            i18n.sendTranslated(context, NEGATIVE, "The shape {input} was not found!", shape);
-            break;
-        }
-        return null;
-    }
-
-    private Location getSpawnLocation(Location location, int height)
+    private Location<World> getSpawnLocation(Location<World> location, int height)
     {
         int noBlock = 0;
         while (noBlock != Math.abs(height))
