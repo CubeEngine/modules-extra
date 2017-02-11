@@ -128,7 +128,7 @@ public class ItemRepairCommands extends ContainerCommand
         {
             return;
         }
-        if (event instanceof Secondary)
+        if (event instanceof InteractBlockEvent.Secondary)
         {
             event.setCancelled(true);
             if (this.rbm.detachRepairBlock(event.getTargetBlock().getLocation().get()))
