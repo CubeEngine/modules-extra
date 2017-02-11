@@ -20,9 +20,9 @@ package org.cubeengine.module.backpack;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import de.cubeisland.engine.reflect.Reflector;
 import org.cubeengine.libcube.util.StringUtils;
@@ -79,7 +79,7 @@ public class BackpackManager
             {
                 String name = StringUtils.stripFileExtension(path.getFileName().toString());
                 BackpackData load = reflector.load(BackpackData.class, path.toFile());
-                backPacks.put(name, new BackpackInventory(module, load));
+                backPacks.put(name, new BackpackInventory(module, load, name));
             }
         }
         catch (IOException e)
@@ -87,7 +87,6 @@ public class BackpackManager
             throw new IllegalStateException(e);
         }
     }
-
 
     public void openBackpack(Player sender, User forUser, boolean outOfContext, String name)
     {
@@ -157,7 +156,7 @@ public class BackpackManager
                 packs = new HashMap<>();
                 allPacks.put(player.getUniqueId(), packs);
             }
-            packs.put(name, new BackpackInventory(module, data));
+            packs.put(name, new BackpackInventory(module, data, name));
 
             i18n.sendTranslated(sender, POSITIVE, "Created backpack {input#backpack} for {user}", name, player);
             i18n.sendTranslated(sender, POSITIVE, "The backpack is currently active in {context}", context);
@@ -269,5 +268,14 @@ public class BackpackManager
                 holder.getBackpack().closeInventory(inventory, player);
             }
         }
+    }
+
+    public Set<String> getBackpackNames(UUID player)
+    {
+        if (!allPacks.containsKey(player) || allPacks.get(player).isEmpty())
+        {
+            loadBackpacks(player);
+        }
+        return allPacks.get(player).keySet();
     }
 }

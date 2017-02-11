@@ -17,7 +17,6 @@
  */
 package org.cubeengine.module.backpack;
 
-import org.cubeengine.libcube.util.ChatFormat;
 import org.cubeengine.libcube.util.ContextUtil;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
@@ -36,21 +35,23 @@ public class BackpackInventory
 {
     protected final Backpack module;
     protected BackpackData data;
+    private String name;
 
     private final Set<UUID> viewers = new HashSet<>();
     private BackpackHolder view;
     
-    public BackpackInventory(Backpack module, BackpackData data)
+    public BackpackInventory(Backpack module, BackpackData data, String name)
     {
         this.module = module;
         this.data = data;
+        this.name = name;
     }
 
     private Inventory getInventory()
     {
         if (view == null)
         {
-            view = new BackpackHolder(this, "Backpack");
+            view = new BackpackHolder(this, "Backpack " + name);
         }
 
         int i = 0;

@@ -20,6 +20,7 @@ package org.cubeengine.module.backpack;
 import org.cubeengine.butler.alias.Alias;
 import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parametric.Command;
+import org.cubeengine.butler.parametric.Complete;
 import org.cubeengine.butler.parametric.Default;
 import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Named;
@@ -53,7 +54,7 @@ public class BackpackCommands extends ContainerCommand
     @Alias(value = "openbp")
     @Command(desc = "opens a backpack")
     @Restricted(value = Player.class, msg = "You cannot open a inventory in console!")
-    public void open(Player ctx, @Optional String name, @Default User player,
+    public void open(Player ctx, @Complete(BackpackCompleter.class) @Optional String name, @Default User player,
                      @ParameterPermission(value = "other-context", desc = "Allows using the open command in another context")
                      @Flag boolean outOfContext)
     {
@@ -84,10 +85,9 @@ public class BackpackCommands extends ContainerCommand
         manager.createBackpack(ctx, player, name, context, blockinput);
     }
 
-    @Alias(value = "modifybp")
+    @Alias(value = "blockbp")
     @Command(desc = "modifies a backpack")
-    public void modify(CommandSource ctx, String name, @Default User player,
-                       @Flag boolean blockinput)
+    public void blockinput(CommandSource ctx, String name, @Default User player, boolean blockinput)
     {
         manager.modifyBackpack(ctx, player, name, blockinput);
     }
