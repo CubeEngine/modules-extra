@@ -17,7 +17,7 @@
  */
 package org.cubeengine.module.backpack;
 
-import de.cubeisland.engine.reflect.codec.nbt.ReflectedNBT;
+import org.cubeengine.reflect.codec.nbt.ReflectedNBT;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.service.context.Context;
 

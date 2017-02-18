@@ -25,6 +25,7 @@ import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.modularity.core.marker.Enable;
 import org.cubeengine.libcube.hack.RecipeHack;
+import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.module.unbreakableboat.data.ImmutableUnbreakableData;
 import org.cubeengine.module.unbreakableboat.data.UnbreakableData;
 import org.cubeengine.module.unbreakableboat.data.UnbreakableDataBuilder;
@@ -34,12 +35,12 @@ import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.meta.ItemEnchantment;
 import org.spongepowered.api.entity.vehicle.Boat;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.entity.AttackEntityEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.item.Enchantments;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.item.recipe.ShapedRecipe;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
@@ -51,14 +52,21 @@ import static java.util.Collections.singletonList;
 @ModuleInfo(name = "UnbreakableBoat", description = "Adds a Recipe for an unbreakable Boat")
 public class Unbreakableboat extends Module
 {
-    private ItemStack boat = ItemStack.of(ItemTypes.BOAT, 1);
+    private ItemStack boat;
 
     @Inject private EventManager em;
+    @Inject private TaskManager tm;
 
     @Enable
     public void onEnable()
     {
         em.registerListener(Unbreakableboat.class, this);
+        tm.runTaskDelayed(Unbreakableboat.class, this::registerRecipe, 1);
+        Sponge.getDataManager().register(UnbreakableData.class, ImmutableUnbreakableData.class, new UnbreakableDataBuilder());
+    }
+
+    private void registerRecipe() {
+        boat = ItemStack.builder().itemType(ItemTypes.BOAT).quantity(1).build();
         boat.offer(Keys.ITEM_ENCHANTMENTS, singletonList(new ItemEnchantment(Enchantments.UNBREAKING, 5)));
         boat.offer(Keys.DISPLAY_NAME, Text.of(TextColors.GOLD, "Sturdy Boat"));
         boat.offer(Keys.ITEM_LORE, Arrays.asList(Text.of(TextColors.YELLOW, "Can take a lot!")));
@@ -82,13 +90,11 @@ public class Unbreakableboat extends Module
 
         HashMap<Character, ItemStack> map = new HashMap<>();
         map.put('l', log);
-        Object recipe = RecipeHack.addRecipe(boat, new String[]{"l l", "lll"}, map);
-
-        Sponge.getDataManager().register(UnbreakableData.class, ImmutableUnbreakableData.class, new UnbreakableDataBuilder());
+        Object recipe = RecipeHack.addRecipe(boat.copy(), new String[]{"l l", "lll"}, map);
     }
 
     @Listener
-    public void onVehicleBreak(DamageEntityEvent event)
+    public void onVehicleBreak(AttackEntityEvent event)
     {
         if (event.getTargetEntity() instanceof Boat)
         {

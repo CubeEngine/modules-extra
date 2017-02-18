@@ -21,11 +21,9 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Locale;
 
-import de.cubeisland.engine.reflect.annotations.Comment;
 import org.cubeengine.butler.CommandInvocation;
 import org.cubeengine.butler.alias.Alias;
 import org.cubeengine.butler.parametric.Command;
-import org.cubeengine.butler.parametric.Default;
 import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Label;
 import org.cubeengine.butler.parametric.Named;
@@ -64,23 +62,17 @@ public class ShoutCommand extends ContainerCommand
     }
 
     @Command(desc = "Displays an announcement")
-    public void show(CommandSource context, String announcement)
+    public void show(CommandSource context, Announcement announcement)
     {
-        Announcement toShow = this.module.getAnnouncementManager().getAnnouncement(announcement);
-        if (toShow == null)
-        {
-            i18n.sendTranslated(context, NEGATIVE, "{input#announcement} was not found!", announcement);
-            return;
-        }
-        toShow.announce();
-        i18n.sendTranslated(context, POSITIVE, "The announcement {name} has been announced!", toShow.getName());
+        announcement.announce();
+        i18n.sendTranslated(context, POSITIVE, "The announcement {name} has been announced!", announcement.getName());
     }
 
     @Alias(value = {"announcements"})
     @Command(alias = "announcements", desc = "List all announcements")
     public void list(CommandSource context)
     {
-        Collection<Announcement> list = this.module.getAnnouncementManager().getAllAnnouncements();
+        Collection<Announcement> list = this.module.getManager().getAllAnnouncements();
         if (list.isEmpty())
         {
             i18n.sendTranslated(context, NEGATIVE, "There are no announcements loaded!");
@@ -110,8 +102,8 @@ public class ShoutCommand extends ContainerCommand
 
         try
         {
-            this.module.getAnnouncementManager().addAnnouncement(
-                this.module.getAnnouncementManager().createAnnouncement(
+            this.module.getManager().addAnnouncement(
+                this.module.getManager().createAnnouncement(
                     name, message,
                     delay == null ? "10 minutes" : delay,
                     permission == null ? "*" : permission,
@@ -128,22 +120,22 @@ public class ShoutCommand extends ContainerCommand
             i18n.sendTranslated(ctx, NEGATIVE, "The error message was: {}", ex.getLocalizedMessage());
         }
 
-        module.getAnnouncementManager().reload();
+        module.getManager().reload();
 
-        i18n.sendTranslated(ctx, POSITIVE, "Your announcement have been created and loaded into the plugin");
+        i18n.sendTranslated(ctx, POSITIVE, "Announcement {name} created.", name);
     }
 
     @Command(desc = "clean all loaded announcements from memory and load from disk")
     public void reload(CommandContext context)
     {
-        module.getAnnouncementManager().reload();
+        module.getManager().reload();
         context.sendTranslated(POSITIVE, "All the announcements have now been reloaded, and the players have been re-added");
     }
 
     @Command(desc = "delete an announcement")
     public void delete(CommandContext context, String announcement)
     {
-        if (module.getAnnouncementManager().deleteAnnouncement(announcement))
+        if (module.getManager().deleteAnnouncement(announcement))
         {
             context.sendTranslated(POSITIVE, "Announcement {name} was deleted!", announcement);
         }
@@ -154,23 +146,22 @@ public class ShoutCommand extends ContainerCommand
     }
 
     @Command(desc = "modifies an announcement")
-    public void modify(CommandContext context, String announcement, String message, @Named("locale") Locale locale)
+    public void modify(CommandContext context, Announcement announcement, String message, @Named("locale") Locale locale, @Flag boolean append)
     {
-        Announcement a = module.getAnnouncementManager().getAnnouncement(announcement);
-        if (a == null)
-        {
-            context.sendTranslated(POSITIVE, "There is now announcement named {}", announcement);
-            return;
-        }
+        message = message.replace("\\n", "\n");
         if (locale == null)
         {
-            a.getConfig().announcement = message;
+            announcement.getConfig().announcement = append ? announcement.getConfig().announcement + message : message;
         }
         else
         {
-            a.getConfig().translated.put(locale, message);
+            if (append)
+            {
+                message = announcement.getConfig().translated.getOrDefault(locale, "") + message;
+            }
+            announcement.getConfig().translated.put(locale, message);
         }
-        a.getConfig().save();
+        announcement.getConfig().save();
         context.sendTranslated(POSITIVE, "Updated announcement");
     }
 }

@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import de.cubeisland.engine.reflect.Reflector;
+import org.cubeengine.reflect.Reflector;
 import org.cubeengine.libcube.util.StringUtils;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.spongepowered.api.command.CommandSource;

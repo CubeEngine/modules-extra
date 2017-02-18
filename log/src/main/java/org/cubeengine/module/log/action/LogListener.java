@@ -21,7 +21,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import org.cubeengine.module.log.Log;
 import org.cubeengine.module.log.LoggingConfiguration;
-import de.cubeisland.engine.reflect.codec.mongo.Reference;
+import org.cubeengine.reflect.codec.mongo.Reference;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockFace;

@@ -22,7 +22,7 @@ import org.cubeengine.libcube.service.user.User;
 import org.cubeengine.module.log.LoggingConfiguration;
 import org.cubeengine.module.log.action.BaseAction;
 import org.cubeengine.module.log.action.ReferenceHolder;
-import de.cubeisland.engine.reflect.codec.mongo.Reference;
+import org.cubeengine.reflect.codec.mongo.Reference;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
 

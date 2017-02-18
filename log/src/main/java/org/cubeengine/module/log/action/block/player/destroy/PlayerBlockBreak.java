@@ -23,7 +23,7 @@ import org.cubeengine.module.log.action.ActionCategory;
 import org.cubeengine.module.log.action.BaseAction;
 import org.cubeengine.module.log.action.ReferenceHolder;
 import org.cubeengine.module.log.action.block.player.ActionPlayerBlock;
-import de.cubeisland.engine.reflect.codec.mongo.Reference;
+import org.cubeengine.reflect.codec.mongo.Reference;
 import org.spongepowered.api.text.Text;
 
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;

@@ -20,7 +20,7 @@ package org.cubeengine.module.customcommands;
 import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
-import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
+import org.cubeengine.reflect.codec.yaml.ReflectedYaml;
 
 import static java.util.Locale.ENGLISH;
 

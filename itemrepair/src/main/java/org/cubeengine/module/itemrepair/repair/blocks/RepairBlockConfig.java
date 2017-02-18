@@ -17,7 +17,7 @@
  */
 package org.cubeengine.module.itemrepair.repair.blocks;
 
-import de.cubeisland.engine.reflect.Section;
+import org.cubeengine.reflect.Section;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 

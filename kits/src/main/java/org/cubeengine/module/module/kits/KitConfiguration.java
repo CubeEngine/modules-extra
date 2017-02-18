@@ -21,12 +21,11 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import javax.persistence.Transient;
-import de.cubeisland.engine.reflect.annotations.Converter;
+
 import org.cubeengine.libcube.util.StringUtils;
-import de.cubeisland.engine.reflect.annotations.Comment;
-import de.cubeisland.engine.reflect.annotations.Name;
-import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
-import org.cubeengine.libcube.service.config.ItemStackConverter;
+import org.cubeengine.reflect.annotations.Comment;
+import org.cubeengine.reflect.annotations.Name;
+import org.cubeengine.reflect.codec.yaml.ReflectedYaml;
 import org.joda.time.Duration;
 import org.spongepowered.api.item.inventory.ItemStack;
 

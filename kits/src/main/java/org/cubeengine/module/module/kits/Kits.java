@@ -22,13 +22,17 @@ import javax.inject.Inject;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.modularity.core.marker.Enable;
-import de.cubeisland.engine.reflect.Reflector;
+import org.cubeengine.reflect.Reflector;
 import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.inventoryguard.InventoryGuardFactory;
 import org.cubeengine.libcube.service.matcher.StringMatcher;
 import org.cubeengine.libcube.service.permission.PermissionManager;
+import org.cubeengine.module.module.kits.data.ImmutableKitData;
+import org.cubeengine.module.module.kits.data.KitData;
+import org.cubeengine.module.module.kits.data.KitDataBuilder;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.plugin.PluginContainer;
 
 @ModuleInfo(name = "Kits", description = "Hand kits to your players")
@@ -51,6 +55,7 @@ public class Kits extends Module
     @Enable
     public void onEnable()
     {
+        Sponge.getDataManager().register(KitData.class, ImmutableKitData.class, new KitDataBuilder(Sponge.getRegistry().getValueFactory()));
         this.kitManager = new KitManager(this, reflector, sm);
         this.kitManager.loadKits();
         em.registerListener(Kits.class, kitManager);

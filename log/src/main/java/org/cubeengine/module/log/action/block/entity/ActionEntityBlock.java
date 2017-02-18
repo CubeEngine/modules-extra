@@ -23,7 +23,7 @@ import java.util.UUID;
 import org.cubeengine.module.log.action.ActionCategory;
 import org.cubeengine.module.log.action.BaseAction;
 import org.cubeengine.module.log.action.block.ActionBlock;
-import de.cubeisland.engine.reflect.Section;
+import org.cubeengine.reflect.Section;
 import org.cubeengine.module.log.action.block.entity.explosion.ExplosionAction;
 import org.spongepowered.api.entity.Entity;
 import org.bukkit.entity.EntityType;

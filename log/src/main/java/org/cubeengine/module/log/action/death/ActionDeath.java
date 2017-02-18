@@ -20,7 +20,7 @@ package org.cubeengine.module.log.action.death;
 import org.cubeengine.module.log.action.ActionCategory;
 import org.cubeengine.module.log.action.BaseAction;
 import org.cubeengine.module.log.action.ReferenceHolder;
-import de.cubeisland.engine.reflect.codec.mongo.Reference;
+import org.cubeengine.reflect.codec.mongo.Reference;
 
 /**
  * Represents a LivingEntity dying

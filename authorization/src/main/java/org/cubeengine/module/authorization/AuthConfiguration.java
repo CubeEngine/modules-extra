@@ -17,8 +17,8 @@
  */
 package org.cubeengine.module.authorization;
 
-import de.cubeisland.engine.reflect.annotations.Comment;
-import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
+import org.cubeengine.reflect.annotations.Comment;
+import org.cubeengine.reflect.codec.yaml.ReflectedYaml;
 
 public class AuthConfiguration extends ReflectedYaml
 {

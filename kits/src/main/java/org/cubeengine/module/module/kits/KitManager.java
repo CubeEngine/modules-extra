@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import de.cubeisland.engine.reflect.Reflector;
+import org.cubeengine.reflect.Reflector;
 import org.cubeengine.libcube.util.StringUtils;
 import org.cubeengine.libcube.service.matcher.StringMatcher;
 import org.spongepowered.api.data.key.Keys;
@@ -118,5 +118,15 @@ public class KitManager
     public Set<String> getKitsNames()
     {
         return this.kitMap.keySet();
+    }
+
+    public void deleteKit(Kit kit)
+    {
+        KitConfiguration conf = kitConfigMap.remove(kit);
+        if (!conf.getFile().delete())
+        {
+            throw new IllegalStateException("Could not delete kit");
+        }
+        kitMap.values().remove(kit);
     }
 }

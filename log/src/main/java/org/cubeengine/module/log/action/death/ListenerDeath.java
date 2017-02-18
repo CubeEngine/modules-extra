@@ -21,7 +21,7 @@ import org.cubeengine.module.log.Log;
 import org.cubeengine.module.log.action.LogListener;
 import org.cubeengine.module.log.action.block.entity.ActionEntityBlock.EntitySection;
 import org.cubeengine.module.log.action.block.player.ActionPlayerBlock.PlayerSection;
-import de.cubeisland.engine.reflect.codec.mongo.Reference;
+import org.cubeengine.reflect.codec.mongo.Reference;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.EnderDragon;
 import org.spongepowered.api.entity.Entity;

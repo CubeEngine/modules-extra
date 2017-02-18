@@ -23,8 +23,11 @@ import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.spongepowered.api.Game;
+import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.transaction.InventoryTransactionResult;
 import org.spongepowered.api.text.Text;
@@ -49,23 +52,25 @@ public class SelectorCommand
     public void giveSelectionTool(Player user)
     {
         ItemStack found = null;
-/* TODO wait for inventory impl
         Inventory axes = user.getInventory().query(ItemTypes.WOODEN_AXE);
         for (Inventory slot : axes.slots())
         {
-            ItemStack itemStack = slot.peek();
-            Optional<Text> display = itemStack.get(Keys.DISPLAY_NAME);
-            if (display.isPresent())
+            Optional<ItemStack> itemStack = slot.peek();
+            if (itemStack.isPresent())
             {
-                if (Text.of(TextColors.BLUE, "Selector-Tool").equals(display.get()))
+                Optional<Text> display = itemStack.get().get(Keys.DISPLAY_NAME);
+                if (display.isPresent())
                 {
-                    found = itemStack;
-                    slot.clear();
-                    break;
+                    if ("Selector-Tool".equals(display.get().toPlain()))
+                    {
+                        found = itemStack.get();
+                        slot.clear();
+                        break;
+                    }
                 }
             }
         }
-*/
+
         Optional<ItemStack> itemInHand = user.getItemInHand(HandTypes.MAIN_HAND);
         if (found == null)
         {
@@ -86,10 +91,7 @@ public class SelectorCommand
         }
 
         user.setItemInHand(HandTypes.MAIN_HAND, found);
-        if (itemInHand.isPresent())
-        {
-            user.getInventory().offer(itemInHand.get());
-        }
+        itemInHand.ifPresent(stack -> user.getInventory().offer(stack));
         i18n.sendTranslated(user, POSITIVE, "Found a region selector tool in your inventory!");
     }
 

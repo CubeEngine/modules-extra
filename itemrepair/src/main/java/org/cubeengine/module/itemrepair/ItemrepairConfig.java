@@ -21,10 +21,10 @@ import java.util.HashMap;
 import java.util.Map;
 import org.cubeengine.module.itemrepair.material.BaseMaterialContainer;
 import org.cubeengine.module.itemrepair.repair.blocks.RepairBlockConfig;
-import de.cubeisland.engine.reflect.Section;
-import de.cubeisland.engine.reflect.annotations.Comment;
-import de.cubeisland.engine.reflect.annotations.Name;
-import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
+import org.cubeengine.reflect.Section;
+import org.cubeengine.reflect.annotations.Comment;
+import org.cubeengine.reflect.annotations.Name;
+import org.cubeengine.reflect.codec.yaml.ReflectedYaml;
 
 @SuppressWarnings("all")
 public class ItemrepairConfig extends ReflectedYaml

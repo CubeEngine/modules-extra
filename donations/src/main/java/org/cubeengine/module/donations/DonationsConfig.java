@@ -21,9 +21,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import de.cubeisland.engine.reflect.Section;
-import de.cubeisland.engine.reflect.annotations.Comment;
-import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
+import org.cubeengine.reflect.Section;
+import org.cubeengine.reflect.annotations.Comment;
+import org.cubeengine.reflect.codec.yaml.ReflectedYaml;
 
 @SuppressWarnings("all")
 public class DonationsConfig extends ReflectedYaml

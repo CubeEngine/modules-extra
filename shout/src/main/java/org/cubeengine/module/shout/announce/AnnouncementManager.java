@@ -29,7 +29,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import de.cubeisland.engine.reflect.Reflector;
+import org.cubeengine.reflect.Reflector;
 import org.cubeengine.module.shout.Shout;
 import org.cubeengine.libcube.service.i18n.I18n;
 import de.cubeisland.engine.logscribe.Log;
@@ -262,6 +262,7 @@ public class AnnouncementManager
 
     public boolean deleteAnnouncement(String announcement)
     {
+        // TODO also delete from tasks
         Announcement removed = this.fixedCycleAnnouncements.remove(announcement);
         if (removed == null) {
             removed = this.dynamicAnnouncements.remove(announcement);

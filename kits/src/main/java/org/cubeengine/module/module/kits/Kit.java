@@ -18,14 +18,16 @@
 package org.cubeengine.module.module.kits;
 
 import java.util.List;
+import java.util.Optional;
+
 import org.cubeengine.butler.parameter.IncorrectUsageException;
 import org.cubeengine.libcube.service.command.exception.PermissionDeniedException;
 import org.cubeengine.libcube.service.permission.Permission;
+import org.cubeengine.module.module.kits.data.KitData;
 import org.joda.time.Duration;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.service.permission.PermissionDescription;
 
 /**
  * A Kit of Items a User can receive
@@ -83,27 +85,42 @@ public class Kit
         {
             if (limitUsagePerPlayer > 0)
             {
-                boolean reached = true; // TODO lookup player custom data
-                // >= this.limitUsagePerPlayer
+                boolean reached = false;
+                Optional<KitData> kitData = player.get(KitData.class);
+                if (kitData.isPresent())
+                {
+                    reached = limitUsagePerPlayer >= kitData.get().getTimes().getOrDefault(this.name, 0);
+                }
                 if (reached)
                 {
                     throw new IncorrectUsageException(false, "Kit-limit reached.");
                 }
             }
-            if (limitUsageDelay != 0)
+            if (limitUsageDelay > 0)
             {
-                boolean reached = true; // TODO lookup player custom data
+                boolean inDelay = false;
                 // System.currentTimeMillis() - lastUsage < limitUsageDelay)
-                if (reached)
+                Optional<KitData> kitData = player.get(KitData.class);
+                if (kitData.isPresent())
                 {
-                   // TODO throw new IncorrectUsageException(false, "This kit isn't available at the moment. Try again later!");
+                    inDelay = limitUsageDelay <= System.currentTimeMillis() - kitData.get().getTime().getOrDefault(this.name, System.currentTimeMillis());
+                }
+                if (inDelay)
+                {
+                   throw new IncorrectUsageException(false, "This kit isn't available at the moment. Try again later!");
                 }
             }
         }
-        items.forEach(i -> player.getInventory().offer(i)); // TODO checked if ok
-        // TODO update player custom data
+        items.forEach(i -> player.getInventory().offer(i.copy())); // TODO what if not enough place
+        KitData kitData = player.get(KitData.class).orElse(null);
+        if (kitData == null)
+        {
+            kitData = new KitData();
+        }
+        kitData.getTime().put(name, System.currentTimeMillis());
+        kitData.getTimes().put(name, kitData.getTimes().getOrDefault(name, 0) + 1);
+        player.offer(kitData);
         this.executeCommands(player);
-
         return true;
     }
 
@@ -156,5 +173,15 @@ public class Kit
     public List<ItemStack> getItems()
     {
         return items;
+    }
+
+    public void clearCommands()
+    {
+        this.commands.clear();;
+    }
+
+    public void setCommands(List<String> commands)
+    {
+        this.commands = commands;
     }
 }

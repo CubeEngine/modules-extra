@@ -24,8 +24,9 @@ import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.modularity.core.marker.Disable;
 import de.cubeisland.engine.modularity.core.marker.Enable;
-import de.cubeisland.engine.reflect.Reflector;
+import org.cubeengine.reflect.Reflector;
 import org.cubeengine.libcube.service.permission.Permission;
+import org.cubeengine.module.shout.announce.Announcement;
 import org.cubeengine.module.shout.announce.AnnouncementManager;
 import org.cubeengine.module.shout.interactions.ShoutCommand;
 import org.cubeengine.module.shout.interactions.ShoutListener;
@@ -35,7 +36,6 @@ import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.matcher.StringMatcher;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.libcube.service.task.TaskManager;
-import org.spongepowered.api.service.permission.PermissionDescription;
 
 @ModuleInfo(name = "Shout", description = "Announce things!")
 public class Shout extends Module
@@ -50,7 +50,7 @@ public class Shout extends Module
     @Inject private StringMatcher sm;
     @Inject private Reflector reflector;
 
-    private AnnouncementManager announcementManager;
+    private AnnouncementManager manager;
     private Permission announcePerm;
 
 
@@ -64,12 +64,13 @@ public class Shout extends Module
     {
         announcePerm = pm.register(Shout.class, "announcement", "", null);
 
-        announcementManager = new AnnouncementManager(this, modulePath, i18n, pm, tm, sm, reflector);
-        announcementManager.loadAnnouncements();
-        em.registerListener(Shout.class, new ShoutListener(announcementManager));
+        manager = new AnnouncementManager(this, modulePath, i18n, pm, tm, sm, reflector);
+        manager.loadAnnouncements();
+        cm.getProviderManager().register(this, new AnnouncementReader(manager, i18n), Announcement.class);
+        em.registerListener(Shout.class, new ShoutListener(manager));
         cm.addCommand(new ShoutCommand(cm, this, i18n));
 
-        announcementManager.initUsers();
+        manager.initUsers();
     }
 
     @Disable
@@ -77,9 +78,9 @@ public class Shout extends Module
     {
     }
 
-    public AnnouncementManager getAnnouncementManager()
+    public AnnouncementManager getManager()
     {
-        return this.announcementManager;
+        return this.manager;
     }
 
     public Log getLog()

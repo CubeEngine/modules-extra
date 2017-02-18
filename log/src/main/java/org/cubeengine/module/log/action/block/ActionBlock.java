@@ -28,7 +28,7 @@ import org.cubeengine.module.log.action.block.player.destroy.PlayerContainerBrea
 import org.cubeengine.module.log.action.block.player.destroy.PlayerJukeboxBreak;
 import org.cubeengine.module.log.action.block.player.destroy.PlayerNoteBlockBreak;
 import org.cubeengine.module.log.action.block.player.destroy.PlayerSignBreak;
-import de.cubeisland.engine.reflect.Section;
+import org.cubeengine.reflect.Section;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.world.Location;
 import org.bukkit.Material;

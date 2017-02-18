@@ -20,7 +20,7 @@ package org.cubeengine.module.log.action.block.player;
 import java.util.UUID;
 import org.cubeengine.module.log.action.ActionCategory;
 import org.cubeengine.module.log.action.block.ActionBlock;
-import de.cubeisland.engine.reflect.NullSection;
+import org.cubeengine.reflect.NullSection;
 import org.spongepowered.api.entity.player.Player;
 import org.spongepowered.api.entity.player.Player;
 

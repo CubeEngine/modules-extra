@@ -18,8 +18,8 @@
 package org.cubeengine.module.vote;
 
 import java.util.concurrent.TimeUnit;
-import de.cubeisland.engine.reflect.annotations.Comment;
-import de.cubeisland.engine.reflect.codec.yaml.ReflectedYaml;
+import org.cubeengine.reflect.annotations.Comment;
+import org.cubeengine.reflect.codec.yaml.ReflectedYaml;
 import org.joda.time.Duration;
 
 @SuppressWarnings("all")

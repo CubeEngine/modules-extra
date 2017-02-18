@@ -18,6 +18,7 @@
 package org.cubeengine.module.module.kits;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.cubeengine.butler.CommandInvocation;
@@ -26,6 +27,7 @@ import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Default;
 import org.cubeengine.butler.parametric.Flag;
+import org.cubeengine.butler.parametric.Named;
 import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.util.CauseUtil;
 import org.cubeengine.libcube.util.FileUtil;
@@ -35,6 +37,7 @@ import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.inventoryguard.InventoryGuardFactory;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.Item;
@@ -79,6 +82,28 @@ public class KitCommand extends ContainerCommand
         return super.selfExecute(invocation);
     }
 
+    @Command(desc = "Edits a kit")
+    public void setCommand(CommandSource context, Kit kit, @org.cubeengine.butler.parametric.Optional String... commands)
+    {
+        kit.clearCommands();
+        if (commands != null)
+        {
+            kit.setCommands(Arrays.asList(commands));
+            i18n.sendTranslated(context, POSITIVE, "Kit commands set.");
+        }
+        else
+        {
+            i18n.sendTranslated(context, POSITIVE, "Kit commands removed.");
+        }
+    }
+
+    @Command(alias = "remove", desc = "Deletes a kit")
+    public void delete(CommandSource context, Kit kit)
+    {
+        manager.deleteKit(kit);
+        i18n.sendTranslated(context, POSITIVE, "Kit deleted.");
+    }
+
     // TODO edit command - /w click to Edit
 
     @Command(alias = "open", desc = "Opens the configured kit if the kit does not exists a new is created")
@@ -104,7 +129,7 @@ public class KitCommand extends ContainerCommand
         }
         else
         {
-            itemList.addAll(kit.getItems());
+            itemList = kit.getItems();
         }
 
         showKit(context, inventory, itemList, kit);
@@ -124,9 +149,6 @@ public class KitCommand extends ContainerCommand
                 if (item.isPresent())
                 {
                     itemList.add(item.get().copy());
-                    Entity itemEntity = player.getLocation().createEntity(EntityTypes.ITEM);
-                    player.getLocation().spawnEntity(itemEntity, CauseUtil.spawnCause(SpawnTypes.PLUGIN, player));
-                    //player.getInventory().offer(item.get()); // Give the item back
                 }
             });
             manager.saveKit(kit);
