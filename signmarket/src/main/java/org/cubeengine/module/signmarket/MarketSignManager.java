@@ -155,7 +155,7 @@ public final class MarketSignManager
     public MarketSignData dropContents(MarketSignData data, Location<World> at, Cause cause)
     {
         Integer stock = data.getStock();
-        if (data.getOwner().equals(ADMIN_SIGN) || stock == null || stock <= 0)
+        if (ADMIN_SIGN.equals(data.getOwner()) || stock == null || stock <= 0)
         {
             return data;
         }
@@ -477,24 +477,24 @@ public final class MarketSignManager
             return;
         }
 
+        if (account.withdraw(es.getDefaultCurrency(), getPrice(data), Cause.of(NamedCause.source(player))).getResult() != ResultType.SUCCESS)
+        {
+            i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "You can't afford these items!");
+            return;
+        }
+
         ItemStack copy = data.getItem().copy();
         copy.setQuantity(data.getAmount());
         player.getInventory().offer(copy);
         int remaining = copy.getQuantity();
         if (remaining != 0)
         {
-            player.getInventory().queryAny(copy).poll(remaining);
+            player.getInventory().queryAny(copy).poll(data.getAmount() - remaining);
             i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "You don't have enough space in your inventory for these items!");
             return;
         }
 
-        if (account.withdraw(es.getDefaultCurrency(), getPrice(data), Cause.of(NamedCause.source(player))).getResult() != ResultType.SUCCESS)
-        {
-            player.getInventory().queryAny(copy).poll(data.getAmount());
-            account.deposit(es.getDefaultCurrency(), getPrice(data), Cause.of(NamedCause.source(player)));
-            i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "You can't afford these items!");
-            return;
-        }
+
         if (!data.isAdminOwner())
         {
             es.getOrCreateAccount(data.getOwner()).get().deposit(es.getDefaultCurrency(), getPrice(data), Cause.of(NamedCause.source(player)));
@@ -547,13 +547,13 @@ public final class MarketSignManager
             Inventory inv = Inventory.builder()
                     .of(CHEST)
                     .property(InventoryTitle.PROPERTY_NAME, InventoryTitle.of(Text.of(getOwnerName(data))))
-                    .property(InventoryDimension.PROPERTY_NAME, new InventoryDimension(9, 6))
+                    .property(InventoryDimension.PROPERTY_NAME, new InventoryDimension(9, size))
                     .property("identifiable", new Identifiable()).build(plugin);
             signInventories.put(data.getID(), inv);
             updateSignText(data, loc);
             UUID key = UUID.randomUUID();
             signInventoryStock.put(/*TODO getProperty is always empty MinecraftInventoryAdapter inv.getProperty(IdentifiableProperty.class,
-            "IdentifiableProperty").get().getValue()*/ key, Math.min(size * item
+            "IdentifiableProperty").get().getValue()*/ key, Math.min(size * 9 * item
                     .getMaxStackQuantity(), data.getStock()));
 
             // TODO would be nice to just offer a 64+ item stack and split it up in inventory impl.
@@ -595,6 +595,7 @@ public final class MarketSignManager
             else
             {
                 igf.notBlockTakeOut(item);
+                // TODO permission to allow putting items into sell sign
             }
             igf.submitInventory(Signmarket.class, true);
             return;
@@ -684,15 +685,21 @@ public final class MarketSignManager
             return;
         }
 
+        int amount = data.getAmount() == null ? 0 : data.getAmount();
+        Text amountText = Text.of(String.valueOf(amount));
+        if (amount == 0)
+        {
+            amountText = Text.of(TextColors.RED, "??");
+        }
         if (data.getSignType() == SignType.BUY)
         {
-            i18n.sendTranslated(player, NONE, "{text:Buy:color=DARK_BLUE}: {amount} for {txt#price} from {user#owner}",
-                                data.getAmount() == null ? 0 : data.getAmount(), formatPrice(data), getOwnerName(data));
+            i18n.sendTranslated(player, NONE, "{text:Buy:color=DARK_BLUE}: {txt#amount} for {txt#price} from {user#owner}",
+                    amountText, formatPrice(data), getOwnerName(data));
         }
         else
         {
-            i18n.sendTranslated(player, NONE, "{text:Sell:color=DARK_BLUE}: {amount} for {txt#price} to {user#owner}",
-                                data.getAmount() == null ? 0 : data.getAmount(), formatPrice(data), getOwnerName(data));
+            i18n.sendTranslated(player, NONE, "{text:Sell:color=DARK_BLUE}: {txt#amount} for {txt#price} to {user#owner}",
+                    amountText, formatPrice(data), getOwnerName(data));
         }
 
         if (data.getItem() == null)
@@ -874,6 +881,10 @@ public final class MarketSignManager
 
     private String getOwnerName(MarketSignData data)
     {
+        if (data.getOwner() == null)
+        {
+            return "???";
+        }
         if (data.isAdminOwner())
         {
             return "Server";

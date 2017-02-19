@@ -288,12 +288,12 @@ public class MarketSignData extends AbstractData<MarketSignData, ImmutableMarket
 
     public boolean isAdminOwner()
     {
-        return getOwner().equals(IMarketSignData.ADMIN_SIGN);
+        return IMarketSignData.ADMIN_SIGN.equals(getOwner());
     }
 
     public boolean isOwner(UUID uuid)
     {
-        return getOwner().equals(uuid);
+        return uuid.equals(getOwner());
     }
 
     public boolean isSatisfied()

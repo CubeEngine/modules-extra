@@ -151,6 +151,10 @@ public class MarketSignListener
         boolean punch = event instanceof Primary;
 
         Optional<MarketSignData> mSignData = event.getTargetBlock().get(ImmutableMarketSignData.class).map(ImmutableMarketSignData::asMutable);
+        if (mSignData.isPresent())
+        {
+            manager.updateSignText(mSignData.get(), loc);
+        }
 
         if (editMode)
         {
@@ -235,8 +239,7 @@ public class MarketSignListener
     @Listener(order = Order.POST)
     public void onSignPlace(ChangeBlockEvent.Place event, @First Player player)
     {
-        /*
-        if (event.getTransactions().size() > 1 || !hasUser(player))
+        if (event.getTransactions().size() > 1 || !module.getEditModeCommand().hasUser(player))
         {
             return;
         }
@@ -255,11 +258,12 @@ public class MarketSignListener
 
                 MarketSignData data = new MarketSignData();
                 data.setID(UUID.randomUUID());
-                trans.setCustom(trans.getFinal().with(data.asImmutable()).get());
-               // TODO this is too soon manager.setSign(trans.getFinal().getLocation().get(), player);
+                data.setOwner(player.getUniqueId());
+                Location<World> loc = trans.getFinal().getLocation().get();
+                loc.offer(data);
+                manager.setSign(loc, player);
             }
         }
-        */
     }
 
     @Listener
