@@ -892,7 +892,7 @@ public final class MarketSignManager
 
         UserStorageService uss = Sponge.getServiceManager().provide(UserStorageService.class).get();
 
-        return uss.get(GameProfile.of(data.getOwner(), null)).map(User::getName).orElse("???");
+        return uss.get(data.getOwner()).map(User::getName).orElse("???");
     }
 
     public boolean isActive(Location<World> loc, Player player)
