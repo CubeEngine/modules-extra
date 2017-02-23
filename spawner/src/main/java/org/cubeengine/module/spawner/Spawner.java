@@ -17,12 +17,42 @@
  */
 package org.cubeengine.module.spawner;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-import javax.inject.Inject;
+import static java.util.Collections.singletonList;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NONE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
+import static org.spongepowered.api.block.BlockTypes.MOB_SPAWNER;
+import static org.spongepowered.api.data.type.HandTypes.MAIN_HAND;
+import static org.spongepowered.api.entity.EntityTypes.BAT;
+import static org.spongepowered.api.entity.EntityTypes.BLAZE;
+import static org.spongepowered.api.entity.EntityTypes.CAVE_SPIDER;
+import static org.spongepowered.api.entity.EntityTypes.CHICKEN;
+import static org.spongepowered.api.entity.EntityTypes.COW;
+import static org.spongepowered.api.entity.EntityTypes.CREEPER;
+import static org.spongepowered.api.entity.EntityTypes.ENDERMAN;
+import static org.spongepowered.api.entity.EntityTypes.GHAST;
+import static org.spongepowered.api.entity.EntityTypes.HORSE;
+import static org.spongepowered.api.entity.EntityTypes.ITEM;
+import static org.spongepowered.api.entity.EntityTypes.MAGMA_CUBE;
+import static org.spongepowered.api.entity.EntityTypes.MUSHROOM_COW;
+import static org.spongepowered.api.entity.EntityTypes.OCELOT;
+import static org.spongepowered.api.entity.EntityTypes.PIG;
+import static org.spongepowered.api.entity.EntityTypes.PIG_ZOMBIE;
+import static org.spongepowered.api.entity.EntityTypes.SHEEP;
+import static org.spongepowered.api.entity.EntityTypes.SILVERFISH;
+import static org.spongepowered.api.entity.EntityTypes.SKELETON;
+import static org.spongepowered.api.entity.EntityTypes.SLIME;
+import static org.spongepowered.api.entity.EntityTypes.SPIDER;
+import static org.spongepowered.api.entity.EntityTypes.SQUID;
+import static org.spongepowered.api.entity.EntityTypes.VILLAGER;
+import static org.spongepowered.api.entity.EntityTypes.WITCH;
+import static org.spongepowered.api.entity.EntityTypes.WOLF;
+import static org.spongepowered.api.entity.EntityTypes.ZOMBIE;
+import static org.spongepowered.api.entity.living.player.gamemode.GameModes.CREATIVE;
+import static org.spongepowered.api.event.Order.POST;
+import static org.spongepowered.api.item.Enchantments.LURE;
+import static org.spongepowered.api.item.Enchantments.SILK_TOUCH;
+
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.modularity.core.marker.Enable;
@@ -37,38 +67,31 @@ import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.meta.ItemEnchantment;
-import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.Entity;
-import org.spongepowered.api.entity.EntitySnapshot;
+import org.spongepowered.api.entity.EntityArchetype;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.item.Enchantment;
 import org.spongepowered.api.item.Enchantments;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.service.permission.PermissionDescription;
 import org.spongepowered.api.util.weighted.RandomObjectTable;
 import org.spongepowered.api.util.weighted.WeightedTable;
 import org.spongepowered.api.world.BlockChangeFlag;
 
-import static java.util.Collections.singletonList;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
-import static org.spongepowered.api.block.BlockTypes.MOB_SPAWNER;
-import static org.spongepowered.api.data.type.HandTypes.MAIN_HAND;
-import static org.spongepowered.api.entity.EntityTypes.*;
-import static org.spongepowered.api.entity.living.player.gamemode.GameModes.CREATIVE;
-import static org.spongepowered.api.entity.living.player.gamemode.GameModes.SPECTATOR;
-import static org.spongepowered.api.event.Order.POST;
-import static org.spongepowered.api.item.Enchantments.LURE;
-import static org.spongepowered.api.item.Enchantments.SILK_TOUCH;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+
+import javax.inject.Inject;
 
 /**
  * A module to gather monster spawners with silk touch and reactivate them using spawneggs
@@ -221,8 +244,8 @@ public class Spawner extends Module
                     return;
                 }
 
-                WeightedTable<EntitySnapshot> spawns = new WeightedTable<>();
-                spawns.add(EntitySnapshot.builder().type(type).build(), 1);
+                WeightedTable<EntityArchetype> spawns = new WeightedTable<>();
+                spawns.add(EntityArchetype.builder().type(type).build(), 1);
                 state.with(Keys.SPAWNER_ENTITIES, spawns);
 
                 if (event.getTargetBlock().withState(state).restore(true, BlockChangeFlag.ALL)) // TODO no cause?
