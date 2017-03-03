@@ -24,6 +24,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+
+import com.flowpowered.math.vector.Vector3i;
 import de.cubeisland.engine.module.core.CubeEngine;
 import org.cubeengine.module.log.storage.ShowParameter;
 import org.cubeengine.libcube.service.user.User;
@@ -38,6 +40,7 @@ import org.spongepowered.api.world.Location;
 import org.bukkit.World;
 
 import org.cubeengine.libcube.service.i18n.formatter.MessageType.NONE;
+import org.spongepowered.api.world.World;
 
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 import static org.bukkit.ChatColor.GRAY;
@@ -243,9 +246,9 @@ public abstract class BaseAction extends ReflectedDBObject implements Comparable
             return world.getWorld();
         }
 
-        public BlockVector3 toBlockVector()
+        public Vector3i toBlockVector()
         {
-            return new BlockVector3(this.vector.x, this.vector.y, this.vector.z);
+            return new Vector3i(this.vector.x, this.vector.y, this.vector.z);
         }
 
         public boolean equals(Coordinate coordinate)

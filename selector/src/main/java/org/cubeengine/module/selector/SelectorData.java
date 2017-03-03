@@ -17,7 +17,8 @@
  */
 package org.cubeengine.module.selector;
 
-import org.cubeengine.libcube.util.math.Vector3;
+import com.flowpowered.math.vector.Vector3d;
+import org.cubeengine.libcube.util.math.MathHelper;
 import org.cubeengine.libcube.util.math.shape.Cuboid;
 import org.cubeengine.libcube.util.math.shape.Shape;
 import org.spongepowered.api.world.Location;
@@ -75,9 +76,9 @@ public class SelectorData
 
     private Shape getSelection0()
     {
-        Vector3 v1 = new Vector3(this.getPoint(0).getX(), this.getPoint(0).getY(), this.getPoint(0).getZ());
-        Vector3 v2 = new Vector3(this.getPoint(1).getX(), this.getPoint(1).getY(), this.getPoint(1).getZ());
-        return new Cuboid(v1.midpoint(v2), v1.distanceVector(v2));
+        Vector3d v1 = new Vector3d(this.getPoint(0).getX(), this.getPoint(0).getY(), this.getPoint(0).getZ());
+        Vector3d v2 = new Vector3d(this.getPoint(1).getX(), this.getPoint(1).getY(), this.getPoint(1).getZ());
+        return new Cuboid(MathHelper.midpoint(v1, v2), v1.min(v2));
     }
 
     enum Mode

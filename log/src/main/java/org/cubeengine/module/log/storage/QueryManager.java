@@ -497,10 +497,10 @@ public class QueryManager
             query.append("coord.world-uuid", params.world.getUID().toString());
             if (params.location1 != null)
             {
-                BlockVector3 loc1 = params.location1;
+                Vector3i loc1 = params.location1;
                 if (params.location2 != null)// has area
                 {
-                    BlockVector3 loc2 = params.location2;
+                    Vector3i loc2 = params.location2;
                     boolean locX = loc1.x < loc2.x;
                     boolean locY = loc1.y < loc2.y;
                     boolean locZ = loc1.z < loc2.z;

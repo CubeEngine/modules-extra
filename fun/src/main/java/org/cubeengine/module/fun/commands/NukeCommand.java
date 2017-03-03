@@ -29,11 +29,8 @@ import org.cubeengine.butler.parametric.Named;
 import org.cubeengine.butler.parametric.Optional;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.libcube.util.math.Vector3;
 import org.cubeengine.libcube.util.math.shape.Cuboid;
-import org.cubeengine.libcube.util.math.shape.Cylinder;
 import org.cubeengine.libcube.util.math.shape.Shape;
-import org.cubeengine.libcube.util.math.shape.Sphere;
 import org.cubeengine.module.fun.Fun;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.command.CommandSource;
@@ -117,7 +114,7 @@ public class NukeCommand
         }
 
         location = this.getSpawnLocation(location, height);
-        Shape aShape = new Cuboid(new Vector3(location.getX() + .5, location.getY() + .5, location.getZ()+ .5) , diameter, 1, diameter);
+        Shape aShape = new Cuboid(new Vector3d(location.getX() + .5, location.getY() + .5, location.getZ()+ .5) , diameter, 1, diameter);
         int blockAmount = this.spawnNuke(aShape, location.getExtent(), range, unsafe);
 
         if(!quiet)
@@ -152,9 +149,9 @@ public class NukeCommand
     public int spawnNuke(Shape shape, World world, int range, boolean unsafe)
     {
         int numberOfBlocks = 0;
-        for (Vector3 vector : shape)
+        for (Vector3d vector : shape)
         {
-            PrimedTNT tnt = (PrimedTNT)world.createEntity(PRIMED_TNT, new Vector3d(vector.x, vector.y, vector.z));
+            PrimedTNT tnt = (PrimedTNT)world.createEntity(PRIMED_TNT, vector.clone());
             tnt.setVelocity(new Vector3d(0,0,0));
             tnt.offer(Keys.EXPLOSION_RADIUS, java.util.Optional.of(range));
             world.spawnEntity(tnt, Cause.of(NamedCause.source(this))); // TODO cause

@@ -45,8 +45,8 @@ public class QueryParameter implements Cloneable
     volatile Date to_before;
     // Where (in world / at location1 / in between location1 and location2)
     volatile World world;
-    volatile BlockVector3 location1;
-    volatile BlockVector3 location2;
+    volatile Vector3i location1;
+    volatile Vector3i location2;
     Integer radius;
     Set<Location> singleBlockLocations;
     // The actions to look for

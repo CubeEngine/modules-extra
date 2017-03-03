@@ -177,10 +177,11 @@ public class DestructReport extends EntityReport<DestructEntityEvent>
         return action;
     }
 
-    @Listener public void onAttack(AttackEntityEvent event)
+    @Listener
+    public void onAttack(AttackEntityEvent event)
     {
-        System.out.print(event.getCause()+ "\n");
-        System.out.print(event.getTargetEntity() + "\n");
+        //System.out.print(event.getCause()+ "\n");
+        //System.out.print(event.getTargetEntity() + "\n");
     }
 
     @Listener
