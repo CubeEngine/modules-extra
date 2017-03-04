@@ -81,18 +81,6 @@ public class CuboidSelector implements Selector
     }
 
     @Override
-    public Location<World> getFirstPoint(Player user)
-    {
-        return this.getPoint(user, 0);
-    }
-
-    @Override
-    public Location<World> getSecondPoint(Player user)
-    {
-        return this.getPoint(user, 1);
-    }
-
-    @Override
     public Location<World> getPoint(Player user, int index)
     {
         SelectorData data = this.selectorData.get(user.getUniqueId());
@@ -121,12 +109,7 @@ public class CuboidSelector implements Selector
             return;
         }
 
-        SelectorData data = selectorData.get(player.getUniqueId());
-        if (data == null)
-        {
-            data = new SelectorData();
-            selectorData.put(player.getUniqueId(), data);
-        }
+        SelectorData data = selectorData.computeIfAbsent(player.getUniqueId(), k -> new SelectorData());
         if (event instanceof InteractBlockEvent.Primary)
         {
             data.setPoint(0, block);
@@ -138,5 +121,12 @@ public class CuboidSelector implements Selector
             i18n.sendTranslated(player, POSITIVE, "Second position set to ({integer}, {integer}, {integer}).", block.getBlockX(), block.getBlockY(), block.getBlockZ());
         }
         event.setCancelled(true);
+    }
+
+    @Override
+    public void setPoint(Player user, int index, Location<World> loc)
+    {
+        SelectorData data = selectorData.computeIfAbsent(user.getUniqueId(), k -> new SelectorData());
+        data.setPoint(index, loc);
     }
 }

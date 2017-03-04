@@ -56,13 +56,13 @@ public class SelectorData
 
     public Shape getSelection()
     {
-        for (Location point : this.points)
+        for (Location<World> point : this.points)
         {
             if (point == null) // missing point
             {
                 return null;
             }
-            if (lastPointWorld != ((World)point.getExtent())) // points are in different worlds
+            if (lastPointWorld != point.getExtent()) // points are in different worlds
             {
                 return null;
             }
@@ -78,7 +78,7 @@ public class SelectorData
     {
         Vector3d v1 = new Vector3d(this.getPoint(0).getX(), this.getPoint(0).getY(), this.getPoint(0).getZ());
         Vector3d v2 = new Vector3d(this.getPoint(1).getX(), this.getPoint(1).getY(), this.getPoint(1).getZ());
-        return new Cuboid(MathHelper.midpoint(v1, v2), v1.min(v2));
+        return new Cuboid(v1, v2.sub(v1));
     }
 
     enum Mode
