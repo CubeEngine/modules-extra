@@ -1,6 +1,6 @@
 # Backpack
 
-Backoack is a module for CubeEngine providing backpacks that can be accessed via commands
+Backpack is a module for CubeEngine providing backpacks that can be accessed via commands
 
 # Features
  - DoubleChest sized Backpacks
