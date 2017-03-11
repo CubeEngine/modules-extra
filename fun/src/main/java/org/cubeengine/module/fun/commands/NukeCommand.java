@@ -171,7 +171,7 @@ public class NukeCommand
         return numberOfBlocks;
     }
 
-    private class NukeListener
+    public static class NukeListener
     {
         private final Set<PrimedTNT> noBlockDamageSet = new HashSet<>();
 
