@@ -55,6 +55,7 @@
     <module>controlc</module>
     <module>freezedetection</module>
     <module>discworld</module>
+    <module>elevator</module>
   </modules>
 
   <build>
