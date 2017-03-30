@@ -154,7 +154,7 @@ public class ElevatorListener
             Optional<List<Text>> lines = loc.getExtent().get(data.getTarget(), Keys.SIGN_LINES);
             targetLine = lines.map(l -> l.get(0)).orElse(targetLine);
             int blocks = loc.getBlockY() - data.getTarget().getY();
-            char decor = blocks < 0 ? config.upDecor : config.downDecor;
+            String decor = blocks < 0 ? config.upDecor : config.downDecor;
             directionLine = Text.of(decor + " ",  Math.abs(blocks), " " + decor);
         }
 

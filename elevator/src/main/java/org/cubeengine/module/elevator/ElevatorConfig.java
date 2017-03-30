@@ -25,8 +25,8 @@ public class ElevatorConfig extends ReflectedYaml
     // TODO public int maxRange = 265;
     // TODO public boolean allowRetarget = true;
 
-    public char liftDecor = '۩';
-    public char upDecor = '▲';
-    public char downDecor = '▼';
+    public String liftDecor = "۩";
+    public String upDecor = "▲";
+    public String downDecor = "▼";
 
 }
