@@ -33,6 +33,7 @@ import org.cubeengine.module.module.kits.data.ImmutableKitData;
 import org.cubeengine.module.module.kits.data.KitData;
 import org.cubeengine.module.module.kits.data.KitDataBuilder;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.plugin.PluginContainer;
 
 @ModuleInfo(name = "Kits", description = "Hand kits to your players")
@@ -52,10 +53,16 @@ public class Kits extends Module
     @Inject private StringMatcher sm;
     @Inject private PluginContainer plugin;
 
-    @Enable
-    public void onEnable()
+    @Inject @Enable
+    public void onEnable(PluginContainer plugin)
     {
-        Sponge.getDataManager().register(KitData.class, ImmutableKitData.class, new KitDataBuilder(Sponge.getRegistry().getValueFactory()));
+        DataRegistration<KitData, ImmutableKitData> dr = DataRegistration.<KitData, ImmutableKitData>builder()
+                .dataClass(KitData.class).immutableClass(ImmutableKitData.class)
+                .builder(new KitDataBuilder()).manipulatorId("kits")
+                .dataName("CubeEngine Kits Data")
+                .buildAndRegister(plugin);
+        Sponge.getDataManager().registerLegacyManipulatorIds(KitData.class.getName(), dr);
+
         this.kitManager = new KitManager(this, reflector, sm);
         this.kitManager.loadKits();
         em.registerListener(Kits.class, kitManager);

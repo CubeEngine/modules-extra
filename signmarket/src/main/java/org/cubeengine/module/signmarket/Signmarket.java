@@ -33,6 +33,7 @@ import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.inventoryguard.InventoryGuardFactory;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.economy.EconomyService;
 
@@ -52,11 +53,19 @@ public class Signmarket extends Module
     private MarketSignPerm perms;
     private SignMarketCommands smCmds;
 
-
-    public Signmarket()
+    @Inject
+    public Signmarket(PluginContainer plugin)
     {
         Sponge.getDataManager().registerTranslator(SignType.class, new SignTypeSerializer());
-        Sponge.getDataManager().register(MarketSignData.class, ImmutableMarketSignData.class, new MarketSignDataBuilder());
+        DataRegistration<MarketSignData, ImmutableMarketSignData> dr =
+                DataRegistration.<MarketSignData, ImmutableMarketSignData>builder()
+                        .dataClass(MarketSignData.class).immutableClass(ImmutableMarketSignData.class)
+                        .builder(new MarketSignDataBuilder()).manipulatorId("market_sign")
+                        .dataName("CubeEngine SignMarket Data")
+                        .buildAndRegister(plugin);
+
+        Sponge.getDataManager().registerLegacyManipulatorIds(MarketSignData.class.getName(), dr);
+
     }
 
     @Inject @Enable

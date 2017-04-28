@@ -27,6 +27,8 @@ import org.cubeengine.module.elevator.data.ElevatorData;
 import org.cubeengine.module.elevator.data.ElevatorDataBuilder;
 import org.cubeengine.module.elevator.data.ImmutableElevatorData;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.DataRegistration;
+import org.spongepowered.api.plugin.PluginContainer;
 
 import javax.inject.Inject;
 
@@ -36,11 +38,17 @@ public class Elevator extends Module
     @ModuleConfig private ElevatorConfig config;
     @Inject private EventManager em;
     @Inject private I18n i18n;
+    @Inject PluginContainer plugin;
 
     @Enable
     public void onEnable()
     {
-        Sponge.getDataManager().register(ElevatorData.class, ImmutableElevatorData.class, new ElevatorDataBuilder());
+        DataRegistration.<ElevatorData, ImmutableElevatorData>builder()
+                .dataClass(ElevatorData.class).immutableClass(ImmutableElevatorData.class)
+                .builder(new ElevatorDataBuilder()).manipulatorId("elevator")
+                .dataName("CubeEngine Elevator Data")
+                .buildAndRegister(plugin);
+
         em.registerListener(Elevator.class, new ElevatorListener(i18n, config));
     }
 }

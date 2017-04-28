@@ -31,6 +31,7 @@ import org.cubeengine.module.unbreakableboat.data.UnbreakableData;
 import org.cubeengine.module.unbreakableboat.data.UnbreakableDataBuilder;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.meta.ItemEnchantment;
 import org.spongepowered.api.entity.vehicle.Boat;
@@ -41,6 +42,7 @@ import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.item.Enchantments;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
@@ -56,13 +58,19 @@ public class Unbreakableboat extends Module
 
     @Inject private EventManager em;
     @Inject private TaskManager tm;
+    @Inject private PluginContainer plugin;
 
     @Enable
     public void onEnable()
     {
         em.registerListener(Unbreakableboat.class, this);
         tm.runTaskDelayed(Unbreakableboat.class, this::registerRecipe, 1);
-        Sponge.getDataManager().register(UnbreakableData.class, ImmutableUnbreakableData.class, new UnbreakableDataBuilder());
+
+        DataRegistration.<UnbreakableData, ImmutableUnbreakableData>builder()
+                .dataClass(UnbreakableData.class).immutableClass(ImmutableUnbreakableData.class)
+                .builder(new UnbreakableDataBuilder()).manipulatorId("unbreakableboat")
+                .dataName("CubeEngine Elevator Data")
+                .buildAndRegister(plugin);
     }
 
     private void registerRecipe() {

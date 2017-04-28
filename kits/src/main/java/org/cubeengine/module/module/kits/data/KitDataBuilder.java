@@ -17,6 +17,7 @@
  */
 package org.cubeengine.module.module.kits.data;
 
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.manipulator.DataManipulatorBuilder;
@@ -30,10 +31,10 @@ public class KitDataBuilder extends AbstractDataBuilder<KitData> implements Data
 {
     private ValueFactory valueFactory;
 
-    public KitDataBuilder(ValueFactory valueFactory)
+    public KitDataBuilder()
     {
         super(KitData.class, 1);
-        this.valueFactory = valueFactory;
+        this.valueFactory = Sponge.getRegistry().getValueFactory();
     }
 
     @Override

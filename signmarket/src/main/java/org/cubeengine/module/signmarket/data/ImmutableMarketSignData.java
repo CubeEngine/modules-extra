@@ -36,7 +36,7 @@ public class ImmutableMarketSignData extends AbstractImmutableData<ImmutableMark
 
     public ImmutableMarketSignData(IMarketSignData data)
     {
-        super(1);
+        super(2);
         id = data.getID();
         type = data.getSignType();
         owner = data.getOwner();

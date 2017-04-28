@@ -48,7 +48,7 @@ public class MarketSignData extends AbstractData<MarketSignData, ImmutableMarket
 
     public MarketSignData()
     {
-        super(1, Sign.class);
+        super(2, Sign.class);
     }
 
     private MarketSignData with(UUID id, SignType type, UUID owner, Integer amount, Integer demand, Double price, ItemStack item, Integer stock, Integer size)
@@ -67,7 +67,7 @@ public class MarketSignData extends AbstractData<MarketSignData, ImmutableMarket
 
     public MarketSignData(IMarketSignData data)
     {
-        super(1);
+        super(2);
         with(data.getID(), data.getSignType(), data.getOwner(), data.getAmount(), data.getDemand(), data.getPrice(), data.getItem(), data.getStock(), data.getSize());
     }
 

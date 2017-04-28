@@ -29,6 +29,8 @@ import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.matcher.MaterialMatcher;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.DataRegistration;
+import org.spongepowered.api.plugin.PluginContainer;
 
 @ModuleInfo(name = "Powertools", description = "Empower your tools")
 public class Powertools extends Module
@@ -40,10 +42,17 @@ public class Powertools extends Module
     @Inject private MaterialMatcher materialMatcher;
     @Inject private I18n i18n;
 
+    @Inject private PluginContainer plugin;
+
     @Enable
     public void onEnable()
     {
-        Sponge.getDataManager().register(PowertoolData.class, ImmutablePowertoolData.class, new PowertoolDataBuilder());
+        DataRegistration.<PowertoolData, ImmutablePowertoolData>builder()
+                .dataClass(PowertoolData.class).immutableClass(ImmutablePowertoolData.class)
+                .builder(new PowertoolDataBuilder()).manipulatorId("powertools")
+                .dataName("CubeEngine PowerTools Data")
+                .buildAndRegister(plugin);
+
         PowertoolCommand ptCommands = new PowertoolCommand(cm, this, materialMatcher, i18n);
         cm.addCommand(ptCommands);
         em.registerListener(Powertools.class, ptCommands);
