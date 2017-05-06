@@ -286,7 +286,7 @@ public class ThrowCommands
                 entity.setVelocity(rotation.mul(8));
                 if (entity instanceof ExperienceOrb)
                 {
-                    entity.offer(Keys.HELD_EXPERIENCE, 0);
+                    entity.offer(Keys.CONTAINED_EXPERIENCE, 0);
                 }
             }
             if (this.preventDamage && !this.save)
