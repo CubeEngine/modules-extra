@@ -77,7 +77,7 @@ public class Vote extends Module
     }
 
     @Listener
-    private void onVote(VotifierEvent event) throws ExecutionException, InterruptedException
+    public void onVote(VotifierEvent event) throws ExecutionException, InterruptedException
     {
         final com.vexsoftware.votifier.model.Vote vote = event.getVote();
         UserStorageService uss = Sponge.getServiceManager().provideUnchecked(UserStorageService.class);
