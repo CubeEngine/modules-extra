@@ -169,4 +169,9 @@ public class QueryManager
 
         new Receiver(player, i18n, lookup).sendReports(reportActions);
     }
+
+    public void purge()
+    {
+        this.db.deleteMany(new Document());
+    }
 }

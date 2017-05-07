@@ -26,9 +26,9 @@ import org.spongepowered.api.data.persistence.InvalidDataException;
 
 public class LookupDataBuilder extends AbstractDataBuilder<LookupData> implements DataManipulatorBuilder<LookupData, ImmutableLookupData>
 {
-    public LookupDataBuilder(Class<LookupData> requiredClass, int supportedVersion)
+    public LookupDataBuilder()
     {
-        super(requiredClass, supportedVersion);
+        super(LookupData.class, 1);
     }
 
     @Override

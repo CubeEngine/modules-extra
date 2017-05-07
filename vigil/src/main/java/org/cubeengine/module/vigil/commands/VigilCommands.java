@@ -30,6 +30,7 @@ import org.cubeengine.libcube.service.matcher.StringMatcher;
 import org.cubeengine.module.vigil.Vigil;
 import org.cubeengine.module.vigil.data.LookupData;
 import org.spongepowered.api.Game;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.type.HandType;
 import org.spongepowered.api.data.type.HandTypes;
@@ -51,14 +52,12 @@ public class VigilCommands extends ContainerCommand
 
     private StringMatcher sm;
     private I18n i18n;
-    private Game game;
 
-    public VigilCommands(StringMatcher sm, I18n i18n, Game game, CommandManager cm)
+    public VigilCommands(StringMatcher sm, I18n i18n, CommandManager cm)
     {
         super(cm, Vigil.class);
         this.sm = sm;
         this.i18n = i18n;
-        this.game = game;
     }
 
     @Alias(value = "lb")
@@ -130,7 +129,7 @@ public class VigilCommands extends ContainerCommand
     @SuppressWarnings("deprecation")
     private void findLogTool(Player player, ItemType type)
     {
-        ItemStack itemStack = game.getRegistry().createBuilder(ItemStack.Builder.class).itemType(type).quantity(1).build();
+        ItemStack itemStack = Sponge.getGame().getRegistry().createBuilder(ItemStack.Builder.class).itemType(type).quantity(1).build();
         itemStack.offer(Keys.DISPLAY_NAME, toolName);
         itemStack.offer(Keys.ITEM_LORE, asList(i18n.getTranslation(player, NONE, "created by {name}", player.getName())));
         itemStack.offer(Keys.ITEM_ENCHANTMENTS, Collections.emptyList());
