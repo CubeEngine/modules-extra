@@ -51,9 +51,19 @@ public interface Report
     String CAUSE_TYPE = "type";
     String CAUSE_PLAYER_UUID = "UUID";
     String CAUSE_NAME = "name";
+    String CAUSE_TARGET = "target";
     String LOCATION = "location";
 
     String MULTIACTION = "multiaction";
+
+    enum CauseType
+    {
+        CAUSE_PLAYER,
+        CAUSE_BLOCK, // Indirect
+        CAUSE_TNT,
+        CAUSE_DAMAGE,
+        CAUSE_ENTITY
+    }
 
     /**
      * Shows the action to given CommandSource
@@ -89,14 +99,6 @@ public interface Report
      * @param noOp true if permanent or false if transient
      */
     void unapply(Action action, boolean noOp);
-
-    enum CauseType
-    {
-        CAUSE_PLAYER,
-        CAUSE_BLOCK, // Indirect
-        CAUSE_TNT,
-        CAUSE_DAMAGE
-    }
 
     interface SimpleGrouping extends Report
     {

@@ -34,6 +34,7 @@ import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.explosive.PrimedTNT;
+import org.spongepowered.api.entity.living.Agent;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.entity.damage.source.BlockDamageSource;
@@ -73,6 +74,11 @@ public class Observe
 
     public static Map<String, Object> cause(Object cause)
     {
+        return cause(cause, true);
+    }
+
+    public static Map<String, Object> cause(Object cause, boolean doRecursion)
+    {
         if (cause instanceof EntityDamageSource)
         {
             Entity source = ((EntityDamageSource)cause).getSource();
@@ -110,6 +116,10 @@ public class Observe
         {
             return tntCause(((PrimedTNT)cause));
         }
+        else if (cause instanceof Entity)
+        {
+            return entityCause(((Entity) cause), doRecursion);
+        }
         // TODO other causes that interest us
         return null;
     }
@@ -139,6 +149,22 @@ public class Observe
         }
 
         data.put(CAUSE_TYPE, CAUSE_TNT.toString());
+        return data;
+    }
+
+    private static Map<String, Object> entityCause(Entity cause, boolean doRecursion)
+    {
+        Map<String, Object> data = new HashMap<>();
+        data.put(CAUSE_TYPE, CAUSE_ENTITY.toString());
+        data.put(CAUSE_NAME, cause.getType().getId());
+
+        if (doRecursion && cause instanceof Agent)
+        {
+            if (((Agent) cause).getTarget().isPresent())
+            {
+                data.put(CAUSE_TARGET, cause(((Agent) cause).getTarget().get(), false));
+            }
+        }
         return data;
     }
 

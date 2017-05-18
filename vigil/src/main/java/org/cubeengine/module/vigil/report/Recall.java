@@ -36,11 +36,13 @@ import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.ImmutableRepresentedItemData;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
+import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -169,8 +171,20 @@ public class Recall
             case CAUSE_DAMAGE:
                 text = Text.of(TextColors.GOLD, causeName);
                 break;
+            case CAUSE_ENTITY:
+                text = Text.of(TextColors.GOLD, Sponge.getRegistry().getType(EntityType.class, causeName.toString())
+                        .map(EntityType::getTranslation).map(Translation::get).orElse(causeName.toString()));
+                // TODO translation
+                if (source.containsKey(CAUSE_TARGET))
+                {
+                    Map<String, Object> sourceTarget = ((Map<String, Object>) source.get(CAUSE_TARGET));
+                    CauseType targetType = CauseType.valueOf(sourceTarget.get(CAUSE_TYPE).toString());
+                    text = text.toBuilder().append(Text.of("…").toBuilder().onHover(
+                            TextActions.showText(Text.of(text, "◎", cause(sourceTarget, Text.of("?"), targetType)))).build()).build();
+                }
+                break;
         }
-         return text;
+        return text;
     }
 
     public static Object toContainer(Object data)
