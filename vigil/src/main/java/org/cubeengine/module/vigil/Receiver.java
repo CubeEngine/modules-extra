@@ -226,7 +226,8 @@ public class Receiver
             reportAction.showReport(this);
         }
         Builder builder = Sponge.getGame().getServiceManager().provideUnchecked(PaginationService.class).builder();
-        builder.title(i18n.getTranslation(cmdSource, POSITIVE, "Showing {amount} Logs", lines.size())).padding(Text.of("-"))
+        builder.title(Text.of(i18n.getTranslation(cmdSource, POSITIVE, "Showing {amount} Logs", lines.size()),
+                " ", TextColors.YELLOW, i18n.translate(cmdSource, "(newest last)"))).padding(Text.of("-"))
                .contents(lines).linesPerPage(2 + Math.min(lines.size(), 18)).sendTo(cmdSource);
         // TODO remove linesPerPage when Sponge puts the lines to the bottom
     }
