@@ -20,7 +20,6 @@ package org.cubeengine.module.module.kits;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
-import javax.persistence.Transient;
 
 import org.cubeengine.libcube.util.StringUtils;
 import org.cubeengine.reflect.annotations.Comment;
@@ -54,8 +53,7 @@ public class KitConfiguration extends ReflectedYaml
     @Name("limit-usage")
     public int limitUsage = 0;
 
-    @Transient
-    public String kitName;
+    public transient String kitName;
 
     @Override
     public void onLoaded(File loadFrom)
