@@ -40,8 +40,7 @@ public class ChatConfig extends ReflectedYaml
     @Comment("This also counts for the format string!")
     public boolean allowColors = true;
 
-    @Name("mute.default-mute-time")
-    public Duration defaultMuteTime = new Duration(0);
+
 
     public AfkSection autoAfk;
 

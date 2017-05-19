@@ -15,21 +15,24 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cubeengine.module.chat.storage;
+package org.cubeengine.module.squelch.storage;
 
 import java.util.UUID;
 import org.cubeengine.libcube.service.database.AsyncRecord;
 
-public class Muted extends AsyncRecord<Muted>
+import static org.cubeengine.module.squelch.storage.TableIgnorelist.TABLE_IGNORE_LIST;
+
+public class IgnoreList extends AsyncRecord<IgnoreList>
 {
-    public Muted()
+    public IgnoreList()
     {
-        super(TableMuted.TABLE_MUTED);
+        super(TABLE_IGNORE_LIST);
     }
 
-    public Muted newMuted(UUID userId)
+    public IgnoreList newIgnore(UUID user, UUID ignore)
     {
-        this.setValue(TableMuted.TABLE_MUTED.ID, userId);
+        this.setValue(TABLE_IGNORE_LIST.ID, user);
+        this.setValue(TABLE_IGNORE_LIST.ID, ignore);
         return this;
     }
 }

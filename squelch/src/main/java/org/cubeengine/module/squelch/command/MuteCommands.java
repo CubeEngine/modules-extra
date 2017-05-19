@@ -15,35 +15,40 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cubeengine.module.chat.command;
+package org.cubeengine.module.squelch.command;
 
-import java.sql.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import javax.inject.Inject;
-import org.cubeengine.converter.ConversionException;
-import org.cubeengine.converter.node.StringNode;
+import static java.util.concurrent.TimeUnit.DAYS;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NONE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.module.squelch.storage.TableMuted.TABLE_MUTED;
+
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Optional;
-import org.cubeengine.module.chat.Chat;
-import org.cubeengine.module.chat.storage.Muted;
-import org.cubeengine.libcube.util.TimeUtil;
+import org.cubeengine.converter.ConversionException;
+import org.cubeengine.converter.node.StringNode;
 import org.cubeengine.libcube.service.config.DurationConverter;
 import org.cubeengine.libcube.service.database.Database;
 import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.util.TimeUtil;
+import org.cubeengine.module.squelch.Squelch;
+import org.cubeengine.module.squelch.storage.Muted;
 import org.joda.time.Duration;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 
-import static java.util.concurrent.TimeUnit.DAYS;
-import static org.cubeengine.module.chat.storage.TableMuted.TABLE_MUTED;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
+import java.sql.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.inject.Inject;
 
 public class  MuteCommands
 {
-    private Chat module;
+    private Squelch module;
     private Database db;
     private I18n i18n;
     private final DurationConverter converter = new DurationConverter();
@@ -51,7 +56,7 @@ public class  MuteCommands
     private Map<UUID, java.util.Optional<Muted>> mutedMap = new HashMap<>();
 
     @Inject
-    public MuteCommands(Chat module, Database db, I18n i18n)
+    public MuteCommands(Squelch module, Database db, I18n i18n)
     {
         this.module = module;
         this.db = db;

@@ -15,9 +15,8 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cubeengine.module.chat.storage;
+package org.cubeengine.module.squelch.storage;
 
-import java.sql.Date;
 import java.util.UUID;
 import org.cubeengine.libcube.util.Version;
 import org.cubeengine.libcube.service.database.Database;
@@ -25,25 +24,23 @@ import org.cubeengine.libcube.service.database.Table;
 import org.jooq.TableField;
 import org.jooq.impl.SQLDataType;
 
-import static org.jooq.util.mysql.MySQLDataType.DATE;
-
-public class TableMuted extends Table<Muted>
+public class TableIgnorelist extends Table<IgnoreList>
 {
-    public static TableMuted TABLE_MUTED;
-    public final TableField<Muted, UUID> ID = createField("id", SQLDataType.UUID.length(36).nullable(false), this);
-    public final TableField<Muted, Date> MUTED = createField("muted", DATE, this);
+    public static TableIgnorelist TABLE_IGNORE_LIST;
+    public final TableField<IgnoreList, UUID> ID = createField("id", SQLDataType.UUID.length(36).nullable(false), this);
+    public final TableField<IgnoreList, UUID> IGNORE = createField("ignore", SQLDataType.UUID.length(36).nullable(false), this);
 
-    public TableMuted(String prefix, Database db)
+    public TableIgnorelist(String prefix, Database db)
     {
-        super(prefix + "mute", new Version(1), db);
-        setPrimaryKey(ID);
-        addFields(ID, MUTED);
-        TABLE_MUTED = this;
+        super(prefix + "chat_ignores", new Version(1), db);
+        this.setPrimaryKey(ID, IGNORE);
+        this.addFields(ID, IGNORE);
+        TABLE_IGNORE_LIST = this;
     }
 
     @Override
-    public Class<Muted> getRecordType()
+    public Class<IgnoreList> getRecordType()
     {
-        return Muted.class;
+        return IgnoreList.class;
     }
 }

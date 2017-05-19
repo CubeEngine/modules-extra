@@ -15,24 +15,15 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cubeengine.module.chat.storage;
+package org.cubeengine.module.squelch;
 
-import java.util.UUID;
-import org.cubeengine.libcube.service.database.AsyncRecord;
+import org.cubeengine.reflect.annotations.Name;
+import org.cubeengine.reflect.codec.yaml.ReflectedYaml;
+import org.joda.time.Duration;
 
-import static org.cubeengine.module.chat.storage.TableIgnorelist.TABLE_IGNORE_LIST;
-
-public class IgnoreList extends AsyncRecord<IgnoreList>
+@SuppressWarnings("all")
+public class SquelchConfig extends ReflectedYaml
 {
-    public IgnoreList()
-    {
-        super(TABLE_IGNORE_LIST);
-    }
-
-    public IgnoreList newIgnore(UUID user, UUID ignore)
-    {
-        this.setValue(TABLE_IGNORE_LIST.ID, user);
-        this.setValue(TABLE_IGNORE_LIST.ID, ignore);
-        return this;
-    }
+    @Name("mute.default-mute-time")
+    public Duration defaultMuteTime = new Duration(0);
 }

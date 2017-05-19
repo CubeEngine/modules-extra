@@ -15,21 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cubeengine.module.chat.listener;
+package org.cubeengine.module.squelch;
 
-import java.sql.Date;
-import java.util.Iterator;
-import javax.inject.Inject;
-import org.cubeengine.module.chat.command.IgnoreCommands;
-import org.cubeengine.module.chat.command.MuteCommands;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
+
 import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.module.squelch.command.IgnoreCommands;
+import org.cubeengine.module.squelch.command.MuteCommands;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.text.channel.MessageReceiver;
 
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
+import java.sql.Date;
+import java.util.Iterator;
+
+import javax.inject.Inject;
 
 public class MuteListener
 {

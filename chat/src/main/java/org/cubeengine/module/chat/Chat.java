@@ -17,38 +17,27 @@
  */
 package org.cubeengine.module.chat;
 
-import javax.inject.Inject;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.modularity.core.marker.Enable;
-import org.cubeengine.libcube.service.command.ModuleCommand;
-import org.cubeengine.libcube.service.event.ModuleListener;
-import org.cubeengine.module.chat.command.AfkCommand;
-import org.cubeengine.module.chat.command.ChatCommands;
-import org.cubeengine.module.chat.command.IgnoreCommands;
-import org.cubeengine.module.chat.command.MuteCommands;
-import org.cubeengine.module.chat.listener.ChatFormatListener;
-import org.cubeengine.module.chat.listener.MuteListener;
-import org.cubeengine.module.chat.storage.TableIgnorelist;
-import org.cubeengine.module.chat.storage.TableMuted;
+import org.cubeengine.libcube.service.Broadcaster;
 import org.cubeengine.libcube.service.command.CommandManager;
-import org.cubeengine.libcube.service.database.Database;
-import org.cubeengine.libcube.service.database.ModuleTables;
 import org.cubeengine.libcube.service.event.EventManager;
+import org.cubeengine.libcube.service.event.ModuleListener;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.libcube.service.task.TaskManager;
-import org.cubeengine.libcube.service.Broadcaster;
-import org.spongepowered.api.Game;
+import org.cubeengine.module.chat.command.AfkCommand;
+import org.cubeengine.module.chat.command.ChatCommands;
+import org.cubeengine.module.chat.listener.ChatFormatListener;
 
+import javax.inject.Inject;
 
 /**
  * /me 	Displays a message about yourself.
  * /tell (msg) Displays a private message to other players.
  */
 @ModuleInfo(name = "Chat", description = "Chat formatting")
-@ModuleTables({TableMuted.class, TableIgnorelist.class})
 public class Chat extends Module
 {
     // TODO tablist-prefix data from subject or other module?
@@ -61,23 +50,11 @@ public class Chat extends Module
     @Inject private TaskManager tm;
     @Inject private Broadcaster bc;
 
-    @Inject @ModuleCommand private MuteCommands muteCommands;
-    @Inject @ModuleCommand private IgnoreCommands ignoreCommands;
     @Inject @ModuleListener private ChatFormatListener chatFormatListener;
-    @Inject @ModuleListener private MuteListener muteListener;
 
     @Enable
     public void onEnable()
     {
-        //MuteCommands muteCmd = new MuteCommands(this, db, i18n);
-        //cm.addCommands(this, muteCmd);
-
-        //IgnoreCommands ignoreCmd = new IgnoreCommands(this, db);
-
-        //cm.addCommands(this, ignoreCmd);
-        //em.registerListener(Chat.class, new ChatFormatListener(this, game, i18n));
-        //em.registerListener(Chat.class, new MuteListener(ignoreCmd, muteCmd, i18n));
-
         AfkCommand afkCmd = new AfkCommand(this, config.autoAfk.after.getMillis(), config.autoAfk.check.getMillis(), bc, tm, em);
         cm.addCommands(this, afkCmd);
         cm.addCommands(this, new ChatCommands(this, i18n, bc, afkCmd));

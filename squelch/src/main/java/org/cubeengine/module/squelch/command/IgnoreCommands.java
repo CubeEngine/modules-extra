@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cubeengine.module.chat.command;
+package org.cubeengine.module.squelch.command;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,9 +26,8 @@ import java.util.UUID;
 import javax.inject.Inject;
 import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parametric.Command;
-import org.cubeengine.butler.parametric.Reader;
-import org.cubeengine.module.chat.Chat;
-import org.cubeengine.module.chat.storage.IgnoreList;
+import org.cubeengine.module.squelch.Squelch;
+import org.cubeengine.module.squelch.storage.IgnoreList;
 import org.cubeengine.libcube.util.ChatFormat;
 import org.cubeengine.libcube.util.StringUtils;
 import org.cubeengine.libcube.service.database.Database;
@@ -37,21 +36,21 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 
-import static org.cubeengine.module.chat.storage.TableIgnorelist.TABLE_IGNORE_LIST;
+import static org.cubeengine.module.squelch.storage.TableIgnorelist.TABLE_IGNORE_LIST;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
 
 public class IgnoreCommands
 {
-    private final Chat module;
+    private final Squelch module;
     private Database db;
     private I18n i18n;
 
     private Map<UUID, List<IgnoreList>> ignored = new HashMap<>(); // TODO chacheing
 
     @Inject
-    public IgnoreCommands(I18n i18n, Chat basics, Database db)
+    public IgnoreCommands(I18n i18n, Squelch module, Database db)
     {
-        this.module = basics;
+        this.module = module;
         this.db = db;
         this.i18n = i18n;
     }
