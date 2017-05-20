@@ -18,14 +18,10 @@
 package org.cubeengine.module.authorization.storage;
 
 import java.util.UUID;
-import javax.persistence.Entity;
-import javax.persistence.Table;
 import org.cubeengine.libcube.service.database.AsyncRecord;
 
 import static org.cubeengine.module.authorization.storage.TableAuth.TABLE_AUTH;
 
-@Entity
-@Table(name = "mail")
 public class Auth extends AsyncRecord<Auth>
 {
     public Auth()
