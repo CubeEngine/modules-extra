@@ -17,19 +17,17 @@
  */
 package org.cubeengine.module.vote.storage;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.UUID;
-import org.cubeengine.libcube.service.database.TableUpdateCreator;
-import org.cubeengine.libcube.util.Version;
+import static org.jooq.util.mysql.MySQLDataType.DATETIME;
+
 import org.cubeengine.libcube.service.database.Database;
 import org.cubeengine.libcube.service.database.Table;
+import org.cubeengine.libcube.util.Version;
 import org.jooq.TableField;
 import org.jooq.impl.SQLDataType;
 import org.jooq.types.UShort;
 
-import static org.jooq.util.mysql.MySQLDataType.DATETIME;
+import java.sql.Timestamp;
+import java.util.UUID;
 
 public class TableVote extends Table<VoteModel>
 {
