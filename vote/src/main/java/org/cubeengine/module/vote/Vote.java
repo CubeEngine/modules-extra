@@ -52,7 +52,6 @@ import static java.lang.Math.pow;
 /**
  * A module to handle Votes coming from a {@link VotifierEvent}
  */
-// TODO updater from old db
 @ModuleInfo(name = "Vote", description = "Get rewards for votes")
 public class Vote extends Module
 {
