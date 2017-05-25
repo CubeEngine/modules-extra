@@ -18,7 +18,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: org.cubeengine:shout:1.0.0-SNAPSHOT\n"
 "Report-Msgid-Bugs-To: development@cubeisland.de\n"
-"POT-Creation-Date: 2016-05-17 23:35:43+0200\n"
+"POT-Creation-Date: 2017-05-25 11:13:10+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -28,14 +28,14 @@ msgstr ""
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Label:value
-#: org/cubeengine/module/shout/interactions/ShoutCommand.java:95
+#: org/cubeengine/module/shout/interactions/ShoutCommand.java:91
 msgid "<x> minutes|hours|days"
 msgstr ""
 
 #. Extracted by:
 #. 1. Method
 #. 	Name: org.cubeengine.libcube.service.command.CommandContext#sendTranslated(org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
-#: org/cubeengine/module/shout/interactions/ShoutCommand.java:134
+#: org/cubeengine/module/shout/interactions/ShoutCommand.java:132
 msgid ""
 "All the announcements have now been reloaded, and the players have been re-"
 "added"
@@ -44,34 +44,133 @@ msgstr ""
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/shout/interactions/ShoutCommand.java:39
+#: org/cubeengine/module/shout/interactions/ShoutCommand.java:41
 msgid "Announce a message to players on the server"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/shout/interactions/ShoutCommand.java:92
+#: org/cubeengine/module/shout/interactions/ShoutCommand.java:88
 msgid "Creates a new announcement"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/shout/interactions/ShoutCommand.java:62
+#: org/cubeengine/module/shout/interactions/ShoutCommand.java:64
 msgid "Displays an announcement"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/shout/interactions/ShoutCommand.java:76
+#: org/cubeengine/module/shout/interactions/ShoutCommand.java:72
 msgid "List all announcements"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/shout/interactions/ShoutCommand.java:125
+msgid "Announcement {name} created."
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.command.CommandContext#sendTranslated(org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/shout/interactions/ShoutCommand.java:140
+msgid "Announcement {name} was deleted!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/shout/interactions/ShoutCommand.java:81
+msgid "Here is the list of announcements:"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/shout/interactions/ShoutCommand.java:114
+msgid "Some of your arguments are not valid."
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/shout/interactions/ShoutCommand.java:68
+msgid "The announcement {name} has been announced!"
+msgstr ""
+
+#. Extracted by:
+#. 1, 2. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/shout/interactions/ShoutCommand.java:115
+#: org/cubeengine/module/shout/interactions/ShoutCommand.java:120
+msgid "The error message was: {}"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/shout/interactions/ShoutCommand.java:78
+msgid "There are no announcements loaded!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.command.CommandContext#sendTranslated(org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/shout/interactions/ShoutCommand.java:144
+msgid "There is now announcement named {}"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/shout/interactions/ShoutCommand.java:119
+msgid "There was an error creating some of the files."
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.command.CommandContext#sendTranslated(org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/shout/interactions/ShoutCommand.java:165
+msgid "Updated announcement"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/shout/interactions/ShoutCommand.java:99
+msgid "You have to include a message!"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/shout/interactions/ShoutCommand.java:130
-msgid "clean all loaded announcements form memory and load from disk"
+#: org/cubeengine/module/shout/interactions/ShoutCommand.java:128
+msgid "clean all loaded announcements from memory and load from disk"
+msgstr ""
+
+#. Extracted by:
+#. 1. Annotation
+#. 	Name: org.cubeengine.butler.parametric.Command:desc
+#: org/cubeengine/module/shout/interactions/ShoutCommand.java:135
+msgid "delete an announcement"
+msgstr ""
+
+#. Extracted by:
+#. 1. Annotation
+#. 	Name: org.cubeengine.butler.parametric.Command:desc
+#: org/cubeengine/module/shout/interactions/ShoutCommand.java:148
+msgid "modifies an announcement"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#getTranslation(java.util.Locale, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/shout/AnnouncementReader.java:54
+msgid "{input#announcement} was not found!"
 msgstr ""

@@ -18,7 +18,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: org.cubeengine:writer:1.0.0-SNAPSHOT\n"
 "Report-Msgid-Bugs-To: development@cubeisland.de\n"
-"POT-Creation-Date: 2016-05-18 21:22:11+0200\n"
+"POT-Creation-Date: 2017-05-25 11:13:09+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -28,28 +28,28 @@ msgstr ""
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Label:value
-#: org/cubeengine/module/writer/Writer.java:74
+#: org/cubeengine/module/writer/Writer.java:75
 msgid "1st line"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/writer/Writer.java:71
+#: org/cubeengine/module/writer/Writer.java:72
 msgid "Edit a sign or a signed book"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.filter.Restricted:msg
-#: org/cubeengine/module/writer/Writer.java:72
+#: org/cubeengine/module/writer/Writer.java:73
 msgid "Edit what?"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Label:value
-#: org/cubeengine/module/writer/Writer.java:75
+#: org/cubeengine/module/writer/Writer.java:76
 #, fuzzy
 #| msgid "2st line"
 msgid "2nd line"
@@ -58,7 +58,7 @@ msgstr ""
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Label:value
-#: org/cubeengine/module/writer/Writer.java:76
+#: org/cubeengine/module/writer/Writer.java:77
 #, fuzzy
 #| msgid "3st line"
 msgid "3rd line"
@@ -67,8 +67,44 @@ msgstr ""
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Label:value
-#: org/cubeengine/module/writer/Writer.java:77
+#: org/cubeengine/module/writer/Writer.java:78
 #, fuzzy
 #| msgid "4st line"
 msgid "4th line"
+msgstr ""
+
+#. Extracted by:
+#. 1, 2. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/writer/Writer.java:85
+#: org/cubeengine/module/writer/Writer.java:92
+msgid "Or hold a signed book in your hand to edit it."
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/writer/Writer.java:151
+msgid "The sign has been changed!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/writer/Writer.java:91
+msgid "You need to be looking at a sign less than {amount} blocks away!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/writer/Writer.java:84
+msgid "You need to specify at least one parameter to edit a sign!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/writer/Writer.java:115
+msgid "Your book is now unsigned and ready to be edited."
 msgstr ""

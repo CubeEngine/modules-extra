@@ -18,7 +18,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: org.cubeengine.module:chat:1.0.0-SNAPSHOT\n"
 "Report-Msgid-Bugs-To: development@cubeisland.de\n"
-"POT-Creation-Date: 2016-05-17 23:35:45+0200\n"
+"POT-Creation-Date: 2017-05-25 11:13:12+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -28,104 +28,165 @@ msgstr ""
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Label:value
-#: org/cubeengine/module/chat/command/ChatCommands.java:84
+#: org/cubeengine/module/chat/command/ChatCommands.java:80
 msgid "<name>|-reset"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/chat/command/ChatCommands.java:77
+#: org/cubeengine/module/chat/command/ChatCommands.java:73
 msgid "Allows you to emote"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/chat/command/ChatCommands.java:214
+#: org/cubeengine/module/chat/command/ChatCommands.java:215
 msgid "Broadcasts a message"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/chat/command/ChatCommands.java:83
+#: org/cubeengine/module/chat/command/ChatCommands.java:79
 msgid "Changes your display name"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
-#. 	Name: org.cubeengine.butler.filter.Restricted:msg
-#: org/cubeengine/module/chat/command/IgnoreCommands.java:130
-msgid "Congratulations! You are now looking at this text!"
-msgstr ""
-
-#. Extracted by:
-#. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/chat/command/AfkCommand.java:69
+#: org/cubeengine/module/chat/command/AfkCommand.java:68
 msgid "Displays that you are afk"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/chat/command/ChatCommands.java:220
+#: org/cubeengine/module/chat/command/ChatCommands.java:221
 msgid "Displays the colors"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/chat/command/IgnoreCommands.java:92
-msgid "Ignores all messages from players"
-msgstr ""
-
-#. Extracted by:
-#. 1. Annotation
-#. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/chat/command/MuteCommands.java:61
-msgid "Mutes a player"
-msgstr ""
-
-#. Extracted by:
-#. 1. Annotation
-#. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/chat/command/ChatCommands.java:131
+#: org/cubeengine/module/chat/command/ChatCommands.java:130
 msgid "Replies to the last person that whispered to you."
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/chat/command/ChatCommands.java:122
+#: org/cubeengine/module/chat/command/ChatCommands.java:121
 msgid "Sends a private message to someone"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/chat/command/ChatCommands.java:249
+#: org/cubeengine/module/chat/command/ChatCommands.java:250
 msgid "Shows a random number from 0 to 100"
 msgstr ""
 
 #. Extracted by:
-#. 1. Annotation
-#. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/chat/command/IgnoreCommands.java:129
-msgid "Stops ignoring all messages from a player"
-msgstr ""
-
-#. Extracted by:
-#. 1. Annotation
-#. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/chat/command/MuteCommands.java:114
-msgid "Unmutes a player"
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/chat/command/ChatCommands.java:158
+msgid "Could not find the player to reply to. Is the player offline?"
 msgstr ""
 
 #. Extracted by:
 #. 1. Method
-#. 	Name: org.cubeengine.libcube.service.i18n.I18n#getTranslation(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
-#: org/cubeengine/module/chat/command/MuteCommands.java:85
-msgid "ever"
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/chat/command/ChatCommands.java:126
+msgid ""
+"Could not find the player {user} to send the message to. Is the player "
+"offline?"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/chat/command/ChatCommands.java:115
+msgid "Display name changed from {user} to {user}"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/chat/command/ChatCommands.java:104
+msgid "Display name reset to {user}"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/chat/command/ChatCommands.java:144
+msgid "No one has sent you a message that you could reply to!"
+msgstr ""
+
+#. Extracted by:
+#. 1, 2. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/chat/command/ChatCommands.java:172
+#: org/cubeengine/module/chat/command/ChatCommands.java:191
+msgid "Talking to yourself?"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/chat/command/ChatCommands.java:224
+msgid "The following chat codes are available:"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/chat/command/ChatCommands.java:112
+msgid "This name has been taken by another player!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/chat/command/ChatCommands.java:183
+msgid "Who are you!?"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/chat/command/ChatCommands.java:95
+msgid "You are not allowed to change the nickname of another player!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/chat/command/ChatCommands.java:87
+msgid "You cannot change the consoles display name"
+msgstr ""
+
+#. Extracted by:
+#. 1, 2. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/chat/command/ChatCommands.java:177
+#: org/cubeengine/module/chat/command/ChatCommands.java:194
+msgid "{sender} -> {text:You}: {message:color=WHITE}"
+msgstr ""
+
+#. Extracted by:
+#. 1, 2. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/chat/command/ChatCommands.java:178
+#: org/cubeengine/module/chat/command/ChatCommands.java:199
+msgid "{text:You} -> {user}: {message:color=WHITE}"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/chat/command/ChatCommands.java:197
+msgid "{user} is afk!"
 msgstr ""

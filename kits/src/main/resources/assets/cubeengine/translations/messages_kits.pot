@@ -18,7 +18,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: org.cubeengine:kits:1.0.0-SNAPSHOT\n"
 "Report-Msgid-Bugs-To: development@cubeisland.de\n"
-"POT-Creation-Date: 2016-05-17 23:35:56+0200\n"
+"POT-Creation-Date: 2017-05-25 11:13:21+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -28,41 +28,157 @@ msgstr ""
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/module/kits/KitCommand.java:117
+#: org/cubeengine/module/module/kits/KitCommand.java:171
 msgid "Gives a kit to every online player"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/module/kits/KitCommand.java:156
+#: org/cubeengine/module/module/kits/KitCommand.java:210
 msgid "Gives a set of items."
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.filter.Restricted:msg
-#: org/cubeengine/module/module/kits/KitCommand.java:77
+#: org/cubeengine/module/module/kits/KitCommand.java:110
 msgid "Just log in or use the config!"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/module/kits/KitCommand.java:107
+#: org/cubeengine/module/module/kits/KitCommand.java:161
 msgid "Lists all currently available kits."
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/module/kits/KitCommand.java:47
+#: org/cubeengine/module/module/kits/KitCommand.java:58
 msgid "Manages item-kits"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/module/kits/KitCommand.java:76
+#: org/cubeengine/module/module/kits/KitCommand.java:109
 msgid "Opens the configured kit if the kit does not exists a new is created"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/module/kits/KitCommand.java:155
+msgid "Created the {name#kit} kit!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Annotation
+#. 	Name: org.cubeengine.butler.parametric.Command:desc
+#: org/cubeengine/module/module/kits/KitCommand.java:100
+msgid "Deletes a kit"
+msgstr ""
+
+#. Extracted by:
+#. 1. Annotation
+#. 	Name: org.cubeengine.butler.parametric.Command:desc
+#: org/cubeengine/module/module/kits/KitCommand.java:85
+msgid "Edits a kit"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#translate(org.spongepowered.api.command.CommandSource, java.lang.String)
+#: org/cubeengine/module/module/kits/KitCommand.java:121
+msgid "Kit Contents: "
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/module/kits/KitCommand.java:96
+msgid "Kit commands removed."
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/module/kits/KitCommand.java:92
+msgid "Kit commands set."
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/module/kits/KitCommand.java:104
+msgid "Kit deleted."
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/module/kits/KitCommand.java:201
+msgid "No one received the kit!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/module/kits/KitCommand.java:184
+msgid "Received the {name#kit} kit!"
+msgstr ""
+
+#. Extracted by:
+#. 1, 2, 3. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/module/kits/KitCommand.java:189
+#: org/cubeengine/module/module/kits/KitCommand.java:221
+#: org/cubeengine/module/module/kits/KitCommand.java:229
+msgid "Received the {name#kit} kit. Enjoy."
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/module/kits/KitCommand.java:164
+msgid "The following kits are available:"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/module/kits/KitCommand.java:241
+msgid "You don't have enough space in your inventory for this kit!"
+msgstr ""
+
+#. Extracted by:
+#. 1, 2. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/module/kits/KitCommand.java:188
+#: org/cubeengine/module/module/kits/KitCommand.java:218
+msgid "You gave {user} the {name#kit} kit!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/module/kits/KitCommand.java:205
+msgid "{amount} players did not receive a kit!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/module/kits/KitCommand.java:115
+msgid ""
+"{name#kit} is is not a valid name! Do not use characters like *, | or ?"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/module/kits/KitCommand.java:237
+msgid "{user} has not enough space in your inventory for this kit!"
 msgstr ""

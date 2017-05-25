@@ -16,9 +16,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: org.cubeengine:powertools:1.0.0-SNAPSHOT\n"
+"Project-Id-Version: org.cubeengine.module:squelch:1.0.0-SNAPSHOT\n"
 "Report-Msgid-Bugs-To: development@cubeisland.de\n"
-"POT-Creation-Date: 2017-05-25 11:13:20+0200\n"
+"POT-Creation-Date: 2017-05-25 11:13:32+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -27,139 +27,135 @@ msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
-#. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/powertools/PowertoolCommand.java:167
-msgid "Adds a command to your powertool"
+#. 	Name: org.cubeengine.butler.filter.Restricted:msg
+#: org/cubeengine/module/squelch/command/IgnoreCommands.java:135
+msgid "Congratulations! You are now looking at this text!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/squelch/command/IgnoreCommands.java:111
+msgid "If you do not feel like talking to yourself just don't talk."
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/squelch/command/IgnoreCommands.java:100
+msgid ""
+"Ignore ({text:8+:color=WHITE}): {integer#random} + {integer#random} = "
+"{integer#sum} -> {text:failed:color=RED}"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/powertools/PowertoolCommand.java:60
-msgid "Binding shortcuts to an item."
+#: org/cubeengine/module/squelch/command/IgnoreCommands.java:93
+msgid "Ignores all messages from players"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/squelch/command/MuteCommands.java:90
+msgid "Invalid duration format!"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/powertools/PowertoolCommand.java:190
-msgid "Lists your powertool-bindings."
+#: org/cubeengine/module/squelch/command/MuteCommands.java:66
+msgid "Mutes a player"
+msgstr ""
+
+#. Extracted by:
+#. 1. Annotation
+#. 	Name: org.cubeengine.butler.parametric.Command:desc
+#: org/cubeengine/module/squelch/command/IgnoreCommands.java:134
+msgid "Stops ignoring all messages from a player"
+msgstr ""
+
+#. Extracted by:
+#. 1. Annotation
+#. 	Name: org.cubeengine.butler.parametric.Command:desc
+#: org/cubeengine/module/squelch/command/MuteCommands.java:126
+msgid "Unmutes a player"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/squelch/command/IgnoreCommands.java:131
+msgid "You added {user#list} to your ignore list!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/squelch/command/IgnoreCommands.java:117
+msgid "You are not allowed to ignore {user}!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/squelch/command/MuteCommands.java:99
+msgid "You are now muted for {txt#amount}!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/squelch/command/IgnoreCommands.java:143
+msgid "You haven't ignored {user}!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/squelch/command/MuteCommands.java:100
+msgid "You muted {user} globally for {txt#amount}!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/squelch/command/IgnoreCommands.java:154
+msgid "You removed {user#list} from your ignore list!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/squelch/MuteListener.java:58
+msgid "You try to speak but nothing happens!"
 msgstr ""
 
 #. Extracted by:
 #. 1. Method
 #. 	Name: org.cubeengine.libcube.service.i18n.I18n#getTranslation(java.lang.Object, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
-#: org/cubeengine/module/powertools/PowertoolCommand.java:240
-msgid "NEW"
-msgstr ""
-
-#. Extracted by:
-#. 1, 2. Annotation
-#. 	Name: org.cubeengine.butler.filter.Restricted:msg
-#: org/cubeengine/module/powertools/PowertoolCommand.java:94
-#: org/cubeengine/module/powertools/PowertoolCommand.java:120
-msgid "No more power for you!"
-msgstr ""
-
-#. Extracted by:
-#. 1. Annotation
-#. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/powertools/PowertoolCommand.java:119
-msgid "Removes a command from your powertool"
-msgstr ""
-
-#. Extracted by:
-#. 1. Annotation
-#. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/powertools/PowertoolCommand.java:93
-msgid "Removes all commands from your powertool"
-msgstr ""
-
-#. Extracted by:
-#. 1, 2. Annotation
-#. 	Name: org.cubeengine.butler.filter.Restricted:msg
-#: org/cubeengine/module/powertools/PowertoolCommand.java:168
-#: org/cubeengine/module/powertools/PowertoolCommand.java:191
-msgid "You already have enough power!"
+#: org/cubeengine/module/squelch/command/MuteCommands.java:97
+msgid "ever"
 msgstr ""
 
 #. Extracted by:
 #. 1. Method
 #. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
-#: org/cubeengine/module/powertools/PowertoolCommand.java:227
-msgid "No commands saved on this item!"
+#: org/cubeengine/module/squelch/command/IgnoreCommands.java:120
+msgid "{user} is already on your ignore list!"
 msgstr ""
 
 #. Extracted by:
 #. 1. Method
 #. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
-#: org/cubeengine/module/powertools/PowertoolCommand.java:159
-msgid "No more commands saved on this item!"
+#: org/cubeengine/module/squelch/command/MuteCommands.java:130
+msgid "{user} is no longer muted!"
 msgstr ""
 
 #. Extracted by:
 #. 1. Method
 #. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
-#: org/cubeengine/module/powertools/PowertoolCommand.java:106
-msgid "Removed all commands bound to items in your inventory!"
-msgstr ""
-
-#. Extracted by:
-#. 1. Method
-#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
-#: org/cubeengine/module/powertools/PowertoolCommand.java:115
-msgid "Removed all commands bound to the item in your hand!"
-msgstr ""
-
-#. Extracted by:
-#. 1. Method
-#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
-#: org/cubeengine/module/powertools/PowertoolCommand.java:149
-msgid "Removed the command: {input#command} bound to this item!"
-msgstr ""
-
-#. Extracted by:
-#. 1. Method
-#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
-#: org/cubeengine/module/powertools/PowertoolCommand.java:138
-msgid "Removed the last command bound to this item!"
-msgstr ""
-
-#. Extracted by:
-#. 1. Method
-#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
-#: org/cubeengine/module/powertools/PowertoolCommand.java:153
-msgid "The command {input#command} was not found on this item!"
-msgstr ""
-
-#. Extracted by:
-#. 1, 2. Method
-#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
-#: org/cubeengine/module/powertools/PowertoolCommand.java:111
-#: org/cubeengine/module/powertools/PowertoolCommand.java:125
-msgid "You are not holding any item in your hand."
-msgstr ""
-
-#. Extracted by:
-#. 1. Method
-#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
-#: org/cubeengine/module/powertools/PowertoolCommand.java:173
-msgid "You do not have an item in your hand to bind the command to!"
-msgstr ""
-
-#. Extracted by:
-#. 1. Method
-#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
-#: org/cubeengine/module/powertools/PowertoolCommand.java:213
-msgid "You do not have an item in your hand."
-msgstr ""
-
-#. Extracted by:
-#. 1, 2. Method
-#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
-#: org/cubeengine/module/powertools/PowertoolCommand.java:239
-#: org/cubeengine/module/powertools/PowertoolCommand.java:245
-#, fuzzy
-#| msgid "NEW"
-msgid "{amount} command(s) bound to this item:{}"
+#: org/cubeengine/module/squelch/command/MuteCommands.java:72
+msgid "{user} was already muted!"
 msgstr ""

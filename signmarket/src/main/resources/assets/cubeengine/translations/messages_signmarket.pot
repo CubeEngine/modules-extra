@@ -18,7 +18,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: org.cubeengine.module:signmarket:1.0.0-SNAPSHOT\n"
 "Report-Msgid-Bugs-To: development@cubeisland.de\n"
-"POT-Creation-Date: 2016-05-17 23:35:47+0200\n"
+"POT-Creation-Date: 2017-05-25 11:13:13+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -28,64 +28,64 @@ msgstr ""
 #. Extracted by:
 #. 1, 2. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/signmarket/EditModeCommand.java:140
-#: org/cubeengine/module/signmarket/EditModeCommand.java:165
+#: org/cubeengine/module/signmarket/EditModeCommand.java:141
+#: org/cubeengine/module/signmarket/EditModeCommand.java:166
 msgid "Changes the demand of a sign"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/signmarket/EditModeCommand.java:106
+#: org/cubeengine/module/signmarket/EditModeCommand.java:107
 msgid "Changes the sign to a buy-sign"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/signmarket/EditModeCommand.java:123
+#: org/cubeengine/module/signmarket/EditModeCommand.java:124
 msgid "Changes the sign to a sell-sign"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/signmarket/EditModeCommand.java:180
+#: org/cubeengine/module/signmarket/EditModeCommand.java:181
 msgid "Changes the sign to an admin-sign"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/signmarket/EditModeCommand.java:201
+#: org/cubeengine/module/signmarket/EditModeCommand.java:202
 msgid "Changes the sign to an player-sign"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/signmarket/EditModeCommand.java:227
+#: org/cubeengine/module/signmarket/EditModeCommand.java:228
 msgid "Changes the signs owner"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/signmarket/EditModeCommand.java:257
+#: org/cubeengine/module/signmarket/EditModeCommand.java:258
 msgid "Changes whether the sign has stock"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/signmarket/EditModeCommand.java:72
+#: org/cubeengine/module/signmarket/EditModeCommand.java:73
 msgid "Copies the settings from the previous sign"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/signmarket/EditModeCommand.java:41
+#: org/cubeengine/module/signmarket/EditModeCommand.java:42
 msgid "Edit Signmarket signs"
 msgstr ""
 
@@ -99,7 +99,7 @@ msgstr ""
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/signmarket/EditModeCommand.java:64
+#: org/cubeengine/module/signmarket/EditModeCommand.java:65
 msgid "Exits the Editmode"
 msgstr ""
 
@@ -120,34 +120,340 @@ msgstr ""
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/signmarket/EditModeCommand.java:327
+#: org/cubeengine/module/signmarket/EditModeCommand.java:328
 msgid "Sets the amount"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/signmarket/EditModeCommand.java:348
+#: org/cubeengine/module/signmarket/EditModeCommand.java:349
 msgid "Sets the item"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/signmarket/EditModeCommand.java:306
+#: org/cubeengine/module/signmarket/EditModeCommand.java:307
 msgid "Sets the price"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/signmarket/EditModeCommand.java:368
+#: org/cubeengine/module/signmarket/EditModeCommand.java:369
 msgid "Sets the signs inventory size"
 msgstr ""
 
 #. Extracted by:
 #. 1. Annotation
 #. 	Name: org.cubeengine.butler.parametric.Command:desc
-#: org/cubeengine/module/signmarket/EditModeCommand.java:285
+#: org/cubeengine/module/signmarket/EditModeCommand.java:286
 msgid "Sets the signs stock"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignManager.java:677
+msgid "-- {text:Sign Market:color=PURPLE} - {text:Edit Mode:color=PURPLE} --"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignManager.java:682
+msgid "--------- {text:Sign Market} ---------"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/EditModeCommand.java:312
+msgid "A negative price!? Are you serious?"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/EditModeCommand.java:157
+msgid "Buy signs cannot have a demand!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/SignMarketCommands.java:56
+msgid "Chat will now work as commands."
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignManager.java:319
+msgid "Double click to empty and break the sign!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/EditModeCommand.java:61
+msgid "Exiting edit mode."
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignManager.java:737
+msgid "In stock: {amount}/{amount#max}"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignManager.java:729
+msgid "In stock: {amount}/{text:Infinite}"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignManager.java:733
+msgid "In stock: {amount}/{text:Unknown:color=RED}"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignManager.java:130
+msgid "Invalid amount!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignManager.java:137
+msgid "Invalid price!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/EditModeCommand.java:379
+msgid "Invalid size! Use -i for infinite OR 1-6 inventory-lines!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignManager.java:282
+msgid "Item in sign updated!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignManager.java:355
+msgid "MarketSign destroyed!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/EditModeCommand.java:333
+msgid "Negative amounts could be unfair! Just sayin'"
+msgstr ""
+
+#. Extracted by:
+#. 1, 2. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignManager.java:712
+#: org/cubeengine/module/signmarket/MarketSignManager.java:716
+msgid "No Item"
+msgstr ""
+
+#. Extracted by:
+#. 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/EditModeCommand.java:114
+#: org/cubeengine/module/signmarket/EditModeCommand.java:131
+#: org/cubeengine/module/signmarket/EditModeCommand.java:147
+#: org/cubeengine/module/signmarket/EditModeCommand.java:172
+#: org/cubeengine/module/signmarket/EditModeCommand.java:192
+#: org/cubeengine/module/signmarket/EditModeCommand.java:213
+#: org/cubeengine/module/signmarket/EditModeCommand.java:249
+#: org/cubeengine/module/signmarket/EditModeCommand.java:264
+#: org/cubeengine/module/signmarket/EditModeCommand.java:292
+#: org/cubeengine/module/signmarket/EditModeCommand.java:319
+#: org/cubeengine/module/signmarket/EditModeCommand.java:340
+#: org/cubeengine/module/signmarket/EditModeCommand.java:355
+#: org/cubeengine/module/signmarket/EditModeCommand.java:386
+msgid "No active sign!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignManager.java:144
+msgid "No item given!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/EditModeCommand.java:79
+msgid "No previous market sign"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignManager.java:122
+msgid "No sign-type given!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/EditModeCommand.java:270
+msgid "Player signs cannot have no stock!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignListener.java:219
+msgid "Sneak and punch the sign convert it."
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignListener.java:218
+msgid "That is not a market sign!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/EditModeCommand.java:298
+msgid "This sign has no stock! Use \"stock\" first to enable it!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignManager.java:210
+msgid "This sign is being edited right now!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignManager.java:228
+msgid "This signs inventory is being edited right now!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/SignMarketCommands.java:57
+msgid "Type exit or use this command again to leave the edit mode."
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignManager.java:298
+msgid "You are not allowed to break admin market signs!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignManager.java:304
+msgid "You are not allowed to break others market signs!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignManager.java:289
+msgid "You are not allowed to break your own market signs!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignListener.java:255
+msgid "You are not allowed to create market signs!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignListener.java:163
+msgid "You are not allowed to edit MarketSigns here"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/SignMarketCommands.java:55
+msgid "You are now in edit mode!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignManager.java:511
+msgid "You bought {amount}x {input#item} for {txt#price}."
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignManager.java:397
+msgid "You do not have an account."
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignManager.java:275
+msgid ""
+"You have to take all items out of the market sign to be able to change the "
+"item in it!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/EditModeCommand.java:361
+msgid ""
+"You have to take all items out of the market-sign to be able to change the "
+"item in it!"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignManager.java:464
+msgid "You sold {amount}x {input#item} for {txt#price}."
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignManager.java:699
+msgid ""
+"{text:Buy:color=DARK_BLUE}: {txt#amount} for {txt#price} from {user#owner}"
+msgstr ""
+
+#. Extracted by:
+#. 1. Method
+#. 	Name: org.cubeengine.libcube.service.i18n.I18n#sendTranslated(org.spongepowered.api.text.channel.MessageReceiver, org.spongepowered.api.text.format.TextFormat, java.lang.String, java.lang.Object[])
+#: org/cubeengine/module/signmarket/MarketSignManager.java:704
+msgid ""
+"{text:Sell:color=DARK_BLUE}: {txt#amount} for {txt#price} to {user#owner}"
 msgstr ""
