@@ -21,14 +21,14 @@ import java.util.List;
 import java.util.Map;
 import com.google.common.base.Preconditions;
 import org.cubeengine.butler.CommandInvocation;
-import org.cubeengine.butler.provider.ProviderManager;
+import org.cubeengine.butler.provider.Providers;
 
 public class Parameters
 {
     private final Map<String, List<String>> data;
-    private final ProviderManager provider;
+    private final Providers provider;
 
-    public Parameters(Map<String, List<String>> data, ProviderManager provider)
+    public Parameters(Map<String, List<String>> data, Providers provider)
     {
         this.data = data;
         this.provider = provider;

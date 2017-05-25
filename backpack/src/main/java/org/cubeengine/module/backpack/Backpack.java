@@ -63,7 +63,7 @@ public class Backpack extends Module
     {
         reflector.getCodecManager().getCodec(NBTCodec.class).getConverterManager().registerConverter(new ItemStackConverter(), ItemStack.class);
         manager = new BackpackManager(this, reflector, i18n);
-        cm.getProviderManager().register(this, new BackpackCompleter(manager));
+        cm.getProviders().register(this, new BackpackCompleter(manager));
         cm.addCommand(new BackpackCommands(this, manager, i18n, cm));
         em.registerListener(Backpack.class, manager);
     }

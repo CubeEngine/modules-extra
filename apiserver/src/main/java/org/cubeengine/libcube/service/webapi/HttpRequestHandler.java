@@ -49,12 +49,12 @@ import static io.netty.channel.ChannelFutureListener.CLOSE_ON_FAILURE;
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static org.cubeengine.libcube.service.webapi.RequestStatus.AUTHENTICATION_FAILURE;
+import static org.cubeengine.libcube.service.webapi.WebSocketRequestHandler.WEBSOCKET_ROUTE;
 
 public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequest>
 {
     // TODO rewrite log messages, most of them are incomplete
     private final Charset UTF8 = Charset.forName("UTF-8");
-    private final String WEBSOCKET_ROUTE = "websocket";
     private final Log log;
     private Maybe<Authorization> am;
     private final ApiServer server;
@@ -97,7 +97,7 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
 
         boolean authorized = this.server.isAuthorized(inetSocketAddress.getAddress());
         QueryStringDecoder qsDecoder = new QueryStringDecoder(message.getUri(), this.UTF8, true, 100);
-        final Parameters params = new Parameters(qsDecoder.parameters(), cm.getProviderManager());
+        final Parameters params = new Parameters(qsDecoder.parameters(), cm.getProviders());
         User authUser = null;
         if (!authorized)
         {

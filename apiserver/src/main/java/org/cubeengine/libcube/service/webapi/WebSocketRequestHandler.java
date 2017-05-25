@@ -45,7 +45,7 @@ import static io.netty.handler.codec.http.HttpHeaders.Names.HOST;
 
 public class WebSocketRequestHandler extends SimpleChannelInboundHandler<WebSocketFrame>
 {
-    private final String WEBSOCKET_ROUTE = "websocket";
+    public static final String WEBSOCKET_ROUTE = "websocket";
     private final Charset UTF8 = Charset.forName("UTF-8");
     private final Log log;
     private final ApiServer server;
@@ -67,7 +67,7 @@ public class WebSocketRequestHandler extends SimpleChannelInboundHandler<WebSock
 
     public void doHandshake(ChannelHandlerContext ctx, FullHttpRequest message)
     {
-        WebSocketServerHandshakerFactory handshakerFactory = new WebSocketServerHandshakerFactory("ws://" + message.headers().get(HOST) + "/" + this.WEBSOCKET_ROUTE, null, false);
+        WebSocketServerHandshakerFactory handshakerFactory = new WebSocketServerHandshakerFactory("ws://" + message.headers().get(HOST) + "/" + WEBSOCKET_ROUTE, null, false);
         this.handshaker = handshakerFactory.newHandshaker(message);
         if (handshaker == null)
         {
@@ -76,19 +76,14 @@ public class WebSocketRequestHandler extends SimpleChannelInboundHandler<WebSock
             return;
         }
         this.log.debug("handshaking now...");
-        this.handshaker.handshake(ctx.channel(), message).addListener(new ChannelFutureListener()
-        {
-            @Override
-            public void operationComplete(ChannelFuture future) throws Exception
+        this.handshaker.handshake(ctx.channel(), message).addListener((ChannelFutureListener) future -> {
+            if (future.isSuccess())
             {
-                if (future.isSuccess())
-                {
-                    log.debug("Success!");
-                }
-                else
-                {
-                    log.debug("Failed!");
-                }
+                log.debug("Success!");
+            }
+            else
+            {
+                log.debug("Failed!");
             }
         });
     }
@@ -159,7 +154,7 @@ public class WebSocketRequestHandler extends SimpleChannelInboundHandler<WebSock
                         responseNode.put("response", "Unknown route");
                         break;
                     }
-                    Parameters params = new Parameters(qsDecoder.parameters(), cm.getProviderManager());
+                    Parameters params = new Parameters(qsDecoder.parameters(), cm.getProviders());
                     ApiRequest request = new ApiRequest((InetSocketAddress)ctx.channel().remoteAddress(),
                                                         ((InetSocketAddress)ctx.channel().localAddress()), method, params, EMPTY_HEADERS, reqdata, authUser);
                     ApiResponse response = handler.execute(request);
