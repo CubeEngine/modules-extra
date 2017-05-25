@@ -36,6 +36,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.inject.Inject;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.cubeisland.engine.logscribe.Log;
 import de.cubeisland.engine.logscribe.LogFactory;
@@ -46,14 +48,13 @@ import de.cubeisland.engine.modularity.core.Modularity;
 import de.cubeisland.engine.modularity.core.graph.DependencyInformation;
 import de.cubeisland.engine.modularity.core.graph.meta.ModuleMetadata;
 import de.cubeisland.engine.modularity.core.marker.Enable;
+import org.cubeengine.libcube.util.LoggerUtil;
 import org.cubeengine.reflect.Reflector;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
 import org.cubeengine.module.authorization.Authorization;
 import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.filesystem.FileManager;
@@ -137,9 +138,12 @@ public class ApiServer
         try
         {
             this.start();
-            ConsoleLogEvent e = new ConsoleLogEvent(this);
-            e.start();
-            ((Logger)LogManager.getLogger()).addAppender(e);
+            final ObjectMapper mapper = new ObjectMapper();
+            LoggerUtil.attachCallback(null, (f, a, t, msg) -> {
+                ObjectNode node = mapper.createObjectNode();
+                node.put("msg", msg);
+                this.fireEvent("console", node);
+            });
         }
         catch (ApiStartupException ex)
         {

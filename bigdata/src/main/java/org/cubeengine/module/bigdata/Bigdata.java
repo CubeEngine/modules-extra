@@ -30,15 +30,12 @@ import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.modularity.core.marker.Disable;
 import de.cubeisland.engine.modularity.core.marker.Enable;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.Logger;
 import org.bson.Document;
 import org.cubeengine.module.bigdata.MongoDBConfiguration.Authentication;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 
 import static java.util.Arrays.asList;
-import static org.apache.logging.log4j.Level.ERROR;
-import static org.apache.logging.log4j.Level.WARN;
+import static org.cubeengine.libcube.util.LoggerUtil.setLoggerLevel;
 
 @ModuleInfo(name = "BigData", description = "Provides serialization to a MongoDB")
 public class Bigdata extends Module
@@ -51,14 +48,14 @@ public class Bigdata extends Module
     {
         try
         {
-            ((Logger) LogManager.getLogger("org.mongodb.driver.connection")).setLevel(WARN);
-            ((Logger) LogManager.getLogger("org.mongodb.driver.management")).setLevel(WARN);
-            ((Logger) LogManager.getLogger("org.mongodb.driver.cluster")).setLevel(WARN);
-            ((Logger) LogManager.getLogger("org.mongodb.driver.protocol.insert")).setLevel(WARN);
-            ((Logger) LogManager.getLogger("org.mongodb.driver.protocol.query")).setLevel(WARN);
-            ((Logger) LogManager.getLogger("org.mongodb.driver.protocol.update")).setLevel(WARN);
-            ((Logger) LogManager.getLogger("org.mongodb.driver.protocol.command")).setLevel(WARN);
-            ((Logger) LogManager.getLogger("org.mongodb.driver.management")).setLevel(ERROR);
+            setLoggerLevel("org.mongodb.driver.connection", "WARN");
+            setLoggerLevel("org.mongodb.driver.management", "WARN");
+            setLoggerLevel("org.mongodb.driver.cluster", "WARN");
+            setLoggerLevel("org.mongodb.driver.protocol.insert", "WARN");
+            setLoggerLevel("org.mongodb.driver.protocol.query", "WARN");
+            setLoggerLevel("org.mongodb.driver.protocol.update", "WARN");
+            setLoggerLevel("org.mongodb.driver.protocol.command", "WARN");
+            setLoggerLevel("org.mongodb.driver.management", "ERROR");
             getDatabase();
             releaseClient();
         }
