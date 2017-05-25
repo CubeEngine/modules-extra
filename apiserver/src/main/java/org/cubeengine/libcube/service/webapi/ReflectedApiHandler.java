@@ -24,7 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import org.cubeengine.butler.CommandInvocation;
-import org.cubeengine.butler.ProviderManager;
+import org.cubeengine.butler.provider.ProviderManager;
 import org.cubeengine.libcube.service.command.CommandManager;
 
 public final class ReflectedApiHandler extends ApiHandler

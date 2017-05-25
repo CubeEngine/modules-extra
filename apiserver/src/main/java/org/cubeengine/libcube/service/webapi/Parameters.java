@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import com.google.common.base.Preconditions;
 import org.cubeengine.butler.CommandInvocation;
-import org.cubeengine.butler.ProviderManager;
+import org.cubeengine.butler.provider.ProviderManager;
 
 public class Parameters
 {
