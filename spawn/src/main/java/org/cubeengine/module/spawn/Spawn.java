@@ -27,6 +27,7 @@ import org.cubeengine.libcube.service.i18n.I18n;
 import org.spongepowered.api.service.permission.PermissionService;
 
 @ModuleInfo(name = "spawn", description ="Modifies the default spawn behaviour")
+// TODO integrate in teleport module reading subject option is not that advanced of a feature?
 public class Spawn extends Module
 {
     @Inject private EventManager em;
