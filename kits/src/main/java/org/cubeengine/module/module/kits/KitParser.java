@@ -21,29 +21,29 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.cubeengine.butler.CommandInvocation;
 import org.cubeengine.butler.completer.Completer;
-import org.cubeengine.butler.parameter.reader.ArgumentReader;
-import org.cubeengine.butler.parameter.reader.ReaderException;
+import org.cubeengine.butler.parameter.argument.ArgumentParser;
+import org.cubeengine.butler.parameter.argument.ReaderException;
 
 import static org.cubeengine.libcube.util.StringUtils.startsWithIgnoreCase;
 
-public class KitReader implements ArgumentReader<Kit>, Completer
+public class KitParser implements ArgumentParser<Kit>, Completer
 {
     private final KitManager manager;
 
-    public KitReader(KitManager manager)
+    public KitParser(KitManager manager)
     {
         this.manager = manager;
     }
 
     @Override
-    public List<String> getSuggestions(CommandInvocation commandInvocation)
+    public List<String> suggest(CommandInvocation commandInvocation)
     {
         String token = commandInvocation.currentToken();
         return manager.getKitsNames().stream().filter(name -> startsWithIgnoreCase(name, token)).collect(Collectors.toList());
     }
 
     @Override
-    public Kit read(Class aClass, CommandInvocation commandInvocation) throws ReaderException
+    public Kit parse(Class aClass, CommandInvocation commandInvocation) throws ReaderException
     {
         String consumed = commandInvocation.consume(1);
         Kit kit = manager.getKit(consumed);

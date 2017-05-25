@@ -18,24 +18,24 @@
 package org.cubeengine.module.spawn;
 
 import org.cubeengine.butler.CommandInvocation;
-import org.cubeengine.butler.parameter.reader.ArgumentReader;
-import org.cubeengine.butler.parameter.reader.DefaultValue;
-import org.cubeengine.butler.parameter.reader.ReaderException;
+import org.cubeengine.butler.parameter.argument.ArgumentParser;
+import org.cubeengine.butler.parameter.argument.DefaultValue;
+import org.cubeengine.butler.parameter.argument.ReaderException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 
-public class SubjectReader implements ArgumentReader<Subject>, DefaultValue<Subject>
+public class SubjectParser implements ArgumentParser<Subject>, DefaultValue<Subject>
 {
     private PermissionService pm;
 
-    public SubjectReader(PermissionService pm)
+    public SubjectParser(PermissionService pm)
     {
         this.pm = pm;
     }
 
     @Override
-    public Subject read(Class aClass, CommandInvocation commandInvocation) throws ReaderException
+    public Subject parse(Class aClass, CommandInvocation commandInvocation) throws ReaderException
     {
         String token = commandInvocation.currentToken();
         if (pm.getGroupSubjects().hasRegistered(token))

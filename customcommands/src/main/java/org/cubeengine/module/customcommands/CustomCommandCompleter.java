@@ -35,7 +35,7 @@ public class CustomCommandCompleter implements Completer
     }
 
     @Override
-    public List<String> getSuggestions(CommandInvocation invocation)
+    public List<String> suggest(CommandInvocation invocation)
     {
         ArrayList<String> list = new ArrayList<>();
         for (String item : module.getConfig().commands.keySet())

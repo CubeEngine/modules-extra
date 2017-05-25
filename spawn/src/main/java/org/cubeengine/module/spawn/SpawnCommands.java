@@ -55,7 +55,7 @@ public class SpawnCommands
     }
 
     @Command(desc = "Changes the respawnpoint")
-    public void setRoleSpawn(Player ctx, @Reader(SubjectReader.class) Subject role, @Default Context context)
+    public void setRoleSpawn(Player ctx, @Reader(SubjectParser.class) Subject role, @Default Context context)
     {
         setRoleSpawn(context, ctx.getTransform(), role);
         i18n.sendTranslated(ctx, POSITIVE, "The spawn in {world} for the role {name#role} is now set to {vector}",
@@ -78,7 +78,7 @@ public class SpawnCommands
 
     @Command(desc = "Teleports a player to the configured rolespawn")
     public void roleSpawn(CommandSource ctx, @Default Player player, @Default Context context,
-                      @Named({"role", "r"}) @Default @Reader(SubjectReader.class) Subject role,
+                      @Named({"role", "r"}) @Default @Reader(SubjectParser.class) Subject role,
                       @ParameterPermission @Flag boolean force)
     {
         java.util.Optional<String> spawnString = role.getOption(toSet(context), ROLESPAWN);

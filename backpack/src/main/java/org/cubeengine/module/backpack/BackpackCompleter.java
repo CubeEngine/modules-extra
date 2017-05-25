@@ -37,7 +37,7 @@ public class BackpackCompleter implements Completer
     }
 
     @Override
-    public List<String> getSuggestions(CommandInvocation invocation)
+    public List<String> suggest(CommandInvocation invocation)
     {
         if (invocation.getCommandSource() instanceof Player)
         {

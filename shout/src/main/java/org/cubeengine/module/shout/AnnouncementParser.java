@@ -21,8 +21,8 @@ import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE
 
 import org.cubeengine.butler.CommandInvocation;
 import org.cubeengine.butler.completer.Completer;
-import org.cubeengine.butler.parameter.reader.ArgumentReader;
-import org.cubeengine.butler.parameter.reader.ReaderException;
+import org.cubeengine.butler.parameter.argument.ArgumentParser;
+import org.cubeengine.butler.parameter.argument.ReaderException;
 import org.cubeengine.libcube.service.command.TranslatedReaderException;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.module.shout.announce.Announcement;
@@ -33,19 +33,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class AnnouncementReader implements ArgumentReader<Announcement>, Completer
+public class AnnouncementParser implements ArgumentParser<Announcement>, Completer
 {
     private AnnouncementManager manager;
     private I18n i18n;
 
-    public AnnouncementReader(AnnouncementManager manager, I18n i18n)
+    public AnnouncementParser(AnnouncementManager manager, I18n i18n)
     {
         this.manager = manager;
         this.i18n = i18n;
     }
 
     @Override
-    public Announcement read(Class clazz, CommandInvocation invocation) throws ReaderException
+    public Announcement parse(Class clazz, CommandInvocation invocation) throws ReaderException
     {
         String name = invocation.consume(1);
         Announcement announcement = manager.getAnnouncement(name);
@@ -58,7 +58,7 @@ public class AnnouncementReader implements ArgumentReader<Announcement>, Complet
     }
 
     @Override
-    public List<String> getSuggestions(CommandInvocation invocation)
+    public List<String> suggest(CommandInvocation invocation)
     {
         List<String> list = new ArrayList<>();
         String token = invocation.currentToken();

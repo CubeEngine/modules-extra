@@ -66,7 +66,7 @@ public class Shout extends Module
 
         manager = new AnnouncementManager(this, modulePath, i18n, pm, tm, sm, reflector);
         manager.loadAnnouncements();
-        cm.getProviderManager().register(this, new AnnouncementReader(manager, i18n), Announcement.class);
+        cm.getProviderManager().register(this, new AnnouncementParser(manager, i18n), Announcement.class);
         em.registerListener(Shout.class, new ShoutListener(manager));
         cm.addCommand(new ShoutCommand(cm, this, i18n));
 
