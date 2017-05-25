@@ -35,7 +35,7 @@ public class TableVote extends Table<VoteModel>
 
     public TableVote(String prefix, Database db)
     {
-        super(prefix + "votecount", new Version(1), db);
+        super("votecount", new Version(1), db);
         this.setPrimaryKey(ID);
         this.addFields(ID, LASTVOTE, VOTEAMOUNT);
         TABLE_VOTE = this;

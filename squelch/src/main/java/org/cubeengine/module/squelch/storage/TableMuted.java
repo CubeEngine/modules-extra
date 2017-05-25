@@ -35,7 +35,7 @@ public class TableMuted extends Table<Muted>
 
     public TableMuted(String prefix, Database db)
     {
-        super(prefix + "mute", new Version(1), db);
+        super("mute", new Version(1), db);
         setPrimaryKey(ID);
         addFields(ID, MUTED);
         TABLE_MUTED = this;

@@ -34,7 +34,7 @@ public class TableAuth extends Table<Auth>
 
     public TableAuth(String prefix, Database db)
     {
-        super(prefix + "auth", new Version(1), db);
+        super("auth", new Version(1), db);
         setPrimaryKey(ID);
         addFields(ID, PASSWD);
         TABLE_AUTH = this;

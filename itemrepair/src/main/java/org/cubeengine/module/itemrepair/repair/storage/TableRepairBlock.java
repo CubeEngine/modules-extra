@@ -40,7 +40,7 @@ public class TableRepairBlock extends AutoIncrementTable<RepairBlockModel, UInte
 
     public TableRepairBlock(String prefix, Database database)
     {
-        super(prefix + "itemrepair_blocks", new Version(1), database);
+        super("itemrepair_blocks", new Version(1), database);
         this.setAIKey(ID);
         this.addUniqueKey(WORLD, X, Y, Z);
         this.addFields(ID, WORLD, X, Y, Z, TYPE);

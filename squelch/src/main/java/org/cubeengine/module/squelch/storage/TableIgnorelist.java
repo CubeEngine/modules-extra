@@ -32,7 +32,7 @@ public class TableIgnorelist extends Table<IgnoreList>
 
     public TableIgnorelist(String prefix, Database db)
     {
-        super(prefix + "chat_ignores", new Version(1), db);
+        super("chat_ignores", new Version(1), db);
         this.setPrimaryKey(ID, IGNORE);
         this.addFields(ID, IGNORE);
         TABLE_IGNORE_LIST = this;
