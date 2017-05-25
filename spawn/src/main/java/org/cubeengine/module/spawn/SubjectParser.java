@@ -48,7 +48,7 @@ public class SubjectParser implements ArgumentParser<Subject>, DefaultValue<Subj
     }
 
     @Override
-    public Subject getDefault(CommandInvocation invocation)
+    public Subject provide(CommandInvocation invocation)
     {
         if (invocation.getCommandSource() instanceof Player)
         {

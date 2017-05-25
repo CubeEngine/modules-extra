@@ -20,7 +20,7 @@ package org.cubeengine.module.log.action;
 import java.util.ArrayList;
 import java.util.List;
 import de.cubeisland.engine.butler.CommandInvocation;
-import org.cubeengine.butler.completer.Completer;
+import org.cubeengine.butler.parameter.argument.Completer;
 
 public class ActionTypeCompleter implements Completer
 {

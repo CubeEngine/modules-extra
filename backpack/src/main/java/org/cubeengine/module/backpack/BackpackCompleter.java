@@ -18,7 +18,7 @@
 package org.cubeengine.module.backpack;
 
 import org.cubeengine.butler.CommandInvocation;
-import org.cubeengine.butler.completer.Completer;
+import org.cubeengine.butler.parameter.argument.Completer;
 import org.spongepowered.api.entity.living.player.Player;
 
 import java.util.ArrayList;
