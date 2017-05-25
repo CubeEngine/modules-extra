@@ -23,7 +23,7 @@ import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Default;
 import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Named;
-import org.cubeengine.butler.parametric.Reader;
+import org.cubeengine.butler.parametric.Parser;
 import org.cubeengine.libcube.util.StringUtils;
 import org.cubeengine.libcube.service.command.annotation.ParameterPermission;
 import org.cubeengine.libcube.service.i18n.I18n;
@@ -55,7 +55,7 @@ public class SpawnCommands
     }
 
     @Command(desc = "Changes the respawnpoint")
-    public void setRoleSpawn(Player ctx, @Reader(SubjectParser.class) Subject role, @Default Context context)
+    public void setRoleSpawn(Player ctx, @Parser(SubjectParser.class) Subject role, @Default Context context)
     {
         setRoleSpawn(context, ctx.getTransform(), role);
         i18n.sendTranslated(ctx, POSITIVE, "The spawn in {world} for the role {name#role} is now set to {vector}",
@@ -78,7 +78,7 @@ public class SpawnCommands
 
     @Command(desc = "Teleports a player to the configured rolespawn")
     public void roleSpawn(CommandSource ctx, @Default Player player, @Default Context context,
-                      @Named({"role", "r"}) @Default @Reader(SubjectParser.class) Subject role,
+                      @Named({"role", "r"}) @Default @Parser(SubjectParser.class) Subject role,
                       @ParameterPermission @Flag boolean force)
     {
         java.util.Optional<String> spawnString = role.getOption(toSet(context), ROLESPAWN);

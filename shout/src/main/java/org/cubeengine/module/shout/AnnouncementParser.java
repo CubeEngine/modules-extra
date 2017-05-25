@@ -22,8 +22,8 @@ import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE
 import org.cubeengine.butler.CommandInvocation;
 import org.cubeengine.butler.completer.Completer;
 import org.cubeengine.butler.parameter.argument.ArgumentParser;
-import org.cubeengine.butler.parameter.argument.ReaderException;
-import org.cubeengine.libcube.service.command.TranslatedReaderException;
+import org.cubeengine.butler.parameter.argument.ParserException;
+import org.cubeengine.libcube.service.command.TranslatedParserException;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.module.shout.announce.Announcement;
 import org.cubeengine.module.shout.announce.AnnouncementManager;
@@ -45,20 +45,20 @@ public class AnnouncementParser implements ArgumentParser<Announcement>, Complet
     }
 
     @Override
-    public Announcement parse(Class clazz, CommandInvocation invocation) throws ReaderException
+    public Announcement parse(Class clazz, CommandInvocation invocation) throws ParserException
     {
         String name = invocation.consume(1);
         Announcement announcement = manager.getAnnouncement(name);
         if (announcement == null)
         {
             Text trans = i18n.getTranslation(invocation.getContext(Locale.class), NEGATIVE, "{input#announcement} was not found!", name);
-            throw new TranslatedReaderException(trans);
+            throw new TranslatedParserException(trans);
         }
         return announcement;
     }
 
     @Override
-    public List<String> suggest(CommandInvocation invocation)
+    public List<String> suggest(Class type, CommandInvocation invocation)
     {
         List<String> list = new ArrayList<>();
         String token = invocation.currentToken();

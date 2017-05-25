@@ -31,7 +31,7 @@ import org.cubeengine.libcube.service.command.annotation.CommandPermission;
 import org.cubeengine.libcube.service.command.annotation.Unloggable;
 import org.cubeengine.libcube.service.command.exception.PermissionDeniedException;
 import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.libcube.service.command.readers.PlayerList;
+import org.cubeengine.libcube.service.command.parser.PlayerList;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;

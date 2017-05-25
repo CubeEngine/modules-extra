@@ -20,7 +20,7 @@ package org.cubeengine.module.spawn;
 import org.cubeengine.butler.CommandInvocation;
 import org.cubeengine.butler.parameter.argument.ArgumentParser;
 import org.cubeengine.butler.parameter.argument.DefaultValue;
-import org.cubeengine.butler.parameter.argument.ReaderException;
+import org.cubeengine.butler.parameter.argument.ParserException;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
@@ -35,7 +35,7 @@ public class SubjectParser implements ArgumentParser<Subject>, DefaultValue<Subj
     }
 
     @Override
-    public Subject parse(Class aClass, CommandInvocation commandInvocation) throws ReaderException
+    public Subject parse(Class aClass, CommandInvocation commandInvocation) throws ParserException
     {
         String token = commandInvocation.currentToken();
         if (pm.getGroupSubjects().hasRegistered(token))

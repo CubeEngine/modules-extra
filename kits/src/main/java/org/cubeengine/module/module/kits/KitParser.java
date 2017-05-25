@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 import org.cubeengine.butler.CommandInvocation;
 import org.cubeengine.butler.completer.Completer;
 import org.cubeengine.butler.parameter.argument.ArgumentParser;
-import org.cubeengine.butler.parameter.argument.ReaderException;
+import org.cubeengine.butler.parameter.argument.ParserException;
 
 import static org.cubeengine.libcube.util.StringUtils.startsWithIgnoreCase;
 
@@ -36,20 +36,20 @@ public class KitParser implements ArgumentParser<Kit>, Completer
     }
 
     @Override
-    public List<String> suggest(CommandInvocation commandInvocation)
+    public List<String> suggest(Class type, CommandInvocation commandInvocation)
     {
         String token = commandInvocation.currentToken();
         return manager.getKitsNames().stream().filter(name -> startsWithIgnoreCase(name, token)).collect(Collectors.toList());
     }
 
     @Override
-    public Kit parse(Class aClass, CommandInvocation commandInvocation) throws ReaderException
+    public Kit parse(Class aClass, CommandInvocation commandInvocation) throws ParserException
     {
         String consumed = commandInvocation.consume(1);
         Kit kit = manager.getKit(consumed);
         if (kit == null)
         {
-            throw new ReaderException("Kit {} not found!", consumed);
+            throw new ParserException("Kit {} not found!", consumed);
         }
         return kit;
     }

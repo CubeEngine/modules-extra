@@ -26,12 +26,12 @@ import org.cubeengine.butler.provider.ProviderManager;
 public class Parameters
 {
     private final Map<String, List<String>> data;
-    private final ProviderManager readerManager;
+    private final ProviderManager provider;
 
-    public Parameters(Map<String, List<String>> data, ProviderManager readerManager)
+    public Parameters(Map<String, List<String>> data, ProviderManager provider)
     {
         this.data = data;
-        this.readerManager = readerManager;
+        this.provider = provider;
     }
 
     @SuppressWarnings("unchecked")
@@ -45,7 +45,7 @@ public class Parameters
         String value = values.get(index);
         if (type != String.class)
         {
-            return (T)readerManager.read(type, type, new CommandInvocation(null, value, readerManager)); // TODO fix ME
+            return (T) provider.read(type, type, new CommandInvocation(null, value, provider)); // TODO fix ME
         }
         return (T)value;
     }
