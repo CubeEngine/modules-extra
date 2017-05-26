@@ -24,11 +24,14 @@ import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.Recall;
 import org.cubeengine.module.vigil.report.Report;
 import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.entity.explosive.Explosive;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
+import org.spongepowered.api.event.filter.IsCancelled;
 import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.util.Tristate;
 
 import static org.cubeengine.module.vigil.report.ReportUtil.name;
 
@@ -104,7 +107,10 @@ public class BreakBlockReport extends BlockReport<ChangeBlockEvent.Break>
         // TODO player is source when destroying block /w hanging blocks on it but should be notifier? source is the block
 
         // TODO cause filtering ?
-        report(event);
+        if (!(event.getCause().root() instanceof Explosive)) // Handle Explosions later
+        {
+            report(event);
+        }
         // TODO remove
         /*
         System.out.print("ChangeBlockEvent.Break caused by\n");
@@ -113,5 +119,11 @@ public class BreakBlockReport extends BlockReport<ChangeBlockEvent.Break>
             System.out.print("  " + entry.getKey() + ": " + entry.getValue() + "\n");
         }
         //*/
+    }
+
+    @Listener(order = Order.POST)
+    public void listen(ChangeBlockEvent.Post event)
+    {
+        report(event); // Handle Explosions etc.
     }
 }

@@ -46,14 +46,14 @@ public abstract class BlockReport<T extends ChangeBlockEvent> extends BaseReport
     public static final String REPLACEMENT = "replacement";
 
     @Override
-    protected Action observe(T event)
+    protected Action observe(ChangeBlockEvent event)
     {
         Action action = newReport();
         action.addData(CAUSE, Observe.causes(event.getCause()));
         return action;
     }
 
-    protected void report(T event)
+    protected void report(ChangeBlockEvent event)
     {
         UUID multi = UUID.randomUUID();
         for (Transaction<BlockSnapshot> trans : event.getTransactions())
