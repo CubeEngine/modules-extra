@@ -17,6 +17,7 @@
  */
 package org.cubeengine.module.vigil.report;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -44,6 +45,7 @@ import org.spongepowered.api.event.cause.entity.damage.source.IndirectEntityDama
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import static java.util.stream.Collectors.toList;
 import static org.cubeengine.module.vigil.report.Report.CAUSE_NAME;
 import static org.cubeengine.module.vigil.report.Report.CAUSE_PLAYER_UUID;
 import static org.cubeengine.module.vigil.report.Report.CAUSE_TYPE;
@@ -259,12 +261,17 @@ public class Observe
         }
         if (data instanceof List)
         {
-            return ((List<?>)data).stream().map(Observe::toRawData).collect(Collectors.toList());
+            return ((List<?>)data).stream().map(Observe::toRawData).collect(toList());
         }
         if (data.getClass().isEnum())
         {
             return ((Enum)data).name();
         }
+        if (data instanceof int[])
+        {
+            return Arrays.stream(((int[]) data)).boxed().collect(toList());
+        }
+
         return data;
     }
 
