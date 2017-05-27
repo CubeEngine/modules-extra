@@ -58,6 +58,10 @@ public abstract class BlockReport<T extends ChangeBlockEvent> extends BaseReport
         UUID multi = UUID.randomUUID();
         for (Transaction<BlockSnapshot> trans : event.getTransactions())
         {
+            if (!isActive(trans.getOriginal().getLocation().get().getExtent()))
+            {
+                continue;
+            }
             Action action = observe(event);
             action.addData(BLOCK_CHANGES, Observe.transactions(trans));
             action.addData(LOCATION, Observe.location(trans.getOriginal().getLocation().get()));

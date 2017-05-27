@@ -22,6 +22,7 @@ import javax.inject.Inject;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.modularity.core.marker.Enable;
+import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.module.bigdata.Bigdata;
 import org.cubeengine.module.vigil.commands.VigilAdminCommands;
 import org.cubeengine.module.vigil.commands.VigilCommands;
@@ -35,13 +36,13 @@ import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.matcher.StringMatcher;
 import org.cubeengine.libcube.service.permission.PermissionManager;
-import org.spongepowered.api.Game;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.plugin.PluginContainer;
 
 @ModuleInfo(name = "Vigil", description = "Keeps a vigilant eye on your server")
 public class Vigil extends Module
 {
+    @ModuleConfig private VigilConfig config;
     @Inject private EventManager em;
     @Inject private ThreadFactory tf;
     @Inject private Bigdata bd;
@@ -57,10 +58,10 @@ public class Vigil extends Module
     public void onEnable()
     {
         ReportManager reportManager = new ReportManager(this, em, i18n);
-        qm = new QueryManager(tf, bd.getDatabase().getCollection("vigil"), reportManager, i18n);
+        qm = new QueryManager(tf, bd.getDatabase().getCollection("vigil"), reportManager, i18n, plugin);
         VigilCommands vc = new VigilCommands(sm, i18n, cm);
         cm.addCommand(vc);
-        vc.addCommand(new VigilAdminCommands(cm, i18n, qm));
+        vc.addCommand(new VigilAdminCommands(cm, i18n, this));
 
         em.registerListener(Vigil.class, new ToolListener(pm, qm));
 
@@ -71,6 +72,11 @@ public class Vigil extends Module
                         .dataName("CubeEngine vigil Lookup Data")
                         .buildAndRegister(plugin);
 
+    }
+
+    public VigilConfig getConfig()
+    {
+        return config;
     }
 
     public QueryManager getQueryManager()

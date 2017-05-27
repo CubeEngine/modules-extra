@@ -36,6 +36,8 @@ package org.cubeengine.module.vigil.report;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+
 import org.cubeengine.module.vigil.Receiver;
 import org.spongepowered.api.data.DataQuery;
 
@@ -55,6 +57,34 @@ public interface Report
     String LOCATION = "location";
 
     String MULTIACTION = "multiaction";
+
+    static Optional<? extends Class<? extends Report>> getReport(String name)
+    {
+        Class<? extends Report> clazz = null;
+        try
+        {
+            try
+            {
+                clazz = (Class<? extends Report>) Class.forName(name);
+            }
+            catch (ClassNotFoundException e)
+            {
+                try
+                {
+                    clazz = (Class<? extends Report>) Class.forName("org.cubeengine.module.vigil.report." + name);
+                }
+                catch (ClassNotFoundException e1)
+                {
+                    System.err.println("Cannot find Report for: " + name);
+                }
+            }
+        }
+        catch (ClassCastException e)
+        {
+            System.err.println("Class of " + name + " is not a Report class.");
+        }
+        return Optional.ofNullable(clazz);
+    }
 
     enum CauseType
     {

@@ -124,6 +124,9 @@ public class BreakBlockReport extends BlockReport<ChangeBlockEvent.Break>
     @Listener(order = Order.POST)
     public void listen(ChangeBlockEvent.Post event)
     {
-        report(event); // Handle Explosions etc.
+        if (event.getCause().root() instanceof Explosive)
+        {
+            report(event); // Handle Explosions etc.
+        }
     }
 }

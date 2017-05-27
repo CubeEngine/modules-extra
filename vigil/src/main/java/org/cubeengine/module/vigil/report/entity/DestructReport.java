@@ -199,6 +199,11 @@ public class DestructReport extends EntityReport<DestructEntityEvent>
             return;
         }
 
+        if (!isActive(event.getTargetEntity().getWorld()))
+        {
+            return;
+        }
+
         report(observe(event));
     }
 }

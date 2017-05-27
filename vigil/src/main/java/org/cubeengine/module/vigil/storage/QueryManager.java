@@ -18,19 +18,27 @@
 package org.cubeengine.module.vigil.storage;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadFactory;
-import com.flowpowered.math.vector.Vector3d;
+import java.util.function.Consumer;
+
 import com.mongodb.MongoTimeoutException;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+import com.sun.org.apache.xpath.internal.operations.Neg;
 import org.bson.Document;
+import org.cubeengine.libcube.service.i18n.formatter.MessageType;
+import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.module.vigil.Lookup;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
@@ -38,7 +46,14 @@ import org.cubeengine.module.vigil.report.Report;
 import org.cubeengine.module.vigil.report.ReportActions;
 import org.cubeengine.module.vigil.report.ReportManager;
 import org.cubeengine.libcube.service.i18n.I18n;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.scheduler.Scheduler;
+import org.spongepowered.api.scheduler.SpongeExecutorService;
+import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.text.chat.ChatType;
+import org.spongepowered.api.text.chat.ChatTypes;
 
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static java.util.stream.Collectors.toList;
@@ -47,23 +62,25 @@ public class QueryManager
 {
     private final Queue<Action> actions = new ConcurrentLinkedQueue<>();
     private final ExecutorService storeExecuter;
+    private PluginContainer plugin;
     private Future<?> storeFuture;
-    private final ExecutorService queryExecuter;
-    private Future<?> queryFuture;
-    private final Semaphore latch = new Semaphore(1);
+    private final SpongeExecutorService queryShowExecutor;
+    private Map<UUID, Future> queryFuture = new HashMap<>();
+    private final Semaphore storeLatch = new Semaphore(1);
 
     private int batchSize = 2000; // TODO config
     private MongoCollection<Document> db;
     private ReportManager reportManager;
     private I18n i18n;
 
-    public QueryManager(ThreadFactory tf, MongoCollection<Document> db, ReportManager reportManager, I18n i18n)
+    public QueryManager(ThreadFactory tf, MongoCollection<Document> db, ReportManager reportManager, I18n i18n, PluginContainer plugin)
     {
         this.db = db;
         this.reportManager = reportManager;
         this.i18n = i18n;
         storeExecuter = newSingleThreadExecutor(tf);
-        queryExecuter = newSingleThreadExecutor(tf);
+        queryShowExecutor = Sponge.getScheduler().createSyncExecutor(plugin);
+        this.plugin = plugin;
     }
 
     /**
@@ -75,7 +92,7 @@ public class QueryManager
     {
         actions.add(action);
         // Start inserting queued actions ; if not already running
-        if (latch.availablePermits() > 0 && (storeFuture == null || storeFuture.isDone()))
+        if (storeLatch.availablePermits() > 0 && (storeFuture == null || storeFuture.isDone()))
         {
             storeFuture = storeExecuter.submit(() -> store(batchSize));
         }
@@ -93,7 +110,7 @@ public class QueryManager
 
         try
         {
-            latch.acquire();
+            storeLatch.acquire();
             if (actions.isEmpty())
             {
                 return;
@@ -120,9 +137,9 @@ public class QueryManager
         finally
         {
             // Release latch up to 1 permit
-            if (latch.availablePermits() == 0)
+            if (storeLatch.availablePermits() == 0)
             {
-                latch.release();
+                storeLatch.release();
             }
             // More actions available ; rerun
             if (!actions.isEmpty())
@@ -134,19 +151,22 @@ public class QueryManager
 
     public void queryAndShow(Lookup lookup, Player player) // TODO lookup object
     {
-        // Build query from lookup
-        Query query = new Query();
-
-        // TODO lookup settings
-        query.world(lookup.getWorld());
-
-        if (lookup.getPosition() != null)
+        // TODO lookup cancel previous?
+        Future future = queryFuture.get(player.getUniqueId());
+        if (future != null && !future.isDone())
         {
-            query.position(lookup.getPosition());
+            i18n.sendTranslated(ChatTypes.ACTION_BAR, player, MessageType.NEGATIVE,"There is another lookup active!");
+            return;
         }
+        Query query = buildQuery(lookup);
 
-        FindIterable<Document> results = query.find(db);
+        future = CompletableFuture.supplyAsync(() -> query.find(db)) // Async MongoDB Lookup
+                .thenAcceptAsync(result -> this.show(lookup, player, result), queryShowExecutor); // Resync to show information
+        queryFuture.put(player.getUniqueId(), future);
+    }
 
+    private void show(Lookup lookup, Player player, FindIterable<Document> results)
+    {
         results.sort(new Document("date", -1));
         List<ReportActions> reportActions = new ArrayList<>();
         ReportActions last = null;
@@ -168,6 +188,25 @@ public class QueryManager
         }
 
         new Receiver(player, i18n, lookup).sendReports(reportActions);
+    }
+
+    private Query buildQuery(Lookup lookup) {
+        // Build query from lookup
+        Query query = new Query();
+
+        // TODO lookup settings
+        query.world(lookup.getWorld());
+
+        if (lookup.getPosition() != null)
+        {
+            query.position(lookup.getPosition());
+        }
+        return query;
+    }
+
+    private void show()
+    {
+
     }
 
     public void purge()
