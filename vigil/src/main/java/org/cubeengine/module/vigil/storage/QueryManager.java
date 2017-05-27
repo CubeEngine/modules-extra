@@ -77,6 +77,7 @@ public class QueryManager
         this.plugin = plugin;
     }
 
+
     /**
      * Queues in an action to be persisted
      *
@@ -155,7 +156,8 @@ public class QueryManager
         Query query = buildQuery(lookup);
 
         future = CompletableFuture.supplyAsync(() -> lookup(lookup, query)) // Async MongoDB Lookup
-                .thenAcceptAsync(result -> this.show(lookup, player, result), queryShowExecutor); // Resync to show information
+                .thenApply(result -> this.prepareReports(lookup, player, result)) // Still Async Prepare Reports
+                .thenAcceptAsync(r -> this.show(lookup, player, r), queryShowExecutor); // Resync to show information
         queryFuture.put(player.getUniqueId(), future);
     }
 
@@ -167,7 +169,7 @@ public class QueryManager
         return documents;
     }
 
-    private void show(Lookup lookup, Player player, FindIterable<Document> results)
+    private List<ReportActions> prepareReports(Lookup lookup, Player player, FindIterable<Document> results)
     {
         lookup.time(Lookup.LookupTiming.REPORT);
 
@@ -192,7 +194,11 @@ public class QueryManager
         }
 
         lookup.time(Lookup.LookupTiming.REPORT);
-        // TODO save report creation time in lookup object
+        return reportActions;
+    }
+
+    private void show(Lookup lookup, Player player, List<ReportActions> reportActions)
+    {
         new Receiver(player, i18n, lookup).sendReports(reportActions);
     }
 
@@ -211,7 +217,7 @@ public class QueryManager
         return query;
     }
 
-    private void show()
+    private void prepareReports()
     {
 
     }
