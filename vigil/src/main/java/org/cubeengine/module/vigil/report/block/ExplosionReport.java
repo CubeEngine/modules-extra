@@ -51,7 +51,7 @@ public class ExplosionReport extends BlockReport<ExplosionEvent.Post> implements
         receiver.sendReport(actions, actions.size(),
                             "{txt} made boom {txt}",
                             "{txt} made boom {txt} x{}",
-                            Recall.cause(action), name(snap), actions.size());
+                            Recall.cause(action), name(snap, receiver), actions.size());
     }
 
     @Override

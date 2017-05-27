@@ -71,20 +71,20 @@ public class ModifyBlockReport extends BlockReport<ChangeBlockEvent.Modify>
                 receiver.sendReport(actions, actions.size(),
                                     "{txt} let {txt} grow to maturity",
                                     "{txt} let {txt} grow to maturity x{}",
-                                    cause, name(orig.get()), actions.size());
+                                    cause, name(orig.get(), receiver), actions.size());
                 return;
             }
             receiver.sendReport(actions, actions.size(),
                                 "{txt} let {txt} grow",
                                 "{txt} let {txt} grow x{}",
-                                cause, name(orig.get()), actions.size());
+                                cause, name(orig.get(), receiver), actions.size());
             return;
         }
         // TODO other modifyables
         receiver.sendReport(actions, actions.size(),
                             "{txt} modified {txt}",
                             "{txt} modified {txt} x{}",
-                            cause, name(orig.get()), actions.size());
+                            cause, name(orig.get(), receiver), actions.size());
     }
 
     @Override

@@ -113,14 +113,14 @@ public class PlaceBlockReport extends BlockReport<ChangeBlockEvent.Place>
             receiver.sendReport(actions, actions.size(),
                                 "{txt} replace {txt} with {txt}",
                                 "{txt} replace {txt} with {txt} x{}",
-                                cause, name(orig.get()), name(repl), actions.size());
+                                cause, name(orig.get(), receiver), name(repl, receiver), actions.size());
         }
         else
         {
             receiver.sendReport(actions, actions.size(),
                                 "{txt} place {txt}",
                                 "{txt} place {txt} x{}",
-                                cause, name(repl), actions.size());
+                                cause, name(repl, receiver), actions.size());
         }
     }
 

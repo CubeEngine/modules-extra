@@ -97,7 +97,7 @@ public class BreakBlockReport extends BlockReport<ChangeBlockEvent.Break>
         receiver.sendReport(actions, actions.size(),
                             "{txt} break {txt}",
                             "{txt} break {txt} x{}",
-                            Recall.cause(action), name(orig), actions.size());
+                            Recall.cause(action), name(orig, receiver), actions.size());
     }
 
     @Listener(order = Order.POST)

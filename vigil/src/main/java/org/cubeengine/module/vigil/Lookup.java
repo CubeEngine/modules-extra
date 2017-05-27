@@ -34,6 +34,8 @@ public class Lookup
     private boolean showLocation = false;
     private boolean fullLocation = false;
 
+    private boolean showDetailedInventory = false;
+
     private UUID world;
     private Vector3i position;
 
@@ -95,6 +97,11 @@ public class Lookup
     public boolean isFullLocation()
     {
         return fullLocation;
+    }
+
+    public boolean showDetailedInventory()
+    {
+        return showDetailedInventory;
     }
 
     public void time(LookupTiming timing)
