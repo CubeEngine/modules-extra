@@ -88,8 +88,6 @@ public class ChatFormatListener
 
     protected String getFormat(Subject subject)
     {
-        String format = this.module.getConfig().format;
-        subject.getOption("chat-format").orElse(format);
-        return format;
+        return subject.getOption("chat-format").orElse(this.module.getConfig().format);
     }
 }
