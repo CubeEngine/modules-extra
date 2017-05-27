@@ -22,13 +22,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.function.Consumer;
-import org.cubeengine.libcube.util.ConfirmManager;
+
 import org.cubeengine.libcube.util.StringUtils;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.Recall;
 import org.cubeengine.module.vigil.report.ReportActions;
 import org.cubeengine.libcube.service.i18n.I18n;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
@@ -50,6 +52,11 @@ import static org.spongepowered.api.text.format.TextColors.WHITE;
 
 public class Receiver
 {
+    private static PeriodFormatter formatter = new PeriodFormatterBuilder()
+                             .appendMinutes().appendSuffix("m").appendSeparator(" ")
+                             .appendSeconds().appendSuffix("s").appendSeparator(" ")
+                             .appendMillis().appendSuffix("ms").toFormatter();
+
     private final CommandSource cmdSource;
     private final I18n i18n;
     private Lookup lookup;
@@ -226,8 +233,14 @@ public class Receiver
             reportAction.showReport(this);
         }
         Builder builder = Sponge.getGame().getServiceManager().provideUnchecked(PaginationService.class).builder();
-        builder.title(Text.of(i18n.getTranslation(cmdSource, POSITIVE, "Showing {amount} Logs", lines.size()),
-                " ", TextColors.YELLOW, i18n.translate(cmdSource, "(newest first)"))).padding(Text.of("-"))
+        Text titleLineAmount = i18n.getTranslation(cmdSource, POSITIVE, "Showing {amount} Logs", lines.size());
+        String titleLineSort = i18n.translate(cmdSource, "(newest first)");
+        Text titleLine = Text.of(titleLineAmount, " ", TextColors.YELLOW, titleLineSort);
+        Text titleTimings = i18n.getTranslation(cmdSource, NEUTRAL, "Query: {input#time} Report: {input#time}",
+                                                 formatter.print(new Period(lookup.timing(Lookup.LookupTiming.LOOKUP))),
+                                                 formatter.print(new Period(lookup.timing(Lookup.LookupTiming.REPORT))));
+        titleLine = titleLine.toBuilder().onHover(TextActions.showText(titleTimings)).build();
+        builder.title(titleLine).padding(Text.of("-"))
                 // TODO reverse order
                .contents(lines).linesPerPage(2 + Math.min(lines.size(), 18)).sendTo(cmdSource);
         // TODO remove linesPerPage when Sponge puts the lines to the bottom

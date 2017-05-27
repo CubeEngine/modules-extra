@@ -17,6 +17,8 @@
  */
 package org.cubeengine.module.vigil;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import com.flowpowered.math.vector.Vector3i;
 import org.spongepowered.api.world.Location;
@@ -24,6 +26,9 @@ import org.spongepowered.api.world.World;
 
 public class Lookup
 {
+    private Map<LookupTiming, Long> timingStart = new HashMap<>();
+    private Map<LookupTiming, Long> timingTime = new HashMap<>();
+
     private boolean fullDate = false;
     private boolean noDate = false;
     private boolean showLocation = false;
@@ -91,4 +96,31 @@ public class Lookup
     {
         return fullLocation;
     }
+
+    public void time(LookupTiming timing)
+    {
+        Long start = timingStart.remove(timing);
+        if (start == null)
+        {
+            timingStart.put(timing, System.currentTimeMillis());
+        }
+        else
+        {
+            Long time = timingTime.getOrDefault(timing, 0L);
+            time += System.currentTimeMillis() - start;
+            timingTime.put(timing, time);
+        }
+    }
+
+    public long timing(LookupTiming timing)
+    {
+        return timingTime.get(timing);
+    }
+
+    public enum LookupTiming
+    {
+        LOOKUP,
+        REPORT
+    }
+
 }

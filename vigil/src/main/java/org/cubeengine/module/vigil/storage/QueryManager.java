@@ -30,15 +30,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadFactory;
-import java.util.function.Consumer;
 
 import com.mongodb.MongoTimeoutException;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
-import com.sun.org.apache.xpath.internal.operations.Neg;
 import org.bson.Document;
 import org.cubeengine.libcube.service.i18n.formatter.MessageType;
-import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.module.vigil.Lookup;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
@@ -49,10 +46,7 @@ import org.cubeengine.libcube.service.i18n.I18n;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.scheduler.Scheduler;
 import org.spongepowered.api.scheduler.SpongeExecutorService;
-import org.spongepowered.api.scheduler.Task;
-import org.spongepowered.api.text.chat.ChatType;
 import org.spongepowered.api.text.chat.ChatTypes;
 
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
@@ -160,13 +154,23 @@ public class QueryManager
         }
         Query query = buildQuery(lookup);
 
-        future = CompletableFuture.supplyAsync(() -> query.find(db)) // Async MongoDB Lookup
+        future = CompletableFuture.supplyAsync(() -> lookup(lookup, query)) // Async MongoDB Lookup
                 .thenAcceptAsync(result -> this.show(lookup, player, result), queryShowExecutor); // Resync to show information
         queryFuture.put(player.getUniqueId(), future);
     }
 
+    private FindIterable<Document> lookup(Lookup lookup, Query query)
+    {
+        lookup.time(Lookup.LookupTiming.LOOKUP);
+        FindIterable<Document> documents = query.find(db);
+        lookup.time(Lookup.LookupTiming.LOOKUP);
+        return documents;
+    }
+
     private void show(Lookup lookup, Player player, FindIterable<Document> results)
     {
+        lookup.time(Lookup.LookupTiming.REPORT);
+
         results.sort(new Document("date", -1));
         List<ReportActions> reportActions = new ArrayList<>();
         ReportActions last = null;
@@ -187,10 +191,13 @@ public class QueryManager
             }
         }
 
+        lookup.time(Lookup.LookupTiming.REPORT);
+        // TODO save report creation time in lookup object
         new Receiver(player, i18n, lookup).sendReports(reportActions);
     }
 
-    private Query buildQuery(Lookup lookup) {
+    private Query buildQuery(Lookup lookup)
+    {
         // Build query from lookup
         Query query = new Query();
 
