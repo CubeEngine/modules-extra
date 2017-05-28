@@ -48,12 +48,12 @@ import java.util.Optional;
 public class ElevatorListener
 {
     private I18n i18n;
-    private ElevatorConfig config;
+    private Elevator module;
 
-    public ElevatorListener(I18n i18n, ElevatorConfig config)
+    public ElevatorListener(I18n i18n, Elevator module)
     {
         this.i18n = i18n;
-        this.config = config;
+        this.module = module;
     }
 
     @Listener
@@ -79,7 +79,7 @@ public class ElevatorListener
 
                 if (itemInHand.isPresent())
                 {
-                    if (itemInHand.get().getItem() == ItemTypes.ENDER_PEARL)  // TODO config
+                    if (player.hasPermission(module.getPerm().CREATE.getId()) && itemInHand.get().getItem().equals(module.getConfig().creationItem))
                     {
                         data = new ElevatorData();
                         data.setOwner(player.getUniqueId());
@@ -101,52 +101,60 @@ public class ElevatorListener
             }
             else if (!itemInHand.isPresent()) // Sign has Elevator Data and hand is empty
             {
-                // Search order dependent on click
-                Vector3i target = data.getTarget();
-                target = findNextSign(loc, target == null ? loc.getPosition() : target.toDouble(), event instanceof InteractBlockEvent.Primary);
-                data.setTarget(target);
-                updateSign(loc, data);
-                event.setCancelled(true);
+                if (player.hasPermission(module.getPerm().ADJUST.getId()))
+                {
+                    // Search order dependent on click
+                    Vector3i target = data.getTarget();
+                    target = findNextSign(loc, target == null ? loc.getPosition() : target.toDouble(), event instanceof InteractBlockEvent.Primary);
+                    data.setTarget(target);
+                    updateSign(loc, data);
+                    event.setCancelled(true);
+                }
             }
             else if (itemInHand.get().getItem() == ItemTypes.PAPER && event instanceof InteractBlockEvent.Primary)
             {
-                List<Text> list = loc.get(Keys.SIGN_LINES).get();
-                // Set First Line with name of renamed Item
-                list.set(0, itemInHand.get().get(Keys.DISPLAY_NAME).orElse(list.get(0)));
-                loc.offer(Keys.SIGN_LINES, list);
-                i18n.send(ACTION_BAR, player, POSITIVE, "Elevator name changed!");
-                event.setCancelled(true);
+                if (player.hasPermission(module.getPerm().RENAME.getId()))
+                {
+                    List<Text> list = loc.get(Keys.SIGN_LINES).get();
+                    // Set First Line with name of renamed Item
+                    list.set(0, itemInHand.get().get(Keys.DISPLAY_NAME).orElse(list.get(0)));
+                    loc.offer(Keys.SIGN_LINES, list);
+                    i18n.send(ACTION_BAR, player, POSITIVE, "Elevator name changed!");
+                    event.setCancelled(true);
+                }
             }
             return;
         }
         // else no sneak
 
-        Optional<Vector3i> target = event.getTargetBlock().get(IElevatorData.TARGET);
-        if (target.isPresent())
+        if (player.hasPermission(module.getPerm().USE.getId()))
         {
-            if (loc.getExtent().get(target.get(), ElevatorData.class).isPresent())
+            Optional<Vector3i> target = event.getTargetBlock().get(IElevatorData.TARGET);
+            if (target.isPresent())
             {
-                Vector3i sign = target.get();
-                Vector3d pPos = player.getLocation().getPosition();
-                Location<World> targetLoc = new Location<>(player.getWorld(), pPos.getX(), sign.getY() - 1, pPos.getZ());
-                if (!player.setLocationSafely(targetLoc)) // TODO signs are not safe wtf?
+                if (loc.getExtent().get(target.get(), ElevatorData.class).isPresent())
                 {
-                    i18n.send(ACTION_BAR, player, NEGATIVE, "Target obstructed");
+                    Vector3i sign = target.get();
+                    Vector3d pPos = player.getLocation().getPosition();
+                    Location<World> targetLoc = new Location<>(player.getWorld(), pPos.getX(), sign.getY() - 1, pPos.getZ());
+                    if (!player.setLocationSafely(targetLoc))
+                    {
+                        i18n.send(ACTION_BAR, player, NEGATIVE, "Target obstructed");
+                    }
+                    event.setCancelled(true);
                 }
-                event.setCancelled(true);
-            }
-            else
-            {
-                i18n.send(ACTION_BAR, player, NEGATIVE, "Target sign was destroyed!");
-                event.setCancelled(true);
+                else
+                {
+                    i18n.send(ACTION_BAR, player, NEGATIVE, "Target sign was destroyed!");
+                    event.setCancelled(true);
+                }
             }
         }
-
     }
 
     private void updateSign(Location<World> loc, ElevatorData data)
     {
-        Text liftLine = Text.of(config.liftDecor + " Lift " + config.liftDecor);
+        Text liftLine = Text.of(module.getConfig().liftDecor + " Lift " + module.getConfig().liftDecor);
         Text targetLine = Text.of("No Target");
         Text directionLine = Text.EMPTY;
         if (data.getTarget() != null)
@@ -154,7 +162,7 @@ public class ElevatorListener
             Optional<List<Text>> lines = loc.getExtent().get(data.getTarget(), Keys.SIGN_LINES);
             targetLine = lines.map(l -> l.get(0)).orElse(targetLine);
             int blocks = loc.getBlockY() - data.getTarget().getY();
-            String decor = blocks < 0 ? config.upDecor : config.downDecor;
+            String decor = blocks < 0 ? module.getConfig().upDecor : module.getConfig().downDecor;
             directionLine = Text.of(decor + " ",  Math.abs(blocks), " " + decor);
         }
 

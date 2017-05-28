@@ -17,20 +17,23 @@
  */
 package org.cubeengine.module.elevator;
 
-import org.cubeengine.reflect.codec.yaml.ReflectedYaml;
-import org.spongepowered.api.item.ItemType;
-import org.spongepowered.api.item.ItemTypes;
+import org.cubeengine.libcube.service.permission.Permission;
+import org.cubeengine.libcube.service.permission.PermissionContainer;
+import org.cubeengine.libcube.service.permission.PermissionManager;
 
-@SuppressWarnings("all")
-public class ElevatorConfig extends ReflectedYaml
+import javax.inject.Inject;
+
+public class ElevatorPerm extends PermissionContainer
 {
-    // TODO public int maxRange = 265;
-    // TODO public boolean allowRetarget = true;
 
-    public String liftDecor = "۩";
-    public String upDecor = "▲";
-    public String downDecor = "▼";
+    @Inject
+    public ElevatorPerm(PermissionManager pm)
+    {
+        super(pm, Elevator.class);
+    }
 
-    public ItemType creationItem = ItemTypes.ENDER_PEARL; // TODO allow itemstack
-
+    public final Permission USE = register("use", "Allows using elevators");
+    public final Permission ADJUST = register("adjust", "Allows adjusting elevators");
+    public final Permission CREATE = register("create", "Allows creating elevators");
+    public final Permission RENAME = register("rename", "Allows renaming elevators");
 }
