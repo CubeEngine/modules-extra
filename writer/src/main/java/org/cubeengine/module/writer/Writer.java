@@ -81,15 +81,15 @@ public class Writer extends Module
         {
             if (!this.editBookInHand(context))
             {
-                i18n.sendTranslated(context, NEGATIVE, "You need to specify at least one parameter to edit a sign!");
-                i18n.sendTranslated(context, NEGATIVE, "Or hold a signed book in your hand to edit it.");
+                i18n.send(context, NEGATIVE, "You need to specify at least one parameter to edit a sign!");
+                i18n.send(context, NEGATIVE, "Or hold a signed book in your hand to edit it.");
             }
             return;
         }
         if (!this.editSignInSight(context, line1, line2, line3, line4))
         {
-            i18n.sendTranslated(context, NEGATIVE, "You need to be looking at a sign less than {amount} blocks away!", 10);
-            i18n.sendTranslated(context, NEGATIVE, "Or hold a signed book in your hand to edit it.");
+            i18n.send(context, NEGATIVE, "You need to be looking at a sign less than {amount} blocks away!", 10);
+            i18n.send(context, NEGATIVE, "Or hold a signed book in your hand to edit it.");
         }
     }
 
@@ -112,7 +112,7 @@ public class Writer extends Module
         PagedData pages = item.get(PagedData.class).get();
         item = ItemStack.builder().itemType(WRITABLE_BOOK).itemData(pages).build();
         user.setItemInHand(HandTypes.MAIN_HAND, item);
-        i18n.sendTranslated(user, POSITIVE, "Your book is now unsigned and ready to be edited.");
+        i18n.send(user, POSITIVE, "Your book is now unsigned and ready to be edited.");
         return true;
     }
 
@@ -148,7 +148,7 @@ public class Writer extends Module
         lines.set(3, line4 == null ? lines.get(3) : Text.of(line4));
         block.offer(signData);
 
-        i18n.sendTranslated(user, POSITIVE, "The sign has been changed!");
+        i18n.send(user, POSITIVE, "The sign has been changed!");
         return true;
     }
 }

@@ -29,10 +29,8 @@ import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.matcher.StringMatcher;
 import org.cubeengine.module.vigil.Vigil;
 import org.cubeengine.module.vigil.data.LookupData;
-import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.type.HandType;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.ItemType;
@@ -74,7 +72,7 @@ public class VigilCommands extends ContainerCommand
         ItemType blockMaterial = this.matchType(logType, true);
         if (blockMaterial == null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "{input} is not a valid log-type. Use chest, container, player, block or kills instead!", logType);
+            i18n.send(context, NEGATIVE, "{input} is not a valid log-type. Use chest, container, player, block or kills instead!", logType);
             
             return;
         }
@@ -95,7 +93,7 @@ public class VigilCommands extends ContainerCommand
         ItemType blockMaterial = this.matchType(logType, false);
         if (blockMaterial == null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "{input} is not a valid log-type. Use chest, container, player, block or kills instead!", logType);
+            i18n.send(context, NEGATIVE, "{input} is not a valid log-type. Use chest, container, player, block or kills instead!", logType);
             return;
         }
         findLogTool(context, blockMaterial);
@@ -131,12 +129,12 @@ public class VigilCommands extends ContainerCommand
     {
         ItemStack itemStack = Sponge.getGame().getRegistry().createBuilder(ItemStack.Builder.class).itemType(type).quantity(1).build();
         itemStack.offer(Keys.DISPLAY_NAME, toolName);
-        itemStack.offer(Keys.ITEM_LORE, asList(i18n.getTranslation(player, NONE, "created by {name}", player.getName())));
+        itemStack.offer(Keys.ITEM_LORE, asList(i18n.translate(player, NONE, "created by {name}", player.getName())));
         itemStack.offer(Keys.ITEM_ENCHANTMENTS, Collections.emptyList());
         itemStack.offer(new LookupData().with(player.getUniqueId()));
         player.setItemInHand(HandTypes.MAIN_HAND, itemStack);
         // TODO search in inventory
         // TODO put item in hand back into inventory
-        i18n.sendTranslated(player, POSITIVE, "Received a new Log-Tool!");
+        i18n.send(player, POSITIVE, "Received a new Log-Tool!");
     }
 }

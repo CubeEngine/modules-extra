@@ -73,12 +73,12 @@ public class Receiver
     // TODO translate msgs on this method
     public void sendReport(List<Action> actions, String msg, Object... args)
     {
-        sendReport(actions, i18n.getTranslation(cmdSource, NEUTRAL, msg, args));
+        sendReport(actions, i18n.translate(cmdSource, NEUTRAL, msg, args));
     }
 
     public void sendReport(List<Action> actions, int size, String msgSingular, String msgPlural, Object... args)
     {
-        sendReport(actions, i18n.getTranslationN(cmdSource, NEUTRAL, size, msgSingular, msgPlural, args));
+        sendReport(actions, i18n.translateN(cmdSource, NEUTRAL, size, msgSingular, msgPlural, args));
     }
 
     private static final SimpleDateFormat dateShort = new SimpleDateFormat("yy-MM-dd");
@@ -97,7 +97,7 @@ public class Receiver
         Text loc = getLocation(firstAction, lastAction);
         if (!date.isEmpty() && !loc.isEmpty())
         {
-            lines.add(Text.of(date, WHITE, " ", i18n.getTranslation(cmdSource, NONE, "at"), " ", loc, Text.NEW_LINE, "  ", trans));
+            lines.add(Text.of(date, WHITE, " ", i18n.translate(cmdSource, NONE, "at"), " ", loc, Text.NEW_LINE, "  ", trans));
         }
         else
         {
@@ -124,11 +124,11 @@ public class Receiver
         {
             Location<World> location = Recall.location(firstAction);
             Text.Builder builder = Text.of(GRAY, location.getBlockX(), WHITE, ":", GRAY, location.getBlockY(), WHITE, ":", GRAY, location.getBlockZ()).toBuilder();
-            builder.onHover(showText(i18n.getTranslation(cmdSource, NEUTRAL, "Click to teleport to the location in {world}", location.getExtent())))
+            builder.onHover(showText(i18n.translate(cmdSource, NEUTRAL, "Click to teleport to the location in {world}", location.getExtent())))
                    .onClick(executeCallback(c -> showTeleport(location)));
             if (lookup.isFullLocation())
             {
-                builder.append(Text.of(" ", i18n.getTranslation(cmdSource, NONE, "in"), " ", GRAY, location.getExtent().getName()));
+                builder.append(Text.of(" ", i18n.translate(cmdSource, NONE, "in"), " ", GRAY, location.getExtent().getName()));
             }
             return builder.build();
         }
@@ -143,7 +143,7 @@ public class Receiver
         }
         else
         {
-            i18n.sendTranslated(cmdSource, CRITICAL, "Cannot tp non player!");
+            i18n.send(cmdSource, CRITICAL, "Cannot tp non player!");
         }
     }
 
@@ -221,10 +221,10 @@ public class Receiver
         {
             if (cmdSource instanceof Player)
             {
-                i18n.sendTranslated(ChatTypes.ACTION_BAR, ((Player) cmdSource), NEGATIVE, "Nothing logged here");
+                i18n.send(ChatTypes.ACTION_BAR, ((Player) cmdSource), NEGATIVE, "Nothing logged here");
                 return;
             }
-            i18n.sendTranslated(cmdSource, NEGATIVE, "Nothing logged here");
+            i18n.send(cmdSource, NEGATIVE, "Nothing logged here");
             return;
         }
         cmdSource.sendMessage(Text.of(TextColors.GOLD, StringUtils.repeat("-", 53)));
@@ -233,10 +233,10 @@ public class Receiver
             reportAction.showReport(this);
         }
         Builder builder = Sponge.getGame().getServiceManager().provideUnchecked(PaginationService.class).builder();
-        Text titleLineAmount = i18n.getTranslation(cmdSource, POSITIVE, "Showing {amount} Logs", lines.size());
-        String titleLineSort = i18n.translate(cmdSource, "(newest first)");
+        Text titleLineAmount = i18n.translate(cmdSource, POSITIVE, "Showing {amount} Logs", lines.size());
+        String titleLineSort = i18n.getTranslation(cmdSource, "(newest first)");
         Text titleLine = Text.of(titleLineAmount, " ", TextColors.YELLOW, titleLineSort);
-        Text titleTimings = i18n.getTranslation(cmdSource, NEUTRAL, "Query: {input#time} Report: {input#time}",
+        Text titleTimings = i18n.translate(cmdSource, NEUTRAL, "Query: {input#time} Report: {input#time}",
                                                  formatter.print(new Period(lookup.timing(Lookup.LookupTiming.LOOKUP))),
                                                  formatter.print(new Period(lookup.timing(Lookup.LookupTiming.REPORT))));
         titleLine = titleLine.toBuilder().onHover(TextActions.showText(titleTimings)).build();

@@ -51,19 +51,19 @@ public class HideCommands
             this.module.hidePlayer(player);
             if (context.equals(player))
             {
-                i18n.sendTranslated(player, POSITIVE, "You are now hidden!");
+                i18n.send(player, POSITIVE, "You are now hidden!");
                 return;
             }
-            i18n.sendTranslated(player, POSITIVE, "You were hidden by {sender}!", context);
-            i18n.sendTranslated(context, POSITIVE, "{user} is now hidden!", player);
+            i18n.send(player, POSITIVE, "You were hidden by {sender}!", context);
+            i18n.send(context, POSITIVE, "{user} is now hidden!", player);
             return;
         }
         if (context.equals(player))
         {
-            i18n.sendTranslated(player, NEUTRAL, "You are already hidden!");
+            i18n.send(player, NEUTRAL, "You are already hidden!");
             return;
         }
-        i18n.sendTranslated(context, NEUTRAL, "{user} is already hidden!", player);
+        i18n.send(context, NEUTRAL, "{user} is already hidden!", player);
     }
 
     @Command(desc = "Unhides a player.")
@@ -74,19 +74,19 @@ public class HideCommands
             this.module.showPlayer(player);
             if (context.equals(player))
             {
-                i18n.sendTranslated(player, POSITIVE, "You are now visible!");
+                i18n.send(player, POSITIVE, "You are now visible!");
                 return;
             }
-            i18n.sendTranslated(player, POSITIVE, "You were unhidden by {sender}!", context);
-            i18n.sendTranslated(context, POSITIVE, "{user} is now visible!", player);
+            i18n.send(player, POSITIVE, "You were unhidden by {sender}!", context);
+            i18n.send(context, POSITIVE, "{user} is now visible!", player);
             return;
         }
         if (context.equals(player))
         {
-            i18n.sendTranslated(player, NEUTRAL, "You are already visible!");
+            i18n.send(player, NEUTRAL, "You are already visible!");
             return;
         }
-        i18n.sendTranslated(context, NEUTRAL, "{user} is already visible!", player);
+        i18n.send(context, NEUTRAL, "{user} is already visible!", player);
     }
 
     @Command(desc = "Checks whether a player is hidden.")
@@ -96,18 +96,18 @@ public class HideCommands
         {
             if (context.equals(player))
             {
-                i18n.sendTranslated(context, POSITIVE, "You are currently hidden!");
+                i18n.send(context, POSITIVE, "You are currently hidden!");
                 return;
             }
-            i18n.sendTranslated(context, POSITIVE, "{user} is currently hidden!", player);
+            i18n.send(context, POSITIVE, "{user} is currently hidden!", player);
             return;
         }
         if (context.equals(player))
         {
-            i18n.sendTranslated(context, NEUTRAL, "You are currently visible!");
+            i18n.send(context, NEUTRAL, "You are currently visible!");
             return;
         }
-        i18n.sendTranslated(context, NEUTRAL, "{user} is currently visible!", player);
+        i18n.send(context, NEUTRAL, "{user} is currently visible!", player);
     }
 
     @Command(desc = "Lists all hidden players.")
@@ -116,10 +116,10 @@ public class HideCommands
         Set<UUID> hiddens = this.module.getHiddenUsers();
         if (hiddens.isEmpty())
         {
-            i18n.sendTranslated(context, NEUTRAL, "There are no hidden users!");
+            i18n.send(context, NEUTRAL, "There are no hidden users!");
             return;
         }
-        i18n.sendTranslated(context, POSITIVE, "The following users are hidden:");
+        i18n.send(context, POSITIVE, "The following users are hidden:");
         for (UUID uuid : hiddens)
         {
             context.sendMessage(Text.of(" - ", YELLOW, Sponge.getServer().getGameProfileManager().get(uuid).get().getName()));

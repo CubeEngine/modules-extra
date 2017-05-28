@@ -58,7 +58,7 @@ public class SpawnCommands
     public void setRoleSpawn(Player ctx, @Parser(SubjectParser.class) Subject role, @Default Context context)
     {
         setRoleSpawn(context, ctx.getTransform(), role);
-        i18n.sendTranslated(ctx, POSITIVE, "The spawn in {world} for the role {name#role} is now set to {vector}",
+        i18n.send(ctx, POSITIVE, "The spawn in {world} for the role {name#role} is now set to {vector}",
                             context, role.getIdentifier(),
                             ctx.getLocation().getPosition());
     }
@@ -90,32 +90,32 @@ public class SpawnCommands
 
         if (!spawnString.isPresent())
         {
-            i18n.sendTranslated(ctx, NEGATIVE, "No rolespawn set for {name} in {ctx}", name, context);
+            i18n.send(ctx, NEGATIVE, "No rolespawn set for {name} in {ctx}", name, context);
             return;
         }
 
         Transform<World> spawnPoint = getSpawnLocation(spawnString.get());
         if (!player.isOnline()) // TODO tp users
         {
-            i18n.sendTranslated(ctx, NEGATIVE, "You cannot teleport an offline player to spawn!");
+            i18n.send(ctx, NEGATIVE, "You cannot teleport an offline player to spawn!");
             return;
         }
         if (!this.tpTo(player, spawnPoint, force))
         {
-            i18n.sendTranslated(ctx, NEGATIVE, "Teleport failed!");
+            i18n.send(ctx, NEGATIVE, "Teleport failed!");
             return;
         }
         if (!ctx.equals(player))
         {
-            i18n.sendTranslated(ctx, POSITIVE, "Teleported {user} to the spawn of the role {name#role} in {ctx}", player, name, context);
+            i18n.send(ctx, POSITIVE, "Teleported {user} to the spawn of the role {name#role} in {ctx}", player, name, context);
         }
         else if (pm.getGroupSubjects() == role.getContainingCollection())
         {
-            i18n.sendTranslated(ctx, POSITIVE, "You are now standing at your role's spawn in {ctx}!", context);
+            i18n.send(ctx, POSITIVE, "You are now standing at your role's spawn in {ctx}!", context);
         }
         else
         {
-            i18n.sendTranslated(ctx, POSITIVE, "You are now standing at the spawn of {name#role} in {ctx}!", name, context);
+            i18n.send(ctx, POSITIVE, "You are now standing at the spawn of {name#role} in {ctx}!", name, context);
         }
     }
 

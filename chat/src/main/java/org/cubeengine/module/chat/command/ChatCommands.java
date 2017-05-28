@@ -27,10 +27,8 @@ import org.cubeengine.butler.parametric.Label;
 import org.cubeengine.butler.parametric.Optional;
 import org.cubeengine.module.chat.Chat;
 import org.cubeengine.libcube.util.ChatFormat;
-import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.Broadcaster;
-import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.source.ConsoleSource;
@@ -84,7 +82,7 @@ public class ChatCommands
         {
             if (!(context instanceof Player))
             {
-                i18n.sendTranslated(context, NEGATIVE, "You cannot change the consoles display name"); // console has no data / displayname
+                i18n.send(context, NEGATIVE, "You cannot change the consoles display name"); // console has no data / displayname
                 return;
             }
             player = ((Player)context);
@@ -92,7 +90,7 @@ public class ChatCommands
 
         if (!context.equals(player) && !context.hasPermission(module.perms().COMMAND_NICK_OTHER.getId()))
         {
-            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to change the nickname of another player!");
+            i18n.send(context, NEGATIVE, "You are not allowed to change the nickname of another player!");
             return;
         }
 
@@ -101,7 +99,7 @@ public class ChatCommands
             DisplayNameData display = player.getOrCreate(DisplayNameData.class).get();
             display.displayName().set(Text.of(context.getName()));
             player.offer(display);
-            i18n.sendTranslated(context, POSITIVE, "Display name reset to {user}", context);
+            i18n.send(context, POSITIVE, "Display name reset to {user}", context);
             return;
         }
 
@@ -109,10 +107,10 @@ public class ChatCommands
                 && Sponge.getServiceManager().provideUnchecked(UserStorageService.class).get(name).isPresent()
                 && !context.hasPermission(module.perms().COMMAND_NICK_OFOTHER.getId()))
         {
-            i18n.sendTranslated(context, NEGATIVE, "This name has been taken by another player!");
+            i18n.send(context, NEGATIVE, "This name has been taken by another player!");
             return;
         }
-        i18n.sendTranslated(context, POSITIVE, "Display name changed from {user} to {user}", context, name);
+        i18n.send(context, POSITIVE, "Display name changed from {user} to {user}", context, name);
         DisplayNameData display = player.getOrCreate(DisplayNameData.class).get();
         display.displayName().set(ChatFormat.fromLegacy(name, '&'));
         player.offer(display);
@@ -123,7 +121,7 @@ public class ChatCommands
     {
         if (!this.sendWhisperTo(player, message, context))
         {
-            i18n.sendTranslated(context, NEGATIVE, "Could not find the player {user} to send the message to. Is the player offline?", player);
+            i18n.send(context, NEGATIVE, "Could not find the player {user} to send the message to. Is the player offline?", player);
         }
     }
 
@@ -141,7 +139,7 @@ public class ChatCommands
         }
         if (lastWhisper == null)
         {
-            i18n.sendTranslated(context, NEUTRAL, "No one has sent you a message that you could reply to!");
+            i18n.send(context, NEUTRAL, "No one has sent you a message that you could reply to!");
             return;
         }
         CommandSource target;
@@ -155,7 +153,7 @@ public class ChatCommands
         }
         if (!this.sendWhisperTo(target, message, context))
         {
-            i18n.sendTranslated(context, NEGATIVE, "Could not find the player to reply to. Is the player offline?");
+            i18n.send(context, NEGATIVE, "Could not find the player to reply to. Is the player offline?");
         }
     }
 
@@ -169,18 +167,18 @@ public class ChatCommands
         {
             if (context instanceof ConsoleSource)
             {
-                i18n.sendTranslated(context, NEUTRAL, "Talking to yourself?");
+                i18n.send(context, NEUTRAL, "Talking to yourself?");
                 return true;
             }
             if (context instanceof Player)
             {
-                i18n.sendTranslated(whisperTarget, NEUTRAL, "{sender} -> {text:You}: {message:color=WHITE}", context, message);
-                i18n.sendTranslated(context, NEUTRAL, "{text:You} -> {user}: {message:color=WHITE}", whisperTarget.getName(), message);
+                i18n.send(whisperTarget, NEUTRAL, "{sender} -> {text:You}: {message:color=WHITE}", context, message);
+                i18n.send(context, NEUTRAL, "{text:You} -> {user}: {message:color=WHITE}", whisperTarget.getName(), message);
                 lastWhispers.put(consoleUUID, ((Player)context).getUniqueId());
                 lastWhispers.put(((Player)context).getUniqueId(), consoleUUID);
                 return true;
             }
-            i18n.sendTranslated(context, NONE, "Who are you!?");
+            i18n.send(context, NONE, "Who are you!?");
             return true;
         }
 
@@ -188,15 +186,15 @@ public class ChatCommands
         {
             if (context.equals(whisperTarget))
             {
-                i18n.sendTranslated(context, NEUTRAL, "Talking to yourself?");
+                i18n.send(context, NEUTRAL, "Talking to yourself?");
                 return true;
             }
-            i18n.sendTranslated(whisperTarget, NONE, "{sender} -> {text:You}: {message:color=WHITE}", context.getName(), message);
+            i18n.send(whisperTarget, NONE, "{sender} -> {text:You}: {message:color=WHITE}", context.getName(), message);
             if (afkCmd.isAfk(((Player) whisperTarget)))
             {
-                i18n.sendTranslated(context, NEUTRAL, "{user} is afk!", whisperTarget);
+                i18n.send(context, NEUTRAL, "{user} is afk!", whisperTarget);
             }
-            i18n.sendTranslated(context, NEUTRAL, "{text:You} -> {user}: {message:color=WHITE}", whisperTarget, message);
+            i18n.send(context, NEUTRAL, "{text:You} -> {user}: {message:color=WHITE}", whisperTarget, message);
             if (context instanceof Player)
             {
                 lastWhispers.put(((Player)context).getUniqueId(), ((Player)whisperTarget).getUniqueId());
@@ -221,7 +219,7 @@ public class ChatCommands
     @Command(desc = "Displays the colors")
     public void chatcolors(CommandSource context)
     {
-        i18n.sendTranslated(context, POSITIVE, "The following chat codes are available:");
+        i18n.send(context, POSITIVE, "The following chat codes are available:");
         Builder builder = Text.builder();
         int i = 0;
         for (TextColor color : Sponge.getRegistry().getAllOf(TextColor.class))

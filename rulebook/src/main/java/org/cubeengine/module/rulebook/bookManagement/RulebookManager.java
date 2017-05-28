@@ -100,7 +100,7 @@ public final class RulebookManager
         }
         ItemStack ruleBook = ItemStack.of(ItemTypes.WRITTEN_BOOK, 1);
         ruleBook.offer(Keys.BOOK_AUTHOR, Text.of("Server"));
-        ruleBook.offer(Keys.DISPLAY_NAME, i18n.getTranslation(locale, POSITIVE, "rulebook"));
+        ruleBook.offer(Keys.DISPLAY_NAME, i18n.translate(locale, POSITIVE, "rulebook"));
         ruleBook.offer(Keys.BOOK_PAGES, stream(getPages(locale)).map(Text::of).collect(toList()));
         // TODO add custom data
         ruleBook.offer(Keys.ITEM_LORE, singletonList(Text.of(locale.getLanguage())));

@@ -86,13 +86,13 @@ public class SelectorCommand
                     // TODO drop item
                 }
             }
-            i18n.sendTranslated(user, POSITIVE, "Received a new region selector tool");
+            i18n.send(user, POSITIVE, "Received a new region selector tool");
             return;
         }
 
         user.setItemInHand(HandTypes.MAIN_HAND, found);
         itemInHand.ifPresent(stack -> user.getInventory().offer(stack));
-        i18n.sendTranslated(user, POSITIVE, "Found a region selector tool in your inventory!");
+        i18n.send(user, POSITIVE, "Found a region selector tool in your inventory!");
     }
 
     @Command(desc = "Provides you with a wand to select a cuboid")

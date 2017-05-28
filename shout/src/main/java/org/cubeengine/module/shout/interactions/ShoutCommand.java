@@ -65,7 +65,7 @@ public class ShoutCommand extends ContainerCommand
     public void show(CommandSource context, Announcement announcement)
     {
         announcement.announce();
-        i18n.sendTranslated(context, POSITIVE, "The announcement {name} has been announced!", announcement.getName());
+        i18n.send(context, POSITIVE, "The announcement {name} has been announced!", announcement.getName());
     }
 
     @Alias(value = {"announcements"})
@@ -75,10 +75,10 @@ public class ShoutCommand extends ContainerCommand
         Collection<Announcement> list = this.module.getManager().getAllAnnouncements();
         if (list.isEmpty())
         {
-            i18n.sendTranslated(context, NEGATIVE, "There are no announcements loaded!");
+            i18n.send(context, NEGATIVE, "There are no announcements loaded!");
             return;
         }
-        i18n.sendTranslated(context, POSITIVE, "Here is the list of announcements:");
+        i18n.send(context, POSITIVE, "Here is the list of announcements:");
         for (Announcement announcement : list)
         {
             context.sendMessage(Text.of(" - ", announcement.getName()));
@@ -96,7 +96,7 @@ public class ShoutCommand extends ContainerCommand
         weight = weight == null ? 1 : weight;
         if (message == null)
         {
-            i18n.sendTranslated(ctx, NEUTRAL, "You have to include a message!");
+            i18n.send(ctx, NEUTRAL, "You have to include a message!");
             return;
         }
 
@@ -111,18 +111,18 @@ public class ShoutCommand extends ContainerCommand
         }
         catch (IllegalArgumentException ex)
         {
-            i18n.sendTranslated(ctx, NEGATIVE, "Some of your arguments are not valid.");
-            i18n.sendTranslated(ctx, NEGATIVE, "The error message was: {}", ex.getLocalizedMessage());
+            i18n.send(ctx, NEGATIVE, "Some of your arguments are not valid.");
+            i18n.send(ctx, NEGATIVE, "The error message was: {}", ex.getLocalizedMessage());
         }
         catch (IOException ex)
         {
-            i18n.sendTranslated(ctx, NEGATIVE, "There was an error creating some of the files.");
-            i18n.sendTranslated(ctx, NEGATIVE, "The error message was: {}", ex.getLocalizedMessage());
+            i18n.send(ctx, NEGATIVE, "There was an error creating some of the files.");
+            i18n.send(ctx, NEGATIVE, "The error message was: {}", ex.getLocalizedMessage());
         }
 
         module.getManager().reload();
 
-        i18n.sendTranslated(ctx, POSITIVE, "Announcement {name} created.", name);
+        i18n.send(ctx, POSITIVE, "Announcement {name} created.", name);
     }
 
     @Command(desc = "clean all loaded announcements from memory and load from disk")

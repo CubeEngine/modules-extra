@@ -102,7 +102,7 @@ public class BackpackManager
         }
         if (!outOfContext && !pack.hasContext(sender.getActiveContexts()))
         {
-            i18n.sendTranslated(sender, NEGATIVE, "This backpack is not available in your current context!");
+            i18n.send(sender, NEGATIVE, "This backpack is not available in your current context!");
             return;
         }
 
@@ -113,10 +113,10 @@ public class BackpackManager
     {
         if (sender != player)
         {
-            i18n.sendTranslated(sender, NEGATIVE, "{user} does not have a backpack named {input#backpack}!", player, name);
+            i18n.send(sender, NEGATIVE, "{user} does not have a backpack named {input#backpack}!", player, name);
             return;
         }
-        i18n.sendTranslated(sender, NEGATIVE, "You don't have a backpack named {input#backpack}!", name);
+        i18n.send(sender, NEGATIVE, "You don't have a backpack named {input#backpack}!", name);
     }
 
     private BackpackInventory getBackpack(User player, String name)
@@ -158,8 +158,8 @@ public class BackpackManager
             }
             packs.put(name, new BackpackInventory(module, data, name));
 
-            i18n.sendTranslated(sender, POSITIVE, "Created backpack {input#backpack} for {user}", name, player);
-            i18n.sendTranslated(sender, POSITIVE, "The backpack is currently active in {context}", context);
+            i18n.send(sender, POSITIVE, "Created backpack {input#backpack} for {user}", name, player);
+            i18n.send(sender, POSITIVE, "The backpack is currently active in {context}", context);
 
         }
         catch (IOException e)
@@ -172,10 +172,10 @@ public class BackpackManager
     {
         if (sender == player)
         {
-            i18n.sendTranslated(sender, NEGATIVE, "A backpack named {input#backpack} already exists", name);
+            i18n.send(sender, NEGATIVE, "A backpack named {input#backpack} already exists", name);
             return;
         }
-        i18n.sendTranslated(sender, NEGATIVE, "{user} already had a backpack named {input#backpack}", player, name);
+        i18n.send(sender, NEGATIVE, "{user} already had a backpack named {input#backpack}", player, name);
         return;
     }
 
@@ -187,17 +187,17 @@ public class BackpackManager
             packNotExistMessage(sender, player, name);
             if (sender != player)
             {
-                i18n.sendTranslated(sender, NEGATIVE, "{user} does not have a backpack named {input#backpack} in this world!", player, name);
+                i18n.send(sender, NEGATIVE, "{user} does not have a backpack named {input#backpack} in this world!", player, name);
                 return;
             }
-            i18n.sendTranslated(sender, NEGATIVE, "You don't have a backpack named {input#backpack} in this world!", name);
+            i18n.send(sender, NEGATIVE, "You don't have a backpack named {input#backpack} in this world!", name);
             return;
         }
         pack.addItem(itemToGive);
-        i18n.sendTranslated(sender, POSITIVE, "Item added to backpack!");
+        i18n.send(sender, POSITIVE, "Item added to backpack!");
         if (sender != player && player.isOnline())
         {
-            i18n.sendTranslated(player.getPlayer().get(), POSITIVE, "You received items in your backpack {input#backpack}", name);
+            i18n.send(player.getPlayer().get(), POSITIVE, "You received items in your backpack {input#backpack}", name);
         }
     }
 
@@ -215,11 +215,11 @@ public class BackpackManager
             pack.data.allowItemsIn = !blockInput;
             if (blockInput)
             {
-                i18n.sendTranslated(sender, POSITIVE, "Items are not allowed to go in!");
+                i18n.send(sender, POSITIVE, "Items are not allowed to go in!");
             }
             else
             {
-                i18n.sendTranslated(sender, POSITIVE, "Items are allowed to go in!");
+                i18n.send(sender, POSITIVE, "Items are allowed to go in!");
             }
         }
         pack.data.save();
@@ -238,20 +238,20 @@ public class BackpackManager
             if (pack.data.activeIn.add(context))
             {
                 pack.data.save();
-                i18n.sendTranslated(ctx, POSITIVE, "Added {context} to the backpack", context);
+                i18n.send(ctx, POSITIVE, "Added {context} to the backpack", context);
                 return;
             }
-            i18n.sendTranslated(ctx, NEGATIVE, "{context} was already active for this backpack", context);
+            i18n.send(ctx, NEGATIVE, "{context} was already active for this backpack", context);
         }
         else
         {
             if (pack.data.activeIn.remove(context))
             {
                 pack.data.save();
-                i18n.sendTranslated(ctx, POSITIVE, "Removed {context} from the backpack", context);
+                i18n.send(ctx, POSITIVE, "Removed {context} from the backpack", context);
                 return;
             }
-            i18n.sendTranslated(ctx, NEGATIVE, "{context} was not active for this backpack", context);
+            i18n.send(ctx, NEGATIVE, "{context} was not active for this backpack", context);
         }
 
     }

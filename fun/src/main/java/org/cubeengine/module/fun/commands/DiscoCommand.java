@@ -52,7 +52,7 @@ public class DiscoCommand
         delay = delay == null ? this.module.getConfig().command.disco.defaultDelay : delay;
         if (delay < this.module.getConfig().command.disco.minDelay || delay > this.module.getConfig().command.disco.maxDelay)
         {
-            i18n.sendTranslated(context, NEGATIVE, "The delay has to be a number between {integer} and {integer}", this.module.getConfig().command.disco.minDelay, this.module.getConfig().command.disco.maxDelay);
+            i18n.send(context, NEGATIVE, "The delay has to be a number between {integer} and {integer}", this.module.getConfig().command.disco.minDelay, this.module.getConfig().command.disco.maxDelay);
             return;
         }
 
@@ -60,12 +60,12 @@ public class DiscoCommand
         if (runningTask != null)
         {
             runningTask.stop();
-            i18n.sendTranslated(context, POSITIVE, "The disco has been stopped!");
+            i18n.send(context, POSITIVE, "The disco has been stopped!");
         }
         else
         {
             activeTasks.put(world.getUniqueId(), new DiscoTask(world, delay, tm));
-            i18n.sendTranslated(context, POSITIVE, "The disco started!");
+            i18n.send(context, POSITIVE, "The disco started!");
 
         }
     }

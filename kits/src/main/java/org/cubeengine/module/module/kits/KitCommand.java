@@ -27,9 +27,7 @@ import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Default;
 import org.cubeengine.butler.parametric.Flag;
-import org.cubeengine.butler.parametric.Named;
 import org.cubeengine.libcube.service.command.CommandManager;
-import org.cubeengine.libcube.util.CauseUtil;
 import org.cubeengine.libcube.util.FileUtil;
 import org.cubeengine.libcube.service.command.ContainerCommand;
 import org.cubeengine.libcube.service.command.annotation.ParameterPermission;
@@ -37,20 +35,13 @@ import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.inventoryguard.InventoryGuardFactory;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.entity.Entity;
-import org.spongepowered.api.entity.EntityTypes;
-import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.event.cause.entity.spawn.SpawnTypes;
-import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.InventoryArchetypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.property.InventoryTitle;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.text.translation.Translation;
 
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
 import static org.spongepowered.api.text.serializer.TextSerializers.FORMATTING_CODE;
@@ -89,11 +80,11 @@ public class KitCommand extends ContainerCommand
         if (commands != null)
         {
             kit.setCommands(Arrays.asList(commands));
-            i18n.sendTranslated(context, POSITIVE, "Kit commands set.");
+            i18n.send(context, POSITIVE, "Kit commands set.");
         }
         else
         {
-            i18n.sendTranslated(context, POSITIVE, "Kit commands removed.");
+            i18n.send(context, POSITIVE, "Kit commands removed.");
         }
     }
 
@@ -101,7 +92,7 @@ public class KitCommand extends ContainerCommand
     public void delete(CommandSource context, Kit kit)
     {
         manager.deleteKit(kit);
-        i18n.sendTranslated(context, POSITIVE, "Kit deleted.");
+        i18n.send(context, POSITIVE, "Kit deleted.");
     }
 
     // TODO edit command - /w click to Edit
@@ -112,13 +103,13 @@ public class KitCommand extends ContainerCommand
     {
         if (!FileUtil.isValidFileName(kitname))
         {
-            i18n.sendTranslated(context, NEGATIVE,
+            i18n.send(context, NEGATIVE,
                                 "{name#kit} is is not a valid name! Do not use characters like *, | or ?", kitname);
             return;
         }
 
         Inventory inventory = Inventory.builder().of(InventoryArchetypes.DOUBLE_CHEST)
-                .property(InventoryTitle.PROPERTY_NAME, InventoryTitle.of(Text.of(i18n.translate(context, "Kit Contents: "), kitname)))
+                .property(InventoryTitle.PROPERTY_NAME, InventoryTitle.of(Text.of(i18n.getTranslation(context, "Kit Contents: "), kitname)))
                 .build(module.getPlugin());
 
         List<ItemStack> itemList = new ArrayList<>();
@@ -152,7 +143,7 @@ public class KitCommand extends ContainerCommand
                 }
             });
             manager.saveKit(kit);
-            i18n.sendTranslated(player, POSITIVE, "Created the {name#kit} kit!", kit.getKitName());
+            i18n.send(player, POSITIVE, "Created the {name#kit} kit!", kit.getKitName());
         }).submitInventory(Kits.class, true);
     }
 
@@ -161,7 +152,7 @@ public class KitCommand extends ContainerCommand
     @Command(desc = "Lists all currently available kits.")
     public void list(CommandSource context)
     {
-        i18n.sendTranslated(context, POSITIVE, "The following kits are available:");
+        i18n.send(context, POSITIVE, "The following kits are available:");
         for (String kitName : manager.getKitsNames())
         {
             context.sendMessage(Text.of(" ", TextColors.WHITE, "-", TextColors.YELLOW, kitName));
@@ -181,12 +172,12 @@ public class KitCommand extends ContainerCommand
                 {
                     if (receiver.equals(context))
                     {
-                        i18n.sendTranslated(context, POSITIVE, "Received the {name#kit} kit!", kit.getKitName());
+                        i18n.send(context, POSITIVE, "Received the {name#kit} kit!", kit.getKitName());
                     }
                     else
                     {
-                        i18n.sendTranslated(context, POSITIVE, "You gave {user} the {name#kit} kit!", receiver, kit.getKitName());
-                        i18n.sendTranslated(receiver, POSITIVE, "Received the {name#kit} kit. Enjoy.", kit.getKitName());
+                        i18n.send(context, POSITIVE, "You gave {user} the {name#kit} kit!", receiver, kit.getKitName());
+                        i18n.send(receiver, POSITIVE, "Received the {name#kit} kit. Enjoy.", kit.getKitName());
                     }
                     gaveKit = true;
                 }
@@ -198,11 +189,11 @@ public class KitCommand extends ContainerCommand
         }
         if (!gaveKit)
         {
-            i18n.sendTranslated(context, NEGATIVE, "No one received the kit!");
+            i18n.send(context, NEGATIVE, "No one received the kit!");
         }
         else if (kitNotReceived > 0)
         {
-            i18n.sendTranslated(context, NEGATIVE, "{amount} players did not receive a kit!",
+            i18n.send(context, NEGATIVE, "{amount} players did not receive a kit!",
                                 kitNotReceived); // TODO Have a string for if there is only one player, so non-plural
         }
     }
@@ -215,10 +206,10 @@ public class KitCommand extends ContainerCommand
         {
             if (other)
             {
-                i18n.sendTranslated(context, POSITIVE, "You gave {user} the {name#kit} kit!", player, kit.getKitName());
+                i18n.send(context, POSITIVE, "You gave {user} the {name#kit} kit!", player, kit.getKitName());
                 if (kit.getCustomMessage().isEmpty())
                 {
-                    i18n.sendTranslated(player, POSITIVE, "Received the {name#kit} kit. Enjoy.", kit.getKitName());
+                    i18n.send(player, POSITIVE, "Received the {name#kit} kit. Enjoy.", kit.getKitName());
                     return;
                 }
                 player.sendMessage(FORMATTING_CODE.deserialize(kit.getCustomMessage()));
@@ -226,7 +217,7 @@ public class KitCommand extends ContainerCommand
             }
             if (kit.getCustomMessage().isEmpty())
             {
-                i18n.sendTranslated(context, POSITIVE, "Received the {name#kit} kit. Enjoy.", kit.getKitName());
+                i18n.send(context, POSITIVE, "Received the {name#kit} kit. Enjoy.", kit.getKitName());
                 return;
             }
             context.sendMessage(FORMATTING_CODE.deserialize(kit.getCustomMessage()));
@@ -234,10 +225,10 @@ public class KitCommand extends ContainerCommand
         }
         if (other)
         {
-            i18n.sendTranslated(context, NEUTRAL, "{user} has not enough space in your inventory for this kit!",
+            i18n.send(context, NEUTRAL, "{user} has not enough space in your inventory for this kit!",
                                 player);
             return;
         }
-        i18n.sendTranslated(context, NEUTRAL, "You don't have enough space in your inventory for this kit!");
+        i18n.send(context, NEUTRAL, "You don't have enough space in your inventory for this kit!");
     }
 }

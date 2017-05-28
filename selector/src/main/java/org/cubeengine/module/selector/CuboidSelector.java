@@ -113,12 +113,12 @@ public class CuboidSelector implements Selector
         if (event instanceof InteractBlockEvent.Primary)
         {
             data.setPoint(0, block);
-            i18n.sendTranslated(player, POSITIVE, "First position set to ({integer}, {integer}, {integer}).", block.getBlockX(), block.getBlockY(), block.getBlockZ());
+            i18n.send(player, POSITIVE, "First position set to ({integer}, {integer}, {integer}).", block.getBlockX(), block.getBlockY(), block.getBlockZ());
         }
         else if (event instanceof InteractBlockEvent.Secondary)
         {
             data.setPoint(1, block);
-            i18n.sendTranslated(player, POSITIVE, "Second position set to ({integer}, {integer}, {integer}).", block.getBlockX(), block.getBlockY(), block.getBlockZ());
+            i18n.send(player, POSITIVE, "Second position set to ({integer}, {integer}, {integer}).", block.getBlockX(), block.getBlockY(), block.getBlockZ());
         }
         event.setCancelled(true);
     }

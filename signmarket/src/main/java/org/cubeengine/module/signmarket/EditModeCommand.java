@@ -58,7 +58,7 @@ public class EditModeCommand extends ConversationCommand
     public void removeUser(Player user)
     {
         super.removeUser(user);
-        i18n.sendTranslated(user, POSITIVE, "Exiting edit mode.");
+        i18n.send(user, POSITIVE, "Exiting edit mode.");
     }
 
     @Restricted(Player.class)
@@ -76,7 +76,7 @@ public class EditModeCommand extends ConversationCommand
         ImmutableMarketSignData data = manager.getPreviousData(context);
         if (data == null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "No previous market sign");
+            i18n.send(context, NEGATIVE, "No previous market sign");
             return;
         }
 
@@ -111,7 +111,7 @@ public class EditModeCommand extends ConversationCommand
         MarketSignData data = manager.getCurrentData(context);
         if (data == null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "No active sign!");
+            i18n.send(context, NEGATIVE, "No active sign!");
             return;
         }
 
@@ -128,7 +128,7 @@ public class EditModeCommand extends ConversationCommand
         MarketSignData data = manager.getCurrentData(context);
         if (data == null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "No active sign!");
+            i18n.send(context, NEGATIVE, "No active sign!");
             return;
         }
 
@@ -144,7 +144,7 @@ public class EditModeCommand extends ConversationCommand
         MarketSignData data = manager.getCurrentData(context);
         if (data == null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "No active sign!");
+            i18n.send(context, NEGATIVE, "No active sign!");
             return;
         }
 
@@ -154,7 +154,7 @@ public class EditModeCommand extends ConversationCommand
         }
         else if (data.getSignType() == SignType.BUY)
         {
-            i18n.sendTranslated(context, NEGATIVE, "Buy signs cannot have a demand!");
+            i18n.send(context, NEGATIVE, "Buy signs cannot have a demand!");
             return;
         }
 
@@ -169,7 +169,7 @@ public class EditModeCommand extends ConversationCommand
         MarketSignData data = manager.getCurrentData(context);
         if (data == null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "No active sign!");
+            i18n.send(context, NEGATIVE, "No active sign!");
             return;
         }
 
@@ -189,7 +189,7 @@ public class EditModeCommand extends ConversationCommand
         MarketSignData data = manager.getCurrentData(context);
         if (data == null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "No active sign!");
+            i18n.send(context, NEGATIVE, "No active sign!");
             return;
         }
 
@@ -210,7 +210,7 @@ public class EditModeCommand extends ConversationCommand
         MarketSignData data = manager.getCurrentData(context);
         if (data == null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "No active sign!");
+            i18n.send(context, NEGATIVE, "No active sign!");
             return;
         }
 
@@ -246,7 +246,7 @@ public class EditModeCommand extends ConversationCommand
         MarketSignData data = manager.getCurrentData(context);
         if (data == null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "No active sign!");
+            i18n.send(context, NEGATIVE, "No active sign!");
             return;
         }
 
@@ -261,13 +261,13 @@ public class EditModeCommand extends ConversationCommand
         MarketSignData data = manager.getCurrentData(context);
         if (data == null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "No active sign!");
+            i18n.send(context, NEGATIVE, "No active sign!");
             return;
         }
 
         if (!data.isAdminOwner())
         {
-            i18n.sendTranslated(context, NEGATIVE, "Player signs cannot have no stock!");
+            i18n.send(context, NEGATIVE, "Player signs cannot have no stock!");
             return;
         }
 
@@ -289,13 +289,13 @@ public class EditModeCommand extends ConversationCommand
         MarketSignData data = manager.getCurrentData(context);
         if (data == null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "No active sign!");
+            i18n.send(context, NEGATIVE, "No active sign!");
             return;
         }
 
         if (data.getStock() == null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "This sign has no stock! Use \"stock\" first to enable it!");
+            i18n.send(context, NEGATIVE, "This sign has no stock! Use \"stock\" first to enable it!");
             return;
         }
 
@@ -309,14 +309,14 @@ public class EditModeCommand extends ConversationCommand
     {
         if (price < 0)
         {
-            i18n.sendTranslated(context, NEGATIVE, "A negative price!? Are you serious?");
+            i18n.send(context, NEGATIVE, "A negative price!? Are you serious?");
             return;
         }
 
         MarketSignData data = manager.getCurrentData(context);
         if (data == null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "No active sign!");
+            i18n.send(context, NEGATIVE, "No active sign!");
             return;
         }
 
@@ -330,14 +330,14 @@ public class EditModeCommand extends ConversationCommand
     {
         if (amount < 0)
         {
-            i18n.sendTranslated(context, NEGATIVE, "Negative amounts could be unfair! Just sayin'");
+            i18n.send(context, NEGATIVE, "Negative amounts could be unfair! Just sayin'");
             return;
         }
 
         MarketSignData data = manager.getCurrentData(context);
         if (data == null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "No active sign!");
+            i18n.send(context, NEGATIVE, "No active sign!");
             return;
         }
 
@@ -352,13 +352,13 @@ public class EditModeCommand extends ConversationCommand
         MarketSignData data = manager.getCurrentData(context);
         if (data == null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "No active sign!");
+            i18n.send(context, NEGATIVE, "No active sign!");
             return;
         }
 
         if (!data.isAdminOwner() && data.getStock() != 0)
         {
-            i18n.sendTranslated(context, NEGATIVE, "You have to take all items out of the market-sign to be able to change the item in it!");
+            i18n.send(context, NEGATIVE, "You have to take all items out of the market-sign to be able to change the item in it!");
             return;
         }
         data.setItem(item, false);
@@ -376,14 +376,14 @@ public class EditModeCommand extends ConversationCommand
         }
         if (size == 0 || size > 6)
         {
-            i18n.sendTranslated(context, NEGATIVE, "Invalid size! Use -i for infinite OR 1-6 inventory-lines!");
+            i18n.send(context, NEGATIVE, "Invalid size! Use -i for infinite OR 1-6 inventory-lines!");
             return;
         }
 
         MarketSignData data = manager.getCurrentData(context);
         if (data == null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "No active sign!");
+            i18n.send(context, NEGATIVE, "No active sign!");
             return;
         }
         data.setSize(size);

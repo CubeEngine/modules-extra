@@ -97,7 +97,7 @@ public class IgnoreCommands
         {
             int rand1 = new Random().nextInt(6) + 1;
             int rand2 = new Random().nextInt(6 - rand1 + 1) + 1;
-            i18n.sendTranslated(context, NEUTRAL, "Ignore ({text:8+:color=WHITE}): {integer#random} + {integer#random} = {integer#sum} -> {text:failed:color=RED}",
+            i18n.send(context, NEUTRAL, "Ignore ({text:8+:color=WHITE}): {integer#random} + {integer#random} = {integer#sum} -> {text:failed:color=RED}",
                                    rand1, rand2, rand1 + rand2);
             return;
         }
@@ -108,16 +108,16 @@ public class IgnoreCommands
         {
             if (user == context)
             {
-                i18n.sendTranslated(context, NEGATIVE, "If you do not feel like talking to yourself just don't talk.");
+                i18n.send(context, NEGATIVE, "If you do not feel like talking to yourself just don't talk.");
             }
             else if (!this.addIgnore(sender, user))
             {
                 if (user.hasPermission(module.perms().COMMAND_IGNORE_PREVENT.getId()))
                 {
-                    i18n.sendTranslated(context, NEGATIVE, "You are not allowed to ignore {user}!", user);
+                    i18n.send(context, NEGATIVE, "You are not allowed to ignore {user}!", user);
                     continue;
                 }
-                i18n.sendTranslated(context, NEGATIVE, "{user} is already on your ignore list!", user);
+                i18n.send(context, NEGATIVE, "{user} is already on your ignore list!", user);
             }
             else
             {
@@ -128,7 +128,7 @@ public class IgnoreCommands
         {
             return;
         }
-        i18n.sendTranslated(context, POSITIVE, "You added {user#list} to your ignore list!", StringUtils.implode(ChatFormat.WHITE + ", " + ChatFormat.DARK_GREEN, added));
+        i18n.send(context, POSITIVE, "You added {user#list} to your ignore list!", StringUtils.implode(ChatFormat.WHITE + ", " + ChatFormat.DARK_GREEN, added));
     }
 
     @Command(desc = "Stops ignoring all messages from a player")
@@ -140,7 +140,7 @@ public class IgnoreCommands
         {
             if (!this.removeIgnore(context, user))
             {
-                i18n.sendTranslated(context, NEGATIVE, "You haven't ignored {user}!", user);
+                i18n.send(context, NEGATIVE, "You haven't ignored {user}!", user);
             }
             else
             {
@@ -151,6 +151,6 @@ public class IgnoreCommands
         {
             return;
         }
-        i18n.sendTranslated(context, POSITIVE, "You removed {user#list} from your ignore list!", StringUtils.implode(ChatFormat.WHITE + ", " + ChatFormat.DARK_GREEN, added));
+        i18n.send(context, POSITIVE, "You removed {user#list} from your ignore list!", StringUtils.implode(ChatFormat.WHITE + ", " + ChatFormat.DARK_GREEN, added));
     }
 }

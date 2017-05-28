@@ -68,7 +68,7 @@ public class AuthCommands
         if ((context.equals(player)))
         {
             module.setPassword(player.getUniqueId(), password);
-            i18n.sendTranslated(context, POSITIVE, "Your password has been set!");
+            i18n.send(context, POSITIVE, "Your password has been set!");
             return;
         }
         if (!context.hasPermission(module.perms().COMMAND_SETPASSWORD_OTHER.getId()))
@@ -76,7 +76,7 @@ public class AuthCommands
             throw new PermissionDeniedException(module.perms().COMMAND_SETPASSWORD_OTHER);
         }
         module.setPassword(player.getUniqueId(), password);
-        i18n.sendTranslated(context, POSITIVE, "{user}'s password has been set!", player);
+        i18n.send(context, POSITIVE, "{user}'s password has been set!", player);
     }
 
     @Command(alias = "clearpw", desc = "Clears your password.")
@@ -90,7 +90,7 @@ public class AuthCommands
                 throw new TooFewArgumentsException();
             }
             module.resetPassword(((Player)context).getUniqueId());
-            i18n.sendTranslated(context, POSITIVE, "Your password has been reset!");
+            i18n.send(context, POSITIVE, "Your password has been reset!");
             return;
         }
         if (players.isAll())
@@ -100,7 +100,7 @@ public class AuthCommands
                 throw new PermissionDeniedException(module.perms().COMMAND_CLEARPASSWORD_ALL);
             }
             module.resetAllPasswords();
-            i18n.sendTranslated(context, POSITIVE, "All passwords reset!");
+            i18n.send(context, POSITIVE, "All passwords reset!");
             return;
         }
         if (!context.hasPermission(module.perms().COMMAND_CLEARPASSWORD_OTHER.getId()))
@@ -110,7 +110,7 @@ public class AuthCommands
         for (Player user : players.list())
         {
             module.resetPassword(user.getUniqueId());
-            i18n.sendTranslated(context, POSITIVE, "{user}'s password has been reset!", user.getName());
+            i18n.send(context, POSITIVE, "{user}'s password has been reset!", user.getName());
         }
     }
 
@@ -122,24 +122,24 @@ public class AuthCommands
     {
         if (module.isLoggedIn(context.getUniqueId()))
         {
-            i18n.sendTranslated(context, POSITIVE, "You are already logged in!");
+            i18n.send(context, POSITIVE, "You are already logged in!");
             return;
         }
         boolean isLoggedIn = module.login(context, password);
         if (isLoggedIn)
         {
-            i18n.sendTranslated(context, POSITIVE, "You logged in successfully!");
+            i18n.send(context, POSITIVE, "You logged in successfully!");
             return;
         }
-        i18n.sendTranslated(context, NEGATIVE, "Wrong password!");
+        i18n.send(context, NEGATIVE, "Wrong password!");
         if (module.getConfig().fail2ban)
         {
             if (fails.get(context.getUniqueId()) != null)
             {
                 if (fails.get(context.getUniqueId()) + SECONDS.toMillis(10) > currentTimeMillis())
                 {
-                    Text msg = Text.of(i18n.getTranslation(context, NEGATIVE, "Too many wrong passwords!") + "\n"
-                            + i18n.getTranslation(context, NEUTRAL, "For your security you were banned 10 seconds."));
+                    Text msg = Text.of(i18n.translate(context, NEGATIVE, "Too many wrong passwords!") + "\n"
+                            + i18n.translate(context, NEUTRAL, "For your security you were banned 10 seconds."));
                     Instant expires = Instant.now().plus(module.getConfig().banDuration, ChronoUnit.SECONDS);
                     this.bs.addBan(Ban.builder().profile(context.getProfile()).reason(msg)
                                       .expirationDate(expires).source(context).build());
@@ -162,9 +162,9 @@ public class AuthCommands
         if (module.isLoggedIn(context.getUniqueId()))
         {
             module.logout(context.getUniqueId());
-            i18n.sendTranslated(context, POSITIVE, "You're now logged out.");
+            i18n.send(context, POSITIVE, "You're now logged out.");
             return;
         }
-        i18n.sendTranslated(context, NEUTRAL, "You're not logged in!");
+        i18n.send(context, NEUTRAL, "You're not logged in!");
     }
 }

@@ -64,7 +64,7 @@ public class BackpackCommands extends ContainerCommand
         }
         if (ctx != player && !ctx.hasPermission(module.perms().COMMAND_OPEN_OTHER_PLAYER.getId()))
         {
-            i18n.sendTranslated(ctx, NEGATIVE, "You are not allowed to open the backpacks of other users!");
+            i18n.send(ctx, NEGATIVE, "You are not allowed to open the backpacks of other users!");
             return;
         }
         manager.openBackpack(ctx, player, outOfContext, name) ;

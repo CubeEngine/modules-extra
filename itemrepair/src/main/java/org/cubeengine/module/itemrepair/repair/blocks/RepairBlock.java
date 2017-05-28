@@ -42,7 +42,6 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.item.ItemType;
-import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.InventoryArchetypes;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -210,36 +209,36 @@ public class RepairBlock
             Text format = economy.getDefaultCurrency().format(new BigDecimal(price));
             if (this.config.breakPercentage > 0)
             {
-                i18n.sendTranslated(player, NEGATIVE, "Items will break with a chance of {decimal:2}%", this.config.breakPercentage);
+                i18n.send(player, NEGATIVE, "Items will break with a chance of {decimal:2}%", this.config.breakPercentage);
             }
             if (this.config.failPercentage > 0)
             {
-                i18n.sendTranslated(player, NEGATIVE, "Items will not repair with a chance of {decimal:2}%", this.config.failPercentage);
+                i18n.send(player, NEGATIVE, "Items will not repair with a chance of {decimal:2}%", this.config.failPercentage);
             }
             if (this.config.looseEnchantmentsPercentage > 0)
             {
-                i18n.sendTranslated(player, NEGATIVE, "Items will loose all enchantments with a chance of {decimal:2}%", this.config.looseEnchantmentsPercentage);
+                i18n.send(player, NEGATIVE, "Items will loose all enchantments with a chance of {decimal:2}%", this.config.looseEnchantmentsPercentage);
             }
             if (this.config.costPercentage > 100)
             {
-                i18n.sendTranslated(player, NEUTRAL, "The repair would cost {txt#amount} (+{decimal:2}%)", format, this.config.costPercentage - 100);
+                i18n.send(player, NEUTRAL, "The repair would cost {txt#amount} (+{decimal:2}%)", format, this.config.costPercentage - 100);
             }
             else if (this.config.costPercentage < 100)
             {
-               i18n.sendTranslated(player, NEUTRAL, "The repair would cost {txt#amount} (-{decimal:2}%)", format, 100 - this.config.costPercentage);
+               i18n.send(player, NEUTRAL, "The repair would cost {txt#amount} (-{decimal:2}%)", format, 100 - this.config.costPercentage);
             }
             else
             {
-                i18n.sendTranslated(player, NEUTRAL, "The repair would cost {txt#amount}", format);
+                i18n.send(player, NEUTRAL, "The repair would cost {txt#amount}", format);
             }
             UniqueAccount acc = economy.getOrCreateAccount(player.getUniqueId()).get();
-            i18n.sendTranslated(player, NEUTRAL, "You currently have {txt#balance}", economy.getDefaultCurrency().format(acc.getBalance(economy.getDefaultCurrency())));
-            i18n.sendTranslated(player, POSITIVE, "{text:Leftclick} again to repair all your damaged items.");
+            i18n.send(player, NEUTRAL, "You currently have {txt#balance}", economy.getDefaultCurrency().format(acc.getBalance(economy.getDefaultCurrency())));
+            i18n.send(player, POSITIVE, "{text:Leftclick} again to repair all your damaged items.");
             return new RepairRequest(this, inventory, items, price);
         }
         else
         {
-            i18n.sendTranslated(player, NEGATIVE, "There are no items to repair!");
+            i18n.send(player, NEGATIVE, "There are no items to repair!");
         }
         return null;
     }
@@ -290,32 +289,32 @@ public class RepairBlock
             }
             if (itemsBroken)
             {
-                i18n.sendTranslated(player, NEGATIVE, "You broke some of your items when repairing!");
+                i18n.send(player, NEGATIVE, "You broke some of your items when repairing!");
                 player.playSound(BLOCK_ANVIL_BREAK, player.getLocation().getPosition(), 1, 0);
             }
             if (repairFail)
             {
-                i18n.sendTranslated(player, NEGATIVE, "You failed to repair some of your items!");
+                i18n.send(player, NEGATIVE, "You failed to repair some of your items!");
                 player.playSound(ENTITY_PLAYER_BURP,player.getLocation().getPosition(), 1,0);
             }
             if (looseEnch)
             {
-                i18n.sendTranslated(player, NEGATIVE, "Oh no! Some of your items lost their magical power.");
+                i18n.send(player, NEGATIVE, "Oh no! Some of your items lost their magical power.");
                 player.playSound(SoundTypes.ENTITY_GHAST_SCREAM, player.getLocation().getPosition(), 1);
             }
-            i18n.sendTranslated(player, POSITIVE, "You paid {txt#amount} to repair your items!", economy.getDefaultCurrency().format(new BigDecimal(price)));
+            i18n.send(player, POSITIVE, "You paid {txt#amount} to repair your items!", economy.getDefaultCurrency().format(new BigDecimal(price)));
             if (this.config.costPercentage > 100)
             {
-                i18n.sendTranslated(player, POSITIVE, "Thats {decimal#percent:2}% of the normal price!", this.config.costPercentage);
+                i18n.send(player, POSITIVE, "Thats {decimal#percent:2}% of the normal price!", this.config.costPercentage);
             }
             else if (this.config.costPercentage < 100)
             {
-                i18n.sendTranslated(player, POSITIVE, "Thats {decimal#percent:2}% less then the normal price!", 100 - this.config.costPercentage);
+                i18n.send(player, POSITIVE, "Thats {decimal#percent:2}% less then the normal price!", 100 - this.config.costPercentage);
             }
         }
         else
         {
-           i18n.sendTranslated(player, NEGATIVE, "You don't have enough money to repair these items!");
+           i18n.send(player, NEGATIVE, "You don't have enough money to repair these items!");
         }
     }
 

@@ -80,12 +80,12 @@ public class NukeCommand
 
         if(range != 4 && !context.hasPermission(module.perms().COMMAND_NUKE_CHANGE_RANGE.getId()))
         {
-            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to change the explosion range of the nuke carpet!");
+            i18n.send(context, NEGATIVE, "You are not allowed to change the explosion range of the nuke carpet!");
             return;
         }
         if(range < 0 || range > this.module.getConfig().command.nuke.maxExplosionRange)
         {
-            i18n.sendTranslated(context, NEGATIVE, "The explosion range can't be less than 0 or greater than {integer}", this.module.getConfig().command.nuke.maxExplosionRange);
+            i18n.send(context, NEGATIVE, "The explosion range can't be less than 0 or greater than {integer}", this.module.getConfig().command.nuke.maxExplosionRange);
             return;
         }
 
@@ -93,7 +93,7 @@ public class NukeCommand
         {
             if (!context.equals(player) && !context.hasPermission(module.perms().COMMAND_NUKE_OTHER.getId()))
             {
-                i18n.sendTranslated(context, NEGATIVE, "You are not allowed to specify a player!");
+                i18n.send(context, NEGATIVE, "You are not allowed to specify a player!");
                 return;
             }
             location = ((Player)context).getLocation();
@@ -102,7 +102,7 @@ public class NukeCommand
         {
             if(!(context instanceof Player))
             {
-                i18n.sendTranslated(context, NEGATIVE, "This command can only be used by a player!");
+                i18n.send(context, NEGATIVE, "This command can only be used by a player!");
                 return;
             }
             java.util.Optional<BlockRayHit<World>> end = BlockRay.from(((Player)context)).stopFilter(onlyAirFilter()).distanceLimit(100).build().end();
@@ -119,7 +119,7 @@ public class NukeCommand
 
         if(!quiet)
         {
-            i18n.sendTranslated(context, POSITIVE, "You spawned {integer} blocks of tnt.", blockAmount);
+            i18n.send(context, POSITIVE, "You spawned {integer} blocks of tnt.", blockAmount);
         }
     }
 

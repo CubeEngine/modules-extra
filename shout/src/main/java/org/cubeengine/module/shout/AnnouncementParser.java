@@ -51,7 +51,7 @@ public class AnnouncementParser implements ArgumentParser<Announcement>, Complet
         Announcement announcement = manager.getAnnouncement(name);
         if (announcement == null)
         {
-            Text trans = i18n.getTranslation(invocation.getContext(Locale.class), NEGATIVE, "{input#announcement} was not found!", name);
+            Text trans = i18n.translate(invocation.getContext(Locale.class), NEGATIVE, "{input#announcement} was not found!", name);
             throw new TranslatedParserException(trans);
         }
         return announcement;

@@ -27,7 +27,6 @@ import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Greed;
 import org.cubeengine.butler.parametric.Optional;
 import org.cubeengine.libcube.service.command.CommandManager;
-import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.libcube.util.ChatFormat;
 import org.cubeengine.module.powertools.data.IPowertoolData;
 import org.cubeengine.module.powertools.data.PowertoolData;
@@ -103,16 +102,16 @@ public class PowertoolCommand extends ContainerCommand
                     slot.set(this.setPowerTool(slot.peek().get(), null));
                 }
             }
-            i18n.sendTranslated(context, POSITIVE, "Removed all commands bound to items in your inventory!");
+            i18n.send(context, POSITIVE, "Removed all commands bound to items in your inventory!");
             return;
         }
         if (!context.getItemInHand(HandTypes.MAIN_HAND).isPresent())
         {
-            i18n.sendTranslated(context, NEUTRAL, "You are not holding any item in your hand.");
+            i18n.send(context, NEUTRAL, "You are not holding any item in your hand.");
             return;
         }
         context.setItemInHand(HandTypes.MAIN_HAND, this.setPowerTool(context.getItemInHand(HandTypes.MAIN_HAND).get(), null));
-        i18n.sendTranslated(context, POSITIVE, "Removed all commands bound to the item in your hand!");
+        i18n.send(context, POSITIVE, "Removed all commands bound to the item in your hand!");
     }
 
     @Alias(value = "ptr")
@@ -122,7 +121,7 @@ public class PowertoolCommand extends ContainerCommand
     {
         if (!context.getItemInHand(HandTypes.MAIN_HAND).isPresent())
         {
-            i18n.sendTranslated(context, NEUTRAL, "You are not holding any item in your hand.");
+            i18n.send(context, NEUTRAL, "You are not holding any item in your hand.");
             return;
         }
         context.setItemInHand(HandTypes.MAIN_HAND, this.remove(context, context.getItemInHand(HandTypes.MAIN_HAND).get(), command));
@@ -135,7 +134,7 @@ public class PowertoolCommand extends ContainerCommand
         {
             powers.remove(powers.size() - 1);
             this.setPowerTool(item, powers);
-            i18n.sendTranslated(context, POSITIVE, "Removed the last command bound to this item!");
+            i18n.send(context, POSITIVE, "Removed the last command bound to this item!");
         }
         else
         {
@@ -146,17 +145,17 @@ public class PowertoolCommand extends ContainerCommand
             }
             if (removed)
             {
-                i18n.sendTranslated(context, POSITIVE, "Removed the command: {input#command} bound to this item!", cmd);
+                i18n.send(context, POSITIVE, "Removed the command: {input#command} bound to this item!", cmd);
             }
             else
             {
-                i18n.sendTranslated(context, NEGATIVE, "The command {input#command} was not found on this item!", cmd);
+                i18n.send(context, NEGATIVE, "The command {input#command} was not found on this item!", cmd);
             }
         }
         this.setPowerTool(item, powers);
         if (powers.isEmpty())
         {
-            i18n.sendTranslated(context, NEUTRAL, "No more commands saved on this item!");
+            i18n.send(context, NEUTRAL, "No more commands saved on this item!");
             return item;
         }
         this.showPowerToolList(context, powers, false, false);
@@ -170,7 +169,7 @@ public class PowertoolCommand extends ContainerCommand
     {
         if (!context.getItemInHand(HandTypes.MAIN_HAND).isPresent())
         {
-            i18n.sendTranslated(context, NEUTRAL, "You do not have an item in your hand to bind the command to!");
+            i18n.send(context, NEUTRAL, "You do not have an item in your hand to bind the command to!");
             return;
         }
         List<String> powerTools;
@@ -210,7 +209,7 @@ public class PowertoolCommand extends ContainerCommand
         }
         if (!context.getItemInHand(HandTypes.MAIN_HAND).isPresent())
         {
-            i18n.sendTranslated(context, NEUTRAL, "You do not have an item in your hand.");
+            i18n.send(context, NEUTRAL, "You do not have an item in your hand.");
         }
         else
         {
@@ -224,7 +223,7 @@ public class PowertoolCommand extends ContainerCommand
         {
             if (showIfEmpty)
             {
-                i18n.sendTranslated(context, NEGATIVE, "No commands saved on this item!");
+                i18n.send(context, NEGATIVE, "No commands saved on this item!");
             }
             return;
         }
@@ -236,13 +235,13 @@ public class PowertoolCommand extends ContainerCommand
         }
         if (lastAsNew)
         {
-            i18n.sendTranslated(context, NEUTRAL, "{amount} command(s) bound to this item:{}", i + 1, sb.toString());
-            Text newText = i18n.getTranslation(context, NONE, "NEW");
+            i18n.send(context, NEUTRAL, "{amount} command(s) bound to this item:{}", i + 1, sb.toString());
+            Text newText = i18n.translate(context, NONE, "NEW");
             context.sendMessage(Text.of(YELLOW, powertools.get(i), GOLD, newText));
         }
         else
         {
-            i18n.sendTranslated(context, NEUTRAL, "{amount} command(s) bound to this item:{}", i + 1, sb.toString());
+            i18n.send(context, NEUTRAL, "{amount} command(s) bound to this item:{}", i + 1, sb.toString());
             context.sendMessage(Text.of(powertools.get(i)));
         }
     }

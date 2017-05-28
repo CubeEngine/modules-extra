@@ -55,16 +55,16 @@ public class ManagementCommands extends ContainerCommand
         {
             if (!force)
             {
-                i18n.sendTranslated(context, NEGATIVE, "Custom command {input} already exists. Set the flag {text:-force} if you want to replace the message.", "!" + name);
+                i18n.send(context, NEGATIVE, "Custom command {input} already exists. Set the flag {text:-force} if you want to replace the message.", "!" + name);
                 return;
             }
             config.commands.put(name, message);
-            i18n.sendTranslated(context, POSITIVE, "Custom command {input} has successfully been replaced.", "!" + name);
+            i18n.send(context, POSITIVE, "Custom command {input} has successfully been replaced.", "!" + name);
         }
         else
         {
             config.commands.put(name.toLowerCase(ENGLISH), message);
-            i18n.sendTranslated(context, POSITIVE, "Custom command {input} has successfully been added.", "!" + name);
+            i18n.send(context, POSITIVE, "Custom command {input} has successfully been added.", "!" + name);
         }
         config.save();
     }
@@ -77,11 +77,11 @@ public class ManagementCommands extends ContainerCommand
             config.commands.remove(name.toLowerCase(ENGLISH));
             config.save();
 
-            i18n.sendTranslated(context, POSITIVE, "Custom command {input} has successfully been deleted.", "!" + name);
+            i18n.send(context, POSITIVE, "Custom command {input} has successfully been deleted.", "!" + name);
         }
         else
         {
-            i18n.sendTranslated(context, NEGATIVE, "Custom command {input} has not been found.", "!" + name);
+            i18n.send(context, NEGATIVE, "Custom command {input} has not been found.", "!" + name);
         }
     }
 

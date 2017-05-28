@@ -80,7 +80,7 @@ public class ItemRepairListener
 
         if (!player.hasPermission(repairBlock.getPermission().getId()))
         {
-            i18n.sendTranslated(player, NEGATIVE, "You are not allowed to use this repair block!");
+            i18n.send(player, NEGATIVE, "You are not allowed to use this repair block!");
             return;
         }
 
@@ -133,7 +133,7 @@ public class ItemRepairListener
     {
         if (this.repairRequests.containsKey(player.getUniqueId()))
         {
-            i18n.sendTranslated(player, NEUTRAL, "The repair has been cancelled!");
+            i18n.send(player, NEUTRAL, "The repair has been cancelled!");
             this.repairRequests.remove(player.getUniqueId());
             event.setCancelled(true);
         }

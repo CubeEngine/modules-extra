@@ -120,20 +120,20 @@ public class ThrowCommands
         amount = amount == null ? -1 : 1;
         if ((amount > this.module.getConfig().command.throwSection.maxAmount || amount < 1) && amount != -1)
         {
-            i18n.sendTranslated(context, NEGATIVE, "The amount must be a number from 1 to {integer}", this.module.getConfig().command.throwSection.maxAmount);
+            i18n.send(context, NEGATIVE, "The amount must be a number from 1 to {integer}", this.module.getConfig().command.throwSection.maxAmount);
             return;
         }
 
         delay = delay == null ? 3 : delay;
         if (delay > this.module.getConfig().command.throwSection.maxDelay || delay < 0)
         {
-            i18n.sendTranslated(context, NEGATIVE, "The delay must be a number from 0 to {integer}", this.module.getConfig().command.throwSection.maxDelay);
+            i18n.send(context, NEGATIVE, "The delay must be a number from 0 to {integer}", this.module.getConfig().command.throwSection.maxDelay);
             return;
         }
         
         if(unsafe && !context.hasPermission(module.perms().COMMAND_THROW_UNSAFE.getId()))
         {
-            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to execute this command in unsafe mode.");
+            i18n.send(context, NEGATIVE, "You are not allowed to execute this command in unsafe mode.");
             return;
         }
 
@@ -143,7 +143,7 @@ public class ThrowCommands
         }
         if (type == null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "The given object was not found!");
+            i18n.send(context, NEGATIVE, "The given object was not found!");
             return;
         }
 
@@ -158,13 +158,13 @@ public class ThrowCommands
 
         if (!context.hasPermission(perms.get(type).getId()))
         {
-            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to throw this.");
+            i18n.send(context, NEGATIVE, "You are not allowed to throw this.");
             return;
         }
 
         if ((BUGGED_ENTITIES.contains(type) || entityMatcher.isMonster(type)) && !unsafe)
         {
-            i18n.sendTranslated(context, NEUTRAL, "This object can only be thrown in unsafe mode. Add -u to enable the unsafe mode.");
+            i18n.send(context, NEUTRAL, "This object can only be thrown in unsafe mode. Add -u to enable the unsafe mode.");
             return;
         }
 
@@ -175,7 +175,7 @@ public class ThrowCommands
         }
         else
         {
-            i18n.sendTranslated(context, NEGATIVE, "Failed to throw this!");
+            i18n.send(context, NEGATIVE, "Failed to throw this!");
         }
     }
 
@@ -233,8 +233,8 @@ public class ThrowCommands
         {
             if (this.amount == -1 && notify)
             {
-                i18n.sendTranslated(this.player, POSITIVE, "Started throwing!");
-                i18n.sendTranslated(this.player, POSITIVE, "You will keep throwing until you run this command again.");
+                i18n.send(this.player, POSITIVE, "Started throwing!");
+                i18n.send(this.player, POSITIVE, "You will keep throwing until you run this command again.");
             }
             this.taskId = tm.runTimer(Fun.class, this, 0, this.interval);
             return this.taskId != null;
@@ -253,11 +253,11 @@ public class ThrowCommands
                 {
                     if (this.amount == -1)
                     {
-                        i18n.sendTranslated(this.player, POSITIVE, "You are no longer throwing.");
+                        i18n.send(this.player, POSITIVE, "You are no longer throwing.");
                     }
                     else
                     {
-                        i18n.sendTranslated(this.player, POSITIVE, "All objects thrown.");
+                        i18n.send(this.player, POSITIVE, "All objects thrown.");
                     }
                 }
                 tm.cancelTask(Fun.class, this.taskId);

@@ -79,14 +79,14 @@ public class Namehistory extends Module
         HistoryFetcher.get(player.getUniqueId()).thenAccept(historyData -> {
             if (!historyData.isPresent() || historyData.get().names.size() <= 1)
             {
-                i18n.sendTranslated(context, NEGATIVE, "No namehistory available for {user}", player);
+                i18n.send(context, NEGATIVE, "No namehistory available for {user}", player);
                 return;
             }
-            i18n.sendTranslated(context, POSITIVE, "The following names were known for {user}", player);
+            i18n.send(context, POSITIVE, "The following names were known for {user}", player);
             for (NameChange names : historyData.get().names)
             {
-                i18n.sendTranslated(context, NEUTRAL, " - {user} since {input}", names.name,
-                    names.changedToAt.isPresent() ? sdf.format(names.changedToAt.get().getTime()) : i18n.getTranslation(context, NONE, "account creation").toPlain());
+                i18n.send(context, NEUTRAL, " - {user} since {input}", names.name,
+                    names.changedToAt.isPresent() ? sdf.format(names.changedToAt.get().getTime()) : i18n.translate(context, NONE, "account creation").toPlain());
             }
         });
     }

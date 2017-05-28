@@ -29,10 +29,8 @@ import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.type.HandType;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
@@ -160,7 +158,7 @@ public class MarketSignListener
         {
             if (!player.hasPermission(module.perms().EDIT_USE.getId()))
             {
-                i18n.sendTranslated(player, NEGATIVE, "You are not allowed to edit MarketSigns here");
+                i18n.send(player, NEGATIVE, "You are not allowed to edit MarketSigns here");
                 manager.exitEditMode(player);
                 module.getEditModeCommand().removeUser(player);
                 return;
@@ -215,8 +213,8 @@ public class MarketSignListener
                 event.setCancelled(true);
                 return;
             }
-            i18n.sendTranslated(player, NEGATIVE, "That is not a market sign!");
-            i18n.sendTranslated(player, NEUTRAL, "Sneak and punch the sign convert it.");
+            i18n.send(player, NEGATIVE, "That is not a market sign!");
+            i18n.send(player, NEUTRAL, "Sneak and punch the sign convert it.");
             event.setCancelled(true);
             return;
         }
@@ -252,7 +250,7 @@ public class MarketSignListener
                 if (!player.hasPermission(module.perms().EDIT_USE.getId()))
                 {
                     event.setCancelled(true);
-                    i18n.sendTranslated(player, NEGATIVE, "You are not allowed to create market signs!");
+                    i18n.send(player, NEGATIVE, "You are not allowed to create market signs!");
                     return;
                 }
 

@@ -73,7 +73,7 @@ public class PlayerCommands
         {
             if(!context.hasPermission(module.perms().COMMAND_HAT_OTHER.getId()))
             {
-                i18n.sendTranslated(context, NEGATIVE, "You can't set the hat of an other player.");
+                i18n.send(context, NEGATIVE, "You can't set the hat of an other player.");
                 return;
             }
         }
@@ -83,7 +83,7 @@ public class PlayerCommands
         }
         else
         {
-            i18n.sendTranslated(context, NEGATIVE, "You have to specify a player!");
+            i18n.send(context, NEGATIVE, "You have to specify a player!");
             return;
         }
         
@@ -91,13 +91,13 @@ public class PlayerCommands
         {
             if(!context.hasPermission(module.perms().COMMAND_HAT_ITEM.getId()))
             {
-                i18n.sendTranslated(context, NEGATIVE, "You can only use your item in hand!");
+                i18n.send(context, NEGATIVE, "You can only use your item in hand!");
                 return;
             }
             head = materialMatcher.itemStack(item);
             if(head == null)
             {
-                i18n.sendTranslated(context, NEGATIVE, "Item not found!");
+                i18n.send(context, NEGATIVE, "Item not found!");
                 return;
             }
         }
@@ -107,13 +107,13 @@ public class PlayerCommands
         }
         else
         {
-            i18n.sendTranslated(context, NEGATIVE, "Trying to be Notch? No hat for you!");
-            i18n.sendTranslated(context, NEUTRAL, "Please specify an item!");
+            i18n.send(context, NEGATIVE, "Trying to be Notch? No hat for you!");
+            i18n.send(context, NEUTRAL, "Please specify an item!");
             return;
         }
         if (head == null)
         {
-            i18n.sendTranslated(context, NEGATIVE, "You do not have any item in your hand!");
+            i18n.send(context, NEGATIVE, "You do not have any item in your hand!");
             return;
         }
         EquipmentType type = head.getItem().getDefaultProperty(EquipmentProperty.class)
@@ -122,7 +122,7 @@ public class PlayerCommands
         {
             if (!context.hasPermission(module.perms().COMMAND_HAT_MORE_ARMOR.getId()))
             {
-                i18n.sendTranslated(context, NEGATIVE, "You are not allowed to use other armor as headpiece");
+                i18n.send(context, NEGATIVE, "You are not allowed to use other armor as headpiece");
             }
         }
 
@@ -143,7 +143,7 @@ public class PlayerCommands
 
         if(!(quiet && context.hasPermission(module.perms().COMMAND_HAT_QUIET.getId())) && player.hasPermission(module.perms().COMMAND_HAT_NOTIFY.getId()))
         {
-            i18n.sendTranslated(player, POSITIVE, "Your hat was changed");
+            i18n.send(player, POSITIVE, "Your hat was changed");
         }        
     }
 
@@ -154,7 +154,7 @@ public class PlayerCommands
         damage = damage == null ? 1 : damage;
         if (damage > this.module.getConfig().command.explosion.power)
         {
-            i18n.sendTranslated(context, NEGATIVE, "The power of the explosion shouldn't be greater than {integer}", this.module.getConfig().command.explosion.power);
+            i18n.send(context, NEGATIVE, "The power of the explosion shouldn't be greater than {integer}", this.module.getConfig().command.explosion.power);
             return;
         }
         Location<World> loc;
@@ -164,7 +164,7 @@ public class PlayerCommands
             {
                 if (!context.hasPermission(module.perms().COMMAND_EXPLOSION_OTHER.getId()))
                 {
-                    i18n.sendTranslated(context, NEGATIVE, "You are not allowed to specify a player.");
+                    i18n.send(context, NEGATIVE, "You are not allowed to specify a player.");
                     return;
                 }
             }
@@ -174,7 +174,7 @@ public class PlayerCommands
         {
             if (!(context instanceof Player))
             {
-                i18n.sendTranslated(context, NEGATIVE, "This command can only be used by a player!");
+                i18n.send(context, NEGATIVE, "This command can only be used by a player!");
                 return;
             }
             java.util.Optional<BlockRayHit<World>> end = BlockRay.from(((Player)context)).distanceLimit(
@@ -191,17 +191,17 @@ public class PlayerCommands
 
         if (!context.hasPermission(module.perms().COMMAND_EXPLOSION_BLOCK_DAMAGE.getId()) && (blockDamage || unsafe))
         {
-            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to break blocks");
+            i18n.send(context, NEGATIVE, "You are not allowed to break blocks");
             return;
         }
         if (!context.hasPermission(module.perms().COMMAND_EXPLOSION_FIRE.getId()) && (fire || unsafe))
         {
-            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to set fireticks");
+            i18n.send(context, NEGATIVE, "You are not allowed to set fireticks");
             return;
         }
         if (!context.hasPermission(module.perms().COMMAND_EXPLOSION_PLAYER_DAMAGE.getId()) && (playerDamage || unsafe))
         {
-            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to damage another player");
+            i18n.send(context, NEGATIVE, "You are not allowed to damage another player");
             return;
         }
 
@@ -220,17 +220,17 @@ public class PlayerCommands
 
         if (damage != -1 && !context.hasPermission(module.perms().COMMAND_LIGHTNING_PLAYER_DAMAGE.getId()))
         {
-            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to specify the damage!");
+            i18n.send(context, NEGATIVE, "You are not allowed to specify the damage!");
             return;
         }
         if ((damage != -1 && damage < 0) || damage > 20)
         {
-            i18n.sendTranslated(context, NEGATIVE, "The damage value has to be a number from 1 to 20");
+            i18n.send(context, NEGATIVE, "The damage value has to be a number from 1 to 20");
             return;
         }
         if (unsafe && !context.hasPermission(module.perms().COMMAND_LIGHTNING_UNSAFE.getId()))
         {
-            i18n.sendTranslated(context, NEGATIVE, "You are not allowed to use the unsafe flag");
+            i18n.send(context, NEGATIVE, "You are not allowed to use the unsafe flag");
             return;
         }
 
@@ -248,7 +248,7 @@ public class PlayerCommands
         {
             if (!(context instanceof Player))
             {
-                i18n.sendTranslated(context, NEGATIVE, "This command can only be used by a player!");
+                i18n.send(context, NEGATIVE, "This command can only be used by a player!");
                 return;
             }
             java.util.Optional<BlockRayHit<World>> end = BlockRay.from(((Player)context)).distanceLimit(
@@ -278,7 +278,7 @@ public class PlayerCommands
 
         if (damage < 1 || damage > 20)
         {
-            i18n.sendTranslated(context, NEGATIVE, "Only damage values from 1 to 20 are allowed!");
+            i18n.send(context, NEGATIVE, "Only damage values from 1 to 20 are allowed!");
             return;
         }
 
@@ -297,7 +297,7 @@ public class PlayerCommands
         }
         else if (seconds < 1 || seconds > this.module.getConfig().command.burn.maxTime)
         {
-            i18n.sendTranslated(context, NEGATIVE, "Only 1 to {integer} seconds are allowed!", this.module.getConfig().command.burn.maxTime);
+            i18n.send(context, NEGATIVE, "Only 1 to {integer} seconds are allowed!", this.module.getConfig().command.burn.maxTime);
             return;
         }
 

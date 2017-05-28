@@ -93,7 +93,7 @@ public class ElevatorListener
                         list.set(0, itemInHand.get().get(Keys.DISPLAY_NAME).orElse(list.get(0)));
                         loc.offer(Keys.SIGN_LINES, list);
 
-                        i18n.sendTranslated(ACTION_BAR, player, POSITIVE, "Elevator created!");
+                        i18n.send(ACTION_BAR, player, POSITIVE, "Elevator created!");
                         updateSign(loc, data);
                         event.setCancelled(true);
                     }
@@ -114,7 +114,7 @@ public class ElevatorListener
                 // Set First Line with name of renamed Item
                 list.set(0, itemInHand.get().get(Keys.DISPLAY_NAME).orElse(list.get(0)));
                 loc.offer(Keys.SIGN_LINES, list);
-                i18n.sendTranslated(ACTION_BAR, player, POSITIVE, "Elevator name changed!");
+                i18n.send(ACTION_BAR, player, POSITIVE, "Elevator name changed!");
                 event.setCancelled(true);
             }
             return;
@@ -131,13 +131,13 @@ public class ElevatorListener
                 Location<World> targetLoc = new Location<>(player.getWorld(), pPos.getX(), sign.getY() - 1, pPos.getZ());
                 if (!player.setLocationSafely(targetLoc)) // TODO signs are not safe wtf?
                 {
-                    i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "Target obstructed");
+                    i18n.send(ACTION_BAR, player, NEGATIVE, "Target obstructed");
                 }
                 event.setCancelled(true);
             }
             else
             {
-                i18n.sendTranslated(ACTION_BAR, player, NEGATIVE, "Target sign was destroyed!");
+                i18n.send(ACTION_BAR, player, NEGATIVE, "Target sign was destroyed!");
                 event.setCancelled(true);
             }
         }

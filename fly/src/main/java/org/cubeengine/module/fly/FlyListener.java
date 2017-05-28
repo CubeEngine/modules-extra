@@ -63,7 +63,7 @@ public class FlyListener
 
         if (!player.hasPermission(FLY_FEATHER.getId()))
         {
-            i18n.sendTranslated(player, NEGATIVE, "You dont have permission to use this!");
+            i18n.send(player, NEGATIVE, "You dont have permission to use this!");
             player.offer(Keys.CAN_FLY, false); //Disable when player is flying
             player.offer(Keys.IS_FLYING, false);
             return;
@@ -78,7 +78,7 @@ public class FlyListener
             player.setVelocity(player.getVelocity().add(0, 1, 0));
             player.setLocation(player.getLocation().add(0, 0.05, 0)); //make sure the player stays flying
             player.offer(Keys.IS_FLYING, true);
-            i18n.sendTranslated(player, POSITIVE, "You can now fly!");
+            i18n.send(player, POSITIVE, "You can now fly!");
             Task flymore = new Task(Fly.class, tm)
             {
                 public void run()//2 feather/min
@@ -110,7 +110,7 @@ public class FlyListener
         else
         {//or not
             player.offer(Keys.FALL_DISTANCE, 0f);
-            i18n.sendTranslated(player, NEUTRAL, "You cannot fly anymore!");
+            i18n.send(player, NEUTRAL, "You cannot fly anymore!");
         }
     }
 }

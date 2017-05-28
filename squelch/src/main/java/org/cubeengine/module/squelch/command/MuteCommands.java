@@ -69,7 +69,7 @@ public class  MuteCommands
         Date muted = getMuted(player);
         if (muted != null && muted.getTime() > System.currentTimeMillis())
         {
-            i18n.sendTranslated(context, NEUTRAL, "{user} was already muted!", player);
+            i18n.send(context, NEUTRAL, "{user} was already muted!", player);
         }
         try
         {
@@ -87,17 +87,17 @@ public class  MuteCommands
             }
             catch (ConversionException e)
             {
-                i18n.sendTranslated(context, NEGATIVE, "Invalid duration format!");
+                i18n.send(context, NEGATIVE, "Invalid duration format!");
                 return;
             }
         }
 
         setMuted(player, new Date(System.currentTimeMillis() + (dura.getMillis() == 0 ? DAYS.toMillis(
             9001) : dura.getMillis())));
-        Text timeString = dura.getMillis() == 0 ? i18n.getTranslation(player, NONE, "ever") :
+        Text timeString = dura.getMillis() == 0 ? i18n.translate(player, NONE, "ever") :
                 Text.of(TimeUtil.format(player.getLocale(), dura.getMillis()));
-        i18n.sendTranslated(player, NEGATIVE, "You are now muted for {txt#amount}!", timeString);
-        i18n.sendTranslated(context, NEUTRAL, "You muted {user} globally for {txt#amount}!", player, timeString);
+        i18n.send(player, NEGATIVE, "You are now muted for {txt#amount}!", timeString);
+        i18n.send(context, NEUTRAL, "You muted {user} globally for {txt#amount}!", player, timeString);
     }
 
     public Date getMuted(Player player)
@@ -127,6 +127,6 @@ public class  MuteCommands
     public void unmute(CommandSource context, Player player)
     {
         setMuted(player, null);
-        i18n.sendTranslated(context, POSITIVE, "{user} is no longer muted!", player);
+        i18n.send(context, POSITIVE, "{user} is no longer muted!", player);
     }
 }

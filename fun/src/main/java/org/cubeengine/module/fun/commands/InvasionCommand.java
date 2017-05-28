@@ -53,7 +53,7 @@ public class InvasionCommand
         EntityType entityType = em.mob(mob, context.getLocale());
         if (entityType == null)
         {
-            i18n.sendTranslated(context, MessageType.NEGATIVE, "EntityType {input} not found", mob);
+            i18n.send(context, MessageType.NEGATIVE, "EntityType {input} not found", mob);
             return;
         }
         for (Player player : Sponge.getServer().getOnlinePlayers())

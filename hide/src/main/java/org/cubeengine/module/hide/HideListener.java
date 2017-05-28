@@ -17,12 +17,10 @@
  */
 package org.cubeengine.module.hide;
 
-import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.action.InteractEvent;
@@ -61,7 +59,7 @@ public class HideListener
         {
             event.setMessageCancelled(true);
             module.hidePlayer(player);
-            i18n.sendTranslated(player, POSITIVE, "You were automatically hidden!");
+            i18n.send(player, POSITIVE, "You were automatically hidden!");
         }
     }
     

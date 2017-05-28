@@ -55,7 +55,7 @@ public class MuteListener
         if (muted != null && System.currentTimeMillis() < muted.getTime())
         {
             event.setCancelled(true);
-            i18n.sendTranslated(source, NEGATIVE, "You try to speak but nothing happens!");
+            i18n.send(source, NEGATIVE, "You try to speak but nothing happens!");
             return;
         }
         // ignored?

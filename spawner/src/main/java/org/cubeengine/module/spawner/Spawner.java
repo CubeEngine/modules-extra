@@ -178,12 +178,12 @@ public class Spawner extends Module
         {
             ItemStack clone = spawnerItem.copy();
             clone.offer(Keys.ITEM_ENCHANTMENTS, singletonList(new ItemEnchantment(Enchantments.LURE, 1)));
-            clone.offer(Keys.DISPLAY_NAME, i18n.getTranslation(player, NONE, "Inactive Monster Spawner"));
+            clone.offer(Keys.DISPLAY_NAME, i18n.translate(player, NONE, "Inactive Monster Spawner"));
 
             Entity item = player.getWorld().createEntity(ITEM, player.getLocation().getPosition());
             item.offer(Keys.REPRESENTED_ITEM, clone.createSnapshot());
             player.getWorld().spawnEntity(item, CauseUtil.spawnCause(player)); // TODO instead drop naturally at blockpos
-            i18n.sendTranslated(player, POSITIVE, "Dropped inactive Monster Spawner!");
+            i18n.send(player, POSITIVE, "Dropped inactive Monster Spawner!");
             // TODO cancel exp drops
         }
     }
@@ -210,7 +210,7 @@ public class Spawner extends Module
                     BlockSnapshot snap = trans.getFinal();
                     snap.with(Keys.SPAWNER_ENTITIES, new WeightedTable<>());
                     trans.setCustom(snap);
-                    i18n.sendTranslated(player, POSITIVE, "Inactive Monster Spawner placed!");
+                    i18n.send(player, POSITIVE, "Inactive Monster Spawner placed!");
                     return;
                 }
             }
@@ -235,12 +235,12 @@ public class Spawner extends Module
                 Permission perm = this.perms.get(type);
                 if (perm == null && !player.hasPermission(eggPerms.getId()))
                 {
-                    i18n.sendTranslated(player, NEGATIVE, "Invalid SpawnEgg!");
+                    i18n.send(player, NEGATIVE, "Invalid SpawnEgg!");
                     return;
                 }
                 if (perm != null && !player.hasPermission(perm.getId()))
                 {
-                    i18n.sendTranslated(player, NEGATIVE, "You are not allowed to change Monster Spawner to this EntityType!");
+                    i18n.send(player, NEGATIVE, "You are not allowed to change Monster Spawner to this EntityType!");
                     return;
                 }
 
@@ -256,12 +256,12 @@ public class Spawner extends Module
                         player.setItemInHand(MAIN_HAND, itemInHand); // TODO check if this sets no item if quantity 0
                     }
 
-                    i18n.sendTranslated(player, POSITIVE, "Monster Spawner activated!");
+                    i18n.send(player, POSITIVE, "Monster Spawner activated!");
                     return;
                 }
                 throw new IllegalStateException("Could not change SpawnerType");
             }
-            i18n.sendTranslated(player, NEGATIVE, "You can only change inactive Monster Spawner!");
+            i18n.send(player, NEGATIVE, "You can only change inactive Monster Spawner!");
         }
     }
 }

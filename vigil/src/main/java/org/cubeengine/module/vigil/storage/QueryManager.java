@@ -150,7 +150,7 @@ public class QueryManager
         Future future = queryFuture.get(player.getUniqueId());
         if (future != null && !future.isDone())
         {
-            i18n.sendTranslated(ChatTypes.ACTION_BAR, player, MessageType.NEGATIVE,"There is another lookup active!");
+            i18n.send(ChatTypes.ACTION_BAR, player, MessageType.NEGATIVE,"There is another lookup active!");
             return;
         }
         Query query = buildQuery(lookup);

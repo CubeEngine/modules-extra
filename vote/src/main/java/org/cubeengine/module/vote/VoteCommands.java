@@ -59,37 +59,37 @@ public class VoteCommands
     {
         if (!(context instanceof Player))
         {
-            i18n.sendTranslated(context, NEUTRAL, "Well you wont get any rewards.");
+            i18n.send(context, NEUTRAL, "Well you wont get any rewards.");
             if (!module.getConfig().voteUrl.isEmpty())
             {
-                i18n.sendTranslated(context, NEUTRAL, "But here go vote anyways: {name#voteurl}", module.getConfig().voteUrl);
+                i18n.send(context, NEUTRAL, "But here go vote anyways: {name#voteurl}", module.getConfig().voteUrl);
             }
             return;
         }
         VoteModel voteModel = db.getDSL().selectFrom(TABLE_VOTE).where(TABLE_VOTE.ID.eq(((Player)context).getUniqueId())).fetchOne();
         if (voteModel == null)
         {
-            i18n.sendTranslated(context, NEUTRAL, "Sorry but you do not have any registered votes on this server!");
+            i18n.send(context, NEUTRAL, "Sorry but you do not have any registered votes on this server!");
             return;
         }
-        i18n.sendTranslated(context, POSITIVE, "You current vote-count is {amount}", voteModel.getVotes());
+        i18n.send(context, POSITIVE, "You current vote-count is {amount}", voteModel.getVotes());
         if (voteModel.timePassed(module.getConfig().voteBonusTime.getMillis()))
         {
-            i18n.sendTranslated(context, NEUTRAL, "Sadly you did not vote in the last {input#time} so your vote-count will be reset to 1",
+            i18n.send(context, NEUTRAL, "Sadly you did not vote in the last {input#time} so your vote-count will be reset to 1",
                                    this.formatter.print(module.getConfig().voteBonusTime.toPeriod()));
         }
         else if (voteModel.timePassed(DAYS.toMillis(1)))
         {
-            i18n.sendTranslated(context, NEUTRAL, "Voting now will increase your consecutive votes and result in higher reward!");
+            i18n.send(context, NEUTRAL, "Voting now will increase your consecutive votes and result in higher reward!");
         }
         else
         {
-            i18n.sendTranslated(context, POSITIVE, "You voted {input#time} so you will probably not be able to vote again already!",
+            i18n.send(context, POSITIVE, "You voted {input#time} so you will probably not be able to vote again already!",
                                    TimeUtil.format(context.getLocale(), new Date(voteModel.getLastVote())));
         }
         if (!module.getConfig().voteUrl.isEmpty())
         {
-            i18n.sendTranslated(context, POSITIVE, "You can vote here now: {name#voteurl}", module.getConfig().voteUrl);
+            i18n.send(context, POSITIVE, "You can vote here now: {name#voteurl}", module.getConfig().voteUrl);
         }
     }
 }
