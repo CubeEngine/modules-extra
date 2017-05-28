@@ -37,6 +37,7 @@ import org.spongepowered.api.data.meta.ItemEnchantment;
 import org.spongepowered.api.item.Enchantments;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.recipe.ShapedRecipe;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.Text;
 
 import java.util.HashMap;
@@ -49,13 +50,14 @@ public class Chopchop extends Module
     @Inject private EventManager em;
     @Inject private Game game;
     @Inject private TaskManager tm;
+    @Inject private PluginContainer plugin;
 
     private ShapedRecipe recipe;
 
     @Enable
     public void onEnable()
     {
-        em.registerListener(Chopchop.class, new ChopListener());
+        em.registerListener(Chopchop.class, new ChopListener(plugin));
         tm.runTaskDelayed(Chopchop.class, this::registerRecipe, 1);
     }
 

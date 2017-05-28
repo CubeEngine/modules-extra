@@ -39,6 +39,7 @@ import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -64,6 +65,12 @@ import static org.spongepowered.api.util.Direction.*;
 public class ChopListener
 {
     private static final Set<Direction> dir8 = EnumSet.of(NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST, NORTHWEST);
+    private PluginContainer plugin;
+
+    public ChopListener(PluginContainer plugin)
+    {
+        this.plugin = plugin;
+    }
 
     public static boolean isLeaf(Location<World> block, TreeType species)
     {
@@ -90,7 +97,7 @@ public class ChopListener
         {
             return;
         }
-        Cause blockPlayerCause = Cause.of(NamedCause.source(player));
+        Cause blockPlayerCause = Cause.of(NamedCause.source(plugin), NamedCause.simulated(player));
         for (Transaction<BlockSnapshot> transaction : event.getTransactions())
         {
             BlockType type = transaction.getOriginal().getState().getType();
