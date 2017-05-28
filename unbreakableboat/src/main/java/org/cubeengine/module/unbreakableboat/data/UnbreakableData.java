@@ -34,7 +34,7 @@ public class UnbreakableData extends AbstractBooleanData<UnbreakableData, Immuta
     private static TypeToken<Boolean> TT_Bool = new TypeToken<Boolean>() {};
     private static TypeToken<Value<Boolean>> TTV_Bool = new TypeToken<Value<Boolean>>() {};
 
-    public final static Key<Value<Boolean>> UNBREAKING = KeyFactory.makeSingleKey(TT_Bool, TTV_Bool, DataQuery.of("unbreakable"), "unbreakable", "Unbreakable");
+    public final static Key<Value<Boolean>> UNBREAKING = KeyFactory.makeSingleKey(TT_Bool, TTV_Bool, DataQuery.of("unbreakable"), "cubeengine:unbreakable", "Unbreakable");
 
     public UnbreakableData(Boolean value)
     {

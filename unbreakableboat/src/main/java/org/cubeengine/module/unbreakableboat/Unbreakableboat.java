@@ -50,6 +50,8 @@ import static java.util.Collections.singletonList;
 
 /**
  * A module providing a recipe for an (almost) unbreakable boat
+ *
+ * Boats do not break easily anymore in 1.11
  */
 @ModuleInfo(name = "UnbreakableBoat", description = "Adds a Recipe for an unbreakable Boat")
 public class Unbreakableboat extends Module
@@ -104,6 +106,7 @@ public class Unbreakableboat extends Module
     @Listener
     public void onVehicleBreak(AttackEntityEvent event)
     {
+        System.out.println("break");
         if (event.getTargetEntity() instanceof Boat)
         {
             if (event.getTargetEntity().get(UnbreakableData.UNBREAKING).isPresent())
@@ -117,6 +120,10 @@ public class Unbreakableboat extends Module
     @Listener
     public void onVehiclePlace(ConstructEntityEvent.Post event)
     {
-        event.getTargetEntity().offer(new UnbreakableData(true));
+        if (event.getTargetEntity() instanceof Boat)
+        {
+            System.out.println("place");
+            event.getTargetEntity().offer(new UnbreakableData(true));
+        }
     }
 }
