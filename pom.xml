@@ -57,6 +57,7 @@
     <module>discworld</module>
     <module>elevator</module>
     <module>squelch</module>
+    <module>patient</module>
   </modules>
 
   <build>
