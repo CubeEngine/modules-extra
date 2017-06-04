@@ -17,32 +17,25 @@
  */
 package org.cubeengine.module.authorization.storage;
 
-import java.util.UUID;
-import org.cubeengine.libcube.util.Version;
-import org.cubeengine.libcube.service.database.Database;
-import org.cubeengine.libcube.service.database.Table;
-import org.jooq.TableField;
-import org.jooq.impl.SQLDataType;
-
 import static org.jooq.impl.SQLDataType.VARBINARY;
+
+import org.cubeengine.libcube.service.database.Table;
+import org.cubeengine.libcube.util.Version;
+import org.jooq.TableField;
+
+import java.util.UUID;
 
 public class TableAuth extends Table<Auth>
 {
     public static TableAuth TABLE_AUTH;
-    public final TableField<Auth, UUID> ID = createField("key", SQLDataType.UUID.length(36).nullable(false), this);
+    public final TableField<Auth, UUID> ID = createField("key", UUID_TYPE.nullable(false), this);
     public final TableField<Auth, byte[]> PASSWD = createField("passwd", VARBINARY.length(128), this);
 
-    public TableAuth(String prefix, Database db)
+    public TableAuth()
     {
-        super("auth", new Version(1), db);
+        super(Auth.class, "auth", new Version(1));
         setPrimaryKey(ID);
         addFields(ID, PASSWD);
         TABLE_AUTH = this;
-    }
-
-    @Override
-    public Class<Auth> getRecordType()
-    {
-        return Auth.class;
     }
 }

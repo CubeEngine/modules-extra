@@ -17,33 +17,25 @@
  */
 package org.cubeengine.module.squelch.storage;
 
+import static org.jooq.impl.SQLDataType.DATE;
+
 import java.sql.Date;
 import java.util.UUID;
 import org.cubeengine.libcube.util.Version;
-import org.cubeengine.libcube.service.database.Database;
 import org.cubeengine.libcube.service.database.Table;
 import org.jooq.TableField;
-import org.jooq.impl.SQLDataType;
-
-import static org.jooq.util.mysql.MySQLDataType.DATE;
 
 public class TableMuted extends Table<Muted>
 {
     public static TableMuted TABLE_MUTED;
-    public final TableField<Muted, UUID> ID = createField("id", SQLDataType.UUID.length(36).nullable(false), this);
+    public final TableField<Muted, UUID> ID = createField("id", UUID_TYPE.nullable(false), this);
     public final TableField<Muted, Date> MUTED = createField("muted", DATE, this);
 
-    public TableMuted(String prefix, Database db)
+    public TableMuted()
     {
-        super("mute", new Version(1), db);
+        super(Muted.class, "mute", new Version(1));
         setPrimaryKey(ID);
         addFields(ID, MUTED);
         TABLE_MUTED = this;
-    }
-
-    @Override
-    public Class<Muted> getRecordType()
-    {
-        return Muted.class;
     }
 }

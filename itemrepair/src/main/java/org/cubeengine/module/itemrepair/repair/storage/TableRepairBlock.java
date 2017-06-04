@@ -17,39 +17,32 @@
  */
 package org.cubeengine.module.itemrepair.repair.storage;
 
-import java.util.UUID;
-import org.cubeengine.libcube.service.database.AutoIncrementTable;
-import org.cubeengine.libcube.service.database.Database;
-import org.cubeengine.libcube.util.Version;
-import org.jooq.TableField;
-import org.jooq.impl.SQLDataType;
-import org.jooq.types.UInteger;
-
+import static org.jooq.impl.SQLDataType.BIGINT;
 import static org.jooq.impl.SQLDataType.INTEGER;
 import static org.jooq.impl.SQLDataType.VARCHAR;
 
-public class TableRepairBlock extends AutoIncrementTable<RepairBlockModel, UInteger>
+import org.cubeengine.libcube.service.database.Table;
+import org.cubeengine.libcube.util.Version;
+import org.jooq.TableField;
+
+import java.util.UUID;
+
+public class TableRepairBlock extends Table<RepairBlockModel>
 {
     public static TableRepairBlock TABLE_REPAIR_BLOCK;
-    public final TableField<RepairBlockModel, UInteger> ID = createField("id", U_INTEGER.nullable(false), this);
-    public final TableField<RepairBlockModel, UUID> WORLD = createField("world", SQLDataType.UUID.length(36).nullable(false), this);
+    public final TableField<RepairBlockModel, Long> ID = createField("id", BIGINT.nullable(false).identity(true), this);
+    public final TableField<RepairBlockModel, UUID> WORLD = createField("world", UUID_TYPE.nullable(false), this);
     public final TableField<RepairBlockModel, Integer> X = createField("x", INTEGER.nullable(false), this);
     public final TableField<RepairBlockModel, Integer> Y = createField("y", INTEGER.nullable(false), this);
     public final TableField<RepairBlockModel, Integer> Z = createField("z", INTEGER.nullable(false), this);
     public final TableField<RepairBlockModel, String> TYPE = createField("type", VARCHAR.length(64).nullable(false), this);
 
-    public TableRepairBlock(String prefix, Database database)
+    public TableRepairBlock()
     {
-        super("itemrepair_blocks", new Version(1), database);
-        this.setAIKey(ID);
+        super(RepairBlockModel.class, "itemrepair_blocks", new Version(1));
+        this.setPrimaryKey(ID);
         this.addUniqueKey(WORLD, X, Y, Z);
         this.addFields(ID, WORLD, X, Y, Z, TYPE);
         TABLE_REPAIR_BLOCK = this;
-    }
-
-    @Override
-    public Class<RepairBlockModel> getRecordType()
-    {
-        return RepairBlockModel.class;
     }
 }

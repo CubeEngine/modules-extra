@@ -19,7 +19,6 @@ package org.cubeengine.module.squelch.storage;
 
 import java.util.UUID;
 import org.cubeengine.libcube.util.Version;
-import org.cubeengine.libcube.service.database.Database;
 import org.cubeengine.libcube.service.database.Table;
 import org.jooq.TableField;
 import org.jooq.impl.SQLDataType;
@@ -27,20 +26,14 @@ import org.jooq.impl.SQLDataType;
 public class TableIgnorelist extends Table<IgnoreList>
 {
     public static TableIgnorelist TABLE_IGNORE_LIST;
-    public final TableField<IgnoreList, UUID> ID = createField("id", SQLDataType.UUID.length(36).nullable(false), this);
-    public final TableField<IgnoreList, UUID> IGNORE = createField("ignore", SQLDataType.UUID.length(36).nullable(false), this);
+    public final TableField<IgnoreList, UUID> ID = createField("id", SQLDataType.UUID.nullable(false), this);
+    public final TableField<IgnoreList, UUID> IGNORE = createField("ignore", SQLDataType.UUID.nullable(false), this);
 
-    public TableIgnorelist(String prefix, Database db)
+    public TableIgnorelist()
     {
-        super("chat_ignores", new Version(1), db);
+        super(IgnoreList.class, "chat_ignores", new Version(1));
         this.setPrimaryKey(ID, IGNORE);
         this.addFields(ID, IGNORE);
         TABLE_IGNORE_LIST = this;
-    }
-
-    @Override
-    public Class<IgnoreList> getRecordType()
-    {
-        return IgnoreList.class;
     }
 }

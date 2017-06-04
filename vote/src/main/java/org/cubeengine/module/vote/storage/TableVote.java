@@ -17,14 +17,12 @@
  */
 package org.cubeengine.module.vote.storage;
 
-import static org.jooq.util.mysql.MySQLDataType.DATETIME;
+import static org.jooq.impl.SQLDataType.INTEGER;
+import static org.jooq.impl.SQLDataType.TIMESTAMP;
 
-import org.cubeengine.libcube.service.database.Database;
 import org.cubeengine.libcube.service.database.Table;
 import org.cubeengine.libcube.util.Version;
 import org.jooq.TableField;
-import org.jooq.impl.SQLDataType;
-import org.jooq.types.UShort;
 
 import java.sql.Timestamp;
 import java.util.UUID;
@@ -33,20 +31,15 @@ public class TableVote extends Table<VoteModel>
 {
     public static TableVote TABLE_VOTE;
 
-    public TableVote(String prefix, Database db)
+    public final TableField<VoteModel, UUID> ID = createField("userid", UUID_TYPE.nullable(false), this);
+    public final TableField<VoteModel, Timestamp> LASTVOTE = createField("lastvote", TIMESTAMP.nullable(false), this);
+    public final TableField<VoteModel, Integer> VOTEAMOUNT = createField("voteamount", INTEGER.nullable(false), this);
+
+    public TableVote()
     {
-        super("votecount", new Version(1), db);
+        super(VoteModel.class, "votecount", new Version(1));
         this.setPrimaryKey(ID);
         this.addFields(ID, LASTVOTE, VOTEAMOUNT);
         TABLE_VOTE = this;
-    }
-
-    public final TableField<VoteModel, UUID> ID = createField("userid", SQLDataType.UUID.length(36).nullable(false), this);
-    public final TableField<VoteModel, Timestamp> LASTVOTE = createField("lastvote", DATETIME.nullable(false), this);
-    public final TableField<VoteModel, UShort> VOTEAMOUNT = createField("voteamount", U_SMALLINT.nullable(false), this);
-
-    @Override
-    public Class<VoteModel> getRecordType() {
-        return VoteModel.class;
     }
 }
