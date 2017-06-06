@@ -37,6 +37,7 @@ import javax.inject.Inject;
  * /me 	Displays a message about yourself.
  * /tell (msg) Displays a private message to other players.
  */
+// TODO link item in hand
 @ModuleInfo(name = "Chat", description = "Chat formatting")
 public class Chat extends Module
 {
