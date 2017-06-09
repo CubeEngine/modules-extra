@@ -19,7 +19,6 @@ package org.cubeengine.module.vote.storage;
 
 import java.sql.Timestamp;
 import org.cubeengine.libcube.service.database.AsyncRecord;
-import org.jooq.types.UShort;
 import org.spongepowered.api.entity.living.player.User;
 
 import static org.cubeengine.module.vote.storage.TableVote.TABLE_VOTE;
@@ -35,7 +34,7 @@ public class VoteModel extends AsyncRecord<VoteModel>
     {
         this.setValue(TABLE_VOTE.ID, user.getUniqueId());
         this.setValue(TABLE_VOTE.LASTVOTE, new Timestamp(System.currentTimeMillis()));
-        this.setValue(TABLE_VOTE.VOTEAMOUNT, UShort.valueOf(1));
+        this.setValue(TABLE_VOTE.VOTEAMOUNT, 1);
         return this;
     }
 
@@ -46,7 +45,7 @@ public class VoteModel extends AsyncRecord<VoteModel>
 
     public void setVotes(int amount)
     {
-        setValue(TABLE_VOTE.VOTEAMOUNT, UShort.valueOf(amount));
+        setValue(TABLE_VOTE.VOTEAMOUNT, amount);
         setLastNow();
     }
 
