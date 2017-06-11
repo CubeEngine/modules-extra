@@ -24,7 +24,6 @@ import javax.inject.Inject;
 import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.modularity.core.marker.Enable;
-import org.cubeengine.libcube.hack.RecipeHack;
 import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.module.unbreakableboat.data.ImmutableUnbreakableData;
 import org.cubeengine.module.unbreakableboat.data.UnbreakableData;
@@ -100,7 +99,7 @@ public class Unbreakableboat extends Module
 
         HashMap<Character, ItemStack> map = new HashMap<>();
         map.put('l', log);
-        Object recipe = RecipeHack.addRecipe(boat.copy(), new String[]{"l l", "lll"}, map);
+        // TODO wait for SpongeAPI Object recipe = RecipeHack.addRecipe(boat.copy(), new String[]{"l l", "lll"}, map);
     }
 
     @Listener

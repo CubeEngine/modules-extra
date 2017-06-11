@@ -27,7 +27,6 @@ import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
 import de.cubeisland.engine.modularity.core.Module;
 import de.cubeisland.engine.modularity.core.marker.Disable;
 import de.cubeisland.engine.modularity.core.marker.Enable;
-import org.cubeengine.libcube.hack.RecipeHack;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.task.TaskManager;
 import org.spongepowered.api.Game;
@@ -84,7 +83,8 @@ public class Chopchop extends Module
         HashMap<Character, ItemStack> map = new HashMap<>();
         map.put('a', axeHead);
         map.put('s', axeHandle);
-        Object recipe = RecipeHack.addRecipe(axe, new String[]{"aa", "as", " s"}, map);
+        // TODO wait for SpongeAPI cause hacking into the new thing is getting pretty complicated
+        // Object recipe = RecipeHack.addRecipe(axe, new String[]{"aa", "as", " s"}, map);
 
         /*
         recipe = Sponge.getRegistry().createBuilder(ShapedRecipe.Builder.class).height(3).width(2)
