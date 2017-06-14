@@ -43,7 +43,6 @@ import de.cubeisland.engine.logscribe.Log;
 import de.cubeisland.engine.logscribe.LogFactory;
 import de.cubeisland.engine.logscribe.target.file.AsyncFileTarget;
 import de.cubeisland.engine.modularity.asm.marker.ServiceProvider;
-import de.cubeisland.engine.modularity.core.Maybe;
 import de.cubeisland.engine.modularity.core.Modularity;
 import de.cubeisland.engine.modularity.core.graph.DependencyInformation;
 import de.cubeisland.engine.modularity.core.graph.meta.ModuleMetadata;
@@ -265,10 +264,10 @@ public class ApiServer
 
         for (Method method : holder.getClass().getDeclaredMethods())
         {
-            Action aAction = method.getAnnotation(Action.class);
-            if (aAction != null)
+            Endpoint aEndpoint = method.getAnnotation(Endpoint.class);
+            if (aEndpoint != null)
             {
-                String route = aAction.value();
+                String route = aEndpoint.route();
                 if (route.isEmpty())
                 {
                     route = deCamelCase(method.getName(), "/");
@@ -284,7 +283,7 @@ public class ApiServer
                 }
                 route = HttpRequestHandler.normalizePath(route);
                 String perm = null;
-                if (aAction.needsAuth())
+                if (aEndpoint.authRequired())
                 {
                     perm = pm.getBasePermission(owner).getId() + ".webapi.";
                     if (method.isAnnotationPresent(ApiPermission.class))
@@ -328,12 +327,7 @@ public class ApiServer
                         throw new IllegalArgumentException("Duplicate value in Value Annotation");
                     }
                 }
-                RequestMethod reqMethod = RequestMethod.GET;
-                if (method.isAnnotationPresent(org.cubeengine.libcube.service.webapi.Method.class))
-                {
-                    reqMethod = method.getAnnotation(org.cubeengine.libcube.service.webapi.Method.class).value();
-                }
-                this.handlers.put(route, new ReflectedApiHandler(owner, route, perm, params, reqMethod, method, holder,
+                this.handlers.put(route, new ReflectedApiHandler(owner, route, perm, params, aEndpoint.method(), method, holder,
                                                                  cm));
             }
         }

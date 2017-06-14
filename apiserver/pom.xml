@@ -39,6 +39,7 @@
       <version>4.1.12.Final</version>
       <type>jar</type>
       <scope>compile</scope>
+      <optional>true</optional>
     </dependency>
   </dependencies>
 </project>

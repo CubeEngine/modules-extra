@@ -24,13 +24,15 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Action
+public @interface Endpoint
 {
     /**
      * The route for this action
      * if empty string route is generated from camelcased methodname
      */
-    public String value() default "";
+    String route();
 
-    public boolean needsAuth() default true;
+    RequestMethod method() default RequestMethod.GET;
+
+    boolean authRequired() default true;
 }

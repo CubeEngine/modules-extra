@@ -32,8 +32,8 @@ public enum RequestMethod
     OPTIONS,
     HEAD,
     PATCH,
-    TRACE,
-    CONNECT;
+    TRACE;
+
     private static final HashMap<String, RequestMethod> BY_NAME;
 
     static

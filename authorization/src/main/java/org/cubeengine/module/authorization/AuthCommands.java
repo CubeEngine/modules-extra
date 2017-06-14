@@ -21,6 +21,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+
 import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parameter.TooFewArgumentsException;
 import org.cubeengine.butler.parametric.Command;
@@ -118,14 +120,14 @@ public class AuthCommands
     @Command(desc = "Logs you in with your password!")
     @CommandPermission(checkPermission = false) // TODO assign by default
     @Restricted(value = Player.class, msg = "Only players can log in!")
-    public void login(Player context, String password)
+    public void login(Player context, String password) throws InterruptedException, ExecutionException
     {
         if (module.isLoggedIn(context.getUniqueId()))
         {
             i18n.send(context, POSITIVE, "You are already logged in!");
             return;
         }
-        boolean isLoggedIn = module.login(context, password);
+        boolean isLoggedIn = module.login(context, password).get();
         if (isLoggedIn)
         {
             i18n.send(context, POSITIVE, "You logged in successfully!");

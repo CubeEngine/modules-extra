@@ -22,6 +22,8 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -115,7 +117,13 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
                 return;
             }
 
-            if (!am.isPasswordSet(byName.get().getUniqueId()) || !am.checkPassword(byName.get().getUniqueId(), pass))
+            UUID id = byName.get().getUniqueId();
+            // TODO make properly async
+            boolean authFailed = am.isPasswordSet(id).thenCompose(isSet -> am.checkPassword(id, pass).thenApply(correctPassword -> {
+                return !isSet || !correctPassword;
+            })).get();
+
+            if (authFailed)
             {
                 this.error(ctx, AUTHENTICATION_FAILURE, new ApiRequestException("Could not complete authentication", 200));
                 return;

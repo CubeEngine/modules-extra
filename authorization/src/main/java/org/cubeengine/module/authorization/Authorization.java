@@ -17,21 +17,11 @@
  */
 package org.cubeengine.module.authorization;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import javax.inject.Inject;
@@ -41,26 +31,19 @@ import de.cubeisland.engine.modularity.core.marker.Enable;
 import org.cubeengine.libcube.service.command.ModuleCommand;
 import org.cubeengine.module.authorization.storage.Auth;
 import org.cubeengine.module.authorization.storage.TableAuth;
-import org.cubeengine.libcube.util.StringUtils;
 import org.cubeengine.libcube.util.Triplet;
-import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.database.Database;
 import org.cubeengine.libcube.service.database.ModuleTables;
-import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.filesystem.FileManager;
-import org.cubeengine.libcube.service.filesystem.FileUtil;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
-import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.jooq.DSLContext;
-import org.spongepowered.api.Game;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.manipulator.mutable.entity.JoinData;
-import org.spongepowered.api.data.value.BaseValue;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.permission.PermissionService;
-import org.spongepowered.api.service.user.UserStorageService;
 
+import static java.util.concurrent.CompletableFuture.completedFuture;
+import static java.util.concurrent.CompletableFuture.runAsync;
+import static org.cubeengine.module.authorization.HashHelper.*;
 import static org.cubeengine.module.authorization.storage.TableAuth.TABLE_AUTH;
 
 @ModuleInfo(name = "Authorization", description = "Provides password authorization")
@@ -75,57 +58,17 @@ public class Authorization extends Module
     @ModuleConfig private AuthConfiguration config;
     @Inject @ModuleCommand private AuthCommands authCommands;
 
-    private final MessageDigest messageDigest;
-    private String salt;
-    private final Map<UUID, Triplet<Long, String, Integer>> failedLogins = new HashMap<>();
+    private String staticSalt;
 
-    public Authorization()
-    {
-        try
-        {
-            messageDigest = MessageDigest.getInstance("SHA-512");
-        }
-        catch (NoSuchAlgorithmException e)
-        {
-            throw new RuntimeException("SHA-512 hash algorithm not available!");
-        }
-    }
+    private final Map<UUID, Triplet<Long, String, Integer>> failedLogins = new ConcurrentHashMap<>();
+    private final Map<UUID, Auth> auths = new ConcurrentHashMap<>();
+    private final Set<UUID> loggedIn = new CopyOnWriteArraySet<>();
 
     @Enable
     public void onEnable()
     {
-        loadSalt();
+        this.staticSalt = HashHelper.loadStaticSalt(fm.getDataPath().resolve(".salt"));
         ps.registerContextCalculator(new AuthContextCalculator(this));
-    }
-
-    private void loadSalt()
-    {
-        Path file = fm.getDataPath().resolve(".salt");
-        try (BufferedReader reader = Files.newBufferedReader(file, Charset.defaultCharset()))
-        {
-            this.salt = reader.readLine();
-        }
-        catch (NoSuchFileException e)
-        {
-            try
-            {
-                this.salt = StringUtils.randomString(new SecureRandom(), 32);
-                try (BufferedWriter writer = Files.newBufferedWriter(file, Charset.defaultCharset()))
-                {
-                    writer.write(this.salt);
-                }
-            }
-            catch (Exception inner)
-            {
-                throw new IllegalStateException("Could not store the static salt in '" + file + "'!", inner);
-            }
-        }
-        catch (Exception e)
-        {
-            throw new IllegalStateException("Could not store the static salt in '" + file + "'!", e);
-        }
-        FileUtil.hideFile(file);
-        FileUtil.setReadOnly(file);
     }
 
     public Triplet<Long, String, Integer> getFailedLogin(Player user)
@@ -161,8 +104,6 @@ public class Authorization extends Module
     }
 
 
-    private Map<UUID, Auth> auths = new ConcurrentHashMap<>();
-    private Set<UUID> loggedIn = new CopyOnWriteArraySet<>();
 
     public boolean isLoggedIn(UUID player)
     {
@@ -174,79 +115,82 @@ public class Authorization extends Module
         loggedIn.remove(player);
     }
 
-    public boolean isPasswordSet(UUID player)
+    public CompletableFuture<Boolean> isPasswordSet(UUID player)
     {
-        return getAuth(player).getValue(TABLE_AUTH.PASSWD) != null;
+        return getAuth(player).thenApply(auth -> auth.getValue(TABLE_AUTH.PASSWD) != null);
     }
 
-    public void resetPassword(UUID player)
+    public CompletableFuture<Void> resetPassword(UUID player)
     {
-        Auth auth = getAuth(player);
-        auth.setValue(TableAuth.TABLE_AUTH.PASSWD, null);
-        auth.updateAsync();
+        return getAuth(player).thenCompose(auth -> {
+            auth.setValue(TableAuth.TABLE_AUTH.PASSWD, null);
+            return runAsync(auth::update);
+        });
     }
 
-    public void setPassword(UUID player, String password)
+    public CompletableFuture<Void> setPassword(UUID player, String password)
     {
-        synchronized (messageDigest)
-        {
-            messageDigest.reset();
-            password += salt;
-            password += salt2(player);
-            Auth auth = getAuth(player);
-            auth.setValue(TableAuth.TABLE_AUTH.PASSWD, messageDigest.digest(password.getBytes()));
-            auth.updateAsync();
-        }
+        return getAuth(player).thenCompose(auth -> {
+            try
+            {
+                auth.setValue(TableAuth.TABLE_AUTH.PASSWD, hash(saltPassword(player, password)));
+                return runAsync(auth::update);
+            }
+            catch (NoSuchAlgorithmException e)
+            {
+                throw new RuntimeException("Failed to generate hash!", e);
+            }
+        });
     }
 
-
-    public boolean checkPassword(UUID player, String password)
+    private String saltPassword(UUID player, String password)
     {
-        synchronized (messageDigest)
-        {
-            messageDigest.reset();
-            password += salt;
-            password += salt2(player);
-            return Arrays.equals(getAuth(player).getValue(TableAuth.TABLE_AUTH.PASSWD), messageDigest.digest(
-                password.getBytes()));
-        }
+        return saltString(password, this.staticSalt, toDynamicSalt(player));
     }
 
-    private String salt2(UUID player)
-    {
-        return Sponge.getServiceManager().provideUnchecked(UserStorageService.class).get(player).get().get(JoinData.class).map(
-            JoinData::firstPlayed).map(BaseValue::get).map(Instant::toEpochMilli).map(Object::toString).orElse("0");
+    public CompletableFuture<Boolean> checkPassword(UUID player, String password) {
+        return getAuth(player).thenApply(auth -> {
+            final byte[] storedHash = auth.getValue(TableAuth.TABLE_AUTH.PASSWD);
+            try
+            {
+                return checkAgainstHash(storedHash, saltPassword(player, password));
+            }
+            catch (NoSuchAlgorithmException e)
+            {
+                throw new RuntimeException("Unable to generate hash!", e);
+            }
+        });
     }
 
-
-    private Auth getAuth(UUID player)
+    private CompletableFuture<Auth> getAuth(UUID player)
     {
-        Auth auth = this.auths.get(player);
-        if (auth == null)
-        {
-            DSLContext dsl = db.getDSL();
-            auth = dsl.selectFrom(TABLE_AUTH).where(TABLE_AUTH.ID.eq(player)).fetchOne();
-            if (auth == null)
+        return CompletableFuture.supplyAsync(() -> this.auths.computeIfAbsent(player, (id) -> {
+            final DSLContext dsl = db.getDSL();
+            Auth auth = dsl.selectFrom(TABLE_AUTH).where(TABLE_AUTH.ID.eq(player)).fetchOne();
+            if (auth != null)
             {
                 auth = dsl.newRecord(TABLE_AUTH).newAuth(player);
                 auth.insert();
             }
-            this.auths.put(player, auth);
-        }
-        return auth;
+            return auth;
+        }));
     }
 
 
-    public boolean login(Player player, String password)
+    public CompletableFuture<Boolean> login(User user, String password)
     {
-        if (!isLoggedIn(player.getUniqueId()))
+        final UUID id = user.getUniqueId();
+        if (isLoggedIn(id))
         {
-            if (this.checkPassword(player.getUniqueId(), password))
-            {
-                loggedIn.add(player.getUniqueId());
-            }
+            return completedFuture(true);
         }
-        return isLoggedIn(player.getUniqueId());
+        return checkPassword(id, password).thenApply(success -> {
+            if (success)
+            {
+                loggedIn.add(id);
+            }
+            return success;
+        });
     }
 
     public void reset()

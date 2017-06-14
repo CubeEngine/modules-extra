@@ -26,10 +26,9 @@ import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.i18n.formatter.MessageType;
 import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.libcube.service.Broadcaster;
-import org.cubeengine.libcube.service.webapi.Action;
+import org.cubeengine.libcube.service.webapi.Endpoint;
 import org.cubeengine.libcube.service.webapi.ApiRequest;
 import org.cubeengine.libcube.service.webapi.ApiResponse;
-import org.cubeengine.libcube.service.webapi.Method;
 import org.cubeengine.libcube.service.webapi.RequestMethod;
 import org.spongepowered.api.Sponge;
 
@@ -49,8 +48,7 @@ public class DonationController
         this.bc = bc;
     }
 
-    @Action
-    @Method(RequestMethod.POST)
+    @Endpoint(route = "/update", method = RequestMethod.POST)
     public ApiResponse update(ApiRequest request)
     {
         JsonNode data = request.getData();

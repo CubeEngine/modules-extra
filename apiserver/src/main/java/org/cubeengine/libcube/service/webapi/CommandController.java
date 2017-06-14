@@ -41,7 +41,7 @@ public class CommandController
         this.i18n = i18n;
     }
 
-    @Action
+    @Endpoint(route = "/value")
     public ApiResponse command(ApiRequest request, final @Value("cmd") String command)
     {
         User authUser = request.getAuthUser();
