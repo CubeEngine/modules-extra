@@ -106,7 +106,7 @@ public class ApiServer
     @Inject private TaskManager tm;
     @Inject private PermissionManager pm;
     @Inject private ThreadFactory tf;
-    @Inject private Maybe<Authorization> am;
+    @Inject private Authorization am;
     @Inject private Modularity modularity;
 
     @Inject

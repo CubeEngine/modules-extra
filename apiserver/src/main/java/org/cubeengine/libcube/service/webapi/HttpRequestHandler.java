@@ -26,7 +26,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.cubeisland.engine.logscribe.Log;
-import de.cubeisland.engine.modularity.core.Maybe;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -56,12 +55,12 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
     // TODO rewrite log messages, most of them are incomplete
     private final Charset UTF8 = Charset.forName("UTF-8");
     private final Log log;
-    private Maybe<Authorization> am;
+    private Authorization am;
     private final ApiServer server;
     private final CommandManager cm;
     private ObjectMapper objectMapper;
 
-    HttpRequestHandler(CommandManager cm, Maybe<Authorization> am, ApiServer server, ObjectMapper mapper)
+    HttpRequestHandler(CommandManager cm, Authorization am, ApiServer server, ObjectMapper mapper)
     {
         this.cm = cm;
         this.am = am;
@@ -101,11 +100,6 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
         User authUser = null;
         if (!authorized)
         {
-            if (!am.isAvailable())
-            {
-                this.error(ctx, AUTHENTICATION_FAILURE, new ApiRequestException("Authentication deactivated", 200));
-                return;
-            }
             String user = params.get("user", String.class);
             String pass = params.get("pass", String.class);
             if (user == null || pass == null)
@@ -121,7 +115,7 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
                 return;
             }
 
-            if (!am.value().isPasswordSet(byName.get().getUniqueId()) || !am.value().checkPassword(byName.get().getUniqueId(), pass))
+            if (!am.isPasswordSet(byName.get().getUniqueId()) || !am.checkPassword(byName.get().getUniqueId(), pass))
             {
                 this.error(ctx, AUTHENTICATION_FAILURE, new ApiRequestException("Could not complete authentication", 200));
                 return;

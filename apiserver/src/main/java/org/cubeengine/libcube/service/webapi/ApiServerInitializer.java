@@ -31,11 +31,11 @@ import org.cubeengine.libcube.service.command.CommandManager;
 public class ApiServerInitializer extends ChannelInitializer<SocketChannel>
 {
     private CommandManager cm;
-    private Maybe<Authorization> am;
+    private Authorization am;
     private final ApiServer server;
     private final ObjectMapper objectMapper;
 
-    ApiServerInitializer(CommandManager cm, Maybe<Authorization> am, ApiServer server)
+    ApiServerInitializer(CommandManager cm, Authorization am, ApiServer server)
     {
         this.cm = cm;
         this.am = am;
