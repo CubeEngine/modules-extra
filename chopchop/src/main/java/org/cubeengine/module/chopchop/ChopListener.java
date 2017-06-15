@@ -23,6 +23,7 @@ import java.util.Set;
 import com.flowpowered.math.vector.Vector3i;
 import org.cubeengine.libcube.util.CauseUtil;
 import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.Transaction;
@@ -139,7 +140,7 @@ public class ChopListener
                     }
                 }
 
-                ItemStack log = ItemStack.builder().itemType(LOG).quantity(logs).build();
+                ItemStack log = ItemStack.builder().itemType(type.getItem().get()).quantity(logs).build();
                 log.offer(TREE_TYPE, treeType);
 
                 int apples = 0;
@@ -160,12 +161,12 @@ public class ChopListener
                     leaves = 1;
                 }
 
+                BlockState sapState = BlockTypes.SAPLING.getDefaultState().with(TREE_TYPE, treeType).get();
                 for (Location block : saplings)
                 {
                     if (leaves > 0)
                     {
-                        block.setBlockType(BlockTypes.SAPLING, blockPlayerCause);
-                        block.offer(TREE_TYPE, treeType);
+                        block.setBlock(sapState, blockPlayerCause);
                         leaves--;
                     }
                 }
@@ -187,7 +188,7 @@ public class ChopListener
                     world.spawnEntity(itemEntity, playerCause);
                 }
 
-                ItemStack sap = ItemStack.builder().itemType(SAPLING).quantity(leaves).build();
+                ItemStack sap = ItemStack.builder().fromBlockState(sapState).build();
                 itemEntity = world.createEntity(ITEM, orig.getPosition());
                 itemEntity.offer(REPRESENTED_ITEM, sap.createSnapshot());
                 world.spawnEntity(itemEntity, playerCause);
@@ -202,7 +203,7 @@ public class ChopListener
 
     private boolean isLog(BlockType type)
     {
-        return BlockTypes.LOG.equals(type) || BlockTypes.LOG.equals(type);
+        return BlockTypes.LOG.equals(type) || BlockTypes.LOG2.equals(type);
     }
 
     private Set<Location<World>> findTreeBlocks(Location<World> block, TreeType species)

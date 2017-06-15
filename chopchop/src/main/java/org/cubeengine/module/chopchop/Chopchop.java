@@ -20,6 +20,7 @@ package org.cubeengine.module.chopchop;
 import static java.util.Collections.singletonList;
 import static org.spongepowered.api.item.ItemTypes.DIAMOND_AXE;
 import static org.spongepowered.api.item.ItemTypes.LOG;
+import static org.spongepowered.api.item.ItemTypes.LOG2;
 import static org.spongepowered.api.text.format.TextColors.GOLD;
 import static org.spongepowered.api.text.format.TextColors.YELLOW;
 
@@ -31,10 +32,14 @@ import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.task.TaskManager;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.GameRegistry;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.meta.ItemEnchantment;
 import org.spongepowered.api.item.Enchantments;
+import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.recipe.crafting.CraftingRecipe;
+import org.spongepowered.api.item.recipe.crafting.Ingredient;
 import org.spongepowered.api.item.recipe.crafting.ShapedCraftingRecipe;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.Text;
@@ -71,27 +76,20 @@ public class Chopchop extends Module
 
     public void registerRecipe()
     {
-        GameRegistry registry = game.getRegistry();
-        ItemStack axe = ItemStack.builder().itemType(DIAMOND_AXE).quantity(1).build();
+        ItemStack axe = ItemStack.of(DIAMOND_AXE, 1);
         axe.offer(Keys.ITEM_ENCHANTMENTS, singletonList(new ItemEnchantment(Enchantments.PUNCH, 5)));
         axe.offer(Keys.DISPLAY_NAME, Text.of(GOLD, "Heavy Diamond Axe"));
         axe.offer(Keys.ITEM_LORE, singletonList(Text.of(YELLOW, "Chop Chop!")));
 
-        ItemStack axeHead = ItemStack.builder().itemType(DIAMOND_AXE).build();
-        ItemStack axeHandle = ItemStack.builder().itemType(LOG).build();
+        Ingredient axeHandle = Ingredient.builder().with(LOG, LOG2).build();
 
-        HashMap<Character, ItemStack> map = new HashMap<>();
-        map.put('a', axeHead);
-        map.put('s', axeHandle);
-        // TODO wait for SpongeAPI cause hacking into the new thing is getting pretty complicated
-        // Object recipe = RecipeHack.addRecipe(axe, new String[]{"aa", "as", " s"}, map);
+        Sponge.getRegistry().getCraftingRecipeRegistry().register(plugin, "chopchop",
+              CraftingRecipe.shapedBuilder()
+                      .aisle("aa", "as", " s")
+                      .where('a', ItemTypes.DIAMOND_AXE)
+                      .where('s', axeHandle)
+                      .result(axe)
+                      .build());
 
-        /*
-        recipe = Sponge.getRegistry().createBuilder(ShapedRecipe.Builder.class).height(3).width(2)
-                                             .row(0, axeHead, axeHead)
-                                             .row(1, axeHead, axeHandle)
-                                             .row(2, null, axeHandle).addResult(axe).build();
-        registry.getRecipeRegistry().register(recipe);
-        */
     }
 }
