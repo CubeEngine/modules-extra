@@ -35,7 +35,7 @@ import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.meta.ItemEnchantment;
 import org.spongepowered.api.item.Enchantments;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.item.recipe.ShapedRecipe;
+import org.spongepowered.api.item.recipe.crafting.ShapedCraftingRecipe;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.Text;
 
@@ -51,7 +51,7 @@ public class Chopchop extends Module
     @Inject private TaskManager tm;
     @Inject private PluginContainer plugin;
 
-    private ShapedRecipe recipe;
+    private ShapedCraftingRecipe recipe;
 
     @Enable
     public void onEnable()
@@ -65,7 +65,7 @@ public class Chopchop extends Module
     {
         if (recipe != null)
         {
-            game.getRegistry().getRecipeRegistry().remove(recipe);
+            game.getRegistry().getCraftingRecipeRegistry().remove(recipe);
         }
     }
 
