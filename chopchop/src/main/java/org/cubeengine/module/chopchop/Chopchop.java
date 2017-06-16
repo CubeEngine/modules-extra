@@ -65,16 +65,7 @@ public class Chopchop extends Module
         tm.runTaskDelayed(Chopchop.class, this::registerRecipe, 1);
     }
 
-    @Disable
-    public void onDisable()
-    {
-        if (recipe != null)
-        {
-            game.getRegistry().getCraftingRecipeRegistry().remove(recipe);
-        }
-    }
-
-    public void registerRecipe()
+     public void registerRecipe()
     {
         ItemStack axe = ItemStack.of(DIAMOND_AXE, 1);
         axe.offer(Keys.ITEM_ENCHANTMENTS, singletonList(new ItemEnchantment(Enchantments.PUNCH, 5)));
