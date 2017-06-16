@@ -81,13 +81,13 @@ public class Chopchop extends Module
         axe.offer(Keys.DISPLAY_NAME, Text.of(GOLD, "Heavy Diamond Axe"));
         axe.offer(Keys.ITEM_LORE, singletonList(Text.of(YELLOW, "Chop Chop!")));
 
-        Sponge.getRegistry().getCraftingRecipeRegistry().register(plugin, "chopchop",
+        Sponge.getRegistry().getCraftingRecipeRegistry().register(
               CraftingRecipe.shapedBuilder()
                       .aisle("aa", "as", " s")
                       .where('a', Ingredient.of(DIAMOND_AXE))
                       .where('s', Ingredient.of(LOG, LOG2))
                       .result(axe)
-                      .build());
+                      .build("chopchop", plugin));
 
     }
 }
