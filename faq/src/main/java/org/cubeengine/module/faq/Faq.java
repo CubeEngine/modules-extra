@@ -63,6 +63,8 @@ public class Faq extends CubeEngineModule
         em.registerListener(Faq.class, this);
     }
 
+    // TODO implement more normalizations: stemming, synonym conversions, ...
+    // TODO make locale aware
     @Listener(order = POST)
     public void onPlayerChat(MessageChannelEvent.Chat event, @First Player player)
     {
