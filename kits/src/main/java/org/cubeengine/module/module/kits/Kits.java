@@ -21,7 +21,6 @@ import java.nio.file.Path;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import de.cubeisland.engine.modularity.core.marker.Enable;
 import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.ModuleManager;
 import org.cubeengine.reflect.Reflector;
