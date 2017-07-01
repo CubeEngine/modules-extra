@@ -29,19 +29,18 @@ import org.cubeengine.reflect.codec.yaml.ReflectedYaml;
 @SuppressWarnings("all")
 public class ItemrepairConfig extends ReflectedYaml
 {
+    // TODO implement with Economy service
     @Name("server.bank")
     public String serverBank = "server";
     @Name("server.player")
     public String serverPlayer = "";
     public Price price = new Price();
     @Name("repair-blocks")
-    public Map<String,RepairBlockConfig> repairBlockConfigs = new HashMap<String, RepairBlockConfig>()
+    public Map<String,RepairBlockConfig> repairBlockConfigs = new HashMap<String, RepairBlockConfig>();
     {
-        {
-            this.put("normal",RepairBlockConfig.defaultNormal());
-            this.put("cheap",RepairBlockConfig.defaultCheap());
-        }
-    };
+        repairBlockConfigs.put("normal", RepairBlockConfig.defaultNormal());
+        repairBlockConfigs.put("cheap", RepairBlockConfig.defaultCheap());
+    }
 
     public class Price implements Section
     {

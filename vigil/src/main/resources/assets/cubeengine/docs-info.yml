@@ -1,0 +1,5 @@
+features:
+  - Tracks any world changes
+  - Storage in MongoDB database
+  - Ingame lookup and restore
+  - Restore preview

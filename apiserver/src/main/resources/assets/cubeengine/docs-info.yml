@@ -1,0 +1,5 @@
+features:
+  - Web APIs exposed by various modules
+  - Messaging channels
+  - RPC
+  - Authentication

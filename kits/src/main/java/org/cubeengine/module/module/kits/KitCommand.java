@@ -73,7 +73,7 @@ public class KitCommand extends ContainerCommand
         return super.selfExecute(invocation);
     }
 
-    @Command(desc = "Edits a kit")
+    @Command(desc = "Sets a command to be run when a kit is received")
     public void setCommand(CommandSource context, Kit kit, @org.cubeengine.butler.parametric.Optional String... commands)
     {
         kit.clearCommands();

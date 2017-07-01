@@ -1,0 +1,3 @@
+features:
+  - MongoDB connection
+  - Reflect-based object mapping

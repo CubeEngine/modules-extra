@@ -1,0 +1,4 @@
+features:
+  - User registration with password
+  - Hashed password storage
+  - Random per-server static salt and per player dynamic salt

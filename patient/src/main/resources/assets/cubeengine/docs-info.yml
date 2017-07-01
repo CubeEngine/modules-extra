@@ -1,0 +1,4 @@
+work-in-progress: true
+features:
+  - Generates reports about the world status
+  - Accessible via web API
