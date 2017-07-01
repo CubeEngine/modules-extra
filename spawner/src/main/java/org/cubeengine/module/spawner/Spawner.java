@@ -53,14 +53,14 @@ import static org.spongepowered.api.event.Order.POST;
 import static org.spongepowered.api.item.Enchantments.LURE;
 import static org.spongepowered.api.item.Enchantments.SILK_TOUCH;
 
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.modularity.core.marker.Enable;
+import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.libcube.util.CauseUtil;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
@@ -77,6 +77,7 @@ import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.item.Enchantment;
 import org.spongepowered.api.item.Enchantments;
 import org.spongepowered.api.item.ItemTypes;
@@ -92,12 +93,18 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * A module to gather monster spawners with silk touch and reactivate them using spawneggs
  */
-@ModuleInfo(name = "Spawner", description = "Lets you move spawners")
-public class Spawner extends Module
+@Singleton
+@Module(id = "spawner", name = "Spawner", version = "1.0.0",
+        description = "Lets you move spawners",
+        dependencies = @Dependency("cubeengine-core"),
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+public class Spawner extends CubeEngineModule
 {
     private ItemStack spawnerItem;
     private Permission eggPerms;
@@ -107,8 +114,8 @@ public class Spawner extends Module
     @Inject private EventManager em;
     @Inject private I18n i18n;
 
-    @Enable
-    public void onEnable()
+    @Listener
+    public void onEnable(GamePreInitializationEvent event)
     {
         this.eggPerms = pm.register(Spawner.class, "egg", "", null);
         this.initPerm(CREEPER, SKELETON, SPIDER, ZOMBIE, SLIME, GHAST, PIG_ZOMBIE, ENDERMAN,

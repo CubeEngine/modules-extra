@@ -22,9 +22,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import javax.inject.Inject;
-import de.cubeisland.engine.modularity.asm.marker.ServiceImpl;
-import de.cubeisland.engine.modularity.asm.marker.Version;
-import de.cubeisland.engine.modularity.core.marker.Enable;
+import javax.inject.Singleton;
+
 import org.cubeengine.libcube.util.math.shape.Shape;
 import org.cubeengine.libcube.service.Selector;
 import org.cubeengine.libcube.service.event.EventManager;
@@ -45,8 +44,7 @@ import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE
 import static org.spongepowered.api.block.BlockTypes.AIR;
 
 
-@ServiceImpl(Selector.class)
-@Version(1)
+@Singleton
 public class CuboidSelector implements Selector
 {
     @Inject private org.cubeengine.module.selector.Selector module;
@@ -55,7 +53,7 @@ public class CuboidSelector implements Selector
 
     private Map<UUID, SelectorData> selectorData = new HashMap<>();
 
-    @Enable
+    @Inject
     public void onEnable()
     {
         em.registerListener(Selector.class, this);

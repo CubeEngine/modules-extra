@@ -19,9 +19,11 @@ package org.cubeengine.module.module.kits;
 
 import java.nio.file.Path;
 import javax.inject.Inject;
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
+import javax.inject.Singleton;
+
 import de.cubeisland.engine.modularity.core.marker.Enable;
+import org.cubeengine.libcube.CubeEngineModule;
+import org.cubeengine.libcube.ModuleManager;
 import org.cubeengine.reflect.Reflector;
 import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.event.EventManager;
@@ -34,10 +36,19 @@ import org.cubeengine.module.module.kits.data.KitData;
 import org.cubeengine.module.module.kits.data.KitDataBuilder;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.DataRegistration;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.cubeengine.processor.Module;
+import org.cubeengine.processor.Dependency;
 
-@ModuleInfo(name = "Kits", description = "Hand kits to your players")
-public class Kits extends Module
+@Singleton
+@Module(id = "kits", name = "Kits", version = "1.0.0",
+        description = "Hand kits to your players",
+        dependencies = @Dependency("cubeengine-core"),
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+public class Kits extends CubeEngineModule
 {
     private KitManager kitManager;
 
@@ -49,16 +60,20 @@ public class Kits extends Module
     @Inject private I18n i18n;
     @Inject private InventoryGuardFactory igf;
     @Inject private Reflector reflector;
-    @Inject private Path modulePath;
+    private Path modulePath;
     @Inject private StringMatcher sm;
-    @Inject private PluginContainer plugin;
+    private PluginContainer plugin;
+    @Inject private ModuleManager mm;
 
-    @Inject @Enable
-    public void onEnable(PluginContainer plugin)
+    @Listener
+    public void onEnable(GamePreInitializationEvent event)
     {
+        this.modulePath = mm.getPathFor(Kits.class);
+        this.plugin = mm.getPlugin(Kits.class).get();
         DataRegistration<KitData, ImmutableKitData> dr = DataRegistration.<KitData, ImmutableKitData>builder()
                 .dataClass(KitData.class).immutableClass(ImmutableKitData.class)
-                .builder(new KitDataBuilder()).manipulatorId("kits")
+                .builder(new KitDataBuilder()).manipulatorId(
+                        "kits")
                 .dataName("CubeEngine Kits Data")
                 .buildAndRegister(plugin);
         Sponge.getDataManager().registerLegacyManipulatorIds(KitData.class.getName(), dr);

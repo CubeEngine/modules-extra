@@ -62,12 +62,15 @@ import static org.spongepowered.api.item.ItemTypes.LOG;
 import static org.spongepowered.api.item.ItemTypes.SAPLING;
 import static org.spongepowered.api.util.Direction.*;
 
+import javax.inject.Inject;
+
 
 public class ChopListener
 {
     private static final Set<Direction> dir8 = EnumSet.of(NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST, NORTHWEST);
     private PluginContainer plugin;
 
+    @Inject
     public ChopListener(PluginContainer plugin)
     {
         this.plugin = plugin;

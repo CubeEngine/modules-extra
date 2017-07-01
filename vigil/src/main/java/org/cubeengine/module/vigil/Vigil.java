@@ -19,9 +19,10 @@ package org.cubeengine.module.vigil;
 
 import java.util.concurrent.ThreadFactory;
 import javax.inject.Inject;
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.modularity.core.marker.Enable;
+import javax.inject.Singleton;
+
+import org.cubeengine.libcube.CubeEngineModule;
+import org.cubeengine.libcube.ModuleManager;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.module.bigdata.Bigdata;
 import org.cubeengine.module.vigil.commands.VigilAdminCommands;
@@ -36,27 +37,38 @@ import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.matcher.StringMatcher;
 import org.cubeengine.libcube.service.permission.PermissionManager;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
 import org.spongepowered.api.data.DataRegistration;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.plugin.PluginContainer;
 
-@ModuleInfo(name = "Vigil", description = "Keeps a vigilant eye on your server")
-public class Vigil extends Module
+@Singleton
+@Module(id = "vigil", name = "Vigil", version = "1.0.0",
+        description = "Keeps a vigilant eye on your server",
+        dependencies = { @Dependency("cubeengine-core"),@Dependency("cubeengine-bigdata")},
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+public class Vigil extends CubeEngineModule
 {
     @ModuleConfig private VigilConfig config;
     @Inject private EventManager em;
-    @Inject private ThreadFactory tf;
+    private ThreadFactory tf;
     @Inject private Bigdata bd;
     @Inject private CommandManager cm;
     @Inject private I18n i18n;
     @Inject private StringMatcher sm;
     @Inject private PermissionManager pm;
     @Inject private PluginContainer plugin;
+    @Inject private ModuleManager mm;
 
     private QueryManager qm;
 
-    @Enable
-    public void onEnable()
+    @Listener
+    public void onEnable(GamePreInitializationEvent event)
     {
+        this.tf = mm.getThreadFactory(Vigil.class);
         ReportManager reportManager = new ReportManager(this, em, i18n);
         qm = new QueryManager(tf, bd.getDatabase().getCollection("vigil"), reportManager, i18n, plugin);
         VigilCommands vc = new VigilCommands(sm, i18n, cm);

@@ -18,17 +18,26 @@
 package org.cubeengine.module.donations;
 
 import javax.inject.Inject;
-import de.cubeisland.engine.modularity.core.marker.Enable;
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
+import javax.inject.Singleton;
+
+import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.service.filesystem.FileManager;
 import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.libcube.service.Broadcaster;
 import org.cubeengine.libcube.service.webapi.ApiServer;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 
-@ModuleInfo(name = "Donations", description = "Provides WebAPI to handle donations")
-public class Donations extends Module
+@Singleton
+@Module(id = "donations", name = "Donations", version = "1.0.0",
+        description = "Provides WebAPI to handle donations",
+        dependencies = {@Dependency("cubeengine-core"), @Dependency("cubeengine-apiserver")},
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+public class Donations extends CubeEngineModule
 {
     @Inject private FileManager fm;
     @Inject private CommandManager cm;
@@ -36,8 +45,8 @@ public class Donations extends Module
     @Inject private Broadcaster bc;
     @Inject private ApiServer apiServer;
 
-    @Enable
-    public void onEnable()
+    @Listener
+    public void onEnable(GamePreInitializationEvent event)
     {
         DonationController controller = new DonationController(fm.loadConfig(this, DonationsConfig.class), cm, tm, bc);
         apiServer.registerApiHandlers(Donations.class, controller);

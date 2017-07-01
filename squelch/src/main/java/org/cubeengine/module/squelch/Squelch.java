@@ -17,31 +17,31 @@
  */
 package org.cubeengine.module.squelch;
 
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.modularity.core.marker.Enable;
+import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.service.database.ModuleTables;
 import org.cubeengine.libcube.service.event.ModuleListener;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.module.squelch.storage.TableIgnorelist;
 import org.cubeengine.module.squelch.storage.TableMuted;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
-@ModuleInfo(name = "Squelch", description = "Mute or Ignore other players")
+@Singleton
+@Module(id = "squelch", name = "Squelch", version = "1.0.0",
+        description = "Mute or Ignore other players",
+        dependencies = @Dependency("cubeengine-core"),
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
 @ModuleTables({TableMuted.class, TableIgnorelist.class})
 // TODO custom data for mute & ignore
-public class Squelch extends Module
+public class Squelch extends CubeEngineModule
 {
     @ModuleConfig private SquelchConfig config;
     @Inject private SquelchPerm perms;
-    @Inject @ModuleListener private MuteListener muteListener;
-
-    @Enable
-    public void onEnable()
-    {
-        
-    }
+    @ModuleListener private MuteListener muteListener;
 
     public SquelchConfig getConfig()
     {

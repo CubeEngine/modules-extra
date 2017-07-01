@@ -25,9 +25,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import javax.inject.Inject;
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.modularity.core.marker.Enable;
+import javax.inject.Singleton;
+
+import org.cubeengine.libcube.CubeEngineModule;
+import org.cubeengine.libcube.InjectService;
 import org.cubeengine.libcube.service.command.ModuleCommand;
 import org.cubeengine.module.authorization.storage.Auth;
 import org.cubeengine.module.authorization.storage.TableAuth;
@@ -36,9 +37,15 @@ import org.cubeengine.libcube.service.database.Database;
 import org.cubeengine.libcube.service.database.ModuleTables;
 import org.cubeengine.libcube.service.filesystem.FileManager;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
 import org.jooq.DSLContext;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+import org.spongepowered.api.service.ban.BanService;
 import org.spongepowered.api.service.permission.PermissionService;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
@@ -46,26 +53,32 @@ import static java.util.concurrent.CompletableFuture.runAsync;
 import static org.cubeengine.module.authorization.HashHelper.*;
 import static org.cubeengine.module.authorization.storage.TableAuth.TABLE_AUTH;
 
-@ModuleInfo(name = "Authorization", description = "Provides password authorization")
+@Singleton
+@Module(id = "authorization", name = "Authorization", version = "1.0.0",
+        description = "Provides password authorization",
+        dependencies = @Dependency("cubeengine-core"),
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
 @ModuleTables(TableAuth.class)
-public class Authorization extends Module
+public class Authorization extends CubeEngineModule
 {
     @Inject private FileManager fm;
-    @Inject private PermissionService ps;
+    @InjectService private PermissionService ps;
     @Inject private Database db;
     @Inject private AuthPerms perms;
 
     @ModuleConfig private AuthConfiguration config;
+    @InjectService private BanService banService;
+
     @Inject @ModuleCommand private AuthCommands authCommands;
 
     private String staticSalt;
-
     private final Map<UUID, Triplet<Long, String, Integer>> failedLogins = new ConcurrentHashMap<>();
     private final Map<UUID, Auth> auths = new ConcurrentHashMap<>();
     private final Set<UUID> loggedIn = new CopyOnWriteArraySet<>();
 
-    @Enable
-    public void onEnable()
+    @Listener
+    public void onEnable(GamePostInitializationEvent event)
     {
         this.staticSalt = HashHelper.loadStaticSalt(fm.getDataPath().resolve(".salt"));
         ps.registerContextCalculator(new AuthContextCalculator(this));
@@ -207,5 +220,9 @@ public class Authorization extends Module
     public AuthConfiguration getConfig()
     {
         return config;
+    }
+
+    public BanService getBanService() {
+        return banService;
     }
 }

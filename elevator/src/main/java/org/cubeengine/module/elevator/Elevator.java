@@ -17,22 +17,30 @@
  */
 package org.cubeengine.module.elevator;
 
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.modularity.core.marker.Enable;
+import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.module.elevator.data.ElevatorData;
 import org.cubeengine.module.elevator.data.ElevatorDataBuilder;
 import org.cubeengine.module.elevator.data.ImmutableElevatorData;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
 import org.spongepowered.api.data.DataRegistration;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.plugin.PluginContainer;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
-@ModuleInfo(name = "Elevator", description = "Lift up and down using signs")
-public class Elevator extends Module
+@Singleton
+@Module(id = "elevator", name = "Elevator", version = "1.0.0",
+        description = "Lift up and down using signs",
+        dependencies = @Dependency("cubeengine-core"),
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+public class Elevator extends CubeEngineModule
 {
     @ModuleConfig private ElevatorConfig config;
     @Inject private ElevatorPerm perm;
@@ -40,8 +48,8 @@ public class Elevator extends Module
     @Inject private I18n i18n;
     @Inject PluginContainer plugin;
 
-    @Enable
-    public void onEnable()
+    @Listener
+    public void onEnable(GamePreInitializationEvent event)
     {
         DataRegistration.<ElevatorData, ImmutableElevatorData>builder()
                 .dataClass(ElevatorData.class).immutableClass(ImmutableElevatorData.class)

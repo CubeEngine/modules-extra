@@ -18,17 +18,26 @@
 package org.cubeengine.module.customcommands;
 
 import javax.inject.Inject;
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.modularity.core.marker.Enable;
+import javax.inject.Singleton;
+
+import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.Broadcaster;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 
-@ModuleInfo(name = "Customcommands", description = "Module adding custom chat commands")
-public class Customcommands extends Module
+@Singleton
+@Module(id = "customcommands", name = "Customcommands", version = "1.0.0",
+        description = "Module adding custom chat commands",
+        dependencies = @Dependency("cubeengine-core"),
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+public class Customcommands extends CubeEngineModule
 {
     @ModuleConfig private CustomCommandsConfig config;
     @Inject private EventManager em;
@@ -36,8 +45,8 @@ public class Customcommands extends Module
     @Inject private Broadcaster bc;
     @Inject private I18n i18n;
 
-    @Enable
-    public void onEnable()
+    @Listener
+    public void onEnable(GamePreInitializationEvent event)
     {
         if (this.config.commands.size() > 0)
         {

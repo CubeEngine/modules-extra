@@ -18,10 +18,12 @@
 package org.cubeengine.module.signmarket;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import de.cubeisland.engine.logscribe.Log;
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.modularity.core.marker.Enable;
+import org.cubeengine.libcube.CubeEngineModule;
+import org.cubeengine.libcube.InjectService;
+import org.cubeengine.libcube.ModuleManager;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.module.signmarket.data.ImmutableMarketSignData;
 import org.cubeengine.module.signmarket.data.MarketSignData;
@@ -32,21 +34,32 @@ import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.inventoryguard.InventoryGuardFactory;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.DataRegistration;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.economy.EconomyService;
 
-@ModuleInfo(name = "SignMarket", description = "Adds a sign-based market")
-public class Signmarket extends Module
+@Singleton
+@Module(id = "signmarket", name = "SignMarket", version = "1.0.0",
+        description = "Adds a sign-based market",
+        dependencies = @Dependency("cubeengine-core"),
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+public class Signmarket extends CubeEngineModule
 {
-    @Inject private Log logger; // TODO log transactions
+    private Log logger; // TODO log transactions
     @Inject private CommandManager cm;
     @Inject private EventManager em;
     @Inject private I18n i18n;
     @Inject private InventoryGuardFactory igf;
     @Inject private PermissionManager pm;
     @Inject private PluginContainer plugin;
+    @Inject private ModuleManager mm;
+    @InjectService private EconomyService es;
 
     private MarketSignManager manager;
     private EditModeCommand editModeListener;
@@ -68,11 +81,12 @@ public class Signmarket extends Module
 
     }
 
-    @Inject @Enable
-    public void onEnable(EconomyService es)
+    @Listener
+    public void onEnable(GamePostInitializationEvent event)
     {
+        this.logger = mm.getLoggerFor(Signmarket.class);
         manager = new MarketSignManager(i18n, es, this, igf, plugin);
-        editModeListener = new EditModeCommand(getModularity(), cm, this, i18n, manager);
+        editModeListener = new EditModeCommand(cm, em, this, i18n, manager);
         em.registerListener(Signmarket.class, new MarketSignListener(manager, this, i18n));
         smCmds = new SignMarketCommands(cm, this, i18n);
         cm.addCommand(smCmds);

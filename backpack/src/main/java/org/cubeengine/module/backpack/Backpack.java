@@ -19,9 +19,12 @@ package org.cubeengine.module.backpack;
 
 import java.nio.file.Path;
 import javax.inject.Inject;
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.modularity.core.marker.Enable;
+import javax.inject.Singleton;
+
+import org.cubeengine.libcube.CubeEngineModule;
+import org.cubeengine.libcube.ModuleManager;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
 import org.cubeengine.reflect.Reflector;
 import org.cubeengine.reflect.codec.nbt.NBTCodec;
 import org.cubeengine.libcube.service.command.CommandManager;
@@ -29,10 +32,17 @@ import org.cubeengine.libcube.service.config.ItemStackConverter;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.inventoryguard.InventoryGuardFactory;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.plugin.PluginContainer;
 
-@ModuleInfo(name = "Backpack", description = "Expand your inventory")
+@Singleton
+@Module(id = "backpack", name = "Backpack", version = "1.0.0",
+        description = "Expand your inventory",
+        dependencies = @Dependency("cubeengine-core"),
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
 /*
 TODO blocked by custom inventories implementation
 TODO replace global/grouped/single with context:
@@ -40,11 +50,11 @@ TODO replace global/grouped/single with context:
 TODO NBT-Reflect Context Reader
 TODO add cmds to add/remove context
  */
-public class Backpack extends Module
+public class Backpack extends CubeEngineModule
 {
     private BackpackManager manager;
 
-    @Inject private Path modulePath;
+    private Path modulePath;
     @Inject private Reflector reflector;
     @Inject private I18n i18n;
     @Inject private CommandManager cm;
@@ -52,15 +62,17 @@ public class Backpack extends Module
     @Inject private InventoryGuardFactory igf;
     @Inject private BackpackPermissions perms;
     @Inject private PluginContainer plugin;
+    @Inject private ModuleManager mm;
 
     public BackpackPermissions perms()
     {
         return perms;
     }
 
-    @Enable
-    public void onEnable()
+    @Listener
+    public void onEnable(GamePreInitializationEvent event)
     {
+        this.modulePath = mm.getPathFor(Backpack.class);
         reflector.getCodecManager().getCodec(NBTCodec.class).getConverterManager().registerConverter(new ItemStackConverter(), ItemStack.class);
         manager = new BackpackManager(this, reflector, i18n);
         cm.getProviders().register(this, new BackpackCompleter(manager));

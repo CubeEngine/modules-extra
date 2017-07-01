@@ -17,23 +17,31 @@
  */
 package org.cubeengine.module.powertools;
 
-import javax.inject.Inject;
-import de.cubeisland.engine.modularity.core.marker.Enable;
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
-import org.cubeengine.module.powertools.data.ImmutablePowertoolData;
-import org.cubeengine.module.powertools.data.PowertoolData;
-import org.cubeengine.module.powertools.data.PowertoolDataBuilder;
+import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.matcher.MaterialMatcher;
-import org.spongepowered.api.Sponge;
+import org.cubeengine.module.powertools.data.ImmutablePowertoolData;
+import org.cubeengine.module.powertools.data.PowertoolData;
+import org.cubeengine.module.powertools.data.PowertoolDataBuilder;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
 import org.spongepowered.api.data.DataRegistration;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.plugin.PluginContainer;
 
-@ModuleInfo(name = "Powertools", description = "Empower your tools")
-public class Powertools extends Module
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
+@Module(id = "powertools", name = "Powertools", version = "1.0.0",
+        description = "Empower your tools",
+        dependencies = @Dependency("cubeengine-core"),
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+public class Powertools extends CubeEngineModule
 {
     @Inject private PowertoolsPerm perm;
 
@@ -44,8 +52,8 @@ public class Powertools extends Module
 
     @Inject private PluginContainer plugin;
 
-    @Enable
-    public void onEnable()
+    @Listener
+    public void onEnable(GamePreInitializationEvent event)
     {
         DataRegistration.<PowertoolData, ImmutablePowertoolData>builder()
                 .dataClass(PowertoolData.class).immutableClass(ImmutablePowertoolData.class)

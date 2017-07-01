@@ -53,7 +53,7 @@ import static java.util.Collections.singletonList;
  * Boats do not break easily anymore in 1.11
  */
 @ModuleInfo(name = "UnbreakableBoat", description = "Adds a Recipe for an unbreakable Boat")
-public class Unbreakableboat extends Module
+public class Unbreakableboat extends CubeEngineModule
 {
     private ItemStack boat;
 

@@ -17,17 +17,24 @@
  */
 package org.cubeengine.module.patient;
 
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.modularity.core.marker.Enable;
+import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
 
-@ModuleInfo(name = "Patient", description = "Find out what your server is suffering from.")
-public class Patient extends Module
+import javax.inject.Singleton;
+
+@Singleton
+@Module(id = "patient", name = "Patient", version = "1.0.0",
+        description = "Find out what your server is suffering from",
+        dependencies = @Dependency("cubeengine-core"),
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+public class Patient extends CubeEngineModule
 {
     @ModuleConfig private PatientConfig config;
     
-    @Enable
+
     public void onEnable()
     {
         // TODO analyze stuff running on that server...

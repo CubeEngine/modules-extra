@@ -17,9 +17,8 @@
  */
 package org.cubeengine.module.chat;
 
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.modularity.core.marker.Enable;
+import org.cubeengine.libcube.CubeEngineModule;
+import org.cubeengine.libcube.InjectService;
 import org.cubeengine.libcube.service.Broadcaster;
 import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.event.EventManager;
@@ -30,16 +29,27 @@ import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.module.chat.command.AfkCommand;
 import org.cubeengine.module.chat.command.ChatCommands;
 import org.cubeengine.module.chat.listener.ChatFormatListener;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+import org.spongepowered.api.service.permission.PermissionService;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * /me 	Displays a message about yourself.
  * /tell (msg) Displays a private message to other players.
  */
 // TODO link item in hand
-@ModuleInfo(name = "Chat", description = "Chat formatting")
-public class Chat extends Module
+@Singleton
+@Module(id = "chat", name = "Chat", version = "1.0.0",
+        description = "Chat formatting",
+        dependencies = @Dependency("cubeengine-core"),
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+public class Chat extends CubeEngineModule
 {
     // TODO tablist-prefix data from subject or other module?
     @ModuleConfig private ChatConfig config;
@@ -51,10 +61,11 @@ public class Chat extends Module
     @Inject private TaskManager tm;
     @Inject private Broadcaster bc;
 
-    @Inject @ModuleListener private ChatFormatListener chatFormatListener;
+    @ModuleListener private ChatFormatListener chatFormatListener;
+    @InjectService private PermissionService ps;
 
-    @Enable
-    public void onEnable()
+    @Listener
+    public void onEnable(GamePreInitializationEvent event)
     {
         AfkCommand afkCmd = new AfkCommand(this, config.autoAfk.after.getMillis(), config.autoAfk.check.getMillis(), bc, tm, em);
         cm.addCommands(this, afkCmd);
@@ -69,5 +80,9 @@ public class Chat extends Module
     public ChatPerm perms()
     {
         return perms;
+    }
+
+    public PermissionService getPermissionService() {
+        return ps;
     }
 }

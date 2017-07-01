@@ -19,11 +19,13 @@ package org.cubeengine.module.shout;
 
 import java.nio.file.Path;
 import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import de.cubeisland.engine.logscribe.Log;
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.modularity.core.marker.Disable;
-import de.cubeisland.engine.modularity.core.marker.Enable;
+import org.cubeengine.libcube.CubeEngineModule;
+import org.cubeengine.libcube.ModuleManager;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
 import org.cubeengine.reflect.Reflector;
 import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.module.shout.announce.Announcement;
@@ -36,19 +38,27 @@ import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.matcher.StringMatcher;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.libcube.service.task.TaskManager;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 
-@ModuleInfo(name = "Shout", description = "Announce things!")
-public class Shout extends Module
+@Singleton
+@Module(id = "shout", name = "Shout", version = "1.0.0",
+        description = "Announce things!",
+        dependencies = @Dependency("cubeengine-core"),
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+public class Shout extends CubeEngineModule
 {
     @Inject private PermissionManager pm;
-    @Inject private Path modulePath;
-    @Inject private Log log;
+    private Path modulePath;
+    private Log log;
     @Inject private EventManager em;
     @Inject private CommandManager cm;
     @Inject private I18n i18n;
     @Inject private TaskManager tm;
     @Inject private StringMatcher sm;
     @Inject private Reflector reflector;
+    @Inject private ModuleManager mm;
 
     private AnnouncementManager manager;
     private Permission announcePerm;
@@ -59,9 +69,11 @@ public class Shout extends Module
         return announcePerm;
     }
 
-    @Enable
-    public void onEnable()
+    @Listener
+    public void onEnable(GamePreInitializationEvent event)
     {
+        this.log = mm.getLoggerFor(Shout.class);
+        this.modulePath = mm.getPathFor(Shout.class);
         announcePerm = pm.register(Shout.class, "announcement", "", null);
 
         manager = new AnnouncementManager(this, modulePath, i18n, pm, tm, sm, reflector);
@@ -71,11 +83,6 @@ public class Shout extends Module
         cm.addCommand(new ShoutCommand(cm, this, i18n));
 
         manager.initUsers();
-    }
-
-    @Disable
-    public void onDisable()
-    {
     }
 
     public AnnouncementManager getManager()

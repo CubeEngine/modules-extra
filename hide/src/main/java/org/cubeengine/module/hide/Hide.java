@@ -21,28 +21,37 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import javax.inject.Inject;
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.modularity.core.marker.Disable;
-import de.cubeisland.engine.modularity.core.marker.Enable;
+import javax.inject.Singleton;
+
+import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.service.Broadcaster;
 import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.permission.PermissionManager;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.mutable.entity.InvisibilityData;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+import org.spongepowered.api.event.game.state.GameStoppingEvent;
 
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
 
 // TODO hide on Dynmap SpongeAPI
 // TODO event for hide and show
 // TODO contextual - can see hidden players
-@ModuleInfo(name = "Hide", description = "Hide yourself from the world")
-public class Hide extends Module
+@Singleton
+@Module(id = "hide", name = "Hide", version = "1.0.0",
+        description = "Hide yourself from the world",
+        dependencies = @Dependency("cubeengine-core"),
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+public class Hide extends CubeEngineModule
 {
     private Set<UUID> hiddenUsers;
 
@@ -59,8 +68,8 @@ public class Hide extends Module
     @Inject private Broadcaster bc;
     @Inject private PermissionManager pm;
 
-    @Enable
-    public void onEnable()
+    @Listener
+    public void onEnable(GamePreInitializationEvent event)
     {
         hiddenUsers = new HashSet<>();
         // canSeeHiddens = new HashSet<>();
@@ -69,8 +78,8 @@ public class Hide extends Module
         this.perms = new HidePerm(pm);
     }
 
-    @Disable
-    public void onDisable()
+    @Listener
+    public void onDisable(GameStoppingEvent event)
     {
         for (UUID hiddenId : hiddenUsers)
         {

@@ -17,6 +17,37 @@
  */
 package org.cubeengine.libcube.service.webapi;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Locale.ENGLISH;
+import static org.cubeengine.libcube.util.StringUtils.deCamelCase;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import de.cubeisland.engine.logscribe.Log;
+import de.cubeisland.engine.logscribe.LogFactory;
+import de.cubeisland.engine.logscribe.target.file.AsyncFileTarget;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.cubeengine.libcube.CubeEngineModule;
+import org.cubeengine.libcube.ModuleManager;
+import org.cubeengine.libcube.service.command.CommandManager;
+import org.cubeengine.libcube.service.filesystem.FileManager;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.logging.LoggingUtil;
+import org.cubeengine.libcube.service.permission.PermissionManager;
+import org.cubeengine.libcube.service.task.TaskManager;
+import org.cubeengine.libcube.service.webapi.exception.ApiStartupException;
+import org.cubeengine.libcube.util.LoggerUtil;
+import org.cubeengine.module.authorization.Authorization;
+import org.cubeengine.processor.Module;
+import org.cubeengine.reflect.Reflector;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
+import org.spongepowered.api.plugin.PluginContainer;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
@@ -26,6 +57,7 @@ import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -35,45 +67,19 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+
 import javax.inject.Inject;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import de.cubeisland.engine.logscribe.Log;
-import de.cubeisland.engine.logscribe.LogFactory;
-import de.cubeisland.engine.logscribe.target.file.AsyncFileTarget;
-import de.cubeisland.engine.modularity.asm.marker.ServiceProvider;
-import de.cubeisland.engine.modularity.core.Modularity;
-import de.cubeisland.engine.modularity.core.graph.DependencyInformation;
-import de.cubeisland.engine.modularity.core.graph.meta.ModuleMetadata;
-import de.cubeisland.engine.modularity.core.marker.Enable;
-import org.cubeengine.libcube.util.LoggerUtil;
-import org.cubeengine.reflect.Reflector;
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
-import org.cubeengine.module.authorization.Authorization;
-import org.cubeengine.libcube.service.command.CommandManager;
-import org.cubeengine.libcube.service.filesystem.FileManager;
-import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.libcube.service.logging.LoggingUtil;
-import org.cubeengine.libcube.service.permission.PermissionManager;
-import org.cubeengine.libcube.service.task.TaskManager;
-import org.cubeengine.libcube.service.webapi.exception.ApiStartupException;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static java.util.Locale.ENGLISH;
-import static org.cubeengine.libcube.util.StringUtils.deCamelCase;
+import javax.inject.Singleton;
 
 /**
  * This class represents the API server and provides methods to configure and control it
  */
-@ServiceProvider(ApiServer.class)
-public class ApiServer
+@Singleton
+@Module(id = "apiserver", name = "API-Server", description = "Provides an APIServer Service")
+public class ApiServer extends CubeEngineModule
 {
     private final Log log;
+    private ModuleManager mm;
     private final AtomicInteger maxContentLength = new AtomicInteger(1048576);
     private final AtomicBoolean compress = new AtomicBoolean(false);
     private final AtomicInteger compressionLevel = new AtomicInteger(9);
@@ -98,20 +104,23 @@ public class ApiServer
     private final AtomicInteger maxConnectionCount = new AtomicInteger(1);
 
     @Inject private Reflector reflector;
-    @Inject private Path moduleFolder;
-    @Inject private Log logger;
+    private Path moduleFolder;
+    private Log logger;
     @Inject private CommandManager cm;
     @Inject private I18n i18n;
     @Inject private TaskManager tm;
     @Inject private PermissionManager pm;
-    @Inject private ThreadFactory tf;
+    private ThreadFactory tf;
     @Inject private Authorization am;
-    @Inject private Modularity modularity;
 
     @Inject
-    public ApiServer(LogFactory logFactory, FileManager fm, ThreadFactory tf)
+    public ApiServer(LogFactory logFactory, FileManager fm, ModuleManager mm)
     {
+        this.logger = mm.getLoggerFor(ApiServer.class);
+        this.moduleFolder = mm.getPathFor(ApiServer.class);
+        this.tf = mm.getThreadFactory(this.getClass());
         this.log = logFactory.getLog(ApiServer.class, "WebAPI");
+        this.mm = mm;
         this.log.addTarget(new AsyncFileTarget(LoggingUtil.getLogFile(fm, "WebAPI"),
                                                   LoggingUtil.getFileFormat(true, true),
                                                   true, LoggingUtil.getCycler(),
@@ -127,8 +136,8 @@ public class ApiServer
         }
     }
 
-    @Enable
-    public void onEnable()
+    @Listener
+    public void onEnable(GamePostInitializationEvent event)
     {
         reflector.getDefaultConverterManager().registerConverter(new InetAddressConverter(), InetAddress.class);
 
@@ -272,10 +281,10 @@ public class ApiServer
                 {
                     route = deCamelCase(method.getName(), "/");
                 }
-                DependencyInformation info = modularity.getLifecycle(owner).getInformation();
-                if (info instanceof ModuleMetadata)
+                Optional<PluginContainer> pc = mm.getPlugin(owner);
+                if (pc.isPresent())
                 {
-                    route = deCamelCase(((ModuleMetadata)info).getName().toLowerCase(), "-") + "/" + route;;
+                    route = pc.get().getId() + "/" + route;
                 }
                 else
                 {

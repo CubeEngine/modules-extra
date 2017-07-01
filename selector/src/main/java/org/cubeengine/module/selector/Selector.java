@@ -18,30 +18,43 @@
 package org.cubeengine.module.selector;
 
 import javax.inject.Inject;
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.modularity.core.marker.Enable;
+import javax.inject.Singleton;
+
+import org.cubeengine.libcube.CubeEngineModule;
+import org.cubeengine.libcube.ModuleManager;
 import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionManager;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
 import org.spongepowered.api.Game;
-import org.spongepowered.api.service.permission.PermissionDescription;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 
-@ModuleInfo(name = "Selector", description = "Select Areas")
-public class Selector extends Module
+@Singleton
+@Module(id = "selector", name = "Selector", version = "1.0.0",
+        description = "Select Areas",
+        dependencies = @Dependency("cubeengine-core"),
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+public class Selector extends CubeEngineModule
 {
     @Inject private PermissionManager pm;
     @Inject private CommandManager cm;
     @Inject private Game game;
     @Inject private I18n i18n;
     private Permission selectPerm;
+    @Inject private CuboidSelector selector;
+    @Inject private ModuleManager mm;
 
-    @Enable
-    public void onEnable()
+    @Listener
+    public void onEnable(GamePreInitializationEvent event)
     {
         selectPerm = pm.register(Selector.class, "use-wand", "Allows using the selector wand",null);
         cm.addCommands(this, new SelectorCommand(game, i18n));
+        Sponge.getServiceManager().setProvider(mm.getPlugin(Selector.class).get(), org.cubeengine.libcube.service.Selector.class, selector);
     }
 
     public Permission getSelectPerm()

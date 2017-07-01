@@ -77,7 +77,6 @@ public class QueryManager
         this.plugin = plugin;
     }
 
-
     /**
      * Queues in an action to be persisted
      *
@@ -125,7 +124,7 @@ public class QueryManager
         }
         catch (Exception e)
         {
-            System.out.print(e.getMessage() + "\n");
+            System.out.print("[Vigil] " + e.getMessage() + "\n");
             //e.printStackTrace(); //TODO log in logger!
             actions.addAll(storing); // read actions to store later // TODO this may cause duplicates!!
         }

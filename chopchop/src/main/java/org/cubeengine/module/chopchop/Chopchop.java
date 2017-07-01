@@ -24,19 +24,19 @@ import static org.spongepowered.api.item.ItemTypes.LOG2;
 import static org.spongepowered.api.text.format.TextColors.GOLD;
 import static org.spongepowered.api.text.format.TextColors.YELLOW;
 
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.modularity.core.marker.Disable;
-import de.cubeisland.engine.modularity.core.marker.Enable;
+import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.service.event.EventManager;
+import org.cubeengine.libcube.service.event.ModuleListener;
 import org.cubeengine.libcube.service.task.TaskManager;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
 import org.spongepowered.api.Game;
-import org.spongepowered.api.GameRegistry;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.meta.ItemEnchantment;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.item.Enchantments;
-import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.recipe.crafting.CraftingRecipe;
 import org.spongepowered.api.item.recipe.crafting.Ingredient;
@@ -44,41 +44,41 @@ import org.spongepowered.api.item.recipe.crafting.ShapedCraftingRecipe;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.Text;
 
-import java.util.HashMap;
-
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
-@ModuleInfo(name = "ChopChop", description = "Chop whole trees down")
-public class Chopchop extends Module
+@Singleton
+@Module(id = "chopchop", name = "ChopChop", version = "1.0.0",
+        description = "Chop whole trees down",
+        dependencies = @Dependency("cubeengine-core"),
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+public class Chopchop extends CubeEngineModule
 {
-    @Inject private EventManager em;
-    @Inject private Game game;
-    @Inject private TaskManager tm;
     @Inject private PluginContainer plugin;
-
+    @ModuleListener private ChopListener listener;
     private ShapedCraftingRecipe recipe;
 
-    @Enable
-    public void onEnable()
+    @Listener
+    public void onPreInit(GamePreInitializationEvent event)
     {
-        em.registerListener(Chopchop.class, new ChopListener(plugin));
-        tm.runTaskDelayed(Chopchop.class, this::registerRecipe, 1);
+        this.registerRecipe();
     }
 
-     public void registerRecipe()
+    public void registerRecipe()
     {
         ItemStack axe = ItemStack.of(DIAMOND_AXE, 1);
         axe.offer(Keys.ITEM_ENCHANTMENTS, singletonList(new ItemEnchantment(Enchantments.PUNCH, 5)));
         axe.offer(Keys.DISPLAY_NAME, Text.of(GOLD, "Heavy Diamond Axe"));
         axe.offer(Keys.ITEM_LORE, singletonList(Text.of(YELLOW, "Chop Chop!")));
 
-        Sponge.getRegistry().getCraftingRecipeRegistry().register(
-              CraftingRecipe.shapedBuilder()
-                      .aisle("aa", "as", " s")
-                      .where('a', Ingredient.of(DIAMOND_AXE))
-                      .where('s', Ingredient.of(LOG, LOG2))
-                      .result(axe)
-                      .build("chopchop", plugin));
+        this.recipe = CraftingRecipe.shapedBuilder()
+                .aisle("aa", "as", " s")
+                .where('a', Ingredient.of(DIAMOND_AXE))
+                .where('s', Ingredient.of(LOG, LOG2))
+                .result(axe)
+                .build("chopchop", plugin);
+        Sponge.getRegistry().getCraftingRecipeRegistry().register(recipe);
 
     }
 }

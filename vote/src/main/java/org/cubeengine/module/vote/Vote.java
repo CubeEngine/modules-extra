@@ -21,11 +21,11 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import com.vexsoftware.votifier.sponge.event.VotifierEvent;
 import de.cubeisland.engine.logscribe.Log;
-import de.cubeisland.engine.modularity.core.marker.Enable;
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
+import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.service.Broadcaster;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.filesystem.FileManager;
@@ -34,12 +34,15 @@ import org.cubeengine.libcube.util.ChatFormat;
 import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.database.Database;
 import org.cubeengine.module.vote.storage.TableVote;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
 import org.jooq.DSLContext;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
 import org.spongepowered.api.service.user.UserStorageService;
@@ -52,8 +55,13 @@ import static java.lang.Math.pow;
 /**
  * A module to handle Votes coming from a {@link VotifierEvent}
  */
-@ModuleInfo(name = "Vote", description = "Get rewards for votes")
-public class Vote extends Module
+@Singleton
+@Module(id = "vote", name = "Vote", version = "1.0.0",
+        description = "Get rewards for votes",
+        dependencies = @Dependency("cubeengine-core"),
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+public class Vote extends CubeEngineModule
 {
     private VoteConfiguration config;
 
@@ -66,8 +74,8 @@ public class Vote extends Module
     @Inject private I18n i18n;
     @Inject private Broadcaster bc;
 
-    @Enable
-    public void onEnable()
+    @Listener
+    public void onEnable(GamePreInitializationEvent event)
     {
         db.registerTable(TableVote.class);
         this.config = fm.loadConfig(this, VoteConfiguration.class);

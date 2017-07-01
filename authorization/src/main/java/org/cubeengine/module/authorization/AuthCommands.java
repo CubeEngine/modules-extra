@@ -50,7 +50,6 @@ import javax.inject.Inject;
 public class AuthCommands
 {
     private final Authorization module;
-    private final BanService bs;
     private I18n i18n;
 
     private final ConcurrentHashMap<UUID, Long> fails = new ConcurrentHashMap<>();
@@ -60,7 +59,6 @@ public class AuthCommands
     {
         this.module = module;
         this.i18n = i18n;
-        this.bs = Sponge.getServiceManager().provideUnchecked(BanService.class);
     }
 
     @Unloggable
@@ -143,11 +141,11 @@ public class AuthCommands
                     Text msg = Text.of(i18n.translate(context, NEGATIVE, "Too many wrong passwords!") + "\n"
                             + i18n.translate(context, NEUTRAL, "For your security you were banned 10 seconds."));
                     Instant expires = Instant.now().plus(module.getConfig().banDuration, ChronoUnit.SECONDS);
-                    this.bs.addBan(Ban.builder().profile(context.getProfile()).reason(msg)
+                    module.getBanService().addBan(Ban.builder().profile(context.getProfile()).reason(msg)
                                       .expirationDate(expires).source(context).build());
                     if (!Sponge.getServer().getOnlineMode())
                     {
-                        this.bs.addBan(Ban.builder().address(context.getConnection().getAddress().getAddress()).reason(msg)
+                        module.getBanService().addBan(Ban.builder().address(context.getConnection().getAddress().getAddress()).reason(msg)
                                           .expirationDate(expires).source(context).build());
                     }
                     context.kick(msg);

@@ -18,10 +18,13 @@
 package org.cubeengine.module.itemrepair;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import de.cubeisland.engine.logscribe.Log;
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.modularity.core.marker.Enable;
+import org.cubeengine.libcube.CubeEngineModule;
+import org.cubeengine.libcube.ModuleManager;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
 import org.cubeengine.reflect.Reflector;
 import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.database.Database;
@@ -34,12 +37,20 @@ import org.cubeengine.module.itemrepair.material.BaseMaterialContainer;
 import org.cubeengine.module.itemrepair.material.BaseMaterialContainerConverter;
 import org.cubeengine.module.itemrepair.repair.RepairBlockManager;
 import org.cubeengine.module.itemrepair.repair.storage.TableRepairBlock;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.economy.EconomyService;
 
-@ModuleInfo(name = "ItemRepair", description = "Repair your tools for money")
+@Singleton
+@Module(id = "itemrepair", name = "ItemRepair", version = "1.0.0",
+        description = "Repair your tools for money",
+        dependencies = @Dependency("cubeengine-core"),
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
 @ModuleTables(TableRepairBlock.class)
-public class Itemrepair extends Module
+public class Itemrepair extends CubeEngineModule
 {
     @ModuleConfig private ItemrepairConfig config;
     public RepairBlockManager repairBlockManager;
@@ -47,20 +58,22 @@ public class Itemrepair extends Module
     @Inject private EventManager em;
     @Inject private CommandManager cm;
     @Inject private I18n i18n;
-    @Inject private Log logger;
+    private Log logger;
     @Inject private PermissionManager pm;
     @Inject private PluginContainer plugin;
 
 
     @Inject
-    public Itemrepair(Reflector reflector)
+    public Itemrepair(Reflector reflector, ModuleManager mm)
     {
+        this.logger = mm.getLoggerFor(Itemrepair.class);
         reflector.getDefaultConverterManager().registerConverter(new BaseMaterialContainerConverter(), BaseMaterialContainer.class);
     }
 
-    @Inject @Enable
-    public void onEnable(EconomyService economy)
+    @Listener
+    public void onEnable(GamePostInitializationEvent event)
     {
+        EconomyService economy = Sponge.getServiceManager().provideUnchecked(EconomyService.class);
         this.repairBlockManager = new RepairBlockManager(this, db, em, i18n, economy, pm);
         em.registerListener(Itemrepair.class, new ItemRepairListener(this, i18n));
         cm.addCommand(new ItemRepairCommands(cm, this, em, i18n));

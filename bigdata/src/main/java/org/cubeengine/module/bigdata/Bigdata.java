@@ -17,34 +17,45 @@
  */
 package org.cubeengine.module.bigdata;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Collections;
-import java.util.List;
+import static java.util.Collections.singletonList;
+import static org.cubeengine.libcube.util.LoggerUtil.setLoggerLevel;
+
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.modularity.core.marker.Disable;
-import de.cubeisland.engine.modularity.core.marker.Enable;
 import org.bson.Document;
-import org.cubeengine.module.bigdata.MongoDBConfiguration.Authentication;
+import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
+import org.cubeengine.module.bigdata.MongoDBConfiguration.Authentication;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GameConstructionEvent;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+import org.spongepowered.api.event.game.state.GameStoppingEvent;
 
-import static java.util.Arrays.asList;
-import static org.cubeengine.libcube.util.LoggerUtil.setLoggerLevel;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Collections;
+import java.util.List;
 
-@ModuleInfo(name = "BigData", description = "Provides serialization to a MongoDB")
-public class Bigdata extends Module
+import javax.inject.Singleton;
+
+@Singleton
+@Module(id = "bigdata", name = "BigData", version = "1.0.0",
+        description = "Provides serialization to a MongoDB",
+        dependencies = @Dependency("cubeengine-core"),
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+public class Bigdata extends CubeEngineModule
 {
     @ModuleConfig private MongoDBConfiguration config;
     private MongoClient mongoClient;
 
-    @Enable
-    public void onEnable()
+    @Listener
+    public void onPreInit(GameConstructionEvent event)
     {
         try
         {
@@ -77,8 +88,8 @@ public class Bigdata extends Module
         }
     }
 
-    @Disable
-    public void onDisable()
+    @Listener
+    public void onShutdown(GameStoppingEvent event)
     {
         this.releaseClient();
     }
@@ -107,7 +118,7 @@ public class Bigdata extends Module
             if (authConfig != null && authConfig.username != null && authConfig.password != null)
             {
                 MongoCredential credential = MongoCredential.createCredential(authConfig.username, db, authConfig.password.toCharArray());
-                credentialList = asList(credential);
+                credentialList = singletonList(credential);
             }
             MongoClientOptions options = MongoClientOptions.builder().connectTimeout(this.config.connectionTimeout).build();
             mongoClient = new MongoClient(address, credentialList, options);

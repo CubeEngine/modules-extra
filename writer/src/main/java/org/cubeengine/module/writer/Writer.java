@@ -17,31 +17,6 @@
  */
 package org.cubeengine.module.writer;
 
-import java.util.Optional;
-import javax.inject.Inject;
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.modularity.core.marker.Disable;
-import de.cubeisland.engine.modularity.core.marker.Enable;
-import org.cubeengine.butler.filter.Restricted;
-import org.cubeengine.butler.parametric.Command;
-import org.cubeengine.butler.parametric.Label;
-import org.cubeengine.butler.parametric.Named;
-import org.cubeengine.libcube.service.command.CommandManager;
-import org.cubeengine.libcube.service.i18n.I18n;
-import org.spongepowered.api.block.BlockType;
-import org.spongepowered.api.data.manipulator.mutable.item.PagedData;
-import org.spongepowered.api.data.manipulator.mutable.tileentity.SignData;
-import org.spongepowered.api.data.type.HandTypes;
-import org.spongepowered.api.data.value.mutable.ListValue;
-import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.util.blockray.BlockRay;
-import org.spongepowered.api.util.blockray.BlockRayHit;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
-
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 import static org.spongepowered.api.block.BlockTypes.STANDING_SIGN;
@@ -49,24 +24,53 @@ import static org.spongepowered.api.block.BlockTypes.WALL_SIGN;
 import static org.spongepowered.api.item.ItemTypes.WRITABLE_BOOK;
 import static org.spongepowered.api.item.ItemTypes.WRITTEN_BOOK;
 
+import org.cubeengine.butler.filter.Restricted;
+import org.cubeengine.butler.parametric.Command;
+import org.cubeengine.butler.parametric.Label;
+import org.cubeengine.butler.parametric.Named;
+import org.cubeengine.libcube.CubeEngineModule;
+import org.cubeengine.libcube.service.command.CommandManager;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
+import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.data.manipulator.mutable.item.PagedData;
+import org.spongepowered.api.data.manipulator.mutable.tileentity.SignData;
+import org.spongepowered.api.data.type.HandTypes;
+import org.spongepowered.api.data.value.mutable.ListValue;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.util.blockray.BlockRay;
+import org.spongepowered.api.util.blockray.BlockRayHit;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
+
+import java.util.Optional;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 /**
  * A module to edit signs and signed books
  */
-@ModuleInfo(name = "Writer", description = "Edit signs and books")
-public class Writer extends Module
+@Singleton
+@Module(id = "writer", name = "Writer", version = "1.0.0",
+        description = "Edit signs and books",
+        dependencies = @Dependency("cubeengine-core"),
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+public class Writer extends CubeEngineModule
 {
     @Inject private CommandManager cm;
     @Inject private I18n i18n;
 
-    @Enable
-    public void onEnable()
+    @Listener
+    public void onEnable(GamePreInitializationEvent event)
     {
         cm.addCommands(cm, this, this);
-    }
-
-    @Disable
-    public void onDisable()
-    {
     }
 
     @Command(alias = "rewrite", desc = "Edit a sign or a signed book")

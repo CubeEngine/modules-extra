@@ -18,9 +18,9 @@
 package org.cubeengine.module.fun;
 
 import javax.inject.Inject;
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.modularity.core.marker.Enable;
+import javax.inject.Singleton;
+
+import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.service.matcher.MaterialMatcher;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.module.fun.commands.DiscoCommand;
@@ -35,9 +35,18 @@ import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.matcher.EntityMatcher;
 import org.cubeengine.libcube.service.task.TaskManager;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 
-@ModuleInfo(name = "Fun", description = "A collection of fun commands")
-public class Fun extends Module
+@Singleton
+@Module(id = "fun", name = "Fun", version = "1.0.0",
+        description = "A collection of fun commands",
+        dependencies = @Dependency("cubeengine-core"),
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+public class Fun extends CubeEngineModule
 {
     @ModuleConfig private FunConfiguration config;
     @Inject private FunPerm perms;
@@ -50,8 +59,8 @@ public class Fun extends Module
     @Inject private PermissionManager pm;
     @Inject private MaterialMatcher materialMatcher;
 
-    @Enable
-    public void onEnable()
+    @Listener
+    public void onEnable(GamePreInitializationEvent event)
     {
         cm.addCommands(this, new ThrowCommands(this, em, pm, tm, entityMatcher, i18n));
         cm.addCommands(this, new NukeCommand(this, i18n, em));

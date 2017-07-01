@@ -20,28 +20,36 @@ package org.cubeengine.module.namehistory;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import javax.inject.Inject;
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.modularity.core.marker.Enable;
+import javax.inject.Singleton;
+
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Default;
+import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.Broadcaster;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 
 import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
 
-@ModuleInfo(name = "Namehistory", description = "Tracks users changing names on your server")
-public class Namehistory extends Module
+@Singleton
+@Module(id = "namehistory", name = "Namehistory", version = "1.0.0",
+        description = "Tracks users changing names on your server",
+        dependencies = @Dependency("cubeengine-core"),
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+public class Namehistory extends CubeEngineModule
 {
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     @Inject private EventManager em;
@@ -49,10 +57,9 @@ public class Namehistory extends Module
     @Inject private Broadcaster bc;
     @Inject private I18n i18n;
 
-    @Enable
-    public void onEnable()
+    @Listener
+    public void onEnable(GamePreInitializationEvent event)
     {
-        em.registerListener(Namehistory.class, this);
         cm.addCommands(this, this);
     }
 

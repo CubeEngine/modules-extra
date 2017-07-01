@@ -17,7 +17,6 @@
  */
 package org.cubeengine.module.signmarket;
 
-import de.cubeisland.engine.modularity.core.Modularity;
 import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Flag;
@@ -25,6 +24,7 @@ import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.command.annotation.ParameterPermission;
 import org.cubeengine.libcube.service.command.conversation.ConversationCommand;
 import org.cubeengine.libcube.service.command.exception.PermissionDeniedException;
+import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.module.signmarket.data.IMarketSignData;
 import org.cubeengine.module.signmarket.data.ImmutableMarketSignData;
@@ -46,9 +46,9 @@ public class EditModeCommand extends ConversationCommand
     private I18n i18n;
     private MarketSignManager manager;
 
-    public EditModeCommand(Modularity modularity, CommandManager base, final Signmarket module, I18n i18n, MarketSignManager manager)
+    public EditModeCommand(CommandManager base, EventManager em, final Signmarket module, I18n i18n, MarketSignManager manager)
     {
-        super(modularity, base, Signmarket.class);
+        super(em, base, Signmarket.class);
         this.module = module;
         this.i18n = i18n;
         this.manager = manager;

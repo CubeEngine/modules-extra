@@ -19,9 +19,11 @@ package org.cubeengine.module.faq;
 
 import java.util.PriorityQueue;
 import javax.inject.Inject;
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.modularity.core.marker.Enable;
+import javax.inject.Singleton;
+
+import org.cubeengine.libcube.CubeEngineModule;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
 import org.cubeengine.reflect.Reflector;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
@@ -29,13 +31,19 @@ import org.cubeengine.libcube.service.task.TaskManager;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.text.Text;
 
 import static org.spongepowered.api.event.Order.POST;
 
-@ModuleInfo(name = "Faq", description = "Answers all your frequently asked questions!")
-public class Faq extends Module
+@Singleton
+@Module(id = "faq", name = "FAQ", version = "1.0.0",
+        description = "Answers all your frequently asked questions!",
+        dependencies = @Dependency("cubeengine-core"),
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+public class Faq extends CubeEngineModule
 {
     private final PriorityQueue<Question> questions = new PriorityQueue<>();
     @ModuleConfig private FaqConfig config;
@@ -48,8 +56,8 @@ public class Faq extends Module
         reflector.getDefaultConverterManager().registerConverter(new QuestionConverter(), Question.class);
     }
 
-    @Enable
-    public void onEnable()
+    @Listener
+    public void onEnable(GamePreInitializationEvent event)
     {
         this.questions.addAll(config.questions);
         em.registerListener(Faq.class, this);

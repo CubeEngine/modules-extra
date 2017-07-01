@@ -26,20 +26,31 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
-import de.cubeisland.engine.logscribe.Log;
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.modularity.core.marker.Disable;
-import de.cubeisland.engine.modularity.core.marker.Enable;
-import org.cubeengine.libcube.service.task.TaskManager;
+import javax.inject.Singleton;
 
-@ModuleInfo(name = "FreezeDetection", description = "Detects server freeze and produces thread dumps")
-public class FreezeDetection extends Module
+import de.cubeisland.engine.logscribe.Log;
+import org.cubeengine.libcube.CubeEngineModule;
+import org.cubeengine.libcube.ModuleManager;
+import org.cubeengine.libcube.service.task.TaskManager;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+import org.spongepowered.api.event.game.state.GameStoppingEvent;
+
+@Singleton
+@Module(id = "freezedetection", name = "FreezeDetection", version = "1.0.0",
+        description = "Detects server freeze and produces thread dumps",
+        dependencies = @Dependency("cubeengine-core"),
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+public class FreezeDetection extends CubeEngineModule
 {
     @Inject private TaskManager taskManager;
-    @Inject private Log logger;
+    private Log logger;
     @Inject private ThreadFactory tf;
     @Inject File pluginFolder;
+    @Inject ModuleManager mm;
 
     private ScheduledExecutorService executor;
     private UUID taskId;
@@ -48,15 +59,16 @@ public class FreezeDetection extends Module
     private final ConcurrentLinkedQueue<Runnable> listeners = new ConcurrentLinkedQueue<>();
     private volatile boolean freezeNotified = false;
 
-    @Enable
-    public void onEnable()
+    @Listener
+    public void onEnable(GamePreInitializationEvent event)
     {
+        this.logger = mm.getLoggerFor(FreezeDetection.class);
         start();
         addListener(new ThreadDumpListener(logger, pluginFolder.toPath()));
     }
 
-    @Disable
-    public void onDisable()
+    @Listener
+    public void onDisable(GameStoppingEvent event)
     {
         shutdown();
     }

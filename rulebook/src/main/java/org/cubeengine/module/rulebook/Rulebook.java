@@ -19,9 +19,10 @@ package org.cubeengine.module.rulebook;
 
 import java.nio.file.Path;
 import javax.inject.Inject;
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.modularity.core.marker.Enable;
+import javax.inject.Singleton;
+
+import org.cubeengine.libcube.CubeEngineModule;
+import org.cubeengine.libcube.ModuleManager;
 import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
@@ -29,8 +30,18 @@ import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.module.rulebook.bookManagement.RulebookCommands;
 import org.cubeengine.module.rulebook.bookManagement.RulebookManager;
-@ModuleInfo(name = "Rulebook", description = "Puts a book in the inventory of new players.")
-public class Rulebook extends Module
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+
+@Singleton
+@Module(id = "rulebook", name = "Rulebook", version = "1.0.0",
+        description = "Puts a book in the inventory of new players.",
+        dependencies = @Dependency("cubeengine-core"),
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+public class Rulebook extends CubeEngineModule
 {
     private RulebookManager rulebookManager;
 
@@ -38,11 +49,13 @@ public class Rulebook extends Module
     @Inject private CommandManager cm;
     @Inject private EventManager em;
     @Inject private I18n i18n;
-    @Inject private Path folder;
+    @Inject private ModuleManager mm;
+    private Path folder;
 
-    @Enable
-    public void onEnable()
+    @Listener
+    public void onEnable(GamePreInitializationEvent event)
     {
+        this.folder = mm.getPathFor(Rulebook.class);
         // this.getCore().getFileManager().dropResources(RulebookResource.values());
         Permission getOtherPerm = pm.register(Rulebook.class, "command.get.other", "Allows adding a rulebook to another players inventory", null);
         this.rulebookManager = new RulebookManager(this, i18n);

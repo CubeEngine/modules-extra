@@ -53,7 +53,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.ItemStack;
 
 @ModuleInfo(name = "Log", description = "Log everything you want")
-public class Log extends Module
+public class Log extends CubeEngineModule
 {
     private LogManager logManager;
     private LogConfiguration config;

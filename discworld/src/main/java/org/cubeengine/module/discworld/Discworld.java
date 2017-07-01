@@ -17,15 +17,21 @@
  */
 package org.cubeengine.module.discworld;
 
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.modularity.core.marker.Enable;
+import org.cubeengine.libcube.CubeEngineModule;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.world.gen.BiomeGenerator;
 import org.spongepowered.api.world.gen.WorldGeneratorModifier;
 
-@ModuleInfo(name = "Discworld", description = "Provides a custom world generator for a discworld")
-public class Discworld extends Module
+import javax.inject.Singleton;
+
+@Singleton
+@Module(id = "discworld", name = "Discworld", version = "1.0.0",
+        description = "Provides a custom world generator for a discworld",
+        dependencies = @Dependency("cubeengine-core"),
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+public class Discworld extends CubeEngineModule
 {
     public Discworld()
     {

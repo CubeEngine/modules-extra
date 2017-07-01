@@ -18,7 +18,6 @@
 package org.cubeengine.libcube.service.webapi;
 
 import java.util.LinkedHashMap;
-import de.cubeisland.engine.modularity.core.Module;
 
 public abstract class ApiHandler
 {

@@ -18,27 +18,39 @@
 package org.cubeengine.module.controlc;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import de.cubeisland.engine.logscribe.Log;
-import de.cubeisland.engine.modularity.asm.marker.ModuleInfo;
-import de.cubeisland.engine.modularity.core.Module;
-import de.cubeisland.engine.modularity.core.marker.Enable;
+import org.cubeengine.libcube.CubeEngineModule;
+import org.cubeengine.libcube.ModuleManager;
 import org.cubeengine.libcube.service.task.TaskManager;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.text.Text;
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
 
-@ModuleInfo(name = "ControlC", description = "Prevents the server shutting down immediatly by pressing control and C")
-public class ControlC extends Module implements SignalHandler
+@Singleton
+@Module(id = "controlc", name = "ControlC", version = "1.0.0",
+        description = "Prevents the server shutting down immediatly by pressing control and C",
+        dependencies = @Dependency("cubeengine-core"),
+        url = "http://cubeengine.org",
+        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+public class ControlC extends CubeEngineModule implements SignalHandler
 {
-    @Inject private Log logger;
+    private Log logger;
     @Inject private TaskManager tm;
+    @Inject private ModuleManager mm;
 
     private long lastReceived = 0;
 
-    @Enable
-    public void onEnable()
+    @Listener
+    public void onEnable(GamePreInitializationEvent event)
     {
+        this.logger = this.mm.getLoggerFor(ControlC.class);
         try
         {
             Class.forName("sun.misc.Signal");
