@@ -54,11 +54,7 @@ import static org.cubeengine.module.authorization.HashHelper.*;
 import static org.cubeengine.module.authorization.storage.TableAuth.TABLE_AUTH;
 
 @Singleton
-@Module(id = "authorization", name = "Authorization", version = "1.0.0",
-        description = "Provides password authorization",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 @ModuleTables(TableAuth.class)
 public class Authorization extends CubeEngineModule
 {

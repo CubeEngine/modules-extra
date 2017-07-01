@@ -42,11 +42,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 
 @Singleton
-@Module(id = "shout", name = "Shout", version = "1.0.0",
-        description = "Announce things!",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 public class Shout extends CubeEngineModule
 {
     @Inject private PermissionManager pm;

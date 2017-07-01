@@ -75,7 +75,7 @@ import javax.inject.Singleton;
  * This class represents the API server and provides methods to configure and control it
  */
 @Singleton
-@Module(id = "apiserver", name = "API-Server", description = "Provides an APIServer Service")
+@Module
 public class ApiServer extends CubeEngineModule
 {
     private final Log log;

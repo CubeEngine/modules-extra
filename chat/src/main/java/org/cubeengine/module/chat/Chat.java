@@ -44,11 +44,7 @@ import javax.inject.Singleton;
  */
 // TODO link item in hand
 @Singleton
-@Module(id = "chat", name = "Chat", version = "1.0.0",
-        description = "Chat formatting",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 public class Chat extends CubeEngineModule
 {
     // TODO tablist-prefix data from subject or other module?

@@ -44,11 +44,7 @@ import static java.util.concurrent.TimeUnit.DAYS;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
 
 @Singleton
-@Module(id = "namehistory", name = "Namehistory", version = "1.0.0",
-        description = "Tracks users changing names on your server",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 public class Namehistory extends CubeEngineModule
 {
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");

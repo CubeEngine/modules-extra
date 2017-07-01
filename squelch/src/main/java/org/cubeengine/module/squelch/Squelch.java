@@ -30,11 +30,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-@Module(id = "squelch", name = "Squelch", version = "1.0.0",
-        description = "Mute or Ignore other players",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 @ModuleTables({TableMuted.class, TableIgnorelist.class})
 // TODO custom data for mute & ignore
 public class Squelch extends CubeEngineModule

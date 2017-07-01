@@ -36,11 +36,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-@Module(id = "powertools", name = "Powertools", version = "1.0.0",
-        description = "Empower your tools",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 public class Powertools extends CubeEngineModule
 {
     @Inject private PowertoolsPerm perm;

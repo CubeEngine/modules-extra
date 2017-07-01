@@ -32,11 +32,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 
 @Singleton
-@Module(id = "customcommands", name = "Customcommands", version = "1.0.0",
-        description = "Module adding custom chat commands",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 public class Customcommands extends CubeEngineModule
 {
     @ModuleConfig private CustomCommandsConfig config;

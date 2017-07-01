@@ -33,11 +33,7 @@ import org.spongepowered.api.service.permission.PermissionService;
 
 // TODO integrate in teleport module reading subject option is not that advanced of a feature?
 @Singleton
-@Module(id = "spawn", name = "Spawn", version = "1.0.0",
-        description = "Modifies the default spawn behaviour",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 public class Spawn extends CubeEngineModule
 {
     @Inject private EventManager em;

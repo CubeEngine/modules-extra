@@ -99,11 +99,7 @@ import javax.inject.Singleton;
  * A module to gather monster spawners with silk touch and reactivate them using spawneggs
  */
 @Singleton
-@Module(id = "spawner", name = "Spawner", version = "1.0.0",
-        description = "Lets you move spawners",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 public class Spawner extends CubeEngineModule
 {
     private ItemStack spawnerItem;

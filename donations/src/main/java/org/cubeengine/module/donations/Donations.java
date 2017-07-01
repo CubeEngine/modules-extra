@@ -32,11 +32,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 
 @Singleton
-@Module(id = "donations", name = "Donations", version = "1.0.0",
-        description = "Provides WebAPI to handle donations",
-        dependencies = {@Dependency("cubeengine-core"), @Dependency("cubeengine-apiserver")},
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module(dependencies = @Dependency("cubeengine-apiserver"))
 public class Donations extends CubeEngineModule
 {
     @Inject private FileManager fm;

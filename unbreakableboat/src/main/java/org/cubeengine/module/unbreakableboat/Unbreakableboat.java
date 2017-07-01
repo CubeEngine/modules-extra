@@ -56,11 +56,7 @@ import static java.util.Collections.singletonList;
  * Boats do not break easily anymore in 1.11
  */
 @Singleton
-@Module(id = "unbreakableboat", name = "UnbreakableBoat", version = "1.0.0",
-        description = "Adds a Recipe for an unbreakable Boat",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 public class Unbreakableboat extends CubeEngineModule
 {
     private ItemStack boat;

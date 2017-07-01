@@ -57,11 +57,7 @@ import javax.inject.Singleton;
  * A module to edit signs and signed books
  */
 @Singleton
-@Module(id = "writer", name = "Writer", version = "1.0.0",
-        description = "Edit signs and books",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 public class Writer extends CubeEngineModule
 {
     @Inject private CommandManager cm;

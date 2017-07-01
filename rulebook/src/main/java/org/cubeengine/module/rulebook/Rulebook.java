@@ -36,11 +36,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 
 @Singleton
-@Module(id = "rulebook", name = "Rulebook", version = "1.0.0",
-        description = "Puts a book in the inventory of new players.",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 public class Rulebook extends CubeEngineModule
 {
     private RulebookManager rulebookManager;

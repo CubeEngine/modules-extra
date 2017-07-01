@@ -25,11 +25,7 @@ import org.cubeengine.processor.Module;
 import javax.inject.Singleton;
 
 @Singleton
-@Module(id = "patient", name = "Patient", version = "1.0.0",
-        description = "Find out what your server is suffering from",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 public class Patient extends CubeEngineModule
 {
     @ModuleConfig private PatientConfig config;

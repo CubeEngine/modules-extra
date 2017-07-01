@@ -38,11 +38,7 @@ import org.spongepowered.api.text.Text;
 import static org.spongepowered.api.event.Order.POST;
 
 @Singleton
-@Module(id = "faq", name = "FAQ", version = "1.0.0",
-        description = "Answers all your frequently asked questions!",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 public class Faq extends CubeEngineModule
 {
     private final PriorityQueue<Question> questions = new PriorityQueue<>();

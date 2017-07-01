@@ -45,11 +45,7 @@ import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.plugin.PluginContainer;
 
 @Singleton
-@Module(id = "vigil", name = "Vigil", version = "1.0.0",
-        description = "Keeps a vigilant eye on your server",
-        dependencies = { @Dependency("cubeengine-core"),@Dependency("cubeengine-bigdata")},
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module(dependencies = @Dependency("cubeengine-bigdata"))
 public class Vigil extends CubeEngineModule
 {
     @ModuleConfig private VigilConfig config;

@@ -38,11 +38,7 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.plugin.PluginContainer;
 
 @Singleton
-@Module(id = "backpack", name = "Backpack", version = "1.0.0",
-        description = "Expand your inventory",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 /*
 TODO blocked by custom inventories implementation
 TODO replace global/grouped/single with context:

@@ -46,11 +46,7 @@ import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
 // TODO event for hide and show
 // TODO contextual - can see hidden players
 @Singleton
-@Module(id = "hide", name = "Hide", version = "1.0.0",
-        description = "Hide yourself from the world",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 public class Hide extends CubeEngineModule
 {
     private Set<UUID> hiddenUsers;

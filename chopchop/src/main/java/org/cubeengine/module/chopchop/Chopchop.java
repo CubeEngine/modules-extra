@@ -48,11 +48,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-@Module(id = "chopchop", name = "ChopChop", version = "1.0.0",
-        description = "Chop whole trees down",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 public class Chopchop extends CubeEngineModule
 {
     @Inject private PluginContainer plugin;

@@ -26,11 +26,7 @@ import org.spongepowered.api.world.gen.WorldGeneratorModifier;
 import javax.inject.Singleton;
 
 @Singleton
-@Module(id = "discworld", name = "Discworld", version = "1.0.0",
-        description = "Provides a custom world generator for a discworld",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 public class Discworld extends CubeEngineModule
 {
     public Discworld()

@@ -44,11 +44,7 @@ import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.economy.EconomyService;
 
 @Singleton
-@Module(id = "itemrepair", name = "ItemRepair", version = "1.0.0",
-        description = "Repair your tools for money",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 @ModuleTables(TableRepairBlock.class)
 public class Itemrepair extends CubeEngineModule
 {

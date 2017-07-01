@@ -34,11 +34,7 @@ import sun.misc.Signal;
 import sun.misc.SignalHandler;
 
 @Singleton
-@Module(id = "controlc", name = "ControlC", version = "1.0.0",
-        description = "Prevents the server shutting down immediatly by pressing control and C",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 public class ControlC extends CubeEngineModule implements SignalHandler
 {
     private Log logger;

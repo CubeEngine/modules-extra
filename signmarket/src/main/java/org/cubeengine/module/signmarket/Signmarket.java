@@ -44,11 +44,7 @@ import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.economy.EconomyService;
 
 @Singleton
-@Module(id = "signmarket", name = "SignMarket", version = "1.0.0",
-        description = "Adds a sign-based market",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 public class Signmarket extends CubeEngineModule
 {
     private Log logger; // TODO log transactions

@@ -39,11 +39,7 @@ import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.event.game.state.GameStoppingEvent;
 
 @Singleton
-@Module(id = "freezedetection", name = "FreezeDetection", version = "1.0.0",
-        description = "Detects server freeze and produces thread dumps",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 public class FreezeDetection extends CubeEngineModule
 {
     @Inject private TaskManager taskManager;

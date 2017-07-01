@@ -17,25 +17,20 @@
  */
 package org.cubeengine.module.fly;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.libcube.service.task.TaskManager;
-import org.cubeengine.processor.Dependency;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 @Singleton
-@Module(id = "fly", name = "Fly", version = "1.0.0",
-        description = "Fly like a feather",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 public class Fly extends CubeEngineModule
 {
     @Inject private PermissionManager pm;

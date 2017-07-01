@@ -44,11 +44,7 @@ import java.util.List;
 import javax.inject.Singleton;
 
 @Singleton
-@Module(id = "bigdata", name = "BigData", version = "1.0.0",
-        description = "Provides serialization to a MongoDB",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 public class Bigdata extends CubeEngineModule
 {
     @ModuleConfig private MongoDBConfiguration config;

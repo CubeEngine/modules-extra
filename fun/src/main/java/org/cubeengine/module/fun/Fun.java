@@ -41,11 +41,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 
 @Singleton
-@Module(id = "fun", name = "Fun", version = "1.0.0",
-        description = "A collection of fun commands",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 public class Fun extends CubeEngineModule
 {
     @ModuleConfig private FunConfiguration config;

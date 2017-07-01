@@ -56,11 +56,7 @@ import static java.lang.Math.pow;
  * A module to handle Votes coming from a {@link VotifierEvent}
  */
 @Singleton
-@Module(id = "vote", name = "Vote", version = "1.0.0",
-        description = "Get rewards for votes",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 public class Vote extends CubeEngineModule
 {
     private VoteConfiguration config;

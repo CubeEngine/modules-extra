@@ -34,11 +34,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 
 @Singleton
-@Module(id = "selector", name = "Selector", version = "1.0.0",
-        description = "Select Areas",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 public class Selector extends CubeEngineModule
 {
     @Inject private PermissionManager pm;

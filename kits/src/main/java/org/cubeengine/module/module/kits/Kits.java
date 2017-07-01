@@ -39,14 +39,9 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.cubeengine.processor.Module;
-import org.cubeengine.processor.Dependency;
 
 @Singleton
-@Module(id = "kits", name = "Kits", version = "1.0.0",
-        description = "Hand kits to your players",
-        dependencies = @Dependency("cubeengine-core"),
-        url = "http://cubeengine.org",
-        authors = {"Anselm 'Faithcaio' Brehme", "Phillip Schichtel"})
+@Module
 public class Kits extends CubeEngineModule
 {
     private KitManager kitManager;
