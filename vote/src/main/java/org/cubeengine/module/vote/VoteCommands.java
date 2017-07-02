@@ -33,6 +33,8 @@ import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE
 import static org.cubeengine.module.vote.storage.TableVote.TABLE_VOTE;
 import static java.util.concurrent.TimeUnit.DAYS;
 
+import javax.inject.Inject;
+
 public class VoteCommands
 {
     private final PeriodFormatter formatter;
@@ -40,6 +42,7 @@ public class VoteCommands
     private Database db;
     private I18n i18n;
 
+    @Inject
     public VoteCommands(Vote module, Database db, I18n i18n)
     {
         this.module = module;
