@@ -33,6 +33,7 @@ import org.cubeengine.libcube.service.database.ModuleTables;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.libcube.util.ChatFormat;
 import org.cubeengine.module.vote.storage.TableVote;
+import org.cubeengine.processor.Dependency;
 import org.cubeengine.processor.Module;
 import org.jooq.DSLContext;
 import org.spongepowered.api.Sponge;
@@ -57,7 +58,7 @@ import javax.inject.Singleton;
  * A module to handle Votes coming from a {@link VotifierEvent}
  */
 @Singleton
-@Module
+@Module(dependencies = @Dependency("nuvotifier"))
 @ModuleTables(TableVote.class)
 public class Vote extends CubeEngineModule
 {
