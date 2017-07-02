@@ -44,7 +44,7 @@ public class FreezeDetection extends CubeEngineModule
 {
     @Inject private TaskManager taskManager;
     private Log logger;
-    @Inject private ThreadFactory tf;
+    private ThreadFactory tf;
     @Inject File pluginFolder;
     @Inject ModuleManager mm;
 
@@ -58,6 +58,7 @@ public class FreezeDetection extends CubeEngineModule
     @Listener
     public void onEnable(GamePreInitializationEvent event)
     {
+        this.tf = mm.getThreadFactory(FreezeDetection.class);
         this.logger = mm.getLoggerFor(FreezeDetection.class);
         start();
         addListener(new ThreadDumpListener(logger, pluginFolder.toPath()));
