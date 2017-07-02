@@ -17,24 +17,22 @@
  */
 package org.cubeengine.module.vote;
 
-import java.math.BigDecimal;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import static java.lang.Math.pow;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NONE;
+import static org.cubeengine.module.vote.storage.TableVote.TABLE_VOTE;
 
 import com.vexsoftware.votifier.sponge.event.VotifierEvent;
 import de.cubeisland.engine.logscribe.Log;
 import org.cubeengine.libcube.CubeEngineModule;
+import org.cubeengine.libcube.InjectService;
+import org.cubeengine.libcube.ModuleManager;
 import org.cubeengine.libcube.service.Broadcaster;
-import org.cubeengine.libcube.service.event.EventManager;
-import org.cubeengine.libcube.service.filesystem.FileManager;
-import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.libcube.util.ChatFormat;
-import org.cubeengine.libcube.service.command.CommandManager;
+import org.cubeengine.libcube.service.command.ModuleCommand;
 import org.cubeengine.libcube.service.database.Database;
+import org.cubeengine.libcube.service.database.ModuleTables;
+import org.cubeengine.libcube.service.filesystem.ModuleConfig;
+import org.cubeengine.libcube.util.ChatFormat;
 import org.cubeengine.module.vote.storage.TableVote;
-import org.cubeengine.processor.Dependency;
 import org.cubeengine.processor.Module;
 import org.jooq.DSLContext;
 import org.spongepowered.api.Sponge;
@@ -42,41 +40,40 @@ import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
-import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
 import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
 import org.spongepowered.api.service.user.UserStorageService;
 import org.spongepowered.api.text.Text;
 
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NONE;
-import static org.cubeengine.module.vote.storage.TableVote.TABLE_VOTE;
-import static java.lang.Math.pow;
+import java.math.BigDecimal;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * A module to handle Votes coming from a {@link VotifierEvent}
  */
 @Singleton
 @Module
+@ModuleTables(TableVote.class)
 public class Vote extends CubeEngineModule
 {
-    private VoteConfiguration config;
-
-    @Inject private EconomyService economy;
     @Inject private Database db;
-    @Inject private EventManager em;
-    @Inject private CommandManager cm;
-    @Inject private FileManager fm;
-    @Inject private Log logger;
-    @Inject private I18n i18n;
     @Inject private Broadcaster bc;
+    @Inject private ModuleManager mm;
+    private Log logger;
+
+    @ModuleConfig private VoteConfiguration config;
+    @ModuleCommand private VoteCommands commands;
+    @InjectService private EconomyService economy;
 
     @Listener
-    public void onEnable(GamePreInitializationEvent event)
+    public void onPreInit(GamePostInitializationEvent event)
     {
-        db.registerTable(TableVote.class);
-        this.config = fm.loadConfig(this, VoteConfiguration.class);
-        em.registerListener(Vote.class, this);
-        cm.addCommands(this, new VoteCommands(this, db, i18n));
+        this.logger = mm.getLoggerFor(Vote.class);
     }
 
     @Listener
