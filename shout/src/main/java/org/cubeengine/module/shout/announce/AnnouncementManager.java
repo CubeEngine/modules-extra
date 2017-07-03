@@ -148,7 +148,7 @@ public class AnnouncementManager
      */
     public void initializeUser(Player user)
     {
-        DynamicCycleTask messageTask = new DynamicCycleTask(tm, user, module, this);
+        DynamicCycleTask messageTask = new DynamicCycleTask(tm, user, this);
         dynamicAnnouncements.values().forEach(messageTask::addAnnouncement);
         dynamicTasks.put(user.getUniqueId(), messageTask);
         messageTask.run();
@@ -267,6 +267,11 @@ public class AnnouncementManager
         if (removed == null) {
             removed = this.dynamicAnnouncements.remove(announcement);
         }
+        for (DynamicCycleTask task : dynamicTasks.values())
+        {
+            task.removeAnnouncement(removed);
+        }
+
         if (removed == null) {
             return false;
         }

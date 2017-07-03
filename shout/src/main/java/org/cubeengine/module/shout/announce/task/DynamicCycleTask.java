@@ -31,7 +31,6 @@ public class DynamicCycleTask implements Runnable
 {
     private final TaskManager tm;
     private Player src;
-    private Shout module;
     private AnnouncementManager manager;
     private TreeMap<Integer, Announcement> announcements = new TreeMap<>();
     private Announcement next;
@@ -39,11 +38,10 @@ public class DynamicCycleTask implements Runnable
     private Random random = new Random();
     private int weightCount = 0;
 
-    public DynamicCycleTask(TaskManager tm, Player src, Shout module, AnnouncementManager manager)
+    public DynamicCycleTask(TaskManager tm, Player src, AnnouncementManager manager)
     {
         this.tm = tm;
         this.src = src;
-        this.module = module;
         this.manager = manager;
     }
 
@@ -51,6 +49,11 @@ public class DynamicCycleTask implements Runnable
     {
         announcements.put(weightCount, announcement);
         weightCount += announcement.weight();
+    }
+
+    public void removeAnnouncement(Announcement removed)
+    {
+        announcements.values().remove(removed);
     }
 
     @Override
