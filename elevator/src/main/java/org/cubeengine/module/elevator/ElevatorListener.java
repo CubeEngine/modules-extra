@@ -127,7 +127,7 @@ public class ElevatorListener
         }
         // else no sneak
 
-        if (player.hasPermission(module.getPerm().USE.getId()))
+        if (event instanceof InteractBlockEvent.Secondary && player.hasPermission(module.getPerm().USE.getId()))
         {
             Optional<Vector3i> target = event.getTargetBlock().get(IElevatorData.TARGET);
             if (target.isPresent())
