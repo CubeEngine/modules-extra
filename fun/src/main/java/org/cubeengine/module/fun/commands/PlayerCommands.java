@@ -238,7 +238,7 @@ public class PlayerCommands
         if (player != null)
         {
             location = player.getLocation();
-            player.offer(Keys.FIRE_TICKS, 20 * seconds);
+            player.offer(Keys.FIRE_TICKS, 20 * (seconds == null ? 0 : seconds));
             if (damage != -1)
             {
                 player.damage(damage, DamageSource.builder().type(DamageTypes.CONTACT).build()); // TODO better source
