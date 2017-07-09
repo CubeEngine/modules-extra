@@ -62,7 +62,7 @@ public class VigilCommands extends ContainerCommand
     @Command(desc = "Gives you a block to check logs with." +
         "no log-type: Shows everything\n" +
         "chest: Shows chest-interactions only\n" +
-        "player: Shows player-interacions only\n" +
+        "player: Shows player-interactions only\n" +
         "kills: Shows kill-interactions only\n" +
         "block: Shows block-changes only")
     @Restricted(value = Player.class, msg = "Why don't you check in your log-file? You won't need a block there!")
@@ -83,7 +83,7 @@ public class VigilCommands extends ContainerCommand
     @Command(desc = "Gives you an item to check logs with.\n" +
         "no log-type: Shows everything\n" +
         "chest: Shows chest-interactions only\n" +
-        "player: Shows player-interacions only\n" +
+        "player: Shows player-interactions only\n" +
         "kills: Shows kill-interactions only\n" +
         "block: Shows block-changes only")
     @Restricted(value = Player.class, msg = "Why don't you check in your log-file? You won't need an item there!")
