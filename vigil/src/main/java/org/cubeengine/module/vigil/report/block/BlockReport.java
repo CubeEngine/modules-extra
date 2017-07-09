@@ -89,6 +89,11 @@ public abstract class BlockReport<T extends ChangeBlockEvent> extends BaseReport
 
     private static boolean isRedstoneChange(BlockState origState, BlockState finalState)
     {
+        if (origState.getType().equals(finalState.getType()) && origState.getType().equals(BlockTypes.REDSTONE_WIRE))
+        {
+            return true;
+        }
+
         return isChangeFromOrTo(origState, finalState, BlockTypes.POWERED_REPEATER, BlockTypes.UNPOWERED_REPEATER)
             || isChangeFromOrTo(origState, finalState, BlockTypes.POWERED_COMPARATOR, BlockTypes.UNPOWERED_COMPARATOR)
             || isChangeFromOrTo(origState, finalState, BlockTypes.REDSTONE_TORCH, BlockTypes.UNLIT_REDSTONE_TORCH)
