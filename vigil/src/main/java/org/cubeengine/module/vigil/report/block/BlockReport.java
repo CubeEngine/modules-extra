@@ -17,21 +17,27 @@
  */
 package org.cubeengine.module.vigil.report.block;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import com.flowpowered.math.vector.Vector3i;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.BaseReport;
 import org.cubeengine.module.vigil.report.Observe;
 import org.cubeengine.module.vigil.report.Recall;
-import org.cubeengine.module.vigil.report.Report;
 import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.block.BlockState;
+import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.block.trait.BlockTrait;
+import org.spongepowered.api.block.trait.BooleanTraits;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
-import org.spongepowered.api.event.block.ChangeBlockEvent.Place;
 import org.spongepowered.api.world.BlockChangeFlag;
-
-import static java.util.stream.Collectors.toList;
 
 public abstract class BlockReport<T extends ChangeBlockEvent> extends BaseReport<T>
 {
@@ -56,12 +62,20 @@ public abstract class BlockReport<T extends ChangeBlockEvent> extends BaseReport
     protected void report(ChangeBlockEvent event)
     {
         UUID multi = UUID.randomUUID();
-        for (Transaction<BlockSnapshot> trans : event.getTransactions())
+        for (Map.Entry<Vector3i, List<Transaction<BlockSnapshot>>> entry : event.getTransactions().stream().collect(Collectors.groupingBy(t -> t.getOriginal().getPosition())).entrySet())
         {
+            // Only get one transaction for one block
+            Transaction<BlockSnapshot> trans = entry.getValue().get(0);
             if (!isActive(trans.getOriginal().getLocation().get().getExtent()))
             {
                 continue;
             }
+
+            if (isRedstoneChange(trans.getOriginal().getState(), trans.getFinal().getState()))
+            {
+                continue;
+            }
+
             Action action = observe(event);
             action.addData(BLOCK_CHANGES, Observe.transactions(trans));
             action.addData(LOCATION, Observe.location(trans.getOriginal().getLocation().get()));
@@ -71,6 +85,31 @@ public abstract class BlockReport<T extends ChangeBlockEvent> extends BaseReport
             }
             report(action);
         }
+    }
+
+    private static boolean isRedstoneChange(BlockState origState, BlockState finalState)
+    {
+        return isChangeFromOrTo(origState, finalState, BlockTypes.POWERED_REPEATER, BlockTypes.UNPOWERED_REPEATER)
+            || isChangeFromOrTo(origState, finalState, BlockTypes.POWERED_COMPARATOR, BlockTypes.UNPOWERED_COMPARATOR)
+            || isChangeFromOrTo(origState, finalState, BlockTypes.REDSTONE_TORCH, BlockTypes.UNLIT_REDSTONE_TORCH)
+            || isChangeTrait(origState, finalState, BlockTypes.DROPPER, BooleanTraits.DROPPER_TRIGGERED, false)
+            || isChangeTrait(origState, finalState, BlockTypes.DISPENSER, BooleanTraits.DISPENSER_TRIGGERED, false)
+            || isChangeTrait(origState, finalState, BlockTypes.HOPPER, BooleanTraits.HOPPER_ENABLED, true);
+    }
+
+    private static boolean isChangeFromOrTo(BlockState origState, BlockState finalState, BlockType from, BlockType to)
+    {
+        return origState.getType().equals(from) && finalState.getType().equals(to)
+            || origState.getType().equals(to) && finalState.getType().equals(from);
+    }
+
+    private static <T extends Comparable<T>> boolean isChangeTrait(BlockState origState, BlockState finalSate, BlockType type, BlockTrait<T> trait, T traitDefault)
+    {
+        if (origState.getType().equals(finalSate.getType()) && origState.getType().equals(type))
+        {
+            return origState.withTrait(trait, traitDefault).equals(finalSate.withTrait(trait, traitDefault));
+        }
+        return false;
     }
 
     protected boolean group(Optional<BlockSnapshot> repl1, Optional<BlockSnapshot> repl2)

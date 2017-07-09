@@ -41,7 +41,7 @@ import org.cubeengine.processor.Dependency;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
 import org.spongepowered.api.plugin.PluginContainer;
 
 @Singleton
@@ -62,7 +62,7 @@ public class Vigil extends CubeEngineModule
     private QueryManager qm;
 
     @Listener
-    public void onEnable(GamePreInitializationEvent event)
+    public void onEnable(GamePostInitializationEvent event)
     {
         this.tf = mm.getThreadFactory(Vigil.class);
         ReportManager reportManager = new ReportManager(this, em, i18n);
