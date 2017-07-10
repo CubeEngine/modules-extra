@@ -120,7 +120,6 @@ public class Spawner extends CubeEngineModule
 
         this.spawnerItem = ItemStack.of(ItemTypes.MOB_SPAWNER, 1);
         spawnerItem.offer(Keys.ITEM_ENCHANTMENTS, singletonList(new ItemEnchantment(Enchantments.LURE, 1)));
-        em.registerListener(Spawner.class, this);
     }
 
     private void initPerm(EntityType... types)
