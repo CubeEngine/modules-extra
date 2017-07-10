@@ -26,8 +26,8 @@ import org.jooq.impl.SQLDataType;
 public class TableIgnorelist extends Table<IgnoreList>
 {
     public static TableIgnorelist TABLE_IGNORE_LIST;
-    public final TableField<IgnoreList, UUID> ID = createField("id", SQLDataType.UUID.nullable(false), this);
-    public final TableField<IgnoreList, UUID> IGNORE = createField("ignore", SQLDataType.UUID.nullable(false), this);
+    public final TableField<IgnoreList, UUID> ID = createField("id", UUID_TYPE.nullable(false), this);
+    public final TableField<IgnoreList, UUID> IGNORE = createField("ignore", UUID_TYPE.nullable(false), this);
 
     public TableIgnorelist()
     {
