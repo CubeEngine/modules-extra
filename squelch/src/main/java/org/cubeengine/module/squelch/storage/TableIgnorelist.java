@@ -17,11 +17,11 @@
  */
 package org.cubeengine.module.squelch.storage;
 
-import java.util.UUID;
-import org.cubeengine.libcube.util.Version;
 import org.cubeengine.libcube.service.database.Table;
+import org.cubeengine.libcube.util.Version;
 import org.jooq.TableField;
-import org.jooq.impl.SQLDataType;
+
+import java.util.UUID;
 
 public class TableIgnorelist extends Table<IgnoreList>
 {
