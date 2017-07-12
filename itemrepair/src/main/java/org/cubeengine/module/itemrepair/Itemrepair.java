@@ -43,6 +43,8 @@ import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.economy.EconomyService;
 
+import java.util.Optional;
+
 @Singleton
 @Module
 @ModuleTables(TableRepairBlock.class)
@@ -58,7 +60,6 @@ public class Itemrepair extends CubeEngineModule
     @Inject private PermissionManager pm;
     @Inject private PluginContainer plugin;
 
-
     @Inject
     public Itemrepair(Reflector reflector, ModuleManager mm)
     {
@@ -69,8 +70,14 @@ public class Itemrepair extends CubeEngineModule
     @Listener
     public void onEnable(GamePostInitializationEvent event)
     {
-        EconomyService economy = Sponge.getServiceManager().provideUnchecked(EconomyService.class);
-        this.repairBlockManager = new RepairBlockManager(this, db, em, i18n, economy, pm);
+        Optional<EconomyService> economy = Sponge.getServiceManager().provide(EconomyService.class);
+        if (!economy.isPresent())
+        {
+            this.logger.error("Missing required EconomyService. Do you have a plugin installed that provides it?");
+            this.logger.info("Listeners and Commands will not be registered.");
+            return;
+        }
+        this.repairBlockManager = new RepairBlockManager(this, db, em, i18n, economy.get(), pm);
         em.registerListener(Itemrepair.class, new ItemRepairListener(this, i18n));
         cm.addCommand(new ItemRepairCommands(cm, this, em, i18n));
     }
