@@ -209,6 +209,12 @@ public class QueryManager
         // TODO lookup settings
         query.world(lookup.getWorld());
 
+        List<String> reportFilters = lookup.getSettings().getReports();
+        if (!reportFilters.isEmpty())
+        {
+            query.reportFilters(reportFilters);
+        }
+
         if (lookup.getPosition() != null)
         {
             query.position(lookup.getPosition());

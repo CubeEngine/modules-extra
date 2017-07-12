@@ -21,21 +21,30 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
 import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
+import org.cubeengine.module.vigil.report.Action;
+import org.cubeengine.module.vigil.report.Report;
 import org.cubeengine.module.vigil.report.entity.EntityReport;
+import org.spongepowered.api.data.manipulator.mutable.RepresentedItemData;
 import org.spongepowered.api.world.World;
 
 import static com.mongodb.QueryOperators.AND;
+import static com.mongodb.QueryOperators.IN;
 import static com.mongodb.QueryOperators.OR;
 import static org.cubeengine.module.vigil.report.Action.DATA;
+import static org.cubeengine.module.vigil.report.Action.TYPE;
 import static org.cubeengine.module.vigil.report.Report.*;
 import static org.cubeengine.module.vigil.report.block.BlockReport.BLOCK_CHANGES;
 import static org.cubeengine.module.vigil.report.entity.EntityReport.ENTITY;
 import static org.cubeengine.module.vigil.report.entity.EntityReport.ENTITY_DATA;
+
+import javax.print.Doc;
 
 public class Query
 {
@@ -73,6 +82,14 @@ public class Query
         position.put(String.join(".", DATA, LOCATION, Z.asString("_")), pos.getZ());
 
         and.add(position);
+        return this;
+    }
+
+    public Query reportFilters(List<String> reports)
+    {
+        Document types = new Document();
+        types.put(TYPE, new Document(IN, reports));
+        and.add(types);
         return this;
     }
 }

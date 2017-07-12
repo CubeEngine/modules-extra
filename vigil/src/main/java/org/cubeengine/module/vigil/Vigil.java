@@ -25,6 +25,7 @@ import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.ModuleManager;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.module.bigdata.Bigdata;
+import org.cubeengine.module.vigil.commands.LookupDataParser;
 import org.cubeengine.module.vigil.commands.VigilAdminCommands;
 import org.cubeengine.module.vigil.commands.VigilCommands;
 import org.cubeengine.module.vigil.data.ImmutableLookupData;
@@ -68,6 +69,7 @@ public class Vigil extends CubeEngineModule
         this.tf = mm.getThreadFactory(Vigil.class);
         ReportManager reportManager = new ReportManager(this, em, i18n);
         qm = new QueryManager(tf, bd.getDatabase().getCollection("vigil"), reportManager, i18n, plugin);
+        this.cm.getProviders().register(this, new LookupDataParser(i18n), LookupData.class);;
         VigilCommands vc = new VigilCommands(sm, i18n, cm);
         cm.addCommand(vc);
         vc.addCommand(new VigilAdminCommands(cm, i18n, this));

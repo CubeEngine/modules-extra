@@ -116,7 +116,7 @@ public class Receiver
 
     private Text getLocation(Action firstAction, Action lastAction)
     {
-        if (!lookup.isShowLocation())
+        if (!lookup.getSettings().isShowLocation())
         {
             return Text.EMPTY;
         }
@@ -126,7 +126,7 @@ public class Receiver
             Text.Builder builder = Text.of(GRAY, location.getBlockX(), WHITE, ":", GRAY, location.getBlockY(), WHITE, ":", GRAY, location.getBlockZ()).toBuilder();
             builder.onHover(showText(i18n.translate(cmdSource, NEUTRAL, "Click to teleport to the location in {world}", location.getExtent())))
                    .onClick(executeCallback(c -> showTeleport(location)));
-            if (lookup.isFullLocation())
+            if (lookup.getSettings().isFullLocation())
             {
                 builder.append(Text.of(" ", i18n.translate(cmdSource, NONE, "in"), " ", GRAY, location.getExtent().getName()));
             }
@@ -149,7 +149,7 @@ public class Receiver
 
     private Text getDatePrefix(Action firstAction, Action lastAction)
     {
-        if (lookup.isNoDate())
+        if (lookup.getSettings().isNoDate())
         {
             return Text.EMPTY;
         }
@@ -160,7 +160,7 @@ public class Receiver
             boolean sameDay = dateLong.format(new Date()).equals(dLong);
             String tLong = timeLong.format(date);
             Text full = Text.of(GRAY, dLong, " ", tLong);
-            if (lookup.isFullDate())
+            if (lookup.getSettings().isFullDate())
             {
                 return full;
             }
@@ -187,7 +187,7 @@ public class Receiver
             String ltLong = timeLong.format(lastDate);
             Text fFull = Text.of(GRAY, fdLong, " ", ftLong);
             Text lFull = Text.of(GRAY, ldLong, " ", ltLong);
-            if (lookup.isFullDate())
+            if (lookup.getSettings().isFullDate())
             {
                 return Text.of(fFull, TextColors.WHITE, " - ", lFull);
             }

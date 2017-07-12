@@ -21,6 +21,7 @@ import java.util.Collections;
 import org.cubeengine.butler.alias.Alias;
 import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parametric.Command;
+import org.cubeengine.butler.parametric.Default;
 import org.cubeengine.butler.parametric.Label;
 import org.cubeengine.butler.parametric.Optional;
 import org.cubeengine.libcube.service.command.CommandManager;
@@ -45,8 +46,7 @@ import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
 @Command(name = "vigil", alias = "log", desc = "Vigil-Module Commands")
 public class VigilCommands extends ContainerCommand
 {
-    public static final Text toolName = Text.of(TextColors.DARK_AQUA, "Logging-ToolBlock");
-    public static final Text selectorToolName = Text.of(TextColors.DARK_AQUA, "Selector-Tool");
+    public static final Text toolName = Text.of(TextColors.DARK_AQUA, "Vigil Log-Tool");
 
     private StringMatcher sm;
     private I18n i18n;
@@ -59,44 +59,33 @@ public class VigilCommands extends ContainerCommand
     }
 
     @Alias(value = "lb")
-    @Command(desc = "Gives you a block to check logs with." +
+    @Command(desc = "Gives you a block to check logs with.")
+    /*
         "no log-type: Shows everything\n" +
         "chest: Shows chest-interactions only\n" +
         "player: Shows player-interactions only\n" +
         "kills: Shows kill-interactions only\n" +
-        "block: Shows block-changes only")
+        "block: Shows block-changes only
+     */
     @Restricted(value = Player.class, msg = "Why don't you check in your log-file? You won't need a block there!")
-    public void block(Player context, @Optional @Label("log-type") String logType)
+    public void block(Player context, @Default @Label("log-type") LookupData logType)
     {
-        //TODO tabcompleter for logBlockTypes
-        ItemType blockMaterial = this.matchType(logType, true);
-        if (blockMaterial == null)
-        {
-            i18n.send(context, NEGATIVE, "{input} is not a valid log-type. Use chest, container, player, block or kills instead!", logType);
-            
-            return;
-        }
-        findLogTool(context, blockMaterial);
+        findLogTool(context, logType);
     }
 
     @Alias(value = "lt")
-    @Command(desc = "Gives you an item to check logs with.\n" +
+    @Command(desc = "Gives you an item to check logs with.")
+    /*
         "no log-type: Shows everything\n" +
         "chest: Shows chest-interactions only\n" +
         "player: Shows player-interactions only\n" +
         "kills: Shows kill-interactions only\n" +
-        "block: Shows block-changes only")
+        "block: Shows block-changes only
+     */
     @Restricted(value = Player.class, msg = "Why don't you check in your log-file? You won't need an item there!")
-    public void tool(Player context, @Optional @Label("log-type") String logType)
+    public void tool(Player context, @Default @Label("log-type") LookupData logType)
     {
-        //TODO tabcompleter for logToolTypes
-        ItemType blockMaterial = this.matchType(logType, false);
-        if (blockMaterial == null)
-        {
-            i18n.send(context, NEGATIVE, "{input} is not a valid log-type. Use chest, container, player, block or kills instead!", logType);
-            return;
-        }
-        findLogTool(context, blockMaterial);
+        findLogTool(context, logType);
     }
 
     private ItemType matchType(String type, boolean block)// or item
@@ -125,13 +114,13 @@ public class VigilCommands extends ContainerCommand
     }
 
     @SuppressWarnings("deprecation")
-    private void findLogTool(Player player, ItemType type)
+    private void findLogTool(Player player, LookupData logType)
     {
-        ItemStack itemStack = Sponge.getGame().getRegistry().createBuilder(ItemStack.Builder.class).itemType(type).quantity(1).build();
+        ItemStack itemStack = Sponge.getGame().getRegistry().createBuilder(ItemStack.Builder.class).itemType(ItemTypes.BOOK).quantity(1).build();
         itemStack.offer(Keys.DISPLAY_NAME, toolName);
         itemStack.offer(Keys.ITEM_LORE, asList(i18n.translate(player, NONE, "created by {name}", player.getName())));
         itemStack.offer(Keys.ITEM_ENCHANTMENTS, Collections.emptyList());
-        itemStack.offer(new LookupData().with(player.getUniqueId()));
+        itemStack.offer(logType);
         player.setItemInHand(HandTypes.MAIN_HAND, itemStack);
         // TODO search in inventory
         // TODO put item in hand back into inventory

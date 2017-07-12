@@ -19,6 +19,7 @@ package org.cubeengine.module.vigil;
 
 import java.util.Optional;
 import org.cubeengine.libcube.service.permission.Permission;
+import org.cubeengine.module.vigil.data.LookupData;
 import org.cubeengine.module.vigil.storage.QueryManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.permission.PermissionManager;
@@ -51,9 +52,7 @@ public class ToolListener
     public void onClick(InteractBlockEvent event, @First Player player)
     {
         Optional<ItemStack> itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
-        if (itemInHand.isPresent() && itemInHand.get().get(DisplayNameData.class)
-                                        .map(data -> data.displayName().get().toPlain().equals(toolName.toPlain()))
-                                        .orElse(false))
+        if (itemInHand.isPresent() && itemInHand.get().get(LookupData.class).isPresent())
         {
             if (!player.hasPermission(toolPerm.getId()) || event.getTargetBlock() == BlockSnapshot.NONE)
             {
@@ -69,7 +68,7 @@ public class ToolListener
                 loc = event.getTargetBlock().getLocation().get().getRelative(event.getTargetSide());
             }
 
-            qm.queryAndShow(Lookup.builder().with(loc).build(), player);
+            qm.queryAndShow(new Lookup(itemInHand.get().get(LookupData.class).get()).with(loc), player);
             event.setCancelled(true);
         }
     }

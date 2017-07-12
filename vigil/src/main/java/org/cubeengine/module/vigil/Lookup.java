@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import com.flowpowered.math.vector.Vector3i;
+import org.cubeengine.module.vigil.data.LookupData;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -29,41 +30,26 @@ public class Lookup
     private Map<LookupTiming, Long> timingStart = new HashMap<>();
     private Map<LookupTiming, Long> timingTime = new HashMap<>();
 
-    private boolean fullDate = false;
-    private boolean noDate = false;
-    private boolean showLocation = false;
-    private boolean fullLocation = false;
-
-    private boolean showDetailedInventory = false;
+    private LookupData settings;
 
     private UUID world;
     private Vector3i position;
 
-    public static Builder builder()
+    public Lookup(LookupData settings)
     {
-        return new Builder();
+        this.settings = settings;
     }
 
-    public static class Builder
+    public Lookup with(Location<World> loc)
     {
-        private Lookup internal = new Lookup();
-
-        public Builder with(Location<World> loc)
-        {
-            internal.world = loc.getExtent().getUniqueId();
-            internal.position = loc.getBlockPosition();
-            return this;
-        }
-
-        public Lookup build()
-        {
-            return internal.copy();
-        }
+        this.world = loc.getExtent().getUniqueId();
+        this.position = loc.getBlockPosition();
+        return this;
     }
 
     public Lookup copy()
     {
-        Lookup lookup = new Lookup();
+        Lookup lookup = new Lookup(settings);
         lookup.world = this.world;
         lookup.position = this.position;
         return lookup;
@@ -79,29 +65,9 @@ public class Lookup
         return position;
     }
 
-    public boolean isFullDate()
+    public LookupData getSettings()
     {
-        return fullDate;
-    }
-
-    public boolean isShowLocation()
-    {
-        return showLocation;
-    }
-
-    public boolean isNoDate()
-    {
-        return noDate;
-    }
-
-    public boolean isFullLocation()
-    {
-        return fullLocation;
-    }
-
-    public boolean showDetailedInventory()
-    {
-        return showDetailedInventory;
+        return settings;
     }
 
     public void time(LookupTiming timing)

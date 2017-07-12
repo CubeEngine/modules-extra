@@ -61,7 +61,7 @@ public class ReportUtil
         {
             // TODO lookup config : detailed inventory? click on ∋ to activate/deactivate or using cmd
             builder.append(Text.of(" ∋ ["));
-            if (receiver.getLookup().showDetailedInventory())
+            if (receiver.getLookup().getSettings().showDetailedInventory())
             {
                 builder.append(Text.of(" "));
                 for (DataView dataView : items.get())
