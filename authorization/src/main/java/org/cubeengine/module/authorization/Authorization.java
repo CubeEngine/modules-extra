@@ -29,6 +29,7 @@ import javax.inject.Singleton;
 
 import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.InjectService;
+import org.cubeengine.libcube.ModuleManager;
 import org.cubeengine.libcube.service.command.ModuleCommand;
 import org.cubeengine.module.authorization.storage.Auth;
 import org.cubeengine.module.authorization.storage.TableAuth;
@@ -66,6 +67,8 @@ public class Authorization extends CubeEngineModule
     @ModuleConfig private AuthConfiguration config;
     @InjectService private BanService banService;
 
+    @Inject private ModuleManager mm;
+
     @Inject @ModuleCommand private AuthCommands authCommands;
 
     private String staticSalt;
@@ -76,7 +79,7 @@ public class Authorization extends CubeEngineModule
     @Listener
     public void onEnable(GamePostInitializationEvent event)
     {
-        this.staticSalt = HashHelper.loadStaticSalt(fm.getDataPath().resolve(".salt"));
+        this.staticSalt = HashHelper.loadStaticSalt(mm.getPathFor(Authorization.class).resolve(".salt"));
         ps.registerContextCalculator(new AuthContextCalculator(this));
     }
 
