@@ -17,21 +17,15 @@
  */
 package org.cubeengine.module.unbreakableboat;
 
-import java.util.Arrays;
-import java.util.HashMap;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import static java.util.Collections.singletonList;
 
 import org.cubeengine.libcube.CubeEngineModule;
+import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.module.unbreakableboat.data.ImmutableUnbreakableData;
 import org.cubeengine.module.unbreakableboat.data.UnbreakableData;
 import org.cubeengine.module.unbreakableboat.data.UnbreakableDataBuilder;
-import org.cubeengine.libcube.service.event.EventManager;
-import org.cubeengine.processor.Dependency;
 import org.cubeengine.processor.Module;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.meta.ItemEnchantment;
@@ -39,7 +33,6 @@ import org.spongepowered.api.entity.vehicle.Boat;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.AttackEntityEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
-import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.item.Enchantments;
 import org.spongepowered.api.item.ItemTypes;
@@ -48,7 +41,11 @@ import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
-import static java.util.Collections.singletonList;
+import java.util.Arrays;
+import java.util.HashMap;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * A module providing a recipe for an (almost) unbreakable boat
@@ -68,7 +65,6 @@ public class Unbreakableboat extends CubeEngineModule
     @Listener
     public void onEnable(GamePreInitializationEvent event)
     {
-        em.registerListener(Unbreakableboat.class, this);
         tm.runTaskDelayed(Unbreakableboat.class, this::registerRecipe, 1);
 
         DataRegistration.<UnbreakableData, ImmutableUnbreakableData>builder()
