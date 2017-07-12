@@ -56,7 +56,6 @@ public class Faq extends CubeEngineModule
     public void onEnable(GamePreInitializationEvent event)
     {
         this.questions.addAll(config.questions);
-        em.registerListener(Faq.class, this);
     }
 
     // TODO implement more normalizations: stemming, synonym conversions, ...
