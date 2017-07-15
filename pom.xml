@@ -57,6 +57,7 @@
     <module>elevator</module>
     <module>squelch</module>
     <module>patient</module>
+    <module>itemduct</module>
   </modules>
 
   <build>
