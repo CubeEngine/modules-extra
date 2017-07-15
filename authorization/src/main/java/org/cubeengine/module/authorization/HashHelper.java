@@ -56,7 +56,7 @@ public class HashHelper
             try
             {
                 salt = generateStaticSalt();
-                Files.write(from, salt.getBytes(US_ASCII), StandardOpenOption.SYNC);
+                Files.write(from, salt.getBytes(US_ASCII), StandardOpenOption.SYNC, StandardOpenOption.CREATE);
             }
             catch (Exception e)
             {
