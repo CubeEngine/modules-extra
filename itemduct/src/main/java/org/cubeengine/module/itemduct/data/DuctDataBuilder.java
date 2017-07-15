@@ -47,6 +47,6 @@ public class DuctDataBuilder extends AbstractDataBuilder<DuctData> implements Da
     @Override
     protected Optional<DuctData> buildContent(DataView container) throws InvalidDataException
     {
-        return create().from(container.getContainer());
+        return create().from(container.copy());
     }
 }

@@ -21,6 +21,8 @@ import org.cubeengine.libcube.util.data.AbstractData;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.merge.MergeFunction;
 import org.spongepowered.api.data.value.mutable.MapValue;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -93,10 +95,17 @@ public class DuctData extends AbstractData<DuctData, ImmutableDuctData> implemen
     @Override
     public Optional<DuctData> from(DataContainer container)
     {
-        Optional<? extends Map<?, ?>> filters = container.getMap(FILTERS.getQuery());
+        Optional<DataView> filters = container.getView(FILTERS.getQuery());
         if (filters.isPresent())
         {
-            this.setFilters(((Map<Direction, List<ItemStack>>) filters.get()));
+            Map<Direction, List<ItemStack>> map = new HashMap<>();
+            for (DataQuery key : filters.get().getKeys(false))
+            {
+                Direction dir = Direction.valueOf(key.toString());
+                List<ItemStack> list = filters.get().getObjectList(key, ItemStack.class).orElse(new ArrayList<>());
+                map.put(dir, list);
+            }
+            this.setFilters((map));
             return Optional.of(this);
         }
         return Optional.empty();
@@ -123,5 +132,10 @@ public class DuctData extends AbstractData<DuctData, ImmutableDuctData> implemen
     public Optional<List<ItemStack>> get(Direction dir)
     {
         return Optional.ofNullable(this.filters.get(dir));
+    }
+
+    public void remove(Direction dir)
+    {
+        this.filters.remove(dir);
     }
 }

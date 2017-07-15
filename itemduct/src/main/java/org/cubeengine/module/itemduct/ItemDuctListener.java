@@ -19,9 +19,11 @@ package org.cubeengine.module.itemduct;
 
 import com.flowpowered.math.vector.Vector3d;
 import org.cubeengine.module.itemduct.data.DuctData;
+import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.block.tileentity.TileEntity;
+import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.effect.particle.ParticleEffect;
@@ -29,6 +31,7 @@ import org.spongepowered.api.effect.particle.ParticleTypes;
 import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.item.ItemTypes;
@@ -66,6 +69,37 @@ public class ItemDuctListener
             te.offer(ductData.orElse(new DuctData()).with(dir.getOpposite()));
             playCreateEffect(loc);
             event.setCancelled(true);
+        }
+    }
+
+    @Listener
+    public void onBreak(ChangeBlockEvent.Break event)
+    {
+        for (Transaction<BlockSnapshot> trans : event.getTransactions())
+        {
+            if (!trans.getOriginal().getLocation().isPresent())
+            {
+                continue;
+            }
+            BlockType type = trans.getOriginal().getState().getType();
+            Location<World> loc = trans.getOriginal().getLocation().get();
+            if (type.equals(BlockTypes.PISTON) || type.equals(BlockTypes.STICKY_PISTON))
+            {
+                Direction dir = trans.getOriginal().get(Keys.DIRECTION).orElse(Direction.NONE);
+                Optional<DuctData> data = loc.getRelative(dir).get(DuctData.class);
+                if (data.isPresent())
+                {
+                    data.get().remove(dir.getOpposite());
+                    if (data.get().getFilters().isEmpty())
+                    {
+                        loc.getRelative(dir).remove(DuctData.class);
+                    }
+                    else
+                    {
+                        loc.getRelative(dir).offer(data.get());
+                    }
+                }
+            }
         }
     }
 
