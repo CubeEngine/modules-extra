@@ -49,7 +49,6 @@ public class DuctUtil
         pipeTypes.add(STAINED_GLASS_PANE);
     }
     private static Set<Direction> directions = EnumSet.of(Direction.DOWN, Direction.UP, Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
-    private static Set<Direction> cardinalDirs = EnumSet.of(Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
 
     private static int maxDepth = 10;
 

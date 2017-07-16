@@ -18,6 +18,7 @@
 package org.cubeengine.module.itemduct;
 
 import com.flowpowered.math.vector.Vector3d;
+import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.module.itemduct.data.DuctData;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockType;
@@ -34,18 +35,32 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.filter.cause.Root;
+import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.Carrier;
+import org.spongepowered.api.item.inventory.Inventory;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.property.InventoryTitle;
+import org.spongepowered.api.item.inventory.type.CarriedInventory;
+import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.text.format.TextFormat;
 import org.spongepowered.api.util.Color;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import java.util.List;
 import java.util.Optional;
+
+import javax.inject.Inject;
 
 public class ItemDuctListener
 {
+    @Inject private PluginContainer plugin;
+    @Inject private I18n i18n;
+
     @Listener
     public void onInteractPiston(InteractBlockEvent.Secondary.MainHand event, @Root Player player)
     {
@@ -63,7 +78,14 @@ public class ItemDuctListener
         {
             if (!player.getItemInHand(HandTypes.MAIN_HAND).isPresent())
             {
-                playEffect(loc); // Play Effect for DuctPiston
+                if (player.get(Keys.IS_SNEAKING).orElse(false))
+                {
+                    openFilter(player, ductData.get(), dir.getOpposite(), te);
+                }
+                else
+                {
+                    playEffect(loc); // Play Effect for DuctPiston
+                }
             }
         }
         else if (player.getItemInHand(HandTypes.MAIN_HAND).map(i -> i.getItem().equals(ItemTypes.HOPPER)).orElse(false))
@@ -71,6 +93,79 @@ public class ItemDuctListener
             te.offer(ductData.orElse(new DuctData()).with(dir.getOpposite()));
             playCreateEffect(loc);
             event.setCancelled(true);
+        }
+    }
+
+    private void openFilter(Player player, DuctData ductData, Direction dir, Location<World> loc)
+    {
+        List<ItemStack> list = ductData.get(dir).get();
+        DuctFilterCarrier carrier = new DuctFilterCarrier(ductData, loc, dir);
+        Inventory inventory = Inventory.builder()
+                .property(InventoryTitle.PROPERTY_NAME, InventoryTitle.of(i18n.translate(player, TextFormat.NONE, "ItemDuct Filters")))
+                .withCarrier(carrier)
+                .build(plugin);
+        carrier.init(((CarriedInventory) inventory));
+
+        for (ItemStack itemStack : list)
+        {
+            inventory.offer(itemStack);
+        }
+
+        player.openInventory(inventory, Cause.source(plugin).build()); // TODO player cause
+    }
+
+    @Listener
+    public void onCloseInventory(InteractInventoryEvent.Close event, @Root Player player)
+    {
+        if (event.getTargetInventory() instanceof CarriedInventory)
+        {
+            Optional<Carrier> carrier = ((CarriedInventory) event.getTargetInventory()).getCarrier();
+            if (carrier.orElse(null) instanceof DuctFilterCarrier)
+            {
+                ((DuctFilterCarrier) carrier.get()).update(event.getTargetInventory().iterator().next());
+            }
+        }
+    }
+
+    private class DuctFilterCarrier implements Carrier
+    {
+
+        private CarriedInventory<? extends Carrier> inventory;
+
+        private final DuctData ductData;
+        private final Location<World> loc;
+        private final Direction dir;
+
+        public DuctFilterCarrier(DuctData ductData, Location<World> loc, Direction dir)
+        {
+            this.ductData = ductData;
+            this.loc = loc;
+            this.dir = dir;
+        }
+
+        public void init(CarriedInventory<? extends Carrier> inventory)
+        {
+            this.inventory = inventory;
+        }
+
+        @Override
+        public CarriedInventory<? extends Carrier> getInventory()
+        {
+            return this.inventory;
+        }
+
+        public void update(Inventory inventory)
+        {
+            List<ItemStack> list = ductData.get(dir).get();
+            list.clear();
+            for (Inventory item : inventory.slots())
+            {
+                if (item.peek().isPresent())
+                {
+                    list.add(item.peek().get());
+                }
+            }
+            loc.offer(ductData);
         }
     }
 

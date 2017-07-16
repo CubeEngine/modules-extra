@@ -102,7 +102,7 @@ public class DuctData extends AbstractData<DuctData, ImmutableDuctData> implemen
             for (DataQuery key : filters.get().getKeys(false))
             {
                 Direction dir = Direction.valueOf(key.toString());
-                List<ItemStack> list = filters.get().getObjectList(key, ItemStack.class).orElse(new ArrayList<>());
+                List<ItemStack> list = filters.get().getSerializableList(key, ItemStack.class).orElse(new ArrayList<>());
                 map.put(dir, list);
             }
             this.setFilters((map));
