@@ -1,0 +1,179 @@
+/*
+ * This file is part of CubeEngine.
+ * CubeEngine is licensed under the GNU General Public License Version 3.
+ *
+ * CubeEngine is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * CubeEngine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.cubeengine.module.itemduct;
+
+import static org.spongepowered.api.block.BlockTypes.GLASS_PANE;
+import static org.spongepowered.api.block.BlockTypes.PISTON;
+import static org.spongepowered.api.block.BlockTypes.STAINED_GLASS_PANE;
+
+import org.cubeengine.module.itemduct.data.DuctData;
+import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.type.DyeColor;
+import org.spongepowered.api.util.Direction;
+import org.spongepowered.api.world.Location;
+import org.spongepowered.api.world.World;
+
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+
+public class DuctUtil
+{
+    private static Set<BlockType> pipeTypes = new HashSet<>();
+    static
+    {
+        pipeTypes.add(BlockTypes.GLASS);
+        pipeTypes.add(GLASS_PANE);
+        pipeTypes.add(BlockTypes.STAINED_GLASS);
+        pipeTypes.add(STAINED_GLASS_PANE);
+    }
+    private static Set<Direction> directions = EnumSet.of(Direction.DOWN, Direction.UP, Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
+    private static Set<Direction> cardinalDirs = EnumSet.of(Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
+
+    private static int maxDepth = 10;
+
+    public static Network findNetwork(Location<World> start)
+    {
+        Direction dir = start.get(Keys.DIRECTION).orElse(Direction.NONE).getOpposite();
+        Network network = new Network();
+        if (pipeTypes.contains(start.getRelative(dir).getBlockType()))
+        {
+            start = start.getRelative(dir);
+            network.pipes.add(start);
+            findNetwork(new LastDuct(start, dir), network, 0);
+        }
+        return network;
+    }
+
+    private static void findNetwork(LastDuct last, Network network, int depth)
+    {
+        if (depth > maxDepth)
+        {
+            network.errors.add(last.loc);
+            return;
+        }
+        Map<Direction, Location<World>> map = new HashMap<>();
+        Queue<Location<World>> next = new LinkedList<>();
+        next.offer(last.loc);
+        do
+        {
+            // TODO limit direction with glass panes
+            Set<Direction> dirs = directions;
+            for (Direction dir : dirs)
+            {
+                if (!dir.equals(last.from.getOpposite()))
+                {
+                    Location<World> rel = last.loc.getRelative(dir);
+                    if (last.isCompatible(rel))
+                    {
+                        if (network.pipes.contains(rel)) // No loops allowed
+                        {
+                            network.errors.add(rel);
+                            network.errors.add(last.loc);
+                        }
+                        else
+                        {
+                            network.pipes.add(rel);
+                            map.put(dir, rel);
+                        }
+                    }
+                    // ExitPiston?
+                    if (rel.getBlockType().equals(PISTON) && rel.get(Keys.DIRECTION).orElse(Direction.NONE).equals(dir))
+                    {
+                        if (rel.getRelative(dir).get(DuctData.class).map(d -> d.get(dir.getOpposite()).isPresent()).orElse(false))
+                        {
+                            network.exitPoints.put(rel, rel.getRelative(dir).get(DuctData.class).get());
+                        }
+                    }
+                }
+
+            }
+
+            if (map.size() > 1)
+            {
+                for (Map.Entry<Direction, Location<World>> entry : map.entrySet())
+                {
+                    findNetwork(new LastDuct(entry.getValue(), entry.getKey()), network, depth + 1);
+                }
+            }
+            else if (map.size() == 1)
+            {
+                for (Map.Entry<Direction, Location<World>> entry : map.entrySet())
+                {
+                    last.update(entry.getValue(), entry.getKey());
+                }
+                next.offer(last.loc);
+            }
+            // else nothing found here
+            next.poll();
+            map.clear();
+        }
+        while (!next.isEmpty());
+
+    }
+
+    private static class LastDuct
+    {
+
+        public Location<World> loc;
+        public DyeColor color;
+        public boolean cross;
+        public Direction from;
+
+        public LastDuct(Location<World> loc, Direction from)
+        {
+            this.update(loc, from);
+        }
+
+        public void update(Location<World> loc, Direction from)
+        {
+            this.from = from;
+            this.loc = loc;
+            this.color = loc.get(Keys.DYE_COLOR).orElse(null);
+            this.cross = GLASS_PANE.equals(loc.getBlockType()) || STAINED_GLASS_PANE.equals(loc.getBlockType());
+        }
+
+        public boolean isCompatible(Location<World> rel)
+        {
+            if (!pipeTypes.contains(rel.getBlockType()))
+            {
+                return false;
+            }
+            DyeColor color = rel.get(Keys.DYE_COLOR).orElse(null);
+            if (color == null || color == this.color || this.color == null)
+            {
+                return true;
+            }
+            return false;
+        }
+    }
+
+    public static class Network
+    {
+        public Set<Location<World>> pipes = new HashSet<>();
+        public Map<Location<World>, DuctData> exitPoints = new HashMap<>();
+        public Set<Location<World>> errors = new HashSet<>();
+
+    }
+}

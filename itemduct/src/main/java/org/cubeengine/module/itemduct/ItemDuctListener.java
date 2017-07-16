@@ -27,6 +27,7 @@ import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.effect.particle.ParticleEffect;
+import org.spongepowered.api.effect.particle.ParticleOptions;
 import org.spongepowered.api.effect.particle.ParticleTypes;
 import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.living.player.Player;
@@ -36,6 +37,7 @@ import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.Carrier;
+import org.spongepowered.api.util.Color;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -156,15 +158,51 @@ public class ItemDuctListener
 
     private void playEffect(Location<World> loc)
     {
-        ParticleEffect effect = ParticleEffect.builder().type(ParticleTypes.REDSTONE_DUST).build();
+        ParticleEffect badEffect = ParticleEffect.builder().type(ParticleTypes.REDSTONE_DUST).build();
+        ParticleEffect goodEffect = ParticleEffect.builder().type(ParticleTypes.REDSTONE_DUST).option(ParticleOptions.COLOR, Color.GREEN).build();
+        ParticleEffect neutralEffect = ParticleEffect.builder().type(ParticleTypes.REDSTONE_DUST).option(ParticleOptions.COLOR, Color.YELLOW).build();
+        ParticleEffect smoke = ParticleEffect.builder().type(ParticleTypes.LARGE_SMOKE).build();
         Vector3d center = loc.getPosition().add(0.5, 0.5, 0.5);
         for (Direction effectDir : Direction.values())
         {
             if (effectDir.isCardinal() || effectDir.isUpright())
             {
-                loc.getExtent().spawnParticles(effect, center.add(effectDir.asOffset().div(1.9)));
+                loc.getExtent().spawnParticles(goodEffect, center.add(effectDir.asOffset().div(1.9)));
             }
         }
         loc.getExtent().playSound(SoundTypes.BLOCK_DISPENSER_DISPENSE, loc.getPosition(), 1);
+
+        DuctUtil.Network network = DuctUtil.findNetwork(loc);
+        System.out.print("Network: Pipes " +  network.pipes.size() + " Exits " + network.exitPoints.size() + "\n");
+
+        for (Location<World> pipe : network.pipes)
+        {
+            pipe.getExtent().spawnParticles(network.errors.isEmpty() ? goodEffect : neutralEffect, pipe.getPosition().add(0.5,0.5,0.5));
+            if (network.exitPoints.isEmpty())
+            {
+                pipe.getExtent().spawnParticles(smoke, pipe.getPosition().add(0.5,0.5,0.5));
+            }
+        }
+
+        for (Location<World> error : network.errors)
+        {
+            error.getExtent().spawnParticles(badEffect, error.getPosition().add(0.5,0.5,0.5));
+            error.getExtent().spawnParticles(smoke, error.getPosition().add(0.5,0.5,0.5));
+        }
+
+        for (Location<World> exit : network.exitPoints.keySet())
+        {
+            center = exit.getPosition().add(0.5,0.5,0.5);
+            for (Direction effectDir : Direction.values())
+            {
+                if (effectDir.isCardinal() || effectDir.isUpright())
+                {
+                    exit.getExtent().spawnParticles(goodEffect, center.add(effectDir.asOffset().div(1.9)));
+                }
+            }
+            exit.getExtent().playSound(SoundTypes.BLOCK_DISPENSER_DISPENSE, exit.getPosition(), 1);
+        }
+
+
     }
 }
