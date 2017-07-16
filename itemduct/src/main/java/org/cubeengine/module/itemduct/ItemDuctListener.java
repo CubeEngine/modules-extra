@@ -20,10 +20,12 @@ package org.cubeengine.module.itemduct;
 import com.flowpowered.math.vector.Vector3d;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.module.itemduct.data.DuctData;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.block.tileentity.TileEntity;
+import org.spongepowered.api.block.tileentity.carrier.Chest;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.type.HandTypes;
@@ -37,6 +39,7 @@ import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.filter.cause.Root;
+import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.Carrier;
@@ -45,21 +48,27 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.property.InventoryTitle;
 import org.spongepowered.api.item.inventory.type.CarriedInventory;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.format.TextFormat;
 import org.spongepowered.api.util.Color;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.inject.Inject;
 
 public class ItemDuctListener
 {
+    private Map<Location<World>, Long> promtedTransfers = new HashMap<>();
+
     @Inject private PluginContainer plugin;
     @Inject private I18n i18n;
+    private Task task;
 
     @Listener
     public void onInteractPiston(InteractBlockEvent.Secondary.MainHand event, @Root Player player)
@@ -124,7 +133,64 @@ public class ItemDuctListener
             {
                 ((DuctFilterCarrier) carrier.get()).update(event.getTargetInventory().iterator().next());
             }
+            promptTransfer(carrier);
         }
+    }
+
+    private void promptTransfer(Optional<Carrier> carrier)
+    {
+        if (carrier.orElse(null) instanceof TileEntity)
+        {
+            Location<World> loc = ((TileEntity) carrier.get()).getLocation();
+            Optional<DuctData> data = loc.get(DuctData.class);
+            if (data.isPresent())
+            {
+                if (this.promtedTransfers.isEmpty())
+                {
+                    task = Sponge.getScheduler().createTaskBuilder().delayTicks(10).intervalTicks(20).execute(this::transfer).submit(plugin);
+                }
+                Long time = this.promtedTransfers.computeIfAbsent(loc, k -> System.currentTimeMillis());
+                if (System.currentTimeMillis() - time > 2000)
+                {
+                    this.promtedTransfers.put(loc, System.currentTimeMillis());
+                }
+            }
+        }
+    }
+
+    private void transfer()
+    {
+        for (Location<World> loc : this.promtedTransfers.keySet())
+        {
+            // Check if data is still present
+            Optional<DuctData> data = loc.get(DuctData.class);
+            if (data.isPresent())
+            {
+                for (Direction dir : Direction.values())
+                {
+                    if (dir.isCardinal() || dir.isUpright())
+                    {
+                        if (BlockTypes.STICKY_PISTON.equals(loc.getRelative(dir).getBlockType()))
+                        {
+                            Optional<List<ItemStack>> filters = data.get().get(dir);
+                            if (filters.isPresent())
+                            {
+                                DuctUtil.Network network = DuctUtil.findNetwork(loc.getRelative(dir));
+                                TileEntity te = loc.getTileEntity().get();
+                                Inventory inventory = ((Carrier) te).getInventory();
+                                if (te instanceof Chest)
+                                {
+                                    inventory = ((Chest) te).getDoubleChestInventory().orElse(inventory);
+                                }
+                                network.transfer(inventory, filters.get());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        promtedTransfers.clear();
+        task.cancel();
     }
 
     private class DuctFilterCarrier implements Carrier
@@ -214,6 +280,16 @@ public class ItemDuctListener
             event.setCancelled(true);
         }
     }
+
+    @Listener
+    public void onTransferInventory(ChangeInventoryEvent.Transfer event) // TODO pre event as we dont actually care about the inventory changes
+    {
+        if (event.getTargetInventory() instanceof CarriedInventory)
+        {
+            promptTransfer(((CarriedInventory) event.getTargetInventory()).getCarrier());
+        }
+    }
+
 
     private boolean isDuctInteraction(InteractBlockEvent event)
     {
