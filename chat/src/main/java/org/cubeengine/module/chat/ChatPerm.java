@@ -32,16 +32,12 @@ public class ChatPerm extends PermissionContainer
         super(pm, Chat.class);
     }
 
-    private final Permission COMMAND = register("command", "Base Commands Permission", null);
-
     public final Permission COLOR = register("color", "Allows using color codes in chat", null);
 
-    public final Permission COMMAND_NICK_OTHER = register("nick.other", "", COMMAND);
-    public final Permission COMMAND_NICK_OFOTHER = register("nick.of-other", "Allows to set the nickname to a players name that plays on this server", COMMAND);
+    public final Permission COMMAND_NICK_OTHER = register("command.nick.other", "", null);
+    public final Permission COMMAND_NICK_OFOTHER = register("command.nick.of-other", "Allows to set the nickname to a players name that plays on this server", null);
 
-    public final Permission PREVENT_AUTOUNAFK = register("afk.prevent.autounafk", "Prevents from being displayed as no longer afk automatically unless using chat", COMMAND);
-    public final Permission PREVENT_AUTOAFK = register("afk.prevent.autoafk", "Prevents from being displayed as afk automatically", COMMAND);
-    public final Permission COMMAND_AFK_OTHER = register("afk.other", "Allows to set or unset the afk status of other players", COMMAND);
-
-    public final Permission COMMAND_IGNORE_PREVENT = register("ignore.prevent", "Prevents adding the player with this permission to an ignore-list", COMMAND);
+    public final Permission PREVENT_AUTOUNAFK = register("command.afk.prevent.autounafk", "Prevents from being displayed as no longer afk automatically unless using chat", null);
+    public final Permission PREVENT_AUTOAFK = register("command.afk.prevent.autoafk", "Prevents from being displayed as afk automatically", null);
+    public final Permission COMMAND_AFK_OTHER = register("command.afk.other", "Allows to set or unset the afk status of other players", null);
 }

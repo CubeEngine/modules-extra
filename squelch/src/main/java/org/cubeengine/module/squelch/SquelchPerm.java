@@ -32,6 +32,5 @@ public class SquelchPerm extends PermissionContainer
         super(pm, Squelch.class);
     }
 
-    private final Permission COMMAND = register("command", "Base Commands Permission", null);
-    public final Permission COMMAND_IGNORE_PREVENT = register("ignore.prevent", "Prevents adding the player with this permission to an ignore-list", COMMAND);
+    public final Permission COMMAND_IGNORE_PREVENT = register("command.ignore.prevent", "Prevents adding the player with this permission to an ignore-list", null);
 }

@@ -31,9 +31,7 @@ public class AuthPerms extends PermissionContainer
         super(pm, Authorization.class);
     }
 
-    private final Permission COMMAND = register("command", "Base Commands Permission", null);
-
-    public final Permission COMMAND_CLEARPASSWORD_ALL = register("clearpassword.all", "Allows clearing all passwords", COMMAND);
-    public final Permission COMMAND_CLEARPASSWORD_OTHER = register("clearpassword.other", "Allows clearing passwords of other players", COMMAND);
-    public final Permission COMMAND_SETPASSWORD_OTHER = register("setpassword.other", "Allows setting passwords of other players", COMMAND);
+    public final Permission COMMAND_CLEARPASSWORD_ALL = register("command.clearpassword.all", "Allows clearing all passwords", null);
+    public final Permission COMMAND_CLEARPASSWORD_OTHER = register("command.clearpassword.other", "Allows clearing passwords of other players", null);
+    public final Permission COMMAND_SETPASSWORD_OTHER = register("command.setpassword.other", "Allows setting passwords of other players", null);
 }

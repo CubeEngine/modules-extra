@@ -32,29 +32,22 @@ public class FunPerm extends PermissionContainer
         super(pm, Fun.class);
     }
 
-    private final Permission COMMAND = register("command", "");
+    public final Permission COMMAND_EXPLOSION_OTHER = register("command.explosion.other", "", null);
+    public final Permission COMMAND_EXPLOSION_PLAYER_DAMAGE = register("command.explosion.player.damage", "", null);
+    public final Permission COMMAND_EXPLOSION_BLOCK_DAMAGE = register("command.explosion.block.damage", "", null);
+    public final Permission COMMAND_EXPLOSION_FIRE = register("command.explosion.fire", "", null);
 
-    private final Permission COMMAND_EXPLOSION = register("explosion", "", COMMAND);
-    public final Permission COMMAND_EXPLOSION_OTHER = register("other", "", COMMAND_EXPLOSION);
-    public final Permission COMMAND_EXPLOSION_PLAYER_DAMAGE = register("player.damage", "", COMMAND_EXPLOSION);
-    public final Permission COMMAND_EXPLOSION_BLOCK_DAMAGE = register("block.damage", "", COMMAND_EXPLOSION);
-    public final Permission COMMAND_EXPLOSION_FIRE = register("fire", "", COMMAND_EXPLOSION);
+    public final Permission COMMAND_HAT_OTHER = register("command.hat.other", "", null);
+    public final Permission COMMAND_HAT_ITEM = register("command.hat.item", "", null);
+    public final Permission COMMAND_HAT_MORE_ARMOR = register("command.hat.more-armor", "", null);
+    public final Permission COMMAND_HAT_QUIET = register("command.hat.quit", "", null);
+    public final Permission COMMAND_HAT_NOTIFY = register("command.hat.notify", "", null);
 
-    private final Permission COMMAND_HAT = register("hat", "", COMMAND);
-    public final Permission COMMAND_HAT_OTHER = register("other", "", COMMAND_HAT);
-    public final Permission COMMAND_HAT_ITEM = register("item", "", COMMAND_HAT);
-    public final Permission COMMAND_HAT_MORE_ARMOR = register("more-armor", "", COMMAND_HAT);
-    public final Permission COMMAND_HAT_QUIET = register("quit", "", COMMAND_HAT);
-    public final Permission COMMAND_HAT_NOTIFY = register("notify", "", COMMAND_HAT);
+    public final Permission COMMAND_LIGHTNING_PLAYER_DAMAGE = register("command.lightning.player-damage", "", null);
+    public final Permission COMMAND_LIGHTNING_UNSAFE = register("command.lightning.unsafe", "", null);
 
-    private final Permission COMMAND_LIGHTNING = register("lightning", "", COMMAND);
-    public final Permission COMMAND_LIGHTNING_PLAYER_DAMAGE = register("player.damage", "", COMMAND_LIGHTNING);
-    public final Permission COMMAND_LIGHTNING_UNSAFE = register("unsafe", "", COMMAND_LIGHTNING);
+    public final Permission COMMAND_THROW_UNSAFE = register("command.throw.unsafe", "", null);
 
-    public final Permission COMMAND_THROW = register("throw", "", COMMAND);
-    public final Permission COMMAND_THROW_UNSAFE = register("unsafe", "", COMMAND_THROW);
-
-    private final Permission COMMAND_NUKE = register("nuke", "", COMMAND);
-    public final Permission COMMAND_NUKE_CHANGE_RANGE = register("change-range", "", COMMAND_NUKE);
-    public final Permission COMMAND_NUKE_OTHER = register("other", "", COMMAND_NUKE);
+    public final Permission COMMAND_NUKE_CHANGE_RANGE = register("command.nuke.change-range", "", null);
+    public final Permission COMMAND_NUKE_OTHER = register("command.nuke.other", "", null);
 }
