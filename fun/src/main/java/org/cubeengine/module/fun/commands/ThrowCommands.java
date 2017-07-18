@@ -90,7 +90,7 @@ public class ThrowCommands
         em.registerListener(Fun.class, this.throwListener);
         for (EntityType type : Sponge.getRegistry().getAllOf(EntityType.class)) // TODO only entities that can be thrown
         {
-            Permission perm = pm.register(Fun.class, type.getName().toLowerCase().replace("_", "-"), "", module.perms().COMMAND_THROW);
+            Permission perm = pm.register(Fun.class, "command.throw." + type.getName().toLowerCase().replace("_", "-"), "", null);
             perms.put(type, perm);
         }
     }
