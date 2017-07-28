@@ -51,7 +51,7 @@ public class Bigdata extends CubeEngineModule
     private MongoClient mongoClient;
 
     @Listener
-    public void onPreInit(GameConstructionEvent event)
+    public void onPreInit(GamePreInitializationEvent event)
     {
         try
         {
