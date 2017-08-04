@@ -36,6 +36,7 @@ import org.spongepowered.api.text.action.TextActions;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
 import javax.inject.Inject;
@@ -64,26 +65,33 @@ public class ChatFormatListener
             }
         }
 
-        Subject subject = module.getPermissionService().getUserSubjects().get(player.getUniqueId().toString());
-
-        Map<String, Text> replacements = new HashMap<>();
-        String name = player.getName();
-        replacements.put("{NAME}", Text.of(name));
-        Text displayName = player.get(DisplayNameData.class).isPresent() ?
-            player.getDisplayNameData().displayName().get() : Text.of(name);
-        if (!displayName.toPlain().equals(name))
+        try
         {
-            displayName = Text.builder().append(displayName).onHover(TextActions.showText(Text.of(DARK_GREEN, name))).build();
-        }
-        replacements.put("{DISPLAY_NAME}", displayName);
-        replacements.put("{WORLD}", Text.of(player.getWorld().getName()));
-        replacements.put("{MESSAGE}", fromLegacy(msg, '&'));
-        replacements.put("{PREFIX}", Text.of());
-        replacements.put("{SUFFIX}", Text.of());
-        replacements.put("{PREFIX}", fromLegacy(subject.getOption("chat-prefix").orElse(""), '&'));
-        replacements.put("{SUFFIX}", fromLegacy(subject.getOption("chat-suffix").orElse(""), '&'));
+            Subject subject = module.getPermissionService().getUserSubjects().loadSubject(player.getUniqueId().toString()).get();
 
-        event.setMessage(fromLegacy(this.getFormat(subject), replacements, '&'));
+            Map<String, Text> replacements = new HashMap<>();
+            String name = player.getName();
+            replacements.put("{NAME}", Text.of(name));
+            Text displayName = player.get(DisplayNameData.class).isPresent() ?
+                    player.getDisplayNameData().displayName().get() : Text.of(name);
+            if (!displayName.toPlain().equals(name))
+            {
+                displayName = Text.builder().append(displayName).onHover(TextActions.showText(Text.of(DARK_GREEN, name))).build();
+            }
+            replacements.put("{DISPLAY_NAME}", displayName);
+            replacements.put("{WORLD}", Text.of(player.getWorld().getName()));
+            replacements.put("{MESSAGE}", fromLegacy(msg, '&'));
+            replacements.put("{PREFIX}", Text.of());
+            replacements.put("{SUFFIX}", Text.of());
+            replacements.put("{PREFIX}", fromLegacy(subject.getOption("chat-prefix").orElse(""), '&'));
+            replacements.put("{SUFFIX}", fromLegacy(subject.getOption("chat-suffix").orElse(""), '&'));
+
+            event.setMessage(fromLegacy(this.getFormat(subject), replacements, '&'));
+        }
+        catch (ExecutionException | InterruptedException e)
+        {
+            throw new IllegalStateException(e);
+        }
     }
 
     protected String getFormat(Subject subject)
