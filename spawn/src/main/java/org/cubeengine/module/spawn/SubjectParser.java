@@ -25,6 +25,8 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 
+import java.util.concurrent.ExecutionException;
+
 public class SubjectParser implements ArgumentParser<Subject>, DefaultValue<Subject>
 {
     private PermissionService pm;
@@ -37,10 +39,17 @@ public class SubjectParser implements ArgumentParser<Subject>, DefaultValue<Subj
     @Override
     public Subject parse(Class aClass, CommandInvocation commandInvocation) throws ParserException
     {
-        String token = commandInvocation.currentToken();
-        if (pm.getGroupSubjects().hasRegistered(token))
+        try
         {
-            return pm.getGroupSubjects().get(token);
+            String token = commandInvocation.currentToken();
+            if (pm.getGroupSubjects().hasSubject(token).get())
+            {
+                return pm.getGroupSubjects().loadSubject(token).get();
+            }
+        }
+        catch (ExecutionException | InterruptedException e)
+        {
+            throw new IllegalStateException(e); // TODO better handling
         }
 
         // TODO msg i18n.sendTranslated(ctx, NEGATIVE, "Could not find the role {input}!", role, context);
@@ -50,9 +59,16 @@ public class SubjectParser implements ArgumentParser<Subject>, DefaultValue<Subj
     @Override
     public Subject provide(CommandInvocation invocation)
     {
-        if (invocation.getCommandSource() instanceof Player)
+        try
         {
-            return pm.getUserSubjects().get(((Player)invocation.getCommandSource()).getIdentifier());
+            if (invocation.getCommandSource() instanceof Player)
+            {
+                return pm.getUserSubjects().loadSubject(((Player)invocation.getCommandSource()).getIdentifier()).get();
+            }
+        }
+        catch (ExecutionException | InterruptedException e)
+        {
+            throw new IllegalStateException(e); // TODO better handling
         }
         // TODO exception
         return null;

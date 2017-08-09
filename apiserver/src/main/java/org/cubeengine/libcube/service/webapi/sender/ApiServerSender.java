@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.network.RemoteConnection;
 import org.spongepowered.api.service.permission.Subject;
+import org.spongepowered.api.service.permission.SubjectReference;
 
 public class ApiServerSender extends ApiCommandSource
 {
@@ -52,5 +53,15 @@ public class ApiServerSender extends ApiCommandSource
     public String getIdentifier()
     {
         return getName();
+    }
+
+    @Override
+    public SubjectReference asSubjectReference() {
+        return source.asSubjectReference();
+    }
+
+    @Override
+    public boolean isSubjectDataPersisted() {
+        return source.isSubjectDataPersisted();
     }
 }

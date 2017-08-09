@@ -43,7 +43,7 @@ public class SpawnListener
         {
             return;
         }
-        Subject subject = pm.getUserSubjects().get(event.getTargetUser().getIdentifier());
+        Subject subject = pm.getUserSubjects().getSubject(event.getTargetUser().getIdentifier()).get();
         Optional<String> option = subject.getOption(SpawnCommands.ROLESPAWN);
         if (option.isPresent())
         {
@@ -56,7 +56,7 @@ public class SpawnListener
     {
         if (!event.isBedSpawn())
         {
-            Subject subject = pm.getUserSubjects().get(event.getTargetEntity().getIdentifier());
+            Subject subject = pm.getUserSubjects().getSubject(event.getTargetEntity().getIdentifier()).get();
             Optional<String> option = subject.getOption(SpawnCommands.ROLESPAWN);
             if (option.isPresent())
             {
