@@ -54,6 +54,10 @@ public class VigilConfig extends ReflectedYaml
             ConfigWorld cWorld = new ConfigWorld(world);
             for (String name : disabledReports.getOrDefault(cWorld, Collections.emptyList()))
             {
+                if ("*".equals(name))
+                {
+                    name = "Report";
+                }
                 Report.getReport(name).ifPresent(reports::add);
             }
             if (!reports.isEmpty())
