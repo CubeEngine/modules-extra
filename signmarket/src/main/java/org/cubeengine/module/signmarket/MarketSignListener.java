@@ -37,6 +37,7 @@ import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent.Primary;
 import org.spongepowered.api.event.block.tileentity.ChangeSignEvent;
+import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.util.Direction;
@@ -260,6 +261,7 @@ public class MarketSignListener
                 Location<World> loc = trans.getFinal().getLocation().get();
                 loc.offer(data);
                 manager.setSign(loc, player);
+                player.closeInventory(Cause.source(player).build());
             }
         }
     }
