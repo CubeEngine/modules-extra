@@ -280,26 +280,25 @@ public final class MarketSignManager
 
     public boolean executeTryBreak(MarketSignData data, Player player, Location<World> at)
     {
-        if (data.isOwner(player.getUniqueId()) && !player.hasPermission(module.perms().EDIT_PLAYER_SELF.getId()))
+        if (data.isOwner(player.getUniqueId()))
         {
-            i18n.send(player, NEGATIVE, "You are not allowed to break your own market signs!");
-            return false;
-        }
-        else
-        {
-            if (data.isAdminOwner())
-            {
-                if (!player.hasPermission(module.perms().EDIT_ADMIN.getId()))
-                {
-                    i18n.send(player, NEGATIVE, "You are not allowed to break admin market signs!");
-                    return false;
-                }
-            }
-            else if (!player.hasPermission(module.perms().EDIT_PLAYER_OTHER.getId()))
-            {
-                i18n.send(player, NEGATIVE, "You are not allowed to break others market signs!");
+            if (!player.hasPermission(module.perms().EDIT_PLAYER_SELF.getId())) {
+                i18n.send(player, NEGATIVE, "You are not allowed to break your own market signs!");
                 return false;
             }
+        }
+        else if (data.isAdminOwner())
+        {
+            if (!player.hasPermission(module.perms().EDIT_ADMIN.getId()))
+            {
+                i18n.send(player, NEGATIVE, "You are not allowed to break admin market signs!");
+                return false;
+            }
+        }
+        else if (!player.hasPermission(module.perms().EDIT_PLAYER_OTHER.getId()))
+        {
+            i18n.send(player, NEGATIVE, "You are not allowed to break others market signs!");
+            return false;
         }
 
         boolean isDoubleClick = breakingSign.containsKey(player.getUniqueId()) && System.currentTimeMillis() - breakingSign.get(player.getUniqueId()) <= 500;
