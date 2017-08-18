@@ -43,12 +43,8 @@ public class SpawnListener
         {
             return;
         }
-        Subject subject = pm.getUserSubjects().getSubject(event.getTargetUser().getIdentifier()).get();
-        Optional<String> option = subject.getOption(SpawnCommands.ROLESPAWN);
-        if (option.isPresent())
-        {
-            event.setToTransform(getSpawnLocation(option.get()));
-        }
+        Subject subject = pm.getUserSubjects().loadSubject(event.getTargetUser().getIdentifier()).join();
+        subject.getOption(SpawnCommands.ROLESPAWN).ifPresent(s -> event.setToTransform(getSpawnLocation(s)));
     }
 
     @Listener(order = Order.LATE)
@@ -56,12 +52,8 @@ public class SpawnListener
     {
         if (!event.isBedSpawn())
         {
-            Subject subject = pm.getUserSubjects().getSubject(event.getTargetEntity().getIdentifier()).get();
-            Optional<String> option = subject.getOption(SpawnCommands.ROLESPAWN);
-            if (option.isPresent())
-            {
-                event.setToTransform(getSpawnLocation(option.get()));
-            }
+            Subject subject = pm.getUserSubjects().loadSubject(event.getTargetEntity().getIdentifier()).join();
+            subject.getOption(SpawnCommands.ROLESPAWN).ifPresent(s -> event.setToTransform(getSpawnLocation(s)));
         }
     }
 }

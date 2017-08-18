@@ -118,13 +118,8 @@ public class HideListener
         event.getResponse().getPlayers().ifPresent(l -> {
             for (UUID uuid : module.getHiddenUsers())
             {
-                try
-                {
-                    GameProfile gp = gpm.get(uuid).get();
-                    l.getProfiles().remove(gp);
-                }
-                catch (InterruptedException | ExecutionException e)
-                {}
+                GameProfile gp = gpm.get(uuid).join();
+                l.getProfiles().remove(gp);
             }
         });
     }
