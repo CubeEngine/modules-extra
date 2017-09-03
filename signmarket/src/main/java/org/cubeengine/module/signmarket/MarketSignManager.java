@@ -864,13 +864,14 @@ public final class MarketSignManager
 
             if (item.get(Keys.DISPLAY_NAME).isPresent())
             {
-                color = TextColors.YELLOW;
+                color = TextColors.DARK_AQUA;
                 raw = item.get(Keys.DISPLAY_NAME).get().toPlain();
             }
+
             if (item.get(Keys.ITEM_LORE).isPresent() ||
                 (item.get(Keys.ITEM_ENCHANTMENTS).isPresent() && item.get(Keys.ITEM_ENCHANTMENTS).get().size() > 0))
             {
-                color = TextColors.YELLOW;
+                color = TextColors.DARK_AQUA;
             }
         }
 
