@@ -91,7 +91,9 @@ public class BackpackInventory
         this.viewers.add(player.getUniqueId());
         if (data.allowItemsIn)
         {
-            player.openInventory(this.getInventory(), Cause.of(NamedCause.source(player)));
+            Sponge.getCauseStackManager().pushCause(player);
+            player.openInventory(this.getInventory());
+            Sponge.getCauseStackManager().popCause();
         }
         else
         {
@@ -115,12 +117,11 @@ public class BackpackInventory
 
     public void closeInventory()
     {
-        Cause cause = Cause.of(NamedCause.source(this));// TODO better cause
-        viewers.stream().map(id -> Sponge.getServer().getPlayer(id)).forEach(p -> p.ifPresent(player -> player.closeInventory(cause)));
+        viewers.stream().map(id -> Sponge.getServer().getPlayer(id)).forEach(p -> p.ifPresent(Player::closeInventory));
 
         for (Player player : ((Container) view.getInventory()).getViewers())
         {
-            player.closeInventory(cause);
+            player.closeInventory();
         }
         this.saveData(view.getInventory());
     }

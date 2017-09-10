@@ -21,7 +21,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import com.flowpowered.math.vector.Vector3i;
-import org.cubeengine.libcube.util.CauseUtil;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
@@ -37,6 +37,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -101,7 +102,7 @@ public class ChopListener
         {
             return;
         }
-        Cause blockPlayerCause = Cause.of(NamedCause.source(plugin), NamedCause.simulated(player));
+        Sponge.getCauseStackManager().addContext(EventContextKeys.PLAYER_SIMULATED, player.getProfile());
         for (Transaction<BlockSnapshot> transaction : event.getTransactions())
         {
             BlockType type = transaction.getOriginal().getState().getType();
@@ -128,7 +129,7 @@ public class ChopListener
                             block.getExtent().playSound(SoundTypes.BLOCK_WOOD_STEP, block.getPosition(), 1);
                         }
                         logs++;
-                        block.setBlockType(BlockTypes.AIR, blockPlayerCause);
+                        block.setBlockType(BlockTypes.AIR);
                         BlockType belowTyp = block.getBlockRelative(DOWN).getBlockType();
                         if (belowTyp == DIRT || belowTyp == GRASS)
                         {
@@ -137,7 +138,7 @@ public class ChopListener
                     }
                     if (block.getBlockType() == LEAVES || block.getBlockType() == LEAVES2)
                     {
-                        block.setBlockType(BlockTypes.AIR, blockPlayerCause);
+                        block.setBlockType(BlockTypes.AIR);
                         block.getExtent().playSound(SoundTypes.BLOCK_GRASS_STEP, block.getPosition(), 1); // TODO leaves sound?
                         leaves++;
                     }
@@ -169,7 +170,7 @@ public class ChopListener
                 {
                     if (leaves > 0)
                     {
-                        block.setBlock(sapState, blockPlayerCause);
+                        block.setBlock(sapState);
                         leaves--;
                     }
                 }
@@ -181,24 +182,24 @@ public class ChopListener
 
                 World world = player.getWorld();
                 Entity itemEntity;
-                Cause playerCause = CauseUtil.spawnCause(player);
-
+                Sponge.getCauseStackManager().removeContext(EventContextKeys.PLAYER_SIMULATED);
+                Sponge.getCauseStackManager().pushCause(player);
                 if (apples != 0)
                 {
                     ItemStack apple = ItemStack.builder().itemType(APPLE).quantity(apples).build();
                     itemEntity = world.createEntity(ITEM, orig.getPosition());
                     itemEntity.offer(REPRESENTED_ITEM, apple.createSnapshot());
-                    world.spawnEntity(itemEntity, playerCause);
+                    world.spawnEntity(itemEntity);
                 }
 
                 ItemStack sap = ItemStack.builder().fromBlockState(sapState).build();
                 itemEntity = world.createEntity(ITEM, orig.getPosition());
                 itemEntity.offer(REPRESENTED_ITEM, sap.createSnapshot());
-                world.spawnEntity(itemEntity, playerCause);
+                world.spawnEntity(itemEntity);
 
                 itemEntity = world.createEntity(ITEM, orig.getPosition());
                 itemEntity.offer(REPRESENTED_ITEM, log.createSnapshot());
-                world.spawnEntity(itemEntity, playerCause);
+                world.spawnEntity(itemEntity);
                 return;
             }
         }

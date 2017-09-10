@@ -19,7 +19,6 @@ package org.cubeengine.module.fun.commands;
 
 import java.util.Optional;
 import org.cubeengine.butler.parametric.Command;
-import org.cubeengine.libcube.util.CauseUtil;
 import org.cubeengine.module.fun.Fun;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.i18n.formatter.MessageType;
@@ -56,6 +55,7 @@ public class InvasionCommand
             i18n.send(context, MessageType.NEGATIVE, "EntityType {input} not found", mob);
             return;
         }
+        Sponge.getCauseStackManager().pushCause(context);
         for (Player player : Sponge.getServer().getOnlinePlayers())
         {
             Optional<BlockRayHit<World>> end =
@@ -65,7 +65,7 @@ public class InvasionCommand
             {
                 Location<World> location = end.get().getLocation();
                 Entity entity = location.getExtent().createEntity(entityType, location.getPosition());
-                location.getExtent().spawnEntity(entity, CauseUtil.spawnCause(context));
+                location.getExtent().spawnEntity(entity);
             }
         }
     }

@@ -17,15 +17,12 @@
  */
 package org.cubeengine.module.itemrepair.repair;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
+import static org.cubeengine.module.itemrepair.repair.storage.TableRepairBlock.TABLE_REPAIR_BLOCK;
+
 import org.cubeengine.libcube.service.database.Database;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.permission.PermissionManager;
-import org.cubeengine.libcube.util.CauseUtil;
 import org.cubeengine.module.itemrepair.Itemrepair;
 import org.cubeengine.module.itemrepair.material.RepairItemContainer;
 import org.cubeengine.module.itemrepair.repair.blocks.RepairBlock;
@@ -41,16 +38,16 @@ import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.world.LoadWorldEvent;
 import org.spongepowered.api.item.inventory.Inventory;
-import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import static org.cubeengine.module.itemrepair.repair.storage.TableRepairBlock.TABLE_REPAIR_BLOCK;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class RepairBlockManager
 {
@@ -221,13 +218,14 @@ public class RepairBlockManager
             {
                 final World world = player.getWorld();
                 final Location loc = player.getLocation();
+                Sponge.getCauseStackManager().pushCause(player);
                 for (Inventory slot : inventory.inventory)
                 {
                     if (slot.peek().isPresent())
                     {
                         Entity drop = world.createEntity(EntityTypes.ITEM, loc.getPosition());
                         drop.offer(Keys.REPRESENTED_ITEM, slot.peek().get().createSnapshot());
-                        world.spawnEntity(drop, CauseUtil.spawnCause(player));
+                        world.spawnEntity(drop);
                     }
                 }
             }

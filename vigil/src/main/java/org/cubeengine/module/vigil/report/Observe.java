@@ -17,6 +17,7 @@
  */
 package org.cubeengine.module.vigil.report;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -38,6 +39,7 @@ import org.spongepowered.api.entity.explosive.PrimedTNT;
 import org.spongepowered.api.entity.living.Agent;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.EventContextKey;
 import org.spongepowered.api.event.cause.entity.damage.source.BlockDamageSource;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
 import org.spongepowered.api.event.cause.entity.damage.source.EntityDamageSource;
@@ -63,14 +65,21 @@ public class Observe
     public static Map<String, Object> causes(Cause causes)
     {
         Map<String, Object> data = new LinkedHashMap<>();
-        for (Map.Entry<String, Object> namedCause : causes.getNamedCauses().entrySet())
+        List<Object> causeList = new ArrayList<>();
+        data.put("fullcauselist", causeList);
+        for (Object namedCause : causes.all())
         {
-            Map<String, Object> causeData = cause(namedCause.getValue());
+            Map<String, Object> causeData = cause(namedCause);
             if (causeData != null)
             {
-                data.put(namedCause.getKey().replace(".", "_"), causeData);
+                causeList.add(causeData);
             }
         }
+        for (EventContextKey<?> key : causes.getContext().keySet())
+        {
+            data.put(key.getId().replace(".", "_"), cause(causes.getContext().get(key).get()));
+        }
+
         return data;
     }
 

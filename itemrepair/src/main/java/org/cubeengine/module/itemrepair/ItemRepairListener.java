@@ -25,12 +25,14 @@ import org.cubeengine.module.itemrepair.repair.RepairBlockManager;
 import org.cubeengine.module.itemrepair.repair.RepairRequest;
 import org.cubeengine.module.itemrepair.repair.blocks.RepairBlock;
 import org.cubeengine.module.itemrepair.repair.blocks.RepairBlock.RepairBlockInventory;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.action.InteractEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent.Primary;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.item.inventory.InteractItemEvent;
@@ -91,7 +93,8 @@ public class ItemRepairListener
         if (!primary)
         {
             this.cancelRequest(event, player);
-            player.openInventory(inventory.inventory, Cause.of(NamedCause.source(player)));
+            Sponge.getCauseStackManager().pushCause(player);
+            player.openInventory(inventory.inventory);
         }
         else
         {

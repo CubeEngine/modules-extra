@@ -120,7 +120,8 @@ public class ItemDuctListener
             inventory.offer(itemStack);
         }
 
-        player.openInventory(inventory, Cause.source(plugin).build()); // TODO player cause
+        Sponge.getCauseStackManager().pushCause(player);
+        player.openInventory(inventory);
     }
 
     @Listener

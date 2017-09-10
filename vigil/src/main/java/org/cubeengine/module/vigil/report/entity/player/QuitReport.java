@@ -26,6 +26,7 @@ import org.cubeengine.module.vigil.report.Recall;
 import org.cubeengine.module.vigil.report.Report;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 
@@ -43,7 +44,7 @@ public class QuitReport extends BaseReport<ClientConnectionEvent.Disconnect> imp
     protected Action observe(ClientConnectionEvent.Disconnect event)
     {
         Action action = newReport();
-        action.addData(CAUSE, Observe.causes(Cause.of(NamedCause.source(event.getTargetEntity()))));
+        action.addData(CAUSE, Observe.causes(Cause.of(EventContext.empty(), event.getTargetEntity())));
         action.addData(LOCATION, Observe.location(event.getTargetEntity().getLocation()));
         return action;
     }

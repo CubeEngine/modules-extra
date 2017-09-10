@@ -24,8 +24,11 @@ import org.cubeengine.module.vigil.report.BaseReport;
 import org.cubeengine.module.vigil.report.Observe;
 import org.cubeengine.module.vigil.report.Recall;
 import org.cubeengine.module.vigil.report.Report;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 
@@ -43,7 +46,7 @@ public class JoinReport extends BaseReport<ClientConnectionEvent.Join> implement
     protected Action observe(ClientConnectionEvent.Join event)
     {
         Action action = newReport();
-        action.addData(CAUSE, Observe.causes(Cause.of(NamedCause.source(event.getTargetEntity()))));
+        action.addData(CAUSE, Observe.causes(Cause.of(EventContext.empty(), event.getTargetEntity())));
         action.addData(LOCATION, Observe.location(event.getTargetEntity().getLocation()));
         return action;
     }

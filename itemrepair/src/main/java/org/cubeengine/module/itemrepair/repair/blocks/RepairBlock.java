@@ -40,6 +40,8 @@ import org.spongepowered.api.data.value.mutable.MutableBoundedValue;
 import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.EventContext;
+import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.Inventory;
@@ -190,7 +192,7 @@ public class RepairBlock
     public boolean withdrawPlayer(Player player, double price)
     {
         UniqueAccount acc = economy.getOrCreateAccount(player.getUniqueId()).get();// Make sure account exists
-        TransactionResult result = acc.withdraw(economy.getDefaultCurrency(), new BigDecimal(price), Cause.of(NamedCause.source(player)));
+        TransactionResult result = acc.withdraw(economy.getDefaultCurrency(), new BigDecimal(price), Cause.of(EventContext.empty(), player));
         if (result.getResult() == ResultType.SUCCESS)
         {
             // TODO bankAccounts

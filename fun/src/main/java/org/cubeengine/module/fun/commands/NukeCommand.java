@@ -154,7 +154,8 @@ public class NukeCommand
             PrimedTNT tnt = (PrimedTNT)world.createEntity(PRIMED_TNT, vector.clone());
             tnt.setVelocity(new Vector3d(0,0,0));
             tnt.offer(Keys.EXPLOSION_RADIUS, java.util.Optional.of(range));
-            world.spawnEntity(tnt, Cause.of(NamedCause.source(this))); // TODO cause
+            // TODO push cause
+            world.spawnEntity(tnt);
 
             numberOfBlocks++;
 

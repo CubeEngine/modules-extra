@@ -32,7 +32,6 @@ import static org.spongepowered.api.text.format.TextColors.LIGHT_PURPLE;
 import org.cubeengine.libcube.service.command.exception.PermissionDeniedException;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.inventoryguard.InventoryGuardFactory;
-import org.cubeengine.libcube.util.CauseUtil;
 import org.cubeengine.module.signmarket.data.IMarketSignData;
 import org.cubeengine.module.signmarket.data.ImmutableMarketSignData;
 import org.cubeengine.module.signmarket.data.MarketSignData;
@@ -48,6 +47,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.event.cause.Cause;
+import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.Inventory;
@@ -151,7 +151,7 @@ public final class MarketSignManager
      *
      * @param data the MarketSignData
      */
-    public MarketSignData dropContents(MarketSignData data, Location<World> at, Cause cause)
+    public MarketSignData dropContents(MarketSignData data, Location<World> at)
     {
         Integer stock = data.getStock();
         if (ADMIN_SIGN.equals(data.getOwner()) || stock == null || stock <= 0)
@@ -164,21 +164,21 @@ public final class MarketSignManager
         while (stock > copy.getMaxStackQuantity())
         {
             // TODO SpawnTypes.DROPPED_ITEM cause?
-            spawn(at, cause, copy);
+            spawn(at, copy);
             stock -= copy.getMaxStackQuantity();
         }
         copy.setQuantity(stock);
-        spawn(at, cause, copy);
+        spawn(at, copy);
 
         data.setStock(0);
         return data;
     }
 
-    private void spawn(Location<World> at, Cause cause, ItemStack copy)
+    private void spawn(Location<World> at, ItemStack copy)
     {
         Entity spawn = at.getExtent().createEntity(EntityTypes.ITEM, at.getPosition());
         spawn.offer(Keys.REPRESENTED_ITEM, copy.createSnapshot());
-        at.getExtent().spawnEntity(spawn, cause); // TODO random spawn velocity?
+        at.getExtent().spawnEntity(spawn); // TODO random spawn velocity?
     }
 
     /**
@@ -242,6 +242,7 @@ public final class MarketSignManager
         }
         if (right)
         {
+            Sponge.getCauseStackManager().pushCause(player);
             executeUse(data, player, at);
             return;
         } // else left
@@ -315,7 +316,8 @@ public final class MarketSignManager
                     return false;
                 }
                 // empty the sign first
-                takeItem(data, CauseUtil.spawnCause(player), at, player); // TODO spawnType DISPENSE?
+                Sponge.getCauseStackManager().pushCause(player);
+                takeItem(data, at, player); // TODO spawnType DISPENSE?
                 if (data.getStock() == 0)
                 {
                     breakingSign.remove(player.getUniqueId()); // double click again to actually break the sign
@@ -333,19 +335,20 @@ public final class MarketSignManager
         // Sign is Empty or Create -> Now Break it (maybe)
         if (isDoubleClick) // 0.5 sec
         {
+            Sponge.getCauseStackManager().pushCause(player);
             if (data.getStock() != null && data.getStock() == 1337)  //pssst i am not here
             {
                 Entity lightning = at.getExtent().createEntity(EntityTypes.LIGHTNING, at.getPosition());
-                at.getExtent().spawnEntity(lightning, CauseUtil.spawnCause(player));
+                at.getExtent().spawnEntity(lightning);
             }
 
-            dropContents(data, at, CauseUtil.spawnCause(player));
+            dropContents(data, at);
             at.remove(MarketSignData.class);
             at.remove(SignData.class);
-            at.setBlock(BlockTypes.AIR.getDefaultState(), Cause.of(NamedCause.source(plugin))); // TODO break particles + sound?
+            at.setBlock(BlockTypes.AIR.getDefaultState()); // TODO break particles + sound?
             if (player.gameMode().get() != GameModes.CREATIVE)
             {
-                spawn(at, CauseUtil.spawnCause(player), ItemStack.builder().itemType(ItemTypes.SIGN).quantity(1).build());
+                spawn(at, ItemStack.builder().itemType(ItemTypes.SIGN).quantity(1).build());
             }
             i18n.send(player, POSITIVE, "MarketSign destroyed!");
             return true;
@@ -355,7 +358,7 @@ public final class MarketSignManager
         return false;
     }
 
-    private void takeItem(MarketSignData data, Cause cause, Location<World> loc, Player player)
+    private void takeItem(MarketSignData data, Location<World> loc, Player player)
     {
         int amount = Math.min(data.getStock(), data.getItem().getMaxStackQuantity());
         if (amount == 0)
@@ -366,7 +369,7 @@ public final class MarketSignManager
         data.setStock(data.getStock() - amount);
         ItemStack copy = data.getItem().copy();
         copy.setQuantity(amount);
-        spawn(loc, cause, copy);
+        spawn(loc, copy);
     }
 
     private void executeUse(MarketSignData data, Player player, Location<World> loc)
@@ -383,7 +386,7 @@ public final class MarketSignManager
 
         if (data.isOwner(player.getUniqueId()))
         {
-            takeItem(data, CauseUtil.spawnCause(player), loc, player);
+            takeItem(data, loc, player);
             return;
         }
 
@@ -435,7 +438,7 @@ public final class MarketSignManager
         if (!data.isAdminOwner())
         {
             UniqueAccount owner = es.getOrCreateAccount(data.getOwner()).get();
-            TransferResult result = owner.transfer(seller, es.getDefaultCurrency(), getPrice(data), Cause.of(NamedCause.source(seller)));
+            TransferResult result = owner.transfer(seller, es.getDefaultCurrency(), getPrice(data), Cause.of(EventContext.empty(), seller));
             if (result.getResult() != ResultType.SUCCESS)
             {
                 i18n.send(ACTION_BAR, player, NEGATIVE, "The owner cannot afford the money to acquire your items!");
@@ -444,7 +447,7 @@ public final class MarketSignManager
         }
         else
         {
-            TransactionResult result = seller.deposit(es.getDefaultCurrency(), getPrice(data), Cause.of(NamedCause.source(seller)));
+            TransactionResult result = seller.deposit(es.getDefaultCurrency(), getPrice(data), Cause.of(EventContext.empty(), seller));
             if (result.getResult() != ResultType.SUCCESS)
             {
                 throw new IllegalStateException("Could not deposit");
@@ -475,7 +478,7 @@ public final class MarketSignManager
             return;
         }
 
-        if (account.withdraw(es.getDefaultCurrency(), getPrice(data), Cause.of(NamedCause.source(player))).getResult() != ResultType.SUCCESS)
+        if (account.withdraw(es.getDefaultCurrency(), getPrice(data), Cause.of(EventContext.empty(), player)).getResult() != ResultType.SUCCESS)
         {
             i18n.send(ACTION_BAR, player, NEGATIVE, "You can't afford these items!");
             return;
@@ -495,7 +498,7 @@ public final class MarketSignManager
 
         if (!data.isAdminOwner())
         {
-            es.getOrCreateAccount(data.getOwner()).get().deposit(es.getDefaultCurrency(), getPrice(data), Cause.of(NamedCause.source(player)));
+            es.getOrCreateAccount(data.getOwner()).get().deposit(es.getDefaultCurrency(), getPrice(data), Cause.of(EventContext.empty(), player));
         }
 
         if (data.getStock() != null)

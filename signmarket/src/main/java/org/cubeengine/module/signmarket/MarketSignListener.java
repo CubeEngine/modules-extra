@@ -24,6 +24,7 @@ import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.util.BlockUtil;
 import org.cubeengine.module.signmarket.data.ImmutableMarketSignData;
 import org.cubeengine.module.signmarket.data.MarketSignData;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
@@ -261,7 +262,8 @@ public class MarketSignListener
                 Location<World> loc = trans.getFinal().getLocation().get();
                 loc.offer(data);
                 manager.setSign(loc, player);
-                player.closeInventory(Cause.source(player).build());
+                Sponge.getCauseStackManager().pushCause(player);
+                player.closeInventory();
             }
         }
     }

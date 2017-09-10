@@ -72,7 +72,7 @@ public class DestructReport extends EntityReport<DestructEntityEvent>
             Text item = Text.of("?");
             if (i != null)
             {
-                item = Text.of(i.getTranslation().get(receiver.getLocale())).toBuilder().onHover(showText(Text.of(i.getItem().getId()))).build();
+                item = Text.of(i.getTranslation().get(receiver.getLocale())).toBuilder().onHover(showText(Text.of(i.getType().getId()))).build();
             }
             int count = 0;
             for (Action a : actions)
@@ -187,17 +187,18 @@ public class DestructReport extends EntityReport<DestructEntityEvent>
     @Listener
     public void onDesctruct(DestructEntityEvent event)
     {
-        if (event.getCause().get("CombinedItem", Object.class).isPresent())
+    /* TODO    if (event.getCause().get("CombinedItem", Object.class).isPresent())
         {
             // Ignore CombinedItem
             return;
         }
 
-        if (event.getCause().get("PickedUp", Object.class).isPresent())
+     TODO     if (event.getCause().get("PickedUp", Object.class).isPresent())
         {
-            // Ignore CombinedItem
+            // Ignore Pickup
             return;
         }
+        */
 
         if (!isActive(event.getTargetEntity().getWorld()))
         {

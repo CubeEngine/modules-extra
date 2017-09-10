@@ -29,8 +29,8 @@ import org.cubeengine.butler.parametric.Named;
 import org.cubeengine.butler.parametric.Optional;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.matcher.MaterialMatcher;
-import org.cubeengine.libcube.util.CauseUtil;
 import org.cubeengine.module.fun.Fun;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.property.item.EquipmentProperty;
@@ -209,7 +209,8 @@ public class PlayerCommands
             fire || unsafe).shouldDamageEntities(playerDamage || unsafe).shouldBreakBlocks(
             blockDamage || unsafe).build();
 
-        loc.getExtent().triggerExplosion(explosion, CauseUtil.spawnCause(context));
+        Sponge.getCauseStackManager().pushCause(context);
+        loc.getExtent().triggerExplosion(explosion);
     }
 
     @Command(alias = "strike", desc = "Throws a lightning bolt at a player or where you're looking")
@@ -268,7 +269,8 @@ public class PlayerCommands
         {
             ((Lightning)entity).setEffect(true);
         }
-        location.getExtent().spawnEntity(entity, CauseUtil.spawnCause(context));
+        Sponge.getCauseStackManager().pushCause(context);
+        location.getExtent().spawnEntity(entity);
     }
 
     @Command(desc = "Slaps a player")
@@ -283,7 +285,8 @@ public class PlayerCommands
         }
 
         final Vector3d userDirection = player.getTransform().getRotationAsQuaternion().getDirection().mul(-1);
-        player.damage(damage, DamageSource.builder().type(DamageTypes.ATTACK).absolute().build(), Cause.of(NamedCause.source(context)));
+        Sponge.getCauseStackManager().pushCause(context);
+        player.damage(damage, DamageSource.builder().type(DamageTypes.ATTACK).absolute().build());
         player.setVelocity(new Vector3d(userDirection.getX() * damage / 2, userDirection.getY() * damage / 20, userDirection.getZ() * damage / 2));
     }
 
