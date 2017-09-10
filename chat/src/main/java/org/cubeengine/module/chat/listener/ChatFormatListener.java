@@ -21,15 +21,12 @@ import static org.cubeengine.libcube.util.ChatFormat.fromLegacy;
 import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
 
 import org.cubeengine.module.chat.Chat;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.manipulator.mutable.DisplayNameData;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
-import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.message.MessageChannelEvent;
-import org.spongepowered.api.event.service.ChangeServiceProviderEvent;
-import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
@@ -53,7 +50,7 @@ public class ChatFormatListener
     }
 
     @Listener(order = Order.EARLY)
-    public void onPlayerChat(MessageChannelEvent.Chat event, @First Player player)
+    public void onPlayerChat(MessageChannelEvent.Chat event, @Root Player player)
     {
         // TODO format on the messagechannel instead
         String msg = event.getRawMessage().toPlain();
