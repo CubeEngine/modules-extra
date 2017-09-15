@@ -19,19 +19,18 @@ package org.cubeengine.module.rulebook;
 
 import static org.spongepowered.api.data.type.HandTypes.MAIN_HAND;
 
-import java.util.Locale;
 import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.libcube.util.CauseUtil;
 import org.cubeengine.module.rulebook.bookManagement.RulebookManager;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
+
+import java.util.Locale;
 
 class RulebookListener
 {
@@ -70,7 +69,8 @@ class RulebookListener
             {
                 Entity entity = player.getWorld().createEntity(EntityTypes.ITEM, player.getLocation().getPosition());
                 entity.offer(Keys.REPRESENTED_ITEM, hand.createSnapshot());
-                player.getWorld().spawnEntity(entity, CauseUtil.spawnCause(player));
+                Sponge.getCauseStackManager().pushCause(player);
+                player.getWorld().spawnEntity(entity);
             }
         }
     }

@@ -17,22 +17,20 @@
  */
 package org.cubeengine.module.vigil.report.entity.player;
 
-import java.util.List;
+import static java.util.Collections.emptyList;
+
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.BaseReport;
 import org.cubeengine.module.vigil.report.Observe;
 import org.cubeengine.module.vigil.report.Recall;
 import org.cubeengine.module.vigil.report.Report;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.EventContext;
-import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 
-import static java.util.Collections.emptyList;
+import java.util.List;
 
 public class JoinReport extends BaseReport<ClientConnectionEvent.Join> implements Report.Readonly, Report.SimpleGrouping
 {

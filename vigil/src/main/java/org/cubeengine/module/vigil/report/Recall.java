@@ -17,12 +17,27 @@
  */
 package org.cubeengine.module.vigil.report;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import static org.cubeengine.module.vigil.report.Report.LOCATION;
+import static org.cubeengine.module.vigil.report.block.BlockReport.BLOCK_CHANGES;
+import static org.cubeengine.module.vigil.report.block.BlockReport.BLOCK_DATA;
+import static org.cubeengine.module.vigil.report.block.BlockReport.BLOCK_STATE;
+import static org.cubeengine.module.vigil.report.block.BlockReport.BLOCK_UNSAFE_DATA;
+import static org.cubeengine.module.vigil.report.block.BlockReport.CAUSE;
+import static org.cubeengine.module.vigil.report.block.BlockReport.CAUSE_NAME;
+import static org.cubeengine.module.vigil.report.block.BlockReport.CAUSE_PLAYER_UUID;
+import static org.cubeengine.module.vigil.report.block.BlockReport.CAUSE_TARGET;
+import static org.cubeengine.module.vigil.report.block.BlockReport.CAUSE_TYPE;
+import static org.cubeengine.module.vigil.report.block.BlockReport.CauseType;
+import static org.cubeengine.module.vigil.report.Report.FULLCAUSELIST;
+import static org.cubeengine.module.vigil.report.block.BlockReport.ORIGINAL;
+import static org.cubeengine.module.vigil.report.block.BlockReport.REPLACEMENT;
+import static org.cubeengine.module.vigil.report.block.BlockReport.WORLD;
+import static org.cubeengine.module.vigil.report.block.BlockReport.X;
+import static org.cubeengine.module.vigil.report.block.BlockReport.Y;
+import static org.cubeengine.module.vigil.report.block.BlockReport.Z;
+import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
+import static org.spongepowered.api.text.format.TextColors.YELLOW;
+
 import org.cubeengine.module.vigil.report.entity.EntityReport;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
@@ -32,24 +47,22 @@ import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.MemoryDataContainer;
-import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.manipulator.immutable.ImmutableRepresentedItemData;
-import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.EntityType;
-import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
-import org.spongepowered.api.text.format.TextColor;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import static org.cubeengine.module.vigil.report.Report.LOCATION;
-import static org.cubeengine.module.vigil.report.block.BlockReport.*;
-import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
-import static org.spongepowered.api.text.format.TextColors.YELLOW;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class Recall
 {
@@ -65,7 +78,7 @@ public class Recall
 
     public static Optional<BlockSnapshot> blockSnapShot(Map<String, Object> data, Map<String, Object> locationData)
     {
-        DataContainer container = new MemoryDataContainer();
+        DataContainer container = DataContainer.createNew();
         toContainer(container, locationData, Report.WORLD);
         toContainer(container, locationData, Report.X);
         toContainer(container, locationData, Report.Y);
@@ -95,37 +108,28 @@ public class Recall
     public static Text cause(Action action)
     {
         Map<String, Object> data = action.getData(CAUSE);
-        Map<String, Object> source = (Map<String, Object>)data.get(NamedCause.SOURCE);
-        Map<String, Object> attacker = (Map<String, Object>)data.get("Attacker");
-        Map<String, Object> playerSource = (Map<String, Object>)data.get("PlayerSource");
-        Map<String, Object> notifier = (Map<String, Object>)data.get(NamedCause.NOTIFIER);
-        Map<String, Object> source2 = (Map<String, Object>)data.get(NamedCause.SOURCE + "1");
-        return cause(source == null ? attacker : source, notifier, playerSource == null ? source2 : playerSource);
+        List<Map<String, Object>> list = (List<Map<String, Object>>)data.get(FULLCAUSELIST);
+        // TODO EventContextKeys
+        return cause(list);
     }
 
-    public static Text cause(Map<String, Object> source, Map<String, Object> notifier, Map<String, Object> source2)
+    public static Text cause(List<Map<String, Object>> list)
     {
         Text text = Text.of("?");
-        if (source != null)
+        Iterator<Map<String, Object>> it = list.iterator();
+        if (!list.isEmpty())
         {
-            CauseType type = CauseType.valueOf(source.get(CAUSE_TYPE).toString());
-            text = cause(source, text, type);
+            Map<String, Object> elem = it.next();
+            CauseType type = CauseType.valueOf(elem.get(CAUSE_TYPE).toString());
+            text = cause(elem, text, type);
         }
-
-        if (notifier != null)
+        while (it.hasNext())
         {
+            Map<String, Object> elem = it.next();
             text = text.toBuilder().append(Text.of("…").toBuilder().onHover(
-                    TextActions.showText(Text.of(text, "←", cause(notifier, Text.of(),
-                            CauseType.valueOf(notifier.get(CAUSE_TYPE).toString()))))).build()).build();
+                    TextActions.showText(Text.of(text, "←", cause(elem, Text.of(),
+                            CauseType.valueOf(elem.get(CAUSE_TYPE).toString()))))).build()).build();
         }
-
-        if (source2 != null)
-        {
-            Text source2Text = cause(source2, Text.of(), CauseType.valueOf(source2.get(CAUSE_TYPE).toString()));
-            text = source2Text.toBuilder().append(Text.of("…").toBuilder().onHover(
-                TextActions.showText(Text.of(source2Text, "←", text))).build()).build();
-        }
-
         return text;
     }
 

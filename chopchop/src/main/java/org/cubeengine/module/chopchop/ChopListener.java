@@ -38,7 +38,6 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.EventContextKeys;
-import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.plugin.PluginContainer;

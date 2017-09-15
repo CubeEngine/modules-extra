@@ -52,13 +52,11 @@ import static org.cubeengine.module.vigil.report.Report.CAUSE_NAME;
 import static org.cubeengine.module.vigil.report.Report.CAUSE_PLAYER_UUID;
 import static org.cubeengine.module.vigil.report.Report.CAUSE_TYPE;
 import static org.cubeengine.module.vigil.report.Report.CauseType.*;
-import static org.cubeengine.module.vigil.report.Report.LOCATION;
 import static org.cubeengine.module.vigil.report.Report.WORLD;
 import static org.cubeengine.module.vigil.report.Report.X;
 import static org.cubeengine.module.vigil.report.Report.Y;
 import static org.cubeengine.module.vigil.report.Report.Z;
 import static org.cubeengine.module.vigil.report.block.BlockReport.*;
-import static org.spongepowered.api.block.BlockTypes.*;
 
 public class Observe
 {
@@ -66,7 +64,7 @@ public class Observe
     {
         Map<String, Object> data = new LinkedHashMap<>();
         List<Object> causeList = new ArrayList<>();
-        data.put("fullcauselist", causeList);
+        data.put(Report.FULLCAUSELIST, causeList);
         for (Object namedCause : causes.all())
         {
             Map<String, Object> causeData = cause(namedCause);

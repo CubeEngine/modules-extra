@@ -17,9 +17,9 @@
  */
 package org.cubeengine.module.itemrepair;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
+
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.module.itemrepair.repair.RepairBlockManager;
 import org.cubeengine.module.itemrepair.repair.RepairRequest;
@@ -31,17 +31,15 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.action.InteractEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent.Primary;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.EventContext;
-import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.item.inventory.InteractItemEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class ItemRepairListener
 {

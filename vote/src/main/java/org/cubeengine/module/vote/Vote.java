@@ -40,7 +40,7 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
 import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
@@ -113,7 +113,7 @@ public class Vote extends CubeEngineModule
             UniqueAccount acc = economy.getOrCreateAccount(user.get().getUniqueId()).get();
             final int voteAmount = voteModel.getVotes();
             double money = this.config.voteReward * pow(1 + 1.5 / voteAmount, voteAmount - 1);
-            acc.deposit(economy.getDefaultCurrency(), new BigDecimal(money), Cause.of(NamedCause.source(event.getVote())));
+            acc.deposit(economy.getDefaultCurrency(), new BigDecimal(money), Cause.of(EventContext.empty(), event.getVote()));
             Text moneyFormat = economy.getDefaultCurrency().format(new BigDecimal(money));
             bc.broadcastMessage(NONE, ChatFormat.parseFormats(this.config.voteBroadcast)
                     .replace("{PLAYER}", vote.getUsername())

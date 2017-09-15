@@ -57,6 +57,7 @@ public interface Report
     String LOCATION = "location";
 
     String MULTIACTION = "multiaction";
+    String FULLCAUSELIST = "fullcauselist";
 
     static Optional<? extends Class<? extends Report>> getReport(String name)
     {
