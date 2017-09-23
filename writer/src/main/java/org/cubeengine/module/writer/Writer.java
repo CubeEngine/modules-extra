@@ -48,6 +48,7 @@ import org.spongepowered.api.util.blockray.BlockRayHit;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import java.util.Iterator;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -129,12 +130,24 @@ public class Writer extends CubeEngineModule
      */
     public boolean editSignInSight(Player user, String line1, String line2, String line3, String line4)
     {
-        Optional<BlockRayHit<World>> end = BlockRay.from(user).stopFilter(BlockRay.onlyAirFilter()).distanceLimit(10).end();
-        if (!end.isPresent())
+        Iterator<BlockRayHit<World>> it = BlockRay.from(user).distanceLimit(10).iterator();
+        BlockRayHit<World> result = null;
+        while (it.hasNext())
+        {
+            BlockRayHit<World> next = it.next();
+            BlockType type = next.getLocation().getBlockType();
+            if (type == WALL_SIGN || type == STANDING_SIGN)
+            {
+                result = next;
+                break;
+            }
+        }
+        if (result == null)
         {
             return false;
         }
-        Location<World> block = end.get().getLocation();
+
+        Location<World> block = result.getLocation();
         BlockType type = block.getBlockType();
         if (type != WALL_SIGN && type != STANDING_SIGN)
         {
@@ -146,7 +159,7 @@ public class Writer extends CubeEngineModule
         lines.set(1, line2 == null ? lines.get(1) : Text.of(line2));
         lines.set(2, line3 == null ? lines.get(2) : Text.of(line3));
         lines.set(3, line4 == null ? lines.get(3) : Text.of(line4));
-        block.offer(signData);
+        System.out.println(block.offer(signData).isSuccessful());
 
         i18n.send(user, POSITIVE, "The sign has been changed!");
         return true;
