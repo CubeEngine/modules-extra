@@ -58,6 +58,7 @@
     <module>squelch</module>
     <module>patient</module>
     <module>itemduct</module>
+    <module>tablist</module>
   </modules>
 
   <build>
