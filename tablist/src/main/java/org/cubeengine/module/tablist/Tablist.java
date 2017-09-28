@@ -23,12 +23,14 @@ import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.processor.Dependency;
 import org.cubeengine.processor.Module;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.tab.TabListEntry;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
-import org.spongepowered.api.text.Text;
+
+import java.util.Optional;
 
 import javax.inject.Singleton;
 
@@ -54,13 +56,10 @@ public class Tablist extends CubeEngineModule
         {
             player.getTabList().setHeader(FORMATTING_CODE.deserialize(this.config.header));
         }
-        for (TabListEntry tle : player.getTabList().getEntries())
+        for (Player p : Sponge.getServer().getOnlinePlayers())
         {
-            if (tle.getProfile().equals(player.getProfile()))
-            {
-                tle.setDisplayName(FORMATTING_CODE.deserialize(prefix + tle.getProfile().getName().orElse("???")));
-            }
+            Optional<TabListEntry> entry = p.getTabList().getEntry(player.getUniqueId());
+            entry.ifPresent(tle -> tle.setDisplayName(FORMATTING_CODE.deserialize(prefix + player.getName())));
         }
-
     }
 }
