@@ -19,6 +19,8 @@ package org.cubeengine.module.itemrepair.material;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.spongepowered.api.data.property.item.UseLimitProperty;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -106,7 +108,7 @@ public class RepairItemContainer
         int i = 0;
         for (Inventory slot : inventory.slots())
         {
-            if (slot.peek().isPresent())
+            if (slot.peek().isPresent() && slot.peek().get().getProperty(UseLimitProperty.class).isPresent())
             {
                 items.put(i, slot.peek().get());
             }

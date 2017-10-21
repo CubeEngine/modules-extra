@@ -36,7 +36,7 @@ import org.cubeengine.module.itemrepair.repair.RepairRequest;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.meta.ItemEnchantment;
-import org.spongepowered.api.data.value.mutable.MutableBoundedValue;
+import org.spongepowered.api.data.property.item.UseLimitProperty;
 import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
@@ -133,15 +133,17 @@ public class RepairBlock
         double currentPrice;
         for (ItemStack itemStack : items)
         {
-            type = itemStack.getItem();
+            type = itemStack.getType();
+
             item = itemProvider.of(type);
             currentPrice = 0;
             for (Entry<BaseMaterial, Integer> entry : item.getBaseMaterials().entrySet())
             {
                 currentPrice += entry.getKey().getPrice() * entry.getValue();
             }
-            MutableBoundedValue<Integer> dura = itemStack.getValue(Keys.ITEM_DURABILITY).get();
-            currentPrice *= (double)Math.min(dura.get(), dura.getMaxValue()) / dura.getMaxValue();
+            Integer dura = itemStack.getValue(Keys.ITEM_DURABILITY).get().get();
+            Integer maxDura = itemStack.getProperty(UseLimitProperty.class).get().getValue();
+            currentPrice *= (double) (maxDura - Math.min(dura, maxDura)) / maxDura;
             currentPrice *= getEnchantmentMultiplier(itemStack, enchantmentFactor, enchantmentBase);
 
             price += currentPrice;
