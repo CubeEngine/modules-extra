@@ -56,10 +56,15 @@ public class Tablist extends CubeEngineModule
         {
             player.getTabList().setHeader(FORMATTING_CODE.deserialize(this.config.header));
         }
+
         for (Player p : Sponge.getServer().getOnlinePlayers())
         {
             Optional<TabListEntry> entry = p.getTabList().getEntry(player.getUniqueId());
             entry.ifPresent(tle -> tle.setDisplayName(FORMATTING_CODE.deserialize(prefix + player.getName())));
+
+            String pPrefix = p.getOption("tablist-prefix").orElse("");
+            Optional<TabListEntry> pEntry = player.getTabList().getEntry(p.getUniqueId());
+            pEntry.ifPresent(tle -> tle.setDisplayName(FORMATTING_CODE.deserialize(pPrefix + p.getName())));
         }
     }
 }
