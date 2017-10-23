@@ -205,10 +205,11 @@ public class DuctUtil
                     {
                         pollFrom = inventory.queryAny(filters.toArray(new ItemStack[filters.size()])); // TODO more filters
                     }
+
                     Inventory pollFromTo = pollFrom;
                     if (!targetFilter.get().isEmpty()) // Only allow to insert items in the filter
                     {
-                        pollFromTo = pollFromTo.query(targetFilter.get().toArray(new ItemStack[targetFilter.get().size()]));  // TODO more filters
+                        pollFromTo = pollFromTo.queryAny(targetFilter.get().toArray(new ItemStack[targetFilter.get().size()]));  // TODO more filters
                     }
                     // For all filtered slots
                     for (Inventory slot : pollFromTo.slots())
