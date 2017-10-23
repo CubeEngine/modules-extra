@@ -121,6 +121,7 @@ public class PlayerCommands
             if (!context.hasPermission(module.perms().COMMAND_HAT_MORE_ARMOR.getId()))
             {
                 i18n.send(context, NEGATIVE, "You are not allowed to use other armor as headpiece");
+                return;
             }
         }
 
