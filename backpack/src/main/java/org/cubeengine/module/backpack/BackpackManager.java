@@ -65,6 +65,7 @@ public class BackpackManager
         try
         {
             Path folder = this.backpackPath.resolve(player.toString());
+            Files.createDirectories(folder);
 
             // When already loaded discard previous
             Map<String, BackpackInventory> backPacks = allPacks.get(player);

@@ -82,6 +82,22 @@ public class BackpackCommands extends ContainerCommand
         {
             name = player.getName();
         }
+        else if (!name.equals(player.getName()))
+        {
+            if (!ctx.hasPermission(module.perms().COMMAND_CREATE_NAMED.getId()))
+            {
+                i18n.send(ctx, NEGATIVE, "You are not allowed to create named backpacks");
+                return;
+            }
+        }
+        if (ctx != player)
+        {
+            if (!ctx.hasPermission(module.perms().COMMAND_CREATE_OTHER.getId()))
+            {
+                i18n.send(ctx, NEGATIVE, "You are not allowed to create backpacks for others");
+                return;
+            }
+        }
         manager.createBackpack(ctx, player, name, context, blockinput);
     }
 
