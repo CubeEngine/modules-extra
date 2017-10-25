@@ -32,5 +32,5 @@ public class BackpackPermissions extends PermissionContainer
         super(pm, Backpack.class);
     }
 
-    public final Permission COMMAND_OPEN_OTHER_PLAYER = register("command.open.other-player", "Allows using the open command as another player", null);
+    public final Permission COMMAND_OPEN_OTHER_PLAYER = register("command.backpack.open.other-player", "Allows using the open command as another player", null);
 }
