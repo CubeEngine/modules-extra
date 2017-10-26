@@ -17,8 +17,10 @@
  */
 package org.cubeengine.module.vigil;
 
+import java.util.Iterator;
 import java.util.Optional;
 import org.cubeengine.libcube.service.permission.Permission;
+import org.cubeengine.module.vigil.data.ImmutableLookupData;
 import org.cubeengine.module.vigil.data.LookupData;
 import org.cubeengine.module.vigil.storage.QueryManager;
 import org.cubeengine.libcube.service.i18n.I18n;
@@ -31,7 +33,9 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -71,5 +75,11 @@ public class ToolListener
             qm.queryAndShow(new Lookup(itemInHand.get().get(LookupData.class).get()).with(loc), player);
             event.setCancelled(true);
         }
+    }
+
+    @Listener
+    public void onDropTool(DropItemEvent.Pre event)
+    {
+        event.getDroppedItems().removeIf(item -> item.get(ImmutableLookupData.class).isPresent());
     }
 }
