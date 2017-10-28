@@ -22,6 +22,7 @@ import java.util.Optional;
 import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.util.SpawnUtil;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.type.HandTypes;
@@ -83,7 +84,7 @@ public class SelectorCommand
             {
                 if (user.getInventory().offer(itemInHand.get()).getType() != InventoryTransactionResult.Type.SUCCESS)
                 {
-                    // TODO drop item
+                    SpawnUtil.spawnItem(itemInHand.get(), user.getLocation());
                 }
             }
             i18n.send(user, POSITIVE, "Received a new region selector tool");

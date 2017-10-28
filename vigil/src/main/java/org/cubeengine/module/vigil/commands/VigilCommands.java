@@ -28,15 +28,19 @@ import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.command.ContainerCommand;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.matcher.StringMatcher;
+import org.cubeengine.libcube.util.SpawnUtil;
 import org.cubeengine.module.vigil.Vigil;
 import org.cubeengine.module.vigil.data.LookupData;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.type.HandTypes;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.transaction.InventoryTransactionResult;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
@@ -121,9 +125,15 @@ public class VigilCommands extends ContainerCommand
         itemStack.offer(Keys.ITEM_LORE, asList(i18n.translate(player, NONE, "created by {name}", player.getName())));
         itemStack.offer(Keys.ITEM_ENCHANTMENTS, Collections.emptyList());
         itemStack.offer(logType);
+        java.util.Optional<ItemStack> inHand = player.getItemInHand(HandTypes.MAIN_HAND);
         player.setItemInHand(HandTypes.MAIN_HAND, itemStack);
-        // TODO search in inventory
-        // TODO put item in hand back into inventory
+        if (inHand.isPresent())
+        {
+            if (player.getInventory().offer(inHand.get()).getType() != InventoryTransactionResult.Type.SUCCESS)
+            {
+                SpawnUtil.spawnItem(inHand.get(), player.getLocation());
+            }
+        }
         i18n.send(player, POSITIVE, "Received a new Log-Tool!");
     }
 }
