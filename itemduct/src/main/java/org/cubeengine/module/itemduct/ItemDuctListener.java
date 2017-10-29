@@ -54,7 +54,9 @@ import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -147,25 +149,39 @@ public class ItemDuctListener
             {
                 if (this.promtedTransfers.isEmpty())
                 {
-                    task = Sponge.getScheduler().createTaskBuilder().delayTicks(10).intervalTicks(20).execute(this::transfer).submit(plugin);
+                    if (task != null)
+                    {
+                        task.cancel();
+                    }
+                    task = Sponge.getScheduler().createTaskBuilder().delayTicks(20).intervalTicks(20).execute(this::transfer).submit(plugin);
                 }
                 Long time = this.promtedTransfers.computeIfAbsent(loc, k -> System.currentTimeMillis());
-                if (System.currentTimeMillis() - time > 2000)
-                {
-                    this.promtedTransfers.put(loc, System.currentTimeMillis());
-                }
+                //if (System.currentTimeMillis() - time > 2000)
+                //{
+                //    this.promtedTransfers.put(loc, System.currentTimeMillis());
+                //}
             }
         }
     }
 
     private void transfer()
     {
-        for (Location<World> loc : this.promtedTransfers.keySet())
+        List<DuctUtil.Network> networks = new ArrayList<>();
+        for (Iterator<Location<World>> it = this.promtedTransfers.keySet().iterator(); it.hasNext(); )
         {
+            Location<World> loc = it.next();
+
+            if (this.promtedTransfers.get(loc) - 1000 > System.currentTimeMillis())
+            {
+                promtedTransfers.clear();
+                continue;
+            }
+
+            it.remove();
+
             // Check if data is still present
             Optional<DuctData> data = loc.get(DuctData.class);
-            if (data.isPresent())
-            {
+            if (data.isPresent()) {
                 for (Direction dir : Direction.values())
                 {
                     if (dir.isCardinal() || dir.isUpright())
@@ -183,18 +199,28 @@ public class ItemDuctListener
                                     inventory = ((Chest) te).getDoubleChestInventory().orElse(inventory);
                                 }
                                 network.transfer(inventory, filters.get());
-                                for (Location<World> exitLoc : network.exitPoints.keySet())
-                                {
-                                    promptTransfer(exitLoc.getTileEntity().filter(t -> t instanceof Carrier).map(Carrier.class::cast));
-                                }
+                                networks.add(network);
                             }
                         }
                     }
                 }
             }
         }
-        promtedTransfers.clear();
-        task.cancel();
+
+        for (DuctUtil.Network network : networks)
+        {
+            for (Location<World> exitLoc : network.exitPoints.keySet())
+            {
+                Direction exitDir = exitLoc.get(Keys.DIRECTION).orElse(Direction.NONE).getOpposite();
+                exitLoc = exitLoc.getRelative(exitDir.getOpposite());
+                promptTransfer(exitLoc.getTileEntity().filter(t -> t instanceof Carrier).map(Carrier.class::cast));
+            }
+        }
+
+        if (promtedTransfers.isEmpty())
+        {
+            task.cancel();
+        }
     }
 
     private class DuctFilterCarrier implements Carrier
@@ -278,7 +304,7 @@ public class ItemDuctListener
             return;
         }
         Location<World> loc = event.getTargetBlock().getLocation().get();
-        if (player.getItemInHand(HandTypes.MAIN_HAND).map(i -> i.getItem().equals(ItemTypes.HOPPER)).orElse(false))
+        if (player.getItemInHand(HandTypes.MAIN_HAND).map(i -> i.getType().equals(ItemTypes.HOPPER)).orElse(false))
         {
             playCreateEffect(loc);
             event.setCancelled(true);
