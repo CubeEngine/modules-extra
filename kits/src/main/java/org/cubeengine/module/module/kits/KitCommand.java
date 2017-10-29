@@ -202,6 +202,11 @@ public class KitCommand extends ContainerCommand
     public void give(CommandSource context, Kit kit, @Default Player player, @ParameterPermission @Flag boolean force)
     {
         boolean other = !context.getIdentifier().equals(player.getIdentifier());
+        if (other && !context.hasPermission(module.perms().GIVE_OTHER.getId()))
+        {
+            i18n.send(context, NEGATIVE, "You are not allowed to give kits to other players!");
+            return;
+        }
         if (kit.give(context, player, force))
         {
             if (other)

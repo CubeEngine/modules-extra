@@ -25,6 +25,7 @@ import org.cubeengine.libcube.service.permission.PermissionManager;
 @SuppressWarnings("all")
 public class KitsPerm extends PermissionContainer
 {
+
     @Inject
     public KitsPerm(PermissionManager pm)
     {
@@ -32,4 +33,5 @@ public class KitsPerm extends PermissionContainer
     }
 
     public final Permission KITS = register("kits", "Grants access to all kits", null);
+    public final Permission GIVE_OTHER = register("command.kits.give.other", "Grants giving out kits to other players", null);
 }
