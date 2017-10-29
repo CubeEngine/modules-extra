@@ -66,6 +66,10 @@ public class ItemRepairListener
     @Listener
     public void onPlayerInteract(InteractBlockEvent event, @First Player player)
     {
+        if (!(event instanceof InteractBlockEvent.Primary.MainHand) && !(event instanceof InteractBlockEvent.Secondary.MainHand))
+        {
+            return;
+        }
         final Location<World> block = event.getTargetBlock().getLocation().orElse(null);
         if (block == null)
         {

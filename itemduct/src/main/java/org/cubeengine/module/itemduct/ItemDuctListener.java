@@ -323,6 +323,10 @@ public class ItemDuctListener
 
     private boolean isDuctInteraction(InteractBlockEvent event)
     {
+        if (!(event instanceof InteractBlockEvent.Primary.MainHand) && !(event instanceof InteractBlockEvent.Secondary.MainHand))
+        {
+            return false;
+        }
         if (!event.getTargetBlock().getLocation().isPresent())
         {
             return false;
@@ -401,7 +405,7 @@ public class ItemDuctListener
                     exit.getExtent().spawnParticles(goodEffect, center.add(effectDir.asOffset().div(1.9)));
                 }
             }
-            exit.getExtent().playSound(SoundTypes.BLOCK_DISPENSER_DISPENSE, exit.getPosition(), 1);
+            // exit.getExtent().playSound(SoundTypes.BLOCK_DISPENSER_DISPENSE, exit.getPosition(), 1);
         }
 
 

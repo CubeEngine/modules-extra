@@ -59,6 +59,10 @@ public class ElevatorListener
     @Listener
     public void onInteractBlock(InteractBlockEvent event, @Root Player player)
     {
+        if (!(event instanceof InteractBlockEvent.Primary.MainHand) && !(event instanceof InteractBlockEvent.Secondary.MainHand))
+        {
+            return;
+        }
         BlockType type = event.getTargetBlock().getState().getType();
         if (type != BlockTypes.STANDING_SIGN && type != BlockTypes.WALL_SIGN)
         {

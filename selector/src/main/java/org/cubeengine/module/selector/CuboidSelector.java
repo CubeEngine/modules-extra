@@ -88,6 +88,11 @@ public class CuboidSelector implements Selector
     @Listener
     public void onInteract(InteractBlockEvent event, @First Player player)
     {
+        if (!(event instanceof InteractBlockEvent.Primary.MainHand) && !(event instanceof InteractBlockEvent.Secondary.MainHand))
+        {
+            return;
+        }
+
         if (event.getTargetBlock() == BlockSnapshot.NONE)
         {
             return;
@@ -102,6 +107,7 @@ public class CuboidSelector implements Selector
         {
             return;
         }
+
         if (block.getBlockType() == AIR || !player.hasPermission(module.getSelectPerm().getId()))
         {
             return;

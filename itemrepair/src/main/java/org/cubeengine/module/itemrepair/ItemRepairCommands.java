@@ -95,6 +95,10 @@ public class ItemRepairCommands extends ContainerCommand
     @Listener
     public void onAdd(InteractBlockEvent event, @First Player player)
     {
+        if (!(event instanceof InteractBlockEvent.Primary.MainHand) && !(event instanceof InteractBlockEvent.Secondary.MainHand))
+        {
+            return;
+        }
         if (!this.addRequests.contains(player.getUniqueId()) || !event.getTargetBlock().getLocation().isPresent())
         {
             return;
@@ -122,6 +126,10 @@ public class ItemRepairCommands extends ContainerCommand
     @Listener
     public void onRemove(InteractBlockEvent event, @First Player player)
     {
+        if (!(event instanceof InteractBlockEvent.Primary.MainHand) && !(event instanceof InteractBlockEvent.Secondary.MainHand))
+        {
+            return;
+        }
         if (!this.removeRequests.contains(player.getUniqueId()))
         {
             return;
