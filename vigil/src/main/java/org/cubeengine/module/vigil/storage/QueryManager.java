@@ -34,6 +34,7 @@ import java.util.concurrent.ThreadFactory;
 import com.mongodb.MongoTimeoutException;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Indexes;
 import org.bson.Document;
 import org.cubeengine.libcube.service.i18n.formatter.MessageType;
 import org.cubeengine.module.vigil.Lookup;
@@ -75,6 +76,10 @@ public class QueryManager
         storeExecuter = newSingleThreadExecutor(tf);
         queryShowExecutor = Sponge.getScheduler().createSyncExecutor(plugin);
         this.plugin = plugin;
+        db.createIndex(Indexes.hashed("type"));
+        db.createIndex(Indexes.descending("date"));
+        db.createIndex(Indexes.ascending("data.location.Position_X", "data.location.Position_Z", "data.location.Position_Y"));
+        db.createIndex(Indexes.hashed("data.location.WorldUuid"));
     }
 
     /**
@@ -160,24 +165,27 @@ public class QueryManager
         queryFuture.put(player.getUniqueId(), future);
     }
 
-    private FindIterable<Document> lookup(Lookup lookup, Query query)
+    private List<Action> lookup(Lookup lookup, Query query)
     {
         lookup.time(Lookup.LookupTiming.LOOKUP);
-        FindIterable<Document> documents = query.find(db);
+        List<Action> actions = new ArrayList<>();
+        FindIterable<Document> results = query.find(db).sort(new Document("date", -1));
+        for (Document result : results)
+        {
+            actions.add(new Action(result));
+        }
         lookup.time(Lookup.LookupTiming.LOOKUP);
-        return documents;
+        return actions;
     }
 
-    private List<ReportActions> prepareReports(Lookup lookup, Player player, FindIterable<Document> results)
+    private List<ReportActions> prepareReports(Lookup lookup, Player player, List<Action> results)
     {
         lookup.time(Lookup.LookupTiming.REPORT);
 
-        results.sort(new Document("date", -1));
         List<ReportActions> reportActions = new ArrayList<>();
         ReportActions last = null;
-        for (Document result : results)
+        for (Action action : results)
         {
-            Action action = new Action(result);
             Report report = reportManager.reportOf(action);
             if (last == null)
             {
