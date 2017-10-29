@@ -183,6 +183,10 @@ public class ItemDuctListener
                                     inventory = ((Chest) te).getDoubleChestInventory().orElse(inventory);
                                 }
                                 network.transfer(inventory, filters.get());
+                                for (Location<World> exitLoc : network.exitPoints.keySet())
+                                {
+                                    promptTransfer(exitLoc.getTileEntity().filter(t -> t instanceof Carrier).map(Carrier.class::cast));
+                                }
                             }
                         }
                     }
