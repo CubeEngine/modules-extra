@@ -17,6 +17,9 @@
  */
 package org.cubeengine.module.itemduct;
 
+import static org.spongepowered.api.block.BlockTypes.OBSERVER;
+import static org.spongepowered.api.block.BlockTypes.STICKY_PISTON;
+
 import com.flowpowered.math.vector.Vector3d;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.module.itemduct.data.DuctData;
@@ -65,7 +68,7 @@ import javax.inject.Inject;
 
 public class ItemDuctListener
 {
-    private Map<Location<World>, Long> promtedTransfers = new HashMap<>();
+    private Map<Location<World>, Long> promtedActivations = new HashMap<>();
 
     @Inject private PluginContainer plugin;
     @Inject private I18n i18n;
@@ -98,7 +101,7 @@ public class ItemDuctListener
                 }
             }
         }
-        else if (player.getItemInHand(HandTypes.MAIN_HAND).map(i -> i.getItem().equals(ItemTypes.HOPPER)).orElse(false))
+        else if (player.getItemInHand(HandTypes.MAIN_HAND).map(i -> i.getType().equals(ItemTypes.HOPPER)).orElse(false))
         {
             te.offer(ductData.orElse(new DuctData()).with(dir.getOpposite()));
             playCreateEffect(loc);
@@ -135,11 +138,21 @@ public class ItemDuctListener
             {
                 ((DuctFilterCarrier) carrier.get()).update(event.getTargetInventory().iterator().next());
             }
-            promptTransfer(carrier);
+            promptActivation(carrier, true);
         }
     }
 
-    private void promptTransfer(Optional<Carrier> carrier)
+    @Listener
+    public void onOpenInventory(InteractInventoryEvent.Open event, @Root Player player)
+    {
+        if (event.getTargetInventory() instanceof CarriedInventory)
+        {
+            Optional<Carrier> carrier = ((CarriedInventory) event.getTargetInventory()).getCarrier();
+            promptActivation(carrier, false);
+        }
+    }
+
+    private void promptActivation(Optional<Carrier> carrier, boolean push)
     {
         if (carrier.orElse(null) instanceof TileEntity)
         {
@@ -147,33 +160,45 @@ public class ItemDuctListener
             Optional<DuctData> data = loc.get(DuctData.class);
             if (data.isPresent())
             {
-                if (this.promtedTransfers.isEmpty())
+                if (!push)
+                {
+                    // Pull only activates OBSERVER
+                    boolean pull = false;
+                    for (Direction dir : data.get().getFilters().keySet())
+                    {
+                        if (loc.getRelative(dir).getBlockType().equals(OBSERVER))
+                        {
+                            pull = true;
+                        }
+                    }
+                    if (!pull)
+                    {
+                        return;
+                    }
+                }
+                if (this.promtedActivations.isEmpty())
                 {
                     if (task != null)
                     {
                         task.cancel();
                     }
-                    task = Sponge.getScheduler().createTaskBuilder().delayTicks(20).intervalTicks(20).execute(this::transfer).submit(plugin);
+                    task = Sponge.getScheduler().createTaskBuilder().delayTicks(20).intervalTicks(20).execute(this::activate).submit(plugin);
                 }
-                Long time = this.promtedTransfers.computeIfAbsent(loc, k -> System.currentTimeMillis());
-                //if (System.currentTimeMillis() - time > 2000)
-                //{
-                //    this.promtedTransfers.put(loc, System.currentTimeMillis());
-                //}
+                this.promtedActivations.computeIfAbsent(loc, k -> System.currentTimeMillis());
             }
         }
     }
 
-    private void transfer()
+    private void activate()
     {
         List<DuctUtil.Network> networks = new ArrayList<>();
-        for (Iterator<Location<World>> it = this.promtedTransfers.keySet().iterator(); it.hasNext(); )
+        for (Iterator<Location<World>> it = this.promtedActivations.keySet().iterator(); it.hasNext(); )
         {
             Location<World> loc = it.next();
 
-            if (this.promtedTransfers.get(loc) - 1000 > System.currentTimeMillis())
+            if (this.promtedActivations.get(loc) - 1000 > System.currentTimeMillis())
             {
-                promtedTransfers.clear();
+                promtedActivations.clear();
                 continue;
             }
 
@@ -186,7 +211,8 @@ public class ItemDuctListener
                 {
                     if (dir.isCardinal() || dir.isUpright())
                     {
-                        if (BlockTypes.STICKY_PISTON.equals(loc.getRelative(dir).getBlockType()))
+                        BlockType type = loc.getRelative(dir).getBlockType();
+                        if (STICKY_PISTON.equals(type) || OBSERVER.equals(type))
                         {
                             Optional<List<ItemStack>> filters = data.get().get(dir);
                             if (filters.isPresent())
@@ -198,7 +224,7 @@ public class ItemDuctListener
                                 {
                                     inventory = ((Chest) te).getDoubleChestInventory().orElse(inventory);
                                 }
-                                network.transfer(inventory, filters.get());
+                                network.activate(inventory, filters.get());
                                 networks.add(network);
                             }
                         }
@@ -213,11 +239,11 @@ public class ItemDuctListener
             {
                 Direction exitDir = exitLoc.get(Keys.DIRECTION).orElse(Direction.NONE).getOpposite();
                 exitLoc = exitLoc.getRelative(exitDir.getOpposite());
-                promptTransfer(exitLoc.getTileEntity().filter(t -> t instanceof Carrier).map(Carrier.class::cast));
+                promptActivation(exitLoc.getTileEntity().filter(t -> t instanceof Carrier).map(Carrier.class::cast), true);
             }
         }
 
-        if (promtedTransfers.isEmpty())
+        if (promtedActivations.isEmpty())
         {
             task.cancel();
         }
@@ -276,7 +302,7 @@ public class ItemDuctListener
             }
             BlockType type = trans.getOriginal().getState().getType();
             Location<World> loc = trans.getOriginal().getLocation().get();
-            if (type.equals(BlockTypes.PISTON) || type.equals(BlockTypes.STICKY_PISTON))
+            if (type.equals(BlockTypes.PISTON) || type.equals(STICKY_PISTON))
             {
                 Direction dir = trans.getOriginal().get(Keys.DIRECTION).orElse(Direction.NONE);
                 Optional<DuctData> data = loc.getRelative(dir).get(DuctData.class);
@@ -306,7 +332,7 @@ public class ItemDuctListener
         Location<World> loc = event.getTargetBlock().getLocation().get();
         if (player.getItemInHand(HandTypes.MAIN_HAND).map(i -> i.getType().equals(ItemTypes.HOPPER)).orElse(false))
         {
-            playCreateEffect(loc);
+         //   playCreateEffect(loc);
             event.setCancelled(true);
         }
     }
@@ -316,7 +342,7 @@ public class ItemDuctListener
     {
         if (event.getTargetInventory() instanceof CarriedInventory)
         {
-            promptTransfer(((CarriedInventory) event.getTargetInventory()).getCarrier());
+            promptActivation(((CarriedInventory) event.getTargetInventory()).getCarrier(), true);
         }
     }
 
@@ -333,7 +359,7 @@ public class ItemDuctListener
         }
         Location<World> loc = event.getTargetBlock().getLocation().get();
         BlockType type = loc.getBlockType();
-        if (!type.equals(BlockTypes.PISTON) && !type.equals(BlockTypes.STICKY_PISTON))
+        if (!type.equals(BlockTypes.PISTON) && !type.equals(STICKY_PISTON) && !type.equals(BlockTypes.OBSERVER))
         {
             return false;
         }
@@ -382,10 +408,24 @@ public class ItemDuctListener
 
         for (Location<World> pipe : network.pipes)
         {
-            pipe.getExtent().spawnParticles(network.errors.isEmpty() ? goodEffect : neutralEffect, pipe.getPosition().add(0.5,0.5,0.5));
+            Vector3d pos = pipe.getPosition().add(0.5, 0.5, 0.5);
+            if (pipe.getBlockType().equals(BlockTypes.QUARTZ_BLOCK))
+            {
+                for (Direction effectDir : Direction.values())
+                {
+                    if (effectDir.isCardinal() || effectDir.isUpright())
+                    {
+                        pipe.getExtent().spawnParticles(network.errors.isEmpty() ? goodEffect : neutralEffect, pos.add(effectDir.asOffset().div(1.9)));
+                    }
+                }
+            }
+            else
+            {
+                pipe.getExtent().spawnParticles(network.errors.isEmpty() ? goodEffect : neutralEffect, pos);
+            }
             if (network.exitPoints.isEmpty())
             {
-                pipe.getExtent().spawnParticles(smoke, pipe.getPosition().add(0.5,0.5,0.5));
+                pipe.getExtent().spawnParticles(smoke, pos);
             }
         }
 

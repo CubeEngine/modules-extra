@@ -17,8 +17,10 @@
  */
 package org.cubeengine.module.itemduct;
 
+import static org.spongepowered.api.block.BlockTypes.DROPPER;
 import static org.spongepowered.api.block.BlockTypes.GLASS_PANE;
 import static org.spongepowered.api.block.BlockTypes.PISTON;
+import static org.spongepowered.api.block.BlockTypes.QUARTZ_BLOCK;
 import static org.spongepowered.api.block.BlockTypes.STAINED_GLASS_PANE;
 
 import org.cubeengine.module.itemduct.data.DuctData;
@@ -26,12 +28,12 @@ import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.block.tileentity.TileEntity;
 import org.spongepowered.api.block.tileentity.carrier.Chest;
+import org.spongepowered.api.block.tileentity.carrier.Dropper;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.type.DyeColor;
 import org.spongepowered.api.item.inventory.Carrier;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.item.inventory.type.CarriedInventory;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -56,6 +58,7 @@ public class DuctUtil
         pipeTypes.add(GLASS_PANE);
         pipeTypes.add(BlockTypes.STAINED_GLASS);
         pipeTypes.add(STAINED_GLASS_PANE);
+        pipeTypes.add(QUARTZ_BLOCK);
     }
     private static Set<Direction> directions = EnumSet.of(Direction.DOWN, Direction.UP, Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
 
@@ -63,7 +66,11 @@ public class DuctUtil
 
     public static Network findNetwork(Location<World> start)
     {
-        Direction dir = start.get(Keys.DIRECTION).orElse(Direction.NONE).getOpposite();
+        Direction dir = start.get(Keys.DIRECTION).orElse(Direction.NONE);
+        if ((!start.getBlockType().equals(DROPPER)))
+        {
+            dir = dir.getOpposite();
+        }
         Network network = new Network();
         if (pipeTypes.contains(start.getRelative(dir).getBlockType()))
         {
@@ -114,6 +121,15 @@ public class DuctUtil
                             network.exitPoints.put(rel, rel.getRelative(dir).get(DuctData.class).get());
                         }
                     }
+                    // Storage Chest
+                    if (last.storage)
+                    {
+                        rel.getTileEntity().ifPresent(te -> {
+                            if (te instanceof Carrier) {
+                                network.storage.add(rel);
+                            }
+                        });
+                    }
                 }
 
             }
@@ -143,11 +159,11 @@ public class DuctUtil
 
     private static class LastDuct
     {
-
         public Location<World> loc;
         public DyeColor color;
         public boolean cross;
         public Direction from;
+        public boolean storage;
 
         public LastDuct(Location<World> loc, Direction from)
         {
@@ -160,6 +176,7 @@ public class DuctUtil
             this.loc = loc;
             this.color = loc.get(Keys.DYE_COLOR).orElse(null);
             this.cross = GLASS_PANE.equals(loc.getBlockType()) || STAINED_GLASS_PANE.equals(loc.getBlockType());
+            this.storage = loc.getBlockType().equals(QUARTZ_BLOCK);
         }
 
         public boolean isCompatible(Location<World> rel)
@@ -168,12 +185,12 @@ public class DuctUtil
             {
                 return false;
             }
-            DyeColor color = rel.get(Keys.DYE_COLOR).orElse(null);
-            if (color == null || color == this.color || this.color == null)
+            if (storage)
             {
-                return true;
+                return rel.getBlockType().equals(QUARTZ_BLOCK);
             }
-            return false;
+            DyeColor color = rel.get(Keys.DYE_COLOR).orElse(null);
+            return color == null || color == this.color || this.color == null;
         }
     }
 
@@ -181,10 +198,16 @@ public class DuctUtil
     {
         public Set<Location<World>> pipes = new HashSet<>();
         public Map<Location<World>, DuctData> exitPoints = new LinkedHashMap<>();
+        public Set<Location<World>> storage = new HashSet<>();
         public Set<Location<World>> errors = new HashSet<>();
 
-        public void transfer(Inventory inventory, List<ItemStack> filters)
+        public void activate(Inventory inventory, List<ItemStack> filters)
         {
+            if (isStorage())
+            {
+                pullFromStorage(inventory, filters);
+                return;
+            }
             for (Map.Entry<Location<World>, DuctData> entry : exitPoints.entrySet())
             {
                 Inventory pollFrom = inventory;
@@ -193,10 +216,16 @@ public class DuctUtil
                 Direction dir = loc.get(Keys.DIRECTION).orElse(Direction.NONE).getOpposite();
                 Location<World> targetLoc = loc.getRelative(dir.getOpposite());
                 TileEntity te = targetLoc.getTileEntity().get();
-                Inventory targetInventory = ((Carrier) te).getInventory();
+                Inventory target = ((Carrier) te).getInventory();
+                if (te instanceof Dropper)
+                {
+                    Network nw = findNetwork(targetLoc);
+                    nw.transferToStorage(inventory, filters);
+                    continue;
+                }
                 if (te instanceof Chest)
                 {
-                    targetInventory = ((Chest) te).getDoubleChestInventory().orElse(targetInventory);
+                    target = ((Chest) te).getDoubleChestInventory().orElse(target);
                 }
                 Optional<List<ItemStack>> targetFilter = data.get(dir);
                 if (targetFilter.isPresent())
@@ -212,27 +241,74 @@ public class DuctUtil
                         pollFromTo = pollFromTo.queryAny(targetFilter.get().toArray(new ItemStack[targetFilter.get().size()]));  // TODO more filters
                     }
                     // For all filtered slots
-                    for (Inventory slot : pollFromTo.slots())
+                    doTransfer(pollFromTo, target);
+                }
+            }
+        }
+
+        private void transferToStorage(Inventory inventory, List<ItemStack> filters)
+        {
+            if (!filters.isEmpty()) // Only allow to extract items in the filter
+            {
+                inventory = inventory.queryAny(filters.toArray(new ItemStack[filters.size()])); // TODO more filters
+            }
+            for (Location<World> targetLoc : storage)
+            {
+                TileEntity te = targetLoc.getTileEntity().get();
+                Inventory target =  ((Carrier) te).getInventory();
+                if (te instanceof Chest)
+                {
+                    target = ((Chest) te).getDoubleChestInventory().orElse(target);
+                }
+                doTransfer(inventory, target);
+            }
+        }
+
+        private void pullFromStorage(Inventory inventory, List<ItemStack> filters)
+        {
+            for (Location<World> targetLoc : storage)
+            {
+                TileEntity te = targetLoc.getTileEntity().get();
+                Inventory pollFrom =  ((Carrier) te).getInventory();
+                if (te instanceof Chest)
+                {
+                    pollFrom = ((Chest) te).getDoubleChestInventory().orElse(pollFrom);
+                }
+                if (!filters.isEmpty()) // Only allow to extract items in the filter
+                {
+                    pollFrom = pollFrom.queryAny(filters.toArray(new ItemStack[filters.size()])); // TODO more filters
+                }
+
+                doTransfer(pollFrom, inventory);
+            }
+        }
+
+        private void doTransfer(Inventory pollFrom, Inventory target)
+        {
+            for (Inventory slot : pollFrom.slots())
+            {
+                Optional<ItemStack> peek = slot.peek();
+                if (peek.isPresent())
+                {
+                    ItemStack itemStack = peek.get().copy();
+                    // Try to insert into targetInventory
+                    target.offer(itemStack);
+                    // and poll the inserted amount
+                    if (itemStack.isEmpty())
                     {
-                        Optional<ItemStack> peek = slot.peek();
-                        if (peek.isPresent())
-                        {
-                            ItemStack itemStack = peek.get().copy();
-                            // Try to insert into targetInventory
-                            targetInventory.offer(itemStack);
-                            // and poll the inserted amount
-                            if (itemStack.isEmpty())
-                            {
-                                slot.poll();
-                            }
-                            else
-                            {
-                                slot.poll(peek.get().getQuantity() - itemStack.getQuantity());
-                            }
-                        }
+                        slot.poll();
+                    }
+                    else
+                    {
+                        slot.poll(peek.get().getQuantity() - itemStack.getQuantity());
                     }
                 }
             }
+        }
+
+        public boolean isStorage()
+        {
+            return !this.storage.isEmpty();
         }
     }
 }
