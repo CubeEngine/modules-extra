@@ -423,7 +423,7 @@ public class ItemDuctListener
             {
                 pipe.getExtent().spawnParticles(network.errors.isEmpty() ? goodEffect : neutralEffect, pos);
             }
-            if (network.exitPoints.isEmpty())
+            if (network.exitPoints.isEmpty() && network.storage.isEmpty())
             {
                 pipe.getExtent().spawnParticles(smoke, pos);
             }

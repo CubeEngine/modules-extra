@@ -189,6 +189,10 @@ public class DuctUtil
             {
                 return rel.getBlockType().equals(QUARTZ_BLOCK);
             }
+            if (rel.getBlockType().equals(QUARTZ_BLOCK))
+            {
+                return false;
+            }
             DyeColor color = rel.get(Keys.DYE_COLOR).orElse(null);
             return color == null || color == this.color || this.color == null;
         }
