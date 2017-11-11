@@ -31,6 +31,7 @@ import org.spongepowered.api.block.tileentity.TileEntity;
 import org.spongepowered.api.block.tileentity.carrier.Chest;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.meta.ItemEnchantment;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.effect.particle.ParticleOptions;
@@ -43,6 +44,7 @@ import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
+import org.spongepowered.api.item.Enchantments;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.Carrier;
 import org.spongepowered.api.item.inventory.Inventory;
@@ -58,6 +60,7 @@ import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -103,9 +106,12 @@ public class ItemDuctListener
         }
         else if (player.getItemInHand(HandTypes.MAIN_HAND).map(i -> i.getType().equals(ItemTypes.HOPPER)).orElse(false))
         {
-            te.offer(ductData.orElse(new DuctData()).with(dir.getOpposite()));
-            playCreateEffect(loc);
-            event.setCancelled(true);
+            List<ItemEnchantment> enchs = player.getItemInHand(HandTypes.MAIN_HAND).get().get(Keys.ITEM_ENCHANTMENTS).orElse(Collections.emptyList());
+            if (enchs.contains(new ItemEnchantment(Enchantments.LOOTING, 1))) {
+                te.offer(ductData.orElse(new DuctData()).with(dir.getOpposite()));
+                playCreateEffect(loc);
+                event.setCancelled(true);
+            }
         }
     }
 
@@ -319,21 +325,6 @@ public class ItemDuctListener
                     }
                 }
             }
-        }
-    }
-
-    @Listener
-    public void onInteractPiston(InteractBlockEvent.Primary.MainHand event, @Root Player player)
-    {
-        if (!isDuctInteraction(event))
-        {
-            return;
-        }
-        Location<World> loc = event.getTargetBlock().getLocation().get();
-        if (player.getItemInHand(HandTypes.MAIN_HAND).map(i -> i.getType().equals(ItemTypes.HOPPER)).orElse(false))
-        {
-         //   playCreateEffect(loc);
-            event.setCancelled(true);
         }
     }
 
