@@ -38,6 +38,7 @@ import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -224,7 +225,7 @@ public class DuctUtil
                 if (te instanceof Dropper)
                 {
                     Network nw = findNetwork(targetLoc);
-                    nw.transferToStorage(inventory, filters);
+                    nw.transferToStorage(inventory.queryAny(filters.toArray(new ItemStack[filters.size()])), data.get(dir).get());
                     continue;
                 }
                 if (te instanceof Chest)
