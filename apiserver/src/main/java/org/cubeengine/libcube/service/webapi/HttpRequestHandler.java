@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -119,9 +120,8 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
 
             UUID id = byName.get().getUniqueId();
             // TODO make properly async
-            boolean authFailed = am.isPasswordSet(id).thenCompose(isSet -> am.checkPassword(id, pass).thenApply(correctPassword -> {
-                return !isSet || !correctPassword;
-            })).get();
+            CompletableFuture<Boolean> cf = am.isPasswordSet(id).thenCompose(isSet -> am.checkPassword(id, pass).thenApply(correctPassword -> !isSet || !correctPassword));
+            Boolean authFailed = cf.get();
 
             if (authFailed)
             {
