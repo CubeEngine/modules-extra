@@ -49,6 +49,8 @@ import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.MemoryDataContainer;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.EntityType;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
@@ -76,7 +78,7 @@ public class Recall
         }
     }
 
-    public static Optional<BlockSnapshot> blockSnapShot(Map<String, Object> data, Map<String, Object> locationData)
+    public static Optional<BlockSnapshot> block(Map<String, Object> data, Map<String, Object> locationData)
     {
         DataContainer container = DataContainer.createNew();
         toContainer(container, locationData, Report.WORLD);
@@ -92,16 +94,23 @@ public class Recall
         return Sponge.getGame().getRegistry().createBuilder(BlockSnapshot.Builder.class).build(container);
     }
 
+    public static Optional<ItemStackSnapshot> item(Map<String, Object> data)
+    {
+        DataContainer container = ((DataContainer) toContainer(data));
+        return Sponge.getGame().getRegistry().createBuilder(ItemStack.Builder.class)
+                .build(container).map(ItemStack::createSnapshot);
+    }
+
     public static Optional<BlockSnapshot> origSnapshot(Action action)
     {
         Map<String, Object> changes = action.getData(BLOCK_CHANGES);
-        return blockSnapShot(((Map<String, Object>)changes.get(ORIGINAL)), action.getData(LOCATION));
+        return block(((Map<String, Object>)changes.get(ORIGINAL)), action.getData(LOCATION));
     }
 
     public static Optional<BlockSnapshot> replSnapshot(Action action)
     {
         Map<String, Object> changes = action.getData(BLOCK_CHANGES);
-        return blockSnapShot(((Map<String, Object>)changes.get(REPLACEMENT)), action.getData(LOCATION));
+        return block(((Map<String, Object>)changes.get(REPLACEMENT)), action.getData(LOCATION));
     }
 
     @SuppressWarnings("unchecked")
@@ -195,7 +204,7 @@ public class Recall
     {
         if (data instanceof Map)
         {
-            MemoryDataContainer container = new MemoryDataContainer();
+            DataContainer container = DataContainer.createNew();
             for (Entry<String, Object> entry : ((Map<String, Object>)data).entrySet())
             {
                 container.set(DataQuery.of(entry.getKey()), toContainer(entry.getValue()));

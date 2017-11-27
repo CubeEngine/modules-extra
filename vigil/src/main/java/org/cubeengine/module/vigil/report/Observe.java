@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.cubeengine.module.vigil.report.block.BlockReport;
 import org.cubeengine.module.vigil.report.entity.EntityReport;
+import org.cubeengine.module.vigil.report.inventory.ChangeInventoryReport;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.data.DataContainer;
@@ -44,6 +45,9 @@ import org.spongepowered.api.event.cause.entity.damage.source.BlockDamageSource;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
 import org.spongepowered.api.event.cause.entity.damage.source.EntityDamageSource;
 import org.spongepowered.api.event.cause.entity.damage.source.IndirectEntityDamageSource;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
+import org.spongepowered.api.item.inventory.property.SlotIndex;
+import org.spongepowered.api.item.inventory.transaction.SlotTransaction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -300,6 +304,28 @@ public class Observe
             data.put(BlockReport.REPLACEMENT, blockSnapshot(transaction.getFinal()));
         }
         return data;
+    }
+
+    /**
+     * Observes a SlotTransaction
+     *
+     * @param transactions the transaction to observe
+     * @return the observed data
+     */
+    public static List<Map<String, Object>> transactions(List<SlotTransaction> transactions)
+    {
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (SlotTransaction transaction : transactions)
+        {
+            Map<String, Object> data = new HashMap<>();
+            ItemStackSnapshot originalStack = transaction.getOriginal();
+            ItemStackSnapshot finalStack = transaction.getFinal();
+            data.put(ChangeInventoryReport.ORIGINAL, toRawData(originalStack.toContainer()));
+            data.put(ChangeInventoryReport.REPLACEMENT, toRawData(finalStack.toContainer()));
+            data.put(ChangeInventoryReport.SLOT_INDEX, transaction.getSlot().getInventoryProperty(SlotIndex.class).map(SlotIndex::getValue).orElse(-1));
+            list.add(data);
+        }
+        return list;
     }
 
     /**

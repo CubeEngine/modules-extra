@@ -45,6 +45,7 @@ import org.cubeengine.module.vigil.report.entity.DestructReport;
 import org.cubeengine.module.vigil.report.entity.player.ChatReport;
 import org.cubeengine.module.vigil.report.entity.player.JoinReport;
 import org.cubeengine.module.vigil.report.entity.player.QuitReport;
+import org.cubeengine.module.vigil.report.inventory.ChangeInventoryReport;
 import org.cubeengine.module.vigil.report.inventory.InventoryOpenReport;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
@@ -68,7 +69,7 @@ public class ReportManager
         register(PlaceBlockReport.class);
         // TODO register(ExplosionReport.class);
         register(ModifyBlockReport.class);
-        // TODO ChestPosition register(InventoryOpenReport.class);
+        register(ChangeInventoryReport.class);
         register(ChatReport.class);
         register(JoinReport.class);
         register(QuitReport.class);

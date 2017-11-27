@@ -32,6 +32,7 @@ import org.spongepowered.api.data.MemoryDataContainer;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Text.Builder;
 import org.spongepowered.api.text.format.TextColors;
@@ -127,4 +128,9 @@ public class ReportUtil
     }
 
 
+    public static Text name(ItemStackSnapshot itemStackSnapshot)
+    {
+        Translation trans = itemStackSnapshot.getTranslation();
+        return Text.of(trans).toBuilder().append(Text.of("x", itemStackSnapshot.getQuantity())).build();
+    }
 }
