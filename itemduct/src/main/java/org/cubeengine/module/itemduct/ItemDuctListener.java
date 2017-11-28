@@ -395,7 +395,7 @@ public class ItemDuctListener
         loc.getExtent().playSound(SoundTypes.BLOCK_DISPENSER_DISPENSE, loc.getPosition(), 1);
 
         DuctUtil.Network network = DuctUtil.findNetwork(loc);
-        System.out.print("Network: Pipes " +  network.pipes.size() + " Exits " + network.exitPoints.size() + " Storage " + network.storage.size() + "\n");
+        //System.out.print("Network: Pipes " +  network.pipes.size() + " Exits " + network.exitPoints.size() + " Storage " + network.storage.size() + "\n");
 
         for (Location<World> pipe : network.pipes)
         {
