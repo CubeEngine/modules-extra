@@ -38,6 +38,8 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.recipe.crafting.CraftingRecipe;
 import org.spongepowered.api.item.recipe.crafting.Ingredient;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -64,6 +66,8 @@ public class Itemduct extends CubeEngineModule
         Ingredient hopper = Ingredient.of(ItemTypes.HOPPER);
         activatorItem = ItemStack.of(ItemTypes.HOPPER, 1);
         activatorItem.offer(Keys.ITEM_ENCHANTMENTS, singletonList(new ItemEnchantment(LOOTING, 1)));
+        activatorItem.offer(Keys.DISPLAY_NAME, Text.of(TextColors.GOLD, "ItemDuct Activator"));
+        activatorItem.offer(Keys.HIDE_ENCHANTMENTS, true);
         Sponge.getRegistry().getCraftingRecipeRegistry().register(
         CraftingRecipe.shapedBuilder().rows()
                 .row(hopper, hopper, hopper)
