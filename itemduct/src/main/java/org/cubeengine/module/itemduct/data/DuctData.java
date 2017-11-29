@@ -134,6 +134,11 @@ public class DuctData extends AbstractData<DuctData, ImmutableDuctData> implemen
         return Optional.ofNullable(this.filters.get(dir));
     }
 
+    public boolean has(Direction dir)
+    {
+        return this.filters.containsKey(dir);
+    }
+
     public void remove(Direction dir)
     {
         this.filters.remove(dir);

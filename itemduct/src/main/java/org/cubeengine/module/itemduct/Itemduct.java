@@ -17,29 +17,17 @@
  */
 package org.cubeengine.module.itemduct;
 
-import static java.util.Collections.singletonList;
-import static org.spongepowered.api.item.Enchantments.LOOTING;
-
 import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.service.event.ModuleListener;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
-import org.cubeengine.module.itemduct.data.DuctData;
-import org.cubeengine.module.itemduct.data.DuctDataBuilder;
-import org.cubeengine.module.itemduct.data.ImmutableDuctData;
+import org.cubeengine.module.itemduct.listener.ItemDuctFilterListener;
+import org.cubeengine.module.itemduct.listener.ItemDuctListener;
+import org.cubeengine.module.itemduct.listener.ItemDuctTransferListener;
 import org.cubeengine.processor.Module;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.DataRegistration;
-import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.meta.ItemEnchantment;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
-import org.spongepowered.api.item.ItemTypes;
-import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.item.recipe.crafting.CraftingRecipe;
-import org.spongepowered.api.item.recipe.crafting.Ingredient;
 import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.format.TextColors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -49,35 +37,25 @@ import javax.inject.Singleton;
 public class Itemduct extends CubeEngineModule
 {
     @ModuleConfig private ItemductConfig config;
-    @ModuleListener private ItemDuctListener listener;
+    @Inject private ItemDuctManager manager;
+    @ModuleListener private ItemDuctListener listenerActivator;
+    @ModuleListener private ItemDuctTransferListener listenerTransfer;
+    @ModuleListener private ItemDuctFilterListener listenerFilter;
     @Inject private PluginContainer plugin;
-
-    private static ItemStack activatorItem;
 
     @Listener
     public void onPreInit(GamePreInitializationEvent event)
     {
-        DataRegistration.<DuctData, ImmutableDuctData>builder()
-                .dataClass(DuctData.class).immutableClass(ImmutableDuctData.class)
-                .builder(new DuctDataBuilder()).manipulatorId("duct")
-                .dataName("CubeEngine ItemDuct Data")
-                .buildAndRegister(plugin);
-
-        Ingredient hopper = Ingredient.of(ItemTypes.HOPPER);
-        activatorItem = ItemStack.of(ItemTypes.HOPPER, 1);
-        activatorItem.offer(Keys.ITEM_ENCHANTMENTS, singletonList(new ItemEnchantment(LOOTING, 1)));
-        activatorItem.offer(Keys.DISPLAY_NAME, Text.of(TextColors.GOLD, "ItemDuct Activator"));
-        activatorItem.offer(Keys.HIDE_ENCHANTMENTS, true);
-        Sponge.getRegistry().getCraftingRecipeRegistry().register(
-        CraftingRecipe.shapedBuilder().rows()
-                .row(hopper, hopper, hopper)
-                .row(hopper, Ingredient.of(ItemTypes.DIAMOND), hopper)
-                .row(hopper, hopper, hopper)
-                .result(activatorItem).build("ItemDuctActivator", plugin));
+        this.manager.setup(this.plugin, this.config);
+        this.listenerActivator.setup();
+        this.listenerFilter.setup();
+        this.listenerTransfer.setup(this.manager);
     }
 
-    public static ItemStack activatorItem()
+    @Listener
+    public void onReload(GameReloadEvent event)
     {
-        return activatorItem;
+        this.config.reload();
+        this.manager.reload(this.config);
     }
 }

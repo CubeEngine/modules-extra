@@ -21,4 +21,6 @@ import org.cubeengine.reflect.codec.yaml.ReflectedYaml;
 
 @SuppressWarnings("all")
 public class ItemductConfig extends ReflectedYaml
-{}
+{
+    public int maxDepth = 10;
+}

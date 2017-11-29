@@ -22,7 +22,9 @@ ItemDuct Materials are:
  - Colored glass blocks and panes (connect to the same color)
  - Quartz blocks (for storage units)  
 ![Materials][materials]
+
 ___
+
 
 ### Simple Setup
 ![Simple Setup][simple-setup]  
