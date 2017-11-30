@@ -35,6 +35,8 @@ import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.Getter;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
+import org.spongepowered.api.item.inventory.Carrier;
+import org.spongepowered.api.item.inventory.Container;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.property.InventoryTitle;
@@ -86,15 +88,17 @@ public class ItemDuctFilterListener
     }
 
     @Listener
-    public void onCloseInventory(InteractInventoryEvent.Close event, @Root Player player, @Getter("getTargetInventory") CarriedInventory<?> inventory)
+    public void onCloseInventory(InteractInventoryEvent.Close event, @Root Player player, @Getter("getTargetInventory") Container inventory)
     {
         // When closing update filters
-        inventory.getCarrier().ifPresent(carrier -> {
-            if (carrier instanceof DuctFilterCarrier)
-            {
-                ((DuctFilterCarrier) carrier).update(event.getTargetInventory().iterator().next());
-            }
-        });
+        if (inventory instanceof CarriedInventory<?>) {
+            ((CarriedInventory<?>) inventory).getCarrier().ifPresent(carrier -> {
+                if (carrier instanceof DuctFilterCarrier)
+                {
+                    ((DuctFilterCarrier) carrier).update(event.getTargetInventory().iterator().next());
+                }
+            });
+        }
     }
 
     private void openFilter(Player player, DuctData ductData, Direction dir, Location<World> loc)
