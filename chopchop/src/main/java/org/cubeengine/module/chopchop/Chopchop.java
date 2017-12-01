@@ -25,18 +25,14 @@ import static org.spongepowered.api.text.format.TextColors.GOLD;
 import static org.spongepowered.api.text.format.TextColors.YELLOW;
 
 import org.cubeengine.libcube.CubeEngineModule;
-import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.event.ModuleListener;
-import org.cubeengine.libcube.service.task.TaskManager;
-import org.cubeengine.processor.Dependency;
 import org.cubeengine.processor.Module;
-import org.spongepowered.api.Game;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.meta.ItemEnchantment;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
-import org.spongepowered.api.item.Enchantments;
+import org.spongepowered.api.item.enchantment.Enchantment;
+import org.spongepowered.api.item.enchantment.EnchantmentTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.recipe.crafting.CraftingRecipe;
 import org.spongepowered.api.item.recipe.crafting.Ingredient;
@@ -64,7 +60,7 @@ public class Chopchop extends CubeEngineModule
     public void registerRecipe()
     {
         ItemStack axe = ItemStack.of(DIAMOND_AXE, 1);
-        axe.offer(Keys.ITEM_ENCHANTMENTS, singletonList(new ItemEnchantment(Enchantments.PUNCH, 5)));
+        axe.offer(Keys.ITEM_ENCHANTMENTS, singletonList(Enchantment.builder().type(EnchantmentTypes.PUNCH).level(5).build()));
         axe.offer(Keys.DISPLAY_NAME, Text.of(GOLD, "Heavy Diamond Axe"));
         axe.offer(Keys.ITEM_LORE, singletonList(Text.of(YELLOW, "Chop Chop!")));
 

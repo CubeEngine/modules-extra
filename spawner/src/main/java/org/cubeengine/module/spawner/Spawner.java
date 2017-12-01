@@ -50,8 +50,7 @@ import static org.spongepowered.api.entity.EntityTypes.WOLF;
 import static org.spongepowered.api.entity.EntityTypes.ZOMBIE;
 import static org.spongepowered.api.entity.living.player.gamemode.GameModes.CREATIVE;
 import static org.spongepowered.api.event.Order.POST;
-import static org.spongepowered.api.item.Enchantments.LURE;
-import static org.spongepowered.api.item.Enchantments.SILK_TOUCH;
+import static org.spongepowered.api.item.enchantment.EnchantmentTypes.LURE;
 
 import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.service.event.EventManager;
@@ -65,7 +64,6 @@ import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.meta.ItemEnchantment;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityArchetype;
 import org.spongepowered.api.entity.EntityType;
@@ -77,9 +75,10 @@ import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
-import org.spongepowered.api.item.Enchantment;
-import org.spongepowered.api.item.Enchantments;
 import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.enchantment.Enchantment;
+import org.spongepowered.api.item.enchantment.EnchantmentType;
+import org.spongepowered.api.item.enchantment.EnchantmentTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.weighted.RandomObjectTable;
 import org.spongepowered.api.util.weighted.WeightedTable;
@@ -118,7 +117,7 @@ public class Spawner extends CubeEngineModule
                       CHICKEN, SQUID, WOLF, MUSHROOM_COW, OCELOT, HORSE, VILLAGER);
 
         this.spawnerItem = ItemStack.of(ItemTypes.MOB_SPAWNER, 1);
-        spawnerItem.offer(Keys.ITEM_ENCHANTMENTS, singletonList(new ItemEnchantment(Enchantments.LURE, 1)));
+        spawnerItem.offer(Keys.ITEM_ENCHANTMENTS, singletonList(Enchantment.builder().type(LURE).level(1).build()));
     }
 
     private void initPerm(EntityType... types)
@@ -130,15 +129,15 @@ public class Spawner extends CubeEngineModule
         }
     }
 
-    public static boolean hasEnchantment(ItemStack item, Enchantment ench)
+    public static boolean hasEnchantment(ItemStack item, EnchantmentType ench)
     {
         // TODO Sponge 4.0 will have a check for this?
-        Optional<List<ItemEnchantment>> enchs = item.get(Keys.ITEM_ENCHANTMENTS);
+        Optional<List<Enchantment>> enchs = item.get(Keys.ITEM_ENCHANTMENTS);
         if (enchs.isPresent())
         {
-            for (ItemEnchantment e : enchs.get())
+            for (Enchantment e : enchs.get())
             {
-                if (e.getEnchantment().equals(ench))
+                if (e.getType().equals(ench))
                 {
                     return true;
                 }
@@ -174,11 +173,11 @@ public class Spawner extends CubeEngineModule
     {
         Optional<ItemStack> inHand = player.getItemInHand(MAIN_HAND);
         if (inHand.isPresent() &&
-            hasEnchantment(inHand.get(), SILK_TOUCH) &&
+            hasEnchantment(inHand.get(), EnchantmentTypes.SILK_TOUCH) &&
             breaks(event, MOB_SPAWNER))
         {
             ItemStack clone = spawnerItem.copy();
-            clone.offer(Keys.ITEM_ENCHANTMENTS, singletonList(new ItemEnchantment(Enchantments.LURE, 1)));
+            clone.offer(Keys.ITEM_ENCHANTMENTS, singletonList(Enchantment.builder().type(LURE).level(1).build()));
             clone.offer(Keys.DISPLAY_NAME, i18n.translate(player, NONE, "Inactive Monster Spawner"));
 
             Entity item = player.getWorld().createEntity(ITEM, player.getLocation().getPosition());

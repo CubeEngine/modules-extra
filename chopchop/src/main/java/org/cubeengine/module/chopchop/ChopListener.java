@@ -17,9 +17,30 @@
  */
 package org.cubeengine.module.chopchop;
 
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
+import static java.util.Collections.emptyList;
+import static org.spongepowered.api.block.BlockTypes.DIRT;
+import static org.spongepowered.api.block.BlockTypes.GRASS;
+import static org.spongepowered.api.block.BlockTypes.LEAVES;
+import static org.spongepowered.api.block.BlockTypes.LEAVES2;
+import static org.spongepowered.api.data.key.Keys.REPRESENTED_ITEM;
+import static org.spongepowered.api.data.key.Keys.TREE_TYPE;
+import static org.spongepowered.api.data.type.TreeTypes.DARK_OAK;
+import static org.spongepowered.api.data.type.TreeTypes.JUNGLE;
+import static org.spongepowered.api.data.type.TreeTypes.OAK;
+import static org.spongepowered.api.entity.EntityTypes.ITEM;
+import static org.spongepowered.api.item.ItemTypes.APPLE;
+import static org.spongepowered.api.item.ItemTypes.DIAMOND_AXE;
+import static org.spongepowered.api.util.Direction.DOWN;
+import static org.spongepowered.api.util.Direction.EAST;
+import static org.spongepowered.api.util.Direction.NORTH;
+import static org.spongepowered.api.util.Direction.NORTHEAST;
+import static org.spongepowered.api.util.Direction.NORTHWEST;
+import static org.spongepowered.api.util.Direction.SOUTH;
+import static org.spongepowered.api.util.Direction.SOUTHEAST;
+import static org.spongepowered.api.util.Direction.SOUTHWEST;
+import static org.spongepowered.api.util.Direction.UP;
+import static org.spongepowered.api.util.Direction.WEST;
+
 import com.flowpowered.math.vector.Vector3i;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
@@ -28,7 +49,6 @@ import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.meta.ItemEnchantment;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.data.type.TreeType;
 import org.spongepowered.api.effect.sound.SoundTypes;
@@ -36,31 +56,19 @@ import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
-import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.item.enchantment.Enchantment;
+import org.spongepowered.api.item.enchantment.EnchantmentTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import static java.util.Collections.emptyList;
-import static org.spongepowered.api.block.BlockTypes.*;
-import static org.spongepowered.api.block.BlockTypes.DIRT;
-import static org.spongepowered.api.block.BlockTypes.GRASS;
-import static org.spongepowered.api.block.BlockTypes.LEAVES;
-import static org.spongepowered.api.block.BlockTypes.LEAVES2;
-import static org.spongepowered.api.block.BlockTypes.LOG2;
-import static org.spongepowered.api.data.key.Keys.REPRESENTED_ITEM;
-import static org.spongepowered.api.data.key.Keys.TREE_TYPE;
-import static org.spongepowered.api.data.type.TreeTypes.*;
-import static org.spongepowered.api.entity.EntityTypes.ITEM;
-import static org.spongepowered.api.item.Enchantments.PUNCH;
-import static org.spongepowered.api.item.ItemTypes.*;
-import static org.spongepowered.api.item.ItemTypes.LOG;
-import static org.spongepowered.api.item.ItemTypes.SAPLING;
-import static org.spongepowered.api.util.Direction.*;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -97,7 +105,7 @@ public class ChopListener
         }
         ItemStack axe = player.getItemInHand(HandTypes.MAIN_HAND).orElse(null);
         if (axe == null || axe.getItem() != DIAMOND_AXE || axe.get(Keys.ITEM_DURABILITY).orElse(0) <= 0 ||
-           !axe.get(Keys.ITEM_ENCHANTMENTS).orElse(emptyList()).contains(new ItemEnchantment(PUNCH, 5)))
+           !axe.get(Keys.ITEM_ENCHANTMENTS).orElse(emptyList()).contains(Enchantment.builder().type(EnchantmentTypes.PUNCH).level(5).build()))
         {
             return;
         }

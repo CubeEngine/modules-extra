@@ -25,7 +25,6 @@ import static org.spongepowered.api.block.BlockTypes.PISTON;
 import static org.spongepowered.api.block.BlockTypes.QUARTZ_BLOCK;
 import static org.spongepowered.api.block.BlockTypes.STAINED_GLASS;
 import static org.spongepowered.api.block.BlockTypes.STAINED_GLASS_PANE;
-import static org.spongepowered.api.item.Enchantments.LOOTING;
 
 import com.flowpowered.math.vector.Vector3d;
 import org.cubeengine.module.itemduct.data.DuctData;
@@ -35,13 +34,14 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.meta.ItemEnchantment;
 import org.spongepowered.api.data.type.DyeColor;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.effect.particle.ParticleOptions;
 import org.spongepowered.api.effect.particle.ParticleTypes;
 import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.enchantment.Enchantment;
+import org.spongepowered.api.item.enchantment.EnchantmentTypes;
 import org.spongepowered.api.item.inventory.Carrier;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.recipe.crafting.CraftingRecipe;
@@ -83,7 +83,7 @@ public class ItemDuctManager
 
             Ingredient hopper = Ingredient.of(ItemTypes.HOPPER);
             activatorItem = ItemStack.of(ItemTypes.HOPPER, 1);
-            activatorItem.offer(Keys.ITEM_ENCHANTMENTS, singletonList(new ItemEnchantment(LOOTING, 1)));
+            activatorItem.offer(Keys.ITEM_ENCHANTMENTS, singletonList(Enchantment.builder().type(EnchantmentTypes.LOOTING).level(1).build()));
             activatorItem.offer(Keys.DISPLAY_NAME, Text.of(TextColors.GOLD, "ItemDuct Activator"));
             activatorItem.offer(Keys.HIDE_ENCHANTMENTS, true);
             Sponge.getRegistry().getCraftingRecipeRegistry().register(

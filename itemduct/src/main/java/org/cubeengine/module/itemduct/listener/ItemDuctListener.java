@@ -30,7 +30,6 @@ import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.block.tileentity.TileEntity;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.meta.ItemEnchantment;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.effect.particle.ParticleTypes;
@@ -40,8 +39,9 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.Root;
-import org.spongepowered.api.item.Enchantments;
 import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.enchantment.Enchantment;
+import org.spongepowered.api.item.enchantment.EnchantmentTypes;
 import org.spongepowered.api.item.inventory.Carrier;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.Direction;
@@ -143,7 +143,7 @@ public class ItemDuctListener
     {
         if (ItemTypes.HOPPER.equals(item.getType()))
         {
-            ItemEnchantment ench = new ItemEnchantment(Enchantments.LOOTING, 1);
+            Enchantment ench = Enchantment.builder().type(EnchantmentTypes.LOOTING).level(1).build();
             return item.get(Keys.ITEM_ENCHANTMENTS).orElse(Collections.emptyList()).contains(ench);
         }
         return false;

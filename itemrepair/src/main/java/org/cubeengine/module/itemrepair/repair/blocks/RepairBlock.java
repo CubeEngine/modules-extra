@@ -35,13 +35,13 @@ import org.cubeengine.module.itemrepair.repair.RepairBlockManager;
 import org.cubeengine.module.itemrepair.repair.RepairRequest;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.meta.ItemEnchantment;
 import org.spongepowered.api.data.property.item.UseLimitProperty;
 import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.enchantment.Enchantment;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.InventoryArchetypes;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -270,7 +270,7 @@ public class RepairBlock
                     {
                         repairFail = true;
                     }
-                    Optional<List<ItemEnchantment>> enchs = entry.getValue().get(Keys.ITEM_ENCHANTMENTS);
+                    Optional<List<Enchantment>> enchs = entry.getValue().get(Keys.ITEM_ENCHANTMENTS);
                     if (enchs.isPresent() && !enchs.get().isEmpty())
                     {
                         if (this.rand.nextInt(100) < this.config.looseEnchantmentsPercentage)
@@ -327,10 +327,10 @@ public class RepairBlock
     public static double getEnchantmentMultiplier(ItemStack item, double factor, double base)
     {
         double enchantmentLevel = 0;
-        Optional<List<ItemEnchantment>> enchs = item.get(Keys.ITEM_ENCHANTMENTS);
+        Optional<List<Enchantment>> enchs = item.get(Keys.ITEM_ENCHANTMENTS);
         if (enchs.isPresent() && !enchs.get().isEmpty())
         {
-            for (ItemEnchantment enchantment : enchs.get())
+            for (Enchantment enchantment : enchs.get())
             {
                 enchantmentLevel += enchantment.getLevel();
             }

@@ -30,12 +30,12 @@ import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.util.SpawnUtil;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.meta.ItemEnchantment;
 import org.spongepowered.api.data.type.CoalTypes;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.item.Enchantments;
 import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.enchantment.Enchantment;
+import org.spongepowered.api.item.enchantment.EnchantmentTypes;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.transaction.InventoryTransactionResult;
@@ -83,7 +83,7 @@ public class SelectorCommand
         {
             found = game.getRegistry().createBuilder(ItemStack.Builder.class).itemType(COAL).quantity(1).build();
             found.offer(COAL_TYPE, CoalTypes.CHARCOAL);
-            found.offer(ITEM_ENCHANTMENTS, Arrays.asList(new ItemEnchantment(Enchantments.BINDING_CURSE, 1)));
+            found.offer(ITEM_ENCHANTMENTS, Arrays.asList(Enchantment.builder().type(EnchantmentTypes.BINDING_CURSE).level(1).build()));
             found.offer(DISPLAY_NAME, Text.of(TextColors.BLUE, "Selector-Tool"));
             found.offer(ITEM_LORE, Arrays.asList(Text.of("created by ", user.getName())));
 
