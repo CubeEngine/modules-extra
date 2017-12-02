@@ -10,14 +10,14 @@
   <groupId>org.cubeengine.module</groupId>
   <artifactId>itemduct</artifactId>
   <name>ItemDuct</name>
-  <version>1.0.1</version>
+  <version>1.0.1-SNAPSHOT</version>
   <description>Transfer items via glass pipes</description>
 
   <dependencies>
     <dependency>
       <groupId>org.cubeengine</groupId>
       <artifactId>libcube</artifactId>
-      <version>1.0.1</version>
+      <version>1.0.1-SNAPSHOT</version>
       <scope>provided</scope>
       <type>jar</type>
     </dependency>
