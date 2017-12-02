@@ -28,14 +28,14 @@ import org.cubeengine.module.unbreakableboat.data.UnbreakableDataBuilder;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.meta.ItemEnchantment;
 import org.spongepowered.api.entity.vehicle.Boat;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.AttackEntityEvent;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
-import org.spongepowered.api.item.Enchantments;
 import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.enchantment.Enchantment;
+import org.spongepowered.api.item.enchantment.EnchantmentTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.Text;
@@ -76,7 +76,7 @@ public class Unbreakableboat extends CubeEngineModule
 
     private void registerRecipe() {
         boat = ItemStack.builder().itemType(ItemTypes.BOAT).quantity(1).build();
-        boat.offer(Keys.ITEM_ENCHANTMENTS, singletonList(new ItemEnchantment(Enchantments.UNBREAKING, 5)));
+        boat.offer(Keys.ITEM_ENCHANTMENTS, singletonList(Enchantment.builder().type(EnchantmentTypes.UNBREAKING).level(1).build()));
         boat.offer(Keys.DISPLAY_NAME, Text.of(TextColors.GOLD, "Sturdy Boat"));
         boat.offer(Keys.ITEM_LORE, Arrays.asList(Text.of(TextColors.YELLOW, "Can take a lot!")));
 

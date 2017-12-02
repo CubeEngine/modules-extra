@@ -1,5 +1,6 @@
 on-ore: CubeEngine---ItemDuct
 features:
   - ItemDucts to move items around
+  - Mass Storage Units
 pages:
   Usage: usage
