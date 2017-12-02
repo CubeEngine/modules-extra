@@ -10,7 +10,7 @@
   <groupId>org.cubeengine.module</groupId>
   <artifactId>chopchop</artifactId>
   <name>ChopChop</name>
-  <version>1.0.0</version>
+  <version>1.0.1-SNAPSHOT</version>
   <description>Chop whole trees down</description>
 
   <dependencies>
