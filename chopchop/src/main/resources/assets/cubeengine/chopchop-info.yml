@@ -1,3 +1,6 @@
+on-ore: CubeEngine---ChopChop
 features:
   - Craftable with custom recipe
-  - Destroys entire tree
+  - Destroys entire trees
+pages:
+  Usage: usage
