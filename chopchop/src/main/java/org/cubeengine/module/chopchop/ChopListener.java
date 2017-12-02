@@ -61,7 +61,6 @@ import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.item.enchantment.Enchantment;
 import org.spongepowered.api.item.enchantment.EnchantmentTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -76,12 +75,12 @@ import javax.inject.Inject;
 public class ChopListener
 {
     private static final Set<Direction> dir8 = EnumSet.of(NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST, NORTHWEST);
-    private PluginContainer plugin;
+    private Chopchop module;
 
     @Inject
-    public ChopListener(PluginContainer plugin)
+    public ChopListener(Chopchop module)
     {
-        this.plugin = plugin;
+        this.module = module;
     }
 
     public static boolean isLeaf(Location<World> block, TreeType species)
@@ -104,8 +103,12 @@ public class ChopListener
             return;
         }
         ItemStack axe = player.getItemInHand(HandTypes.MAIN_HAND).orElse(null);
-        if (axe == null || axe.getItem() != DIAMOND_AXE || axe.get(Keys.ITEM_DURABILITY).orElse(0) <= 0 ||
+        if (axe == null || axe.getType() != DIAMOND_AXE || axe.get(Keys.ITEM_DURABILITY).orElse(0) <= 0 ||
            !axe.get(Keys.ITEM_ENCHANTMENTS).orElse(emptyList()).contains(Enchantment.builder().type(EnchantmentTypes.PUNCH).level(5).build()))
+        {
+            return;
+        }
+        if (!module.use.check(player))
         {
             return;
         }
@@ -173,15 +176,13 @@ public class ChopListener
                 }
 
                 BlockState sapState = BlockTypes.SAPLING.getDefaultState().with(TREE_TYPE, treeType).get();
-                for (Location block : saplings)
+                if (this.module.autoplant.check(player))
                 {
-                    if (leaves > 0)
-                    {
-                        block.setBlock(sapState);
-                        leaves--;
-                    }
+                    leaves -= saplings.size();
+                    leaves = Math.max(0, leaves);
+                    transaction.setCustom(sapState.snapshotFor(transaction.getOriginal().getLocation().get()));
+                    saplings.forEach(l -> l.setBlock(sapState));
                 }
-
 
                 final int uses = axe.get(Keys.ITEM_DURABILITY).get() - logs;
                 axe.offer(Keys.ITEM_DURABILITY, uses);
@@ -191,7 +192,7 @@ public class ChopListener
                 Entity itemEntity;
                 Sponge.getCauseStackManager().removeContext(EventContextKeys.PLAYER_SIMULATED);
                 Sponge.getCauseStackManager().pushCause(player);
-                if (apples != 0)
+                if (apples > 0)
                 {
                     ItemStack apple = ItemStack.builder().itemType(APPLE).quantity(apples).build();
                     itemEntity = world.createEntity(ITEM, orig.getPosition());
@@ -199,10 +200,14 @@ public class ChopListener
                     world.spawnEntity(itemEntity);
                 }
 
-                ItemStack sap = ItemStack.builder().fromBlockState(sapState).build();
-                itemEntity = world.createEntity(ITEM, orig.getPosition());
-                itemEntity.offer(REPRESENTED_ITEM, sap.createSnapshot());
-                world.spawnEntity(itemEntity);
+                if (leaves > 0)
+                {
+                    ItemStack sap = ItemStack.builder().fromBlockState(sapState).build();
+                    sap.setQuantity(leaves);
+                    itemEntity = world.createEntity(ITEM, orig.getPosition());
+                    itemEntity.offer(REPRESENTED_ITEM, sap.createSnapshot());
+                    world.spawnEntity(itemEntity);
+                }
 
                 itemEntity = world.createEntity(ITEM, orig.getPosition());
                 itemEntity.offer(REPRESENTED_ITEM, log.createSnapshot());
