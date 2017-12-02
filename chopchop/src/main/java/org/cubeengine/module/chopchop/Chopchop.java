@@ -71,6 +71,7 @@ public class Chopchop extends CubeEngineModule
         axe.offer(Keys.ITEM_ENCHANTMENTS, singletonList(Enchantment.builder().type(EnchantmentTypes.PUNCH).level(5).build()));
         axe.offer(Keys.DISPLAY_NAME, Text.of(GOLD, "Heavy Diamond Axe"));
         axe.offer(Keys.ITEM_LORE, singletonList(Text.of(YELLOW, "Chop Chop!")));
+        axe.offer(Keys.HIDE_ENCHANTMENTS, true);
 
         this.recipe = CraftingRecipe.shapedBuilder()
                 .aisle("aa", "as", " s")
