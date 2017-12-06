@@ -66,8 +66,7 @@ public class Kits extends CubeEngineModule
         this.plugin = mm.getPlugin(Kits.class).get();
         DataRegistration<KitData, ImmutableKitData> dr = DataRegistration.<KitData, ImmutableKitData>builder()
                 .dataClass(KitData.class).immutableClass(ImmutableKitData.class)
-                .builder(new KitDataBuilder()).manipulatorId(
-                        "kits")
+                .builder(new KitDataBuilder()).manipulatorId("kits")
                 .dataName("CubeEngine Kits Data")
                 .buildAndRegister(plugin);
         Sponge.getDataManager().registerLegacyManipulatorIds(KitData.class.getName(), dr);
@@ -76,7 +75,10 @@ public class Kits extends CubeEngineModule
         this.kitManager.loadKits();
         em.registerListener(Kits.class, kitManager);
         cm.getProviders().register(this, new KitParser(kitManager), Kit.class);
-        cm.addCommand(new KitCommand(this, i18n, igf, cm));
+
+        KitCommand cmd = new KitCommand(this, i18n, igf, cm);
+        cm.addCommand(cmd);
+        cmd.addCommand(new KitEditCommand(cm, i18n, kitManager));
     }
 
     public KitManager getKitManager()

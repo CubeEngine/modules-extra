@@ -46,7 +46,7 @@ import org.spongepowered.api.text.format.TextColors;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
 import static org.spongepowered.api.text.serializer.TextSerializers.FORMATTING_CODE;
 
-@Command(name = "kit", desc = "Manages item-kits")
+@Command(name = "kit", desc = "Manages kits")
 public class KitCommand extends ContainerCommand
 {
     private final KitManager manager;
@@ -73,29 +73,12 @@ public class KitCommand extends ContainerCommand
         return super.selfExecute(invocation);
     }
 
-    @Command(desc = "Sets a command to be run when a kit is received")
-    public void setCommand(CommandSource context, Kit kit, @org.cubeengine.butler.parametric.Optional String... commands)
-    {
-        kit.clearCommands();
-        if (commands != null)
-        {
-            kit.setCommands(Arrays.asList(commands));
-            i18n.send(context, POSITIVE, "Kit commands set.");
-        }
-        else
-        {
-            i18n.send(context, POSITIVE, "Kit commands removed.");
-        }
-    }
-
     @Command(alias = "remove", desc = "Deletes a kit")
     public void delete(CommandSource context, Kit kit)
     {
         manager.deleteKit(kit);
         i18n.send(context, POSITIVE, "Kit deleted.");
     }
-
-    // TODO edit command - /w click to Edit
 
     @Command(alias = "open", desc = "Opens the configured kit if the kit does not exists a new is created")
     @Restricted(value = Player.class, msg = "Just log in or use the config!")
@@ -137,10 +120,7 @@ public class KitCommand extends ContainerCommand
         igf.prepareInv(inventory, player.getUniqueId()).onClose(() -> {
             inventory.slots().forEach(slot -> {
                 Optional<ItemStack> item = slot.peek();
-                if (item.isPresent())
-                {
-                    itemList.add(item.get().copy());
-                }
+                item.ifPresent(itemStack -> itemList.add(itemStack.copy()));
             });
             manager.saveKit(kit);
             i18n.send(player, POSITIVE, "Created the {name#kit} kit!", kit.getKitName());

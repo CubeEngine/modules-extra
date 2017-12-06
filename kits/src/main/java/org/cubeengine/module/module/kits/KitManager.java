@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -29,6 +30,7 @@ import org.cubeengine.reflect.Reflector;
 import org.cubeengine.libcube.util.StringUtils;
 import org.cubeengine.libcube.service.matcher.StringMatcher;
 import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 
@@ -53,9 +55,10 @@ public class KitManager
     @Listener
     public void onJoin(ClientConnectionEvent.Join event)
     {
-        if (!event.getTargetEntity().get(Keys.LAST_DATE_PLAYED).isPresent())
+        Player player = event.getTargetEntity();
+        if (player.get(Keys.FIRST_DATE_PLAYED).orElse(Instant.now()).equals(player.get(Keys.LAST_DATE_PLAYED).orElse(Instant.now())))
         {
-            kitMap.values().stream().filter(Kit::isGiveKitOnFirstJoin).forEach(kit -> kit.give(event.getTargetEntity(), true));
+            kitMap.values().stream().filter(Kit::isGiveKitOnFirstJoin).forEach(kit -> kit.give(player, true));
         }
     }
 

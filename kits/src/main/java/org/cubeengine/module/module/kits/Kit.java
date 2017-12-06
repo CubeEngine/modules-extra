@@ -20,6 +20,7 @@ package org.cubeengine.module.module.kits;
 import java.util.List;
 import java.util.Optional;
 
+import org.cubeengine.butler.exception.SilentException;
 import org.cubeengine.butler.parameter.IncorrectUsageException;
 import org.cubeengine.libcube.service.command.exception.PermissionDeniedException;
 import org.cubeengine.libcube.service.permission.Permission;
@@ -89,10 +90,11 @@ public class Kit
                 Optional<KitData> kitData = player.get(KitData.class);
                 if (kitData.isPresent())
                 {
-                    reached = limitUsagePerPlayer >= kitData.get().getTimes().getOrDefault(this.name, 0);
+                    reached = limitUsagePerPlayer <= kitData.get().getTimes().getOrDefault(this.name, 0);
                 }
                 if (reached)
                 {
+                    // TODO this messages are not displayed & translated
                     throw new IncorrectUsageException(false, "Kit-limit reached.");
                 }
             }
@@ -129,6 +131,10 @@ public class Kit
         return giveKitOnFirstJoin;
     }
 
+    public void setGiveKitOnFirstJoin(boolean giveKitOnFirstJoin)
+    {
+        this.giveKitOnFirstJoin = giveKitOnFirstJoin;
+    }
 
     private void executeCommands(Player player)
     {
@@ -183,5 +189,32 @@ public class Kit
     public void setCommands(List<String> commands)
     {
         this.commands = commands;
+    }
+
+    public void setCustomMessage(String customMessage)
+    {
+        this.customMessage = customMessage;
+    }
+
+    public void setPermission(boolean usePermission)
+    {
+        if (usePermission)
+        {
+            this.permission = module.getPermissionManager().register(Kits.class, name, "Permission for the kit: " + name, module.perms().KITS);
+        }
+        else
+        {
+            this.permission = null;
+        }
+    }
+
+    public void setLimitUsage(int limitUsage)
+    {
+        this.limitUsagePerPlayer = limitUsage;
+    }
+
+    public void setUsageDelay(long usageDelay)
+    {
+        this.limitUsageDelay = usageDelay;
     }
 }
