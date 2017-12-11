@@ -173,8 +173,10 @@ public class KitCommand extends ContainerCommand
         }
         else if (kitNotReceived > 0)
         {
-            i18n.send(context, NEGATIVE, "{amount} players did not receive a kit!",
-                                kitNotReceived); // TODO Have a string for if there is only one player, so non-plural
+            i18n.sendN(context, NEGATIVE, kitNotReceived,
+                    "{amount} players did not receive a kit!",
+                    "One player did not receive a kit!",
+                    kitNotReceived);
         }
     }
 

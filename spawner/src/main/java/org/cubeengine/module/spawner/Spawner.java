@@ -83,6 +83,7 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.weighted.RandomObjectTable;
 import org.spongepowered.api.util.weighted.WeightedTable;
 import org.spongepowered.api.world.BlockChangeFlag;
+import org.spongepowered.api.world.BlockChangeFlags;
 
 import java.util.HashMap;
 import java.util.List;
@@ -250,7 +251,7 @@ public class Spawner extends CubeEngineModule
                 spawns.add(EntityArchetype.builder().type(type).build(), 1);
                 state.with(Keys.SPAWNER_ENTITIES, spawns);
 
-                if (event.getTargetBlock().withState(state).restore(true, BlockChangeFlag.ALL)) // TODO no cause?
+                if (event.getTargetBlock().withState(state).restore(true, BlockChangeFlags.ALL)) // TODO no cause?
                 {
                     if (!player.gameMode().get().equals(CREATIVE))
                     {
