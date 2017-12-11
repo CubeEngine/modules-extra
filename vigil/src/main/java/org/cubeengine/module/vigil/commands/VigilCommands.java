@@ -17,13 +17,15 @@
  */
 package org.cubeengine.module.vigil.commands;
 
-import java.util.Collections;
+import static java.util.Arrays.asList;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NONE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
+
 import org.cubeengine.butler.alias.Alias;
 import org.cubeengine.butler.filter.Restricted;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Default;
 import org.cubeengine.butler.parametric.Label;
-import org.cubeengine.butler.parametric.Optional;
 import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.command.ContainerCommand;
 import org.cubeengine.libcube.service.i18n.I18n;
@@ -34,8 +36,6 @@ import org.cubeengine.module.vigil.data.LookupData;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.type.HandTypes;
-import org.spongepowered.api.entity.Entity;
-import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
@@ -44,8 +44,7 @@ import org.spongepowered.api.item.inventory.transaction.InventoryTransactionResu
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
-import static java.util.Arrays.asList;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
+import java.util.Collections;
 
 @Command(name = "vigil", alias = "log", desc = "Vigil-Module Commands")
 public class VigilCommands extends ContainerCommand

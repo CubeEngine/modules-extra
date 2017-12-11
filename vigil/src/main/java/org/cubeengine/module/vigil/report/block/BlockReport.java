@@ -38,6 +38,7 @@ import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.world.BlockChangeFlag;
+import org.spongepowered.api.world.BlockChangeFlags;
 
 public abstract class BlockReport<T extends ChangeBlockEvent> extends BaseReport<T>
 {
@@ -142,13 +143,13 @@ public abstract class BlockReport<T extends ChangeBlockEvent> extends BaseReport
     public void apply(Action action, boolean noOp)
     {
         // TODO noOp
-        action.getCached(BLOCKS_REPL, Recall::replSnapshot).get().restore(true, BlockChangeFlag.NONE);
+        action.getCached(BLOCKS_REPL, Recall::replSnapshot).get().restore(true, BlockChangeFlags.NONE);
     }
 
     @Override
     public void unapply(Action action, boolean noOp)
     {
         // TODO noOp
-        action.getCached(BLOCKS_ORIG, Recall::origSnapshot).get().restore(true, BlockChangeFlag.NONE);
+        action.getCached(BLOCKS_ORIG, Recall::origSnapshot).get().restore(true, BlockChangeFlags.NONE);
     }
 }

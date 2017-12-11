@@ -28,6 +28,7 @@ import org.cubeengine.module.bigdata.Bigdata;
 import org.cubeengine.module.vigil.commands.LookupDataParser;
 import org.cubeengine.module.vigil.commands.VigilAdminCommands;
 import org.cubeengine.module.vigil.commands.VigilCommands;
+import org.cubeengine.module.vigil.commands.VigilLookupCommands;
 import org.cubeengine.module.vigil.data.ImmutableLookupData;
 import org.cubeengine.module.vigil.data.LookupData;
 import org.cubeengine.module.vigil.data.LookupDataBuilder;
@@ -43,8 +44,6 @@ import org.cubeengine.processor.Module;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
-import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
-import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.plugin.PluginContainer;
 
 @Singleton
@@ -74,6 +73,7 @@ public class Vigil extends CubeEngineModule
         VigilCommands vc = new VigilCommands(sm, i18n, cm);
         cm.addCommand(vc);
         vc.addCommand(new VigilAdminCommands(cm, i18n, this));
+        cm.addCommands(vc, this, new VigilLookupCommands(cm, i18n, qm));
 
         em.registerListener(Vigil.class, new ToolListener(pm, qm));
 

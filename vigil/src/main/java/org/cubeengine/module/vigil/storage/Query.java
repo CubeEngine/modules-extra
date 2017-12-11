@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.flowpowered.math.vector.Vector3i;
+import com.mongodb.QueryOperators;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
@@ -82,6 +83,26 @@ public class Query
         position.put(String.join(".", DATA, LOCATION, Z.asString("_")), pos.getZ());
 
         and.add(position);
+        return this;
+    }
+
+    public Query radius(Vector3i pos, int radius)
+    {
+        Document posRadius = new Document();
+
+        Document cond = new Document();
+        cond.put(QueryOperators.GT, pos.getX() - radius);
+        cond.put(QueryOperators.LT, pos.getX() + radius);
+
+        posRadius.put(String.join(".", DATA, LOCATION, X.asString("_")), cond);
+
+        cond = new Document();
+        cond.put(QueryOperators.GT, pos.getZ() - radius);
+        cond.put(QueryOperators.LT, pos.getZ() + radius);
+
+        posRadius.put(String.join(".", DATA, LOCATION, Z.asString("_")), cond);
+
+        and.add(posRadius);
         return this;
     }
 

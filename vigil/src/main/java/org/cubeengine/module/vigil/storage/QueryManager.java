@@ -223,7 +223,11 @@ public class QueryManager
             query.reportFilters(reportFilters);
         }
 
-        if (lookup.getPosition() != null)
+        if (lookup.getRadius() != 0)
+        {
+            query.radius(lookup.getPosition(), lookup.getRadius());
+        }
+        else if (lookup.getPosition() != null)
         {
             query.position(lookup.getPosition());
         }

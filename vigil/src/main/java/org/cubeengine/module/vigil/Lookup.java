@@ -34,6 +34,7 @@ public class Lookup
 
     private UUID world;
     private Vector3i position;
+    private int radius = 0;
 
     public Lookup(LookupData settings)
     {
@@ -44,6 +45,12 @@ public class Lookup
     {
         this.world = loc.getExtent().getUniqueId();
         this.position = loc.getBlockPosition();
+        return this;
+    }
+
+    public Lookup withRadius(int radius)
+    {
+        this.radius = radius;
         return this;
     }
 
@@ -68,6 +75,11 @@ public class Lookup
     public LookupData getSettings()
     {
         return settings;
+    }
+
+    public int getRadius()
+    {
+        return radius;
     }
 
     public void time(LookupTiming timing)
