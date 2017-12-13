@@ -604,7 +604,7 @@ public final class MarketSignManager
         {
             String name = getOwnerName(data);
             Inventory inventory = Inventory.builder().of(DISPENSER).property(InventoryTitle.PROPERTY_NAME, InventoryTitle.of(Text.of(name))).build(plugin);
-            inventory.query(new SlotPos(1,1)).set(data.getItem().copy()); // middle of dispenser
+            inventory.query(SlotPos.of(1,1)).set(data.getItem().copy()); // middle of dispenser
             igf.prepareInv(inventory, player.getUniqueId()).blockPutInAll().blockTakeOutAll().submitInventory(Signmarket.class, true);
             return;
         }
