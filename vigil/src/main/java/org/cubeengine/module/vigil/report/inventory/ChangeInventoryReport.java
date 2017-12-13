@@ -103,9 +103,6 @@ public class ChangeInventoryReport extends InventoryReport<ChangeInventoryEvent>
                     }
                 }
 
-                System.out.print(originStack + "->" + finalStack + "\n");
-
-
                 boolean added = false;
                 for (Transaction<ItemStack> trans : transactions)
                 {
