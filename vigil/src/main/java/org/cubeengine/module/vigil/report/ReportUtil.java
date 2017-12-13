@@ -35,11 +35,14 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Text.Builder;
+import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.translation.Translation;
 
 import static org.spongepowered.api.text.action.TextActions.showItem;
 import static org.spongepowered.api.text.action.TextActions.showText;
+import static org.spongepowered.api.text.format.TextColors.GOLD;
+import static org.spongepowered.api.text.format.TextColors.YELLOW;
 
 public class ReportUtil
 {
@@ -54,7 +57,7 @@ public class ReportUtil
 
         Builder builder = Text.builder();
 
-        builder.append(Text.of(TextColors.GOLD, trans).toBuilder().onHover(
+        builder.append(Text.of(GOLD, trans).toBuilder().onHover(
             showText(Text.of(type.getName()))).build());
 
         Optional<List<DataView>> items = snapshot.toContainer().getViewList(BlockReport.BLOCK_ITEMS);
@@ -131,6 +134,6 @@ public class ReportUtil
     public static Text name(ItemStackSnapshot itemStackSnapshot)
     {
         Translation trans = itemStackSnapshot.getTranslation();
-        return Text.of(trans).toBuilder().append(Text.of("x", itemStackSnapshot.getQuantity())).build();
+        return Text.of(trans).toBuilder().append(Text.of(YELLOW, " x", GOLD, itemStackSnapshot.getQuantity())).onHover(TextActions.showText(Text.of(itemStackSnapshot.getType().getId()))).build();
     }
 }

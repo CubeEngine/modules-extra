@@ -48,7 +48,7 @@ public class ExplosionReport extends BlockReport<ExplosionEvent.Post> implements
         // TODO test
         Action action = actions.get(0);
         BlockSnapshot snap = action.getCached(BLOCKS_ORIG, Recall::origSnapshot).get();
-        receiver.sendReport(actions, actions.size(),
+        receiver.sendReport(this, actions, actions.size(),
                             "{txt} made boom {txt}",
                             "{txt} made boom {txt} x{}",
                             Recall.cause(action), name(snap, receiver), actions.size());

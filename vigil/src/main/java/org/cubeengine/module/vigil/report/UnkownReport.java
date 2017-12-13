@@ -35,7 +35,7 @@ public class UnkownReport implements Report, Report.Readonly, Report.SimpleGroup
     @Override
     public void showReport(List<Action> actions, Receiver receiver)
     {
-        receiver.sendReport(actions, actions.size(),
+        receiver.sendReport(this, actions, actions.size(),
                 "Unknown Report {input}","Unknown Report {input} {size}",
                 type, actions.size());
     }

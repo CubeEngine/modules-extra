@@ -110,14 +110,14 @@ public class PlaceBlockReport extends BlockReport<ChangeBlockEvent.Place>
 
         if (orig.isPresent() && !orig.get().getState().getType().equals(AIR))
         {
-            receiver.sendReport(actions, actions.size(),
+            receiver.sendReport(this, actions, actions.size(),
                                 "{txt} replace {txt} with {txt}",
                                 "{txt} replace {txt} with {txt} x{}",
                                 cause, name(orig.get(), receiver), name(repl, receiver), actions.size());
         }
         else
         {
-            receiver.sendReport(actions, actions.size(),
+            receiver.sendReport(this, actions, actions.size(),
                                 "{txt} place {txt}",
                                 "{txt} place {txt} x{}",
                                 cause, name(repl, receiver), actions.size());

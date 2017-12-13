@@ -41,7 +41,7 @@ public class ChatReport extends BaseReport<MessageChannelEvent.Chat> implements 
     public void showReport(List<Action> actions, Receiver receiver)
     {
         Action action = actions.get(0);
-        receiver.sendReport(actions, actions.size(), "{txt} wrote {input}", "{txt} spammed {input} x{}",
+        receiver.sendReport(this, actions, actions.size(), "{txt} wrote {input}", "{txt} spammed {input} x{}",
                 Recall.cause(action), action.getData(CHAT), actions.size());
     }
 

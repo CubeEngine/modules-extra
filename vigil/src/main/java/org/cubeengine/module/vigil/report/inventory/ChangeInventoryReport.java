@@ -17,10 +17,22 @@
  */
 package org.cubeengine.module.vigil.report.inventory;
 
+import static org.spongepowered.api.item.inventory.ItemStackComparators.ITEM_DATA;
+import static org.spongepowered.api.item.inventory.ItemStackComparators.PROPERTIES;
+import static org.spongepowered.api.item.inventory.ItemStackComparators.TYPE;
+
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.Observe;
@@ -34,6 +46,8 @@ import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.item.inventory.ClickInventoryEvent;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.Inventory;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStackComparators;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.item.inventory.property.SlotIndex;
 import org.spongepowered.api.item.inventory.transaction.SlotTransaction;
@@ -52,30 +66,117 @@ public class ChangeInventoryReport extends InventoryReport<ChangeInventoryEvent>
     public static final String ORIGINAL = "original";
     public static final String REPLACEMENT = "replacement";
     public static final String SLOT_INDEX = "slot-index";
+    private static final Comparator<ItemStack> COMPARATOR = Ordering.compound(ImmutableList.of(TYPE, PROPERTIES, ITEM_DATA));
 
     @Override
     public void showReport(List<Action> actions, Receiver receiver)
     {
         Text cause = Recall.cause(actions.get(0));
+
+
+
+        LinkedList<Transaction<ItemStack>> transactions = new LinkedList<>();
+
         for (Action action : actions)
         {
             List<Map<String, Object>> changes = action.getData(INVENTORY_CHANGES);
             for (Map<String, Object> change : changes)
             {
-                ItemStackSnapshot originStack = Recall.item(((Map<String, Object>) change.get(ORIGINAL))).get();
-                ItemStackSnapshot finalStack = Recall.item(((Map<String, Object>) change.get(REPLACEMENT))).get();
-                if (originStack.getType() == ItemTypes.AIR)
+                ItemStack originStack = Recall.item(((Map<String, Object>) change.get(ORIGINAL))).get().createStack();
+                ItemStack finalStack = Recall.item(((Map<String, Object>) change.get(REPLACEMENT))).get().createStack();
+
+                if (COMPARATOR.compare(originStack, finalStack) == 0)
                 {
-                    receiver.sendReport(actions, "{txt} placed {txt}", cause, ReportUtil.name(finalStack));
+                    if (originStack.getQuantity() > finalStack.getQuantity())
+                    {
+                        ItemStack stack = originStack;
+                        stack.setQuantity(originStack.getQuantity() - finalStack.getQuantity());
+                        originStack = stack;
+                        finalStack = ItemStack.empty();
+                    }
+                    else
+                    {
+                        ItemStack stack = finalStack;
+                        stack.setQuantity(finalStack.getQuantity() - originStack.getQuantity());
+                        finalStack = stack;
+                        originStack = ItemStack.empty();
+                    }
                 }
-                else if (finalStack.getType() == ItemTypes.AIR)
+
+                System.out.print(originStack + "->" + finalStack + "\n");
+
+
+                boolean added = false;
+                for (Transaction<ItemStack> trans : transactions)
                 {
-                    receiver.sendReport(actions, "{txt} took {txt}", cause, ReportUtil.name(originStack));
+                    if (originStack.isEmpty())
+                    {
+                        if (COMPARATOR.compare(trans.getFinal(), finalStack) == 0 && trans.getOriginal().isEmpty())
+                        {
+                            trans.getFinal().setQuantity(trans.getFinal().getQuantity() + finalStack.getQuantity());
+                            added = true;
+                            break;
+                        }
+                        else if (trans.getFinal().isEmpty() && COMPARATOR.compare(trans.getOriginal(), finalStack) == 0)
+                        {
+                            trans.getOriginal().setQuantity(trans.getOriginal().getQuantity() - finalStack.getQuantity());
+                            added = true;
+                            break;
+                        }
+                        else if (COMPARATOR.compare(trans.getOriginal(), finalStack) == 0)
+                        {
+                            break;
+                        }
+                    }
+                    if (finalStack.isEmpty())
+                    {
+                        if (COMPARATOR.compare(trans.getOriginal(), originStack) == 0)
+                        {
+                            trans.getOriginal().setQuantity(trans.getOriginal().getQuantity() + originStack.getQuantity());
+                            added = true;
+                            break;
+                        }
+                        else if (trans.getOriginal().isEmpty() && COMPARATOR.compare(trans.getFinal(), originStack) == 0)
+                        {
+                            trans.getFinal().setQuantity(trans.getFinal().getQuantity() - originStack.getQuantity());
+                            added = true;
+                            break;
+                        }
+                        else if (COMPARATOR.compare(trans.getFinal(), originStack) == 0)
+                        {
+                            break;
+                        }
+                    }
                 }
-                else
+                if (!added)
                 {
-                    receiver.sendReport(actions, "{txt} replaced {txt} with {txt}", cause, ReportUtil.name(originStack), ReportUtil.name(finalStack));
+                    transactions.addFirst(new Transaction<>(originStack, finalStack));
                 }
+
+            }
+        }
+
+        Collections.reverse(transactions);
+
+        for (Transaction<ItemStack> trans : transactions)
+        {
+            ItemStack stack1 = trans.getOriginal();
+            ItemStack stack2 = trans.getFinal();
+            if (stack1.isEmpty() && stack2.isEmpty())
+            {
+                continue;
+            }
+            if (stack1.getType() == ItemTypes.AIR)
+            {
+                receiver.sendReport(this, actions, "{txt} inserted {txt}", cause, ReportUtil.name(stack2.createSnapshot()));
+            }
+            else if (stack2.getType() == ItemTypes.AIR)
+            {
+                receiver.sendReport(this, actions, "{txt} took {txt}", cause, ReportUtil.name(stack1.createSnapshot()));
+            }
+            else
+            {
+                receiver.sendReport(this, actions, "{txt} swapped {txt} with {txt}", cause, ReportUtil.name(stack1.createSnapshot()), ReportUtil.name(stack2.createSnapshot()));
             }
         }
     }
@@ -83,6 +184,15 @@ public class ChangeInventoryReport extends InventoryReport<ChangeInventoryEvent>
     @Override
     public boolean group(Object lookup, Action action, Action otherAction, Report otherReport)
     {
+        if (!this.equals(otherReport))
+        {
+            return false;
+        }
+        if (Recall.location(action).equals(Recall.location(otherAction))
+         && Recall.cause(action).equals(Recall.cause(otherAction)))
+        {
+            return true;
+        }
         // TODO group by location
         return false;
     }

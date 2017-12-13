@@ -36,7 +36,7 @@ public class InventoryOpenReport extends InventoryReport<InteractInventoryEvent.
     public void showReport(List<Action> actions, Receiver receiver)
     {
         Action action = actions.get(0);
-        receiver.sendReport(actions, actions.size(),
+        receiver.sendReport(this, actions, actions.size(),
                 "{txt} open {txt}",
                 "{txt} open {txt} x{}",
                 Recall.cause(action), Text.of("?"), actions.size());

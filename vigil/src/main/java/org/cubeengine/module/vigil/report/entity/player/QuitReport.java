@@ -59,7 +59,7 @@ public class QuitReport extends BaseReport<ClientConnectionEvent.Disconnect> imp
     public void showReport(List<Action> actions, Receiver receiver)
     {
         Action action = actions.get(0);
-        receiver.sendReport(actions, actions.size(), "{txt} left the game", "{txt} left the game x{}",
+        receiver.sendReport(this, actions, actions.size(), "{txt} left the game", "{txt} left the game x{}",
                 Recall.cause(action), actions.size());
     }
 }

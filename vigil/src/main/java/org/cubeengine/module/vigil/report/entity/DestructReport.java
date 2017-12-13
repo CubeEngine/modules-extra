@@ -84,14 +84,14 @@ public class DestructReport extends EntityReport<DestructEntityEvent>
                 count = actions.size();
             }
 
-            receiver.sendReport(actions, count,
+            receiver.sendReport(this, actions, count,
                                 "{txt} destroyed {txt}",
                                 "{txt} destroyed {txt} x{}",
                                 cause, Text.of(name, ": ", item), count);
         }
         else if (Living.class.isAssignableFrom(entity.getType().getEntityClass()))
         {
-            receiver.sendReport(actions, actions.size(),
+            receiver.sendReport(this, actions, actions.size(),
                                 "{txt} killed {txt}",
                                 "{txt} killed {txt} x{}",
                                 cause, ReportUtil.name(entity), actions.size());
@@ -105,14 +105,14 @@ public class DestructReport extends EntityReport<DestructEntityEvent>
                 exp += orb.get(Keys.CONTAINED_EXPERIENCE).orElse(0);
             }
 
-            receiver.sendReport(actions, actions.size(),
+            receiver.sendReport(this, actions, actions.size(),
                                 "{txt} picked up an ExpOrb worth {2:amount} points",
                                 "{txt} picked up {amount} ExpOrbs worth {amount} points",
                                 cause, actions.size(), exp);
         }
         else
         {
-            receiver.sendReport(actions, actions.size(),
+            receiver.sendReport(this, actions, actions.size(),
                                 "{txt} destroyed {txt}",
                                 "{txt} destroyed {txt} x{}",
                                 cause, ReportUtil.name(entity), actions.size());

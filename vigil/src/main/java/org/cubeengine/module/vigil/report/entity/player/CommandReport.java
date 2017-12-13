@@ -50,7 +50,7 @@ public class CommandReport extends BaseReport<SendCommandEvent> implements Reado
     public void showReport(List<Action> actions, Receiver receiver)
     {
         Action action = actions.get(0);
-        receiver.sendReport(actions, actions.size(), "{txt} used {input}", "{txt} used {input} x{}",
+        receiver.sendReport(this, actions, actions.size(), "{txt} used {input}", "{txt} used {input} x{}",
                 Recall.cause(action), action.getData(COMMAND), actions.size());
     }
 

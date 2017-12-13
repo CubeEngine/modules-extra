@@ -17,8 +17,8 @@
  */
 package org.cubeengine.module.vigil.report.block;
 
-import java.util.List;
-import java.util.Optional;
+import static org.cubeengine.module.vigil.report.ReportUtil.name;
+
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.Recall;
@@ -29,11 +29,10 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
-import org.spongepowered.api.event.filter.IsCancelled;
 import org.spongepowered.api.event.filter.cause.First;
-import org.spongepowered.api.util.Tristate;
 
-import static org.cubeengine.module.vigil.report.ReportUtil.name;
+import java.util.List;
+import java.util.Optional;
 
 /* TODO Break
 Sign
@@ -94,7 +93,7 @@ public class BreakBlockReport extends BlockReport<ChangeBlockEvent.Break>
 
     private void showReport(List<Action> actions, Receiver receiver, Action action, BlockSnapshot orig)
     {
-        receiver.sendReport(actions, actions.size(),
+        receiver.sendReport(this, actions, actions.size(),
                             "{txt} break {txt}",
                             "{txt} break {txt} x{}",
                             Recall.cause(action), name(orig, receiver), actions.size());

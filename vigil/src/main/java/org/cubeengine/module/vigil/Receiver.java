@@ -26,6 +26,7 @@ import java.util.Locale;
 import org.cubeengine.libcube.util.StringUtils;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.Recall;
+import org.cubeengine.module.vigil.report.Report;
 import org.cubeengine.module.vigil.report.ReportActions;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.joda.time.Period;
@@ -37,6 +38,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.pagination.PaginationList.Builder;
 import org.spongepowered.api.service.pagination.PaginationService;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.action.HoverAction;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.chat.ChatTypes;
 import org.spongepowered.api.text.format.TextColors;
@@ -71,14 +73,18 @@ public class Receiver
     }
 
     // TODO translate msgs on this method
-    public void sendReport(List<Action> actions, String msg, Object... args)
+    public void sendReport(Report report, List<Action> actions, String msg, Object... args)
     {
-        sendReport(actions, i18n.translate(cmdSource, NEUTRAL, msg, args));
+        Text trans = i18n.translate(cmdSource, NEUTRAL, msg, args)
+                .toBuilder().onHover(TextActions.showText(Text.of(report.getClass().getSimpleName()))).build();
+        sendReport(actions, trans);
     }
 
-    public void sendReport(List<Action> actions, int size, String msgSingular, String msgPlural, Object... args)
+    public void sendReport(Report report, List<Action> actions, int size, String msgSingular, String msgPlural, Object... args)
     {
-        sendReport(actions, i18n.translateN(cmdSource, NEUTRAL, size, msgSingular, msgPlural, args));
+        Text trans = i18n.translateN(cmdSource, NEUTRAL, size, msgSingular, msgPlural, args)
+                .toBuilder().onHover(TextActions.showText(Text.of(report.getClass().getSimpleName()))).build();
+        sendReport(actions, trans);
     }
 
     private static final SimpleDateFormat dateShort = new SimpleDateFormat("yy-MM-dd");
