@@ -17,6 +17,8 @@
  */
 package org.cubeengine.module.chat.listener;
 
+import static org.spongepowered.api.event.Order.POST;
+
 import org.cubeengine.module.chat.Chat;
 import org.cubeengine.module.chat.command.AfkCommand;
 import org.spongepowered.api.entity.living.player.Player;
@@ -27,12 +29,10 @@ import org.spongepowered.api.event.command.TabCompleteEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.entity.projectile.LaunchProjectileEvent;
-import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
-
-import static org.spongepowered.api.event.Order.POST;
 
 public class AfkListener
 {
@@ -61,52 +61,52 @@ public class AfkListener
     }
 
     @Listener(order = POST)
-    public void onInventoryInteract(InteractInventoryEvent event, @First Player player)
+    public void onInventoryInteract(InteractInventoryEvent event, @Root Player player)
     {
         this.updateLastAction(player);
     }
 
     @Listener(order = POST)
-    public void playerInteract(InteractBlockEvent event, @First Player player)
+    public void playerInteract(InteractBlockEvent event, @Root Player player)
     {
         this.updateLastAction(player);
     }
 
 
     @Listener(order = POST)
-    public void playerInteract(InteractEntityEvent event, @First Player player)
+    public void playerInteract(InteractEntityEvent event, @Root Player player)
     {
         this.updateLastAction(player);
     }
 
     @Listener(order = POST)
-    public void onChat(MessageChannelEvent event, @First Player player)
+    public void onChat(MessageChannelEvent event, @Root Player player)
     {
         this.updateLastAction(player);
         afkCommand.run();
     }
 
     @Listener(order = POST)
-    public void onCommand(SendCommandEvent event, @First Player player)
+    public void onCommand(SendCommandEvent event, @Root Player player)
     {
         this.updateLastAction(player);
     }
 
     @Listener(order = POST)
-    public void onTabComplete(TabCompleteEvent event, @First Player player)
+    public void onTabComplete(TabCompleteEvent event, @Root Player player)
     {
         this.updateLastAction(player);
     }
 
     @Listener(order = POST)
-    public void onLeave(ClientConnectionEvent.Disconnect event, @First Player player)
+    public void onLeave(ClientConnectionEvent.Disconnect event, @Root Player player)
     {
         afkCommand.setAfk(player, false);
         afkCommand.resetLastAction(player);
     }
 
     @Listener(order = POST)
-    public void onBowShot(LaunchProjectileEvent event, @First Player source)
+    public void onBowShot(LaunchProjectileEvent event, @Root Player source)
     {
         this.updateLastAction(source);
     }
