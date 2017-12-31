@@ -32,23 +32,17 @@ import org.spongepowered.api.data.value.mutable.Value;
 
 public interface ILookupData
 {
-
-    TypeToken<UUID> TT_UUID = new TypeToken<UUID>() {};
     TypeToken<Value<UUID>> TTV_UUID = new TypeToken<Value<UUID>>() {};
-
-    TypeToken<Boolean> TT_Bool = new TypeToken<Boolean>() {};
     TypeToken<Value<Boolean>> TTV_Bool = new TypeToken<Value<Boolean>>() {};
-
-    TypeToken<List<String>> TTL_String = new TypeToken<List<String>>() {};
     TypeToken<ListValue<String>> TTLV_String = new TypeToken<ListValue<String>>() {};
 
-    Key<Value<UUID>> CREATOR = makeSingleKey(TT_UUID, TTV_UUID, of("creator"), "cubeengine-vigil:creator", "Creator");
-    Key<Value<Boolean>> FULLDATE = makeSingleKey(TT_Bool, TTV_Bool, of("fulldate"), "cubeengine-vigil:isfulldate", "Full Date");
-    Key<Value<Boolean>> SHOWLOC = makeSingleKey(TT_Bool, TTV_Bool, of("showloc"), "cubeengine-vigil:showloc", "Show Location");
-    Key<Value<Boolean>> NODATE = makeSingleKey(TT_Bool, TTV_Bool, of("nodate"), "cubeengine-vigil:nodate", "No Date");
-    Key<Value<Boolean>> FULLLOC = makeSingleKey(TT_Bool, TTV_Bool, of("fullloc"), "cubeengine-vigil:fullloc", "Full Location");
-    Key<Value<Boolean>> DETAILINV = makeSingleKey(TT_Bool, TTV_Bool, of("detailinv"), "cubeengine-vigil:detailinv", "Detailed Inventory");
-    Key<ListValue<String>> REPORTS = makeSingleKey(TTL_String, TTLV_String, of("reports"), "cubeengine-vigil:reports", "Filtered Reports");
+    Key<Value<UUID>> CREATOR = Key.builder().type(TTV_UUID).query(of("creator")).id("cubeengine-vigil:creator").name("Creator").build();
+    Key<Value<Boolean>> FULLDATE = Key.builder().type(TTV_Bool).query(of("fulldate")).id("cubeengine-vigil:isfulldate").name("Full Date").build();
+    Key<Value<Boolean>> SHOWLOC = Key.builder().type(TTV_Bool).query(of("showloc")).id("cubeengine-vigil:showloc").name("Show Location").build();
+    Key<Value<Boolean>> NODATE = Key.builder().type(TTV_Bool).query(of("nodate")).id("cubeengine-vigil:nodate").name("No Date").build();
+    Key<Value<Boolean>> FULLLOC = Key.builder().type(TTV_Bool).query(of("fullloc")).id("cubeengine-vigil:fullloc").name("Full Location").build();
+    Key<Value<Boolean>> DETAILINV = Key.builder().type(TTV_Bool).query(of("detailinv")).id("cubeengine-vigil:detailinv").name("Detailed Inventory").build();
+    Key<ListValue<String>> REPORTS = Key.builder().type(TTLV_String).query(of("reports")).id("cubeengine-vigil:reports").name("Filtered Reports").build();
 
     UUID getCreator();
     boolean isFullDate();

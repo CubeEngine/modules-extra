@@ -21,7 +21,6 @@ import static org.spongepowered.api.data.DataQuery.of;
 
 import com.google.common.reflect.TypeToken;
 import org.spongepowered.api.data.key.Key;
-import org.spongepowered.api.data.key.KeyFactory;
 import org.spongepowered.api.data.value.mutable.MapValue;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.Direction;
@@ -31,10 +30,9 @@ import java.util.Map;
 
 public interface IDuctData
 {
-    TypeToken<Map<Direction, List<ItemStack>>> TT_ItemDirection = new TypeToken<Map<Direction, List<ItemStack>>>() {};
     TypeToken<MapValue<Direction, List<ItemStack>>> TTV_ItemDirection = new TypeToken<MapValue<Direction, List<ItemStack>>>() {};
 
-    Key<MapValue<Direction, List<ItemStack>>> FILTERS = KeyFactory.makeMapKey(TT_ItemDirection, TTV_ItemDirection, of("ductfilters"), "cubeengine-itemduct:filters", "ItemDuct Filters");
+    Key<MapValue<Direction, List<ItemStack>>> FILTERS = Key.builder().type(TTV_ItemDirection).query(of("ductfilters")).id("cubeengine-itemduct:filters").name("ItemDuct Filters").build();
 
     Map<Direction, List<ItemStack>> getFilters();
 }

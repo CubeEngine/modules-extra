@@ -35,15 +35,11 @@ import java.util.Optional;
 
 public class KitData extends AbstractData<KitData, ImmutableKitData>
 {
-    private static TypeToken<Map<String, Long>> TTM_SL = new TypeToken<Map<String, Long>>() {};
     private static TypeToken<MapValue<String, Long>> TTMV_SL = new TypeToken<MapValue<String, Long>>() {};
-
-    private static TypeToken<Map<String, Integer>> TTM_SI = new TypeToken<Map<String, Integer>>() {};
     private static TypeToken<MapValue<String, Integer>> TTMV_SI = new TypeToken<MapValue<String, Integer>>() {};
 
-    public static Key<MapValue<String, Long>> TIME = makeMapKey(TTM_SL, TTMV_SL, of("time_data"), "cubeengine-kits:time_data", "TimeData");
-    public static Key<MapValue<String, Integer>> TIMES = makeMapKey(TTM_SI, TTMV_SI, of("times_data"), "cubeengine-kits:times_data",
-            "TimesData");
+    public static Key<MapValue<String, Long>> TIME = Key.builder().type(TTMV_SL).query(of("time_data")).id("cubeengine-kits:time_data").name("TimeData").build();
+    public static Key<MapValue<String, Integer>> TIMES = Key.builder().type(TTMV_SI).query(of("times_data")).id("cubeengine-kits:times_data").name("TimesData").build();
 
     private Map<String, Long> time;
     private Map<String, Integer> times;

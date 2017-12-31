@@ -29,13 +29,11 @@ import java.util.UUID;
 
 public interface IElevatorData
 {
-    TypeToken<UUID> TT_UUID = new TypeToken<UUID>() {};
     TypeToken<Value<UUID>> TTV_UUID = new TypeToken<Value<UUID>>() {};
-    TypeToken<Vector3i> TT_VECTOR = new TypeToken<Vector3i>() {};
     TypeToken<Value<Vector3i>> TTV_VECTOR = new TypeToken<Value<Vector3i>>() {};
 
-    Key<Value<UUID>> OWNER = makeSingleKey(TT_UUID, TTV_UUID, of("owner"), "cubeengine-elevator:owner", "Owner");
-    Key<Value<Vector3i>> TARGET = makeSingleKey(TT_VECTOR, TTV_VECTOR, of("target"), "cubeengine-elevator:target", "Target");
+    Key<Value<UUID>> OWNER = Key.builder().type(TTV_UUID).query(of("owner")).id("cubeengine-elevator:owner").name("Owner").build();
+    Key<Value<Vector3i>> TARGET = Key.builder().type(TTV_VECTOR).query(of("target")).id("cubeengine-elevator:target").name("Target").build();
 
     UUID getOwner();
     Vector3i getTarget();

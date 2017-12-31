@@ -31,26 +31,21 @@ public interface IMarketSignData
 {
     UUID ADMIN_SIGN = UUID.nameUUIDFromBytes("ADMIN".getBytes());
 
-    TypeToken<UUID> TT_UUID = new TypeToken<UUID>() {};
-    TypeToken<SignType> TT_SignType = new TypeToken<SignType>() {};
     TypeToken<Value<UUID>> TTV_UUID = new TypeToken<Value<UUID>>() {};
     TypeToken<Value<SignType>> TTV_SignType = new TypeToken<Value<SignType>>() {};
-    TypeToken<Integer> TT_Int = new TypeToken<Integer>() {};
     TypeToken<Value<Integer>> TTV_Int = new TypeToken<Value<Integer>>() {};
-    TypeToken<Double> TT_Double = new TypeToken<Double>() {};
     TypeToken<Value<Double>> TTV_Double = new TypeToken<Value<Double>>() {};
-    TypeToken<ItemStack> TT_ItemStack = new TypeToken<ItemStack>() {};
     TypeToken<Value<ItemStack>> TTV_ItemStack = new TypeToken<Value<ItemStack>>() {};
 
     Key<Value<UUID>> ID = Key.builder().type(TTV_UUID).id("cubeengine-signmarket:signdata-id").name("ID").query(of("id")).build();
     Key<Value<SignType>> SIGN_TYPE = Key.builder().type(TTV_SignType).id("cubeengine-signmarket:signdata-type").name("SignType").query(of("signType")).build();
     Key<Value<UUID>> OWNER = Key.builder().type(TTV_UUID).id("cubeengine-signmarket:signdata-owner").name("Owner").query(of("owner")).build();
     Key<Value<Integer>> AMOUNT = Key.builder().type(TTV_Int).id("cubeengine-signmarket:signdata-amount").name("Amount").query(of("amount")).build();
-    Key<Value<Integer>> DEMAND = makeSingleKey(TT_Int, TTV_Int, of("demand"), "cubeengine-signmarket:signdata-demand", "Demand");
-    Key<Value<Double>> PRICE = makeSingleKey(TT_Double, TTV_Double, of("price"), "cubeengine-signmarket:signdata-price", "Price");
-    Key<Value<ItemStack>> ITEM = makeSingleKey(TT_ItemStack, TTV_ItemStack, of("item"), "cubeengine-signmarket:signdata-item", "Item");
-    Key<Value<Integer>> STOCK = makeSingleKey(TT_Int, TTV_Int, of("stock"), "cubeengine-signmarket:signdata-stock", "Stock");
-    Key<Value<Integer>> SIZE = makeSingleKey(TT_Int, TTV_Int, of("size"), "cubeengine-signmarket:signdata-size", "Size");
+    Key<Value<Integer>> DEMAND = Key.builder().type(TTV_Int).query(of("demand")).id("cubeengine-signmarket:signdata-demand").name("Demand").build();
+    Key<Value<Double>> PRICE = Key.builder().type(TTV_Double).query(of("price")).id("cubeengine-signmarket:signdata-price").name("Price").build();
+    Key<Value<ItemStack>> ITEM = Key.builder().type(TTV_ItemStack).query(of("item")).id("cubeengine-signmarket:signdata-item").name("Item").build();
+    Key<Value<Integer>> STOCK = Key.builder().type(TTV_Int).query(of("stock")).id("cubeengine-signmarket:signdata-stock").name("Stock").build();
+    Key<Value<Integer>> SIZE = Key.builder().type(TTV_Int).query(of("size")).id("cubeengine-signmarket:signdata-size").name("Size").build();
 
     UUID getID();
     SignType getSignType();
