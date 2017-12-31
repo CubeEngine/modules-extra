@@ -71,6 +71,7 @@ public class Signmarket extends CubeEngineModule
                         .builder(new MarketSignDataBuilder()).manipulatorId("market_sign")
                         .dataName("CubeEngine SignMarket Data")
                         .buildAndRegister(plugin);
+        MarketSignData.AMOUNT.getQuery();
 
         Sponge.getDataManager().registerLegacyManipulatorIds(MarketSignData.class.getName(), dr);
 

@@ -70,6 +70,7 @@ public class Kits extends CubeEngineModule
                 .dataName("CubeEngine Kits Data")
                 .buildAndRegister(plugin);
         Sponge.getDataManager().registerLegacyManipulatorIds(KitData.class.getName(), dr);
+        KitData.TIME.getQuery();
 
         this.kitManager = new KitManager(this, reflector, sm);
         this.kitManager.loadKits();

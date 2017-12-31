@@ -81,6 +81,8 @@ public class ItemDuctManager
                     .dataName("CubeEngine ItemDuct Data")
                     .buildAndRegister(plugin);
 
+            DuctData.FILTERS.getQuery();
+
             Ingredient hopper = Ingredient.of(ItemTypes.HOPPER);
             activatorItem = ItemStack.of(ItemTypes.HOPPER, 1);
             activatorItem.offer(Keys.ITEM_ENCHANTMENTS, singletonList(Enchantment.builder().type(EnchantmentTypes.LOOTING).level(1).build()));
