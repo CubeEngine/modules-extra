@@ -34,7 +34,7 @@ public interface IDuctData
     TypeToken<Map<Direction, List<ItemStack>>> TT_ItemDirection = new TypeToken<Map<Direction, List<ItemStack>>>() {};
     TypeToken<MapValue<Direction, List<ItemStack>>> TTV_ItemDirection = new TypeToken<MapValue<Direction, List<ItemStack>>>() {};
 
-    Key<MapValue<Direction, List<ItemStack>>> FILTERS = KeyFactory.makeMapKey(TT_ItemDirection, TTV_ItemDirection, of("ductfilters"), "cubeengine:itemduct:filters", "ItemDuct Filters");
+    Key<MapValue<Direction, List<ItemStack>>> FILTERS = KeyFactory.makeMapKey(TT_ItemDirection, TTV_ItemDirection, of("ductfilters"), "cubeengine-itemduct:filters", "ItemDuct Filters");
 
     Map<Direction, List<ItemStack>> getFilters();
 }

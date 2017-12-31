@@ -34,8 +34,8 @@ public interface IElevatorData
     TypeToken<Vector3i> TT_VECTOR = new TypeToken<Vector3i>() {};
     TypeToken<Value<Vector3i>> TTV_VECTOR = new TypeToken<Value<Vector3i>>() {};
 
-    Key<Value<UUID>> OWNER = makeSingleKey(TT_UUID, TTV_UUID, of("owner"), "cubeengine:elevator:owner", "Owner");
-    Key<Value<Vector3i>> TARGET = makeSingleKey(TT_VECTOR, TTV_VECTOR, of("target"), "cubeengine:elevator:target", "Target");
+    Key<Value<UUID>> OWNER = makeSingleKey(TT_UUID, TTV_UUID, of("owner"), "cubeengine-elevator:owner", "Owner");
+    Key<Value<Vector3i>> TARGET = makeSingleKey(TT_VECTOR, TTV_VECTOR, of("target"), "cubeengine-elevator:target", "Target");
 
     UUID getOwner();
     Vector3i getTarget();

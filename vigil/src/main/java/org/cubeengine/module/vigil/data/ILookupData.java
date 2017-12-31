@@ -42,13 +42,13 @@ public interface ILookupData
     TypeToken<List<String>> TTL_String = new TypeToken<List<String>>() {};
     TypeToken<ListValue<String>> TTLV_String = new TypeToken<ListValue<String>>() {};
 
-    Key<Value<UUID>> CREATOR = makeSingleKey(TT_UUID, TTV_UUID, of("creator"), "cubeengine:vigil:creator", "Creator");
-    Key<Value<Boolean>> FULLDATE = makeSingleKey(TT_Bool, TTV_Bool, of("fulldate"), "cubeengine:vigil:isfulldate", "Full Date");
-    Key<Value<Boolean>> SHOWLOC = makeSingleKey(TT_Bool, TTV_Bool, of("showloc"), "cubeengine:vigil:showloc", "Show Location");
-    Key<Value<Boolean>> NODATE = makeSingleKey(TT_Bool, TTV_Bool, of("nodate"), "cubeengine:vigil:nodate", "No Date");
-    Key<Value<Boolean>> FULLLOC = makeSingleKey(TT_Bool, TTV_Bool, of("fullloc"), "cubeengine:vigil:fullloc", "Full Location");
-    Key<Value<Boolean>> DETAILINV = makeSingleKey(TT_Bool, TTV_Bool, of("detailinv"), "cubeengine:vigil:detailinv", "Detailed Inventory");
-    Key<ListValue<String>> REPORTS = makeSingleKey(TTL_String, TTLV_String, of("reports"), "cubeengine:vigil:reports", "Filtered Reports");
+    Key<Value<UUID>> CREATOR = makeSingleKey(TT_UUID, TTV_UUID, of("creator"), "cubeengine-vigil:creator", "Creator");
+    Key<Value<Boolean>> FULLDATE = makeSingleKey(TT_Bool, TTV_Bool, of("fulldate"), "cubeengine-vigil:isfulldate", "Full Date");
+    Key<Value<Boolean>> SHOWLOC = makeSingleKey(TT_Bool, TTV_Bool, of("showloc"), "cubeengine-vigil:showloc", "Show Location");
+    Key<Value<Boolean>> NODATE = makeSingleKey(TT_Bool, TTV_Bool, of("nodate"), "cubeengine-vigil:nodate", "No Date");
+    Key<Value<Boolean>> FULLLOC = makeSingleKey(TT_Bool, TTV_Bool, of("fullloc"), "cubeengine-vigil:fullloc", "Full Location");
+    Key<Value<Boolean>> DETAILINV = makeSingleKey(TT_Bool, TTV_Bool, of("detailinv"), "cubeengine-vigil:detailinv", "Detailed Inventory");
+    Key<ListValue<String>> REPORTS = makeSingleKey(TTL_String, TTLV_String, of("reports"), "cubeengine-vigil:reports", "Filtered Reports");
 
     UUID getCreator();
     boolean isFullDate();

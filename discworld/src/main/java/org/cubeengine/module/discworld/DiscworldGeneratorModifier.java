@@ -33,7 +33,7 @@ public class DiscworldGeneratorModifier implements WorldGeneratorModifier
     @Override
     public String getId()
     {
-        return "cubeengine:discworld:identifier";
+        return "cubeengine-discworld:identifier";
     }
 
     @Override

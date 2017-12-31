@@ -35,13 +35,13 @@ public class SignTypeSerializer implements DataTranslator<SignType>
 {
     public static final Key<Value<String>> SIGN_TYPE = KeyFactory.makeSingleKey(
             new TypeToken<String>() {}, new TypeToken<Value<String>>() {},
-            of("type"), "cubeengine:signmarket:signtype", "Serializer");
+            of("type"), "cubeengine-signmarket:signtype", "Serializer");
     private final TypeToken<SignType> token = TypeToken.of(SignType.class);
 
     @Override
     public String getId()
     {
-        return "cubeengine:signmarket:signtype";
+        return "cubeengine-signmarket:signtype";
     }
 
     @Override
@@ -70,6 +70,6 @@ public class SignTypeSerializer implements DataTranslator<SignType>
     @Override
     public DataContainer translate(SignType obj) throws InvalidDataException
     {
-        return new MemoryDataContainer().set(SIGN_TYPE, obj.name());
+        return DataContainer.createNew().set(SIGN_TYPE, obj.name());
     }
 }

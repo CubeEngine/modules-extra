@@ -30,7 +30,7 @@ public interface IPowertoolData
     TypeToken<List<String>> TTL_String = new TypeToken<List<String>>() {};
     TypeToken<ListValue<String>> TTLV_String = new TypeToken<ListValue<String>>() {};
 
-    Key<ListValue<String>> POWERS = KeyFactory.makeListKey(TTL_String, TTLV_String, DataQuery.of("powers"), "cubeengine:powertools:data", "Powertool");
+    Key<ListValue<String>> POWERS = KeyFactory.makeListKey(TTL_String, TTLV_String, DataQuery.of("powers"), "cubeengine-powertools:data", "Powertool");
 
     List<String> getPowers();
 }

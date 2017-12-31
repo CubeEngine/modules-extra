@@ -41,8 +41,8 @@ public class KitData extends AbstractData<KitData, ImmutableKitData>
     private static TypeToken<Map<String, Integer>> TTM_SI = new TypeToken<Map<String, Integer>>() {};
     private static TypeToken<MapValue<String, Integer>> TTMV_SI = new TypeToken<MapValue<String, Integer>>() {};
 
-    public static Key<MapValue<String, Long>> TIME = makeMapKey(TTM_SL, TTMV_SL, of("time_data"), "cubeengine:kits:time_data", "TimeData");
-    public static Key<MapValue<String, Integer>> TIMES = makeMapKey(TTM_SI, TTMV_SI, of("times_data"), "cubeengine:kits:times_data",
+    public static Key<MapValue<String, Long>> TIME = makeMapKey(TTM_SL, TTMV_SL, of("time_data"), "cubeengine-kits:time_data", "TimeData");
+    public static Key<MapValue<String, Integer>> TIMES = makeMapKey(TTM_SI, TTMV_SI, of("times_data"), "cubeengine-kits:times_data",
             "TimesData");
 
     private Map<String, Long> time;

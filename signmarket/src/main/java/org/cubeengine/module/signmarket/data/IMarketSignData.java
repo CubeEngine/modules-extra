@@ -42,15 +42,15 @@ public interface IMarketSignData
     TypeToken<ItemStack> TT_ItemStack = new TypeToken<ItemStack>() {};
     TypeToken<Value<ItemStack>> TTV_ItemStack = new TypeToken<Value<ItemStack>>() {};
 
-    Key<Value<UUID>> ID = makeSingleKey(TT_UUID, TTV_UUID, of("id"), "cubeengine:signmarket:signdata-id", "ID");
-    Key<Value<SignType>> SIGN_TYPE = makeSingleKey(TT_SignType, TTV_SignType, of("signType"), "cubeengine:signmarket:signdata-type", "SignType");
-    Key<Value<UUID>> OWNER = makeSingleKey(TT_UUID, TTV_UUID, of("owner"), "cubeengine:signmarket:signdata-owner", "Owner");
-    Key<Value<Integer>> AMOUNT = makeSingleKey(TT_Int, TTV_Int, of("amount"), "cubeengine:signmarket:signdata-amount", "Amount");
-    Key<Value<Integer>> DEMAND = makeSingleKey(TT_Int, TTV_Int, of("demand"), "cubeengine:signmarket:signdata-demand", "Demand");
-    Key<Value<Double>> PRICE = makeSingleKey(TT_Double, TTV_Double, of("price"), "cubeengine:signmarket:signdata-price", "Price");
-    Key<Value<ItemStack>> ITEM = makeSingleKey(TT_ItemStack, TTV_ItemStack, of("item"), "cubeengine:signmarket:signdata-item", "Item");
-    Key<Value<Integer>> STOCK = makeSingleKey(TT_Int, TTV_Int, of("stock"), "cubeengine:signmarket:signdata-stock", "Stock");
-    Key<Value<Integer>> SIZE = makeSingleKey(TT_Int, TTV_Int, of("size"), "cubeengine:signmarket:signdata-size", "Size");
+    Key<Value<UUID>> ID = makeSingleKey(TT_UUID, TTV_UUID, of("id"), "cubeengine-signmarket:signdata-id", "ID");
+    Key<Value<SignType>> SIGN_TYPE = makeSingleKey(TT_SignType, TTV_SignType, of("signType"), "cubeengine-signmarket:signdata-type", "SignType");
+    Key<Value<UUID>> OWNER = makeSingleKey(TT_UUID, TTV_UUID, of("owner"), "cubeengine-signmarket:signdata-owner", "Owner");
+    Key<Value<Integer>> AMOUNT = makeSingleKey(TT_Int, TTV_Int, of("amount"), "cubeengine-signmarket:signdata-amount", "Amount");
+    Key<Value<Integer>> DEMAND = makeSingleKey(TT_Int, TTV_Int, of("demand"), "cubeengine-signmarket:signdata-demand", "Demand");
+    Key<Value<Double>> PRICE = makeSingleKey(TT_Double, TTV_Double, of("price"), "cubeengine-signmarket:signdata-price", "Price");
+    Key<Value<ItemStack>> ITEM = makeSingleKey(TT_ItemStack, TTV_ItemStack, of("item"), "cubeengine-signmarket:signdata-item", "Item");
+    Key<Value<Integer>> STOCK = makeSingleKey(TT_Int, TTV_Int, of("stock"), "cubeengine-signmarket:signdata-stock", "Stock");
+    Key<Value<Integer>> SIZE = makeSingleKey(TT_Int, TTV_Int, of("size"), "cubeengine-signmarket:signdata-size", "Size");
 
     UUID getID();
     SignType getSignType();
