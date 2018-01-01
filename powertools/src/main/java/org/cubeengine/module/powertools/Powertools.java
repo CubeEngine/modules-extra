@@ -22,10 +22,10 @@ import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.matcher.MaterialMatcher;
+import org.cubeengine.module.powertools.data.IPowertoolData;
 import org.cubeengine.module.powertools.data.ImmutablePowertoolData;
 import org.cubeengine.module.powertools.data.PowertoolData;
 import org.cubeengine.module.powertools.data.PowertoolDataBuilder;
-import org.cubeengine.processor.Dependency;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.event.Listener;
@@ -56,6 +56,8 @@ public class Powertools extends CubeEngineModule
                 .builder(new PowertoolDataBuilder()).manipulatorId("powertools")
                 .dataName("CubeEngine PowerTools Data")
                 .buildAndRegister(plugin);
+
+        IPowertoolData.POWERS.getQuery();
 
         PowertoolCommand ptCommands = new PowertoolCommand(cm, this, materialMatcher, i18n);
         cm.addCommand(ptCommands);

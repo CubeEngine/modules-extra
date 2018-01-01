@@ -22,7 +22,7 @@ import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NONE;
 import static org.cubeengine.module.vote.storage.TableVote.TABLE_VOTE;
 
 import com.vexsoftware.votifier.sponge.event.VotifierEvent;
-import de.cubeisland.engine.logscribe.Log;
+import org.cubeengine.logscribe.Log;
 import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.InjectService;
 import org.cubeengine.libcube.ModuleManager;

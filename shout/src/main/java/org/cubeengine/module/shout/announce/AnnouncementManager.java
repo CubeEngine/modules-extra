@@ -32,7 +32,7 @@ import java.util.UUID;
 import org.cubeengine.reflect.Reflector;
 import org.cubeengine.module.shout.Shout;
 import org.cubeengine.libcube.service.i18n.I18n;
-import de.cubeisland.engine.logscribe.Log;
+import org.cubeengine.logscribe.Log;
 import org.cubeengine.module.shout.announce.task.DynamicCycleTask;
 import org.cubeengine.libcube.service.matcher.StringMatcher;
 import org.cubeengine.libcube.service.permission.PermissionManager;

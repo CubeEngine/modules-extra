@@ -23,9 +23,10 @@ import static org.cubeengine.libcube.util.StringUtils.deCamelCase;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import de.cubeisland.engine.logscribe.Log;
-import de.cubeisland.engine.logscribe.LogFactory;
-import de.cubeisland.engine.logscribe.target.file.AsyncFileTarget;
+import com.sun.javafx.binding.SelectBinding;
+import org.cubeengine.logscribe.Log;
+import org.cubeengine.logscribe.LogFactory;
+import org.cubeengine.logscribe.target.file.AsyncFileTarget;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
@@ -121,10 +122,10 @@ public class ApiServer extends CubeEngineModule
         this.tf = mm.getThreadFactory(this.getClass());
         this.log = logFactory.getLog(ApiServer.class, "WebAPI");
         this.mm = mm;
-        this.log.addTarget(new AsyncFileTarget(LoggingUtil.getLogFile(fm, "WebAPI"),
-                                                  LoggingUtil.getFileFormat(true, true),
-                                                  true, LoggingUtil.getCycler(),
-                                                  tf));
+        this.log.addTarget(
+                new AsyncFileTarget.Builder(LoggingUtil.getLogFile(fm, "WebAPI").toPath(),
+                        LoggingUtil.getFileFormat(true, true)
+                        ).setAppend(true).setCycler(LoggingUtil.getCycler()).setThreadFactory(tf).build());
         // TODO this.log.addTarget(new LogProxyTarget(logFactory.getParent()));
         try
         {

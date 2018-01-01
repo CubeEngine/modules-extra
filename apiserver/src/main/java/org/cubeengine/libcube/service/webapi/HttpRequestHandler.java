@@ -28,7 +28,7 @@ import java.util.concurrent.CompletableFuture;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.cubeisland.engine.logscribe.Log;
+import org.cubeengine.logscribe.Log;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;

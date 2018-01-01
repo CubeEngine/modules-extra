@@ -21,16 +21,6 @@ import static org.spongepowered.api.item.inventory.ItemStackComparators.ITEM_DAT
 import static org.spongepowered.api.item.inventory.ItemStackComparators.PROPERTIES;
 import static org.spongepowered.api.item.inventory.ItemStackComparators.TYPE;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import org.cubeengine.module.vigil.Receiver;
@@ -39,19 +29,26 @@ import org.cubeengine.module.vigil.report.Observe;
 import org.cubeengine.module.vigil.report.Recall;
 import org.cubeengine.module.vigil.report.Report;
 import org.cubeengine.module.vigil.report.ReportUtil;
-import org.spongepowered.api.block.tileentity.TileEntity;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.item.inventory.ClickInventoryEvent;
 import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.inventory.BlockCarrier;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackComparators;
-import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.item.inventory.property.SlotIndex;
+import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
 import org.spongepowered.api.item.inventory.transaction.SlotTransaction;
 import org.spongepowered.api.text.Text;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /* TODO
 inventory
@@ -215,16 +212,16 @@ public class ChangeInventoryReport extends InventoryReport<ChangeInventoryEvent>
             }
         }
 
-        Inventory te = event.getTargetInventory().query(TileEntity.class);
-        if (!(te instanceof TileEntity))
+        Inventory te = event.getTargetInventory().query(QueryOperationTypes.TYPE.of(BlockCarrier.class));
+        if (!(te instanceof BlockCarrier))
         {
             te = te.first();
         }
-        if (te instanceof TileEntity)
+        if (te instanceof BlockCarrier)
         {
             Action action = this.observe(event);
             action.addData(INVENTORY_CHANGES, Observe.transactions(upperTransactions));
-            action.addData(Report.LOCATION, Observe.location(((TileEntity) te).getLocation()));
+            action.addData(Report.LOCATION, Observe.location(((BlockCarrier) te).getLocation()));
             this.report(action);
         }
     }
