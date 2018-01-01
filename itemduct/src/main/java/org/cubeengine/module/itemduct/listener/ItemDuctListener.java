@@ -62,9 +62,11 @@ public class ItemDuctListener
 
     private Permission activateObserverPerm;
     private Permission activatePistonPerm;
+    private Itemduct module;
 
-    public void setup()
+    public void setup(Itemduct module)
     {
+        this.module = module;
         activatePistonPerm = this.pm.register(Itemduct.class, "activate.piston", "Allows activating ItemDuct Piston Endpoints", null);
         activateObserverPerm = this.pm.register(Itemduct.class, "activate.observer", "Allows activating ItemDuct Observer Endpoints", null);
     }
@@ -105,6 +107,8 @@ public class ItemDuctListener
             te.offer(ductData.orElse(new DuctData()).with(dirO));
             playCreateEffect(loc);
             event.setCancelled(true);
+
+            player.getProgress(module.activate).grant();
         }
     }
 

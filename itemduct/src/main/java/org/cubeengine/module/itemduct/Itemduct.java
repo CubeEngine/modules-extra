@@ -24,10 +24,21 @@ import org.cubeengine.module.itemduct.listener.ItemDuctFilterListener;
 import org.cubeengine.module.itemduct.listener.ItemDuctListener;
 import org.cubeengine.module.itemduct.listener.ItemDuctTransferListener;
 import org.cubeengine.processor.Module;
+import org.spongepowered.api.advancement.Advancement;
+import org.spongepowered.api.advancement.AdvancementTree;
+import org.spongepowered.api.advancement.AdvancementType;
+import org.spongepowered.api.advancement.AdvancementTypes;
+import org.spongepowered.api.advancement.DisplayInfo;
+import org.spongepowered.api.advancement.criteria.AdvancementCriterion;
+import org.spongepowered.api.advancement.criteria.ScoreAdvancementCriterion;
+import org.spongepowered.api.advancement.criteria.trigger.Trigger;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.GameRegistryEvent;
 import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.text.Text;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -42,14 +53,13 @@ public class Itemduct extends CubeEngineModule
     @ModuleListener private ItemDuctTransferListener listenerTransfer;
     @ModuleListener private ItemDuctFilterListener listenerFilter;
     @Inject private PluginContainer plugin;
-
     @Listener
     public void onPreInit(GamePreInitializationEvent event)
     {
         this.manager.setup(this.plugin, this.config);
-        this.listenerActivator.setup();
-        this.listenerFilter.setup();
-        this.listenerTransfer.setup(this.manager);
+        this.listenerActivator.setup(this);
+        this.listenerFilter.setup(this);
+        this.listenerTransfer.setup(this, this.manager);
     }
 
     @Listener
@@ -57,5 +67,86 @@ public class Itemduct extends CubeEngineModule
     {
         this.config.reload();
         this.manager.reload(this.config);
+    }
+
+    @Listener
+    void onRegisterTrigger(GameRegistryEvent.Register<Trigger> event)
+    {
+
+    }
+
+    public AdvancementTree advancementTree;
+    public Advancement rootAdvancement;
+    public Advancement activate;
+    public Advancement filters;
+    public Advancement prompted;
+    public ScoreAdvancementCriterion promptCriterion;
+
+    @Listener
+    public void onRegisterAdvancementTrees(GameRegistryEvent.Register<AdvancementTree> event) {
+        this.advancementTree = AdvancementTree.builder()
+                .rootAdvancement(this.rootAdvancement)
+                .id("itemduct")
+                .build();
+        event.register(this.advancementTree);
+    }
+
+    // TODO CraftItemEvent for root
+
+    @Listener
+    public void onRegisterAdvancements(GameRegistryEvent.Register<Advancement> event)
+    {
+        this.rootAdvancement = Advancement.builder()
+                .criterion(AdvancementCriterion.DUMMY)
+                .displayInfo(DisplayInfo.builder()
+                        .icon(ItemTypes.HOPPER)
+                        .title(Text.of("Item Logistics"))
+                        .description(Text.of("Craft an ItemDuct Activator"))
+                        .build())
+                .id("itemduct-start")
+                .build();
+        event.register(this.rootAdvancement);
+
+        this.activate = Advancement.builder()
+                .parent(this.rootAdvancement)
+                .displayInfo(DisplayInfo.builder()
+                        .icon(ItemTypes.HOPPER)
+                        .title(Text.of("First Activation"))
+                        .description(Text.of("Activate a Piston"))
+                        .build())
+                .criterion(AdvancementCriterion.DUMMY)
+                .id("itemduct-activate")
+                .build();
+        event.register(this.activate);
+
+        this.filters = Advancement.builder()
+                .parent(this.activate)
+                .displayInfo(DisplayInfo.builder()
+                        .icon(ItemTypes.PAPER)
+                        .title(Text.of("Filters"))
+                        .description(Text.of("Open a Filter"))
+                        .build())
+                .criterion(AdvancementCriterion.DUMMY)
+                .id("itemduct-filter")
+                .build();
+        event.register(this.filters);
+
+        this.promptCriterion = ScoreAdvancementCriterion.builder()
+                .goal(100)
+                .name("itemduct-prompt")
+                .build();
+        this.prompted = Advancement.builder()
+                .parent(this.activate)
+                .displayInfo(DisplayInfo.builder()
+                        .icon(ItemTypes.NETHER_STAR)
+                        .title(Text.of("Mastered"))
+                        .description(Text.of("Use ItemDuct sorting over 100 times"))
+                        .hidden(true)
+                        .type(AdvancementTypes.CHALLENGE)
+                        .build())
+                .criterion(promptCriterion)
+                .id("itemduct-master")
+                .build();
+        event.register(this.prompted);
     }
 }

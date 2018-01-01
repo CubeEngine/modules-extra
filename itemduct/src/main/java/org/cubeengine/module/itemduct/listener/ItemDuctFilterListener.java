@@ -29,6 +29,7 @@ import org.cubeengine.module.itemduct.data.DuctData;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.type.HandTypes;
+import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
@@ -65,9 +66,11 @@ public class ItemDuctFilterListener
 
     private Permission viewFilterPerm;
     private Permission editFilterPerm;
+    private Itemduct module;
 
-    public void setup()
+    public void setup(Itemduct module)
     {
+        this.module = module;
         viewFilterPerm = this.pm.register(Itemduct.class, "filter.view", "Allows viewing ItemDuct Filters", null);
         editFilterPerm = this.pm.register(Itemduct.class, "filter.edit", "Allows editing ItemDuct Filters", null);
     }
@@ -134,6 +137,7 @@ public class ItemDuctFilterListener
         {
             igf.prepareInv(inventory, player.getUniqueId()).blockPutInAll().blockTakeOutAll().submitInventory(Itemduct.class, true);
         }
+        player.getProgress(module.filters).grant();
     }
 
 }

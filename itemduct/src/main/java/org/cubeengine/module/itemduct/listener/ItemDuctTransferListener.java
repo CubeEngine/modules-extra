@@ -21,6 +21,7 @@ import static org.spongepowered.api.block.BlockTypes.OBSERVER;
 import static org.spongepowered.api.block.BlockTypes.STICKY_PISTON;
 
 import org.cubeengine.module.itemduct.ItemDuctManager;
+import org.cubeengine.module.itemduct.Itemduct;
 import org.cubeengine.module.itemduct.Network;
 import org.cubeengine.module.itemduct.data.DuctData;
 import org.spongepowered.api.Sponge;
@@ -62,13 +63,15 @@ import javax.inject.Inject;
 public class ItemDuctTransferListener
 {
     @Inject private PluginContainer plugin;
+    private Itemduct module;
     private ItemDuctManager manager;
 
     private Map<Location<World>, Long> promptedActivations = new HashMap<>();
     private Task task;
 
-    public void setup(ItemDuctManager manager)
+    public void setup(Itemduct module, ItemDuctManager manager)
     {
+        this.module = module;
         this.manager = manager;
     }
 
@@ -76,9 +79,9 @@ public class ItemDuctTransferListener
     public void onCloseInventory(InteractInventoryEvent.Close event, @Root Player player, @Getter("getTargetInventory") Container inventory)
     {
         // When closing update filters and prompt activation
-        if (inventory instanceof CarriedInventory)
+        if (inventory instanceof CarriedInventory && inventory.size() > 0)
         {
-            ((CarriedInventory<?>) inventory).getCarrier().ifPresent(carrier -> this.promptActivation(carrier, true));
+            ((CarriedInventory<?>) inventory).getCarrier().ifPresent(carrier -> this.promptActivation(carrier, true, player));
         }
     }
 
@@ -86,9 +89,9 @@ public class ItemDuctTransferListener
     public void onOpenInventory(InteractInventoryEvent.Open event, @Root Player player, @Getter("getTargetInventory") Container inventory)
     {
         // When opening prompt activation
-        if (inventory instanceof CarriedInventory)
+        if (inventory instanceof CarriedInventory && inventory.size() > 0)
         {
-            ((CarriedInventory<?>) inventory).getCarrier().ifPresent(carrier -> this.promptActivation(carrier, false));
+            ((CarriedInventory<?>) inventory).getCarrier().ifPresent(carrier -> this.promptActivation(carrier, false, player));
         }
     }
 
@@ -96,9 +99,9 @@ public class ItemDuctTransferListener
     public void onTransferInventory(ChangeInventoryEvent.Transfer.Pre event, @Getter("getTargetInventory") Container inventory)
     {
         // When getting items transferred prompt activation
-        if (inventory instanceof CarriedInventory)
+        if (inventory instanceof CarriedInventory && inventory.size() > 0)
         {
-            ((CarriedInventory<?>) inventory).getCarrier().ifPresent(c -> this.promptActivation(c, true));
+            ((CarriedInventory<?>) inventory).getCarrier().ifPresent(c -> this.promptActivation(c, true, null));
         }
     }
 
@@ -118,7 +121,7 @@ public class ItemDuctTransferListener
         });
     }
 
-    private void promptActivation(Carrier carrier, boolean push)
+    private void promptActivation(Carrier carrier, boolean push, Player player)
     {
         if (!(carrier instanceof TileEntity))
         {
@@ -153,6 +156,11 @@ public class ItemDuctTransferListener
                 task = Sponge.getScheduler().createTaskBuilder().delayTicks(20).intervalTicks(20).execute(this::activate).submit(plugin);
             }
             this.promptedActivations.computeIfAbsent(loc, k -> System.currentTimeMillis());
+            if (player != null)
+            {
+                player.getProgress(module.prompted).get(module.promptCriterion).get().add(1);
+            }
+
         }
     }
 
@@ -206,7 +214,7 @@ public class ItemDuctTransferListener
             {
                 Direction exitDir = exitLoc.get(Keys.DIRECTION).orElse(Direction.NONE).getOpposite();
                 exitLoc = exitLoc.getRelative(exitDir.getOpposite());
-                promptActivation(exitLoc.getTileEntity().filter(t -> t instanceof Carrier).map(Carrier.class::cast).orElse(null), true);
+                promptActivation(exitLoc.getTileEntity().filter(t -> t instanceof Carrier).map(Carrier.class::cast).orElse(null), true, null);
             }
         }
 
