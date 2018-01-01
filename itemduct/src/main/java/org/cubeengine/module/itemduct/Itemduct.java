@@ -69,12 +69,6 @@ public class Itemduct extends CubeEngineModule
         this.manager.reload(this.config);
     }
 
-    @Listener
-    void onRegisterTrigger(GameRegistryEvent.Register<Trigger> event)
-    {
-
-    }
-
     public AdvancementTree advancementTree;
     public Advancement rootAdvancement;
     public Advancement activate;
@@ -141,7 +135,6 @@ public class Itemduct extends CubeEngineModule
                         .icon(ItemTypes.NETHER_STAR)
                         .title(Text.of("Mastered"))
                         .description(Text.of("Use ItemDuct sorting over 100 times"))
-                        .hidden(true)
                         .type(AdvancementTypes.CHALLENGE)
                         .build())
                 .criterion(promptCriterion)
