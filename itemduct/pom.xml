@@ -10,20 +10,21 @@
   <groupId>org.cubeengine.module</groupId>
   <artifactId>itemduct</artifactId>
   <name>ItemDuct</name>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.1.0</version>
   <description>Transfer items via glass pipes</description>
 
   <scm>
     <url>scm:git:https://github.com/CubeEngine/modules-extra</url>
     <connection>scm:git:https://github.com/CubeEngine/modules-extra.git</connection>
     <developerConnection>scm:git:git@github.com:CubeEngine/modules-extra.git</developerConnection>
+    <tag>itemduct-1.1.0</tag>
   </scm>
 
   <dependencies>
     <dependency>
       <groupId>org.cubeengine</groupId>
       <artifactId>libcube</artifactId>
-      <version>1.1.2-SNAPSHOT</version>
+      <version>1.1.1</version>
       <scope>provided</scope>
       <type>jar</type>
     </dependency>
