@@ -13,6 +13,12 @@
   <version>1.0.1-SNAPSHOT</version>
   <description>Transfer items via glass pipes</description>
 
+  <scm>
+    <url>scm:git:https://github.com/CubeEngine/modules-extra</url>
+    <connection>scm:git:https://github.com/CubeEngine/modules-extra.git</connection>
+    <developerConnection>scm:git:git@github.com:CubeEngine/modules-extra.git</developerConnection>
+  </scm>
+
   <dependencies>
     <dependency>
       <groupId>org.cubeengine</groupId>
