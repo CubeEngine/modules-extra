@@ -29,7 +29,6 @@ import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.permission.PermissionManager;
-import org.cubeengine.processor.Dependency;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
@@ -84,19 +83,20 @@ public class Hide extends CubeEngineModule
         this.hiddenUsers.clear();
     }
 
-    public void hidePlayer(final Player player)
+    public void hidePlayer(final Player player, boolean join)
     {
         player.offer(Keys.INVISIBLE, true);
-
-        bc.broadcastTranslated(NEUTRAL, "{user:color=YELLOW} left the game", player);
+        if (!join)
+        {
+            bc.broadcastTranslated(NEUTRAL, "{user:color=YELLOW} left the game", player.getName());
+        }
         // can see hidden + msg
     }
 
     public void showPlayer(final User player)
     {
         player.remove(InvisibilityData.class);
-
-        bc.broadcastTranslated(NEUTRAL, "{user:color=YELLOW} joined the game", player);
+        bc.broadcastTranslated(NEUTRAL, "{user:color=YELLOW} joined the game", player.getName());
         // can see hidden + msg
     }
 

@@ -52,13 +52,13 @@ public class HideListener
         Player player = event.getTargetEntity();
         if (module.isHidden(player))
         {
-            module.hidePlayer(player);
+            module.hidePlayer(player, true);
         }
 
         if (player.hasPermission(module.perms().AUTO_HIDE.getId()))
         {
             event.setMessageCancelled(true);
-            module.hidePlayer(player);
+            module.hidePlayer(player, true);
             i18n.send(player, POSITIVE, "You were automatically hidden!");
         }
     }
@@ -66,7 +66,6 @@ public class HideListener
     @Listener
     public void onQuit(ClientConnectionEvent.Disconnect event)
     {
-        
         if (module.isHidden(event.getTargetEntity()))
         {
             event.setMessageCancelled(true);

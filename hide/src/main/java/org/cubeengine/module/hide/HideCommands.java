@@ -48,7 +48,7 @@ public class HideCommands
     {
         if (!this.module.isHidden(player))
         {
-            this.module.hidePlayer(player);
+            this.module.hidePlayer(player, false);
             if (context.equals(player))
             {
                 i18n.send(player, POSITIVE, "You are now hidden!");
