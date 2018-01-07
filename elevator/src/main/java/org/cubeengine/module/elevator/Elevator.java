@@ -53,6 +53,8 @@ public class Elevator extends CubeEngineModule
                 .dataName("CubeEngine Elevator Data")
                 .buildAndRegister(plugin);
 
+        ElevatorData.OWNER.getQuery();
+
         em.registerListener(Elevator.class, new ElevatorListener(i18n, this));
     }
 
