@@ -71,7 +71,7 @@ public class HideCommands
     {
         if (this.module.isHidden(player))
         {
-            this.module.showPlayer(player);
+            this.module.showPlayer(player, false);
             if (context.equals(player))
             {
                 i18n.send(player, POSITIVE, "You are now visible!");

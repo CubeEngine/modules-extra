@@ -78,13 +78,14 @@ public class Hide extends CubeEngineModule
     {
         for (UUID hiddenId : hiddenUsers)
         {
-            Sponge.getServer().getPlayer(hiddenId).ifPresent(this::showPlayer);
+            Sponge.getServer().getPlayer(hiddenId).ifPresent(p -> this.showPlayer(p, true));
         }
         this.hiddenUsers.clear();
     }
 
     public void hidePlayer(final Player player, boolean join)
     {
+        this.hiddenUsers.add(player.getUniqueId());
         player.offer(Keys.INVISIBLE, true);
         if (!join)
         {
@@ -93,10 +94,13 @@ public class Hide extends CubeEngineModule
         // can see hidden + msg
     }
 
-    public void showPlayer(final User player)
+    public void showPlayer(final User player, boolean quit)
     {
         player.remove(InvisibilityData.class);
-        bc.broadcastTranslated(NEUTRAL, "{user:color=YELLOW} joined the game", player.getName());
+        if (!quit)
+        {
+            bc.broadcastTranslated(NEUTRAL, "{user:color=YELLOW} joined the game", player.getName());
+        }
         // can see hidden + msg
     }
 

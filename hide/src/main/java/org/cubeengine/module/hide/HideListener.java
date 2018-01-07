@@ -69,7 +69,7 @@ public class HideListener
         if (module.isHidden(event.getTargetEntity()))
         {
             event.setMessageCancelled(true);
-            module.showPlayer(event.getTargetEntity());
+            module.showPlayer(event.getTargetEntity(), true);
         }
     }
 
