@@ -39,6 +39,7 @@ import org.cubeengine.libcube.service.matcher.StringMatcher;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.libcube.service.task.TaskManager;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.state.GameLoadCompleteEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 
 @Singleton
@@ -78,6 +79,11 @@ public class Shout extends CubeEngineModule
         em.registerListener(Shout.class, new ShoutListener(manager));
         cm.addCommand(new ShoutCommand(cm, this, i18n));
 
+    }
+
+    @Listener
+    public void onLoaded(GameLoadCompleteEvent event)
+    {
         manager.initUsers();
     }
 
