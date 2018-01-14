@@ -19,11 +19,12 @@ package org.cubeengine.module.squelch;
 
 import org.cubeengine.reflect.annotations.Name;
 import org.cubeengine.reflect.codec.yaml.ReflectedYaml;
-import org.joda.time.Duration;
+
+import java.time.Duration;
 
 @SuppressWarnings("all")
 public class SquelchConfig extends ReflectedYaml
 {
     @Name("mute.default-mute-time")
-    public Duration defaultMuteTime = new Duration(0);
+    public Duration defaultMuteTime = Duration.ofMillis(0);
 }

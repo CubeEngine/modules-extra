@@ -20,12 +20,10 @@ package org.cubeengine.module.module.kits;
 import java.util.List;
 import java.util.Optional;
 
-import org.cubeengine.butler.exception.SilentException;
 import org.cubeengine.butler.parameter.IncorrectUsageException;
 import org.cubeengine.libcube.service.command.exception.PermissionDeniedException;
 import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.module.module.kits.data.KitData;
-import org.joda.time.Duration;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -167,7 +165,7 @@ public class Kit
         config.kitItems = this.items;
         config.kitName = this.name;
         config.limitUsage = this.limitUsagePerPlayer;
-        config.limitUsageDelay = new Duration(this.limitUsageDelay);
+        config.limitUsageDelay = java.time.Duration.ofSeconds(this.limitUsageDelay);
         config.usePerm = this.permission != null;
     }
 

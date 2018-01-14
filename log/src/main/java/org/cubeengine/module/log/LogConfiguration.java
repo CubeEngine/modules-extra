@@ -22,7 +22,6 @@ import org.cubeengine.reflect.Section;
 import org.cubeengine.reflect.annotations.Comment;
 import org.cubeengine.reflect.annotations.Name;
 import org.cubeengine.reflect.codec.yaml.ReflectedYaml;
-import org.joda.time.Duration;
 
 @SuppressWarnings("all")
 public class LogConfiguration extends ReflectedYaml

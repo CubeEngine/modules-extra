@@ -24,21 +24,18 @@ import java.util.List;
 import java.util.Locale;
 
 import org.cubeengine.libcube.util.StringUtils;
+import org.cubeengine.libcube.util.TimeUtil;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.Recall;
 import org.cubeengine.module.vigil.report.Report;
 import org.cubeengine.module.vigil.report.ReportActions;
 import org.cubeengine.libcube.service.i18n.I18n;
-import org.joda.time.Period;
-import org.joda.time.format.PeriodFormatter;
-import org.joda.time.format.PeriodFormatterBuilder;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.pagination.PaginationList.Builder;
 import org.spongepowered.api.service.pagination.PaginationService;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.action.HoverAction;
 import org.spongepowered.api.text.action.TextActions;
 import org.spongepowered.api.text.chat.ChatTypes;
 import org.spongepowered.api.text.format.TextColors;
@@ -54,11 +51,6 @@ import static org.spongepowered.api.text.format.TextColors.WHITE;
 
 public class Receiver
 {
-    private static PeriodFormatter formatter = new PeriodFormatterBuilder()
-                             .appendMinutes().appendSuffix("m").appendSeparator(" ")
-                             .appendSeconds().appendSuffix("s").appendSeparator(" ")
-                             .appendMillis().appendSuffix("ms").toFormatter();
-
     private final CommandSource cmdSource;
     private final I18n i18n;
     private Lookup lookup;
@@ -243,8 +235,8 @@ public class Receiver
         String titleLineSort = i18n.getTranslation(cmdSource, "(newest first)");
         Text titleLine = Text.of(titleLineAmount, " ", TextColors.YELLOW, titleLineSort);
         Text titleTimings = i18n.translate(cmdSource, NEUTRAL, "Query: {input#time} Report: {input#time}",
-                                                 formatter.print(new Period(lookup.timing(Lookup.LookupTiming.LOOKUP))),
-                                                 formatter.print(new Period(lookup.timing(Lookup.LookupTiming.REPORT))));
+                TimeUtil.format(cmdSource.getLocale(), lookup.timing(Lookup.LookupTiming.LOOKUP)),
+                TimeUtil.format(cmdSource.getLocale(), lookup.timing(Lookup.LookupTiming.REPORT)));
         titleLine = titleLine.toBuilder().onHover(TextActions.showText(titleTimings)).build();
         builder.title(titleLine).padding(Text.of("-"))
                 // TODO reverse order

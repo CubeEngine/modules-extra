@@ -63,7 +63,7 @@ public class Chat extends CubeEngineModule
     @Listener
     public void onEnable(GamePreInitializationEvent event)
     {
-        AfkCommand afkCmd = new AfkCommand(this, config.autoAfk.after.getMillis(), config.autoAfk.check.getMillis(), bc, tm, em);
+        AfkCommand afkCmd = new AfkCommand(this, config.autoAfk.after.toMillis(), config.autoAfk.check.toMillis(), bc, tm, em);
         cm.addCommands(this, afkCmd);
         cm.addCommands(this, new ChatCommands(this, i18n, bc, afkCmd));
     }

@@ -23,8 +23,6 @@ import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.util.TimeUtil;
 import org.cubeengine.module.sql.database.Database;
 import org.cubeengine.module.vote.storage.VoteModel;
-import org.joda.time.format.PeriodFormatter;
-import org.joda.time.format.PeriodFormatterBuilder;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 
@@ -37,7 +35,6 @@ import javax.inject.Inject;
 
 public class VoteCommands
 {
-    private final PeriodFormatter formatter;
     private final Vote module;
     private Database db;
     private I18n i18n;
@@ -48,13 +45,6 @@ public class VoteCommands
         this.module = module;
         this.db = db;
         this.i18n = i18n;
-        this.formatter = new PeriodFormatterBuilder()
-            .appendWeeks().appendSuffix(" week"," weeks").appendSeparator(" ")
-            .appendDays().appendSuffix(" day", " days").appendSeparator(" ")
-            .appendHours().appendSuffix(" hour"," hours").appendSeparator(" ")
-            .appendMinutes().appendSuffix(" minute", " minutes").appendSeparator(" ")
-            .appendSeconds().appendSuffix(" second", " seconds").appendSeparator(" ")
-            .appendMillis().appendSuffix(" ms").toFormatter();
     }
 
     @Command(desc = "Shows your current vote situation")
@@ -76,10 +66,10 @@ public class VoteCommands
             return;
         }
         i18n.send(context, POSITIVE, "You current vote-count is {amount}", voteModel.getVotes());
-        if (voteModel.timePassed(module.getConfig().voteBonusTime.getMillis()))
+        if (voteModel.timePassed(module.getConfig().voteBonusTime.toMillis()))
         {
             i18n.send(context, NEUTRAL, "Sadly you did not vote in the last {input#time} so your vote-count will be reset to 1",
-                                   this.formatter.print(module.getConfig().voteBonusTime.toPeriod()));
+                                   TimeUtil.format(context.getLocale(), module.getConfig().voteBonusTime.toMillis()));
         }
         else if (voteModel.timePassed(DAYS.toMillis(1)))
         {

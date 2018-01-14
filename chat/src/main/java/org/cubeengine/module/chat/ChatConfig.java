@@ -19,10 +19,9 @@ package org.cubeengine.module.chat;
 
 import org.cubeengine.reflect.Section;
 import org.cubeengine.reflect.annotations.Comment;
-import org.cubeengine.reflect.annotations.Name;
 import org.cubeengine.reflect.codec.yaml.ReflectedYaml;
-import org.joda.time.Duration;
-import org.joda.time.Period;
+
+import java.time.Duration;
 
 @SuppressWarnings("all")
 public class ChatConfig extends ReflectedYaml
@@ -47,10 +46,10 @@ public class ChatConfig extends ReflectedYaml
     public class AfkSection implements Section
     {
         @Comment("Players will be automatically displayed as afk after this amount of time")
-        public Duration after = Period.minutes(5).toStandardDuration();
+        public Duration after = Duration.ofMinutes(5);
 
         @Comment({"How often the server will check for afk players",
                   "Set to 0 to disable auto-afk"})
-        public Duration check = Period.seconds(1).toStandardDuration();
+        public Duration check = Duration.ofSeconds(1);
     }
 }

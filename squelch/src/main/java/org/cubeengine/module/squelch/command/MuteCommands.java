@@ -34,12 +34,12 @@ import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.util.TimeUtil;
 import org.cubeengine.module.squelch.Squelch;
 import org.cubeengine.module.squelch.storage.Muted;
-import org.joda.time.Duration;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
 
 import java.sql.Date;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -92,10 +92,10 @@ public class  MuteCommands
             }
         }
 
-        setMuted(player, new Date(System.currentTimeMillis() + (dura.getMillis() == 0 ? DAYS.toMillis(
-            9001) : dura.getMillis())));
-        Text timeString = dura.getMillis() == 0 ? i18n.translate(player, NONE, "ever") :
-                Text.of(TimeUtil.format(player.getLocale(), dura.getMillis()));
+        setMuted(player, new Date(System.currentTimeMillis() + (dura.toMillis() == 0 ? DAYS.toMillis(
+            9001) : dura.toMillis())));
+        Text timeString = dura.toMillis() == 0 ? i18n.translate(player, NONE, "ever") :
+                Text.of(TimeUtil.format(player.getLocale(), dura.toMillis()));
         i18n.send(player, NEGATIVE, "You are now muted for {txt#amount}!", timeString);
         i18n.send(context, NEUTRAL, "You muted {user} globally for {txt#amount}!", player, timeString);
     }

@@ -18,6 +18,7 @@
 package org.cubeengine.module.module.kits;
 
 import java.io.File;
+import java.time.Duration;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,7 +26,6 @@ import org.cubeengine.libcube.util.StringUtils;
 import org.cubeengine.reflect.annotations.Comment;
 import org.cubeengine.reflect.annotations.Name;
 import org.cubeengine.reflect.codec.yaml.ReflectedYaml;
-import org.joda.time.Duration;
 import org.spongepowered.api.item.inventory.ItemStack;
 
 @SuppressWarnings("all")
@@ -68,7 +68,7 @@ public class KitConfiguration extends ReflectedYaml
     public Kit getKit(Kits module)
     {
         return new Kit(module, this.kitName, this.giveOnFirstJoin,
-           this.limitUsage, this.limitUsageDelay == null ? -1L : this.limitUsageDelay.getMillis(),
+           this.limitUsage, this.limitUsageDelay == null ? -1L : this.limitUsageDelay.toMillis(),
            this.usePerm, this.customReceiveMsg, this.kitCommands, this.kitItems);
     }
 }

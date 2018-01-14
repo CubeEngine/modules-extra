@@ -17,10 +17,9 @@
  */
 package org.cubeengine.module.vote;
 
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 import org.cubeengine.reflect.annotations.Comment;
 import org.cubeengine.reflect.codec.yaml.ReflectedYaml;
-import org.joda.time.Duration;
 
 @SuppressWarnings("all")
 public class VoteConfiguration extends ReflectedYaml
@@ -36,7 +35,7 @@ public class VoteConfiguration extends ReflectedYaml
     public String voteMessage = "&aYou received {MONEY} for voting {AMOUNT} times!";
 
     @Comment("Players will receive a bonus if they vote multiple times in given time-frame")
-    public Duration voteBonusTime = new Duration(TimeUnit.HOURS.toMillis(36));
+    public Duration voteBonusTime = Duration.ofHours(36);
 
     public String voteUrl = "";
 }
