@@ -114,7 +114,7 @@ public class PlayerCommands
             i18n.send(context, NEGATIVE, "You do not have any item in your hand!");
             return;
         }
-        EquipmentType type = head.getItem().getDefaultProperty(EquipmentProperty.class)
+        EquipmentType type = head.getType().getDefaultProperty(EquipmentProperty.class)
                          .map(EquipmentProperty::getValue).orElse(null);
         if (type == null || type != EquipmentTypes.HEADWEAR)
         {

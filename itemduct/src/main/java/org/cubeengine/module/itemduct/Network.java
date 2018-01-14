@@ -25,6 +25,8 @@ import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.item.inventory.Carrier;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.query.QueryOperation;
+import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -69,7 +71,7 @@ public class Network
             if (te instanceof Dropper)
             {
                 Network nw = manager.findNetwork(targetLoc);
-                nw.transferToStorage(inventory.queryAny(filters.toArray(new ItemStack[filters.size()])), data.get(dir).get());
+                nw.transferToStorage(inventory.query(toQueryOps(filters)), data.get(dir).get());
                 continue;
             }
             if (te instanceof Chest)
@@ -81,13 +83,13 @@ public class Network
             {
                 if (!filters.isEmpty()) // Only allow to extract items in the filter
                 {
-                    pollFrom = inventory.queryAny(filters.toArray(new ItemStack[filters.size()])); // TODO more filters
+                    pollFrom = inventory.query(toQueryOps(filters)); // TODO more filters
                 }
 
                 Inventory pollFromTo = pollFrom;
                 if (!targetFilter.get().isEmpty()) // Only allow to insert items in the filter
                 {
-                    pollFromTo = pollFromTo.queryAny(targetFilter.get().toArray(new ItemStack[targetFilter.get().size()]));  // TODO more filters
+                    pollFromTo = pollFromTo.query(toQueryOps(targetFilter.get()));  // TODO more filters
                 }
                 // For all filtered slots
                 doTransfer(pollFromTo, target);
@@ -99,7 +101,7 @@ public class Network
     {
         if (!filters.isEmpty()) // Only allow to extract items in the filter
         {
-            inventory = inventory.queryAny(filters.toArray(new ItemStack[filters.size()])); // TODO more filters
+            inventory = inventory.query(toQueryOps(filters)); // TODO more filters
         }
         for (Location<World> targetLoc : storage)
         {
@@ -111,6 +113,15 @@ public class Network
             }
             doTransfer(inventory, target);
         }
+    }
+
+    private QueryOperation[] toQueryOps(List<ItemStack> filters) {
+        QueryOperation[] ops = new QueryOperation[filters.size()];
+        for (int i = 0; i < filters.size(); i++) {
+            ItemStack filter = filters.get(i);
+            ops[i] = QueryOperationTypes.ITEM_STACK_IGNORE_QUANTITY.of(filter);
+        }
+        return ops;
     }
 
     private void pullFromStorage(Inventory inventory, List<ItemStack> filters)
@@ -125,7 +136,7 @@ public class Network
             }
             if (!filters.isEmpty()) // Only allow to extract items in the filter
             {
-                pollFrom = pollFrom.queryAny(filters.toArray(new ItemStack[filters.size()])); // TODO more filters
+                pollFrom = pollFrom.query(toQueryOps(filters)); // TODO more filters
             }
 
             doTransfer(pollFrom, inventory);

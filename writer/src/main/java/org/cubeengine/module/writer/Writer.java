@@ -104,7 +104,7 @@ public class Writer extends CubeEngineModule
     public boolean editBookInHand(Player user)
     {
         Optional<ItemStack> oItem = user.getItemInHand(HandTypes.MAIN_HAND);
-        if (!oItem.isPresent() || oItem.get().getItem() != WRITTEN_BOOK)
+        if (!oItem.isPresent() || oItem.get().getType() != WRITTEN_BOOK)
         {
             return false;
         }

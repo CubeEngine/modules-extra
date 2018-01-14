@@ -55,6 +55,7 @@ import org.spongepowered.api.item.inventory.property.Identifiable;
 import org.spongepowered.api.item.inventory.property.InventoryDimension;
 import org.spongepowered.api.item.inventory.property.InventoryTitle;
 import org.spongepowered.api.item.inventory.property.SlotPos;
+import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
@@ -427,7 +428,7 @@ public final class MarketSignManager
 
         ItemStack copy = data.getItem().copy();
         copy.setQuantity(1);
-        int itemsInInventory = player.getInventory().queryAny(copy).totalItems(); // TODO ignore repaircost?
+        int itemsInInventory = player.getInventory().query(QueryOperationTypes.ITEM_STACK_IGNORE_QUANTITY.of(copy)).totalItems(); // TODO ignore repaircost?
         if (data.getAmount() > itemsInInventory)
         {
             i18n.send(ACTION_BAR, player, NEGATIVE, "You do not have enough items to sell!");
@@ -452,7 +453,7 @@ public final class MarketSignManager
                 throw new IllegalStateException("Could not deposit");
             }
         }
-        player.getInventory().queryAny(copy).poll(data.getAmount());
+        player.getInventory().query(QueryOperationTypes.ITEM_STACK_IGNORE_QUANTITY.of(copy)).poll(data.getAmount());
         if (data.getStock() != null)
         {
             data.setStock(data.getStock() + data.getAmount());
@@ -489,7 +490,7 @@ public final class MarketSignManager
         int remaining = copy.getQuantity();
         if (remaining != 0)
         {
-            player.getInventory().queryAny(copy).poll(data.getAmount() - remaining);
+            player.getInventory().query(QueryOperationTypes.ITEM_STACK_IGNORE_QUANTITY.of(copy)).poll(data.getAmount() - remaining);
             i18n.send(ACTION_BAR, player, NEGATIVE, "You don't have enough space in your inventory for these items!");
             return;
         }
@@ -574,7 +575,7 @@ public final class MarketSignManager
                 signInventories.remove(data.getID());
                 if (data.getStock() != null)
                 {
-                    int newPageStock = inv.queryAny(copy).totalItems();
+                    int newPageStock = inv.query(QueryOperationTypes.ITEM_STACK_IGNORE_QUANTITY.of(copy)).totalItems();
                     Integer totalStock = data.getStock();
                     Integer oldPageStock = signInventoryStock.get(key
                             /*TODO getProperty is always empty MinecraftInventoryAdapter
@@ -604,7 +605,7 @@ public final class MarketSignManager
         {
             String name = getOwnerName(data);
             Inventory inventory = Inventory.builder().of(DISPENSER).property(InventoryTitle.PROPERTY_NAME, InventoryTitle.of(Text.of(name))).build(plugin);
-            inventory.query(SlotPos.of(1,1)).set(data.getItem().copy()); // middle of dispenser
+            inventory.query(QueryOperationTypes.INVENTORY_PROPERTY.of(SlotPos.of(1,1))).set(data.getItem().copy()); // middle of dispenser
             igf.prepareInv(inventory, player.getUniqueId()).blockPutInAll().blockTakeOutAll().submitInventory(Signmarket.class, true);
             return;
         }
@@ -631,7 +632,7 @@ public final class MarketSignManager
         int quantity = item.getQuantity();
         if (all)
         {
-            Inventory slots = player.getInventory().queryAny(copy);
+            Inventory slots = player.getInventory().query(QueryOperationTypes.ITEM_STACK_IGNORE_QUANTITY.of(copy));
             quantity = slots.totalItems();
         }
 
@@ -652,7 +653,7 @@ public final class MarketSignManager
         data.setStock(data.getStock() + quantity);
         if (all)
         {
-            player.getInventory().queryAny(copy).poll(quantity);
+            player.getInventory().query(QueryOperationTypes.ITEM_STACK_IGNORE_QUANTITY.of(copy)).poll(quantity);
             i18n.send(ACTION_BAR, player, POSITIVE, "Added all ({amount}) {name#material} to the stock!", quantity,
                                 item.getTranslation().get(player.getLocale()));
         }

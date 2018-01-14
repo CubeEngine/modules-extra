@@ -77,7 +77,7 @@ public class DestructReport extends EntityReport<DestructEntityEvent>
             int count = 0;
             for (Action a : actions)
             {
-                count += Recall.entity(a).get(Keys.REPRESENTED_ITEM).map(ItemStackSnapshot::getCount).orElse(0);
+                count += Recall.entity(a).get(Keys.REPRESENTED_ITEM).map(ItemStackSnapshot::getQuantity).orElse(0);
             }
             if (count == 0)
             {

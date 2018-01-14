@@ -22,20 +22,16 @@ import static org.spongepowered.api.data.DataQuery.of;
 import java.util.Optional;
 import com.google.common.reflect.TypeToken;
 import org.spongepowered.api.data.DataContainer;
-import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataView;
-import org.spongepowered.api.data.MemoryDataContainer;
 import org.spongepowered.api.data.key.Key;
-import org.spongepowered.api.data.key.KeyFactory;
 import org.spongepowered.api.data.persistence.DataTranslator;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.api.data.value.mutable.Value;
 
 public class SignTypeSerializer implements DataTranslator<SignType>
 {
-    public static final Key<Value<String>> SIGN_TYPE = KeyFactory.makeSingleKey(
-            new TypeToken<String>() {}, new TypeToken<Value<String>>() {},
-            of("type"), "cubeengine-signmarket:signtype", "Serializer");
+    public static final Key<Value<String>> SIGN_TYPE = Key.builder().type(new TypeToken<Value<String>>() {}).id("cubeengine-signmarket:signtype").name("Serializer")
+            .query(of("Type")).build();
     private final TypeToken<SignType> token = TypeToken.of(SignType.class);
 
     @Override

@@ -18,7 +18,6 @@
 package org.cubeengine.module.signmarket.data;
 
 import static org.spongepowered.api.data.DataQuery.of;
-import static org.spongepowered.api.data.key.KeyFactory.makeSingleKey;
 
 import java.util.UUID;
 

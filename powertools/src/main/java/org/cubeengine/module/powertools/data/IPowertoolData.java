@@ -17,20 +17,19 @@
  */
 package org.cubeengine.module.powertools.data;
 
-import java.util.List;
+import static org.spongepowered.api.data.DataQuery.of;
 
 import com.google.common.reflect.TypeToken;
-import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.key.Key;
-import org.spongepowered.api.data.key.KeyFactory;
 import org.spongepowered.api.data.value.mutable.ListValue;
+
+import java.util.List;
 
 public interface IPowertoolData
 {
-    TypeToken<List<String>> TTL_String = new TypeToken<List<String>>() {};
     TypeToken<ListValue<String>> TTLV_String = new TypeToken<ListValue<String>>() {};
 
-    Key<ListValue<String>> POWERS = KeyFactory.makeListKey(TTL_String, TTLV_String, DataQuery.of("powers"), "cubeengine-powertools:data", "Powertool");
+    Key<ListValue<String>> POWERS = Key.builder().type(TTLV_String).query(of("powers")).id("cubeengine-powertools:data").name("Powertool").build();
 
     List<String> getPowers();
 }

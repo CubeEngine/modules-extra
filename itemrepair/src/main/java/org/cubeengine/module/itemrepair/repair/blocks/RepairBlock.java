@@ -49,6 +49,7 @@ import org.spongepowered.api.item.inventory.property.InventoryCapacity;
 import org.spongepowered.api.item.inventory.property.InventoryDimension;
 import org.spongepowered.api.item.inventory.property.InventoryTitle;
 import org.spongepowered.api.item.inventory.property.SlotIndex;
+import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
 import org.spongepowered.api.service.economy.EconomyService;
 import org.spongepowered.api.service.economy.account.UniqueAccount;
 import org.spongepowered.api.service.economy.transaction.ResultType;
@@ -287,7 +288,7 @@ public class RepairBlock
                     item.setQuantity(amount - 1);
                     repairItem(item);
                 }
-                inventory.inventory.query(SlotIndex.of(entry.getKey())).set(entry.getValue());
+                inventory.inventory.query(QueryOperationTypes.INVENTORY_PROPERTY.of(SlotIndex.of(entry.getKey()))).set(entry.getValue());
             }
             if (itemsBroken)
             {

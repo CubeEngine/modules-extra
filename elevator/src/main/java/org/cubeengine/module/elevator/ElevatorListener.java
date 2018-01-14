@@ -83,7 +83,7 @@ public class ElevatorListener
 
                 if (itemInHand.isPresent())
                 {
-                    if (player.hasPermission(module.getPerm().CREATE.getId()) && itemInHand.get().getItem().equals(module.getConfig().creationItem))
+                    if (player.hasPermission(module.getPerm().CREATE.getId()) && itemInHand.get().getType().equals(module.getConfig().creationItem))
                     {
                         data = new ElevatorData();
                         data.setOwner(player.getUniqueId());
@@ -115,7 +115,7 @@ public class ElevatorListener
                     event.setCancelled(true);
                 }
             }
-            else if (itemInHand.get().getItem() == ItemTypes.PAPER && event instanceof InteractBlockEvent.Primary)
+            else if (itemInHand.get().getType() == ItemTypes.PAPER && event instanceof InteractBlockEvent.Primary)
             {
                 if (player.hasPermission(module.getPerm().RENAME.getId()))
                 {

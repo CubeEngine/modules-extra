@@ -38,6 +38,7 @@ import org.spongepowered.api.item.enchantment.Enchantment;
 import org.spongepowered.api.item.enchantment.EnchantmentTypes;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
 import org.spongepowered.api.item.inventory.transaction.InventoryTransactionResult;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
@@ -59,7 +60,7 @@ public class SelectorCommand
     public void giveSelectionTool(Player user)
     {
         ItemStack found = null;
-        Inventory axes = user.getInventory().query(ItemTypes.WOODEN_AXE);
+        Inventory axes = user.getInventory().query(QueryOperationTypes.ITEM_TYPE.of(ItemTypes.WOODEN_AXE));
         for (Inventory slot : axes.slots())
         {
             Optional<ItemStack> itemStack = slot.peek();
