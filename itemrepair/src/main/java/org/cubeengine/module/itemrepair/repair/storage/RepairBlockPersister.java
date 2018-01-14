@@ -20,7 +20,7 @@ package org.cubeengine.module.itemrepair.repair.storage;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import org.cubeengine.libcube.service.database.Database;
+import org.cubeengine.module.sql.database.Database;
 import org.cubeengine.module.itemrepair.Itemrepair;
 import org.jooq.DSLContext;
 import org.spongepowered.api.world.Location;

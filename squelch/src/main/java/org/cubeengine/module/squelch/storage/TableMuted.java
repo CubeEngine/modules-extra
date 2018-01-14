@@ -22,7 +22,7 @@ import static org.jooq.impl.SQLDataType.DATE;
 import java.sql.Date;
 import java.util.UUID;
 import org.cubeengine.libcube.util.Version;
-import org.cubeengine.libcube.service.database.Table;
+import org.cubeengine.module.sql.database.Table;
 import org.jooq.TableField;
 
 public class TableMuted extends Table<Muted>

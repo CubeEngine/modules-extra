@@ -18,7 +18,7 @@
 package org.cubeengine.module.vote.storage;
 
 import java.sql.Timestamp;
-import org.cubeengine.libcube.service.database.AsyncRecord;
+import org.cubeengine.module.sql.database.AsyncRecord;
 import org.spongepowered.api.entity.living.player.User;
 
 import static org.cubeengine.module.vote.storage.TableVote.TABLE_VOTE;

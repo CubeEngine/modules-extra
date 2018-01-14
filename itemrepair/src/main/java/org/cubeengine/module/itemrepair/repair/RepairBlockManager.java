@@ -19,7 +19,7 @@ package org.cubeengine.module.itemrepair.repair;
 
 import static org.cubeengine.module.itemrepair.repair.storage.TableRepairBlock.TABLE_REPAIR_BLOCK;
 
-import org.cubeengine.libcube.service.database.Database;
+import org.cubeengine.module.sql.database.Database;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.permission.PermissionManager;

@@ -29,7 +29,7 @@ import org.cubeengine.butler.parametric.Optional;
 import org.cubeengine.converter.ConversionException;
 import org.cubeengine.converter.node.StringNode;
 import org.cubeengine.libcube.service.config.DurationConverter;
-import org.cubeengine.libcube.service.database.Database;
+import org.cubeengine.module.sql.database.Database;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.util.TimeUtil;
 import org.cubeengine.module.squelch.Squelch;

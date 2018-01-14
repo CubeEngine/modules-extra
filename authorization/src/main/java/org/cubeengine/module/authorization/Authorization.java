@@ -34,18 +34,16 @@ import org.cubeengine.libcube.service.command.ModuleCommand;
 import org.cubeengine.module.authorization.storage.Auth;
 import org.cubeengine.module.authorization.storage.TableAuth;
 import org.cubeengine.libcube.util.Triplet;
-import org.cubeengine.libcube.service.database.Database;
-import org.cubeengine.libcube.service.database.ModuleTables;
 import org.cubeengine.libcube.service.filesystem.FileManager;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
-import org.cubeengine.processor.Dependency;
+import org.cubeengine.module.sql.database.Database;
+import org.cubeengine.module.sql.database.ModuleTables;
 import org.cubeengine.processor.Module;
 import org.jooq.DSLContext;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
-import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.service.ban.BanService;
 import org.spongepowered.api.service.permission.PermissionService;
 
@@ -114,8 +112,6 @@ public class Authorization extends CubeEngineModule
         this.db.getDSL().update(TABLE_AUTH).set(TABLE_AUTH.PASSWD, (byte[])null).execute();
         reset();
     }
-
-
 
     public boolean isLoggedIn(UUID player)
     {

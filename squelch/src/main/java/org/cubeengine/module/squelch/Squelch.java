@@ -18,12 +18,11 @@
 package org.cubeengine.module.squelch;
 
 import org.cubeengine.libcube.CubeEngineModule;
-import org.cubeengine.libcube.service.database.ModuleTables;
+import org.cubeengine.module.sql.database.ModuleTables;
 import org.cubeengine.libcube.service.event.ModuleListener;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.module.squelch.storage.TableIgnorelist;
 import org.cubeengine.module.squelch.storage.TableMuted;
-import org.cubeengine.processor.Dependency;
 import org.cubeengine.processor.Module;
 
 import javax.inject.Inject;

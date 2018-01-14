@@ -21,7 +21,7 @@ import java.util.Date;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.util.TimeUtil;
-import org.cubeengine.libcube.service.database.Database;
+import org.cubeengine.module.sql.database.Database;
 import org.cubeengine.module.vote.storage.VoteModel;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;

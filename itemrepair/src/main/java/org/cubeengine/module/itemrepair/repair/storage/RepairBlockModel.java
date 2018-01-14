@@ -18,8 +18,7 @@
 package org.cubeengine.module.itemrepair.repair.storage;
 
 import com.flowpowered.math.vector.Vector3i;
-import com.sun.org.apache.bcel.internal.generic.RET;
-import org.cubeengine.libcube.service.database.AsyncRecord;
+import org.cubeengine.module.sql.database.AsyncRecord;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;

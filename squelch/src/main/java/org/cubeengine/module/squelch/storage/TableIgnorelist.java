@@ -17,8 +17,8 @@
  */
 package org.cubeengine.module.squelch.storage;
 
-import org.cubeengine.libcube.service.database.Table;
 import org.cubeengine.libcube.util.Version;
+import org.cubeengine.module.sql.database.Table;
 import org.jooq.TableField;
 
 import java.util.UUID;

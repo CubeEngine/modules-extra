@@ -30,7 +30,7 @@ import org.cubeengine.module.squelch.Squelch;
 import org.cubeengine.module.squelch.storage.IgnoreList;
 import org.cubeengine.libcube.util.ChatFormat;
 import org.cubeengine.libcube.util.StringUtils;
-import org.cubeengine.libcube.service.database.Database;
+import org.cubeengine.module.sql.database.Database;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;

@@ -18,7 +18,7 @@
 package org.cubeengine.module.squelch.storage;
 
 import java.util.UUID;
-import org.cubeengine.libcube.service.database.AsyncRecord;
+import org.cubeengine.module.sql.database.AsyncRecord;
 
 public class Muted extends AsyncRecord<Muted>
 {

@@ -18,7 +18,7 @@
 package org.cubeengine.module.authorization.storage;
 
 import java.util.UUID;
-import org.cubeengine.libcube.service.database.AsyncRecord;
+import org.cubeengine.module.sql.database.AsyncRecord;
 
 import static org.cubeengine.module.authorization.storage.TableAuth.TABLE_AUTH;
 
