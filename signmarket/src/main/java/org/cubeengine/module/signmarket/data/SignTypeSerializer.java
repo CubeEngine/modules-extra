@@ -31,7 +31,7 @@ import org.spongepowered.api.data.value.mutable.Value;
 public class SignTypeSerializer implements DataTranslator<SignType>
 {
     public static final Key<Value<String>> SIGN_TYPE = Key.builder().type(new TypeToken<Value<String>>() {}).id("cubeengine-signmarket:signtype").name("Serializer")
-            .query(of("Type")).build();
+            .query(of("type")).build();
     private final TypeToken<SignType> token = TypeToken.of(SignType.class);
 
     @Override
