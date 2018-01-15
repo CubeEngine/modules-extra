@@ -95,7 +95,7 @@ public class Vote extends CubeEngineModule
         db.queryOne(dsl.selectFrom(TABLE_VOTE).where(TABLE_VOTE.ID.eq(user.get().getUniqueId()))).thenAcceptAsync((voteModel) -> {
             if (voteModel != null)
             {
-                if (voteModel.timePassed(config.voteBonusTime.getMillis()))
+                if (voteModel.timePassed(config.voteBonusTime.toMillis()))
                 {
                     voteModel.setVotes(1);
                 }

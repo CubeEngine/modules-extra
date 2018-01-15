@@ -31,6 +31,7 @@ import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
 
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
@@ -56,7 +57,7 @@ public class FlyListener
     @Listener
     public void playerInteract(final InteractBlockEvent.Secondary event, @First Player player)
     {
-        if (!player.getItemInHand(HandTypes.MAIN_HAND).map(i -> i.getItem().equals(ItemTypes.FEATHER)).orElse(false))
+        if (!player.getItemInHand(HandTypes.MAIN_HAND).map(i -> i.getType().equals(ItemTypes.FEATHER)).orElse(false))
         {
             return;
         }
@@ -74,7 +75,7 @@ public class FlyListener
         if (player.get(Keys.CAN_FLY).get())
         {
             final ItemStack feather = ItemStack.of(ItemTypes.FEATHER, -1);
-            player.getInventory().query(feather).poll(1);
+            player.getInventory().query(QueryOperationTypes.ITEM_STACK_IGNORE_QUANTITY.of(feather)).poll(1);
             player.setVelocity(player.getVelocity().add(0, 1, 0));
             player.setLocation(player.getLocation().add(0, 0.05, 0)); //make sure the player stays flying
             player.offer(Keys.IS_FLYING, true);
