@@ -12,25 +12,6 @@
     <projectBase>${project.basedir}</projectBase>
   </properties>
 
-  <repositories>
-    <repository>
-      <id>cubeengine-repo</id>
-      <name>CubeEngine Public Repository</name>
-      <url>http://repo.cubeengine.org/</url>
-    </repository>
-    <repository>
-      <id>sponge-maven-repo</id>
-      <name>Sponge maven repo</name>
-      <url>https://repo.spongepowered.org/maven</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
-
   <distributionManagement>
     <repository>
       <id>cubeengine-repo</id>

@@ -7,6 +7,14 @@
     <version>2-SNAPSHOT</version>
   </parent>
 
+<repositories>
+    <repository>
+      <id>cubeengine-repo</id>
+      <name>CubeEngine Public Repository</name>
+      <url>http://repo.cubeengine.org/</url>
+    </repository>
+  </repositories>
+
 
   <artifactId>donations</artifactId>
   <name>Donations</name>
