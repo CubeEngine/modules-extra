@@ -13,17 +13,22 @@
     <version>1.0.0-SNAPSHOT</version>
     <description>Edit signs and books!</description>
 
+    <properties>
+        <libcube.version>1.2.1-SNAPSHOT</libcube.version>
+        <sponge.version>7.1.0-SNAPSHOT</sponge.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.spongepowered</groupId>
             <artifactId>spongeapi</artifactId>
-            <version>7.1.0-SNAPSHOT</version>
+            <version>${sponge.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.cubeengine</groupId>
             <artifactId>libcube</artifactId>
-            <version>1.2.1-SNAPSHOT</version>
+            <version>${libcube.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
