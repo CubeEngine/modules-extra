@@ -19,6 +19,12 @@
         <sponge.version>7.1.0-SNAPSHOT</sponge.version>
     </properties>
 
+    <scm>
+        <url>scm:git:https://github.com/CubeEngine/modules-extra</url>
+        <connection>scm:git:https://github.com/CubeEngine/modules-extra.git</connection>
+        <developerConnection>scm:git:git@github.com:CubeEngine/modules-extra.git</developerConnection>
+    </scm>
+
     <dependencies>
         <dependency>
             <groupId>org.spongepowered</groupId>
