@@ -22,7 +22,6 @@ import static org.cubeengine.module.module.kits.data.KitData.TIMES;
 
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.DataContainer;
-import org.spongepowered.api.data.MemoryDataContainer;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.manipulator.ImmutableDataManipulator;
 import org.spongepowered.api.data.value.BaseValue;
@@ -68,7 +67,7 @@ public class ImmutableKitData implements ImmutableDataManipulator<ImmutableKitDa
     @Override
     public DataContainer toContainer()
     {
-        DataContainer container = new MemoryDataContainer();
+        DataContainer container = DataContainer.createNew();
         container.set(TIMES, this.times);
         container.set(TIME, this.time);
         return container;

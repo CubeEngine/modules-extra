@@ -235,8 +235,8 @@ public class Receiver
         String titleLineSort = i18n.getTranslation(cmdSource, "(newest first)");
         Text titleLine = Text.of(titleLineAmount, " ", TextColors.YELLOW, titleLineSort);
         Text titleTimings = i18n.translate(cmdSource, NEUTRAL, "Query: {input#time} Report: {input#time}",
-                TimeUtil.format(cmdSource.getLocale(), lookup.timing(Lookup.LookupTiming.LOOKUP)),
-                TimeUtil.format(cmdSource.getLocale(), lookup.timing(Lookup.LookupTiming.REPORT)));
+                TimeUtil.formatDuration(lookup.timing(Lookup.LookupTiming.LOOKUP)),
+                TimeUtil.formatDuration(lookup.timing(Lookup.LookupTiming.REPORT)));
         titleLine = titleLine.toBuilder().onHover(TextActions.showText(titleTimings)).build();
         builder.title(titleLine).padding(Text.of("-"))
                 // TODO reverse order
