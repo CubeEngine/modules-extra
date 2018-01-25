@@ -58,7 +58,7 @@ import javax.inject.Singleton;
  * A module to handle Votes coming from a {@link VotifierEvent}
  */
 @Singleton
-@Module(dependencies = @Dependency("nuvotifier"))
+@Module(dependencies = {@Dependency("nuvotifier"), @Dependency("cubeengine-sql")})
 @ModuleTables(TableVote.class)
 public class Vote extends CubeEngineModule
 {
