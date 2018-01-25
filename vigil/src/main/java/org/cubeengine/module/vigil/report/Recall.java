@@ -123,6 +123,9 @@ public class Recall
 
     public static Text cause(List<Map<String, Object>> list)
     {
+        if (list.size() > 3) {
+            list = list.subList(0, 3);
+        }
         Text text = Text.of("?");
         Iterator<Map<String, Object>> it = list.iterator();
         if (!list.isEmpty())

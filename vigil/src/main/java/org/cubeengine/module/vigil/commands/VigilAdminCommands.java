@@ -35,6 +35,7 @@ import org.spongepowered.api.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Command(name = "admin", desc = "Vigil-Admin Commands")
 public class VigilAdminCommands extends ContainerCommand
@@ -81,7 +82,6 @@ public class VigilAdminCommands extends ContainerCommand
 
     private void runPurge(CommandSource ctx)
     {
-        module.getQueryManager().purge();
-        i18n.send(ctx, POSITIVE, "Purged all logs from database!");
+        CompletableFuture.runAsync(() -> module.getQueryManager().purge()).thenRun(() -> i18n.send(ctx, POSITIVE, "Purged all logs from database!"));
     }
 }
