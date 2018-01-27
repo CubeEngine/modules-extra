@@ -37,10 +37,12 @@ import org.spongepowered.api.event.filter.Getter;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
+import org.spongepowered.api.item.inventory.BlockCarrier;
 import org.spongepowered.api.item.inventory.Carrier;
 import org.spongepowered.api.item.inventory.Container;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.MultiBlockCarrier;
 import org.spongepowered.api.item.inventory.type.CarriedInventory;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.scheduler.Task;
@@ -123,11 +125,21 @@ public class ItemDuctTransferListener
 
     private void promptActivation(Carrier carrier, boolean push, Player player)
     {
-        if (!(carrier instanceof TileEntity))
+        if (!(carrier instanceof BlockCarrier))
         {
             return;
         }
+        if (carrier instanceof MultiBlockCarrier) {
+            for (Location<World> loc : ((MultiBlockCarrier) carrier).getLocations()) {
+                promptAtLoc(push, player, loc);
+            }
+            return;
+        }
         Location<World> loc = ((TileEntity) carrier).getLocation();
+        promptAtLoc(push, player, loc);
+    }
+
+    private void promptAtLoc(boolean push, Player player, Location<World> loc) {
         Optional<DuctData> data = loc.get(DuctData.class);
         if (data.isPresent())
         {
