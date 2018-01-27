@@ -30,6 +30,7 @@ import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.module.fun.Fun;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.property.block.SolidCubeProperty;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.entity.living.player.Player;
@@ -253,18 +254,19 @@ public class RocketCommand
                 {
                     return 0;
                 }
-                final Location<World> location = this.getUser().getLocation();
+                Location<World> location = this.getUser().getLocation();
                 if (location == null)
                 {
                     return 0;
                 }
-                location.add(0, 1, 0);
+                location = location.add(0, 1, 0);
                 int numberOfAirBlocks = 0;
 
-                while (!location.getBlock().getType().getProperty(SolidCubeProperty.class).isPresent() && location.getY() < location.getExtent().getDimension().getHeight())
+                while (location.getBlock().getType() == BlockTypes.AIR
+                        && location.getY() < location.getExtent().getDimension().getHeight())
                 {
                     numberOfAirBlocks++;
-                    location.add(0, 1, 0);
+                    location = location.add(0, 1, 0);
                 }
 
                 return numberOfAirBlocks;
@@ -277,18 +279,18 @@ public class RocketCommand
                 {
                     return 0;
                 }
-                final Location<World> location = this.getUser().getLocation();
+                Location<World> location = this.getUser().getLocation();
                 if (location == null)
                 {
                     return 0;
                 }
-                location.add(0, -1, 0);
+                location = location.add(0, -1, 0);
                 int numberOfAirBlocks = 0;
 
                 while (!location.getBlock().getProperty(SolidCubeProperty.class).isPresent() || location.getY() > location.getExtent().getDimension().getHeight())
                 {
                     numberOfAirBlocks++;
-                    location.add(0, -1, 0);
+                    location = location.add(0, -1, 0);
                 }
 
                 return numberOfAirBlocks;
