@@ -32,12 +32,12 @@ public class RepairBlockPersister
 {
     private final Map<Location<World>,RepairBlockModel> models = new HashMap<>();
     private final Itemrepair module;
-    private final DSLContext dsl;
+    private Database db;
 
     public RepairBlockPersister(Itemrepair module, Database db)
     {
-        this.dsl = db.getDSL();
         this.module = module;
+        this.db = db;
     }
 
     public void deleteByBlock(Location<World> block)
@@ -55,7 +55,7 @@ public class RepairBlockPersister
 
     public Collection<RepairBlockModel> getAll(World world)
     {
-        Collection <RepairBlockModel> all = this.dsl.selectFrom(TABLE_REPAIR_BLOCK).where(TABLE_REPAIR_BLOCK.WORLD.eq(world.getUniqueId())).fetch();
+        Collection <RepairBlockModel> all = this.db.getDSL().selectFrom(TABLE_REPAIR_BLOCK).where(TABLE_REPAIR_BLOCK.WORLD.eq(world.getUniqueId())).fetch();
         for (RepairBlockModel repairBlockModel : all)
         {
             this.models.put(repairBlockModel.getBlock(),repairBlockModel);

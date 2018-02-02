@@ -57,13 +57,12 @@ public class RepairBlockManager
 
     protected final Itemrepair module;
     private final RepairItemContainer itemProvider;
-
-    private final DSLContext dsl;
+    private Database db;
 
     public RepairBlockManager(Itemrepair module, Database db, EventManager em, I18n i18n, EconomyService economy,
                               PermissionManager pm)
     {
-        this.dsl = db.getDSL();
+        this.db = db;
         this.module = module;
         this.repairBlocks = new HashMap<>();
         this.itemProvider = new RepairItemContainer(module.getConfig().price.baseMaterials);
@@ -180,7 +179,7 @@ public class RepairBlockManager
             if (this.repairBlocks.containsKey(material))
             {
                 this.blockMap.put(block, material);
-                this.persister.storeBlock(block, this.dsl.newRecord(TABLE_REPAIR_BLOCK).newRepairBlock(block));
+                this.persister.storeBlock(block, this.db.getDSL().newRecord(TABLE_REPAIR_BLOCK).newRepairBlock(block));
                 return true;
             }
         }
