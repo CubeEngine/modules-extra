@@ -13,9 +13,16 @@
     <version>1.0.0-SNAPSHOT</version>
     <description>Announce things!</description>
 
+    <scm>
+        <url>scm:git:https://github.com/CubeEngine/modules-extra</url>
+        <connection>scm:git:https://github.com/CubeEngine/modules-extra.git</connection>
+        <developerConnection>scm:git:git@github.com:CubeEngine/modules-extra.git</developerConnection>
+    </scm>
+
     <properties>
         <libcube.version>1.2.1-SNAPSHOT</libcube.version>
         <sponge.version>7.1.0-SNAPSHOT</sponge.version>
+        <module.roles.version>1.0.0-SNAPSHOT</module.roles.version>
     </properties>
 
     <dependencies>
@@ -34,7 +41,7 @@
         <dependency>
             <groupId>org.cubeengine.module</groupId>
             <artifactId>roles</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>${module.roles.version}</version>
             <type>jar</type>
             <scope>provided</scope>
         </dependency>

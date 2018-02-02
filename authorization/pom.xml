@@ -1,34 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-<parent>
-    <groupId>org.cubeengine.extra-module</groupId>
-    <artifactId>parent</artifactId>
-    <version>1</version>
-  </parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.cubeengine.module</groupId>
+        <artifactId>parent</artifactId>
+        <version>1</version>
+    </parent>
 
-  <artifactId>authorization</artifactId>
-  <name>Authorization</name>
-  <version>1.0.0-SNAPSHOT</version>
-  <description>Provides password authorization</description>
+    <artifactId>authorization</artifactId>
+    <name>Authorization</name>
+    <version>1.0.0-SNAPSHOT</version>
+    <description>Provides password authorization</description>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.spongepowered</groupId>
-      <artifactId>spongeapi</artifactId>
-      <version>7.1.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.cubeengine</groupId>
-      <artifactId>libcube</artifactId>
-      <version>1.2.1-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.cubeengine.module</groupId>
-      <artifactId>sql</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
-      <scope>provided</scope>
-      <type>jar</type>
-    </dependency>
-  </dependencies>
+    <scm>
+        <url>scm:git:https://github.com/CubeEngine/modules-extra</url>
+        <connection>scm:git:https://github.com/CubeEngine/modules-extra.git</connection>
+        <developerConnection>scm:git:git@github.com:CubeEngine/modules-extra.git</developerConnection>
+    </scm>
+
+    <properties>
+        <libcube.version>1.2.1-SNAPSHOT</libcube.version>
+        <sponge.version>7.1.0-SNAPSHOT</sponge.version>
+        <module.sql.version>1.0.0-SNAPSHOT</module.sql.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.spongepowered</groupId>
+            <artifactId>spongeapi</artifactId>
+            <version>${sponge.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.cubeengine</groupId>
+            <artifactId>libcube</artifactId>
+            <version>${libcube.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.cubeengine.module</groupId>
+            <artifactId>sql</artifactId>
+            <version>${module.sql.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>

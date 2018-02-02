@@ -13,10 +13,19 @@
     <version>1.0.0-SNAPSHOT</version>
     <description>This module integrates into Votifier to provide vote rewards</description>
 
+    <scm>
+        <url>scm:git:https://github.com/CubeEngine/modules-extra</url>
+        <connection>scm:git:https://github.com/CubeEngine/modules-extra.git</connection>
+        <developerConnection>scm:git:git@github.com:CubeEngine/modules-extra.git</developerConnection>
+    </scm>
+
     <properties>
         <libcube.version>1.2.1-SNAPSHOT</libcube.version>
+        <module.sql.version>1.0.0-SNAPSHOT</module.sql.version>
         <sponge.version>7.1.0-SNAPSHOT</sponge.version>
+        <plugin.nuvotifier.version>2.3.2.2</plugin.nuvotifier.version>
     </properties>
+
 
     <dependencies>
         <dependency>
@@ -34,15 +43,13 @@
         <dependency>
             <groupId>org.cubeengine.module</groupId>
             <artifactId>sql</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>${module.sql.version}</version>
             <scope>provided</scope>
-            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>com.vexsoftware</groupId>
             <artifactId>nuvotifier-sponge</artifactId>
-            <type>jar</type>
-            <version>2.3.2.2</version>
+            <version>${plugin.nuvotifier.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
