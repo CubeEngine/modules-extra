@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadFactory;
+import java.util.function.Consumer;
 
 import com.mongodb.MongoTimeoutException;
 import com.mongodb.client.FindIterable;
@@ -68,6 +69,8 @@ public class QueryManager
     private ReportManager reportManager;
     private I18n i18n;
 
+    private List<Consumer<Action>> callbacks = new ArrayList<>();
+
     public QueryManager(ThreadFactory tf, MongoCollection<Document> db, ReportManager reportManager, I18n i18n, PluginContainer plugin)
     {
         this.db = db;
@@ -95,6 +98,12 @@ public class QueryManager
         {
             storeFuture = storeExecuter.submit(() -> store(batchSize));
         }
+
+        callbacks.forEach(c -> c.accept(action));
+    }
+
+    public void addCallback(Consumer<Action> callback) {
+        this.callbacks.add(callback);
     }
 
     /**
