@@ -17,6 +17,7 @@
  */
 package org.cubeengine.module.vigil.report;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +36,7 @@ public class Action
     public Action(String type)
     {
         this(new Document());
-        document.put(DATE, new Date());
+        document.put(DATE, new Date(Instant.now().toEpochMilli()));
         document.put(TYPE, type);
         document.put(DATA, new HashMap<String, Object>());
     }
