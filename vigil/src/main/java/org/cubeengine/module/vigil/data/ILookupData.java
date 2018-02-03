@@ -33,13 +33,13 @@ public interface ILookupData
     TypeToken<Value<Boolean>> TTV_Bool = new TypeToken<Value<Boolean>>() {};
     TypeToken<ListValue<String>> TTLV_String = new TypeToken<ListValue<String>>() {};
 
-    Key<Value<UUID>> CREATOR = Key.builder().type(TTV_UUID).query(of("creator")).id("cubeengine-vigil:creator").name("Creator").build();
-    Key<Value<Boolean>> FULLDATE = Key.builder().type(TTV_Bool).query(of("fulldate")).id("cubeengine-vigil:isfulldate").name("Full Date").build();
-    Key<Value<Boolean>> SHOWLOC = Key.builder().type(TTV_Bool).query(of("showloc")).id("cubeengine-vigil:showloc").name("Show Location").build();
-    Key<Value<Boolean>> NODATE = Key.builder().type(TTV_Bool).query(of("nodate")).id("cubeengine-vigil:nodate").name("No Date").build();
-    Key<Value<Boolean>> FULLLOC = Key.builder().type(TTV_Bool).query(of("fullloc")).id("cubeengine-vigil:fullloc").name("Full Location").build();
-    Key<Value<Boolean>> DETAILINV = Key.builder().type(TTV_Bool).query(of("detailinv")).id("cubeengine-vigil:detailinv").name("Detailed Inventory").build();
-    Key<ListValue<String>> REPORTS = Key.builder().type(TTLV_String).query(of("reports")).id("cubeengine-vigil:reports").name("Filtered Reports").build();
+    Key<Value<UUID>> CREATOR = Key.builder().type(TTV_UUID).query(of("creator")).id("creator").name("Creator").build();
+    Key<Value<Boolean>> FULLDATE = Key.builder().type(TTV_Bool).query(of("fulldate")).id("isfulldate").name("Full Date").build();
+    Key<Value<Boolean>> SHOWLOC = Key.builder().type(TTV_Bool).query(of("showloc")).id("showloc").name("Show Location").build();
+    Key<Value<Boolean>> NODATE = Key.builder().type(TTV_Bool).query(of("nodate")).id("nodate").name("No Date").build();
+    Key<Value<Boolean>> FULLLOC = Key.builder().type(TTV_Bool).query(of("fullloc")).id("fullloc").name("Full Location").build();
+    Key<Value<Boolean>> DETAILINV = Key.builder().type(TTV_Bool).query(of("detailinv")).id("detailinv").name("Detailed Inventory").build();
+    Key<ListValue<String>> REPORTS = Key.builder().type(TTLV_String).query(of("reports")).id("reports").name("Filtered Reports").build();
 
     UUID getCreator();
     boolean isFullDate();

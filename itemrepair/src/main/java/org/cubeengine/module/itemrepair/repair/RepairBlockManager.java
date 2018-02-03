@@ -75,10 +75,6 @@ public class RepairBlockManager
         this.blockMap = new HashMap<>();
         this.persister = new RepairBlockPersister(module, db);
         em.registerListener(Itemrepair.class, this);
-        for (World world : Sponge.getServer().getWorlds())
-        {
-            this.loadRepairBlocks(this.persister.getAll(world));
-        }
     }
 
     private void loadRepairBlocks(Collection<RepairBlockModel> models)

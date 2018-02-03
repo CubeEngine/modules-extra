@@ -17,30 +17,29 @@
  */
 package org.cubeengine.module.shout;
 
-import java.nio.file.Path;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import org.cubeengine.logscribe.Log;
 import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.ModuleManager;
-import org.cubeengine.processor.Dependency;
-import org.cubeengine.processor.Module;
-import org.cubeengine.reflect.Reflector;
-import org.cubeengine.libcube.service.permission.Permission;
-import org.cubeengine.module.shout.announce.Announcement;
-import org.cubeengine.module.shout.announce.AnnouncementManager;
-import org.cubeengine.module.shout.interactions.ShoutCommand;
-import org.cubeengine.module.shout.interactions.ShoutListener;
 import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.matcher.StringMatcher;
+import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.libcube.service.task.TaskManager;
+import org.cubeengine.logscribe.Log;
+import org.cubeengine.module.shout.announce.Announcement;
+import org.cubeengine.module.shout.announce.AnnouncementManager;
+import org.cubeengine.module.shout.interactions.ShoutCommand;
+import org.cubeengine.module.shout.interactions.ShoutListener;
+import org.cubeengine.processor.Module;
+import org.cubeengine.reflect.Reflector;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GameLoadCompleteEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+
+import java.nio.file.Path;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 @Singleton
 @Module
@@ -79,12 +78,6 @@ public class Shout extends CubeEngineModule
         em.registerListener(Shout.class, new ShoutListener(manager));
         cm.addCommand(new ShoutCommand(cm, this, i18n));
 
-    }
-
-    @Listener
-    public void onLoaded(GameLoadCompleteEvent event)
-    {
-        manager.initUsers();
     }
 
     public AnnouncementManager getManager()
