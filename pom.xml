@@ -59,6 +59,7 @@
     <module>patient</module>
     <module>itemduct</module>
     <module>tablist</module>
+    <module>stats</module>
   </modules>
 
   <build>
