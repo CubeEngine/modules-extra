@@ -42,15 +42,15 @@ import org.spongepowered.api.world.BlockChangeFlags;
 
 public abstract class BlockReport<T extends ChangeBlockEvent> extends BaseReport<T>
 {
-    public static final String BLOCK_CHANGES = "block-changes";
-    public static final String BLOCKS_ORIG = BLOCK_CHANGES + "-orig";
-    public static final String BLOCKS_REPL = BLOCK_CHANGES + "-repl";
+    public static final Action.DataKey<Map<String, Object>> BLOCK_CHANGES = new Action.DataKey<>("block-changes");
+    public static final Action.DataKey<Optional<BlockSnapshot>> BLOCKS_ORIG = new Action.DataKey<>(BLOCK_CHANGES.name + "-orig");
+    public static final Action.DataKey<Optional<BlockSnapshot>> BLOCKS_REPL = new Action.DataKey<>(BLOCK_CHANGES.name + "-repl");
     public static final DataQuery BLOCK_STATE = DataQuery.of("BlockState");
     public static final DataQuery BLOCK_DATA = DataQuery.of("TileEntityData");
     public static final DataQuery BLOCK_UNSAFE_DATA = DataQuery.of("UnsafeData");
     public static final DataQuery BLOCK_ITEMS = DataQuery.of("UnsafeData", "Items");
-    public static final String ORIGINAL = "original";
-    public static final String REPLACEMENT = "replacement";
+    public static final Action.DataKey<Map<String, Object>> ORIGINAL = new Action.DataKey<>("original");
+    public static final Action.DataKey<Map<String, Object>> REPLACEMENT = new Action.DataKey<>("replacement");
 
     @Override
     protected Action observe(ChangeBlockEvent event)

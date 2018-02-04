@@ -24,26 +24,52 @@ import java.util.Map;
 import java.util.function.Function;
 import org.bson.Document;
 
+
 public class Action
 {
-    public static final String DATE = "date";
-    public static final String TYPE = "type";
-    public static final String DATA = "data";
-    private final Document document;
+    public static class DataKey<T> {
+        public final String name;
 
+        public DataKey(String name) {
+            this.name = name;
+        }
+
+        @SuppressWarnings("unchecked")
+        public T get(Map<String, Object> store) {
+            return (T)store.get(name);
+        }
+
+        public void put(Map<String, Object> store, T value) {
+            store.put(name, value);
+        }
+    }
+
+    public static final DataKey<Date> DATE = new DataKey<>("date");
+    public static final DataKey<String> TYPE = new DataKey<>("type");
+    public static final DataKey<Map<String, Object>> DATA = new DataKey<>("data");
+
+    private final Document document;
     private Map<String, Object> cached;
 
     public Action(String type)
     {
         this(new Document());
-        document.put(DATE, new Date(Instant.now().toEpochMilli()));
-        document.put(TYPE, type);
-        document.put(DATA, new HashMap<String, Object>());
+        DATE.put(document, new Date(Instant.now().toEpochMilli()));
+        TYPE.put(document, type);
+        DATA.put(document, new HashMap<>());
     }
 
     public Action(Document dbObject)
     {
         this.document = dbObject;
+    }
+
+    public String getType() {
+        return TYPE.get(document);
+    }
+
+    public Date getDate() {
+        return DATE.get(document);
     }
 
     @SuppressWarnings("unchecked")
@@ -58,9 +84,19 @@ public class Action
         return ((T)getData().get(key));
     }
 
+    public <T> T getData(DataKey<T> key)
+    {
+        return key.get(getData());
+    }
+
     public void addData(String name, Object value)
     {
         getData().put(name, value);
+    }
+
+    public <T> void addData(DataKey<T> key, T value)
+    {
+        key.put(getData(), value);
     }
 
     public Document getDocument()
@@ -83,8 +119,18 @@ public class Action
         return result;
     }
 
-    public Date getDate()
+    public <T> T getCached(DataKey<T> key, Function<Action, T> func)
     {
-        return document.getDate(DATE);
+        if (cached == null)
+        {
+            cached = new HashMap<>();
+        }
+        T result = key.get(cached);
+        if (result == null)
+        {
+            result = func.apply(this);
+            key.put(cached, result);
+        }
+        return result;
     }
 }

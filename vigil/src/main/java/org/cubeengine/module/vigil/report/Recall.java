@@ -103,13 +103,13 @@ public class Recall
     public static Optional<BlockSnapshot> origSnapshot(Action action)
     {
         Map<String, Object> changes = action.getData(BLOCK_CHANGES);
-        return block(((Map<String, Object>)changes.get(ORIGINAL)), action.getData(LOCATION));
+        return block(ORIGINAL.get(changes), action.getData(LOCATION));
     }
 
     public static Optional<BlockSnapshot> replSnapshot(Action action)
     {
         Map<String, Object> changes = action.getData(BLOCK_CHANGES);
-        return block(((Map<String, Object>)changes.get(REPLACEMENT)), action.getData(LOCATION));
+        return block(REPLACEMENT.get(changes), action.getData(LOCATION));
     }
 
     @SuppressWarnings("unchecked")

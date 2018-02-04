@@ -300,8 +300,8 @@ public class Observe
         {
             //System.out.print(transaction.getFinal().getLocation().get().getPosition() +  " " + transaction.getFinal().getState().getType() + "\n");
             //data.put(LOCATION, location(transaction.getFinal().getLocation().get()));
-            data.put(BlockReport.ORIGINAL, blockSnapshot(original));
-            data.put(BlockReport.REPLACEMENT, blockSnapshot(transaction.getFinal()));
+            ORIGINAL.put(data, blockSnapshot(original));
+            REPLACEMENT.put(data, blockSnapshot(transaction.getFinal()));
         }
         return data;
     }

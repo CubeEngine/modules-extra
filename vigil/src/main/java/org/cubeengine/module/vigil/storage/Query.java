@@ -67,8 +67,8 @@ public class Query
         Document block = new Document();
         Document other = new Document();
 
-        block.put(String.join(".", DATA, BLOCK_CHANGES, LOCATION, WORLD.asString("_")), world.toString());
-        other.put(String.join(".", DATA, LOCATION, WORLD.asString("_")), world.toString());
+        block.put(String.join(".", DATA.name, BLOCK_CHANGES.name, LOCATION, WORLD.asString("_")), world.toString());
+        other.put(String.join(".", DATA.name, LOCATION, WORLD.asString("_")), world.toString());
 
         and.add(new Document(OR, Arrays.asList(block, other)));
         return this;
@@ -78,9 +78,9 @@ public class Query
     {
         Document position = new Document();
 
-        position.put(String.join(".", DATA, LOCATION, X.asString("_")), pos.getX());
-        position.put(String.join(".", DATA, LOCATION, Y.asString("_")), pos.getY());
-        position.put(String.join(".", DATA, LOCATION, Z.asString("_")), pos.getZ());
+        position.put(String.join(".", DATA.name, LOCATION, X.asString("_")), pos.getX());
+        position.put(String.join(".", DATA.name, LOCATION, Y.asString("_")), pos.getY());
+        position.put(String.join(".", DATA.name, LOCATION, Z.asString("_")), pos.getZ());
 
         and.add(position);
         return this;
@@ -94,13 +94,13 @@ public class Query
         cond.put(QueryOperators.GT, pos.getX() - radius);
         cond.put(QueryOperators.LT, pos.getX() + radius);
 
-        posRadius.put(String.join(".", DATA, LOCATION, X.asString("_")), cond);
+        posRadius.put(String.join(".", DATA.name, LOCATION, X.asString("_")), cond);
 
         cond = new Document();
         cond.put(QueryOperators.GT, pos.getZ() - radius);
         cond.put(QueryOperators.LT, pos.getZ() + radius);
 
-        posRadius.put(String.join(".", DATA, LOCATION, Z.asString("_")), cond);
+        posRadius.put(String.join(".", DATA.name, LOCATION, Z.asString("_")), cond);
 
         and.add(posRadius);
         return this;
@@ -109,7 +109,7 @@ public class Query
     public Query reportFilters(List<String> reports)
     {
         Document types = new Document();
-        types.put(TYPE, new Document(IN, reports));
+        types.put(TYPE.name, new Document(IN, reports));
         and.add(types);
         return this;
     }
