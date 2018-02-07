@@ -170,7 +170,7 @@ public class ItemDuctTransferListener
             this.promptedActivations.computeIfAbsent(loc, k -> System.currentTimeMillis());
             if (player != null)
             {
-                player.getProgress(module.prompted).get(module.promptCriterion).get().add(1);
+                player.getProgress(module.prompted).get(module.promptCriterion).ifPresent(c -> c.add(1));
             }
 
         }
