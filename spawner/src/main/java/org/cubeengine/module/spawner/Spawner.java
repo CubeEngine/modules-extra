@@ -22,6 +22,12 @@ import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NONE;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 import static org.spongepowered.api.block.BlockTypes.MOB_SPAWNER;
+import static org.spongepowered.api.data.key.Keys.DISPLAY_NAME;
+import static org.spongepowered.api.data.key.Keys.INVISIBLE;
+import static org.spongepowered.api.data.key.Keys.ITEM_ENCHANTMENTS;
+import static org.spongepowered.api.data.key.Keys.REPRESENTED_ITEM;
+import static org.spongepowered.api.data.key.Keys.SPAWNER_ENTITIES;
+import static org.spongepowered.api.data.key.Keys.SPAWNER_NEXT_ENTITY_TO_SPAWN;
 import static org.spongepowered.api.data.type.HandTypes.MAIN_HAND;
 import static org.spongepowered.api.entity.EntityTypes.BAT;
 import static org.spongepowered.api.entity.EntityTypes.BLAZE;
@@ -68,7 +74,6 @@ import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityArchetype;
 import org.spongepowered.api.entity.EntityType;
-import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
@@ -83,6 +88,7 @@ import org.spongepowered.api.item.enchantment.Enchantment;
 import org.spongepowered.api.item.enchantment.EnchantmentType;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
+import org.spongepowered.api.text.chat.ChatTypes;
 import org.spongepowered.api.util.weighted.RandomObjectTable;
 import org.spongepowered.api.util.weighted.WeightedSerializableObject;
 import org.spongepowered.api.util.weighted.WeightedTable;
@@ -109,7 +115,9 @@ public class Spawner extends CubeEngineModule
 {
     private ItemStack spawnerItem;
     private Permission eggPerms;
+    private Permission breakPerm;
     private Map<EntityType, Permission> perms = new HashMap<>();
+    private Set<Location<World>> brokenSpawners = new HashSet<>();
 
     @Inject private PermissionManager pm;
     @Inject private I18n i18n;
@@ -117,28 +125,29 @@ public class Spawner extends CubeEngineModule
     @Listener
     public void onEnable(GamePreInitializationEvent event)
     {
-        this.eggPerms = pm.register(Spawner.class, "egg", "", null);
+        this.eggPerms = pm.register(Spawner.class, "egg", "Allows creating all types of spawners with spawneggs", null);
+        this.breakPerm = pm.register(Spawner.class, "break", "Allows obtaining inactive monster spawners", null);
         this.initPerm(CREEPER, SKELETON, SPIDER, ZOMBIE, SLIME, GHAST, PIG_ZOMBIE, ENDERMAN,
                       CAVE_SPIDER, SILVERFISH, BLAZE, MAGMA_CUBE, WITCH, BAT, PIG, SHEEP, COW,
                       CHICKEN, SQUID, WOLF, MUSHROOM_COW, OCELOT, HORSE, VILLAGER);
 
         this.spawnerItem = ItemStack.of(ItemTypes.MOB_SPAWNER, 1);
-        spawnerItem.offer(Keys.ITEM_ENCHANTMENTS, singletonList(Enchantment.builder().type(LURE).level(1).build()));
+        spawnerItem.offer(ITEM_ENCHANTMENTS, singletonList(Enchantment.builder().type(LURE).level(1).build()));
     }
 
     private void initPerm(EntityType... types)
     {
         for (EntityType type : types)
         {
-            Permission child = pm.register(Spawner.class, type.getName(), "", eggPerms);
+            Permission child = pm.register(Spawner.class, type.getName(),
+                    "Allows creating " + type.getName() + " spawners", eggPerms);
             this.perms.put(type, child);
         }
     }
 
-    public static boolean hasEnchantment(ItemStackSnapshot item, EnchantmentType ench)
+    private static boolean hasEnchantment(ItemStackSnapshot item, EnchantmentType ench)
     {
-        // TODO Sponge 4.0 will have a check for this?
-        Optional<List<Enchantment>> enchs = item.get(Keys.ITEM_ENCHANTMENTS);
+        Optional<List<Enchantment>> enchs = item.get(ITEM_ENCHANTMENTS);
         if (enchs.isPresent())
         {
             for (Enchantment e : enchs.get())
@@ -152,17 +161,17 @@ public class Spawner extends CubeEngineModule
         return false;
     }
 
-    public static boolean breaks(ChangeBlockEvent.Break event, BlockType type)
+    private static boolean breaks(ChangeBlockEvent.Break event, BlockType type)
     {
         return has(event, type, snap -> snap.getOriginal().getState().getType());
     }
 
-    public static boolean places(ChangeBlockEvent.Place event, BlockType type)
+    private static boolean places(ChangeBlockEvent.Place event, BlockType type)
     {
         return has(event, type, snap -> snap.getFinal().getState().getType());
     }
 
-    public static boolean has(ChangeBlockEvent event, BlockType type, Function<Transaction<BlockSnapshot>, BlockType> func)
+    private static boolean has(ChangeBlockEvent event, BlockType type, Function<Transaction<BlockSnapshot>, BlockType> func)
     {
         for (Transaction<BlockSnapshot> trans : event.getTransactions())
         {
@@ -174,12 +183,10 @@ public class Spawner extends CubeEngineModule
         return false;
     }
 
-    private Set<Location<World>> brokenSpawners = new HashSet<>();
-
     @Listener(order = POST)
     public void onBlockBreak(ChangeBlockEvent.Break event, @First Player player)
     {
-        if (event.getTransactions().size() != 1)
+        if (event.getTransactions().size() != 1 || !this.breakPerm.check(player))
         {
             return;
         }
@@ -189,18 +196,18 @@ public class Spawner extends CubeEngineModule
             breaks(event, MOB_SPAWNER))
         {
             ItemStack clone = spawnerItem.copy();
-            clone.offer(Keys.ITEM_ENCHANTMENTS, singletonList(Enchantment.builder().type(LURE).level(1).build()));
-            clone.offer(Keys.DISPLAY_NAME, i18n.translate(player, NONE, "Inactive Monster Spawner"));
+            clone.offer(ITEM_ENCHANTMENTS, singletonList(Enchantment.builder().type(LURE).level(1).build()));
+            clone.offer(DISPLAY_NAME, i18n.translate(player, NONE, "Inactive Monster Spawner"));
 
             Transaction<BlockSnapshot> trans = event.getTransactions().get(0);
             brokenSpawners.add(trans.getFinal().getLocation().get());
 
             Entity item = player.getWorld().createEntity(ITEM, player.getLocation().getPosition());
-            item.offer(Keys.REPRESENTED_ITEM, clone.createSnapshot());
+            item.offer(REPRESENTED_ITEM, clone.createSnapshot());
             Sponge.getCauseStackManager().pushCause(player);
 
-            player.getWorld().spawnEntity(item); // TODO instead drop naturally at blockpos
-            i18n.send(player, POSITIVE, "Dropped inactive Monster Spawner!");
+            player.getWorld().spawnEntity(item);
+            i18n.send(ACTION_BAR, player, POSITIVE, "Dropped inactive Monster Spawner!");
         }
     }
 
@@ -219,7 +226,7 @@ public class Spawner extends CubeEngineModule
     @Listener(order = POST)
     public void onBlockPlace(ChangeBlockEvent.Place event, @First Player player)
     {
-        EntityArchetype hidden = EntityArchetype.builder().type(SNOWBALL).set(Keys.INVISIBLE, true).build();
+        EntityArchetype hidden = EntityArchetype.builder().type(SNOWBALL).set(INVISIBLE, true).build();
         Optional<ItemStackSnapshot> inHand = event.getContext().get(EventContextKeys.USED_ITEM);
         if (inHand.isPresent() &&
             places(event, MOB_SPAWNER) &&
@@ -230,9 +237,10 @@ public class Spawner extends CubeEngineModule
                 if (trans.getFinal().getState().getType().equals(MOB_SPAWNER))
                 {
                     BlockSnapshot snap = trans.getFinal();
-                    snap.getLocation().get().offer(Keys.SPAWNER_ENTITIES, new WeightedTable<>());
-                    snap.getLocation().get().offer(Keys.SPAWNER_NEXT_ENTITY_TO_SPAWN, new WeightedSerializableObject<>(hidden, 1));
-                    i18n.send(player, POSITIVE, "Inactive Monster Spawner placed!");
+                    Location<World> loc = snap.getLocation().get();
+                    loc.offer(SPAWNER_ENTITIES, new WeightedTable<>());
+                    loc.offer(SPAWNER_NEXT_ENTITY_TO_SPAWN, new WeightedSerializableObject<>(hidden, 1));
+                    i18n.send(ACTION_BAR, player, POSITIVE, "Inactive Monster Spawner placed!");
                     return;
                 }
             }
@@ -242,7 +250,6 @@ public class Spawner extends CubeEngineModule
     @Listener(order = POST)
     public void onInteract(InteractBlockEvent.Secondary event, @First Player player)
     {
-        // TODO maybe allow multiple spawner eggs /w same weight
         if (!event.getTargetBlock().getLocation().isPresent()) {
             return;
         }
@@ -252,12 +259,17 @@ public class Spawner extends CubeEngineModule
         {
             event.setCancelled(true);
 
-            if (block.get(Keys.SPAWNER_ENTITIES).map(RandomObjectTable::isEmpty).orElse(false))
+            if (block.get(SPAWNER_ENTITIES).map(RandomObjectTable::isEmpty).orElse(false))
             {
                 ItemStack itemInHand = player.getItemInHand(MAIN_HAND).get();
                 EntityType type = itemInHand.get(Keys.SPAWNABLE_ENTITY_TYPE).get();
 
                 Permission perm = this.perms.get(type);
+                if (perm == null)
+                {
+                    this.initPerm(type);
+                    perm = this.perms.get(type);
+                }
                 if (perm == null && !player.hasPermission(eggPerms.getId()))
                 {
                     i18n.send(ACTION_BAR, player, NEGATIVE, "Invalid SpawnEgg!");
@@ -272,13 +284,13 @@ public class Spawner extends CubeEngineModule
                 WeightedTable<EntityArchetype> spawns = new WeightedTable<>();
                 EntityArchetype nextSpawn = EntityArchetype.builder().type(type).build();
                 spawns.add(nextSpawn, 1);
-                block.offer(Keys.SPAWNER_ENTITIES, spawns);
-                block.offer(Keys.SPAWNER_NEXT_ENTITY_TO_SPAWN, new WeightedSerializableObject<>(nextSpawn, 1));
+                block.offer(SPAWNER_ENTITIES, spawns);
+                block.offer(SPAWNER_NEXT_ENTITY_TO_SPAWN, new WeightedSerializableObject<>(nextSpawn, 1));
 
                 if (!player.gameMode().get().equals(CREATIVE))
                 {
                     itemInHand.setQuantity(itemInHand.getQuantity() - 1);
-                    player.setItemInHand(MAIN_HAND, itemInHand); // TODO check if this sets no item if quantity 0
+                    player.setItemInHand(MAIN_HAND, itemInHand);
                 }
 
                 i18n.send(ACTION_BAR, player, POSITIVE, "Monster Spawner activated!");

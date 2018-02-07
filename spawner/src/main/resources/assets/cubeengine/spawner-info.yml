@@ -1,3 +1,3 @@
 features:
-  - Collecting spawners
-  - Change spawner type with spawn eggs
+  - Break spawners with Silktouch enchanted tool to get inactive spawners
+  - Place inactive spawners and activate them with spawn eggs
