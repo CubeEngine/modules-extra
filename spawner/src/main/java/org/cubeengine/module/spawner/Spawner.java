@@ -76,6 +76,7 @@ import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.enchantment.Enchantment;
@@ -200,16 +201,15 @@ public class Spawner extends CubeEngineModule
 
             player.getWorld().spawnEntity(item); // TODO instead drop naturally at blockpos
             i18n.send(player, POSITIVE, "Dropped inactive Monster Spawner!");
-            // TODO cancel exp drops
         }
     }
 
-    // TODO missing block in cause for this @Listener
-    public void onSpawnerExp(SpawnEntityEvent event)
+    @Listener
+    public void onSpawnerExp(SpawnEntityEvent event, @Root BlockSnapshot snap)
     {
-        for (Entity entity : event.getEntities())
+        if (snap.getLocation().isPresent())
         {
-            if (entity.getType().equals(EntityTypes.EXPERIENCE_ORB))
+            if (brokenSpawners.remove(snap.getLocation().get()))
             {
                 event.setCancelled(true);
             }
