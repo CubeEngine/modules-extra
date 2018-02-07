@@ -21,7 +21,6 @@ import static org.spongepowered.api.text.serializer.TextSerializers.FORMATTING_C
 
 import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
-import org.cubeengine.processor.Dependency;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
@@ -35,7 +34,7 @@ import java.util.Optional;
 import javax.inject.Singleton;
 
 @Singleton
-@Module(dependencies = @Dependency("cubeengine-bigdata"))
+@Module
 public class Tablist extends CubeEngineModule
 {
     @ModuleConfig private TablistConfig config;
