@@ -20,30 +20,23 @@
         <developerConnection>scm:git:git@github.com:CubeEngine/modules-extra.git</developerConnection>
     </scm>
 
-    <properties>
-        <libcube.version>1.2.1-SNAPSHOT</libcube.version>
-        <module.bigdata.version>1.0.0-SNAPSHOT</module.bigdata.version>
-        <sponge.version>7.1.0-SNAPSHOT</sponge.version>
-    </properties>
-
-
     <dependencies>
         <dependency>
             <groupId>org.spongepowered</groupId>
             <artifactId>spongeapi</artifactId>
-            <version>${sponge.version}</version>
+            <version>7.0.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.cubeengine</groupId>
             <artifactId>libcube</artifactId>
-            <version>${libcube.version}</version>
+            <version>1.2.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.cubeengine.module</groupId>
             <artifactId>bigdata</artifactId>
-            <version>${module.bigdata.version}</version>
+            <version>1.0.0-SNAPSHOT</version>
             <type>jar</type>
             <scope>provided</scope>
         </dependency>

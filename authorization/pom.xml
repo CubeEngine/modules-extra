@@ -29,19 +29,19 @@
         <dependency>
             <groupId>org.spongepowered</groupId>
             <artifactId>spongeapi</artifactId>
-            <version>${sponge.version}</version>
+            <version>7.0.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.cubeengine</groupId>
             <artifactId>libcube</artifactId>
-            <version>${libcube.version}</version>
+            <version>1.2.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.cubeengine.module</groupId>
             <artifactId>sql</artifactId>
-            <version>${module.sql.version}</version>
+            <version>1.0.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

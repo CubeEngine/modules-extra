@@ -14,11 +14,6 @@
     <version>1.1.3-SNAPSHOT</version>
     <description>Transfer items via glass pipes</description>
 
-    <properties>
-        <libcube.version>1.2.1-SNAPSHOT</libcube.version>
-        <sponge.version>7.1.0-SNAPSHOT</sponge.version>
-    </properties>
-
     <scm>
         <url>scm:git:https://github.com/CubeEngine/modules-extra</url>
         <connection>scm:git:https://github.com/CubeEngine/modules-extra.git</connection>
@@ -29,13 +24,13 @@
         <dependency>
             <groupId>org.spongepowered</groupId>
             <artifactId>spongeapi</artifactId>
-            <version>${sponge.version}</version>
+            <version>7.0.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.cubeengine</groupId>
             <artifactId>libcube</artifactId>
-            <version>${libcube.version}</version>
+            <version>1.2.1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
