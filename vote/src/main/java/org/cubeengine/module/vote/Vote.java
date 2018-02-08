@@ -19,6 +19,8 @@ package org.cubeengine.module.vote;
 
 import static java.lang.Math.pow;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NONE;
+import static org.cubeengine.module.sql.PluginSql.SQL_ID;
+import static org.cubeengine.module.sql.PluginSql.SQL_VERSION;
 import static org.cubeengine.module.vote.storage.TableVote.TABLE_VOTE;
 
 import com.vexsoftware.votifier.sponge.event.VotifierEvent;
@@ -28,6 +30,7 @@ import org.cubeengine.libcube.InjectService;
 import org.cubeengine.libcube.ModuleManager;
 import org.cubeengine.libcube.service.Broadcaster;
 import org.cubeengine.libcube.service.command.ModuleCommand;
+import org.cubeengine.module.sql.PluginSql;
 import org.cubeengine.module.sql.database.Database;
 import org.cubeengine.module.sql.database.ModuleTables;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
@@ -58,7 +61,7 @@ import javax.inject.Singleton;
  * A module to handle Votes coming from a {@link VotifierEvent}
  */
 @Singleton
-@Module(dependencies = {@Dependency("nuvotifier"), @Dependency("cubeengine-sql")})
+@Module(dependencies = {@Dependency("nuvotifier"), @Dependency(value = SQL_ID, version = SQL_VERSION)})
 @ModuleTables(TableVote.class)
 public class Vote extends CubeEngineModule
 {
