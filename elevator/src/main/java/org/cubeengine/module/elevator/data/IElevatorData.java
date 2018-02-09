@@ -31,8 +31,8 @@ public interface IElevatorData
     TypeToken<Value<UUID>> TTV_UUID = new TypeToken<Value<UUID>>() {};
     TypeToken<Value<Vector3i>> TTV_VECTOR = new TypeToken<Value<Vector3i>>() {};
 
-    Key<Value<UUID>> OWNER = Key.builder().type(TTV_UUID).query(of("owner")).id("cubeengine-elevator:owner").name("Owner").build();
-    Key<Value<Vector3i>> TARGET = Key.builder().type(TTV_VECTOR).query(of("target")).id("cubeengine-elevator:target").name("Target").build();
+    Key<Value<UUID>> OWNER = Key.builder().type(TTV_UUID).query(of("owner")).id("owner").name("Owner").build();
+    Key<Value<Vector3i>> TARGET = Key.builder().type(TTV_VECTOR).query(of("target")).id("target").name("Target").build();
 
     UUID getOwner();
     Vector3i getTarget();

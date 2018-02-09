@@ -200,29 +200,6 @@ public class ElevatorListener
             }
         }
 
-        /*
-        // Continue Search for next Elevator sign from max or min Y location
-        Vector3d start2 = new Vector3d(previous.getX(), up ? 0 : loc.getExtent().getBlockMax().getY(), previous.getZ());
-        ray = BlockRay.from(loc.getExtent(), start2)
-                .direction(new Vector3d(0, up ? 1 : -1, 0))
-                .narrowPhase(false)
-                .stopFilter(b -> b.getBlockY() <= loc.getExtent().getBlockMax().getY())
-                .stopFilter(b -> b.getBlockY() >= loc.getExtent().getBlockMin().getY()).build();
-        while (ray.hasNext())
-        {
-            BlockRayHit<World> next = ray.next();
-            if (next.getBlockPosition().equals(loc.getBlockPosition()))
-            {
-                break;
-            }
-            Optional<ElevatorData> targetData = next.getLocation().get(ElevatorData.class);
-            if (targetData.isPresent())
-            {
-                return next.getBlockPosition();
-            }
-        }
-        */
-
         // nothing found? Return same location as before when it is valid
         Optional<ElevatorData> targetData = loc.getExtent().get(previous.toInt(), ElevatorData.class);
         return targetData.isPresent() ? previous.toInt() : null;

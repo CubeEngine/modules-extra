@@ -24,13 +24,10 @@ import org.spongepowered.api.item.ItemTypes;
 @SuppressWarnings("all")
 public class ElevatorConfig extends ReflectedYaml
 {
-    // TODO public int maxRange = 265;
-    // TODO public boolean allowRetarget = true;
-
     public String liftDecor = "۩";
     public String upDecor = "▲";
     public String downDecor = "▼";
 
-    public ItemType creationItem = ItemTypes.ENDER_PEARL; // TODO allow itemstack
+    public ItemType creationItem = ItemTypes.ENDER_PEARL;
 
 }
