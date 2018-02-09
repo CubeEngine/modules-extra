@@ -75,7 +75,7 @@ public class Action
     @SuppressWarnings("unchecked")
     public Map<String, Object> getData()
     {
-        return document.get(DATA, Map.class);
+        return document.get(DATA.name, Map.class);
     }
 
     @SuppressWarnings("unchecked")
