@@ -135,7 +135,7 @@ public class ItemDuctTransferListener
             }
             return;
         }
-        Location<World> loc = ((TileEntity) carrier).getLocation();
+        Location<World> loc = ((BlockCarrier) carrier).getLocation();
         promptAtLoc(push, player, loc);
     }
 
