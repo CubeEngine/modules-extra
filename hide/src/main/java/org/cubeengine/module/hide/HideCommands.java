@@ -122,7 +122,7 @@ public class HideCommands
         i18n.send(context, POSITIVE, "The following users are hidden:");
         for (UUID uuid : hiddens)
         {
-            context.sendMessage(Text.of(" - ", YELLOW, Sponge.getServer().getGameProfileManager().get(uuid).get().getName()));
+            context.sendMessage(Text.of(" - ", YELLOW, Sponge.getServer().getGameProfileManager().get(uuid).get().getName().orElse("???")));
         }
     }
 

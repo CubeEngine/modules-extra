@@ -77,6 +77,9 @@ public class NukeCommand
         range = range == null ? 4 : range;
         height = height == null ? 5 : height;
 
+        diameter = diameter == null ? 5 : diameter;
+        diameter = Math.min(10, diameter);
+
         if(range != 4 && !context.hasPermission(module.perms().COMMAND_NUKE_CHANGE_RANGE.getId()))
         {
             i18n.send(context, NEGATIVE, "You are not allowed to change the explosion range of the nuke carpet!");
