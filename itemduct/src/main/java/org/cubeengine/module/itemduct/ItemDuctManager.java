@@ -208,7 +208,7 @@ public class ItemDuctManager
 
     public void playEffect(Location<World> loc)
     {
-        ParticleEffect badEffect = ParticleEffect.builder().type(ParticleTypes.REDSTONE_DUST).build();
+        ParticleEffect badEffect = ParticleEffect.builder().type(ParticleTypes.BARRIER).build();
         ParticleEffect goodEffect = ParticleEffect.builder().type(ParticleTypes.REDSTONE_DUST).option(ParticleOptions.COLOR, Color.GREEN).build();
         ParticleEffect neutralEffect = ParticleEffect.builder().type(ParticleTypes.REDSTONE_DUST).option(ParticleOptions.COLOR, Color.YELLOW).build();
         ParticleEffect smoke = ParticleEffect.builder().type(ParticleTypes.LARGE_SMOKE).build();
