@@ -81,4 +81,8 @@ public class Chat extends CubeEngineModule
     public PermissionService getPermissionService() {
         return ps;
     }
+
+    public I18n getI18n() {
+        return i18n;
+    }
 }

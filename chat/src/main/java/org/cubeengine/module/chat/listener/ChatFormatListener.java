@@ -17,9 +17,12 @@
  */
 package org.cubeengine.module.chat.listener;
 
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 import static org.cubeengine.libcube.util.ChatFormat.fromLegacy;
 import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
 
+import org.cubeengine.libcube.service.i18n.formatter.MessageType;
 import org.cubeengine.module.chat.Chat;
 import org.spongepowered.api.data.manipulator.mutable.DisplayNameData;
 import org.spongepowered.api.entity.living.player.Player;
@@ -30,9 +33,14 @@ import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.action.TextActions;
+import org.spongepowered.api.text.chat.ChatTypes;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
@@ -42,6 +50,8 @@ public class ChatFormatListener
 {
     private final Chat module;
     private static final Pattern chatColors = Pattern.compile("&[0123456789aAbBcCdDeEfFgkKlLmMnNoOrR]");
+
+    private Map<UUID, String> accumulated = new HashMap<>();
 
     @Inject
     public ChatFormatListener(Chat module)
@@ -54,12 +64,32 @@ public class ChatFormatListener
     {
         // TODO format on the messagechannel instead
         String msg = event.getRawMessage().toPlain();
+
+        if (!msg.equals("+") && msg.endsWith("+") && player.hasPermission(module.perms().LONGER.getId()))
+        {
+            msg = accumulated.getOrDefault(player.getUniqueId(), "") + msg.substring(0, msg.length() - 1);
+            msg = msg.substring(0, Math.min(msg.length(), 50 * 20));
+            module.getI18n().send(ChatTypes.ACTION_BAR, player, NEUTRAL,"{amount} characters in buffer.", msg.length());
+            accumulated.put(player.getUniqueId(), msg);
+            event.setCancelled(true);
+            return;
+        }
+
+        msg = accumulated.getOrDefault(player.getUniqueId(), "") + msg;
+        accumulated.remove(player.getUniqueId());
+        msg = msg.substring(0, Math.min(msg.length(), 50 * 20));
+
         if (module.getConfig().allowColors)
         {
             if (!player.hasPermission(module.perms().COLOR.getId()))
             {
                 msg = chatColors.matcher(msg).replaceAll("");
             }
+        }
+
+        if (player.hasPermission(module.perms().NEWLINE.getId()))
+        {
+            msg = msg.replace("\\n", "\n");
         }
 
         try

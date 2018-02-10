@@ -26,14 +26,18 @@ import org.spongepowered.api.service.permission.PermissionDescription;
 @SuppressWarnings("all")
 public class ChatPerm extends PermissionContainer
 {
+
     @Inject
     public ChatPerm(PermissionManager pm)
     {
         super(pm, Chat.class);
     }
 
+
     public final Permission COLOR = register("color", "Allows using color codes in chat", null);
 
+    public final Permission LONGER = register("longer", "Allows using a + at the end of chat to write longer messages", null);
+    public final Permission NEWLINE = register("newline", "Allows using newlines (\\n) in chat", null);
     public final Permission COMMAND_NICK_OTHER = register("command.nick.other", "", null);
     public final Permission COMMAND_NICK_OFOTHER = register("command.nick.of-other", "Allows to set the nickname to a players name that plays on this server", null);
 
