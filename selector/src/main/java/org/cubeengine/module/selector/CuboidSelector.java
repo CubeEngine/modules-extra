@@ -17,17 +17,15 @@
  */
 package org.cubeengine.module.selector;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
+import static org.spongepowered.api.block.BlockTypes.AIR;
+import static org.spongepowered.api.text.format.TextColors.GRAY;
 
-import org.cubeengine.libcube.util.math.shape.Shape;
 import org.cubeengine.libcube.service.Selector;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.util.math.shape.Cuboid;
+import org.cubeengine.libcube.util.math.shape.Shape;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.type.HandTypes;
@@ -37,11 +35,17 @@ import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextFormat;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
-import static org.spongepowered.api.block.BlockTypes.AIR;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 
 @Singleton
@@ -117,14 +121,27 @@ public class CuboidSelector implements Selector
         if (event instanceof InteractBlockEvent.Primary)
         {
             data.setPoint(0, block);
-            i18n.send(player, POSITIVE, "First position set to ({integer}, {integer}, {integer}).", block.getBlockX(), block.getBlockY(), block.getBlockZ());
+            Text selected = getText(player, data);
+            i18n.send(player, POSITIVE, "Position 1 ({integer}, {integer}, {integer}). {txt}", block.getBlockX(), block.getBlockY(), block.getBlockZ(), selected);
         }
         else if (event instanceof InteractBlockEvent.Secondary)
         {
             data.setPoint(1, block);
-            i18n.send(player, POSITIVE, "Second position set to ({integer}, {integer}, {integer}).", block.getBlockX(), block.getBlockY(), block.getBlockZ());
+            Text selected = getText(player, data);
+            i18n.send(player, POSITIVE, "Position 2 ({integer}, {integer}, {integer}). {txt}", block.getBlockX(), block.getBlockY(), block.getBlockZ(), selected);
         }
         event.setCancelled(true);
+    }
+
+    private Text getText(Player player, SelectorData data)
+    {
+        if (data.getSelection() ==null)
+        {
+            return i18n.translate(player, TextFormat.of(GRAY), "incomplete selection");
+        }
+        Cuboid cube = data.getSelection().getBoundingCuboid();
+        int amount = (int) Math.abs((cube.getDepth() + 1) * (cube.getHeight() + 1) * (cube.getWidth() + 1));
+        return i18n.translate(player, TextFormat.of(GRAY), "{amount} blocks selected", amount);
     }
 
     @Override
