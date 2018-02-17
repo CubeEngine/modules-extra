@@ -17,10 +17,12 @@
  */
 package org.cubeengine.module.itemduct;
 
+import org.cubeengine.reflect.annotations.Comment;
 import org.cubeengine.reflect.codec.yaml.ReflectedYaml;
 
 @SuppressWarnings("all")
 public class ItemductConfig extends ReflectedYaml
 {
+    @Comment("The maximum amount of branches that are allowed in a network")
     public int maxDepth = 10;
 }

@@ -1,3 +1,4 @@
+on-ore: CubeEngine---Elevator
 features:
   - Create Elevators by shift-left clicking signs with enderpearls
   - Change the floor name shift-left clicking with a renamed paper

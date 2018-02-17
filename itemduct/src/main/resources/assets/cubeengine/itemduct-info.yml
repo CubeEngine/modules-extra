@@ -4,3 +4,5 @@ features:
   - Mass Storage Units
 pages:
   Usage: usage
+config:
+  - org.cubeengine.module.itemduct.ItemductConfig
