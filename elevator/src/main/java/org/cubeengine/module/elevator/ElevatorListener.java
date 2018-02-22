@@ -154,6 +154,18 @@ public class ElevatorListener
                 }
             }
         }
+
+        if (event instanceof InteractBlockEvent.Secondary)
+        {
+            Optional<ItemStack> itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
+            if (itemInHand.isPresent())
+            {
+                if (player.hasPermission(module.getPerm().CREATE.getId()) && itemInHand.get().getType().equals(module.getConfig().creationItem))
+                {
+                    event.setCancelled(true);
+                }
+            }
+        }
     }
 
     private void updateSign(Location<World> loc, ElevatorData data)
