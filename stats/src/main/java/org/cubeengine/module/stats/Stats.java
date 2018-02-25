@@ -17,136 +17,142 @@
  */
 package org.cubeengine.module.stats;
 
-import com.flowpowered.math.vector.Vector3i;
-import org.cubeengine.processor.Module;
+import com.google.common.collect.Iterables;
+import io.prometheus.client.CollectorRegistry;
+import io.prometheus.client.Gauge;
+import io.prometheus.client.exporter.HTTPServer;
+import io.prometheus.client.hotspot.*;
 import org.cubeengine.libcube.CubeEngineModule;
+import org.cubeengine.libcube.service.MonitoringService;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
-import org.influxdb.InfluxDB;
-import org.influxdb.InfluxDBFactory;
-import org.influxdb.dto.BatchPoints;
-import org.influxdb.dto.Point;
-import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.data.Transaction;
-import org.spongepowered.api.entity.EntityType;
-import org.spongepowered.api.entity.living.animal.Animal;
-import org.spongepowered.api.entity.living.monster.Monster;
-import org.spongepowered.api.entity.living.player.Player;
+import org.cubeengine.processor.Module;
+import org.spongepowered.api.Game;
+import org.spongepowered.api.Server;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.block.ChangeBlockEvent;
-import org.spongepowered.api.event.entity.DestructEntityEvent;
-import org.spongepowered.api.event.filter.Getter;
-import org.spongepowered.api.event.filter.cause.Root;
+import org.spongepowered.api.event.entity.living.humanoid.player.KickPlayerEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
-import org.spongepowered.api.world.Location;
+import org.spongepowered.api.event.game.state.GameStoppedEvent;
+import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.scheduler.Scheduler;
 import org.spongepowered.api.world.World;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.time.Instant;
+import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
-
-import static org.influxdb.InfluxDB.ConsistencyLevel.ALL;
 
 @Singleton
 @Module
 public class Stats extends CubeEngineModule
 {
     @ModuleConfig private StatsConfig config;
+    @Inject private PluginContainer plugin;
+    @Inject private MonitoringService monitoring;
+    @Inject private Scheduler scheduler;
+    @Inject private Game game;
+    private HTTPServer exporter;
 
-    private InfluxDB connection;
+    private Gauge players;
+    private Gauge tps;
+    private Gauge loadedChunks;
+    private Gauge playersOnline;
+    private Gauge entities;
+    private Gauge tileEntities;
+
 
     @Listener
     public void onPreInit(GamePreInitializationEvent event)
     {
-        connection = InfluxDBFactory.connect(config.url, config.user, config.password);
-        connection.createDatabase(config.database);
-        connection.setDatabase(config.database);
+        final CollectorRegistry registry = monitoring.getRegistry();
+        final InetSocketAddress bindAddr = new InetSocketAddress(config.bindAddress, config.bindPort);
+        registerDefaults(registry);
+
+        this.players = Gauge.build()
+                .name("mc_players_total")
+                .help("Total online and max players")
+                .labelNames("state")
+                .create()
+                .register(registry);
+
+        this.tps = Gauge.build()
+                .name("mc_tps")
+                .help("Tickrate")
+                .labelNames("state")
+                .create()
+                .register(registry);
+
+        this.loadedChunks = Gauge.build()
+                .name("mc_loaded_chunks")
+                .help("Chunks loaded per world")
+                .labelNames("world")
+                .create()
+                .register(registry);
+
+        this.playersOnline = Gauge.build()
+                .name("mc_players_online")
+                .help("Players currently online per world")
+                .labelNames("world")
+                .create()
+                .register(registry);
+
+        this.entities = Gauge.build()
+                .name("mc_entities")
+                .help("Entities loaded per world")
+                .labelNames("world")
+                .create()
+                .register(registry);
+
+        this.tileEntities = Gauge.build()
+                .name("mc_tile_entities")
+                .help("Entities loaded per world")
+                .labelNames("world")
+                .create()
+                .register(registry);
+
+        try
+        {
+            this.exporter = new HTTPServer(bindAddr, registry, true);
+            this.scheduler.createAsyncExecutor(this.plugin).scheduleAtFixedRate(this::sampleServer, config.samplingInterval.toMillis(), config.samplingInterval.toMillis(), TimeUnit.MILLISECONDS);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 
-    private BatchPoints newBatch() {
-        return BatchPoints
-                .database(config.database)
-                .tag("async", "true")
-                .consistency(ALL)
-                .build();
+    private static void registerDefaults(CollectorRegistry registry)
+    {
+        new StandardExports().register(registry);
+        new MemoryPoolsExports().register(registry);
+        new GarbageCollectorExports().register(registry);
+        new ThreadExports().register(registry);
+        new ClassLoadingExports().register(registry);
+        new VersionInfoExports().register(registry);
     }
 
-    private Point.Builder newPoint(String name) {
-        return Point.measurement("block_break")
-                .time(Instant.now().toEpochMilli(), TimeUnit.MILLISECONDS);
-    }
+    private void sampleServer()
+    {
+        final Server server = game.getServer();
+        players.labels("online").set(server.getOnlinePlayers().size());
+        players.labels("max").set(server.getMaxPlayers());
 
-    public void onBlockBreak(ChangeBlockEvent.Break.Post event, @Root Player player) {
-        handleChangeBlock("block_break", event, player);
-    }
-
-    public void onBlockPlace(ChangeBlockEvent.Break.Post event, @Root Player player) {
-        handleChangeBlock("block_place", event, player);
-    }
-
-    public void onBlockModify(ChangeBlockEvent.Modify.Post event, @Root Player player) {
-        handleChangeBlock("block_place", event, player);
-    }
-
-    private void handleChangeBlock(String name, ChangeBlockEvent.Break.Post event, Player player) {
-        BatchPoints batch = newBatch();
-        for (Transaction<BlockSnapshot> transaction : event.getTransactions()) {
-            Point.Builder p = newPoint(name);
-            addPlayer(p, player);
-            BlockSnapshot original = transaction.getOriginal();
-            p.tag("block_original", original.getState().getId());
-            p.tag("block_final", transaction.getFinal().getState().getId());
-            original.getLocation().ifPresent(loc -> {
-                addLocation(p, loc);
-            });
-
-            batch.point(p.build());
+        for (World world : server.getWorlds())
+        {
+            loadedChunks.labels(world.getName()).set(Iterables.size(world.getLoadedChunks()));
+            playersOnline.labels(world.getName()).set(world.getPlayers().size());
+            entities.labels(world.getName()).set(world.getEntities().size());
+            tileEntities.labels(world.getName()).set(world.getTileEntities().size());
         }
 
-        connection.write(batch);
+
+        tps.labels("tps").set(server.getTicksPerSecond());
     }
 
-    private void addPlayer(Point.Builder p, Player player) {
-        p.tag("player_id", player.getUniqueId().toString());
-        p.addField("player_name", player.getName());
+    @Listener
+    public void onStop(GameStoppedEvent e)
+    {
+        this.exporter.stop();
     }
-
-    private void addLocation(Point.Builder p, Location<World> loc) {
-        p.addField("x", loc.getX());
-        p.addField("y", loc.getY());
-        p.addField("z", loc.getY());
-        Vector3i chunkPos = loc.getChunkPosition();
-        p.addField("chunk_x", chunkPos.getX());
-        p.addField("chunk_y", chunkPos.getY());
-        p.addField("chunk_z", chunkPos.getZ());
-        p.tag("world_id", loc.getExtent().getUniqueId().toString());
-        p.addField("world_name", loc.getExtent().getName());
-    }
-
-    public void onPlayerDeath(DestructEntityEvent.Death event, @Getter("getTargetEntity") Player player) {
-        Point.Builder p = newPoint("player_death");
-        addPlayer(p, player);
-        addLocation(p, player.getLocation());
-        connection.write(p.build());
-    }
-
-    public void onAnimalDeath(DestructEntityEvent.Death event, @Root Player player, @Getter("getTargetEntity") Animal animal) {
-        Point.Builder p = newPoint("animal_death");
-        addPlayer(p, player);
-        EntityType type = animal.getType();
-        p.tag("animal_type", type.getId());
-        p.addField("animal_name", type.getName());
-        addLocation(p, animal.getLocation());
-        connection.write(p.build());
-    }
-
-    public void onMonsterDeath(DestructEntityEvent.Death event, @Root Player player, @Getter("getTargetEntity") Monster monster) {
-        Point.Builder p = newPoint("monster_death");
-        addPlayer(p, player);
-        EntityType type = monster.getType();
-        p.tag("monster_type", type.getId());
-        p.addField("monster_name", type.getName());
-        addLocation(p, monster.getLocation());
-        connection.write(p.build());
-    }
-
 }

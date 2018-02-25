@@ -19,11 +19,12 @@ package org.cubeengine.module.stats;
 
 import org.cubeengine.reflect.codec.yaml.ReflectedYaml;
 
+import java.time.Duration;
+
 @SuppressWarnings("all")
 public class StatsConfig extends ReflectedYaml
 {
-    public String url = "http://localhost:8086";
-    public String user = "user";
-    public String password = "password";
-    public String database = "cubeengine";
+    public String bindAddress = "localhost";
+    public int bindPort = 12345;
+    public Duration samplingInterval = Duration.ofMillis(5000);
 }
