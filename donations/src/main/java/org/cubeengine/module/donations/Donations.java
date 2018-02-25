@@ -25,7 +25,7 @@ import org.cubeengine.libcube.service.filesystem.FileManager;
 import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.libcube.service.Broadcaster;
-import org.cubeengine.libcube.service.webapi.ApiServer;
+import org.cubeengine.module.apiserver.ApiServer;
 import org.cubeengine.processor.Dependency;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.event.Listener;

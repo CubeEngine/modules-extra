@@ -26,10 +26,10 @@ import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.i18n.formatter.MessageType;
 import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.libcube.service.Broadcaster;
-import org.cubeengine.libcube.service.webapi.Endpoint;
-import org.cubeengine.libcube.service.webapi.ApiRequest;
-import org.cubeengine.libcube.service.webapi.ApiResponse;
-import org.cubeengine.libcube.service.webapi.RequestMethod;
+import org.cubeengine.module.apiserver.Endpoint;
+import org.cubeengine.module.apiserver.ApiRequest;
+import org.cubeengine.module.apiserver.ApiResponse;
+import org.cubeengine.module.apiserver.RequestMethod;
 import org.spongepowered.api.Sponge;
 
 public class DonationController
