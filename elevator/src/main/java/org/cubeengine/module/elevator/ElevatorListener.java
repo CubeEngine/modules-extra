@@ -109,7 +109,7 @@ public class ElevatorListener
                 {
                     // Search order dependent on click
                     Vector3i target = data.getTarget();
-                    target = findNextSign(loc, target == null ? loc.getPosition() : target.toDouble(), event instanceof InteractBlockEvent.Primary);
+                    target = findNextSign(loc, target, loc.getBlockPosition(), event instanceof InteractBlockEvent.Primary);
                     data.setTarget(target);
                     updateSign(loc, data);
                     event.setCancelled(true);
@@ -190,10 +190,11 @@ public class ElevatorListener
         loc.offer(data);
     }
 
-    private Vector3i findNextSign(Location<World> loc, Vector3d previous, boolean up)
+    private Vector3i findNextSign(Location<World> loc, Vector3i previous, Vector3i startPos, boolean up)
     {
+        startPos = previous == null ? startPos : previous;
         // Search for next Elevator sign
-        BlockRay<World> ray = BlockRay.from(loc.getExtent(), previous)
+        BlockRay<World> ray = BlockRay.from(loc.getExtent(), startPos.toDouble())
                 .direction(new Vector3d(0, up ? 1 : -1, 0))
                 .narrowPhase(false)
                 .stopFilter(b -> b.getBlockY() <= loc.getExtent().getBlockMax().getY())
@@ -201,7 +202,7 @@ public class ElevatorListener
         while (ray.hasNext())
         {
             BlockRayHit<World> next = ray.next();
-            if (next.getBlockPosition().equals(previous.toInt()))
+            if (next.getBlockPosition().equals(startPos))
             {
                 continue;
             }
@@ -213,7 +214,7 @@ public class ElevatorListener
         }
 
         // nothing found? Return same location as before when it is valid
-        Optional<ElevatorData> targetData = loc.getExtent().get(previous.toInt(), ElevatorData.class);
-        return targetData.isPresent() ? previous.toInt() : null;
+        Optional<ElevatorData> targetData = loc.getExtent().get(startPos, ElevatorData.class);
+        return targetData.isPresent() ? previous : null;
     }
 }

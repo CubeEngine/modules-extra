@@ -3,5 +3,7 @@ features:
   - Create Elevators by shift-left clicking signs with enderpearls
   - Change the floor name shift-left clicking with a renamed paper
   - Change the elevator destination by shift-left and right clicking
+pages:
+  Usage: usage
 config:
   - org.cubeengine.module.elevator.ElevatorConfig
