@@ -9,27 +9,27 @@
 
     <artifactId>elevator</artifactId>
     <name>Elevator</name>
-    <version>1.0.1</version>
+    <version>1.0.2-SNAPSHOT</version>
     <description>Lift up and down using signs</description>
 
     <scm>
         <url>scm:git:https://github.com/CubeEngine/modules-extra</url>
         <connection>scm:git:https://github.com/CubeEngine/modules-extra.git</connection>
         <developerConnection>scm:git:git@github.com:CubeEngine/modules-extra.git</developerConnection>
-      <tag>elevator-1.0.1</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <dependencies>
         <dependency>
             <groupId>org.spongepowered</groupId>
             <artifactId>spongeapi</artifactId>
-            <version>7.0.0</version>
+            <version>7.1.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.cubeengine</groupId>
             <artifactId>libcube</artifactId>
-            <version>1.2.1</version>
+            <version>1.2.2-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
