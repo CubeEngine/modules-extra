@@ -26,6 +26,7 @@ import static org.spongepowered.api.text.format.TextColors.YELLOW;
 
 import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.service.event.ModuleListener;
+import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.processor.Module;
@@ -49,6 +50,7 @@ import javax.inject.Singleton;
 @Module
 public class Chopchop extends CubeEngineModule
 {
+    @ModuleConfig ChopchopConfig config;
     @Inject private PluginContainer plugin;
     @Inject private PermissionManager pm;
     @ModuleListener private ChopListener listener;
@@ -80,5 +82,10 @@ public class Chopchop extends CubeEngineModule
                 .result(axe)
                 .build("chopchop", plugin);
         Sponge.getRegistry().getCraftingRecipeRegistry().register(recipe);
+    }
+
+    public ChopchopConfig getConfig()
+    {
+        return config;
     }
 }

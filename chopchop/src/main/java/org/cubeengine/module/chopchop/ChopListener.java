@@ -83,16 +83,22 @@ public class ChopListener
         this.module = module;
     }
 
-    public static boolean isLeaf(Location<World> block, TreeType species)
+    private boolean isLeaf(Location<World> block, TreeType species)
     {
         BlockType type = block.getBlockType();
-        return !(type != LEAVES && type != LEAVES2) && block.get(TREE_TYPE).get() == species;
+        boolean match = module.getConfig().leafTypes.contains(type);
+        return match && (!block.supports(TREE_TYPE) || block.get(TREE_TYPE).get() == species);
     }
 
-    private static boolean isLog(Location<World> block, TreeType species)
+    private boolean isLog(Location<World> block, TreeType species)
     {
         BlockType type = block.getBlockType();
-        return !(type != BlockTypes.LOG && type != BlockTypes.LOG2) && block.get(TREE_TYPE).get() == species;
+        boolean match = module.getConfig().logTypes.contains(type);
+        return match && (!block.supports(TREE_TYPE) || block.get(TREE_TYPE).get() == species);
+    }
+
+    private boolean isSoil(BlockType belowType) {
+        return module.getConfig().soilTypes.contains(belowType);
     }
 
     @Listener
@@ -118,7 +124,7 @@ public class ChopListener
             BlockType type = transaction.getOriginal().getState().getType();
             Location<World> orig = transaction.getOriginal().getLocation().get();
             BlockType belowType = orig.getBlockRelative(DOWN).getBlockType();
-            if (isLog(type) && (belowType == DIRT || belowType == GRASS))
+            if (isLog(type) && isSoil(belowType))
             {
                 TreeType treeType = transaction.getOriginal().get(TREE_TYPE).get();
                 Set<Location<World>> treeBlocks = findTreeBlocks(orig, treeType);
@@ -141,7 +147,7 @@ public class ChopListener
                         logs++;
                         block.setBlockType(BlockTypes.AIR);
                         BlockType belowTyp = block.getBlockRelative(DOWN).getBlockType();
-                        if (belowTyp == DIRT || belowTyp == GRASS)
+                        if (isSoil(belowTyp))
                         {
                             saplings.add(block);
                         }

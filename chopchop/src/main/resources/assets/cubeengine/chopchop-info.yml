@@ -4,3 +4,5 @@ features:
   - Destroys entire trees
 pages:
   Usage: usage
+config:
+  - org.cubeengine.module.chopchop.ChopchopConfig
