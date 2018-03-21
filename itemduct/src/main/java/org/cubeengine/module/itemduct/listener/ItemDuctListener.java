@@ -35,6 +35,7 @@ import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.effect.particle.ParticleTypes;
 import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
@@ -112,6 +113,13 @@ public class ItemDuctListener
 
             te.offer(ductData.orElse(new DuctData()).with(dirO));
             playCreateEffect(loc);
+
+            if (player.get(Keys.GAME_MODE).get() != GameModes.CREATIVE)
+            {
+                ItemStack newStack = itemInHand.get().copy();
+                newStack.setQuantity(itemInHand.get().getQuantity() - 1);
+                player.setItemInHand(HandTypes.MAIN_HAND, newStack);
+            }
 
             player.getProgress(module.activate).grant();
         }
