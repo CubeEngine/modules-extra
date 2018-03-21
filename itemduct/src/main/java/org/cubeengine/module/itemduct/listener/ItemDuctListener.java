@@ -74,6 +74,13 @@ public class ItemDuctListener
     @Listener
     public void onInteractPiston(InteractBlockEvent.Secondary.MainHand event, @Root Player player)
     {
+        Optional<ItemStack> itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
+        Boolean hasActivator = itemInHand.map(ItemDuctListener::isActivator).orElse(false);
+        if (hasActivator)
+        {
+            event.setCancelled(true);
+        }
+
         if (!isDuctInteraction(event))
         {
             return;
@@ -84,8 +91,7 @@ public class ItemDuctListener
         Location<World> te = loc.getRelative(dir);
         Optional<DuctData> ductData = te.get(DuctData.class);
         Direction dirO = dir.getOpposite();
-        Optional<ItemStack> itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
-        if (!ductData.map(d -> d.has(dirO)).orElse(false) && itemInHand.map(ItemDuctListener::isActivator).orElse(false))
+        if (!ductData.map(d -> d.has(dirO)).orElse(false) && hasActivator)
         {
             if (loc.getBlockType() == BlockTypes.OBSERVER)
             {
@@ -106,7 +112,6 @@ public class ItemDuctListener
 
             te.offer(ductData.orElse(new DuctData()).with(dirO));
             playCreateEffect(loc);
-            event.setCancelled(true);
 
             player.getProgress(module.activate).grant();
         }
