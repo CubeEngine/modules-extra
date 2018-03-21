@@ -104,7 +104,7 @@ public class ChopListener
     @Listener
     public void onChop(final ChangeBlockEvent.Break event, @First Player player)
     {
-        if (!player.getItemInHand(HandTypes.MAIN_HAND).isPresent())
+        if (!player.getItemInHand(HandTypes.MAIN_HAND).isPresent() || event.getCause().getContext().containsKey(EventContextKeys.PLAYER_SIMULATED))
         {
             return;
         }
