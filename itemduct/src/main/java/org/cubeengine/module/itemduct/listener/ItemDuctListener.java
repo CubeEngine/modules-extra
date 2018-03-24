@@ -24,6 +24,7 @@ import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.module.itemduct.Itemduct;
 import org.cubeengine.module.itemduct.data.DuctData;
+import org.cubeengine.module.itemduct.data.IDuctData;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
@@ -117,7 +118,16 @@ public class ItemDuctListener
             if (player.get(Keys.GAME_MODE).get() != GameModes.CREATIVE)
             {
                 ItemStack newStack = itemInHand.get().copy();
-                newStack.setQuantity(itemInHand.get().getQuantity() - 1);
+
+                Integer uses = newStack.get(IDuctData.USES).orElse(0) - 1;
+                if (uses <= 0)
+                {
+                    newStack.setQuantity(itemInHand.get().getQuantity() - 1);
+                    uses = module.getConfig().activatorUses;
+                }
+                newStack.offer(IDuctData.USES, uses);
+                module.getManager().updateUses(newStack);
+
                 player.setItemInHand(HandTypes.MAIN_HAND, newStack);
             }
 

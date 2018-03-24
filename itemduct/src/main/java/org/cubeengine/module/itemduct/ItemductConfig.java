@@ -25,4 +25,7 @@ public class ItemductConfig extends ReflectedYaml
 {
     @Comment("The maximum amount of branches that are allowed in a network")
     public int maxDepth = 10;
+
+    @Comment("The amount of uses an activator has")
+    public int activatorUses = 1;
 }

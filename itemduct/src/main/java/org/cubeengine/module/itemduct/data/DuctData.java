@@ -25,6 +25,7 @@ import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.merge.MergeFunction;
 import org.spongepowered.api.data.value.mutable.MapValue;
+import org.spongepowered.api.data.value.mutable.Value;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.Direction;
 
@@ -37,6 +38,7 @@ import java.util.Optional;
 public class DuctData extends AbstractData<DuctData, ImmutableDuctData> implements IDuctData
 {
     private Map<Direction, List<ItemStack>> filters = new HashMap<>();
+    private Integer uses;
 
     public DuctData()
     {
@@ -49,12 +51,22 @@ public class DuctData extends AbstractData<DuctData, ImmutableDuctData> implemen
         setFilters(data.getFilters());
     }
 
+    public DuctData(int uses)
+    {
+        this();
+        this.uses = uses;
+    }
+
     @Override
     protected void registerKeys()
     {
         registerGetter(FILTERS, this::getFilters);
         registerSetter(FILTERS, this::setFilters);
         registerValue(FILTERS, this::filters);
+
+        registerGetter(USES, this::getUses);
+        registerSetter(USES, this::setUses);
+        registerValue(USES, this::uses);
     }
 
     private MapValue<Direction, List<ItemStack>> filters()
@@ -72,6 +84,23 @@ public class DuctData extends AbstractData<DuctData, ImmutableDuctData> implemen
     public Map<Direction, List<ItemStack>> getFilters()
     {
         return this.filters;
+    }
+
+    @Override
+    public int getUses()
+    {
+        return this.uses == null ? 0 : this.uses;
+    }
+
+    public DuctData setUses(Integer uses)
+    {
+        this.uses = uses;
+        return this;
+    }
+
+    public Value<Integer> uses()
+    {
+        return Sponge.getRegistry().getValueFactory().createValue(USES, this.getUses());
     }
 
     @Override
@@ -114,7 +143,7 @@ public class DuctData extends AbstractData<DuctData, ImmutableDuctData> implemen
     @Override
     public DuctData copy()
     {
-        return new DuctData().setFilters(this.filters);
+        return new DuctData().setFilters(this.filters).setUses(this.uses);
     }
 
     @Override

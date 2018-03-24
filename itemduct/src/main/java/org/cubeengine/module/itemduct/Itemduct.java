@@ -100,7 +100,10 @@ public class Itemduct extends CubeEngineModule
         }
     }
 
-    // TODO CraftItemEvent for root
+    public ItemDuctManager getManager()
+    {
+        return manager;
+    }
 
     @Listener
     public void onRegisterAdvancements(GameRegistryEvent.Register<Advancement> event)
@@ -156,5 +159,9 @@ public class Itemduct extends CubeEngineModule
                 .id("itemduct-master")
                 .build();
         event.register(this.prompted);
+    }
+
+    public ItemductConfig getConfig() {
+        return config;
     }
 }

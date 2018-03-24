@@ -20,6 +20,8 @@ package org.cubeengine.module.itemduct.data;
 import org.cubeengine.libcube.util.data.AbstractImmutableData;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.value.immutable.ImmutableMapValue;
+import org.spongepowered.api.data.value.immutable.ImmutableValue;
+import org.spongepowered.api.data.value.mutable.Value;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.Direction;
 
@@ -29,16 +31,18 @@ import java.util.Map;
 public class ImmutableDuctData extends AbstractImmutableData<ImmutableDuctData, DuctData> implements IDuctData
 {
     private final Map<Direction, List<ItemStack>> filters;
+    private final Integer uses;
 
     public ImmutableDuctData(IDuctData data)
     {
-        this(data.getFilters());
+        this(data.getFilters(), null);
     }
 
-    public ImmutableDuctData(Map<Direction, List<ItemStack>> filters)
+    public ImmutableDuctData(Map<Direction, List<ItemStack>> filters, Integer uses)
     {
         super(1);
         this.filters = filters;
+        this.uses = uses;
         registerGetters();
     }
 
@@ -47,6 +51,9 @@ public class ImmutableDuctData extends AbstractImmutableData<ImmutableDuctData, 
     {
         registerGetter(FILTERS, this::getFilters);
         registerValue(FILTERS, this::filters);
+
+        registerGetter(USES, this::getUses);
+        registerValue(USES, this::uses);
     }
 
     private ImmutableMapValue<Direction, List<ItemStack>> filters()
@@ -58,6 +65,18 @@ public class ImmutableDuctData extends AbstractImmutableData<ImmutableDuctData, 
     public Map<Direction, List<ItemStack>> getFilters()
     {
         return this.filters;
+    }
+
+
+    @Override
+    public int getUses()
+    {
+        return this.uses == null ? 0 : this.uses;
+    }
+
+    public ImmutableValue<Integer> uses()
+    {
+        return Sponge.getRegistry().getValueFactory().createValue(USES, this.getUses()).asImmutable();
     }
 
     @Override

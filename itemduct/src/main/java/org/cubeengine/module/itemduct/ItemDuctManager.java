@@ -29,6 +29,7 @@ import static org.spongepowered.api.block.BlockTypes.STAINED_GLASS_PANE;
 import com.flowpowered.math.vector.Vector3d;
 import org.cubeengine.module.itemduct.data.DuctData;
 import org.cubeengine.module.itemduct.data.DuctDataBuilder;
+import org.cubeengine.module.itemduct.data.IDuctData;
 import org.cubeengine.module.itemduct.data.ImmutableDuctData;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockType;
@@ -55,6 +56,8 @@ import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -90,6 +93,9 @@ public class ItemDuctManager
             activatorItem.offer(Keys.ITEM_ENCHANTMENTS, singletonList(Enchantment.builder().type(EnchantmentTypes.LOOTING).level(1).build()));
             activatorItem.offer(Keys.DISPLAY_NAME, Text.of(TextColors.GOLD, "ItemDuct Activator"));
             activatorItem.offer(Keys.HIDE_ENCHANTMENTS, true);
+            activatorItem.offer(new DuctData(config.activatorUses));
+            activatorItem.offer(Keys.ITEM_LORE, Collections.singletonList(Text.of("Uses: ", config.activatorUses)));
+
             this.recipe = CraftingRecipe.shapedBuilder().rows()
                     .row(hopper, hopper, hopper)
                     .row(hopper, Ingredient.of(ItemTypes.DIAMOND), hopper)
@@ -101,6 +107,15 @@ public class ItemDuctManager
         this.reload(config);
 
         this.init = true;
+    }
+
+    public void updateUses(ItemStack item)
+    {
+        Integer uses = item.get(IDuctData.USES).orElse(0);
+        if (uses > 0)
+        {
+            item.offer(Keys.ITEM_LORE, Collections.singletonList(Text.of("Uses: ", uses)));
+        }
     }
 
     public void reload(ItemductConfig config)
