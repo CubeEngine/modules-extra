@@ -46,6 +46,7 @@ import org.spongepowered.api.item.inventory.Carrier;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.recipe.crafting.CraftingRecipe;
 import org.spongepowered.api.item.recipe.crafting.Ingredient;
+import org.spongepowered.api.item.recipe.crafting.ShapedCraftingRecipe;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
@@ -70,6 +71,7 @@ public class ItemDuctManager
     private Set<BlockType> pipeTypes = new HashSet<>();
     private Set<Direction> directions = EnumSet.of(Direction.DOWN, Direction.UP, Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
     private int maxDepth = 10;
+    private ShapedCraftingRecipe recipe;
 
     public void setup(PluginContainer plugin, ItemductConfig config)
     {
@@ -88,12 +90,12 @@ public class ItemDuctManager
             activatorItem.offer(Keys.ITEM_ENCHANTMENTS, singletonList(Enchantment.builder().type(EnchantmentTypes.LOOTING).level(1).build()));
             activatorItem.offer(Keys.DISPLAY_NAME, Text.of(TextColors.GOLD, "ItemDuct Activator"));
             activatorItem.offer(Keys.HIDE_ENCHANTMENTS, true);
-            Sponge.getRegistry().getCraftingRecipeRegistry().register(
-                    CraftingRecipe.shapedBuilder().rows()
-                            .row(hopper, hopper, hopper)
-                            .row(hopper, Ingredient.of(ItemTypes.DIAMOND), hopper)
-                            .row(hopper, hopper, hopper)
-                            .result(activatorItem).build("ItemDuctActivator", plugin));
+            this.recipe = CraftingRecipe.shapedBuilder().rows()
+                    .row(hopper, hopper, hopper)
+                    .row(hopper, Ingredient.of(ItemTypes.DIAMOND), hopper)
+                    .row(hopper, hopper, hopper)
+                    .result(activatorItem).build("ItemDuctActivator", plugin);
+            Sponge.getRegistry().getCraftingRecipeRegistry().register(this.recipe);
         }
 
         this.reload(config);
@@ -266,6 +268,11 @@ public class ItemDuctManager
             }
             // exit.getExtent().playSound(SoundTypes.BLOCK_DISPENSER_DISPENSE, exit.getPosition(), 1);
         }
+    }
+
+    public boolean matchesRecipe(CraftingRecipe recipe)
+    {
+        return this.recipe == recipe;
     }
 
     private class LastDuct

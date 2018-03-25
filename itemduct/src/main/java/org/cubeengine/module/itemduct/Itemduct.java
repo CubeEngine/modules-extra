@@ -32,10 +32,13 @@ import org.spongepowered.api.advancement.DisplayInfo;
 import org.spongepowered.api.advancement.criteria.AdvancementCriterion;
 import org.spongepowered.api.advancement.criteria.ScoreAdvancementCriterion;
 import org.spongepowered.api.advancement.criteria.trigger.Trigger;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.game.GameRegistryEvent;
 import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+import org.spongepowered.api.event.item.inventory.CraftItemEvent;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.Text;
@@ -83,6 +86,18 @@ public class Itemduct extends CubeEngineModule
                 .id("itemduct")
                 .build();
         event.register(this.advancementTree);
+    }
+
+    @Listener
+    public void onCraft(CraftItemEvent.Craft event, @Root Player player)
+    {
+        if (event.getRecipe().isPresent())
+        {
+            if (this.manager.matchesRecipe(event.getRecipe().get()))
+            {
+                player.getProgress(this.rootAdvancement).get(AdvancementCriterion.DUMMY).get().grant();
+            }
+        }
     }
 
     // TODO CraftItemEvent for root
