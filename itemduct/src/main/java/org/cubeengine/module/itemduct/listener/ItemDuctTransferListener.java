@@ -98,12 +98,12 @@ public class ItemDuctTransferListener
     }
 
     @Listener
-    public void onTransferInventory(ChangeInventoryEvent.Transfer.Pre event, @Getter("getTargetInventory") Container inventory)
+    public void onTransferInventory(ChangeInventoryEvent.Transfer.Pre event)
     {
         // When getting items transferred prompt activation
-        if (inventory instanceof CarriedInventory && inventory.size() > 0)
+        if (event.getTargetInventory() instanceof CarriedInventory)
         {
-            ((CarriedInventory<?>) inventory).getCarrier().ifPresent(c -> this.promptActivation(c, true, null));
+            ((CarriedInventory<?>) event.getTargetInventory()).getCarrier().ifPresent(c -> this.promptActivation(c, true, null));
         }
     }
 
@@ -167,6 +167,7 @@ public class ItemDuctTransferListener
                 }
                 task = Sponge.getScheduler().createTaskBuilder().delayTicks(20).intervalTicks(20).execute(this::activate).submit(plugin);
             }
+
             this.promptedActivations.computeIfAbsent(loc, k -> System.currentTimeMillis());
             if (player != null)
             {
