@@ -28,4 +28,7 @@ public class ItemductConfig extends ReflectedYaml
 
     @Comment("The amount of uses an activator has")
     public int activatorUses = 1;
+
+    @Comment("The amount of uses a super activator has ; use -1 for infinite uses")
+    public int superActivatorUses = 10;
 }

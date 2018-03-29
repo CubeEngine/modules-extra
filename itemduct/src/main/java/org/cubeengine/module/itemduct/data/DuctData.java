@@ -118,6 +118,18 @@ public class DuctData extends AbstractData<DuctData, ImmutableDuctData> implemen
             }
             return Optional.of(this);
         }
+        Optional<Integer> uses = dataHolder.get(USES);
+        if (uses.isPresent())
+        {
+            DuctData data = this.copy();
+            data.setUses(uses.get());
+            data = overlap.merge(this, data);
+            if (data != this)
+            {
+                this.setUses(data.getUses());
+            }
+            return Optional.of(this);
+        }
         return Optional.empty();
     }
 
@@ -135,6 +147,12 @@ public class DuctData extends AbstractData<DuctData, ImmutableDuctData> implemen
                 map.put(dir, list);
             }
             this.setFilters((map));
+            return Optional.of(this);
+        }
+        Optional<Integer> uses = container.getInt(USES.getQuery());
+        if (uses.isPresent())
+        {
+            this.setUses(uses.get());
             return Optional.of(this);
         }
         return Optional.empty();

@@ -75,6 +75,7 @@ public class ItemDuctManager
     private Set<Direction> directions = EnumSet.of(Direction.DOWN, Direction.UP, Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
     private int maxDepth = 10;
     private ShapedCraftingRecipe recipe;
+    private ShapedCraftingRecipe superRecipe;
 
     public void setup(PluginContainer plugin, ItemductConfig config)
     {
@@ -100,8 +101,19 @@ public class ItemDuctManager
                     .row(hopper, hopper, hopper)
                     .row(hopper, Ingredient.of(ItemTypes.DIAMOND), hopper)
                     .row(hopper, hopper, hopper)
-                    .result(activatorItem).build("ItemDuctActivator", plugin);
+                    .result(activatorItem.copy()).build("ItemDuctActivator", plugin);
             Sponge.getRegistry().getCraftingRecipeRegistry().register(this.recipe);
+
+            activatorItem.offer(new DuctData(config.superActivatorUses));
+            activatorItem.offer(Keys.ITEM_LORE, Collections.singletonList(Text.of("Uses: Infinite")));
+            activatorItem.offer(Keys.DISPLAY_NAME, Text.of(TextColors.GOLD, "ItemDuct Super Activator"));
+
+            this.superRecipe = CraftingRecipe.shapedBuilder().rows()
+                    .row(hopper, hopper, hopper)
+                    .row(hopper, Ingredient.of(ItemTypes.NETHER_STAR), hopper)
+                    .row(hopper, hopper, hopper)
+                    .result(activatorItem.copy()).build("ItemDuctSuperActivator", plugin);
+            Sponge.getRegistry().getCraftingRecipeRegistry().register(this.superRecipe);
         }
 
         this.reload(config);
@@ -115,6 +127,10 @@ public class ItemDuctManager
         if (uses > 0)
         {
             item.offer(Keys.ITEM_LORE, Collections.singletonList(Text.of("Uses: ", uses)));
+        }
+        else if (uses == -1)
+        {
+            item.offer(Keys.ITEM_LORE, Collections.singletonList(Text.of("Uses: Infinite")));
         }
     }
 
@@ -287,7 +303,7 @@ public class ItemDuctManager
 
     public boolean matchesRecipe(CraftingRecipe recipe)
     {
-        return this.recipe == recipe;
+        return this.recipe == recipe || this.superRecipe == recipe;
     }
 
     private class LastDuct

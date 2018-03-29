@@ -35,7 +35,7 @@ public class ImmutableDuctData extends AbstractImmutableData<ImmutableDuctData, 
 
     public ImmutableDuctData(IDuctData data)
     {
-        this(data.getFilters(), null);
+        this(data.getFilters(), data.getUses());
     }
 
     public ImmutableDuctData(Map<Direction, List<ItemStack>> filters, Integer uses)

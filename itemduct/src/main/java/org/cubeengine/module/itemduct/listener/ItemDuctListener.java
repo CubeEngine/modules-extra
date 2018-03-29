@@ -122,8 +122,15 @@ public class ItemDuctListener
                 Integer uses = newStack.get(IDuctData.USES).orElse(0) - 1;
                 if (uses <= 0)
                 {
-                    newStack.setQuantity(itemInHand.get().getQuantity() - 1);
-                    uses = module.getConfig().activatorUses;
+                    if (uses == -2) // Infinite usage?
+                    {
+                        uses++;
+                    }
+                    else
+                    {
+                        newStack.setQuantity(itemInHand.get().getQuantity() - 1);
+                        uses = module.getConfig().activatorUses;
+                    }
                 }
                 newStack.offer(IDuctData.USES, uses);
                 module.getManager().updateUses(newStack);
