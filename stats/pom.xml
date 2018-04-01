@@ -35,13 +35,13 @@
         <dependency>
             <groupId>io.prometheus</groupId>
             <artifactId>simpleclient_hotspot</artifactId>
-            <version>0.2.0</version>
+            <version>${prometheusVersion}</version>
         </dependency>
         <!-- Exposition HTTPServer-->
         <dependency>
             <groupId>io.prometheus</groupId>
             <artifactId>simpleclient_httpserver</artifactId>
-            <version>0.2.0</version>
+            <version>${prometheusVersion}</version>
         </dependency>
     </dependencies>
 
