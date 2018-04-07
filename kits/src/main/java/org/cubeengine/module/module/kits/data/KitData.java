@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package org.cubeengine.module.module.kits.data;
 
 import static org.spongepowered.api.data.DataQuery.of;
-import static org.spongepowered.api.data.key.KeyFactory.makeMapKey;
 
 import com.google.common.reflect.TypeToken;
 import org.spongepowered.api.Sponge;
@@ -38,8 +38,8 @@ public class KitData extends AbstractData<KitData, ImmutableKitData>
     private static TypeToken<MapValue<String, Long>> TTMV_SL = new TypeToken<MapValue<String, Long>>() {};
     private static TypeToken<MapValue<String, Integer>> TTMV_SI = new TypeToken<MapValue<String, Integer>>() {};
 
-    public static Key<MapValue<String, Long>> TIME = Key.builder().type(TTMV_SL).query(of("time_data")).id("cubeengine-kits:time_data").name("TimeData").build();
-    public static Key<MapValue<String, Integer>> TIMES = Key.builder().type(TTMV_SI).query(of("times_data")).id("cubeengine-kits:times_data").name("TimesData").build();
+    public static Key<MapValue<String, Long>> TIME = Key.builder().type(TTMV_SL).query(of("time_data")).id("time_data").name("TimeData").build();
+    public static Key<MapValue<String, Integer>> TIMES = Key.builder().type(TTMV_SI).query(of("times_data")).id("times_data").name("TimesData").build();
 
     private Map<String, Long> time;
     private Map<String, Integer> times;
