@@ -58,6 +58,7 @@ public interface Report
 
     String MULTIACTION = "multiaction";
     String FULLCAUSELIST = "fullcauselist";
+    String CAUSECONTEXT = "causecontext";
 
     static Optional<? extends Class<? extends Report>> getReport(String name)
     {

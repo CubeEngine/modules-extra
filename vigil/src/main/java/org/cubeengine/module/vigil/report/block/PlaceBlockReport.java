@@ -17,8 +17,9 @@
  */
 package org.cubeengine.module.vigil.report.block;
 
-import java.util.List;
-import java.util.Optional;
+import static org.cubeengine.module.vigil.report.ReportUtil.name;
+import static org.spongepowered.api.block.BlockTypes.AIR;
+
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.Recall;
@@ -31,8 +32,8 @@ import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.text.Text;
 
-import static org.cubeengine.module.vigil.report.ReportUtil.name;
-import static org.spongepowered.api.block.BlockTypes.AIR;
+import java.util.List;
+import java.util.Optional;
 
 /* TODO Place
 Bucket

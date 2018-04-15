@@ -17,6 +17,8 @@
  */
 package org.cubeengine.module.vigil.report;
 
+import static org.cubeengine.module.vigil.report.Report.CAUSECONTEXT;
+import static org.cubeengine.module.vigil.report.Report.FULLCAUSELIST;
 import static org.cubeengine.module.vigil.report.Report.LOCATION;
 import static org.cubeengine.module.vigil.report.block.BlockReport.BLOCK_CHANGES;
 import static org.cubeengine.module.vigil.report.block.BlockReport.BLOCK_DATA;
@@ -28,7 +30,6 @@ import static org.cubeengine.module.vigil.report.block.BlockReport.CAUSE_PLAYER_
 import static org.cubeengine.module.vigil.report.block.BlockReport.CAUSE_TARGET;
 import static org.cubeengine.module.vigil.report.block.BlockReport.CAUSE_TYPE;
 import static org.cubeengine.module.vigil.report.block.BlockReport.CauseType;
-import static org.cubeengine.module.vigil.report.Report.FULLCAUSELIST;
 import static org.cubeengine.module.vigil.report.block.BlockReport.ORIGINAL;
 import static org.cubeengine.module.vigil.report.block.BlockReport.REPLACEMENT;
 import static org.cubeengine.module.vigil.report.block.BlockReport.WORLD;
@@ -38,6 +39,7 @@ import static org.cubeengine.module.vigil.report.block.BlockReport.Z;
 import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
 import static org.spongepowered.api.text.format.TextColors.YELLOW;
 
+import org.cubeengine.libcube.util.ChatFormat;
 import org.cubeengine.module.vigil.report.entity.EntityReport;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
@@ -48,6 +50,7 @@ import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.EntityType;
+import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.text.Text;
@@ -117,12 +120,17 @@ public class Recall
     {
         Map<String, Object> data = action.getData(CAUSE);
         List<Map<String, Object>> list = (List<Map<String, Object>>)data.get(FULLCAUSELIST);
-        // TODO EventContextKeys
-        return cause(list);
+        Map<String, Object> context = ((Map<String, Object>) data.get(CAUSECONTEXT));
+        return cause(list, context);
     }
 
-    public static Text cause(List<Map<String, Object>> list)
+    public static Text cause(List<Map<String, Object>> list, Map<String, Object> context)
     {
+        Text notifier = Text.of();
+        if (context != null) {
+            notifier = cause(((Map<String, Object>) context.get(EventContextKeys.NOTIFIER.getId())), notifier, CauseType.CAUSE_PLAYER);
+        }
+
         if (list.size() > 6) {
             list = list.subList(0, 6);
         }
@@ -141,11 +149,22 @@ public class Recall
                     TextActions.showText(Text.of(text, "←", cause(elem, Text.of(),
                             CauseType.valueOf(elem.get(CAUSE_TYPE).toString()))))).build()).build();
         }
+        // Notifier
+        if (!notifier.isEmpty())
+        {
+            if (!text.equals(notifier))
+            {
+                text = Text.of(text, ChatFormat.GREY, "←", notifier);
+            }
+        }
         return text;
     }
 
     private static Text cause(Map<String, Object> source, Text text, CauseType type)
     {
+        if (source == null) {
+            return text;
+        }
         Object causeName = source.get(CAUSE_NAME);
         switch (type)
         {
@@ -194,8 +213,7 @@ public class Recall
                 {
                     Map<String, Object> sourceTarget = ((Map<String, Object>) source.get(CAUSE_TARGET));
                     CauseType targetType = CauseType.valueOf(sourceTarget.get(CAUSE_TYPE).toString());
-                    text = text.toBuilder().append(Text.of("…").toBuilder().onHover(
-                            TextActions.showText(Text.of(text, "◎", cause(sourceTarget, Text.of("?"), targetType)))).build()).build();
+                    text = Text.of(text, TextColors.GRAY, "◎", cause(sourceTarget, Text.of("?"), targetType));
                 }
                 break;
         }

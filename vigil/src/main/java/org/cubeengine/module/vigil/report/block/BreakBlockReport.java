@@ -29,9 +29,11 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
-import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.event.cause.EventContextKey;
+import org.spongepowered.api.world.LocatableBlock;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /* TODO Break
@@ -100,32 +102,46 @@ public class BreakBlockReport extends BlockReport<ChangeBlockEvent.Break>
     }
 
     @Listener(order = Order.POST)
-    public void listen(ChangeBlockEvent.Break event, @First Player player)
+    public void listen(ChangeBlockEvent.Break event)
     {
-        // TODO indirect falling sand has no player in Notifier cause
-        // TODO player is source when destroying block /w hanging blocks on it but should be notifier? source is the block
-
-        // TODO cause filtering ?
-        if (!(event.getCause().root() instanceof Explosive)) // Handle Explosions later
-        {
+        if (event.getCause().root() instanceof LocatableBlock) {
             report(event);
         }
-        // TODO remove
-        /*
-        System.out.print("ChangeBlockEvent.Break caused by\n");
-        for (Map.Entry<String, Object> entry : event.getCause().getNamedCauses().entrySet())
+        else
         {
-            System.out.print("  " + entry.getKey() + ": " + entry.getValue() + "\n");
+            Optional<Player> causePlayer = event.getCause().first(Player.class);
+            causePlayer.ifPresent(player -> {
+                        // TODO indirect falling sand has no player in Notifier cause
+                        // TODO player is source when destroying block /w hanging blocks on it but should be notifier? source is the block
+
+                        // TODO cause filtering ?
+                        if (!(event.getCause().root() instanceof Explosive)) // Handle Explosions later
+                        {
+                            report(event);
+                        }
+
+                        // TODO remove
+            });
         }
-        //*/
     }
 
     @Listener(order = Order.POST)
     public void listen(ChangeBlockEvent.Post event)
     {
-        if (event.getCause().root() instanceof Explosive)
+
+
+        //System.out.println(event.getCause());
+        if (event.getCause().first(Explosive.class).isPresent())
         {
             report(event); // Handle Explosions etc.
+            System.out.print("####\n");
+            for (Object o : event.getCause().all()) {
+                System.out.print(o + "\n");
+            }
+            for (Map.Entry<EventContextKey<?>, Object> entry : event.getContext().asMap().entrySet()) {
+                System.out.print(entry.getKey() + ": " + entry.getValue() +"\n");
+            }
+
         }
     }
 }

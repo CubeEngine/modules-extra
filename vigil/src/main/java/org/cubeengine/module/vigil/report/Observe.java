@@ -17,18 +17,30 @@
  */
 package org.cubeengine.module.vigil.report;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import org.cubeengine.module.vigil.report.block.BlockReport;
+import static java.util.stream.Collectors.toList;
+import static org.cubeengine.module.vigil.report.Report.CAUSE_NAME;
+import static org.cubeengine.module.vigil.report.Report.CAUSE_PLAYER_UUID;
+import static org.cubeengine.module.vigil.report.Report.CAUSE_TYPE;
+import static org.cubeengine.module.vigil.report.Report.CauseType.CAUSE_BLOCK;
+import static org.cubeengine.module.vigil.report.Report.CauseType.CAUSE_DAMAGE;
+import static org.cubeengine.module.vigil.report.Report.CauseType.CAUSE_ENTITY;
+import static org.cubeengine.module.vigil.report.Report.CauseType.CAUSE_PLAYER;
+import static org.cubeengine.module.vigil.report.Report.CauseType.CAUSE_TNT;
+import static org.cubeengine.module.vigil.report.Report.WORLD;
+import static org.cubeengine.module.vigil.report.Report.X;
+import static org.cubeengine.module.vigil.report.Report.Y;
+import static org.cubeengine.module.vigil.report.Report.Z;
+import static org.cubeengine.module.vigil.report.block.BlockReport.BLOCK_DATA;
+import static org.cubeengine.module.vigil.report.block.BlockReport.BLOCK_STATE;
+import static org.cubeengine.module.vigil.report.block.BlockReport.BLOCK_UNSAFE_DATA;
+import static org.cubeengine.module.vigil.report.block.BlockReport.CAUSE_TARGET;
+import static org.cubeengine.module.vigil.report.block.BlockReport.ORIGINAL;
+import static org.cubeengine.module.vigil.report.block.BlockReport.REPLACEMENT;
+
 import org.cubeengine.module.vigil.report.entity.EntityReport;
 import org.cubeengine.module.vigil.report.inventory.ChangeInventoryReport;
 import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataQuery;
@@ -48,19 +60,20 @@ import org.spongepowered.api.event.cause.entity.damage.source.IndirectEntityDama
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.item.inventory.property.SlotIndex;
 import org.spongepowered.api.item.inventory.transaction.SlotTransaction;
+import org.spongepowered.api.world.LocatableBlock;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import static java.util.stream.Collectors.toList;
-import static org.cubeengine.module.vigil.report.Report.CAUSE_NAME;
-import static org.cubeengine.module.vigil.report.Report.CAUSE_PLAYER_UUID;
-import static org.cubeengine.module.vigil.report.Report.CAUSE_TYPE;
-import static org.cubeengine.module.vigil.report.Report.CauseType.*;
-import static org.cubeengine.module.vigil.report.Report.WORLD;
-import static org.cubeengine.module.vigil.report.Report.X;
-import static org.cubeengine.module.vigil.report.Report.Y;
-import static org.cubeengine.module.vigil.report.Report.Z;
-import static org.cubeengine.module.vigil.report.block.BlockReport.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Observe
 {
@@ -69,48 +82,58 @@ public class Observe
         Map<String, Object> data = new LinkedHashMap<>();
         List<Object> causeList = new ArrayList<>();
         data.put(Report.FULLCAUSELIST, causeList);
+        Set<Object> set = new HashSet<>();
         for (Object namedCause : causes.all())
         {
-            Map<String, Object> causeData = cause(namedCause);
+            Map<String, Object> causeData = cause(namedCause, set);
             if (causeData != null)
             {
                 causeList.add(causeData);
             }
         }
+
+        HashMap<Object, Object> context = new HashMap<>();
+        data.put(Report.CAUSECONTEXT, context);
+
         for (EventContextKey<?> key : causes.getContext().keySet())
         {
-            data.put(key.getId().replace(".", "_"), cause(causes.getContext().get(key).get()));
+            context.put(key.getId().replace(".", "_"), cause(causes.getContext().get(key).get(), new HashSet<>()));
         }
 
         return data;
     }
 
-    public static Map<String, Object> cause(Object cause)
+    public static Map<String, Object> cause(Object cause, Set<Object> set)
     {
-        return cause(cause, true);
+        return cause(cause, true, set);
     }
 
-    public static Map<String, Object> cause(Object cause, boolean doRecursion)
+    public static Map<String, Object> cause(Object cause, boolean doRecursion, Set<Object> set)
     {
+        if (set.contains(cause))
+        {
+            return null;
+        }
         if (cause instanceof EntityDamageSource)
         {
             Entity source = ((EntityDamageSource)cause).getSource();
-            Map<String, Object> sourceCause = Observe.cause(source);
+            Map<String, Object> sourceCause = Observe.cause(source, set);
             Map<String, Object> indirectCause = null;
             if (cause instanceof IndirectEntityDamageSource)
             {
-                indirectCause = Observe.cause(((IndirectEntityDamageSource)cause).getIndirectSource());
+                indirectCause = Observe.cause(((IndirectEntityDamageSource)cause).getIndirectSource(), set);
                 if (sourceCause == null)
                 {
                     return indirectCause;
                 }
             }
             // TODO indirectCause
+            set.add(source);
             return sourceCause;
         }
         else if (cause instanceof BlockDamageSource)
         {
-            return Observe.cause(((BlockDamageSource)cause).getBlockSnapshot());
+            return Observe.cause(((BlockDamageSource)cause).getBlockSnapshot(), set);
         }
         else if (cause instanceof DamageSource)
         {
@@ -121,9 +144,13 @@ public class Observe
         {
             return playerCause(((Player) cause));
         }
+        else if (cause instanceof LocatableBlock)
+        {
+            return blockCause(((LocatableBlock) cause).getBlockState());
+        }
         else if (cause instanceof BlockSnapshot)
         {
-            return blockCause(((BlockSnapshot) cause));
+            return blockCause(((BlockSnapshot) cause).getState());
         }
         else if (cause instanceof PrimedTNT)
         {
@@ -131,7 +158,7 @@ public class Observe
         }
         else if (cause instanceof Entity)
         {
-            return entityCause(((Entity) cause), doRecursion);
+            return entityCause(((Entity) cause), doRecursion, set);
         }
         // TODO other causes that interest us
         return null;
@@ -165,7 +192,7 @@ public class Observe
         return data;
     }
 
-    private static Map<String, Object> entityCause(Entity cause, boolean doRecursion)
+    private static Map<String, Object> entityCause(Entity cause, boolean doRecursion, Set<Object> set)
     {
         Map<String, Object> data = new HashMap<>();
         data.put(CAUSE_TYPE, CAUSE_ENTITY.toString());
@@ -175,15 +202,15 @@ public class Observe
         {
             if (((Agent) cause).getTarget().isPresent())
             {
-                data.put(CAUSE_TARGET, cause(((Agent) cause).getTarget().get(), false));
+                data.put(CAUSE_TARGET, cause(((Agent) cause).getTarget().get(), false, set));
             }
         }
         return data;
     }
 
-    public static Map<String, Object> blockCause(BlockSnapshot block)
+    public static Map<String, Object> blockCause(BlockState block)
     {
-        BlockType type = block.getState().getType();
+        BlockType type = block.getType();
         Map<String, Object> data = new HashMap<>();
         data.put(CAUSE_TYPE, CAUSE_BLOCK.toString());
         data.put(CAUSE_NAME, type.getId());
