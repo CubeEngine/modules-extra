@@ -18,6 +18,7 @@
 package org.cubeengine.module.vigil.report;
 
 import static java.util.stream.Collectors.toList;
+import static org.cubeengine.module.vigil.report.Report.CAUSE_INDIRECT;
 import static org.cubeengine.module.vigil.report.Report.CAUSE_NAME;
 import static org.cubeengine.module.vigil.report.Report.CAUSE_PLAYER_UUID;
 import static org.cubeengine.module.vigil.report.Report.CAUSE_TYPE;
@@ -118,16 +119,16 @@ public class Observe
         {
             Entity source = ((EntityDamageSource)cause).getSource();
             Map<String, Object> sourceCause = Observe.cause(source, set);
-            Map<String, Object> indirectCause = null;
             if (cause instanceof IndirectEntityDamageSource)
             {
-                indirectCause = Observe.cause(((IndirectEntityDamageSource)cause).getIndirectSource(), set);
+                Map<String, Object> indirectCause = Observe.cause(((IndirectEntityDamageSource)cause).getIndirectSource(), set);
                 if (sourceCause == null)
                 {
                     return indirectCause;
                 }
+                set.add(indirectCause);
+                sourceCause.put(CAUSE_INDIRECT, indirectCause);
             }
-            // TODO indirectCause
             set.add(source);
             return sourceCause;
         }

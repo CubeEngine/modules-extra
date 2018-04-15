@@ -26,12 +26,14 @@ import org.cubeengine.libcube.ModuleManager;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.module.bigdata.Bigdata;
 import org.cubeengine.module.vigil.commands.LookupDataParser;
+import org.cubeengine.module.vigil.commands.ReportParser;
 import org.cubeengine.module.vigil.commands.VigilAdminCommands;
 import org.cubeengine.module.vigil.commands.VigilCommands;
 import org.cubeengine.module.vigil.commands.VigilLookupCommands;
 import org.cubeengine.module.vigil.data.ImmutableLookupData;
 import org.cubeengine.module.vigil.data.LookupData;
 import org.cubeengine.module.vigil.data.LookupDataBuilder;
+import org.cubeengine.module.vigil.report.Report;
 import org.cubeengine.module.vigil.report.ReportManager;
 import org.cubeengine.module.vigil.storage.QueryManager;
 import org.cubeengine.libcube.service.command.CommandManager;
@@ -62,14 +64,16 @@ public class Vigil extends CubeEngineModule
     @Inject private ModuleManager mm;
 
     private QueryManager qm;
+    private ReportManager rm;
 
     @Listener
     public void onEnable(GameInitializationEvent event)
     {
         this.tf = mm.getThreadFactory(Vigil.class);
-        ReportManager reportManager = new ReportManager(this, em, i18n);
-        qm = new QueryManager(tf, bd.getDatabase().getCollection("vigil"), reportManager, i18n, plugin);
+        rm = new ReportManager(this, em, i18n);
+        qm = new QueryManager(tf, bd.getDatabase().getCollection("vigil"), rm, i18n, plugin);
         this.cm.getProviders().register(this, new LookupDataParser(i18n), LookupData.class);;
+        this.cm.getProviders().register(this, new ReportParser(this), Report.class);
         VigilCommands vc = new VigilCommands(sm, i18n, cm);
         cm.addCommand(vc);
         vc.addCommand(new VigilAdminCommands(cm, i18n, this));
@@ -84,6 +88,8 @@ public class Vigil extends CubeEngineModule
                         .dataName("CubeEngine vigil Lookup Data")
                         .buildAndRegister(plugin);
 
+
+
     }
 
     public VigilConfig getConfig()
@@ -94,5 +100,10 @@ public class Vigil extends CubeEngineModule
     public QueryManager getQueryManager()
     {
         return qm;
+    }
+
+    public ReportManager getReportManager()
+    {
+        return rm;
     }
 }

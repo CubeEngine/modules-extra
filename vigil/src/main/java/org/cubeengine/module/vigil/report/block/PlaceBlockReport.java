@@ -29,8 +29,8 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
-import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.world.LocatableBlock;
 
 import java.util.List;
 import java.util.Optional;
@@ -126,9 +126,14 @@ public class PlaceBlockReport extends BlockReport<ChangeBlockEvent.Place>
     }
 
     @Listener(order = Order.POST)
-    public void listen(ChangeBlockEvent.Place event, @First Player player)
+    public void listen(ChangeBlockEvent.Place event)
     {
+        if (event.getCause().root() instanceof LocatableBlock)
+        {
+            report(event); // Fire
+            return;
+        }
         // TODO cause filtering
-        report(event);
+        event.getCause().first(Player.class).ifPresent(p -> report(event));
     }
 }

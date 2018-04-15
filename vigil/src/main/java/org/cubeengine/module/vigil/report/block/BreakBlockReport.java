@@ -104,25 +104,24 @@ public class BreakBlockReport extends BlockReport<ChangeBlockEvent.Break>
     @Listener(order = Order.POST)
     public void listen(ChangeBlockEvent.Break event)
     {
-        if (event.getCause().root() instanceof LocatableBlock) {
-            report(event);
-        }
-        else
+        if (event.getCause().root() instanceof LocatableBlock)
         {
-            Optional<Player> causePlayer = event.getCause().first(Player.class);
-            causePlayer.ifPresent(player -> {
-                        // TODO indirect falling sand has no player in Notifier cause
-                        // TODO player is source when destroying block /w hanging blocks on it but should be notifier? source is the block
-
-                        // TODO cause filtering ?
-                        if (!(event.getCause().root() instanceof Explosive)) // Handle Explosions later
-                        {
-                            report(event);
-                        }
-
-                        // TODO remove
-            });
+            report(event); // Fire
+            return;
         }
+        Optional<Player> causePlayer = event.getCause().first(Player.class);
+        causePlayer.ifPresent(player -> {
+                    // TODO indirect falling sand has no player in Notifier cause
+                    // TODO player is source when destroying block /w hanging blocks on it but should be notifier? source is the block
+
+                    // TODO cause filtering ?
+                    if (!(event.getCause().root() instanceof Explosive)) // Handle Explosions later
+                    {
+                        report(event);
+                    }
+
+                    // TODO remove
+        });
     }
 
     @Listener(order = Order.POST)

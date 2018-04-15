@@ -23,6 +23,7 @@ import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE
 import static org.cubeengine.libcube.util.ConfirmManager.requestConfirmation;
 
 import org.cubeengine.butler.parametric.Command;
+import org.cubeengine.butler.parametric.Complete;
 import org.cubeengine.butler.parametric.Default;
 import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.command.ContainerCommand;
@@ -57,7 +58,7 @@ public class VigilAdminCommands extends ContainerCommand
     }
 
     @Command(desc = "enables or disables reports in a world")
-    public void setReportActive(CommandSource ctx, World world, String name, @Default boolean enable) // TODO completer
+    public void setReportActive(CommandSource ctx, World world, @Complete(ReportParser.class) String name, @Default boolean enable) // TODO completer
     {
         Class<? extends Report> report = "*".equals(name) ? Report.class : Report.getReport(name).orElse(null);
         if (report == null)

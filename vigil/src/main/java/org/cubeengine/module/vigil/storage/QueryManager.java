@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -70,6 +71,8 @@ public class QueryManager
     private I18n i18n;
 
     private List<Consumer<Action>> callbacks = new ArrayList<>();
+
+    private Map<UUID, Lookup> lastLookups = new HashMap<>();
 
     public QueryManager(ThreadFactory tf, MongoCollection<Document> db, ReportManager reportManager, I18n i18n, PluginContainer plugin)
     {
@@ -159,6 +162,8 @@ public class QueryManager
 
     public void queryAndShow(Lookup lookup, Player player) // TODO lookup object
     {
+        this.lastLookups.put(player.getUniqueId(), lookup);
+
         // TODO lookup cancel previous?
         Future future = queryFuture.get(player.getUniqueId());
         if (future != null && !future.isDone())
@@ -240,6 +245,7 @@ public class QueryManager
         {
             query.position(lookup.getPosition());
         }
+
         return query;
     }
 
@@ -251,5 +257,10 @@ public class QueryManager
     public void purge()
     {
         this.db.deleteMany(new Document());
+    }
+
+    public Optional<Lookup> getLast(Player player)
+    {
+        return Optional.ofNullable(this.lastLookups.get(player.getUniqueId()));
     }
 }

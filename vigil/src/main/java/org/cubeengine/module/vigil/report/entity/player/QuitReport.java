@@ -17,8 +17,6 @@
  */
 package org.cubeengine.module.vigil.report.entity.player;
 
-import static java.util.Collections.emptyList;
-
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.BaseReport;
@@ -32,14 +30,8 @@ import org.spongepowered.api.event.network.ClientConnectionEvent;
 
 import java.util.List;
 
-public class QuitReport extends BaseReport<ClientConnectionEvent.Disconnect> implements Report.Readonly, Report.SimpleGrouping
+public class QuitReport extends BaseReport<ClientConnectionEvent.Disconnect> implements Report.Readonly, Report.ReportGrouping
 {
-    @Override
-    public List<String> groupBy()
-    {
-        return emptyList();
-    }
-
     @Override
     protected Action observe(ClientConnectionEvent.Disconnect event)
     {
@@ -47,6 +39,12 @@ public class QuitReport extends BaseReport<ClientConnectionEvent.Disconnect> imp
         action.addData(CAUSE, Observe.causes(Cause.of(EventContext.empty(), event.getTargetEntity())));
         action.addData(LOCATION, Observe.location(event.getTargetEntity().getLocation()));
         return action;
+    }
+
+
+    @Override
+    public List<Class<? extends Report>> getReportsList() {
+        return JoinReport.groupings;
     }
 
     @Listener

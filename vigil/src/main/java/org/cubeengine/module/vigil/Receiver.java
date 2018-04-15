@@ -17,19 +17,24 @@
  */
 package org.cubeengine.module.vigil;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.CRITICAL;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NONE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
+import static org.spongepowered.api.text.action.TextActions.executeCallback;
+import static org.spongepowered.api.text.action.TextActions.showText;
+import static org.spongepowered.api.text.format.TextColors.GRAY;
+import static org.spongepowered.api.text.format.TextColors.RED;
+import static org.spongepowered.api.text.format.TextColors.WHITE;
 
+import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.util.StringUtils;
 import org.cubeengine.libcube.util.TimeUtil;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.Recall;
 import org.cubeengine.module.vigil.report.Report;
 import org.cubeengine.module.vigil.report.ReportActions;
-import org.cubeengine.libcube.service.i18n.I18n;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
@@ -42,12 +47,12 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
-import static org.spongepowered.api.text.action.TextActions.executeCallback;
-import static org.spongepowered.api.text.action.TextActions.showText;
-import static org.spongepowered.api.text.format.TextColors.GRAY;
-import static org.spongepowered.api.text.format.TextColors.RED;
-import static org.spongepowered.api.text.format.TextColors.WHITE;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 public class Receiver
 {
@@ -67,15 +72,25 @@ public class Receiver
     // TODO translate msgs on this method
     public void sendReport(Report report, List<Action> actions, String msg, Object... args)
     {
+        Text reports = Text.of(report.getClass().getSimpleName());
+        if (report instanceof Report.ReportGrouping)
+        {
+            reports = Text.of(((Report.ReportGrouping) report).getReportsList().stream().map(Class::getSimpleName).collect(Collectors.joining("/")));
+        }
         Text trans = i18n.translate(cmdSource, NEUTRAL, msg, args)
-                .toBuilder().onHover(TextActions.showText(Text.of(report.getClass().getSimpleName()))).build();
+                .toBuilder().onHover(TextActions.showText(reports)).build();
         sendReport(actions, trans);
     }
 
     public void sendReport(Report report, List<Action> actions, int size, String msgSingular, String msgPlural, Object... args)
     {
+        Text reports = Text.of(report.getClass().getSimpleName());
+        if (report instanceof Report.ReportGrouping)
+        {
+            reports = Text.of(((Report.ReportGrouping) report).getReportsList().stream().map(Class::getSimpleName).collect(Collectors.joining("/")));
+        }
         Text trans = i18n.translateN(cmdSource, NEUTRAL, size, msgSingular, msgPlural, args)
-                .toBuilder().onHover(TextActions.showText(Text.of(report.getClass().getSimpleName()))).build();
+                .toBuilder().onHover(TextActions.showText(reports)).build();
         sendReport(actions, trans);
     }
 

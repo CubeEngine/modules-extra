@@ -17,8 +17,6 @@
  */
 package org.cubeengine.module.vigil.report.entity.player;
 
-import static java.util.Collections.emptyList;
-
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.BaseReport;
@@ -30,15 +28,15 @@ import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class JoinReport extends BaseReport<ClientConnectionEvent.Join> implements Report.Readonly, Report.SimpleGrouping
+public class JoinReport extends BaseReport<ClientConnectionEvent.Join> implements Report.Readonly, Report.ReportGrouping
 {
-    @Override
-    public List<String> groupBy()
-    {
-        return emptyList();
-    }
+
+    public static final List<Class<? extends Report>> groupings = Arrays.asList(JoinReport.class, QuitReport.class);
 
     @Override
     protected Action observe(ClientConnectionEvent.Join event)
@@ -47,6 +45,11 @@ public class JoinReport extends BaseReport<ClientConnectionEvent.Join> implement
         action.addData(CAUSE, Observe.causes(Cause.of(EventContext.empty(), event.getTargetEntity())));
         action.addData(LOCATION, Observe.location(event.getTargetEntity().getLocation()));
         return action;
+    }
+
+    @Override
+    public List<Class<? extends Report>> getReportsList() {
+        return groupings;
     }
 
     @Listener
@@ -59,7 +62,43 @@ public class JoinReport extends BaseReport<ClientConnectionEvent.Join> implement
     public void showReport(List<Action> actions, Receiver receiver)
     {
         Action action = actions.get(0);
-        receiver.sendReport(this, actions, actions.size(), "{txt} joined the game", "{txt} joined the game x{}",
-                Recall.cause(action), actions.size());
+        int join = 0;
+        int quit = 0;
+        for (Action a : actions)
+        {
+            if (a.getType().equals(JoinReport.class.getName()))
+            {
+                join++;
+            }
+            else if (a.getType().equals(QuitReport.class.getName()))
+            {
+                quit++;
+            }
+        }
+
+        if (quit == 0)
+        {
+            receiver.sendReport(this, actions, actions.size(), "{txt} joined the game", "{txt} joined the game x{}",
+                    Recall.cause(action), actions.size());
+        }
+        else if (join == 0)
+        {
+            receiver.sendReport(this, actions, actions.size(), "{txt} quit the game", "{txt} quit the game x{}",
+                    Recall.cause(action), actions.size());
+        }
+        else
+        {
+            if (join == quit)
+            {
+                receiver.sendReport(this, actions, join, "{txt} joined and quit the game", "{txt} joined and quit the game x{}",
+                        Recall.cause(action), join);
+            }
+            else
+            {
+                receiver.sendReport(this, actions, "{txt} joined the game x{} and quit the game x{}",
+                        Recall.cause(action), join, quit);
+            }
+
+        }
     }
 }

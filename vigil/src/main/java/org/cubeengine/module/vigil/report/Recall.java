@@ -18,6 +18,7 @@
 package org.cubeengine.module.vigil.report;
 
 import static org.cubeengine.module.vigil.report.Report.CAUSECONTEXT;
+import static org.cubeengine.module.vigil.report.Report.CAUSE_INDIRECT;
 import static org.cubeengine.module.vigil.report.Report.FULLCAUSELIST;
 import static org.cubeengine.module.vigil.report.Report.LOCATION;
 import static org.cubeengine.module.vigil.report.block.BlockReport.BLOCK_CHANGES;
@@ -215,6 +216,14 @@ public class Recall
                     CauseType targetType = CauseType.valueOf(sourceTarget.get(CAUSE_TYPE).toString());
                     text = Text.of(text, TextColors.GRAY, "◎", cause(sourceTarget, Text.of("?"), targetType));
                 }
+
+                if (source.containsKey(CAUSE_INDIRECT))
+                {
+                    Map<String, Object> indirect = ((Map<String, Object>) source.get(CAUSE_INDIRECT));
+                    CauseType targetType = CauseType.valueOf(indirect.get(CAUSE_TYPE).toString());
+                    text = Text.of(text, TextColors.GRAY, "↶", cause(indirect, Text.of("?"), targetType));
+                }
+
                 break;
         }
         return text;

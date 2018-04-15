@@ -54,6 +54,7 @@ public interface Report
     String CAUSE_PLAYER_UUID = "UUID";
     String CAUSE_NAME = "name";
     String CAUSE_TARGET = "target";
+    String CAUSE_INDIRECT = "indirect";
     String LOCATION = "location";
 
     String MULTIACTION = "multiaction";
@@ -141,6 +142,10 @@ public interface Report
             {
                 return false;
             }
+            if (!Recall.cause(action).equals(Recall.cause(otherAction)))
+            {
+                return false;
+            }
             // TODO compare cause
             return !groupBy().stream().anyMatch(key -> !Objects.equals(action.getData(key), otherAction.getData(key)));
         }
@@ -149,6 +154,28 @@ public interface Report
         {
             return emptyList();
         }
+    }
+
+    interface ReportGrouping extends Report
+    {
+
+        @Override
+        default boolean group(Object lookup, Action action, Action otherAction, Report otherReport)
+        {
+            if (!getReportsList().contains(otherReport.getClass()))
+            {
+                return false;
+            }
+
+            if (!Recall.cause(action).equals(Recall.cause(otherAction)))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        List<Class<? extends Report>> getReportsList();
     }
 
     interface Readonly extends Report

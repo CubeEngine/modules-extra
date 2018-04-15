@@ -185,7 +185,7 @@ public class DestructReport extends EntityReport<DestructEntityEvent>
     }
 
     @Listener
-    public void onDesctruct(DestructEntityEvent event)
+    public void onDestruct(DestructEntityEvent event)
     {
     /* TODO    if (event.getCause().get("CombinedItem", Object.class).isPresent())
         {

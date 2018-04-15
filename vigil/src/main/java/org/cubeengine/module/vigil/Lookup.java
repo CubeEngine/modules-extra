@@ -18,10 +18,12 @@
 package org.cubeengine.module.vigil;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import com.flowpowered.math.vector.Vector3i;
 import org.cubeengine.module.vigil.data.LookupData;
+import org.cubeengine.module.vigil.report.Report;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -48,9 +50,26 @@ public class Lookup
         return this;
     }
 
-    public Lookup withRadius(int radius)
+    public Lookup withRadius(Integer radius)
     {
-        this.radius = radius;
+        if (radius != null)
+        {
+            this.radius = radius;
+        }
+        else
+        {
+            this.radius = 200;
+        }
+        return this;
+    }
+
+    public Lookup withReport(Report report)
+    {
+        if (report != null)
+        {
+            List<String> reports = this.settings.getReports();
+            reports.add(report.getClass().getName());
+        }
         return this;
     }
 
@@ -59,6 +78,7 @@ public class Lookup
         Lookup lookup = new Lookup(settings);
         lookup.world = this.world;
         lookup.position = this.position;
+        lookup.settings = this.settings.copy();
         return lookup;
     }
 
@@ -101,6 +121,8 @@ public class Lookup
     {
         return timingTime.get(timing);
     }
+
+
 
     public enum LookupTiming
     {

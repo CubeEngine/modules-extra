@@ -96,7 +96,12 @@ public class ReportManager
 
     public Report reportOf(Action action)
     {
-        String type = action.getDocument().get("type").toString();
+        String type = Action.TYPE.get(action.getDocument());
         return reports.getOrDefault(type, new UnkownReport(i18n, type));
+    }
+
+    public Map<String, Report> getReports()
+    {
+        return reports;
     }
 }

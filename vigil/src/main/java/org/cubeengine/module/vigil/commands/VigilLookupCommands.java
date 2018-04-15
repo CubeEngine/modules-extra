@@ -19,6 +19,7 @@ package org.cubeengine.module.vigil.commands;
 
 import org.cubeengine.butler.alias.Alias;
 import org.cubeengine.butler.parametric.Command;
+import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Named;
 import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.command.ContainerCommand;
@@ -26,6 +27,7 @@ import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.module.vigil.Lookup;
 import org.cubeengine.module.vigil.Vigil;
 import org.cubeengine.module.vigil.data.LookupData;
+import org.cubeengine.module.vigil.report.Report;
 import org.cubeengine.module.vigil.storage.QueryManager;
 import org.spongepowered.api.entity.living.player.Player;
 
@@ -44,11 +46,30 @@ public class VigilLookupCommands extends ContainerCommand
 
     @Alias(value = "lookup")
     @Command(desc = "Performs a lookup.")
-    public void lookup(Player context, @Named("radius") int radius)
+    public void lookup(Player context, @Named("radius") Integer radius, @Named("report") Report report, @Flag boolean last)
     {
         LookupData ld = new LookupData();
-        Lookup lookup = new Lookup(ld).with(context.getLocation()).withRadius(radius);
+        Lookup lookup = new Lookup(ld);
+        if (last)
+        {
+            lookup = this.qm.getLast(context).orElse(lookup);
+        }
+
+        lookup = lookup.with(context.getLocation()).withRadius(radius)
+            .withReport(report);
+
+        System.out.print(report + "\n");
+
         this.qm.queryAndShow(lookup, context);
     }
+
+    @Command(desc = "Performs a lookup nearby")
+    public void nearby(Player context, @Named("report") Report report)
+    {
+        this.lookup(context, 5, report, false);
+    }
+
+    // TODO rollback
+    // TODO redo
 
 }
