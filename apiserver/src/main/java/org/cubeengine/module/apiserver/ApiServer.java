@@ -23,7 +23,6 @@ import static org.cubeengine.libcube.util.StringUtils.deCamelCase;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.sun.javafx.binding.SelectBinding;
 import org.cubeengine.logscribe.Log;
 import org.cubeengine.logscribe.LogFactory;
 import org.cubeengine.logscribe.target.file.AsyncFileTarget;
