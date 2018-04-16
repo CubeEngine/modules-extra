@@ -17,6 +17,9 @@
  */
 package org.cubeengine.module.vigil;
 
+import static org.cubeengine.module.bigdata.PluginBigdata.BIGDATA_ID;
+import static org.cubeengine.module.bigdata.PluginBigdata.BIGDATA_VERSION;
+
 import java.util.concurrent.ThreadFactory;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -25,6 +28,7 @@ import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.ModuleManager;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.module.bigdata.Bigdata;
+import org.cubeengine.module.bigdata.PluginBigdata;
 import org.cubeengine.module.vigil.commands.LookupDataParser;
 import org.cubeengine.module.vigil.commands.ReportParser;
 import org.cubeengine.module.vigil.commands.VigilAdminCommands;
@@ -49,7 +53,7 @@ import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.plugin.PluginContainer;
 
 @Singleton
-@Module(dependencies = @Dependency("cubeengine-bigdata"))
+@Module(dependencies = @Dependency(value = BIGDATA_ID, version = BIGDATA_VERSION))
 public class Vigil extends CubeEngineModule
 {
     @ModuleConfig private VigilConfig config;
