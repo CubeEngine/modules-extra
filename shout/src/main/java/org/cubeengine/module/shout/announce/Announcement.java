@@ -27,9 +27,12 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.service.permission.PermissionDescription;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageChannel;
+import org.spongepowered.api.text.serializer.TextSerializer;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
 import static java.util.stream.Collectors.toList;
 import static org.spongepowered.api.text.serializer.TextSerializers.FORMATTING_CODE;
+import static org.spongepowered.api.text.serializer.TextSerializers.JSON;
 
 /**
  * Class to represent an announcement.
@@ -58,7 +61,7 @@ public class Announcement
     public Text getMessage(Locale locale)
     {
         String announcement = config.translated.getOrDefault(locale, config.announcement);
-        return FORMATTING_CODE.deserialize(announcement);
+        return JSON.deserialize(announcement);
     }
 
     /**

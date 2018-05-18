@@ -25,6 +25,7 @@ import org.cubeengine.butler.CommandInvocation;
 import org.cubeengine.butler.alias.Alias;
 import org.cubeengine.butler.parametric.Command;
 import org.cubeengine.butler.parametric.Flag;
+import org.cubeengine.butler.parametric.Greed;
 import org.cubeengine.butler.parametric.Label;
 import org.cubeengine.butler.parametric.Named;
 import org.cubeengine.libcube.service.command.CommandManager;
@@ -35,7 +36,10 @@ import org.cubeengine.libcube.service.command.ContainerCommand;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.serializer.TextSerializer;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
+import static org.cubeengine.butler.parameter.Parameter.INFINITE;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
 
 @Command(name = "shout", desc = "Announce a message to players on the server", alias = "announce")
@@ -87,11 +91,12 @@ public class ShoutCommand extends ContainerCommand
 
     @Command(desc = "Creates a new announcement")
     public void create(CommandSource ctx, String name,
-                       @Named({"message", "m"}) String message,
+                       @Greed(INFINITE) String message,
                        @Named({"delay", "d"}) @Label("<x> minutes|hours|days") String delay,
                        @Named({"permission", "p"}) String permission,
                        @Named("weight") Integer weight,
-                       @Flag(name = "fc", longName = "fixed-cycle") boolean fixedCycle)
+                       @Flag(name = "fc", longName = "fixed-cycle") boolean fixedCycle,
+                       @Flag boolean asJson)
     {
         weight = weight == null ? 1 : weight;
         if (message == null)
@@ -104,7 +109,7 @@ public class ShoutCommand extends ContainerCommand
         {
             this.module.getManager().addAnnouncement(
                 this.module.getManager().createAnnouncement(
-                    name, message,
+                    name, asJson, message,
                     delay == null ? "10 minutes" : delay,
                     permission == null ? "*" : permission,
                     fixedCycle, weight));
@@ -146,20 +151,19 @@ public class ShoutCommand extends ContainerCommand
     }
 
     @Command(desc = "modifies an announcement")
-    public void modify(CommandContext context, Announcement announcement, String message, @Named("locale") Locale locale, @Flag boolean append)
+    public void modify(CommandContext context, Announcement announcement, @Greed(INFINITE) String message, @Named("locale") Locale locale, @Flag boolean append, @Flag boolean asJson)
     {
         message = message.replace("\\n", "\n");
+        Text newText = asJson ? TextSerializers.JSON.deserialize(message) : TextSerializers.FORMATTING_CODE.deserialize(message);
         if (locale == null)
         {
-            announcement.getConfig().announcement = append ? announcement.getConfig().announcement + message : message;
+            Text prev = TextSerializers.JSON.deserialize(append ? announcement.getConfig().announcement : "");
+            announcement.getConfig().announcement = TextSerializers.JSON.serialize(prev.toBuilder().append(newText).build());
         }
         else
         {
-            if (append)
-            {
-                message = announcement.getConfig().translated.getOrDefault(locale, "") + message;
-            }
-            announcement.getConfig().translated.put(locale, message);
+            Text prev = TextSerializers.JSON.deserialize(append ? announcement.getConfig().translated.getOrDefault(locale, "") : "");
+            announcement.getConfig().translated.put(locale, TextSerializers.JSON.serialize(prev.toBuilder().append(newText).build()));
         }
         announcement.getConfig().save();
         context.sendTranslated(POSITIVE, "Updated announcement");

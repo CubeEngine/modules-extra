@@ -39,7 +39,10 @@ import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.libcube.service.task.TaskManager;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
+import static org.cubeengine.libcube.service.filesystem.FileExtensionFilter.JSON;
 import static org.cubeengine.libcube.service.filesystem.FileExtensionFilter.YAML;
 
 /**
@@ -89,7 +92,7 @@ public class AnnouncementManager
             Files.createFile(file);
             try
             {
-                this.createAnnouncement("Example", "This is an example announcement", "10 minutes", "*", false, 1);
+                this.createAnnouncement("Example", false, "This is an example announcement", "10 minutes", "*", false, 1);
             }
             catch (Exception ex)
             {
@@ -234,7 +237,7 @@ public class AnnouncementManager
      * Create an announcement folder structure with the params specified.
      * This will not load the announcement into the plugin
      */
-    public Announcement createAnnouncement(String name, String message, String delay, String permName, boolean fc, int weight) throws IOException, IllegalArgumentException
+    public Announcement createAnnouncement(String name, boolean json, String message, String delay, String permName, boolean fc, int weight) throws IOException, IllegalArgumentException
     {
         Path file = this.modulePath.resolve(name + YAML.getExtention());
 
@@ -243,7 +246,7 @@ public class AnnouncementManager
         config.delay = delay;
         config.permName = permName;
         config.fixedCycle = fc;
-        config.announcement = message;
+        config.announcement = TextSerializers.JSON.serialize(json ? TextSerializers.JSON.deserialize(message) : TextSerializers.FORMATTING_CODE.deserialize(message));
         config.weight = weight;
         config.save();
 
