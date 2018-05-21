@@ -246,9 +246,31 @@ public class ChatCommands
 
 
     @Command(alias = "roll", desc = "Shows a random number from 0 to 100")
-    public void rand(CommandSource context)
+    public void rand(CommandSource context, @Optional String dice)
     {
-        this.bc.broadcastTranslatedStatus(NEUTRAL, "rolled a {integer}!", context, new Random().nextInt(100));
+        if (dice == null)
+        {
+            dice = "d100";
+        }
+        if (!dice.toLowerCase().startsWith("d"))
+        {
+            this.i18n.send(context, NEGATIVE, "Invalid dice. Try something like d20.");
+            return;
+        }
+        dice = dice.substring(1);
+        try
+        {
+            int diceNumber = Integer.parseInt(dice);
+            if (diceNumber <= 500)
+            {
+                this.bc.broadcastTranslatedStatus(NEUTRAL, "rolled a {integer} ({name})!", context, new Random().nextInt(diceNumber) + 1, "D" + dice);
+                return;
+            }
+        }
+        catch (NumberFormatException ignored)
+        {
+        }
+        this.i18n.send(context, NEGATIVE, "Invalid dice. Try something like d20.");
     }
 
 }
