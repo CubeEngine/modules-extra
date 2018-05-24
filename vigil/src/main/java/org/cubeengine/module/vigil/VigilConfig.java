@@ -37,6 +37,9 @@ public class VigilConfig extends ReflectedYaml
               "org.cubeengine.module.vigil.report can be ommitted"})
     public Map<ConfigWorld, List<String>> disabledReports = new HashMap<>();
 
+    @Comment("Custom prepared reports. Values are MongoDB query string (Json format)")
+    public Map<String, String> preparedReports = new HashMap<>();
+
     private transient Map<UUID, List<Class<? extends Report>>> disabledReportsMap = new HashMap<>();
 
     public void markDirty(World world)

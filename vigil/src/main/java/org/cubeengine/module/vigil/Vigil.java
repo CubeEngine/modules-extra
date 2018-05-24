@@ -81,7 +81,7 @@ public class Vigil extends CubeEngineModule
         VigilCommands vc = new VigilCommands(sm, i18n, cm);
         cm.addCommand(vc);
         vc.addCommand(new VigilAdminCommands(cm, i18n, this));
-        cm.addCommands(vc, this, new VigilLookupCommands(cm, i18n, qm));
+        cm.addCommands(vc, this, new VigilLookupCommands(this, cm, i18n, qm));
 
         em.registerListener(Vigil.class, new ToolListener(pm, qm));
 

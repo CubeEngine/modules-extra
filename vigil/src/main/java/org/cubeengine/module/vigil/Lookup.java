@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import com.flowpowered.math.vector.Vector3i;
+import org.bson.Document;
 import org.cubeengine.module.vigil.data.LookupData;
 import org.cubeengine.module.vigil.report.Report;
 import org.spongepowered.api.world.Location;
@@ -37,6 +38,13 @@ public class Lookup
     private UUID world;
     private Vector3i position;
     private int radius = 0;
+    private Document prepared;
+
+    public Lookup(Document prepared)
+    {
+        this.settings = new LookupData();
+        this.prepared = prepared;
+    }
 
     public Lookup(LookupData settings)
     {
@@ -122,7 +130,10 @@ public class Lookup
         return timingTime.get(timing);
     }
 
-
+    public Document prepared()
+    {
+        return this.prepared;
+    }
 
     public enum LookupTiming
     {

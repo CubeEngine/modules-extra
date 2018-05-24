@@ -246,6 +246,11 @@ public class QueryManager
             query.position(lookup.getPosition());
         }
 
+        if (lookup.prepared() != null)
+        {
+            query.prepared(lookup.prepared());
+        }
+
         return query;
     }
 

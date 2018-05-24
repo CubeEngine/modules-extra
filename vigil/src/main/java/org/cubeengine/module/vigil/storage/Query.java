@@ -113,4 +113,10 @@ public class Query
         and.add(types);
         return this;
     }
+
+    public Query prepared(Document prepared)
+    {
+        this.and.add(prepared);
+        return this;
+    }
 }
