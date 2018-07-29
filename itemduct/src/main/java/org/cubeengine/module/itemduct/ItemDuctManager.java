@@ -71,6 +71,7 @@ public class ItemDuctManager
     private boolean init = false;
 
     private ItemStack activatorItem;
+    private ItemStack singleActivatorItem;
     private ItemStack superActivatorItem;
     private Set<BlockType> pipeTypes = new HashSet<>();
     private Set<Direction> directions = EnumSet.of(Direction.DOWN, Direction.UP, Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
@@ -97,6 +98,10 @@ public class ItemDuctManager
             activatorItem.offer(Keys.HIDE_ENCHANTMENTS, true);
             activatorItem.offer(new DuctData(config.activatorUses));
             activatorItem.offer(Keys.ITEM_LORE, Collections.singletonList(Text.of("Uses: ", config.activatorUses)));
+
+            singleActivatorItem = activatorItem.copy();
+            singleActivatorItem.offer(new DuctData(1));
+            singleActivatorItem.offer(Keys.ITEM_LORE, Collections.singletonList(Text.of("Single Use")));
 
             this.recipe = CraftingRecipe.shapedBuilder().rows()
                     .row(hopper, hopper, hopper)
@@ -307,6 +312,10 @@ public class ItemDuctManager
     public boolean matchesRecipe(CraftingRecipe recipe)
     {
         return this.recipe == recipe || this.superRecipe == recipe;
+    }
+
+    public ItemStack singleActivatorItem() {
+        return this.singleActivatorItem;
     }
 
     private class LastDuct

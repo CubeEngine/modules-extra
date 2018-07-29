@@ -116,7 +116,7 @@ public class ItemDuctTransferListener
             Optional<DuctData> ductData = te.get(DuctData.class);
             Optional<ItemStack> itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
 
-            if (ductData.isPresent() && !itemInHand.isPresent() && !player.get(Keys.IS_SNEAKING).orElse(false))
+            if (ductData.isPresent() && !itemInHand.map(i -> !i.isEmpty()).orElse(false) && !player.get(Keys.IS_SNEAKING).orElse(false))
             {
                 manager.playEffect(loc); // Play Effect for DuctPiston
             }

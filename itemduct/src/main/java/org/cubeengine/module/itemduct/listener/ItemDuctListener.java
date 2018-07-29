@@ -35,6 +35,8 @@ import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.effect.particle.ParticleTypes;
 import org.spongepowered.api.effect.sound.SoundTypes;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.event.Listener;
@@ -118,24 +120,33 @@ public class ItemDuctListener
             if (player.get(Keys.GAME_MODE).get() != GameModes.CREATIVE)
             {
                 ItemStack newStack = itemInHand.get().copy();
+                ItemStack sepStack = itemInHand.get().copy();
 
-                Integer uses = newStack.get(IDuctData.USES).orElse(0) - 1;
-                if (uses <= 0)
+                Integer uses = newStack.get(IDuctData.USES).orElse(0);
+                uses--;
+
+                if (uses <= 0) // Item used up?
                 {
-                    if (uses == -2) // Infinite usage?
+                    if (uses == -2) // or infinite usage?
                     {
                         uses++;
                     }
                     else
                     {
                         newStack.setQuantity(itemInHand.get().getQuantity() - 1);
-                        uses = module.getConfig().activatorUses;
                     }
+                    sepStack.setQuantity(0);
+                }
+                else
+                {
+                    sepStack.setQuantity(newStack.getQuantity() - 1);
+                    newStack.setQuantity(1);
                 }
                 newStack.offer(IDuctData.USES, uses);
                 module.getManager().updateUses(newStack);
 
                 player.setItemInHand(HandTypes.MAIN_HAND, newStack);
+                player.getInventory().offer(sepStack);
             }
 
             player.getProgress(module.activate).grant();
@@ -163,6 +174,14 @@ public class ItemDuctListener
                     if (data.get().getFilters().isEmpty())
                     {
                         loc.getRelative(dir).remove(DuctData.class);
+                        event.getCause().first(Player.class).ifPresent(p -> {
+                            if (p.get(Keys.GAME_MODE).map(mode -> mode != GameModes.CREATIVE).orElse(false)) {
+                                Entity item = loc.createEntity(EntityTypes.ITEM);
+                                item.offer(Keys.REPRESENTED_ITEM, this.module.getManager().singleActivatorItem().createSnapshot());
+                                loc.spawnEntity(item);
+                            }
+                        });
+
                     }
                     else
                     {
