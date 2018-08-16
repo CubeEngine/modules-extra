@@ -74,6 +74,7 @@ public class ItemDuctManager
     private ItemStack singleActivatorItem;
     private ItemStack superActivatorItem;
     private Set<BlockType> pipeTypes = new HashSet<>();
+    private Set<BlockType> storagePipeTypes = new HashSet<>();
     private Set<Direction> directions = EnumSet.of(Direction.DOWN, Direction.UP, Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
     private int maxDepth = 10;
     private ShapedCraftingRecipe recipe;
@@ -149,7 +150,9 @@ public class ItemDuctManager
         this.pipeTypes.add(GLASS_PANE);
         this.pipeTypes.add(STAINED_GLASS);
         this.pipeTypes.add(STAINED_GLASS_PANE);
-        this.pipeTypes.add(QUARTZ_BLOCK);
+
+        this.storagePipeTypes.clear();
+        this.storagePipeTypes.add(QUARTZ_BLOCK);
 
         this.maxDepth = config.maxDepth;
     }
@@ -162,9 +165,10 @@ public class ItemDuctManager
             dir = dir.getOpposite();
         }
         Network network = new Network(this);
-        if (pipeTypes.contains(start.getRelative(dir).getBlockType()))
+        Location<World> rel = start.getRelative(dir);
+        if (pipeTypes.contains(rel.getBlockType()) || storagePipeTypes.contains(rel.getBlockType()))
         {
-            start = start.getRelative(dir);
+            start = rel;
             network.pipes.add(start);
             findNetwork(new LastDuct(start, dir), network, 0);
         }
@@ -269,7 +273,7 @@ public class ItemDuctManager
         for (Location<World> pipe : network.pipes)
         {
             Vector3d pos = pipe.getPosition().add(0.5, 0.5, 0.5);
-            if (pipe.getBlockType().equals(QUARTZ_BLOCK))
+            if (storagePipeTypes.contains(pipe.getBlockType()))
             {
                 for (Direction effectDir : Direction.values())
                 {
@@ -338,20 +342,20 @@ public class ItemDuctManager
             this.loc = loc;
             this.color = loc.get(Keys.DYE_COLOR).orElse(null);
             this.cross = GLASS_PANE.equals(loc.getBlockType()) || STAINED_GLASS_PANE.equals(loc.getBlockType());
-            this.storage = loc.getBlockType().equals(QUARTZ_BLOCK);
+            this.storage = storagePipeTypes.contains(loc.getBlockType());
         }
 
         public boolean isCompatible(Location<World> rel)
         {
-            if (!pipeTypes.contains(rel.getBlockType()))
+            if (!pipeTypes.contains(rel.getBlockType()) && !storagePipeTypes.contains(rel.getBlockType()))
             {
                 return false;
             }
             if (storage)
             {
-                return rel.getBlockType().equals(QUARTZ_BLOCK);
+                return storagePipeTypes.contains(rel.getBlockType());
             }
-            if (rel.getBlockType().equals(QUARTZ_BLOCK))
+            if (storagePipeTypes.contains(rel.getBlockType()))
             {
                 return false;
             }
