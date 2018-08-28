@@ -32,5 +32,10 @@
             <version>1.2.1</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.cubeengine</groupId>
+            <artifactId>reflect-nbt</artifactId>
+            <version>3.0.0</version>
+        </dependency>
     </dependencies>
 </project>
