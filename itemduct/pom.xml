@@ -10,14 +10,14 @@
     <artifactId>itemduct</artifactId>
 
     <name>ItemDuct</name>
-    <version>1.1.4-SNAPSHOT</version>
+    <version>1.1.4</version>
     <description>Transfer items via glass pipes</description>
 
     <scm>
         <url>scm:git:https://github.com/CubeEngine/modules-extra</url>
         <connection>scm:git:https://github.com/CubeEngine/modules-extra.git</connection>
         <developerConnection>scm:git:git@github.com:CubeEngine/modules-extra.git</developerConnection>
-      <tag>HEAD</tag>
+      <tag>itemduct-1.1.4</tag>
   </scm>
 
     <dependencies>
