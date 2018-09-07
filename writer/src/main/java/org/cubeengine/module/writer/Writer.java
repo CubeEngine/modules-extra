@@ -34,6 +34,7 @@ import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.processor.Dependency;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.mutable.item.PagedData;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.SignData;
 import org.spongepowered.api.data.type.HandTypes;
@@ -159,8 +160,7 @@ public class Writer extends CubeEngineModule
         lines.set(1, line2 == null ? lines.get(1) : Text.of(line2));
         lines.set(2, line3 == null ? lines.get(2) : Text.of(line3));
         lines.set(3, line4 == null ? lines.get(3) : Text.of(line4));
-        System.out.println(block.offer(signData).isSuccessful());
-
+        block.offer(Keys.SIGN_LINES, lines.get());
         i18n.send(user, POSITIVE, "The sign has been changed!");
         return true;
     }
