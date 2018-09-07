@@ -29,6 +29,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
+import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.cause.EventContextKey;
 import org.spongepowered.api.world.LocatableBlock;
 
@@ -127,12 +128,11 @@ public class BreakBlockReport extends BlockReport<ChangeBlockEvent.Break>
     @Listener(order = Order.POST)
     public void listen(ChangeBlockEvent.Post event)
     {
-
-
         //System.out.println(event.getCause());
-        if (event.getCause().first(Explosive.class).isPresent())
+        if (event.getCause().first(Explosive.class).isPresent()) // TODO this is wrong. e.g. Creeper could use a pressure plate to change blocks
         {
             report(event); // Handle Explosions etc.
+            /*
             System.out.print("####\n");
             for (Object o : event.getCause().all()) {
                 System.out.print(o + "\n");
@@ -140,6 +140,7 @@ public class BreakBlockReport extends BlockReport<ChangeBlockEvent.Break>
             for (Map.Entry<EventContextKey<?>, Object> entry : event.getContext().asMap().entrySet()) {
                 System.out.print(entry.getKey() + ": " + entry.getValue() +"\n");
             }
+            */
 
         }
     }

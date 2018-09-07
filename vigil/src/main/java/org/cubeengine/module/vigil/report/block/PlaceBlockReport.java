@@ -86,6 +86,12 @@ public class PlaceBlockReport extends BlockReport<ChangeBlockEvent.Place>
             return false;
         }
 
+        if (!action.getData(CAUSE).equals(otherAction.getData(CAUSE)))
+        {
+            // TODO check same cause better
+            return false;
+        }
+
         // TODO in short timeframe (minutes? configurable)
         return true;
     }
