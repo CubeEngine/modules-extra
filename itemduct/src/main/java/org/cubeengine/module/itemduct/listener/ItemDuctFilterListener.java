@@ -83,7 +83,7 @@ public class ItemDuctFilterListener
             Location<World> te = loc.getRelative(dir);
             Optional<DuctData> ductData = te.get(DuctData.class);
             Optional<ItemStack> itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
-            if (ductData.isPresent() && itemInHand.map(ItemStack::isEmpty).orElse(false) && player.get(Keys.IS_SNEAKING).orElse(false))
+            if (ductData.isPresent() && itemInHand.map(ItemStack::isEmpty).orElse(true) && player.get(Keys.IS_SNEAKING).orElse(false))
             {
                 openFilter(player, ductData.get(), dir.getOpposite(), te);
             }
