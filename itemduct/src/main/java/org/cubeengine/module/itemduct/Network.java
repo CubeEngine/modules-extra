@@ -139,7 +139,7 @@ public class Network
             }
             if (!filters.isEmpty()) // Only allow to extract items in the filter
             {
-                pollFrom = queryFiltered(filters, inventory); // TODO more filters
+                pollFrom = queryFiltered(filters, pollFrom); // TODO more filters
             }
 
             doTransfer(pollFrom, inventory);
