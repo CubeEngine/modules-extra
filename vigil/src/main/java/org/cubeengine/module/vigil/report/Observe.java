@@ -203,7 +203,7 @@ public class Observe
         {
             if (((Agent) cause).getTarget().isPresent())
             {
-                data.put(CAUSE_TARGET, cause(((Agent) cause).getTarget().get(), false, set));
+                data.put(CAUSE_TARGET, cause(((Agent) cause).getTarget().get(), false, new HashSet<>()));
             }
         }
         return data;

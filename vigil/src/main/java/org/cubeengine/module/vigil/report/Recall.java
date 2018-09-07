@@ -210,7 +210,7 @@ public class Recall
                 text = Text.of(TextColors.GOLD, Sponge.getRegistry().getType(EntityType.class, causeName.toString())
                         .map(EntityType::getTranslation).map(Translation::get).orElse(causeName.toString()));
                 // TODO translation
-                if (source.containsKey(CAUSE_TARGET))
+                if (source.containsKey(CAUSE_TARGET) && source.get(CAUSE_TARGET) != null)
                 {
                     Map<String, Object> sourceTarget = ((Map<String, Object>) source.get(CAUSE_TARGET));
                     CauseType targetType = CauseType.valueOf(sourceTarget.get(CAUSE_TYPE).toString());
