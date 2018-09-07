@@ -32,6 +32,7 @@ import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.cause.EventContext;
 import org.spongepowered.api.event.cause.EventContextKey;
 import org.spongepowered.api.world.LocatableBlock;
+import org.spongepowered.api.world.explosion.Explosion;
 
 import java.util.List;
 import java.util.Map;
@@ -129,7 +130,7 @@ public class BreakBlockReport extends BlockReport<ChangeBlockEvent.Break>
     public void listen(ChangeBlockEvent.Post event)
     {
         //System.out.println(event.getCause());
-        if (event.getCause().first(Explosive.class).isPresent()) // TODO this is wrong. e.g. Creeper could use a pressure plate to change blocks
+        if (event.getCause().first(Explosion.class).isPresent())
         {
             report(event); // Handle Explosions etc.
             /*
