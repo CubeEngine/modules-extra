@@ -37,6 +37,7 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+import org.spongepowered.api.event.game.state.GameStartedServerEvent;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.cubeengine.processor.Module;
 
@@ -73,13 +74,18 @@ public class Kits extends CubeEngineModule
         KitData.TIME.getQuery();
 
         this.kitManager = new KitManager(this, reflector, sm);
-        this.kitManager.loadKits();
         em.registerListener(Kits.class, kitManager);
         cm.getProviders().register(this, new KitParser(kitManager), Kit.class);
 
         KitCommand cmd = new KitCommand(this, i18n, igf, cm);
         cm.addCommand(cmd);
         cmd.addCommand(new KitEditCommand(cm, i18n, kitManager));
+    }
+
+    @Listener
+    public void onAfterStart(GameStartedServerEvent event)
+    {
+        this.kitManager.loadKits();
     }
 
     public KitManager getKitManager()
