@@ -76,6 +76,15 @@ public class KitManager
         return kitMap.get(match.iterator().next());
     }
 
+    public Kit getExactKit(String name)
+    {
+        if (name == null)
+        {
+            return null;
+        }
+        return kitMap.get(name);
+    }
+
     public void saveKit(Kit kit)
     {
         KitConfiguration config = kitConfigMap.get(kit);
@@ -111,6 +120,7 @@ public class KitManager
                     loadKit(file);
                 }
             }
+            System.out.println("Loaded {} kits" + this.kitMap.size());
         }
         catch (IOException ex)
         {

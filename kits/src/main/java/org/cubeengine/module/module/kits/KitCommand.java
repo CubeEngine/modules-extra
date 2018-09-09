@@ -96,7 +96,7 @@ public class KitCommand extends ContainerCommand
                 .build(module.getPlugin());
 
         List<ItemStack> itemList = new ArrayList<>();
-        Kit kit = manager.getKit(kitname);
+        Kit kit = manager.getExactKit(kitname);
         if (kit == null)
         {
             kit = new Kit(module, kitname, false, 0, -1, true, "", new ArrayList<>(), itemList);
