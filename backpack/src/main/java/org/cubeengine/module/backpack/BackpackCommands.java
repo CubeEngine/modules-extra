@@ -33,6 +33,7 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.service.context.Context;
+import org.spongepowered.api.util.Tristate;
 
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
 
@@ -75,7 +76,6 @@ public class BackpackCommands extends ContainerCommand
     public void create(CommandSource ctx,
                        @Default @Optional User player,
                        @Optional String name,
-                       @Default @Named("in") Context context,
                        @Flag boolean blockinput)
     {
         if (name == null)
@@ -98,26 +98,26 @@ public class BackpackCommands extends ContainerCommand
                 return;
             }
         }
-        manager.createBackpack(ctx, player, name, context, blockinput);
+        manager.createBackpack(ctx, player, name, blockinput);
     }
 
     @Alias(value = "blockbp")
     @Command(desc = "modifies a backpack")
-    public void blockinput(CommandSource ctx, String name, @Default User player, boolean blockinput)
+    public void blockinput(CommandSource ctx, @Complete(BackpackCompleter.class) String name, @Default User player, boolean blockinput)
     {
         manager.modifyBackpack(ctx, player, name, blockinput);
     }
 
     @Command(desc = "modifies a backpacks context")
-    public void addContext(CommandSource ctx, String name, @Default User player, Context context)
+    public void allowIn(CommandSource ctx, @Complete(BackpackCompleter.class) String name, @Named("for") @Default User player, Context context)
     {
-        manager.setBackpackContext(ctx, player, name, context, true);
+        manager.setBackpackContext(ctx, player, name, context, Tristate.TRUE);
     }
 
     @Command(desc = "modifies a backpacks context")
-    public void removeContext(CommandSource ctx, String name, @Default User player, Context context)
+    public void denyIn(CommandSource ctx, @Complete(BackpackCompleter.class) String name, @Named("for") @Default User player, Context context, @Flag boolean reset)
     {
-        manager.setBackpackContext(ctx, player, name, context, false);
+        manager.setBackpackContext(ctx, player, name, context, reset ? Tristate.UNDEFINED : Tristate.FALSE);
     }
 
     /* TODO give cmd

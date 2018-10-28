@@ -20,6 +20,7 @@ package org.cubeengine.module.backpack;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -27,6 +28,7 @@ import java.util.UUID;
 import org.cubeengine.reflect.Reflector;
 import org.cubeengine.libcube.util.StringUtils;
 import org.cubeengine.libcube.service.i18n.I18n;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
@@ -37,6 +39,8 @@ import org.spongepowered.api.item.inventory.Container;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.type.CarriedInventory;
 import org.spongepowered.api.service.context.Context;
+import org.spongepowered.api.service.permission.PermissionService;
+import org.spongepowered.api.util.Tristate;
 
 import static org.cubeengine.libcube.service.filesystem.FileExtensionFilter.DAT;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
@@ -101,7 +105,7 @@ public class BackpackManager
             packNotExistMessage(sender, forUser, name);
             return;
         }
-        if (!outOfContext && !pack.hasContext(sender.getActiveContexts()))
+        if (!outOfContext && !sender.hasPermission(getPackPerm(sender, pack)))
         {
             i18n.send(sender, NEGATIVE, "This backpack is not available in your current context!");
             return;
@@ -131,7 +135,7 @@ public class BackpackManager
         return pack;
     }
 
-    public void createBackpack(CommandSource sender, User player, String name, Context context, boolean blockInput)
+    public void createBackpack(CommandSource sender, User player, String name, boolean blockInput)
     {
         BackpackInventory backpack = getBackpack(player, name);
         if (backpack != null)
@@ -147,21 +151,13 @@ public class BackpackManager
 
             BackpackData data = reflector.create(BackpackData.class);
             data.allowItemsIn = !blockInput;
-            data.activeIn.add(context);
             data.setFile(folder.resolve(name + DAT.getExtention()).toFile());
             data.save();
 
-            Map<String, BackpackInventory> packs = allPacks.get(player.getUniqueId());
-            if (packs == null)
-            {
-                packs = new HashMap<>();
-                allPacks.put(player.getUniqueId(), packs);
-            }
+            Map<String, BackpackInventory> packs = allPacks.computeIfAbsent(player.getUniqueId(), k -> new HashMap<>());
             packs.put(name, new BackpackInventory(module, data, name));
 
             i18n.send(sender, POSITIVE, "Created backpack {input#backpack} for {user}", name, player);
-            i18n.send(sender, POSITIVE, "The backpack is currently active in {context}", context);
-
         }
         catch (IOException e)
         {
@@ -226,7 +222,7 @@ public class BackpackManager
         pack.data.save();
     }
 
-    public void setBackpackContext(CommandSource ctx, User player, String name, Context context, boolean add)
+    public void setBackpackContext(CommandSource ctx, User player, String name, Context context, Tristate state)
     {
         BackpackInventory pack = getBackpack(player, name);
         if (pack == null)
@@ -234,27 +230,22 @@ public class BackpackManager
             packNotExistMessage(ctx, player, name);
             return;
         }
-        if (add)
-        {
-            if (pack.data.activeIn.add(context))
-            {
-                pack.data.save();
-                i18n.send(ctx, POSITIVE, "Added {context} to the backpack", context);
-                return;
-            }
-            i18n.send(ctx, NEGATIVE, "{context} was already active for this backpack", context);
-        }
-        else
-        {
-            if (pack.data.activeIn.remove(context))
-            {
-                pack.data.save();
-                i18n.send(ctx, POSITIVE, "Removed {context} from the backpack", context);
-                return;
-            }
-            i18n.send(ctx, NEGATIVE, "{context} was not active for this backpack", context);
-        }
 
+        String packPerm = getPackPerm(player, pack);
+        player.getSubjectData().setPermission(Collections.singleton(context), packPerm, state);
+
+        if (state == Tristate.UNDEFINED)
+        {
+            i18n.send(ctx, POSITIVE, "Removed permission {name} in context {context}", packPerm, context);
+            return;
+        }
+        i18n.send(ctx, POSITIVE, "Set permission {name} in context {context} to {}", packPerm, context, state.asBoolean());
+    }
+
+    private String getPackPerm(User player, BackpackInventory pack)
+    {
+        String packName = pack.getName().equals(player.getName()) ? ".playerbackpack" : ".namedbackpack." + pack.getName();
+        return module.perms().USE.getId() + packName.toLowerCase();
     }
 
     @Listener
@@ -263,7 +254,7 @@ public class BackpackManager
         Container inventory = event.getTargetInventory();
         if (inventory instanceof CarriedInventory)
         {
-            if (((CarriedInventory)inventory).getCarrier().orElse(null) instanceof BackpackHolder)
+            if (((CarriedInventory)inventory).getCarrier().isPresent() && ((CarriedInventory)inventory).getCarrier().get() instanceof BackpackHolder)
             {
                 BackpackHolder holder = (BackpackHolder)((CarriedInventory)inventory).getCarrier().get();
                 holder.getBackpack().closeInventory(inventory, player);

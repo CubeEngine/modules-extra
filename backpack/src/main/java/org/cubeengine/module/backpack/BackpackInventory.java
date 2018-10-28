@@ -138,20 +138,8 @@ public class BackpackInventory
         this.data.save();
     }
 
-    public boolean hasContext(Set<Context> set)
+    public String getName()
     {
-        for (Context context : data.activeIn)
-        {
-            if (context.equals(ContextUtil.GLOBAL)) // TODO global context in service
-            {
-                return true;
-            }
-            if (set.contains(context))
-            {
-                return true;
-            }
-        }
-        return false;
+        return name;
     }
-
 }

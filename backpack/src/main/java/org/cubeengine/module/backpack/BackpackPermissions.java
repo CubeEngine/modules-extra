@@ -17,11 +17,11 @@
  */
 package org.cubeengine.module.backpack;
 
-import javax.inject.Inject;
 import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionContainer;
 import org.cubeengine.libcube.service.permission.PermissionManager;
-import org.spongepowered.api.service.permission.PermissionDescription;
+
+import javax.inject.Inject;
 
 @SuppressWarnings("all")
 public class BackpackPermissions extends PermissionContainer
@@ -35,4 +35,5 @@ public class BackpackPermissions extends PermissionContainer
     public final Permission COMMAND_OPEN_OTHER_PLAYER = register("command.backpack.open.other", "Allows using the open command as another player", null);
     public final Permission COMMAND_CREATE_OTHER = register("command.backpack.create.other", "Allows creating backpacks for other players", null);
     public final Permission COMMAND_CREATE_NAMED = register("command.backpack.create.named", "Allows creating backpacks with names", null);
+    public final Permission USE = register("use", "Allows using all backpacks");
 }

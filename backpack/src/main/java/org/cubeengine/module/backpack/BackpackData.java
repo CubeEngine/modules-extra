@@ -30,11 +30,10 @@ public class BackpackData extends ReflectedNBT
 {
     public boolean allowItemsIn = true;
     public Map<Integer, ItemStack> contents = new HashMap<>();
-    public List<Context> activeIn = new ArrayList<>();
 
     @Override
     public void onSave()
     {
-        contents.values().remove(null);
+        this.contents.values().remove(null);
     }
 }
