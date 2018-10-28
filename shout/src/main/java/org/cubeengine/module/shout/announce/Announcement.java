@@ -27,6 +27,7 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.service.permission.PermissionDescription;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageChannel;
+import org.spongepowered.api.text.serializer.TextParseException;
 import org.spongepowered.api.text.serializer.TextSerializer;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
@@ -61,7 +62,11 @@ public class Announcement
     public Text getMessage(Locale locale)
     {
         String announcement = config.translated.getOrDefault(locale, config.announcement);
-        return JSON.deserialize(announcement);
+        try {
+            return JSON.deserialize(announcement);
+        } catch (TextParseException e) {
+            return FORMATTING_CODE.deserialize(announcement);
+        }
     }
 
     /**
