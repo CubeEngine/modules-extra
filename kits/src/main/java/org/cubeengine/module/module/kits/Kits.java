@@ -23,6 +23,7 @@ import javax.inject.Singleton;
 
 import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.ModuleManager;
+import org.cubeengine.logscribe.Log;
 import org.cubeengine.reflect.Reflector;
 import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.event.EventManager;
@@ -59,10 +60,12 @@ public class Kits extends CubeEngineModule
     @Inject private StringMatcher sm;
     private PluginContainer plugin;
     @Inject private ModuleManager mm;
+    private Log logger;
 
     @Listener
     public void onEnable(GamePreInitializationEvent event)
     {
+        this.logger = mm.getLoggerFor(Kits.class);
         this.modulePath = mm.getPathFor(Kits.class);
         this.plugin = mm.getPlugin(Kits.class).get();
         DataRegistration<KitData, ImmutableKitData> dr = DataRegistration.<KitData, ImmutableKitData>builder()
@@ -115,5 +118,10 @@ public class Kits extends CubeEngineModule
 
     public PluginContainer getPlugin() {
         return plugin;
+    }
+
+    public Log getLogger()
+    {
+        return this.logger;
     }
 }

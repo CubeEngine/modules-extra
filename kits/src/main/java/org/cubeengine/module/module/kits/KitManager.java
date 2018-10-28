@@ -120,7 +120,7 @@ public class KitManager
                     loadKit(file);
                 }
             }
-            System.out.println("Loaded {} kits" + this.kitMap.size());
+            module.getLogger().info("Loaded {} kits", this.kitMap.size());
         }
         catch (IOException ex)
         {
