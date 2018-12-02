@@ -35,10 +35,10 @@ public interface IDuctData
     TypeToken<MapValue<Direction, List<ItemStack>>> TTV_ItemDirection = new TypeToken<MapValue<Direction, List<ItemStack>>>() {};
 
     Key<MapValue<Direction, List<ItemStack>>> FILTERS = Key.builder().type(TTV_ItemDirection)
-            .query(of("ductfilters")).id("cubeengine-itemduct:filters").name("ItemDuct Filters").build();
+            .query(of("ductfilters")).id("filters").name("ItemDuct Filters").build();
 
     Key<Value<Integer>> USES = Key.builder().type(TypeTokens.INTEGER_VALUE_TOKEN)
-            .query(of("activatoruses")).id("cubeengine-itemduct:uses").name("ItemDuct Activator Uses").build();
+            .query(of("activatoruses")).id("uses").name("ItemDuct Activator Uses").build();
 
     Map<Direction, List<ItemStack>> getFilters();
     int  getUses();
