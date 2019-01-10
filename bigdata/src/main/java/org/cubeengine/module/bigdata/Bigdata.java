@@ -32,6 +32,7 @@ import org.cubeengine.module.bigdata.MongoDBConfiguration.Authentication;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+import org.spongepowered.api.event.game.state.GameStartingServerEvent;
 import org.spongepowered.api.event.game.state.GameStoppingEvent;
 
 import java.net.InetAddress;
@@ -53,14 +54,7 @@ public class Bigdata extends CubeEngineModule
     {
         try
         {
-            setLoggerLevel("org.mongodb.driver.connection", "WARN");
-            setLoggerLevel("org.mongodb.driver.management", "WARN");
-            setLoggerLevel("org.mongodb.driver.cluster", "WARN");
-            setLoggerLevel("org.mongodb.driver.protocol.insert", "WARN");
-            setLoggerLevel("org.mongodb.driver.protocol.query", "WARN");
-            setLoggerLevel("org.mongodb.driver.protocol.update", "WARN");
-            setLoggerLevel("org.mongodb.driver.protocol.command", "WARN");
-            setLoggerLevel("org.mongodb.driver.management", "ERROR");
+            lessSpamPls();
             getDatabase();
             releaseClient();
         }
@@ -68,6 +62,24 @@ public class Bigdata extends CubeEngineModule
         {
             throw new IllegalStateException("Failed to connect to the your MongoDB instance!", e);
         }
+    }
+
+    @Listener
+    public void onPostInit(GameStartingServerEvent event)
+    {
+        lessSpamPls();
+    }
+
+    public void lessSpamPls()
+    {
+        setLoggerLevel("org.mongodb.driver.connection", "WARN");
+        setLoggerLevel("org.mongodb.driver.management", "WARN");
+        setLoggerLevel("org.mongodb.driver.cluster", "WARN");
+        setLoggerLevel("org.mongodb.driver.protocol.insert", "WARN");
+        setLoggerLevel("org.mongodb.driver.protocol.query", "WARN");
+        setLoggerLevel("org.mongodb.driver.protocol.update", "WARN");
+        setLoggerLevel("org.mongodb.driver.protocol.command", "WARN");
+        setLoggerLevel("org.mongodb.driver.management", "ERROR");
     }
 
     public void releaseClient()
