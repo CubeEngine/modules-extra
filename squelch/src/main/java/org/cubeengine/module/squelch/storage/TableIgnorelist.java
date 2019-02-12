@@ -20,14 +20,15 @@ package org.cubeengine.module.squelch.storage;
 import org.cubeengine.libcube.util.Version;
 import org.cubeengine.module.sql.database.Table;
 import org.jooq.TableField;
+import org.jooq.impl.SQLDataType;
 
 import java.util.UUID;
 
 public class TableIgnorelist extends Table<IgnoreList>
 {
     public static TableIgnorelist TABLE_IGNORE_LIST;
-    public final TableField<IgnoreList, UUID> ID = createField("id", UUID_TYPE.nullable(false), this);
-    public final TableField<IgnoreList, UUID> IGNORE = createField("ignore", UUID_TYPE.nullable(false), this);
+    public final TableField<IgnoreList, UUID> ID = createField("id", SQLDataType.UUID.nullable(false), this);
+    public final TableField<IgnoreList, UUID> IGNORE = createField("ignore", SQLDataType.UUID.nullable(false), this);
 
     public TableIgnorelist()
     {

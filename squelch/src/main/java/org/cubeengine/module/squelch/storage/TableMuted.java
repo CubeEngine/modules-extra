@@ -24,11 +24,12 @@ import java.util.UUID;
 import org.cubeengine.libcube.util.Version;
 import org.cubeengine.module.sql.database.Table;
 import org.jooq.TableField;
+import org.jooq.impl.SQLDataType;
 
 public class TableMuted extends Table<Muted>
 {
     public static TableMuted TABLE_MUTED;
-    public final TableField<Muted, UUID> ID = createField("id", UUID_TYPE.nullable(false), this);
+    public final TableField<Muted, UUID> ID = createField("id", SQLDataType.UUID.nullable(false), this);
     public final TableField<Muted, Date> MUTED = createField("muted", DATE, this);
 
     public TableMuted()
