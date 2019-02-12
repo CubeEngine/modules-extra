@@ -22,13 +22,14 @@ import static org.jooq.impl.SQLDataType.VARBINARY;
 import org.cubeengine.libcube.util.Version;
 import org.cubeengine.module.sql.database.Table;
 import org.jooq.TableField;
+import org.jooq.impl.SQLDataType;
 
 import java.util.UUID;
 
 public class TableAuth extends Table<Auth>
 {
     public static TableAuth TABLE_AUTH;
-    public final TableField<Auth, UUID> ID = createField("key", UUID_TYPE.nullable(false), this);
+    public final TableField<Auth, UUID> ID = createField("key", SQLDataType.UUID.nullable(false), this);
     public final TableField<Auth, byte[]> PASSWD = createField("passwd", VARBINARY.length(128), this);
 
     public TableAuth()

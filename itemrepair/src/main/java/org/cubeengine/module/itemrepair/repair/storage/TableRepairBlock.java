@@ -24,6 +24,7 @@ import static org.jooq.impl.SQLDataType.VARCHAR;
 import org.cubeengine.libcube.util.Version;
 import org.cubeengine.module.sql.database.Table;
 import org.jooq.TableField;
+import org.jooq.impl.SQLDataType;
 
 import java.util.UUID;
 
@@ -31,7 +32,7 @@ public class TableRepairBlock extends Table<RepairBlockModel>
 {
     public static TableRepairBlock TABLE_REPAIR_BLOCK;
     public final TableField<RepairBlockModel, Long> ID = createField("id", BIGINT.nullable(false).identity(true), this);
-    public final TableField<RepairBlockModel, UUID> WORLD = createField("world", UUID_TYPE.nullable(false), this);
+    public final TableField<RepairBlockModel, UUID> WORLD = createField("world", SQLDataType.UUID.nullable(false), this);
     public final TableField<RepairBlockModel, Integer> X = createField("x", INTEGER.nullable(false), this);
     public final TableField<RepairBlockModel, Integer> Y = createField("y", INTEGER.nullable(false), this);
     public final TableField<RepairBlockModel, Integer> Z = createField("z", INTEGER.nullable(false), this);

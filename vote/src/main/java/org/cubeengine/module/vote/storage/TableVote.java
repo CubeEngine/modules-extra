@@ -23,6 +23,7 @@ import static org.jooq.impl.SQLDataType.TIMESTAMP;
 import org.cubeengine.libcube.util.Version;
 import org.cubeengine.module.sql.database.Table;
 import org.jooq.TableField;
+import org.jooq.impl.SQLDataType;
 
 import java.sql.Timestamp;
 import java.util.UUID;
@@ -31,7 +32,7 @@ public class TableVote extends Table<VoteModel>
 {
     public static TableVote TABLE_VOTE;
 
-    public final TableField<VoteModel, UUID> ID = createField("userid", UUID_TYPE.nullable(false), this);
+    public final TableField<VoteModel, UUID> ID = createField("userid", SQLDataType.UUID.nullable(false), this);
     public final TableField<VoteModel, Timestamp> LASTVOTE = createField("lastvote", TIMESTAMP.nullable(false), this);
     public final TableField<VoteModel, Integer> VOTEAMOUNT = createField("voteamount", INTEGER.nullable(false), this);
 
