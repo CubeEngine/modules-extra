@@ -17,50 +17,6 @@
  */
 package org.cubeengine.module.spawner;
 
-import static java.util.Collections.singletonList;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NONE;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
-import static org.spongepowered.api.block.BlockTypes.MOB_SPAWNER;
-import static org.spongepowered.api.data.key.Keys.DISPLAY_NAME;
-import static org.spongepowered.api.data.key.Keys.INVISIBLE;
-import static org.spongepowered.api.data.key.Keys.ITEM_ENCHANTMENTS;
-import static org.spongepowered.api.data.key.Keys.REPRESENTED_ITEM;
-import static org.spongepowered.api.data.key.Keys.SPAWNER_ENTITIES;
-import static org.spongepowered.api.data.key.Keys.SPAWNER_NEXT_ENTITY_TO_SPAWN;
-import static org.spongepowered.api.data.type.HandTypes.MAIN_HAND;
-import static org.spongepowered.api.entity.EntityTypes.BAT;
-import static org.spongepowered.api.entity.EntityTypes.BLAZE;
-import static org.spongepowered.api.entity.EntityTypes.CAVE_SPIDER;
-import static org.spongepowered.api.entity.EntityTypes.CHICKEN;
-import static org.spongepowered.api.entity.EntityTypes.COW;
-import static org.spongepowered.api.entity.EntityTypes.CREEPER;
-import static org.spongepowered.api.entity.EntityTypes.ENDERMAN;
-import static org.spongepowered.api.entity.EntityTypes.GHAST;
-import static org.spongepowered.api.entity.EntityTypes.HORSE;
-import static org.spongepowered.api.entity.EntityTypes.ITEM;
-import static org.spongepowered.api.entity.EntityTypes.MAGMA_CUBE;
-import static org.spongepowered.api.entity.EntityTypes.MUSHROOM_COW;
-import static org.spongepowered.api.entity.EntityTypes.OCELOT;
-import static org.spongepowered.api.entity.EntityTypes.PIG;
-import static org.spongepowered.api.entity.EntityTypes.PIG_ZOMBIE;
-import static org.spongepowered.api.entity.EntityTypes.SHEEP;
-import static org.spongepowered.api.entity.EntityTypes.SILVERFISH;
-import static org.spongepowered.api.entity.EntityTypes.SKELETON;
-import static org.spongepowered.api.entity.EntityTypes.SLIME;
-import static org.spongepowered.api.entity.EntityTypes.SNOWBALL;
-import static org.spongepowered.api.entity.EntityTypes.SPIDER;
-import static org.spongepowered.api.entity.EntityTypes.SQUID;
-import static org.spongepowered.api.entity.EntityTypes.VILLAGER;
-import static org.spongepowered.api.entity.EntityTypes.WITCH;
-import static org.spongepowered.api.entity.EntityTypes.WOLF;
-import static org.spongepowered.api.entity.EntityTypes.ZOMBIE;
-import static org.spongepowered.api.entity.living.player.gamemode.GameModes.CREATIVE;
-import static org.spongepowered.api.event.Order.POST;
-import static org.spongepowered.api.item.enchantment.EnchantmentTypes.LURE;
-import static org.spongepowered.api.item.enchantment.EnchantmentTypes.SILK_TOUCH;
-import static org.spongepowered.api.text.chat.ChatTypes.ACTION_BAR;
-
 import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.permission.Permission;
@@ -80,6 +36,7 @@ import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
+import org.spongepowered.api.event.filter.IsCancelled;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
@@ -88,13 +45,15 @@ import org.spongepowered.api.item.enchantment.Enchantment;
 import org.spongepowered.api.item.enchantment.EnchantmentType;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
-import org.spongepowered.api.text.chat.ChatTypes;
+import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.util.weighted.RandomObjectTable;
 import org.spongepowered.api.util.weighted.WeightedSerializableObject;
 import org.spongepowered.api.util.weighted.WeightedTable;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -103,8 +62,17 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import static java.util.Collections.singletonList;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
+import static org.spongepowered.api.block.BlockTypes.MOB_SPAWNER;
+import static org.spongepowered.api.data.key.Keys.*;
+import static org.spongepowered.api.data.type.HandTypes.MAIN_HAND;
+import static org.spongepowered.api.entity.EntityTypes.*;
+import static org.spongepowered.api.entity.living.player.gamemode.GameModes.CREATIVE;
+import static org.spongepowered.api.event.Order.POST;
+import static org.spongepowered.api.item.enchantment.EnchantmentTypes.LURE;
+import static org.spongepowered.api.item.enchantment.EnchantmentTypes.SILK_TOUCH;
+import static org.spongepowered.api.text.chat.ChatTypes.ACTION_BAR;
 
 /**
  * A module to gather monster spawners with silk touch and reactivate them using spawneggs
@@ -116,8 +84,10 @@ public class Spawner extends CubeEngineModule
     private ItemStack spawnerItem;
     private Permission eggPerms;
     private Permission breakPerm;
+    private Permission dropEggPerm;
     private Map<EntityType, Permission> perms = new HashMap<>();
     private Set<Location<World>> brokenSpawners = new HashSet<>();
+    private Map<Location<World>, EntityType> spawnerTypes = new HashMap<>();
 
     @Inject private PermissionManager pm;
     @Inject private I18n i18n;
@@ -127,6 +97,7 @@ public class Spawner extends CubeEngineModule
     {
         this.eggPerms = pm.register(Spawner.class, "egg", "Allows creating all types of spawners with spawneggs", null);
         this.breakPerm = pm.register(Spawner.class, "break", "Allows obtaining inactive monster spawners", null);
+        this.dropEggPerm = pm.register(Spawner.class, "drop-egg", "Allows dropping monster eggs from spawners", null);
         this.initPerm(CREEPER, SKELETON, SPIDER, ZOMBIE, SLIME, GHAST, PIG_ZOMBIE, ENDERMAN,
                       CAVE_SPIDER, SILVERFISH, BLAZE, MAGMA_CUBE, WITCH, BAT, PIG, SHEEP, COW,
                       CHICKEN, SQUID, WOLF, MUSHROOM_COW, OCELOT, HORSE, VILLAGER);
@@ -184,30 +155,67 @@ public class Spawner extends CubeEngineModule
     }
 
     @Listener(order = POST)
-    public void onBlockBreak(ChangeBlockEvent.Break event, @First Player player)
+    public void onPreBlockBreak(ChangeBlockEvent.Pre event, @First Player player)
     {
-        if (event.getTransactions().size() != 1 || !this.breakPerm.check(player))
+        List<Location<World>> locations = event.getLocations();
+        if (locations.size() != 1)
         {
             return;
         }
-        Optional<ItemStackSnapshot> inHand = event.getContext().get(EventContextKeys.USED_ITEM);
-        if (inHand.isPresent() &&
-            hasEnchantment(inHand.get(), SILK_TOUCH) &&
-            breaks(event, MOB_SPAWNER))
-        {
-            ItemStack clone = spawnerItem.copy();
-            clone.offer(ITEM_ENCHANTMENTS, singletonList(Enchantment.builder().type(LURE).level(1).build()));
-            clone.offer(DISPLAY_NAME, i18n.translate(player, NONE, "Inactive Monster Spawner"));
 
+        Optional<ItemStackSnapshot> inHand = player.getItemInHand(MAIN_HAND).map(ItemStack::createSnapshot);
+        Location<World> loc = locations.get(0);
+        if (inHand.isPresent() && hasEnchantment(inHand.get(), SILK_TOUCH) && loc.getBlockType() == MOB_SPAWNER && this.dropEggPerm.check(player) && this.breakPerm.check(player))
+        {
+            loc.get(SPAWNER_NEXT_ENTITY_TO_SPAWN).map(wso -> wso.get().getType()).ifPresent(type -> {
+                if (perms.containsKey(type))
+                {
+                    spawnerTypes.put(loc, type);
+                }
+            });
+        }
+    }
+
+    @Listener(order = POST)
+    @IsCancelled(Tristate.UNDEFINED)
+    public void onBlockBreak(ChangeBlockEvent.Break event, @First Player player)
+    {
+        if (event.getTransactions().size() != 1)
+        {
+            return;
+        }
+
+        Optional<ItemStackSnapshot> inHand = event.getContext().get(EventContextKeys.USED_ITEM);
+        if (inHand.isPresent() && hasEnchantment(inHand.get(), SILK_TOUCH) && breaks(event, MOB_SPAWNER) && this.breakPerm.check(player))
+        {
             Transaction<BlockSnapshot> trans = event.getTransactions().get(0);
-            brokenSpawners.add(trans.getFinal().getLocation().get());
+            Location<World> loc = trans.getFinal().getLocation().get();
+            EntityType type = spawnerTypes.remove(loc);
+            if (event.isCancelled())
+            {
+                return;
+            }
+
+            ItemStack spawnerItem = this.spawnerItem.copy();
+            spawnerItem.offer(ITEM_ENCHANTMENTS, singletonList(Enchantment.builder().type(LURE).level(1).build()));
+            spawnerItem.offer(DISPLAY_NAME, i18n.translate(player, NONE, "Inactive monster spawner"));
+
+            brokenSpawners.add(loc);
 
             Entity item = player.getWorld().createEntity(ITEM, player.getLocation().getPosition());
-            item.offer(REPRESENTED_ITEM, clone.createSnapshot());
+            item.offer(REPRESENTED_ITEM, spawnerItem.createSnapshot());
             Sponge.getCauseStackManager().pushCause(player);
-
             player.getWorld().spawnEntity(item);
-            i18n.send(ACTION_BAR, player, POSITIVE, "Dropped inactive Monster Spawner!");
+
+            if (this.dropEggPerm.check(player) && type != null)
+            {
+                ItemStack eggItem = ItemStack.of(ItemTypes.SPAWN_EGG, 1);
+                eggItem.offer(Keys.SPAWNABLE_ENTITY_TYPE, type);
+                Entity eggEntity = player.getWorld().createEntity(ITEM, player.getLocation().getPosition());
+                eggEntity.offer(REPRESENTED_ITEM, eggItem.createSnapshot());
+                player.getWorld().spawnEntity(eggEntity);
+            }
+            i18n.send(ACTION_BAR, player, POSITIVE, "Dropped inactive monster spawner!");
         }
     }
 
