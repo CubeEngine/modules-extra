@@ -73,7 +73,7 @@ public class ElevatorListener
         Boolean sneak = player.get(Keys.IS_SNEAKING).orElse(false);
         if (sneak)
         {
-            Optional<ItemStack> itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
+            ItemStack itemInHand = player.getItemInHand(HandTypes.MAIN_HAND).orElse(ItemStack.empty());
             if (data == null)
             {
                 if (!(event instanceof InteractBlockEvent.Primary))
@@ -81,20 +81,19 @@ public class ElevatorListener
                     return; // Only Punch to activate
                 }
 
-                if (itemInHand.isPresent())
+                if (!itemInHand.isEmpty())
                 {
-                    if (player.hasPermission(module.getPerm().CREATE.getId()) && itemInHand.get().getType().equals(module.getConfig().creationItem))
+                    if (player.hasPermission(module.getPerm().CREATE.getId()) && itemInHand.getType().equals(module.getConfig().creationItem))
                     {
                         data = new ElevatorData();
                         data.setOwner(player.getUniqueId());
                         loc.offer(data);
-                        ItemStack item = itemInHand.get();
-                        item.setQuantity(item.getQuantity() - 1);
-                        player.setItemInHand(HandTypes.MAIN_HAND, item);
+                        itemInHand.setQuantity(itemInHand.getQuantity() - 1);
+                        player.setItemInHand(HandTypes.MAIN_HAND, itemInHand);
 
                         List<Text> list = loc.get(Keys.SIGN_LINES).get();
                         // Set First Line with name of renamed Item
-                        list.set(0, itemInHand.get().get(Keys.DISPLAY_NAME).orElse(list.get(0)));
+                        list.set(0, itemInHand.get(Keys.DISPLAY_NAME).orElse(list.get(0)));
                         loc.offer(Keys.SIGN_LINES, list);
 
                         i18n.send(ACTION_BAR, player, POSITIVE, "Elevator created!");
@@ -103,7 +102,7 @@ public class ElevatorListener
                     }
                 }
             }
-            else if (!itemInHand.isPresent()) // Sign has Elevator Data and hand is empty
+            else if (itemInHand.isEmpty()) // Sign has Elevator Data and hand is empty
             {
                 if (player.hasPermission(module.getPerm().ADJUST.getId()))
                 {
@@ -115,13 +114,13 @@ public class ElevatorListener
                     event.setCancelled(true);
                 }
             }
-            else if (itemInHand.get().getType() == ItemTypes.PAPER && event instanceof InteractBlockEvent.Primary)
+            else if (itemInHand.getType() == ItemTypes.PAPER && event instanceof InteractBlockEvent.Primary)
             {
                 if (player.hasPermission(module.getPerm().RENAME.getId()))
                 {
                     List<Text> list = loc.get(Keys.SIGN_LINES).get();
                     // Set First Line with name of renamed Item
-                    list.set(0, itemInHand.get().get(Keys.DISPLAY_NAME).orElse(list.get(0)));
+                    list.set(0, itemInHand.get(Keys.DISPLAY_NAME).orElse(list.get(0)));
                     loc.offer(Keys.SIGN_LINES, list);
                     i18n.send(ACTION_BAR, player, POSITIVE, "Elevator name changed!");
                     event.setCancelled(true);
