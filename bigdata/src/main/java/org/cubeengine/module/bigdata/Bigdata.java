@@ -17,7 +17,6 @@
  */
 package org.cubeengine.module.bigdata;
 
-import static java.util.Collections.singletonList;
 import static org.cubeengine.libcube.util.LoggerUtil.setLoggerLevel;
 
 import com.mongodb.MongoClient;
@@ -37,8 +36,6 @@ import org.spongepowered.api.event.game.state.GameStoppingEvent;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Collections;
-import java.util.List;
 
 import javax.inject.Singleton;
 
@@ -107,10 +104,10 @@ public class Bigdata extends CubeEngineModule
             config.authentication = new Authentication();
         }
         String db = config.authentication.database;
-        return aquireClient(db).getDatabase(db);
+        return acquireClient(db).getDatabase(db);
     }
 
-    private MongoClient aquireClient(String db)
+    private MongoClient acquireClient(String db)
     {
         if (mongoClient != null)
         {
@@ -120,14 +117,16 @@ public class Bigdata extends CubeEngineModule
         {
             Authentication authConfig = config.authentication;
             ServerAddress address = new ServerAddress(InetAddress.getByName(this.config.host), this.config.port);
-            List<MongoCredential> credentialList = Collections.emptyList();
+            MongoClientOptions options = MongoClientOptions.builder().connectTimeout(this.config.connectionTimeout).build();
             if (authConfig != null && authConfig.username != null && authConfig.password != null)
             {
                 MongoCredential credential = MongoCredential.createCredential(authConfig.username, db, authConfig.password.toCharArray());
-                credentialList = singletonList(credential);
+                mongoClient = new MongoClient(address, credential, options);
             }
-            MongoClientOptions options = MongoClientOptions.builder().connectTimeout(this.config.connectionTimeout).build();
-            mongoClient = new MongoClient(address, credentialList, options);
+            else
+            {
+                mongoClient = new MongoClient(address, options);
+            }
             // Check if available by pinging the database...
             mongoClient.getDatabase(db).runCommand(new Document("ping", 1));
             return mongoClient;
