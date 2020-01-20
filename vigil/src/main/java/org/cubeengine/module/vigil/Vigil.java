@@ -28,7 +28,6 @@ import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.ModuleManager;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.module.bigdata.Bigdata;
-import org.cubeengine.module.bigdata.PluginBigdata;
 import org.cubeengine.module.vigil.commands.LookupDataParser;
 import org.cubeengine.module.vigil.commands.ReportParser;
 import org.cubeengine.module.vigil.commands.VigilAdminCommands;
