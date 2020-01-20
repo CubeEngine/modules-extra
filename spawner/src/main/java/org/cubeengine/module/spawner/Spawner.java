@@ -49,6 +49,7 @@ import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.util.weighted.RandomObjectTable;
 import org.spongepowered.api.util.weighted.WeightedSerializableObject;
 import org.spongepowered.api.util.weighted.WeightedTable;
+import org.spongepowered.api.world.BlockChangeFlags;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -87,7 +88,6 @@ public class Spawner extends CubeEngineModule
     private Permission dropEggPerm;
     private Map<EntityType, Permission> perms = new HashMap<>();
     private Set<Location<World>> brokenSpawners = new HashSet<>();
-    private Map<Location<World>, EntityType> spawnerTypes = new HashMap<>();
 
     @Inject private PermissionManager pm;
     @Inject private I18n i18n;
@@ -155,28 +155,6 @@ public class Spawner extends CubeEngineModule
     }
 
     @Listener(order = POST)
-    public void onPreBlockBreak(ChangeBlockEvent.Pre event, @First Player player)
-    {
-        List<Location<World>> locations = event.getLocations();
-        if (locations.size() != 1)
-        {
-            return;
-        }
-
-        Optional<ItemStackSnapshot> inHand = player.getItemInHand(MAIN_HAND).map(ItemStack::createSnapshot);
-        Location<World> loc = locations.get(0);
-        if (inHand.isPresent() && hasEnchantment(inHand.get(), SILK_TOUCH) && loc.getBlockType() == MOB_SPAWNER && this.dropEggPerm.check(player) && this.breakPerm.check(player))
-        {
-            loc.get(SPAWNER_NEXT_ENTITY_TO_SPAWN).map(wso -> wso.get().getType()).ifPresent(type -> {
-                if (perms.containsKey(type))
-                {
-                    spawnerTypes.put(loc, type);
-                }
-            });
-        }
-    }
-
-    @Listener(order = POST)
     @IsCancelled(Tristate.UNDEFINED)
     public void onBlockBreak(ChangeBlockEvent.Break event, @First Player player)
     {
@@ -190,8 +168,11 @@ public class Spawner extends CubeEngineModule
         {
             Transaction<BlockSnapshot> trans = event.getTransactions().get(0);
             Location<World> loc = trans.getFinal().getLocation().get();
-            EntityType type = spawnerTypes.remove(loc);
-            if (event.isCancelled())
+            trans.getOriginal().restore(true, BlockChangeFlags.NONE);
+            EntityType type = loc.get(SPAWNER_NEXT_ENTITY_TO_SPAWN).map(a -> a.get().getType()).orElse(null);
+            trans.getDefault().restore(true, BlockChangeFlags.NONE);
+
+            if (type == null || event.isCancelled())
             {
                 return;
             }
@@ -207,13 +188,15 @@ public class Spawner extends CubeEngineModule
             Sponge.getCauseStackManager().pushCause(player);
             player.getWorld().spawnEntity(item);
 
-            if (this.dropEggPerm.check(player) && type != null)
+            if (this.dropEggPerm.check(player))
             {
                 ItemStack eggItem = ItemStack.of(ItemTypes.SPAWN_EGG, 1);
-                eggItem.offer(Keys.SPAWNABLE_ENTITY_TYPE, type);
-                Entity eggEntity = player.getWorld().createEntity(ITEM, player.getLocation().getPosition());
-                eggEntity.offer(REPRESENTED_ITEM, eggItem.createSnapshot());
-                player.getWorld().spawnEntity(eggEntity);
+                if (eggItem.offer(Keys.SPAWNABLE_ENTITY_TYPE, type).isSuccessful())
+                {
+                    Entity eggEntity = player.getWorld().createEntity(ITEM, player.getLocation().getPosition());
+                    eggEntity.offer(REPRESENTED_ITEM, eggItem.createSnapshot());
+                    player.getWorld().spawnEntity(eggEntity);
+                }
             }
             i18n.send(ACTION_BAR, player, POSITIVE, "Dropped inactive monster spawner!");
         }
@@ -248,7 +231,7 @@ public class Spawner extends CubeEngineModule
                     Location<World> loc = snap.getLocation().get();
                     loc.offer(SPAWNER_ENTITIES, new WeightedTable<>());
                     loc.offer(SPAWNER_NEXT_ENTITY_TO_SPAWN, new WeightedSerializableObject<>(hidden, 1));
-                    i18n.send(ACTION_BAR, player, POSITIVE, "Inactive Monster Spawner placed!");
+                    i18n.send(ACTION_BAR, player, POSITIVE, "Inactive monster spawner placed!");
                     return;
                 }
             }
@@ -285,7 +268,7 @@ public class Spawner extends CubeEngineModule
                 }
                 if (perm != null && !player.hasPermission(perm.getId()))
                 {
-                    i18n.send(ACTION_BAR, player, NEGATIVE, "You are not allowed to change Monster Spawner to this EntityType!");
+                    i18n.send(ACTION_BAR, player, NEGATIVE, "You are not allowed to change monster spawner to this EntityType!");
                     return;
                 }
 
@@ -301,10 +284,10 @@ public class Spawner extends CubeEngineModule
                     player.setItemInHand(MAIN_HAND, itemInHand);
                 }
 
-                i18n.send(ACTION_BAR, player, POSITIVE, "Monster Spawner activated!");
+                i18n.send(ACTION_BAR, player, POSITIVE, "Monster spawner activated!");
                 return;
             }
-            i18n.send(ACTION_BAR, player, NEGATIVE, "You can only change inactive Monster Spawner!");
+            i18n.send(ACTION_BAR, player, NEGATIVE, "You can only change inactive monster spawner!");
         }
     }
 }
