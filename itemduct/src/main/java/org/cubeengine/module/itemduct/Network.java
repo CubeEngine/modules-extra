@@ -17,34 +17,31 @@
  */
 package org.cubeengine.module.itemduct;
 
-import org.cubeengine.module.itemduct.data.DuctData;
-import org.spongepowered.api.block.tileentity.TileEntity;
-import org.spongepowered.api.block.tileentity.carrier.Chest;
-import org.spongepowered.api.block.tileentity.carrier.Dropper;
-import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.block.entity.BlockEntity;
+import org.spongepowered.api.block.entity.carrier.Dropper;
+import org.spongepowered.api.block.entity.carrier.chest.Chest;
+import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.item.inventory.Carrier;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.item.inventory.query.QueryOperation;
-import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
+import org.spongepowered.api.item.inventory.query.Query;
+import org.spongepowered.api.item.inventory.query.QueryTypes;
 import org.spongepowered.api.util.Direction;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.ServerLocation;
 
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 public class Network
 {
 
-    public Set<Location<World>> pipes = new HashSet<>();
-    public Map<Location<World>, DuctData> exitPoints = new LinkedHashMap<>();
-    public Set<Location<World>> storage = new HashSet<>();
-    public Set<Location<World>> errors = new HashSet<>();
+    public Set<ServerLocation> pipes = new HashSet<>();
+    public Map<ServerLocation, Map<Direction, List<ItemStack>>> exitPoints = new LinkedHashMap<>();
+    public Set<ServerLocation> storage = new HashSet<>();
+    public Set<ServerLocation> errors = new HashSet<>();
     private ItemDuctManager manager;
 
     public Network(ItemDuctManager manager)
@@ -59,27 +56,27 @@ public class Network
             pullFromStorage(inventory, filters);
             return;
         }
-        for (Map.Entry<Location<World>, DuctData> entry : exitPoints.entrySet())
+        for (Map.Entry<ServerLocation, Map<Direction, List<ItemStack>>> entry : exitPoints.entrySet())
         {
             Inventory pollFrom = inventory;
-            Location<World> loc = entry.getKey();
-            DuctData data = entry.getValue();
+            ServerLocation loc = entry.getKey();
+            Map<Direction, List<ItemStack>> data = entry.getValue();
             Direction dir = loc.get(Keys.DIRECTION).orElse(Direction.NONE).getOpposite();
-            Location<World> targetLoc = loc.getRelative(dir.getOpposite());
-            TileEntity te = targetLoc.getTileEntity().get();
+            ServerLocation targetLoc = loc.add(dir.getOpposite().asBlockOffset());
+            BlockEntity te = targetLoc.getBlockEntity().get();
             Inventory target = ((Carrier) te).getInventory();
             if (te instanceof Dropper)
             {
                 Network nw = manager.findNetwork(targetLoc);
-                nw.transferToStorage(queryFiltered(filters, inventory), data.get(dir).get());
+                nw.transferToStorage(queryFiltered(filters, inventory), data.get(dir));
                 continue;
             }
             if (te instanceof Chest)
             {
                 target = ((Chest) te).getDoubleChestInventory().orElse(target);
             }
-            Optional<List<ItemStack>> targetFilter = data.get(dir);
-            if (targetFilter.isPresent())
+            List<ItemStack> targetFilter = data.get(dir);
+            if (targetFilter != null)
             {
                 if (!filters.isEmpty()) // Only allow to extract items in the filter
                 {
@@ -87,9 +84,9 @@ public class Network
                 }
 
                 Inventory pollFromTo = pollFrom;
-                if (!targetFilter.get().isEmpty()) // Only allow to insert items in the filter
+                if (!targetFilter.isEmpty()) // Only allow to insert items in the filter
                 {
-                    pollFromTo = queryFiltered(targetFilter.get(), inventory);  // TODO more filters
+                    pollFromTo = queryFiltered(targetFilter, inventory);  // TODO more filters
                 }
                 // For all filtered slots
                 doTransfer(pollFromTo, target);
@@ -103,9 +100,9 @@ public class Network
         {
             inventory = queryFiltered(filters, inventory); // TODO more filters
         }
-        for (Location<World> targetLoc : storage)
+        for (ServerLocation targetLoc : storage)
         {
-            TileEntity te = targetLoc.getTileEntity().get();
+            BlockEntity te = targetLoc.getBlockEntity().get();
             Inventory target =  ((Carrier) te).getInventory();
             if (te instanceof Chest)
             {
@@ -119,19 +116,18 @@ public class Network
         if (filters.isEmpty()) {
             return inventory;
         }
-        QueryOperation[] ops = new QueryOperation[filters.size()];
-        for (int i = 0; i < filters.size(); i++) {
-            ItemStack filter = filters.get(i);
-            ops[i] = QueryOperationTypes.ITEM_STACK_IGNORE_QUANTITY.of(filter);
+        final Query.Builder builder = Query.builder();
+        for (ItemStack filter : filters) {
+            builder.or(QueryTypes.ITEM_STACK_IGNORE_QUANTITY.get().of(filter));
         }
-        return inventory.query(ops);
+        return inventory.query(builder.build());
     }
 
     private void pullFromStorage(Inventory inventory, List<ItemStack> filters)
     {
-        for (Location<World> targetLoc : storage)
+        for (ServerLocation targetLoc : storage)
         {
-            TileEntity te = targetLoc.getTileEntity().get();
+            BlockEntity te = targetLoc.getBlockEntity().get();
             Inventory pollFrom =  ((Carrier) te).getInventory();
             if (te instanceof Chest)
             {
@@ -150,21 +146,18 @@ public class Network
     {
         for (Inventory slot : pollFrom.slots())
         {
-            Optional<ItemStack> peek = slot.peek();
-            if (peek.isPresent())
+            final ItemStack peek = slot.peek();
+            ItemStack itemStack = peek.copy();
+            // Try to insert into targetInventory
+            target.offer(itemStack);
+            // and poll the inserted amount
+            if (itemStack.isEmpty())
             {
-                ItemStack itemStack = peek.get().copy();
-                // Try to insert into targetInventory
-                target.offer(itemStack);
-                // and poll the inserted amount
-                if (itemStack.isEmpty())
-                {
-                    slot.poll();
-                }
-                else
-                {
-                    slot.poll(peek.get().getQuantity() - itemStack.getQuantity());
-                }
+                slot.poll();
+            }
+            else
+            {
+                slot.poll(peek.getQuantity() - itemStack.getQuantity());
             }
         }
     }

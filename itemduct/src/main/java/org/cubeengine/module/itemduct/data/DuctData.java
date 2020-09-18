@@ -17,177 +17,66 @@
  */
 package org.cubeengine.module.itemduct.data;
 
-import org.cubeengine.libcube.util.data.AbstractData;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.DataContainer;
-import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataQuery;
-import org.spongepowered.api.data.DataView;
-import org.spongepowered.api.data.merge.MergeFunction;
-import org.spongepowered.api.data.value.mutable.MapValue;
-import org.spongepowered.api.data.value.mutable.Value;
+import com.google.common.reflect.TypeToken;
+import org.cubeengine.module.itemduct.PluginItemduct;
+import org.spongepowered.api.ResourceKey;
+import org.spongepowered.api.data.DataRegistration;
+import org.spongepowered.api.data.Key;
+import org.spongepowered.api.data.persistence.DataStore;
+import org.spongepowered.api.data.value.MapValue;
+import org.spongepowered.api.data.value.Value;
+import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.Direction;
+import org.spongepowered.api.util.TypeTokens;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
-public class DuctData extends AbstractData<DuctData, ImmutableDuctData> implements IDuctData
+public interface DuctData
 {
-    private Map<Direction, List<ItemStack>> filters = new HashMap<>();
-    private Integer uses;
+    TypeToken<MapValue<Direction, List<ItemStack>>> TTV_ItemDirection = new TypeToken<MapValue<Direction, List<ItemStack>>>() {};
 
-    public DuctData()
+    Key<MapValue<Direction, List<ItemStack>>> FILTERS = Key.builder()
+            .key(ResourceKey.of(PluginItemduct.ITEMDUCT_ID, "filters"))
+            .type(TTV_ItemDirection).build();
+
+    Key<Value<Integer>> USES = Key.builder()
+            .key(ResourceKey.of(PluginItemduct.ITEMDUCT_ID, "uses"))
+            .type(TypeTokens.INTEGER_VALUE_TOKEN).build();
+
+
+    static void register(RegisterCatalogEvent<DataRegistration> event)
     {
-        super(1);
+        registerFilterData(event);
+        registerUseData(event);
     }
 
-    public DuctData(IDuctData data)
+    static void registerFilterData(RegisterCatalogEvent<DataRegistration> event)
     {
-        this();
-        setFilters(data.getFilters());
+        final DataStore dataStore = DataStore.builder()
+                .key(DuctData.FILTERS, "filters")
+                .holder(TypeTokens.SERVER_LOCATION_TOKEN)
+                .build();
+
+        final DataRegistration registration = DataRegistration.builder()
+                .key(DuctData.FILTERS)
+                .store(dataStore)
+                .key(ResourceKey.of(PluginItemduct.ITEMDUCT_ID, "filters"))
+                .build();
+        event.register(registration);
     }
 
-    public DuctData(int uses)
-    {
-        this();
-        this.uses = uses;
-    }
+    static void registerUseData(RegisterCatalogEvent<DataRegistration> event) {
+        final DataStore dataStore = DataStore.builder()
+                .key(DuctData.USES, "uses")
+                .holder(TypeTokens.ITEM_STACK_TOKEN)
+                .build();
 
-    @Override
-    protected void registerKeys()
-    {
-        registerGetter(FILTERS, this::getFilters);
-        registerSetter(FILTERS, this::setFilters);
-        registerValue(FILTERS, this::filters);
-
-        registerGetter(USES, this::getUses);
-        registerSetter(USES, this::setUses);
-        registerValue(USES, this::uses);
-    }
-
-    private MapValue<Direction, List<ItemStack>> filters()
-    {
-        return Sponge.getRegistry().getValueFactory().createMapValue(FILTERS, this.filters);
-    }
-
-    private DuctData setFilters(Map<Direction, List<ItemStack>> filters)
-    {
-        this.filters = new HashMap<>(filters);
-        return this;
-    }
-
-    @Override
-    public Map<Direction, List<ItemStack>> getFilters()
-    {
-        return this.filters;
-    }
-
-    @Override
-    public int getUses()
-    {
-        return this.uses == null ? 0 : this.uses;
-    }
-
-    public DuctData setUses(Integer uses)
-    {
-        this.uses = uses;
-        return this;
-    }
-
-    public Value<Integer> uses()
-    {
-        return Sponge.getRegistry().getValueFactory().createValue(USES, this.getUses());
-    }
-
-    @Override
-    public Optional<DuctData> fill(DataHolder dataHolder, MergeFunction overlap)
-    {
-        Optional<Map<Direction, List<ItemStack>>> filters = dataHolder.get(FILTERS);
-        if (filters.isPresent())
-        {
-            DuctData data = this.copy();
-            data.setFilters(filters.get());
-            data = overlap.merge(this, data);
-            if (data != this)
-            {
-                this.setFilters(data.getFilters());
-            }
-            return Optional.of(this);
-        }
-        Optional<Integer> uses = dataHolder.get(USES);
-        if (uses.isPresent())
-        {
-            DuctData data = this.copy();
-            data.setUses(uses.get());
-            data = overlap.merge(this, data);
-            if (data != this)
-            {
-                this.setUses(data.getUses());
-            }
-            return Optional.of(this);
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<DuctData> from(DataContainer container)
-    {
-        Optional<DataView> filters = container.getView(FILTERS.getQuery());
-        if (filters.isPresent())
-        {
-            Map<Direction, List<ItemStack>> map = new HashMap<>();
-            for (DataQuery key : filters.get().getKeys(false))
-            {
-                Direction dir = Direction.valueOf(key.toString());
-                List<ItemStack> list = filters.get().getSerializableList(key, ItemStack.class).orElse(new ArrayList<>());
-                map.put(dir, list);
-            }
-            this.setFilters((map));
-            return Optional.of(this);
-        }
-        Optional<Integer> uses = container.getInt(USES.getQuery());
-        if (uses.isPresent())
-        {
-            this.setUses(uses.get());
-            return Optional.of(this);
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public DuctData copy()
-    {
-        return new DuctData().setFilters(this.filters).setUses(this.uses);
-    }
-
-    @Override
-    public ImmutableDuctData asImmutable()
-    {
-        return new ImmutableDuctData(this);
-    }
-
-    public DuctData with(Direction dir)
-    {
-        this.filters.computeIfAbsent(dir, d -> new ArrayList<>());
-        return this;
-    }
-
-    public Optional<List<ItemStack>> get(Direction dir)
-    {
-        return Optional.ofNullable(this.filters.get(dir));
-    }
-
-    public boolean has(Direction dir)
-    {
-        return this.filters.containsKey(dir);
-    }
-
-    public void remove(Direction dir)
-    {
-        this.filters.remove(dir);
+        final DataRegistration registration = DataRegistration.builder()
+                .key(DuctData.USES)
+                .store(dataStore)
+                .key(ResourceKey.of(PluginItemduct.ITEMDUCT_ID, "uses"))
+                .build();
+        event.register(registration);
     }
 }

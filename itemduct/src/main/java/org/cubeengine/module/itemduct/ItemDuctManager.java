@@ -17,46 +17,32 @@
  */
 package org.cubeengine.module.itemduct;
 
-import static java.util.Collections.singletonList;
+import static org.spongepowered.api.block.BlockTypes.BLACK_STAINED_GLASS;
+import static org.spongepowered.api.block.BlockTypes.BLACK_STAINED_GLASS_PANE;
 import static org.spongepowered.api.block.BlockTypes.DROPPER;
 import static org.spongepowered.api.block.BlockTypes.GLASS;
 import static org.spongepowered.api.block.BlockTypes.GLASS_PANE;
 import static org.spongepowered.api.block.BlockTypes.PISTON;
 import static org.spongepowered.api.block.BlockTypes.QUARTZ_BLOCK;
-import static org.spongepowered.api.block.BlockTypes.STAINED_GLASS;
-import static org.spongepowered.api.block.BlockTypes.STAINED_GLASS_PANE;
 
-import com.flowpowered.math.vector.Vector3d;
+import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.text.TextComponent;
 import org.cubeengine.module.itemduct.data.DuctData;
-import org.cubeengine.module.itemduct.data.DuctDataBuilder;
-import org.cubeengine.module.itemduct.data.IDuctData;
-import org.cubeengine.module.itemduct.data.ImmutableDuctData;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockType;
-import org.spongepowered.api.data.DataRegistration;
-import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.data.type.DyeColor;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.effect.particle.ParticleOptions;
 import org.spongepowered.api.effect.particle.ParticleTypes;
 import org.spongepowered.api.effect.sound.SoundTypes;
-import org.spongepowered.api.item.ItemTypes;
-import org.spongepowered.api.item.enchantment.Enchantment;
-import org.spongepowered.api.item.enchantment.EnchantmentTypes;
 import org.spongepowered.api.item.inventory.Carrier;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.recipe.crafting.CraftingRecipe;
-import org.spongepowered.api.item.recipe.crafting.Ingredient;
-import org.spongepowered.api.item.recipe.crafting.ShapedCraftingRecipe;
-import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.util.Color;
 import org.spongepowered.api.util.Direction;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.ServerLocation;
+import org.spongepowered.math.vector.Vector3d;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -68,96 +54,50 @@ import java.util.Set;
 
 public class ItemDuctManager
 {
-    private boolean init = false;
-
-    private ItemStack activatorItem;
-    private ItemStack singleActivatorItem;
-    private ItemStack superActivatorItem;
     private Set<BlockType> pipeTypes = new HashSet<>();
+    private Set<BlockType> directionalPipeTypes = new HashSet<>();
     private Set<BlockType> storagePipeTypes = new HashSet<>();
     private Set<Direction> directions = EnumSet.of(Direction.DOWN, Direction.UP, Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
     private int maxDepth = 10;
-    private ShapedCraftingRecipe recipe;
-    private ShapedCraftingRecipe superRecipe;
 
-    public void setup(PluginContainer plugin, ItemductConfig config)
+
+    public void setup(ItemductConfig config)
     {
-        if (!this.init)
-        {
-            DataRegistration.<DuctData, ImmutableDuctData>builder()
-                    .dataClass(DuctData.class).immutableClass(ImmutableDuctData.class)
-                    .builder(new DuctDataBuilder()).manipulatorId("duct")
-                    .dataName("CubeEngine ItemDuct Data")
-                    .buildAndRegister(plugin);
-
-            DuctData.FILTERS.getQuery();
-
-            Ingredient hopper = Ingredient.of(ItemTypes.HOPPER);
-            activatorItem = ItemStack.of(ItemTypes.HOPPER, 1);
-            activatorItem.offer(Keys.ITEM_ENCHANTMENTS, singletonList(Enchantment.builder().type(EnchantmentTypes.LOOTING).level(1).build()));
-            activatorItem.offer(Keys.DISPLAY_NAME, Text.of(TextColors.GOLD, "ItemDuct Activator"));
-            activatorItem.offer(Keys.HIDE_ENCHANTMENTS, true);
-            activatorItem.offer(new DuctData(config.activatorUses));
-            activatorItem.offer(Keys.ITEM_LORE, Collections.singletonList(Text.of("Uses: ", config.activatorUses)));
-
-            singleActivatorItem = activatorItem.copy();
-            singleActivatorItem.offer(new DuctData(1));
-            singleActivatorItem.offer(Keys.ITEM_LORE, Collections.singletonList(Text.of("Single Use")));
-
-            this.recipe = CraftingRecipe.shapedBuilder().rows()
-                    .row(hopper, hopper, hopper)
-                    .row(hopper, Ingredient.of(ItemTypes.DIAMOND), hopper)
-                    .row(hopper, hopper, hopper)
-                    .result(activatorItem.copy()).build("ItemDuctActivator", plugin);
-            Sponge.getRegistry().getCraftingRecipeRegistry().register(this.recipe);
-
-            superActivatorItem = activatorItem.copy();
-            superActivatorItem.offer(new DuctData(config.superActivatorUses));
-            superActivatorItem.offer(Keys.ITEM_LORE, Collections.singletonList(Text.of("Uses: ", config.superActivatorUses == -1 ? "Infinite" : config.superActivatorUses)));
-            superActivatorItem.offer(Keys.DISPLAY_NAME, Text.of(TextColors.GOLD, "ItemDuct Super Activator"));
-
-            hopper = Ingredient.of(activatorItem);
-            this.superRecipe = CraftingRecipe.shapedBuilder().rows()
-                    .row(hopper, hopper, hopper)
-                    .row(hopper, Ingredient.of(ItemTypes.NETHER_STAR), hopper)
-                    .row(hopper, hopper, hopper)
-                    .result(superActivatorItem.copy()).build("ItemDuctSuperActivator", plugin);
-            Sponge.getRegistry().getCraftingRecipeRegistry().register(this.superRecipe);
-        }
-
         this.reload(config);
-
-        this.init = true;
     }
 
     public void updateUses(ItemStack item)
     {
-        Integer uses = item.get(IDuctData.USES).orElse(0);
+        int uses = item.get(DuctData.USES).orElse(0);
         if (uses > 0)
         {
-            item.offer(Keys.ITEM_LORE, Collections.singletonList(Text.of("Uses: ", uses)));
+            item.offer(Keys.LORE, Collections.singletonList(TextComponent.of("Uses: ").append(TextComponent.of(uses))));
         }
         else if (uses == -1)
         {
-            item.offer(Keys.ITEM_LORE, Collections.singletonList(Text.of("Uses: Infinite")));
+            item.offer(Keys.LORE, Collections.singletonList(TextComponent.of("Uses: Infinite")));
         }
     }
 
     public void reload(ItemductConfig config)
     {
+        // TODO all glass types
         this.pipeTypes.clear();
-        this.pipeTypes.add(GLASS);
-        this.pipeTypes.add(GLASS_PANE);
-        this.pipeTypes.add(STAINED_GLASS);
-        this.pipeTypes.add(STAINED_GLASS_PANE);
+        this.pipeTypes.add(GLASS.get());
+        this.directionalPipeTypes.add(BLACK_STAINED_GLASS.get());
+
+        this.pipeTypes.add(GLASS_PANE.get());
+        this.directionalPipeTypes.add(BLACK_STAINED_GLASS_PANE.get());
+
+        this.pipeTypes.addAll(this.directionalPipeTypes);
 
         this.storagePipeTypes.clear();
-        this.storagePipeTypes.add(QUARTZ_BLOCK);
+        this.storagePipeTypes.add(QUARTZ_BLOCK.get());
 
         this.maxDepth = config.maxDepth;
     }
 
-    public Network findNetwork(Location<World> start)
+    public Network findNetwork(ServerLocation start)
     {
         Direction dir = start.get(Keys.DIRECTION).orElse(Direction.NONE);
         if ((!start.getBlockType().equals(DROPPER)))
@@ -165,7 +105,7 @@ public class ItemDuctManager
             dir = dir.getOpposite();
         }
         Network network = new Network(this);
-        Location<World> rel = start.getRelative(dir);
+        ServerLocation rel = start.add(dir.asBlockOffset());
         if (pipeTypes.contains(rel.getBlockType()) || storagePipeTypes.contains(rel.getBlockType()))
         {
             start = rel;
@@ -182,8 +122,8 @@ public class ItemDuctManager
             network.errors.add(last.loc);
             return;
         }
-        Map<Direction, Location<World>> map = new HashMap<>();
-        Queue<Location<World>> next = new LinkedList<>();
+        Map<Direction, ServerLocation> map = new HashMap<>();
+        Queue<ServerLocation> next = new LinkedList<>();
         next.offer(last.loc);
         do
         {
@@ -193,7 +133,7 @@ public class ItemDuctManager
             {
                 if (!dir.equals(last.from.getOpposite()))
                 {
-                    Location<World> rel = last.loc.getRelative(dir);
+                    ServerLocation rel = last.loc.add(dir.asBlockOffset());
                     if (last.isCompatible(rel))
                     {
                         if (network.pipes.contains(rel)) // No loops allowed
@@ -210,15 +150,16 @@ public class ItemDuctManager
                     // ExitPiston?
                     if (rel.getBlockType().equals(PISTON) && rel.get(Keys.DIRECTION).orElse(Direction.NONE).equals(dir))
                     {
-                        if (rel.getRelative(dir).get(DuctData.class).map(d -> d.get(dir.getOpposite()).isPresent()).orElse(false))
+                        final ServerLocation relLoc = rel.add(dir.asBlockOffset());
+                        if (relLoc.get(DuctData.FILTERS).map(d -> d.get(dir.getOpposite()) != null).orElse(false))
                         {
-                            network.exitPoints.put(rel, rel.getRelative(dir).get(DuctData.class).get());
+                            network.exitPoints.put(rel, relLoc.get(DuctData.FILTERS).get());
                         }
                     }
                     // Storage Chest
                     if (last.storage)
                     {
-                        rel.getTileEntity().ifPresent(te -> {
+                        rel.getBlockEntity().ifPresent(te -> {
                             if (te instanceof Carrier) {
                                 network.storage.add(rel);
                             }
@@ -230,14 +171,14 @@ public class ItemDuctManager
 
             if (map.size() > 1)
             {
-                for (Map.Entry<Direction, Location<World>> entry : map.entrySet())
+                for (Map.Entry<Direction, ServerLocation> entry : map.entrySet())
                 {
                     findNetwork(new LastDuct(entry.getValue(), entry.getKey()), network, depth + 1);
                 }
             }
             else if (map.size() == 1)
             {
-                for (Map.Entry<Direction, Location<World>> entry : map.entrySet())
+                for (Map.Entry<Direction, ServerLocation> entry : map.entrySet())
                 {
                     last.update(entry.getValue(), entry.getKey());
                 }
@@ -251,26 +192,27 @@ public class ItemDuctManager
 
     }
 
-    public void playEffect(Location<World> loc)
+    public void playEffect(ServerLocation loc)
     {
         ParticleEffect badEffect = ParticleEffect.builder().type(ParticleTypes.BARRIER).build();
-        ParticleEffect goodEffect = ParticleEffect.builder().type(ParticleTypes.REDSTONE_DUST).option(ParticleOptions.COLOR, Color.GREEN).build();
-        ParticleEffect neutralEffect = ParticleEffect.builder().type(ParticleTypes.REDSTONE_DUST).option(ParticleOptions.COLOR, Color.YELLOW).build();
+        ParticleEffect goodEffect = ParticleEffect.builder().type(ParticleTypes.DUST).option(ParticleOptions.COLOR, Color.GREEN).build();
+        ParticleEffect neutralEffect = ParticleEffect.builder().type(ParticleTypes.DUST).option(ParticleOptions.COLOR, Color.YELLOW).build();
         ParticleEffect smoke = ParticleEffect.builder().type(ParticleTypes.LARGE_SMOKE).build();
         Vector3d center = loc.getPosition().add(0.5, 0.5, 0.5);
         for (Direction effectDir : Direction.values())
         {
             if (effectDir.isCardinal() || effectDir.isUpright())
             {
-                loc.getExtent().spawnParticles(goodEffect, center.add(effectDir.asOffset().div(1.9)));
+                loc.getWorld().spawnParticles(goodEffect, center.add(effectDir.asOffset().div(1.9)));
             }
         }
-        loc.getExtent().playSound(SoundTypes.BLOCK_DISPENSER_DISPENSE, loc.getPosition(), 1);
+
+        loc.getWorld().playSound(Sound.of(SoundTypes.BLOCK_DISPENSER_DISPENSE, Sound.Source.NEUTRAL, 1, 0), loc.getPosition());
 
         Network network = findNetwork(loc);
         //System.out.print("Network: Pipes " +  network.pipes.size() + " Exits " + network.exitPoints.size() + " Storage " + network.storage.size() + "\n");
 
-        for (Location<World> pipe : network.pipes)
+        for (ServerLocation pipe : network.pipes)
         {
             Vector3d pos = pipe.getPosition().add(0.5, 0.5, 0.5);
             if (storagePipeTypes.contains(pipe.getBlockType()))
@@ -279,73 +221,64 @@ public class ItemDuctManager
                 {
                     if (effectDir.isCardinal() || effectDir.isUpright())
                     {
-                        pipe.getExtent().spawnParticles(network.errors.isEmpty() ? goodEffect : neutralEffect, pos.add(effectDir.asOffset().div(1.9)));
+                        pipe.getWorld().spawnParticles(network.errors.isEmpty() ? goodEffect : neutralEffect, pos.add(effectDir.asOffset().div(1.9)));
                     }
                 }
             }
             else
             {
-                pipe.getExtent().spawnParticles(network.errors.isEmpty() ? goodEffect : neutralEffect, pos);
+                pipe.getWorld().spawnParticles(network.errors.isEmpty() ? goodEffect : neutralEffect, pos);
             }
             if (network.exitPoints.isEmpty() && network.storage.isEmpty())
             {
-                pipe.getExtent().spawnParticles(smoke, pos);
+                pipe.getWorld().spawnParticles(smoke, pos);
             }
         }
 
-        for (Location<World> error : network.errors)
+        for (ServerLocation error : network.errors)
         {
-            error.getExtent().spawnParticles(badEffect, error.getPosition().add(0.5,0.5,0.5));
-            error.getExtent().spawnParticles(smoke, error.getPosition().add(0.5,0.5,0.5));
+            error.getWorld().spawnParticles(badEffect, error.getPosition().add(0.5,0.5,0.5));
+            error.getWorld().spawnParticles(smoke, error.getPosition().add(0.5,0.5,0.5));
         }
 
-        for (Location<World> exit : network.exitPoints.keySet())
+        for (ServerLocation exit : network.exitPoints.keySet())
         {
             center = exit.getPosition().add(0.5,0.5,0.5);
             for (Direction effectDir : Direction.values())
             {
                 if (effectDir.isCardinal() || effectDir.isUpright())
                 {
-                    exit.getExtent().spawnParticles(goodEffect, center.add(effectDir.asOffset().div(1.9)));
+                    exit.getWorld().spawnParticles(goodEffect, center.add(effectDir.asOffset().div(1.9)));
                 }
             }
             // exit.getExtent().playSound(SoundTypes.BLOCK_DISPENSER_DISPENSE, exit.getPosition(), 1);
         }
     }
 
-    public boolean matchesRecipe(CraftingRecipe recipe)
-    {
-        return this.recipe == recipe || this.superRecipe == recipe;
-    }
-
-    public ItemStack singleActivatorItem() {
-        return this.singleActivatorItem;
-    }
-
     private class LastDuct
     {
-        public Location<World> loc;
+        public ServerLocation loc;
         public DyeColor color;
         public boolean cross;
         public Direction from;
 
         public boolean storage;
 
-        public LastDuct(Location<World> loc, Direction from)
+        public LastDuct(ServerLocation loc, Direction from)
         {
             this.update(loc, from);
         }
 
-        public void update(Location<World> loc, Direction from)
+        public void update(ServerLocation loc, Direction from)
         {
             this.from = from;
             this.loc = loc;
             this.color = loc.get(Keys.DYE_COLOR).orElse(null);
-            this.cross = GLASS_PANE.equals(loc.getBlockType()) || STAINED_GLASS_PANE.equals(loc.getBlockType());
+            this.cross = directionalPipeTypes.contains(loc.getBlockType());
             this.storage = storagePipeTypes.contains(loc.getBlockType());
         }
 
-        public boolean isCompatible(Location<World> rel)
+        public boolean isCompatible(ServerLocation rel)
         {
             if (!pipeTypes.contains(rel.getBlockType()) && !storagePipeTypes.contains(rel.getBlockType()))
             {

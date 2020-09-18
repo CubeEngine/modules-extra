@@ -20,23 +20,25 @@ package org.cubeengine.module.itemduct.listener;
 import static org.spongepowered.api.block.BlockTypes.OBSERVER;
 import static org.spongepowered.api.block.BlockTypes.STICKY_PISTON;
 
+import com.google.inject.Inject;
 import org.cubeengine.module.itemduct.ItemDuctManager;
 import org.cubeengine.module.itemduct.Itemduct;
 import org.cubeengine.module.itemduct.Network;
 import org.cubeengine.module.itemduct.data.DuctData;
+import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockType;
-import org.spongepowered.api.block.tileentity.TileEntity;
-import org.spongepowered.api.block.tileentity.carrier.Chest;
-import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.block.entity.BlockEntity;
+import org.spongepowered.api.block.entity.carrier.chest.Chest;
+import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.data.type.HandTypes;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.Getter;
 import org.spongepowered.api.event.filter.cause.Root;
-import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
-import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
+import org.spongepowered.api.event.item.inventory.TransferInventoryEvent;
+import org.spongepowered.api.event.item.inventory.container.InteractContainerEvent;
 import org.spongepowered.api.item.inventory.BlockCarrier;
 import org.spongepowered.api.item.inventory.Carrier;
 import org.spongepowered.api.item.inventory.Container;
@@ -44,11 +46,13 @@ import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.MultiBlockCarrier;
 import org.spongepowered.api.item.inventory.type.CarriedInventory;
-import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.scheduler.ScheduledTask;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.util.Direction;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.ServerLocation;
+import org.spongepowered.api.world.server.ServerWorld;
+import org.spongepowered.math.vector.Vector3i;
+import org.spongepowered.plugin.PluginContainer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,8 +60,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import javax.inject.Inject;
 
 /**
  * Handles ItemDuct transfer activation
@@ -68,8 +70,8 @@ public class ItemDuctTransferListener
     private Itemduct module;
     private ItemDuctManager manager;
 
-    private Map<Location<World>, Long> promptedActivations = new HashMap<>();
-    private Task task;
+    private final Map<ResourceKey, Map<Vector3i, Long>> promptedActivations = new HashMap<>();
+    private ScheduledTask task;
 
     public void setup(Itemduct module, ItemDuctManager manager)
     {
@@ -78,27 +80,27 @@ public class ItemDuctTransferListener
     }
 
     @Listener
-    public void onCloseInventory(InteractInventoryEvent.Close event, @Root Player player, @Getter("getTargetInventory") Container inventory)
+    public void onCloseInventory(InteractContainerEvent.Close event, @Root ServerPlayer player, @Getter("getContainer") Container inventory)
     {
         // When closing update filters and prompt activation
-        if (inventory instanceof CarriedInventory && inventory.size() > 0)
+        if (inventory instanceof CarriedInventory && inventory.totalQuantity() > 0)
         {
             ((CarriedInventory<?>) inventory).getCarrier().ifPresent(carrier -> this.promptActivation(carrier, true, player));
         }
     }
 
     @Listener
-    public void onOpenInventory(InteractInventoryEvent.Open event, @Root Player player, @Getter("getTargetInventory") Container inventory)
+    public void onOpenInventory(InteractContainerEvent.Open event, @Root ServerPlayer player, @Getter("getContainer") Container inventory)
     {
         // When opening prompt activation
-        if (inventory instanceof CarriedInventory && inventory.size() > 0)
+        if (inventory instanceof CarriedInventory && inventory.totalQuantity() > 0)
         {
             ((CarriedInventory<?>) inventory).getCarrier().ifPresent(carrier -> this.promptActivation(carrier, false, player));
         }
     }
 
     @Listener
-    public void onTransferInventory(ChangeInventoryEvent.Transfer.Pre event)
+    public void onTransferInventory(TransferInventoryEvent.Pre event)
     {
         // When getting items transferred prompt activation
         if (event.getTargetInventory() instanceof CarriedInventory)
@@ -108,48 +110,46 @@ public class ItemDuctTransferListener
     }
 
     @Listener
-    public void onInteractPiston(InteractBlockEvent.Secondary.MainHand event, @Root Player player)
+    public void onInteractPiston(InteractBlockEvent.Secondary.Primary event, @Root ServerPlayer player)
     {
-        event.getTargetBlock().getLocation().ifPresent(loc -> {
-            Direction dir = loc.get(Keys.DIRECTION).orElse(Direction.NONE);
-            Location<World> te = loc.getRelative(dir);
-            Optional<DuctData> ductData = te.get(DuctData.class);
-            Optional<ItemStack> itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
-
-            if (ductData.isPresent() && !itemInHand.map(i -> !i.isEmpty()).orElse(false) && !player.get(Keys.IS_SNEAKING).orElse(false))
-            {
-                manager.playEffect(loc); // Play Effect for DuctPiston
+        event.getInteractionPoint().ifPresent(pos -> {
+            final ServerLocation loc = player.getWorld().getLocation(pos);
+            final Direction dir = loc.get(Keys.DIRECTION).orElse(Direction.NONE);
+            final ServerLocation te = loc.add(dir.asBlockOffset());
+            final Optional<Map<Direction, List<ItemStack>>> filters = te.get(DuctData.FILTERS);
+            final ItemStack itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
+            if (filters.isPresent() && itemInHand.isEmpty() && !player.get(Keys.IS_SNEAKING).orElse(false)) {
+                manager.playEffect(loc);
             }
         });
     }
 
-    private void promptActivation(Carrier carrier, boolean push, Player player)
+    private void promptActivation(Carrier carrier, boolean push, ServerPlayer player)
     {
         if (!(carrier instanceof BlockCarrier))
         {
             return;
         }
         if (carrier instanceof MultiBlockCarrier) {
-            for (Location<World> loc : ((MultiBlockCarrier) carrier).getLocations()) {
+            for (ServerLocation loc : ((MultiBlockCarrier) carrier).getLocations()) {
                 promptAtLoc(push, player, loc);
             }
             return;
         }
-        Location<World> loc = ((BlockCarrier) carrier).getLocation();
+        ServerLocation loc = ((BlockCarrier) carrier).getServerLocation();
         promptAtLoc(push, player, loc);
     }
 
-    private void promptAtLoc(boolean push, Player player, Location<World> loc) {
-        Optional<DuctData> data = loc.get(DuctData.class);
-        if (data.isPresent())
-        {
+    private void promptAtLoc(boolean push, ServerPlayer player, ServerLocation loc) {
+        final Optional<Map<Direction, List<ItemStack>>> data = loc.get(DuctData.FILTERS);
+        if (data.isPresent()) {
             if (!push)
             {
                 // Pull only activates OBSERVER
                 boolean pull = false;
-                for (Direction dir : data.get().getFilters().keySet())
+                for (Direction dir : data.get().keySet())
                 {
-                    if (loc.getRelative(dir).getBlockType().equals(OBSERVER))
+                    if (loc.add(dir.asBlockOffset()).getBlockType().equals(OBSERVER.get()))
                     {
                         pull = true;
                     }
@@ -159,61 +159,72 @@ public class ItemDuctTransferListener
                     return;
                 }
             }
-            if (this.promptedActivations.isEmpty())
+            final Map<Vector3i, Long> activationMap = this.promptedActivations.computeIfAbsent(loc.getWorldKey(), k -> new HashMap<>());
+            if (activationMap.isEmpty())
             {
                 if (task != null)
                 {
                     task.cancel();
                 }
-                task = Sponge.getScheduler().createTaskBuilder().delayTicks(20).intervalTicks(20).execute(this::activate).submit(plugin);
+                final Task build = Task.builder().delayTicks(20).intervalTicks(20).execute(this::activate).plugin(plugin).build();
+                task = Sponge.getServer().getScheduler().submit(build);
             }
 
-            this.promptedActivations.computeIfAbsent(loc, k -> System.currentTimeMillis());
+            activationMap.computeIfAbsent(loc.getBlockPosition(), k -> System.currentTimeMillis());
             if (player != null)
             {
                 player.getProgress(module.prompted).get(module.promptCriterion).ifPresent(c -> c.add(1));
             }
-
         }
     }
 
     private void activate()
     {
         List<Network> networks = new ArrayList<>();
-        for (Iterator<Location<World>> it = this.promptedActivations.keySet().iterator(); it.hasNext(); )
-        {
-            Location<World> loc = it.next();
-
-            if (this.promptedActivations.get(loc) - 1000 > System.currentTimeMillis())
-            {
-                promptedActivations.clear();
+        for (Map.Entry<ResourceKey, Map<Vector3i, Long>> entry : this.promptedActivations.entrySet()) {
+            final ServerWorld world = Sponge.getServer().getWorldManager().getWorld(entry.getKey()).orElse(null);
+            final Map<Vector3i, Long> activatedPositions = entry.getValue();
+            if (world == null) {
+                activatedPositions.clear();
                 continue;
             }
+            for (Iterator<Vector3i> it = activatedPositions.keySet().iterator(); it.hasNext(); )
+            {
+                final Vector3i pos = it.next();
+                ServerLocation loc = world.getLocation(pos);
 
-            it.remove();
-
-            // Check if data is still present
-            Optional<DuctData> data = loc.get(DuctData.class);
-            if (data.isPresent()) {
-                for (Direction dir : Direction.values())
+                if (activatedPositions.get(pos) - 1000 > System.currentTimeMillis())
                 {
-                    if (dir.isCardinal() || dir.isUpright())
+                    activatedPositions.clear();
+                    continue;
+                }
+
+                it.remove();
+
+                // Check if data is still present
+                final Optional<Map<Direction, List<ItemStack>>> data = loc.get(DuctData.FILTERS);
+                if (data.isPresent())
+                {
+                    for (Direction dir : Direction.values())
                     {
-                        BlockType type = loc.getRelative(dir).getBlockType();
-                        if (STICKY_PISTON.equals(type) || OBSERVER.equals(type))
+                        if (dir.isCardinal() || dir.isUpright())
                         {
-                            Optional<List<ItemStack>> filters = data.get().get(dir);
-                            if (filters.isPresent())
+                            BlockType type = loc.add(dir.asBlockOffset()).getBlockType();
+                            if (STICKY_PISTON.get().equals(type) || OBSERVER.get().equals(type))
                             {
-                                Network network = manager.findNetwork(loc.getRelative(dir));
-                                TileEntity te = loc.getTileEntity().get();
-                                Inventory inventory = ((Carrier) te).getInventory();
-                                if (te instanceof Chest)
+                                List<ItemStack> filters = data.get().get(dir);
+                                if (filters != null)
                                 {
-                                    inventory = ((Chest) te).getDoubleChestInventory().orElse(inventory);
+                                    Network network = manager.findNetwork(loc.add(dir.asBlockOffset()));
+                                    BlockEntity te = loc.getBlockEntity().get();
+                                    Inventory inventory = ((Carrier) te).getInventory();
+                                    if (te instanceof Chest)
+                                    {
+                                        inventory = ((Chest) te).getDoubleChestInventory().orElse(inventory);
+                                    }
+                                    network.activate(inventory, filters);
+                                    networks.add(network);
                                 }
-                                network.activate(inventory, filters.get());
-                                networks.add(network);
                             }
                         }
                     }
@@ -221,13 +232,16 @@ public class ItemDuctTransferListener
             }
         }
 
+
+
+
         for (Network network : networks)
         {
-            for (Location<World> exitLoc : network.exitPoints.keySet())
+            for (ServerLocation exitLoc : network.exitPoints.keySet())
             {
                 Direction exitDir = exitLoc.get(Keys.DIRECTION).orElse(Direction.NONE).getOpposite();
-                exitLoc = exitLoc.getRelative(exitDir.getOpposite());
-                promptActivation(exitLoc.getTileEntity().filter(t -> t instanceof Carrier).map(Carrier.class::cast).orElse(null), true, null);
+                exitLoc = exitLoc.add(exitDir.getOpposite().asBlockOffset());
+                promptActivation(exitLoc.getBlockEntity().filter(t -> t instanceof Carrier).map(Carrier.class::cast).orElse(null), true, null);
             }
         }
 

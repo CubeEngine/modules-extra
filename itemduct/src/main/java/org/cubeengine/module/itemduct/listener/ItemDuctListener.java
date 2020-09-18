@@ -19,18 +19,19 @@ package org.cubeengine.module.itemduct.listener;
 
 import static org.spongepowered.api.block.BlockTypes.STICKY_PISTON;
 
-import com.flowpowered.math.vector.Vector3d;
+import com.google.inject.Inject;
+import net.kyori.adventure.sound.Sound;
 import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.module.itemduct.Itemduct;
 import org.cubeengine.module.itemduct.data.DuctData;
-import org.cubeengine.module.itemduct.data.IDuctData;
+import org.cubeengine.module.itemduct.data.DuctRecipes;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.block.tileentity.TileEntity;
+import org.spongepowered.api.block.entity.BlockEntity;
+import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.data.Transaction;
-import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.effect.particle.ParticleEffect;
 import org.spongepowered.api.effect.particle.ParticleTypes;
@@ -39,6 +40,8 @@ import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.event.EventContextKeys;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
@@ -49,13 +52,14 @@ import org.spongepowered.api.item.enchantment.EnchantmentTypes;
 import org.spongepowered.api.item.inventory.Carrier;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.Direction;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.ServerLocation;
+import org.spongepowered.math.vector.Vector3d;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-
-import javax.inject.Inject;
 
 /**
  * Handles ItemDuct setup and cleanup and effects
@@ -76,28 +80,33 @@ public class ItemDuctListener
     }
 
     @Listener
-    public void onInteractPiston(InteractBlockEvent.Secondary.MainHand event, @Root Player player)
+    public void onInteractPiston(InteractBlockEvent.Secondary event, @Root ServerPlayer player)
     {
-        Optional<ItemStack> itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
-        Boolean hasActivator = itemInHand.map(ItemDuctListener::isActivator).orElse(false);
+        final boolean isMainHand = event.getContext().get(EventContextKeys.USED_HAND).get() == HandTypes.MAIN_HAND;
+        if (!isMainHand) {
+            return;
+        }
+        ItemStack itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
+        boolean hasActivator = ItemDuctListener.isActivator(itemInHand);
         if (hasActivator)
         {
             event.setCancelled(true);
         }
 
-        if (!isDuctInteraction(event))
+        if (!isDuctInteraction(event, player))
         {
             return;
         }
 
-        Location<World> loc = event.getTargetBlock().getLocation().get();
+
+        ServerLocation loc = player.getWorld().getLocation(event.getInteractionPoint().get());
         Direction dir = loc.get(Keys.DIRECTION).orElse(Direction.NONE);
-        Location<World> te = loc.getRelative(dir);
-        Optional<DuctData> ductData = te.get(DuctData.class);
+        ServerLocation te = loc.add(dir.asBlockOffset());
+        final Optional<Map<Direction, List<ItemStack>>> ductData = te.get(DuctData.FILTERS);
         Direction dirO = dir.getOpposite();
-        if (!ductData.map(d -> d.has(dirO)).orElse(false) && hasActivator)
+        if (!ductData.map(d -> d.containsKey(dirO)).orElse(false) && hasActivator)
         {
-            if (loc.getBlockType() == BlockTypes.OBSERVER)
+            if (loc.getBlockType() == BlockTypes.OBSERVER.get())
             {
                 if (!player.hasPermission(this.activateObserverPerm.getId()))
                 {
@@ -114,15 +123,17 @@ public class ItemDuctListener
                 }
             }
 
-            te.offer(ductData.orElse(new DuctData()).with(dirO));
+            final Map<Direction, List<ItemStack>> dd = ductData.get();
+            dd.put(dirO, new ArrayList<>());
+            te.offer(DuctData.FILTERS, dd);
             playCreateEffect(loc);
 
             if (player.get(Keys.GAME_MODE).get() != GameModes.CREATIVE)
             {
-                ItemStack newStack = itemInHand.get().copy();
-                ItemStack sepStack = itemInHand.get().copy();
+                ItemStack newStack = itemInHand.copy();
+                ItemStack sepStack = itemInHand.copy();
 
-                Integer uses = newStack.get(IDuctData.USES).orElse(0);
+                Integer uses = newStack.get(DuctData.USES).orElse(0);
                 uses--;
 
                 if (uses <= 0) // Item used up?
@@ -133,7 +144,7 @@ public class ItemDuctListener
                     }
                     else
                     {
-                        newStack.setQuantity(itemInHand.get().getQuantity() - 1);
+                        newStack.setQuantity(itemInHand.getQuantity() - 1);
                     }
                     sepStack.setQuantity(0);
                 }
@@ -142,7 +153,7 @@ public class ItemDuctListener
                     sepStack.setQuantity(newStack.getQuantity() - 1);
                     newStack.setQuantity(1);
                 }
-                newStack.offer(IDuctData.USES, uses);
+                newStack.offer(DuctData.USES, uses);
                 module.getManager().updateUses(newStack);
 
                 player.setItemInHand(HandTypes.MAIN_HAND, newStack);
@@ -163,21 +174,22 @@ public class ItemDuctListener
                 continue;
             }
             BlockType type = trans.getOriginal().getState().getType();
-            Location<World> loc = trans.getOriginal().getLocation().get();
+            ServerLocation loc = trans.getOriginal().getLocation().get();
             if (isEndPointType(type))
             {
                 Direction dir = trans.getOriginal().get(Keys.DIRECTION).orElse(Direction.NONE);
-                Optional<DuctData> data = loc.getRelative(dir).get(DuctData.class);
+                final ServerLocation relative = loc.add(dir.asBlockOffset());
+                Optional<Map<Direction, List<ItemStack>>> data = relative.get(DuctData.FILTERS);
                 if (data.isPresent())
                 {
                     data.get().remove(dir.getOpposite());
-                    if (data.get().getFilters().isEmpty())
+                    if (data.get().isEmpty())
                     {
-                        loc.getRelative(dir).remove(DuctData.class);
+                        relative.remove(DuctData.FILTERS);
                         event.getCause().first(Player.class).ifPresent(p -> {
                             if (p.get(Keys.GAME_MODE).map(mode -> mode != GameModes.CREATIVE).orElse(false)) {
-                                Entity item = loc.createEntity(EntityTypes.ITEM);
-                                item.offer(Keys.REPRESENTED_ITEM, this.module.getManager().singleActivatorItem().createSnapshot());
+                                Entity item = loc.createEntity(EntityTypes.ITEM.get());
+                                item.offer(Keys.ITEM_STACK_SNAPSHOT, DuctRecipes.singleActivatorItem.createSnapshot());
                                 loc.spawnEntity(item);
                             }
                         });
@@ -185,7 +197,7 @@ public class ItemDuctListener
                     }
                     else
                     {
-                        loc.getRelative(dir).offer(data.get());
+                        relative.offer(DuctData.FILTERS, data.get());
                     }
                 }
             }
@@ -197,29 +209,29 @@ public class ItemDuctListener
         if (ItemTypes.HOPPER.equals(item.getType()))
         {
             Enchantment ench = Enchantment.builder().type(EnchantmentTypes.LOOTING).level(1).build();
-            return item.get(Keys.ITEM_ENCHANTMENTS).orElse(Collections.emptyList()).contains(ench);
+            return item.get(Keys.APPLIED_ENCHANTMENTS).orElse(Collections.emptyList()).contains(ench);
         }
         return false;
     }
 
-    private static boolean isDuctInteraction(InteractBlockEvent event)
+    private static boolean isDuctInteraction(InteractBlockEvent event, ServerPlayer player)
     {
-        if (!(event instanceof InteractBlockEvent.Primary.MainHand) && !(event instanceof InteractBlockEvent.Secondary.MainHand))
-        {
+        // TODO and mainhand?
+//        if (!(event instanceof InteractBlockEvent.Primary) && !(event instanceof InteractBlockEvent.Secondary))
+//        {
+//            return false;
+//        }
+        if (!event.getInteractionPoint().isPresent()) {
             return false;
         }
-        if (!event.getTargetBlock().getLocation().isPresent())
-        {
-            return false;
-        }
-        Location<World> loc = event.getTargetBlock().getLocation().get();
+        final ServerLocation loc = player.getWorld().getLocation(event.getInteractionPoint().get());
         BlockType type = loc.getBlockType();
         if (!isEndPointType(type))
         {
             return false;
         }
         Direction dir = loc.get(Keys.DIRECTION).orElse(Direction.NONE);
-        Optional<TileEntity> te = loc.getRelative(dir).getTileEntity();
+        final Optional<? extends BlockEntity> te = loc.add(dir.asBlockOffset()).getBlockEntity();
         return te.isPresent() && te.get() instanceof Carrier;
     }
 
@@ -228,7 +240,7 @@ public class ItemDuctListener
         return BlockTypes.PISTON.equals(type) || STICKY_PISTON.equals(type) || BlockTypes.OBSERVER.equals(type);
     }
 
-    private static void playCreateEffect(Location<World> loc)
+    private static void playCreateEffect(ServerLocation loc)
     {
         ParticleEffect effect = ParticleEffect.builder().type(ParticleTypes.CLOUD).build();
 
@@ -237,10 +249,10 @@ public class ItemDuctListener
         {
             if (effectDir.isCardinal() || effectDir.isUpright())
             {
-                loc.getExtent().spawnParticles(effect, center.add(effectDir.asOffset().div(1.9)));
+                loc.getWorld().spawnParticles(effect, center.add(effectDir.asOffset().div(1.9)));
             }
         }
-        loc.getExtent().playSound(SoundTypes.BLOCK_ANVIL_USE, loc.getPosition(), 1);
+        loc.getWorld().playSound(Sound.of(SoundTypes.BLOCK_ANVIL_USE, Sound.Source.NEUTRAL, 1, 0), loc.getPosition());
     }
 
 }
