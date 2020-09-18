@@ -33,6 +33,7 @@ import org.cubeengine.processor.Module;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.GameRegistryEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.item.enchantment.Enchantment;
 import org.spongepowered.api.item.enchantment.EnchantmentTypes;
@@ -61,13 +62,12 @@ public class Chopchop extends CubeEngineModule
     @Listener
     public void onPreInit(GamePreInitializationEvent event)
     {
-        this.registerRecipe();
-
         use = pm.register(Chopchop.class, "use", "Allows using the Chop Chop Axe", null);
         autoplant = pm.register(Chopchop.class, "auto-plant", "Replants saplings automatically", null);
     }
 
-    private void registerRecipe()
+    @Listener
+    public void onRegistry(GameRegistryEvent.Register<CraftingRecipe> event)
     {
         ItemStack axe = ItemStack.of(DIAMOND_AXE, 1);
         axe.offer(Keys.ITEM_ENCHANTMENTS, singletonList(Enchantment.builder().type(EnchantmentTypes.PUNCH).level(5).build()));
@@ -81,7 +81,7 @@ public class Chopchop extends CubeEngineModule
                 .where('s', Ingredient.of(LOG, LOG2))
                 .result(axe)
                 .build("chopchop", plugin);
-        Sponge.getRegistry().getCraftingRecipeRegistry().register(recipe);
+        event.register(recipe);
     }
 
     public ChopchopConfig getConfig()
