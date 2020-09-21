@@ -43,8 +43,7 @@ import org.spongepowered.api.event.item.inventory.CraftItemEvent;
 import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
 import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
 import org.spongepowered.api.item.ItemTypes;
-import org.spongepowered.api.item.recipe.Recipe;
-import org.spongepowered.api.item.recipe.crafting.CraftingRecipe;
+import org.spongepowered.api.item.recipe.RecipeRegistration;
 import org.spongepowered.plugin.PluginContainer;
 
 
@@ -76,7 +75,7 @@ public class Itemduct
 //    }
 
     @Listener
-    public void onRegisterRecipe(RegisterCatalogEvent<Recipe> event)
+    public void onRegisterRecipe(RegisterCatalogEvent<RecipeRegistration> event)
     {
         DuctRecipes.register(event, config);
     }

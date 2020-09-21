@@ -30,7 +30,7 @@ import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.enchantment.Enchantment;
 import org.spongepowered.api.item.enchantment.EnchantmentTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.item.recipe.Recipe;
+import org.spongepowered.api.item.recipe.RecipeRegistration;
 import org.spongepowered.api.item.recipe.crafting.CraftingRecipe;
 import org.spongepowered.api.item.recipe.crafting.Ingredient;
 import org.spongepowered.api.item.recipe.crafting.ShapedCraftingRecipe;
@@ -42,10 +42,10 @@ public class DuctRecipes
     private static ItemStack activatorItem;
     public static ItemStack singleActivatorItem;
     private static ItemStack superActivatorItem;
-    private static ShapedCraftingRecipe superRecipe;
-    private static ShapedCraftingRecipe recipe;
+    private static RecipeRegistration<ShapedCraftingRecipe> superRecipe;
+    private static RecipeRegistration<ShapedCraftingRecipe> recipe;
 
-    public static void register(RegisterCatalogEvent<Recipe> event, ItemductConfig config)
+    public static void register(RegisterCatalogEvent<RecipeRegistration> event, ItemductConfig config)
     {
         Ingredient hopper = Ingredient.of(ItemTypes.HOPPER.get());
         activatorItem = ItemStack.of(ItemTypes.HOPPER, 1);
