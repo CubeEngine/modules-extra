@@ -42,8 +42,8 @@ public class DuctRecipes
     private static ItemStack activatorItem;
     public static ItemStack singleActivatorItem;
     private static ItemStack superActivatorItem;
-    private static RecipeRegistration<ShapedCraftingRecipe> superRecipe;
-    private static RecipeRegistration<ShapedCraftingRecipe> recipe;
+    private static RecipeRegistration superRecipe;
+    private static RecipeRegistration recipe;
 
     public static void register(RegisterCatalogEvent<RecipeRegistration> event, ItemductConfig config)
     {
