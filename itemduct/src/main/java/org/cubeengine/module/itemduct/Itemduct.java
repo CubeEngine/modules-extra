@@ -29,6 +29,7 @@ import org.cubeengine.module.itemduct.listener.ItemDuctListener;
 import org.cubeengine.module.itemduct.listener.ItemDuctTransferListener;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.ResourceKey;
+import org.spongepowered.api.Server;
 import org.spongepowered.api.advancement.Advancement;
 import org.spongepowered.api.advancement.AdvancementTree;
 import org.spongepowered.api.advancement.AdvancementTypes;
@@ -40,8 +41,8 @@ import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.item.inventory.CraftItemEvent;
-import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
 import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
+import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.recipe.RecipeRegistration;
 import org.spongepowered.plugin.PluginContainer;
@@ -59,7 +60,7 @@ public class Itemduct
     @Inject private PluginContainer plugin;
 
     @Listener
-    public void onConstruct(ConstructPluginEvent event)
+    public void onConstruct(StartedEngineEvent<Server> event)
     {
         this.manager.setup(this.config);
         this.listenerActivator.setup(this);

@@ -57,6 +57,7 @@ import org.spongepowered.math.vector.Vector3d;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -75,14 +76,14 @@ public class ItemDuctListener
     public void setup(Itemduct module)
     {
         this.module = module;
-        activatePistonPerm = this.pm.register(Itemduct.class, "activate.piston", "Allows activating ItemDuct Piston Endpoints", null);
-        activateObserverPerm = this.pm.register(Itemduct.class, "activate.observer", "Allows activating ItemDuct Observer Endpoints", null);
+        this.activatePistonPerm = this.pm.register(Itemduct.class, "activate.piston", "Allows activating ItemDuct Piston Endpoints", null);
+        this.activateObserverPerm = this.pm.register(Itemduct.class, "activate.observer", "Allows activating ItemDuct Observer Endpoints", null);
     }
 
     @Listener
     public void onInteractPiston(InteractBlockEvent.Secondary event, @Root ServerPlayer player)
     {
-        final boolean isMainHand = event.getContext().get(EventContextKeys.USED_HAND).get() == HandTypes.MAIN_HAND;
+        final boolean isMainHand = event.getContext().get(EventContextKeys.USED_HAND).get() == HandTypes.MAIN_HAND.get();
         if (!isMainHand) {
             return;
         }
@@ -123,7 +124,7 @@ public class ItemDuctListener
                 }
             }
 
-            final Map<Direction, List<ItemStack>> dd = ductData.get();
+            final Map<Direction, List<ItemStack>> dd = ductData.orElse(new HashMap<>());
             dd.put(dirO, new ArrayList<>());
             te.offer(DuctData.FILTERS, dd);
             playCreateEffect(loc);
@@ -204,9 +205,10 @@ public class ItemDuctListener
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static boolean isActivator(ItemStack item)
     {
-        if (ItemTypes.HOPPER.equals(item.getType()))
+        if (item.getType().isAnyOf(ItemTypes.HOPPER))
         {
             Enchantment ench = Enchantment.builder().type(EnchantmentTypes.LOOTING).level(1).build();
             return item.get(Keys.APPLIED_ENCHANTMENTS).orElse(Collections.emptyList()).contains(ench);
@@ -230,14 +232,14 @@ public class ItemDuctListener
         {
             return false;
         }
-        Direction dir = loc.get(Keys.DIRECTION).orElse(Direction.NONE);
+        Direction dir = loc.getBlock().get(Keys.DIRECTION).orElse(Direction.NONE);
         final Optional<? extends BlockEntity> te = loc.add(dir.asBlockOffset()).getBlockEntity();
         return te.isPresent() && te.get() instanceof Carrier;
     }
 
     private static boolean isEndPointType(BlockType type)
     {
-        return BlockTypes.PISTON.equals(type) || STICKY_PISTON.equals(type) || BlockTypes.OBSERVER.equals(type);
+        return BlockTypes.PISTON.get().equals(type) || STICKY_PISTON.get().equals(type) || BlockTypes.OBSERVER.get().equals(type);
     }
 
     private static void playCreateEffect(ServerLocation loc)
