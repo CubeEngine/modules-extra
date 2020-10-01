@@ -31,8 +31,10 @@ import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.entity.BlockEntity;
 import org.spongepowered.api.block.entity.carrier.chest.Chest;
 import org.spongepowered.api.data.Keys;
+import org.spongepowered.api.data.type.HandType;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.event.EventContextKeys;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.Getter;
@@ -110,18 +112,21 @@ public class ItemDuctTransferListener
     }
 
     @Listener
-    public void onInteractPiston(InteractBlockEvent.Secondary.Primary event, @Root ServerPlayer player)
+    public void onInteractPiston(InteractBlockEvent.Secondary event, @Root ServerPlayer player)
     {
-        event.getInteractionPoint().ifPresent(pos -> {
-            final ServerLocation loc = player.getWorld().getLocation(pos);
-            final Direction dir = loc.get(Keys.DIRECTION).orElse(Direction.NONE);
-            final ServerLocation te = loc.add(dir.asBlockOffset());
-            final Optional<Map<Direction, List<ItemStack>>> filters = te.get(DuctData.FILTERS);
-            final ItemStack itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
-            if (filters.isPresent() && itemInHand.isEmpty() && !player.get(Keys.IS_SNEAKING).orElse(false)) {
-                manager.playEffect(loc);
-            }
-        });
+        final Optional<HandType> usedHand = event.getContext().get(EventContextKeys.USED_HAND);
+        if (usedHand.isPresent() && usedHand.get() == HandTypes.MAIN_HAND.get()) {
+            event.getInteractionPoint().ifPresent(pos -> {
+                final ServerLocation loc = player.getWorld().getLocation(pos);
+                final Direction dir = loc.get(Keys.DIRECTION).orElse(Direction.NONE);
+                final ServerLocation te = loc.add(dir.asBlockOffset());
+                final Optional<Map<Direction, List<ItemStack>>> filters = te.get(DuctData.FILTERS);
+                final ItemStack itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
+                if (filters.isPresent() && itemInHand.isEmpty() && !player.get(Keys.IS_SNEAKING).orElse(false)) {
+                    manager.playEffect(loc);
+                }
+            });
+        }
     }
 
     private void promptActivation(Carrier carrier, boolean push, ServerPlayer player)

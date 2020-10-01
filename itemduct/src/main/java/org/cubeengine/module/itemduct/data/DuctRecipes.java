@@ -86,6 +86,6 @@ public class DuctRecipes
     }
 
     public static boolean matchesRecipe(CraftingRecipe craftingRecipe) {
-        return recipe == craftingRecipe || superRecipe == craftingRecipe;
+        return recipe.getKey().equals(craftingRecipe.getKey()) || superRecipe.getKey().equals(craftingRecipe.getKey());
     }
 }

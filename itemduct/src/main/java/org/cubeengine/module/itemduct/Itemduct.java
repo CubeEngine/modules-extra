@@ -31,7 +31,6 @@ import org.cubeengine.processor.Module;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.advancement.Advancement;
-import org.spongepowered.api.advancement.AdvancementTree;
 import org.spongepowered.api.advancement.AdvancementTypes;
 import org.spongepowered.api.advancement.DisplayInfo;
 import org.spongepowered.api.advancement.criteria.AdvancementCriterion;
@@ -87,21 +86,11 @@ public class Itemduct
         DuctData.register(event);
     }
 
-    public AdvancementTree advancementTree;
     public Advancement rootAdvancement;
     public Advancement activate;
     public Advancement filters;
     public Advancement prompted;
     public ScoreAdvancementCriterion promptCriterion;
-
-    @Listener
-    public void onRegisterAdvancementTrees(RegisterCatalogEvent<AdvancementTree> event) {
-        this.advancementTree = AdvancementTree.builder()
-                .rootAdvancement(this.rootAdvancement)
-                .key(ResourceKey.of("itemduct", "itemduct"))
-                .build();
-        event.register(this.advancementTree);
-    }
 
     @Listener
     public void onCraft(CraftItemEvent.Craft event, @Root ServerPlayer player)
@@ -110,7 +99,7 @@ public class Itemduct
         {
             if (DuctRecipes.matchesRecipe(event.getRecipe().get()))
             {
-                player.getProgress(this.rootAdvancement).get(AdvancementCriterion.dummy()).get().grant();
+                player.getProgress(this.rootAdvancement).grant();
             }
         }
     }

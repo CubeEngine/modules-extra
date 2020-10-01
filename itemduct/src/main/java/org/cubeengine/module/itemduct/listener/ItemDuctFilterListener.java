@@ -28,8 +28,10 @@ import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.module.itemduct.Itemduct;
 import org.cubeengine.module.itemduct.data.DuctData;
 import org.spongepowered.api.data.Keys;
+import org.spongepowered.api.data.type.HandType;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.event.EventContextKeys;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.Root;
@@ -67,18 +69,21 @@ public class ItemDuctFilterListener
     }
 
     @Listener
-    public void onInteractPiston(InteractBlockEvent.Secondary.Primary event, @Root ServerPlayer player)
+    public void onInteractPiston(InteractBlockEvent.Secondary event, @Root ServerPlayer player)
     {
-        event.getInteractionPoint().ifPresent(pos -> {
-            final ServerLocation loc = player.getWorld().getLocation(pos);
-            final Direction dir = loc.get(Keys.DIRECTION).orElse(Direction.NONE);
-            final ServerLocation te = loc.add(dir.asBlockOffset());
-            final Optional<Map<Direction, List<ItemStack>>> filters = te.get(DuctData.FILTERS);
-            final ItemStack itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
-            if (filters.isPresent() && itemInHand.isEmpty() && player.get(Keys.IS_SNEAKING).orElse(false)) {
-                openFilter(player, filters.get(), dir.getOpposite(), te);
-            }
-        });
+        final Optional<HandType> usedHand = event.getContext().get(EventContextKeys.USED_HAND);
+        if (usedHand.isPresent() && usedHand.get() == HandTypes.MAIN_HAND.get()) {
+            event.getInteractionPoint().ifPresent(pos -> {
+                final ServerLocation loc = player.getWorld().getLocation(pos);
+                final Direction dir = loc.get(Keys.DIRECTION).orElse(Direction.NONE);
+                final ServerLocation te = loc.add(dir.asBlockOffset());
+                final Optional<Map<Direction, List<ItemStack>>> filters = te.get(DuctData.FILTERS);
+                final ItemStack itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
+                if (filters.isPresent() && itemInHand.isEmpty() && player.get(Keys.IS_SNEAKING).orElse(false)) {
+                    openFilter(player, filters.get(), dir.getOpposite(), te);
+                }
+            });
+        }
     }
 
     private void openFilter(ServerPlayer player, Map<Direction, List<ItemStack>> ductData, Direction dir, ServerLocation loc)

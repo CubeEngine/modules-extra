@@ -55,7 +55,7 @@ public interface DuctData
     {
         final DataStore dataStore = DataStore.builder()
                 .key(DuctData.FILTERS, "filters")
-                .holder(TypeTokens.SERVER_LOCATION_TOKEN)
+                .holder(TypeTokens.BLOCK_ENTITY_TOKEN)
                 .build();
 
         final DataRegistration registration = DataRegistration.builder()

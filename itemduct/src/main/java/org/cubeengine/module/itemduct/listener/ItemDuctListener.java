@@ -101,7 +101,7 @@ public class ItemDuctListener
 
 
         ServerLocation loc = player.getWorld().getLocation(event.getInteractionPoint().get());
-        Direction dir = loc.get(Keys.DIRECTION).orElse(Direction.NONE);
+        Direction dir = loc.getBlock().get(Keys.DIRECTION).orElse(Direction.NONE);
         ServerLocation te = loc.add(dir.asBlockOffset());
         final Optional<Map<Direction, List<ItemStack>>> ductData = te.get(DuctData.FILTERS);
         Direction dirO = dir.getOpposite();
