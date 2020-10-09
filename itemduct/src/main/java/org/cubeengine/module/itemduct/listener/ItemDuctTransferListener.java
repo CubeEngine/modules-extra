@@ -215,7 +215,7 @@ public class ItemDuctTransferListener
                         if (dir.isCardinal() || dir.isUpright())
                         {
                             BlockType type = loc.add(dir.asBlockOffset()).getBlockType();
-                            if (STICKY_PISTON.get().equals(type) || OBSERVER.get().equals(type))
+                            if (type.isAnyOf(STICKY_PISTON, OBSERVER))
                             {
                                 List<ItemStack> filters = data.get().get(dir);
                                 if (filters != null)
