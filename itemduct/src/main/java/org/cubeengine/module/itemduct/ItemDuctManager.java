@@ -93,6 +93,9 @@ public class ItemDuctManager
 
         this.storagePipeTypes.clear();
         this.storagePipeTypes.add(QUARTZ_BLOCK.get());
+        this.storagePipeTypes.add(QUARTZ_PILLAR.get());
+        this.storagePipeTypes.add(CHISELED_QUARTZ_BLOCK.get());
+        this.storagePipeTypes.add(SMOOTH_QUARTZ.get());
 
         this.maxDepth = config.maxDepth;
     }

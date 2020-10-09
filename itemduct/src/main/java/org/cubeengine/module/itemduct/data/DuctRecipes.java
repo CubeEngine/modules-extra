@@ -72,7 +72,7 @@ public class DuctRecipes
         superActivatorItem.offer(Keys.LORE, Collections.singletonList(TextComponent.of("Uses: ").append(TextComponent.of(config.superActivatorUses == -1 ? "Infinite" : String.valueOf(config.superActivatorUses)))));
         superActivatorItem.offer(Keys.DISPLAY_NAME, TextComponent.of("ItemDuct Super Activator", NamedTextColor.GOLD));
 
-//        hopper = Ingredient.of(activatorItem); TODO nbt-ingredients
+        hopper = Ingredient.of(activatorItem);
         superRecipe = CraftingRecipe.shapedBuilder().rows()
                 .row(hopper, hopper, hopper)
                 .row(hopper, Ingredient.of(ItemTypes.NETHER_STAR.get()), hopper)

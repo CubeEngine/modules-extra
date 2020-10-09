@@ -116,11 +116,8 @@ public class Network
         if (filters.isEmpty()) {
             return inventory;
         }
-        final Query.Builder builder = Query.builder();
-        for (ItemStack filter : filters) {
-            builder.or(QueryTypes.ITEM_STACK_IGNORE_QUANTITY.get().of(filter));
-        }
-        return inventory.query(builder.build());
+        final Query query = Query.orQueries(filters.stream().map(filter -> QueryTypes.ITEM_STACK_IGNORE_QUANTITY.get().of(filter)).toArray(Query[]::new));
+        return inventory.query(query);
     }
 
     private void pullFromStorage(Inventory inventory, List<ItemStack> filters)
@@ -168,6 +165,8 @@ public class Network
     }
 
 
-
-
+    @Override
+    public String toString() {
+        return "Network in " + world.getKey() + " with " + exitPoints.size() + " exit-points and " + pipes.size() + " pipes and " + storage.size() + " storage";
+    }
 }
