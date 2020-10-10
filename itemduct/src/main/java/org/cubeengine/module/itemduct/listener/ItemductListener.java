@@ -23,7 +23,7 @@ import org.cubeengine.module.itemduct.NetworkFilter;
 import org.cubeengine.module.itemduct.data.ItemductBlocks;
 import org.cubeengine.module.itemduct.data.ItemductData;
 import org.cubeengine.module.itemduct.data.ItemductItems;
-import org.cubeengine.module.itemduct.util.ItemUtil;
+import org.cubeengine.libcube.util.ItemUtil;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.data.type.HandTypes;

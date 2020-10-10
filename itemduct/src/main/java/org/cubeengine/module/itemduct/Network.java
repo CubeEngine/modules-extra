@@ -224,13 +224,13 @@ public class Network
             {
                 if (!filters.isEmpty()) // Only allow to extract items in the filter
                 {
-                    pollFrom = queryFiltered(filters, inventory); // TODO more filters
+                    pollFrom = queryFiltered(filters, inventory);
                 }
 
                 Inventory pollFromTo = pollFrom;
                 if (!targetFilter.isEmpty()) // Only allow to insert items in the filter
                 {
-                    pollFromTo = queryFiltered(targetFilter, inventory);  // TODO more filters
+                    pollFromTo = queryFiltered(targetFilter, inventory);
                 }
                 // For all filtered slots
                 doTransfer(pollFromTo, target);
@@ -242,7 +242,7 @@ public class Network
     {
         if (!filters.isEmpty()) // Only allow to extract items in the filter
         {
-            inventory = queryFiltered(filters, inventory); // TODO more filters
+            inventory = queryFiltered(filters, inventory);
         }
         for (Vector3i targetLoc : storage)
         {
@@ -256,6 +256,7 @@ public class Network
         }
     }
 
+    // TODO Feature: more kind of item filters
     private Inventory queryFiltered(List<ItemStack> filters, Inventory inventory) {
         if (filters.isEmpty()) {
             return inventory;
@@ -276,7 +277,7 @@ public class Network
             }
             if (!filters.isEmpty()) // Only allow to extract items in the filter
             {
-                pollFrom = queryFiltered(filters, pollFrom); // TODO more filters
+                pollFrom = queryFiltered(filters, pollFrom);
             }
 
             doTransfer(pollFrom, inventory);

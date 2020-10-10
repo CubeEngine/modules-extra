@@ -38,6 +38,14 @@ import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.item.recipe.RecipeRegistration;
 import org.spongepowered.plugin.PluginContainer;
 
+/*
+TODO API8 Port:
+Reload event
+
+Future Ideas:
+Introduce more ways to filter items
+Upgrades?
+ */
 @Singleton
 @Module
 public class Itemduct
