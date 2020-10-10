@@ -17,57 +17,201 @@
  */
 package org.cubeengine.module.itemduct;
 
+import static org.spongepowered.api.block.BlockTypes.DROPPER;
+import static org.spongepowered.api.block.BlockTypes.PISTON;
+import static org.spongepowered.api.block.BlockTypes.STICKY_PISTON;
+
+import org.cubeengine.module.itemduct.data.ItemductBlocks;
+import org.cubeengine.module.itemduct.data.ItemductData;
+import org.spongepowered.api.block.BlockState;
+import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.entity.BlockEntity;
 import org.spongepowered.api.block.entity.carrier.Dropper;
 import org.spongepowered.api.block.entity.carrier.chest.Chest;
 import org.spongepowered.api.data.Keys;
+import org.spongepowered.api.data.type.DyeColor;
 import org.spongepowered.api.item.inventory.Carrier;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.query.Query;
 import org.spongepowered.api.item.inventory.query.QueryTypes;
 import org.spongepowered.api.util.Direction;
-import org.spongepowered.api.world.ServerLocation;
+import org.spongepowered.api.world.server.ServerWorld;
+import org.spongepowered.math.vector.Vector3i;
 
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Queue;
 import java.util.Set;
 
 public class Network
 {
+    private static Set<Direction> directions = EnumSet.of(Direction.DOWN, Direction.UP, Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
 
-    public Set<ServerLocation> pipes = new HashSet<>();
-    public Map<ServerLocation, Map<Direction, List<ItemStack>>> exitPoints = new LinkedHashMap<>();
-    public Set<ServerLocation> storage = new HashSet<>();
-    public Set<ServerLocation> errors = new HashSet<>();
-    private ItemDuctManager manager;
+    private ItemductBlocks blocks;
+    private int maxDepth;
 
-    public Network(ItemDuctManager manager)
+    public Vector3i start;
+    public Set<Vector3i> pipes = new HashSet<>();
+    public Map<Vector3i, Map<Direction, List<ItemStack>>> exitPoints = new LinkedHashMap<>();
+    public Set<Vector3i> storage = new HashSet<>();
+    public Set<Vector3i> errors = new HashSet<>();
+    public final ServerWorld world;
+
+    public Network(ItemductBlocks blocks, ServerWorld world, int maxDepth)
     {
-        this.manager = manager;
+        this.blocks = blocks;
+        this.world = world;
+        this.maxDepth = maxDepth;
     }
 
-    public void activate(Inventory inventory, List<ItemStack> filters)
+    // Start with an exit/entry point
+    public Network discover(Vector3i start) {
+        this.start = start;
+        Direction dir = world.get(start, Keys.DIRECTION).orElse(Direction.NONE);
+        if (!world.getBlock(start).getType().isAnyOf(DROPPER))
+        {
+            dir = dir.getOpposite();
+        }
+        final Vector3i rel = start.add(dir.asBlockOffset());
+        final BlockType relType = world.getBlock(rel).getType();
+        if (blocks.isPipe(relType))
+        {
+            this.discover(rel, dir);
+        }
+        return this;
+    }
+
+    public void discover(Vector3i firstPipe, Direction dir) {
+        pipes.add(firstPipe);
+        discover(new Network.LastDuct(firstPipe, dir), 0);
+    }
+
+    private void discover(Network.LastDuct last, int depth)
+    {
+        if (depth > maxDepth)
+        {
+            this.errors.add(last.pos);
+            return;
+        }
+        Map<Direction, Vector3i> map = new HashMap<>();
+        Queue<Vector3i> next = new LinkedList<>();
+        next.offer(last.pos);
+        do
+        {
+            Set<Direction> dirs = directions;
+            Set<Direction> connected = new HashSet<>();
+            connected.add(last.from.getOpposite());
+            for (Direction dir : dirs)
+            {
+                if (!dir.equals(last.from.getOpposite()))
+                {
+                    if (last.cross && last.color == null && !dir.equals(last.from)) {
+                        continue;
+                    }
+                    Vector3i rel = last.pos.add(dir.asBlockOffset());
+                    if (last.isCompatible(rel))
+                    {
+                        if (this.pipes.contains(rel)) // No loops allowed
+                        {
+                            this.errors.add(rel);
+                            this.errors.add(last.pos);
+                        }
+                        else
+                        {
+                            this.pipes.add(rel);
+                            map.put(dir, rel);
+                        }
+                        connected.add(dir);
+                    }
+
+                    // ExitPiston?
+                    if (this.world.get(rel, Keys.DIRECTION).orElse(Direction.NONE).equals(dir))
+                    {
+                        if (this.world.getBlock(rel).getType().isAnyOf(PISTON))
+                        {
+
+                            final Vector3i relLoc = rel.add(dir.asBlockOffset());
+
+                            if (this.world.get(relLoc, ItemductData.FILTERS).map(d -> d.get(dir.getOpposite()) != null).orElse(false))
+                            {
+                                this.exitPoints.put(rel, this.world.get(relLoc, ItemductData.FILTERS).get());
+                                connected.add(dir);
+                            }
+                        }
+                        else if (this.world.getBlock(rel).getType().isAnyOf(STICKY_PISTON))
+                        {
+                            connected.add(dir);
+                        }
+
+                    }
+                    // Storage Chest
+                    if (last.storage)
+                    {
+                        this.world.getBlockEntity(rel).ifPresent(te -> {
+                            if (te instanceof Carrier) {
+                                this.storage.add(rel);
+                            }
+                        });
+                    }
+                }
+
+            }
+
+            if (last.cross && last.color != null)
+            {
+                final BlockState state = world.getBlock(last.pos).with(Keys.CONNECTED_DIRECTIONS, connected).get();
+                world.setBlock(last.pos, state);
+            }
+
+            if (map.size() > 1)
+            {
+                for (Map.Entry<Direction, Vector3i> entry : map.entrySet())
+                {
+                    discover(new Network.LastDuct(entry.getValue(), entry.getKey()), depth +1);
+                }
+            }
+            else if (map.size() == 1)
+            {
+                for (Map.Entry<Direction, Vector3i> entry : map.entrySet())
+                {
+                    last.update(entry.getValue(), entry.getKey());
+                }
+                next.offer(last.pos);
+            }
+            // else nothing found here
+            next.poll();
+            map.clear();
+        }
+        while (!next.isEmpty());
+
+    }
+
+    public void trigger(Inventory inventory, List<ItemStack> filters)
     {
         if (isStorage())
         {
             pullFromStorage(inventory, filters);
             return;
         }
-        for (Map.Entry<ServerLocation, Map<Direction, List<ItemStack>>> entry : exitPoints.entrySet())
+        for (Map.Entry<Vector3i, Map<Direction, List<ItemStack>>> entry : exitPoints.entrySet())
         {
             Inventory pollFrom = inventory;
-            ServerLocation loc = entry.getKey();
+            Vector3i loc = entry.getKey();
             Map<Direction, List<ItemStack>> data = entry.getValue();
-            Direction dir = loc.get(Keys.DIRECTION).orElse(Direction.NONE).getOpposite();
-            ServerLocation targetLoc = loc.add(dir.getOpposite().asBlockOffset());
-            BlockEntity te = targetLoc.getBlockEntity().get();
+            Direction dir = world.get(loc, Keys.DIRECTION).orElse(Direction.NONE).getOpposite();
+            final Vector3i targetLoc = loc.add(dir.getOpposite().asBlockOffset());
+            BlockEntity te = world.getBlockEntity(targetLoc).get();
             Inventory target = ((Carrier) te).getInventory();
             if (te instanceof Dropper)
             {
-                Network nw = manager.findNetwork(targetLoc);
+                Network nw = new Network(this.blocks, this.world, this.maxDepth).discover(targetLoc);
                 nw.transferToStorage(queryFiltered(filters, inventory), data.get(dir));
                 continue;
             }
@@ -100,9 +244,9 @@ public class Network
         {
             inventory = queryFiltered(filters, inventory); // TODO more filters
         }
-        for (ServerLocation targetLoc : storage)
+        for (Vector3i targetLoc : storage)
         {
-            BlockEntity te = targetLoc.getBlockEntity().get();
+            BlockEntity te = world.getBlockEntity(targetLoc).get();
             Inventory target =  ((Carrier) te).getInventory();
             if (te instanceof Chest)
             {
@@ -122,9 +266,9 @@ public class Network
 
     private void pullFromStorage(Inventory inventory, List<ItemStack> filters)
     {
-        for (ServerLocation targetLoc : storage)
+        for (Vector3i targetLoc : storage)
         {
-            BlockEntity te = targetLoc.getBlockEntity().get();
+            BlockEntity te = world.getBlockEntity(targetLoc).get();
             Inventory pollFrom =  ((Carrier) te).getInventory();
             if (te instanceof Chest)
             {
@@ -168,5 +312,52 @@ public class Network
     @Override
     public String toString() {
         return "Network in " + world.getKey() + " with " + exitPoints.size() + " exit-points and " + pipes.size() + " pipes and " + storage.size() + " storage";
+    }
+
+    class LastDuct
+    {
+        public Vector3i pos;
+        public DyeColor color;
+        public boolean cross;
+        public Direction from;
+
+        public boolean storage;
+
+        public LastDuct(Vector3i loc, Direction from)
+        {
+            this.update(loc, from);
+        }
+
+        public void update(Vector3i loc, Direction from)
+        {
+            this.from = from;
+            this.pos = loc;
+            this.color = world.get(loc, Keys.DYE_COLOR).orElse(null);
+            final BlockType blockType = world.getBlock(loc).getType();
+            this.cross = blocks.isDirectionalPipe(blockType);
+            this.storage = blocks.isStoragePipe(blockType);
+        }
+
+        public boolean isCompatible(Vector3i rel)
+        {
+            final BlockType relType = world.getBlock(rel).getType();
+            final boolean relIsStorage = blocks.isStoragePipe(relType);
+            if (!blocks.isNormalPipe(relType) && !relIsStorage)
+            {
+                return false;
+            }
+            if (storage)
+            {
+                return relIsStorage;
+            }
+            if (relIsStorage)
+            {
+                return false;
+            }
+
+            DyeColor color = world.get(rel, Keys.DYE_COLOR).orElse(null);
+            return color == null || color == this.color || this.color == null;
+        }
+
     }
 }

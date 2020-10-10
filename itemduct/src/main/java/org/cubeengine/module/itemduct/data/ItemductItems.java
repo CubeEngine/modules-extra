@@ -22,9 +22,13 @@ import static java.util.Collections.singletonList;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.cubeengine.module.itemduct.ItemductConfig;
+import org.cubeengine.module.itemduct.ItemductManager;
 import org.cubeengine.module.itemduct.PluginItemduct;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.data.Keys;
+import org.spongepowered.api.data.type.HandTypes;
+import org.spongepowered.api.entity.living.player.gamemode.GameModes;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.enchantment.Enchantment;
@@ -33,11 +37,10 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.recipe.RecipeRegistration;
 import org.spongepowered.api.item.recipe.crafting.CraftingRecipe;
 import org.spongepowered.api.item.recipe.crafting.Ingredient;
-import org.spongepowered.api.item.recipe.crafting.ShapedCraftingRecipe;
 
 import java.util.Collections;
 
-public class DuctRecipes
+public class ItemductItems
 {
     private static ItemStack activatorItem;
     public static ItemStack singleActivatorItem;
@@ -45,18 +48,18 @@ public class DuctRecipes
     private static RecipeRegistration superRecipe;
     private static RecipeRegistration recipe;
 
-    public static void register(RegisterCatalogEvent<RecipeRegistration> event, ItemductConfig config)
+    public static void registerRecipes(RegisterCatalogEvent<RecipeRegistration> event, ItemductConfig config)
     {
         Ingredient hopper = Ingredient.of(ItemTypes.HOPPER.get());
         activatorItem = ItemStack.of(ItemTypes.HOPPER, 1);
         activatorItem.offer(Keys.APPLIED_ENCHANTMENTS, singletonList(Enchantment.builder().type(EnchantmentTypes.LOOTING).level(1).build()));
         activatorItem.offer(Keys.DISPLAY_NAME, TextComponent.of("ItemDuct Activator", NamedTextColor.GOLD));
         activatorItem.offer(Keys.HIDE_ENCHANTMENTS, true);
-        activatorItem.offer(DuctData.USES, config.activatorUses);
+        activatorItem.offer(ItemductData.USES, config.activatorUses);
         activatorItem.offer(Keys.LORE, Collections.singletonList(TextComponent.of("Uses: ").append(TextComponent.of(config.activatorUses))));
 
         singleActivatorItem = activatorItem.copy();
-        singleActivatorItem.offer(DuctData.USES, 1);
+        singleActivatorItem.offer(ItemductData.USES, 1);
         singleActivatorItem.offer(Keys.LORE, Collections.singletonList(TextComponent.of("Single Use")));
 
         recipe = CraftingRecipe.shapedBuilder().rows()
@@ -68,7 +71,7 @@ public class DuctRecipes
                 .build();
 
         superActivatorItem = activatorItem.copy();
-        superActivatorItem.offer(DuctData.USES, config.superActivatorUses);
+        superActivatorItem.offer(ItemductData.USES, config.superActivatorUses);
         superActivatorItem.offer(Keys.LORE, Collections.singletonList(TextComponent.of("Uses: ").append(TextComponent.of(config.superActivatorUses == -1 ? "Infinite" : String.valueOf(config.superActivatorUses)))));
         superActivatorItem.offer(Keys.DISPLAY_NAME, TextComponent.of("ItemDuct Super Activator", NamedTextColor.GOLD));
 
@@ -87,5 +90,51 @@ public class DuctRecipes
 
     public static boolean matchesRecipe(CraftingRecipe craftingRecipe) {
         return recipe.getKey().equals(craftingRecipe.getKey()) || superRecipe.getKey().equals(craftingRecipe.getKey());
+    }
+
+    @SuppressWarnings("unchecked")
+    public static boolean isActivator(ItemStack item)
+    {
+        if (item.getType().isAnyOf(ItemTypes.HOPPER))
+        {
+            Enchantment ench = Enchantment.builder().type(EnchantmentTypes.LOOTING).level(1).build();
+            return item.get(Keys.APPLIED_ENCHANTMENTS).orElse(Collections.emptyList()).contains(ench);
+        }
+        return false;
+    }
+
+    public static void consumeActivator(ServerPlayer player, ItemStack itemInHand)
+    {
+        if (player.get(Keys.GAME_MODE).get() != GameModes.CREATIVE.get())
+        {
+            ItemStack newStack = itemInHand.copy();
+            ItemStack sepStack = itemInHand.copy();
+
+            Integer uses = newStack.get(ItemductData.USES).orElse(0);
+            uses--;
+
+            if (uses <= 0) // Item used up?
+            {
+                if (uses == -2) // or infinite usage?
+                {
+                    uses++;
+                }
+                else
+                {
+                    newStack.setQuantity(itemInHand.getQuantity() - 1);
+                }
+                sepStack.setQuantity(0);
+            }
+            else
+            {
+                sepStack.setQuantity(newStack.getQuantity() - 1);
+                newStack.setQuantity(1);
+            }
+            newStack.offer(ItemductData.USES, uses);
+            ItemductManager.updateUses(newStack);
+
+            player.setItemInHand(HandTypes.MAIN_HAND, newStack);
+            player.getInventory().offer(sepStack);
+        }
     }
 }

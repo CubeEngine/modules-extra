@@ -32,7 +32,7 @@ import org.spongepowered.api.util.TypeTokens;
 
 import java.util.List;
 
-public interface DuctData
+public interface ItemductData
 {
     TypeToken<MapValue<Direction, List<ItemStack>>> TTV_ItemDirection = new TypeToken<MapValue<Direction, List<ItemStack>>>() {};
 
@@ -54,12 +54,12 @@ public interface DuctData
     static void registerFilterData(RegisterCatalogEvent<DataRegistration> event)
     {
         final DataStore dataStore = DataStore.builder()
-                .key(DuctData.FILTERS, "filters")
+                .key(ItemductData.FILTERS, "filters")
                 .holder(TypeTokens.BLOCK_ENTITY_TOKEN)
                 .build();
 
         final DataRegistration registration = DataRegistration.builder()
-                .key(DuctData.FILTERS)
+                .key(ItemductData.FILTERS)
                 .store(dataStore)
                 .key(ResourceKey.of(PluginItemduct.ITEMDUCT_ID, "filters"))
                 .build();
@@ -68,12 +68,12 @@ public interface DuctData
 
     static void registerUseData(RegisterCatalogEvent<DataRegistration> event) {
         final DataStore dataStore = DataStore.builder()
-                .key(DuctData.USES, "uses")
+                .key(ItemductData.USES, "uses")
                 .holder(TypeTokens.ITEM_STACK_TOKEN)
                 .build();
 
         final DataRegistration registration = DataRegistration.builder()
-                .key(DuctData.USES)
+                .key(ItemductData.USES)
                 .store(dataStore)
                 .key(ResourceKey.of(PluginItemduct.ITEMDUCT_ID, "uses"))
                 .build();
