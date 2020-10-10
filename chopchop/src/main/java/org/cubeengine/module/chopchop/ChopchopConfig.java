@@ -36,24 +36,52 @@ public class ChopchopConfig extends ReflectedYaml
     public List<BlockType> logTypes = new ArrayList<>();
     @Comment("The list of blocks to detect as tree leaves")
     public List<BlockType> leafTypes = new ArrayList<>();
+    @Comment("The list of blocks to detect as tree saplings")
+    public List<BlockType> saplingTypes = new ArrayList<>();
 
     @Override
     public void onLoaded(File loadedFrom)
     {
         if (logTypes.isEmpty())
         {
-            logTypes.add(BlockTypes.LOG);
-            logTypes.add(BlockTypes.LOG2);
+            logTypes.add(BlockTypes.OAK_LOG.get());
+            logTypes.add(BlockTypes.SPRUCE_LOG.get());
+            logTypes.add(BlockTypes.BIRCH_LOG.get());
+            logTypes.add(BlockTypes.JUNGLE_LOG.get());
+            logTypes.add(BlockTypes.ACACIA_LOG.get());
+            logTypes.add(BlockTypes.DARK_OAK_LOG.get());
+// Nether Update
+//            logTypes.add(BlockTypes.CRIMSON_STEM.get());
+//            logTypes.add(BlockTypes.WARPED_STEM.get());
         }
         if (leafTypes.isEmpty())
         {
-            leafTypes.add(BlockTypes.LEAVES);
-            leafTypes.add(BlockTypes.LEAVES2);
+            leafTypes.add(BlockTypes.OAK_LEAVES.get());
+            leafTypes.add(BlockTypes.SPRUCE_LEAVES.get());
+            leafTypes.add(BlockTypes.BIRCH_LEAVES.get());
+            leafTypes.add(BlockTypes.JUNGLE_LEAVES.get());
+            leafTypes.add(BlockTypes.ACACIA_LEAVES.get());
+            leafTypes.add(BlockTypes.DARK_OAK_LEAVES.get());
+// Nether Update
+//            leafTypes.add(BlockTypes.NETHER_WART_BLOCK.get());
+//            leafTypes.add(BlockTypes.WARPED_WART_BLOCK.get());
+        }
+        if (saplingTypes.isEmpty())
+        {
+            saplingTypes.add(BlockTypes.OAK_SAPLING.get());
+            saplingTypes.add(BlockTypes.SPRUCE_SAPLING.get());
+            saplingTypes.add(BlockTypes.BIRCH_SAPLING.get());
+            saplingTypes.add(BlockTypes.JUNGLE_SAPLING.get());
+            saplingTypes.add(BlockTypes.ACACIA_SAPLING.get());
+            saplingTypes.add(BlockTypes.DARK_OAK_SAPLING.get());
         }
         if (soilTypes.isEmpty())
         {
-            soilTypes.add(BlockTypes.DIRT);
-            soilTypes.add(BlockTypes.GRASS);
+            soilTypes.add(BlockTypes.DIRT.get());
+            soilTypes.add(BlockTypes.GRASS.get());
+// Nether Update
+//            soilTypes.add(BlockTypes.WARPED_NYLIUM.get());
+//            soilTypes.add(BlockTypes.CRIMSON_NYLIUM.get());
         }
     }
 }

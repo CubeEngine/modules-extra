@@ -19,68 +19,67 @@ package org.cubeengine.module.chopchop;
 
 import static java.util.Collections.singletonList;
 import static org.spongepowered.api.item.ItemTypes.DIAMOND_AXE;
-import static org.spongepowered.api.item.ItemTypes.LOG;
-import static org.spongepowered.api.item.ItemTypes.LOG2;
-import static org.spongepowered.api.text.format.TextColors.GOLD;
-import static org.spongepowered.api.text.format.TextColors.YELLOW;
+import static org.spongepowered.api.item.ItemTypes.OAK_LOG;
 
-import org.cubeengine.libcube.CubeEngineModule;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.cubeengine.libcube.service.event.ModuleListener;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.processor.Module;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.ResourceKey;
+import org.spongepowered.api.Server;
+import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.GameRegistryEvent;
-import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
+import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.item.enchantment.Enchantment;
 import org.spongepowered.api.item.enchantment.EnchantmentTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.recipe.RecipeRegistration;
 import org.spongepowered.api.item.recipe.crafting.CraftingRecipe;
 import org.spongepowered.api.item.recipe.crafting.Ingredient;
-import org.spongepowered.api.item.recipe.crafting.ShapedCraftingRecipe;
-import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.text.Text;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import org.spongepowered.plugin.PluginContainer;
 
 @Singleton
 @Module
-public class Chopchop extends CubeEngineModule
+public class Chopchop
 {
     @ModuleConfig ChopchopConfig config;
     @Inject private PluginContainer plugin;
     @Inject private PermissionManager pm;
     @ModuleListener private ChopListener listener;
-    private ShapedCraftingRecipe recipe;
-    protected Permission use;
-    protected Permission autoplant;
+    private RecipeRegistration recipe;
+    protected Permission usePerm;
+    protected Permission autoplantPerm;
 
     @Listener
-    public void onPreInit(GamePreInitializationEvent event)
+    public void onConstruct(StartedEngineEvent<Server> event)
     {
-        use = pm.register(Chopchop.class, "use", "Allows using the Chop Chop Axe", null);
-        autoplant = pm.register(Chopchop.class, "auto-plant", "Replants saplings automatically", null);
+        usePerm = pm.register(Chopchop.class, "use", "Allows using the Chop Chop Axe", null);
+        autoplantPerm = pm.register(Chopchop.class, "auto-plant", "Replants saplings automatically", null);
+        listener.init();
     }
 
     @Listener
-    public void onRegistry(GameRegistryEvent.Register<CraftingRecipe> event)
+    public void onRegistry(RegisterCatalogEvent<RecipeRegistration> event)
     {
         ItemStack axe = ItemStack.of(DIAMOND_AXE, 1);
-        axe.offer(Keys.ITEM_ENCHANTMENTS, singletonList(Enchantment.builder().type(EnchantmentTypes.PUNCH).level(5).build()));
-        axe.offer(Keys.DISPLAY_NAME, Text.of(GOLD, "Heavy Diamond Axe"));
-        axe.offer(Keys.ITEM_LORE, singletonList(Text.of(YELLOW, "Chop Chop!")));
+        axe.offer(Keys.APPLIED_ENCHANTMENTS, singletonList(Enchantment.builder().type(EnchantmentTypes.PUNCH).level(5).build()));
+        axe.offer(Keys.DISPLAY_NAME, Component.text("Heavy Diamond Axe", NamedTextColor.GOLD));
+        axe.offer(Keys.LORE, singletonList(Component.text("Chop Chop!", NamedTextColor.YELLOW)));
         axe.offer(Keys.HIDE_ENCHANTMENTS, true);
 
         this.recipe = CraftingRecipe.shapedBuilder()
                 .aisle("aa", "as", " s")
                 .where('a', Ingredient.of(DIAMOND_AXE))
-                .where('s', Ingredient.of(LOG, LOG2))
+                .where('s', Ingredient.of(OAK_LOG))
                 .result(axe)
-                .build("chopchop", plugin);
+                .key(ResourceKey.of(plugin, "chopchop"))
+                .build();
         event.register(recipe);
     }
 
