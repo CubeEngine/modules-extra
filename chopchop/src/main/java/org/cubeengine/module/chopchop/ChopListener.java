@@ -54,8 +54,8 @@ import org.spongepowered.api.item.enchantment.Enchantment;
 import org.spongepowered.api.item.enchantment.EnchantmentTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.Direction;
-import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.ServerLocation;
+import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.math.vector.Vector3i;
 
 import java.util.EnumSet;
@@ -76,19 +76,21 @@ public class ChopListener
         this.module = module;
     }
 
-    private boolean isLeaf(ServerLocation block, WoodType species)
+    private boolean isLeaf(ServerWorld world, Vector3i pos, WoodType species)
     {
-        BlockType type = block.getBlockType();
+        final BlockState state = world.getBlock(pos);
+        final BlockType type = state.getType();
         boolean match = module.getConfig().leafTypes.contains(type);
-        final WoodType woodType = block.getBlock().get(Keys.WOOD_TYPE).orElse(null);
+        final WoodType woodType = state.get(Keys.WOOD_TYPE).orElse(null);
         return match && woodType == species;
     }
 
-    private boolean isLog(ServerLocation block, WoodType species)
+    private boolean isLog(ServerWorld world, Vector3i pos, WoodType species)
     {
-        BlockType type = block.getBlockType();
+        final BlockState state = world.getBlock(pos);
+        final BlockType type = state.getType();
         boolean match = module.getConfig().logTypes.contains(type);
-        final WoodType woodType = block.getBlock().get(Keys.WOOD_TYPE).orElse(null);
+        final WoodType woodType = state.get(Keys.WOOD_TYPE).orElse(null);
         return match && woodType == species;
     }
 
@@ -114,15 +116,19 @@ public class ChopListener
             return;
         }
         Sponge.getServer().getCauseStackManager().addContext(EventContextKeys.SIMULATED_PLAYER, player.getProfile());
+        int leafSounds = 0;
+        int logSounds = 0;
+
         for (Transaction<BlockSnapshot> transaction : event.getTransactions())
         {
             BlockType type = transaction.getOriginal().getState().getType();
             ServerLocation orig = transaction.getOriginal().getLocation().get();
+            ServerWorld world = orig.getWorld();
             BlockType belowType = orig.add(DOWN.asBlockOffset()).getBlockType();
             if (isLog(type) && isSoil(belowType))
             {
                 WoodType treeType = transaction.getOriginal().getState().get(Keys.WOOD_TYPE).get();
-                Set<ServerLocation> treeBlocks = findTreeBlocks(orig, treeType);
+                Set<Vector3i> treeBlocks = findTreeBlocks(world, orig.getBlockPosition(), treeType);
                 if (treeBlocks.isEmpty())
                 {
                     return;
@@ -130,33 +136,38 @@ public class ChopListener
 
                 int logs = 0;
                 int leaves = 0;
-                Set<Location> saplings = new HashSet<>();
-                for (ServerLocation block : treeBlocks)
+                Set<Vector3i> saplings = new HashSet<>();
+                for (Vector3i pos : treeBlocks)
                 {
-                    if (isLog(block.getBlockType()))
+                    if (isLog(world.getBlock(pos).getType()))
                     {
-                        if (!block.equals(orig))
+                        if (!pos.equals(orig.getBlockPosition()))
                         {
-                            block.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_WOOD_STEP, Sound.Source.NEUTRAL, 1, 0), block.getPosition());
+                            logSounds++;
+                            if (logSounds > 5) {
+                                world.playSound(Sound.sound(SoundTypes.BLOCK_WOOD_BREAK, Sound.Source.NEUTRAL, 0.5f, 0.8f), pos.toDouble());
+                            }
                         }
                         logs++;
-                        block.setBlockType(BlockTypes.AIR.get());
-                        BlockType belowTyp = block.add(DOWN.asBlockOffset()).getBlockType();
+                        world.removeBlock(pos);
+                        BlockType belowTyp = world.getBlock(pos.add(DOWN.asBlockOffset())).getType();
                         if (isSoil(belowTyp))
                         {
-                            saplings.add(block);
+                            saplings.add(pos);
                         }
                     }
-                    if (this.module.getConfig().leafTypes.contains(block.getBlockType()))
+                    if (this.module.getConfig().leafTypes.contains(world.getBlock(pos).getType()))
                     {
-                        block.setBlockType(BlockTypes.AIR.get());
-                        block.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_GRASS_STEP, Sound.Source.NEUTRAL, 1, 0), block.getPosition()); // TODO leaves sound?
+                        world.removeBlock(pos);
+                        leafSounds++;
+                        if (leafSounds > 3) {
+                            world.playSound(Sound.sound(SoundTypes.BLOCK_GRASS_BREAK, Sound.Source.NEUTRAL, 0.5f, 0.8f), pos.toDouble()); // TODO leaves sound?
+                        }
                         leaves++;
                     }
                 }
 
                 ItemStack log = ItemStack.builder().itemType(type.getItem().get()).quantity(logs).build();
-//                log.offer(TREE_TYPE, treeType);
 
                 int apples = 0;
                 if (treeType == WoodTypes.JUNGLE)
@@ -177,14 +188,15 @@ public class ChopListener
                 }
 
                 final BlockType saplingType = this.leafTypes.get(treeType);
-                if (saplingType != null) {
+                if (saplingType != null)
+                {
                     final BlockState sapState = saplingType.getDefaultState();
                     if (this.module.autoplantPerm.check(player))
                     {
                         leaves -= saplings.size();
                         leaves = Math.max(0, leaves);
                         transaction.setCustom(sapState.snapshotFor(transaction.getOriginal().getLocation().get()));
-                        saplings.forEach(l -> l.setBlock(sapState));
+                        saplings.forEach(p -> world.setBlock(p, sapState));
                     }
                 }
 
@@ -218,15 +230,15 @@ public class ChopListener
         return this.module.getConfig().logTypes.contains(type);
     }
 
-    private Set<ServerLocation> findTreeBlocks(ServerLocation block, WoodType species)
+    private Set<Vector3i> findTreeBlocks(ServerWorld world, Vector3i pos, WoodType species)
     {
-        HashSet<ServerLocation> blocks = new HashSet<>();
-        Set<ServerLocation> logs = new HashSet<>();
-        Set<ServerLocation> leaves = new HashSet<>();
+        Set<Vector3i> blocks = new HashSet<>();
+        Set<Vector3i> logs = new HashSet<>();
+        Set<Vector3i> leaves = new HashSet<>();
 
-        logs.add(block);
-        findTrunk(block, block, species, logs);
-        findLeaves(logs, leaves, species);
+        logs.add(pos);
+        findTrunk(world, pos, pos, species, logs);
+        findLeaves(world, logs, leaves, species);
 
         if (leaves.isEmpty())
         {
@@ -239,33 +251,32 @@ public class ChopListener
         return blocks;
     }
 
-    private void findLeaves(Set<ServerLocation> logs, Set<ServerLocation> finalLeaves, WoodType species)
+    private void findLeaves(ServerWorld world, Set<Vector3i> logs, Set<Vector3i> finalLeaves, WoodType species)
     {
-        Set<ServerLocation> leaves = new HashSet<>();
-        for (ServerLocation log : logs)
+        Set<Vector3i> leaves = new HashSet<>();
+        for (Vector3i log : logs)
         {
             for (int x = -4; x <= 4; x++)
                 for (int y = -4; y <= 4; y++)
                     for (int z = -4; z <= 4; z++)
                     {
-                        ServerLocation relative = log.add(x, y, z);
-                        if (isLeaf(relative, species))
+                        Vector3i relative = log.add(x, y, z);
+                        if (isLeaf(world, relative, species))
                         {
                             leaves.add(relative);
                         }
                     }
         }
-        Set<ServerLocation> lastLayer = new HashSet<>(logs);
+        Set<Vector3i> lastLayer = new HashSet<>(logs);
         do
         {
-            Set<ServerLocation> curLayer = lastLayer;
+            Set<Vector3i> curLayer = lastLayer;
             lastLayer = new HashSet<>();
-            for (Location layer : curLayer)
+            for (Vector3i layer : curLayer)
             {
-                Vector3i layerPos = layer.getBlockPosition();
-                for (ServerLocation leaf : leaves)
+                for (Vector3i leaf : leaves)
                 {
-                    Vector3i diff = layerPos.sub(leaf.getBlockPosition()).abs();
+                    Vector3i diff = layer.sub(leaf).abs();
                     if (diff.getX() + diff.getY() + diff.getZ() == 1 // cardinal or upright
                     || (diff.getX() + diff.getY() == 2 && diff.getX() == diff.getY())) // ordinal
                     {
@@ -279,33 +290,33 @@ public class ChopListener
         while (!lastLayer.isEmpty());
     }
 
-    private void findTrunk(ServerLocation root, ServerLocation base, WoodType species, Set<ServerLocation> trunk)
+    private void findTrunk(ServerWorld world, Vector3i root, Vector3i base, WoodType species, Set<Vector3i> trunk)
     {
-        Set<ServerLocation> blocks = new HashSet<>();
+        Set<Vector3i> blocks = new HashSet<>();
         for (Direction face : dir8)
         {
-            ServerLocation relative = base.add(face.asBlockOffset());
-            if (!trunk.contains(relative) && isLog(relative, species))
+            Vector3i relative = base.add(face.asBlockOffset());
+            if (!trunk.contains(relative) && isLog(world, relative, species))
             {
-                if (base.getBlockPosition().distanceSquared(relative.getBlockPosition()) <= 25)
+                if (base.distanceSquared(relative) <= 25)
                 {
                     blocks.add(relative);
                 }
             }
         }
 
-        ServerLocation up = base.add(UP.asBlockOffset());
-        if (!trunk.contains(up) && isLog(up, species))
+        Vector3i up = base.add(UP.asBlockOffset());
+        if (!trunk.contains(up) && isLog(world, up, species))
         {
             blocks.add(up);
         }
 
         for (Direction face : dir8)
         {
-            ServerLocation relative = up.add(face.asBlockOffset());
-            if (!trunk.contains(relative) && isLog(relative, species))
+            Vector3i relative = up.add(face.asBlockOffset());
+            if (!trunk.contains(relative) && isLog(world, relative, species))
             {
-                if (root.getBlockPosition().distanceSquared(relative.getBlockPosition()) <= 256)
+                if (root.distanceSquared(relative) <= 256)
                 {
                     blocks.add(relative);
                 }
@@ -313,9 +324,9 @@ public class ChopListener
         }
 
         trunk.addAll(blocks);
-        for (ServerLocation block : blocks)
+        for (Vector3i block : blocks)
         {
-            findTrunk(root, block, species, trunk);
+            findTrunk(world, root, block, species, trunk);
         }
     }
 
