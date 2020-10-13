@@ -18,7 +18,7 @@
 package org.cubeengine.module.squelch;
 
 import org.cubeengine.libcube.CubeEngineModule;
-import org.cubeengine.libcube.service.command.ModuleCommand;
+import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
 import org.cubeengine.module.sql.database.ModuleTables;
 import org.cubeengine.libcube.service.event.ModuleListener;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;

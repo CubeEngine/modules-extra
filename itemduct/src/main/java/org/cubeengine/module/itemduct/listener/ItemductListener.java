@@ -42,6 +42,7 @@ import org.spongepowered.api.item.inventory.Container;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.type.CarriedInventory;
 import org.spongepowered.api.world.ServerLocation;
+import org.spongepowered.math.vector.Vector3i;
 
 import java.util.List;
 
@@ -58,24 +59,23 @@ public class ItemductListener
         if (event.getContext().get(EventContextKeys.USED_HAND).map(hand -> hand != HandTypes.MAIN_HAND.get()).orElse(true)) {
             return;
         }
-        event.getInteractionPoint().ifPresent(pos -> {
-            final ItemStack itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
-            if (itemInHand.isEmpty() || ItemductItems.isActivator(itemInHand)) {
-                final NetworkFilter networkFilter = new NetworkFilter(player.getWorld(), pos.toInt());
-                if (!itemInHand.isEmpty()) {
-                    event.setCancelled(true); // Activator in hand - we do not want to ever place it as a normal block
-                    if (networkFilter.isValid()) {
-                        manager.activateNetwork(event, player, itemInHand, networkFilter);
-                    }
-                } else if (networkFilter.isActive()) {
-                    if (player.get(Keys.IS_SNEAKING).orElse(false)) {
-                        manager.openFilter(player, networkFilter);
-                    } else {
-                        manager.playNetworkEffects(networkFilter.filterLoc);
-                    }
+        final Vector3i pos = event.getBlock().getPosition();
+        final ItemStack itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
+        if (itemInHand.isEmpty() || ItemductItems.isActivator(itemInHand)) {
+            final NetworkFilter networkFilter = new NetworkFilter(player.getWorld(), pos.toInt());
+            if (!itemInHand.isEmpty()) {
+                event.setCancelled(true); // Activator in hand - we do not want to ever place it as a normal block
+                if (networkFilter.isValid()) {
+                    manager.activateNetwork(event, player, itemInHand, networkFilter);
+                }
+            } else if (networkFilter.isActive()) {
+                if (player.get(Keys.IS_SNEAKING).orElse(false)) {
+                    manager.openFilter(player, networkFilter);
+                } else {
+                    manager.playNetworkEffects(networkFilter.filterLoc);
                 }
             }
-        });
+        }
     }
 
     @Listener

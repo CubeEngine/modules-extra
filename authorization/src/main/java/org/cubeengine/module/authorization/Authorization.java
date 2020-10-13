@@ -30,7 +30,7 @@ import javax.inject.Singleton;
 import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.InjectService;
 import org.cubeengine.libcube.ModuleManager;
-import org.cubeengine.libcube.service.command.ModuleCommand;
+import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
 import org.cubeengine.module.authorization.storage.Auth;
 import org.cubeengine.module.authorization.storage.TableAuth;
 import org.cubeengine.libcube.util.Triplet;

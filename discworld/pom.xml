@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.cubeengine.module</groupId>
         <artifactId>parent</artifactId>
-        <version>1</version>
+        <version>2-api8-SNAPSHOT</version>
     </parent>
 
     <repositories>
@@ -18,7 +18,7 @@
 
     <artifactId>discworld</artifactId>
     <name>Disc World</name>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.1.0-SNAPSHOT</version>
     <description>Provides a custom world generator for a discworld</description>
 
     <scm>
@@ -29,16 +29,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.spongepowered</groupId>
-            <artifactId>spongeapi</artifactId>
-            <version>7.0.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.cubeengine</groupId>
             <artifactId>libcube</artifactId>
-            <version>1.2.1</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 
