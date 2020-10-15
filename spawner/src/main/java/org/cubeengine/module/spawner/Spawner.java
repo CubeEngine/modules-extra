@@ -17,29 +17,43 @@
  */
 package org.cubeengine.module.spawner;
 
-import org.cubeengine.libcube.CubeEngineModule;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.processor.Module;
+import org.spongepowered.api.ResourceKey;
+import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.data.Transaction;
-import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityArchetype;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.event.EventContextKeys;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
-import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.filter.IsCancelled;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.filter.cause.Root;
-import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
+import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.enchantment.Enchantment;
 import org.spongepowered.api.item.enchantment.EnchantmentType;
@@ -50,75 +64,90 @@ import org.spongepowered.api.util.weighted.RandomObjectTable;
 import org.spongepowered.api.util.weighted.WeightedSerializableObject;
 import org.spongepowered.api.util.weighted.WeightedTable;
 import org.spongepowered.api.world.BlockChangeFlags;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
+import org.spongepowered.api.world.ServerLocation;
+import org.spongepowered.math.vector.Vector3i;
 
 import static java.util.Collections.singletonList;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
-import static org.spongepowered.api.block.BlockTypes.MOB_SPAWNER;
-import static org.spongepowered.api.data.key.Keys.*;
+import static org.cubeengine.libcube.service.i18n.I18nTranslate.ChatType.ACTION_BAR;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 import static org.spongepowered.api.data.type.HandTypes.MAIN_HAND;
 import static org.spongepowered.api.entity.EntityTypes.*;
 import static org.spongepowered.api.entity.living.player.gamemode.GameModes.CREATIVE;
 import static org.spongepowered.api.event.Order.POST;
 import static org.spongepowered.api.item.enchantment.EnchantmentTypes.LURE;
 import static org.spongepowered.api.item.enchantment.EnchantmentTypes.SILK_TOUCH;
-import static org.spongepowered.api.text.chat.ChatTypes.ACTION_BAR;
 
 /**
  * A module to gather monster spawners with silk touch and reactivate them using spawneggs
  */
 @Singleton
 @Module
-public class Spawner extends CubeEngineModule
+public class Spawner
 {
     private ItemStack spawnerItem;
     private Permission eggPerms;
     private Permission breakPerm;
     private Permission dropEggPerm;
-    private Map<EntityType, Permission> perms = new HashMap<>();
-    private Set<Location<World>> brokenSpawners = new HashSet<>();
+    private final Map<EntityType<?>, Permission> perms = new HashMap<>();
+    private final Map<ResourceKey, Set<Vector3i>> brokenSpawners = new HashMap<>();
 
     @Inject private PermissionManager pm;
     @Inject private I18n i18n;
+    private final Map<EntityType<?>, ItemType> eggs = new HashMap<>();
+    private final Map<ItemType, EntityType<?>> entities = new HashMap<>();
 
     @Listener
-    public void onEnable(GamePreInitializationEvent event)
+    public void onEnable(StartingEngineEvent<Server> event)
     {
         this.eggPerms = pm.register(Spawner.class, "egg", "Allows creating all types of spawners with spawneggs", null);
         this.breakPerm = pm.register(Spawner.class, "break", "Allows obtaining inactive monster spawners", null);
         this.dropEggPerm = pm.register(Spawner.class, "drop-egg", "Allows dropping monster eggs from spawners", null);
-        this.initPerm(CREEPER, SKELETON, SPIDER, ZOMBIE, SLIME, GHAST, PIG_ZOMBIE, ENDERMAN,
-                      CAVE_SPIDER, SILVERFISH, BLAZE, MAGMA_CUBE, WITCH, BAT, PIG, SHEEP, COW,
-                      CHICKEN, SQUID, WOLF, MUSHROOM_COW, OCELOT, HORSE, VILLAGER);
 
-        this.spawnerItem = ItemStack.of(ItemTypes.MOB_SPAWNER, 1);
-        spawnerItem.offer(ITEM_ENCHANTMENTS, singletonList(Enchantment.builder().type(LURE).level(1).build()));
+        this.registerType(CREEPER, ItemTypes.CREEPER_SPAWN_EGG);
+        this.registerType(SKELETON, ItemTypes.SKELETON_SPAWN_EGG);
+        this.registerType(SPIDER, ItemTypes.SPIDER_SPAWN_EGG);
+        this.registerType(ZOMBIE, ItemTypes.ZOMBIE_SPAWN_EGG);
+        this.registerType(SLIME, ItemTypes.SLIME_SPAWN_EGG);
+        this.registerType(GHAST, ItemTypes.GHAST_SPAWN_EGG);
+        this.registerType(ZOMBIE_PIGMAN, ItemTypes.ZOMBIE_PIGMAN_SPAWN_EGG);
+        this.registerType(ENDERMAN, ItemTypes.ENDERMAN_SPAWN_EGG);
+        this.registerType(CAVE_SPIDER, ItemTypes.CAVE_SPIDER_SPAWN_EGG);
+        this.registerType(SILVERFISH, ItemTypes.SILVERFISH_SPAWN_EGG);
+        this.registerType(BLAZE, ItemTypes.BLAZE_SPAWN_EGG);
+        this.registerType(MAGMA_CUBE, ItemTypes.MAGMA_CUBE_SPAWN_EGG);
+        this.registerType(WITCH, ItemTypes.WITCH_SPAWN_EGG);
+        this.registerType(BAT, ItemTypes.BAT_SPAWN_EGG);
+        this.registerType(PIG, ItemTypes.PIG_SPAWN_EGG);
+        this.registerType(SHEEP, ItemTypes.SHEEP_SPAWN_EGG);
+        this.registerType(COW, ItemTypes.COW_SPAWN_EGG);
+        this.registerType(CHICKEN, ItemTypes.CHICKEN_SPAWN_EGG);
+        this.registerType(SQUID, ItemTypes.SQUID_SPAWN_EGG);
+        this.registerType(WOLF, ItemTypes.WOLF_SPAWN_EGG);
+        this.registerType(MOOSHROOM, ItemTypes.MOOSHROOM_SPAWN_EGG);
+        this.registerType(OCELOT, ItemTypes.OCELOT_SPAWN_EGG);
+        this.registerType(HORSE, ItemTypes.HORSE_SPAWN_EGG);
+        this.registerType(VILLAGER, ItemTypes.VILLAGER_SPAWN_EGG);
+        
+        this.spawnerItem = ItemStack.of(ItemTypes.SPAWNER, 1);
+        spawnerItem.offer(Keys.APPLIED_ENCHANTMENTS, singletonList(Enchantment.builder().type(LURE).level(1).build()));
+    }
+    
+    public <E extends Entity> void registerType(Supplier<EntityType<E>> entityType, Supplier<ItemType> spawnEgg) 
+    {
+        this.eggs.put(entityType.get(), spawnEgg.get());
+        this.entities.put(spawnEgg.get(), entityType.get());
+        this.initPerm(entityType.get());
     }
 
-    private void initPerm(EntityType... types)
+    private void initPerm(EntityType<?> type)
     {
-        for (EntityType type : types)
-        {
-            Permission child = pm.register(Spawner.class, type.getName(),
-                    "Allows creating " + type.getName() + " spawners", eggPerms);
-            this.perms.put(type, child);
-        }
+        this.perms.put(type, pm.register(Spawner.class, type.getKey().getValue(), "Allows creating " + type.getKey() + " spawners", eggPerms));
     }
 
     private static boolean hasEnchantment(ItemStackSnapshot item, EnchantmentType ench)
     {
-        Optional<List<Enchantment>> enchs = item.get(ITEM_ENCHANTMENTS);
+        Optional<List<Enchantment>> enchs = item.get(Keys.APPLIED_ENCHANTMENTS);
         if (enchs.isPresent())
         {
             for (Enchantment e : enchs.get())
@@ -156,7 +185,7 @@ public class Spawner extends CubeEngineModule
 
     @Listener(order = POST)
     @IsCancelled(Tristate.UNDEFINED)
-    public void onBlockBreak(ChangeBlockEvent.Break event, @First Player player)
+    public void onBlockBreak(ChangeBlockEvent.Break event, @First ServerPlayer player)
     {
         if (event.getTransactions().size() != 1)
         {
@@ -164,12 +193,12 @@ public class Spawner extends CubeEngineModule
         }
 
         Optional<ItemStackSnapshot> inHand = event.getContext().get(EventContextKeys.USED_ITEM);
-        if (inHand.isPresent() && hasEnchantment(inHand.get(), SILK_TOUCH) && breaks(event, MOB_SPAWNER) && this.breakPerm.check(player))
+        if (inHand.isPresent() && hasEnchantment(inHand.get(), SILK_TOUCH.get()) && breaks(event, BlockTypes.SPAWNER.get()) && this.breakPerm.check(player))
         {
             Transaction<BlockSnapshot> trans = event.getTransactions().get(0);
-            Location<World> loc = trans.getFinal().getLocation().get();
+            ServerLocation loc = trans.getFinal().getLocation().get();
             trans.getOriginal().restore(true, BlockChangeFlags.NONE);
-            EntityType type = loc.get(SPAWNER_NEXT_ENTITY_TO_SPAWN).map(a -> a.get().getType()).orElse(null);
+            EntityType<?> type = loc.get(Keys.NEXT_ENTITY_TO_SPAWN).map(a -> a.get().getType()).orElse(null);
             trans.getDefault().restore(true, BlockChangeFlags.NONE);
 
             if (type == null || event.isCancelled())
@@ -178,25 +207,22 @@ public class Spawner extends CubeEngineModule
             }
 
             ItemStack spawnerItem = this.spawnerItem.copy();
-            spawnerItem.offer(ITEM_ENCHANTMENTS, singletonList(Enchantment.builder().type(LURE).level(1).build()));
-            spawnerItem.offer(DISPLAY_NAME, i18n.translate(player, NONE, "Inactive monster spawner"));
+            spawnerItem.offer(Keys.APPLIED_ENCHANTMENTS, singletonList(Enchantment.builder().type(LURE).level(1).build()));
+            spawnerItem.offer(Keys.DISPLAY_NAME, i18n.translate(player, "Inactive monster spawner"));
 
-            brokenSpawners.add(loc);
+            brokenSpawners.computeIfAbsent(loc.getWorldKey(), k -> new HashSet<>()).add(loc.getBlockPosition());
 
-            Entity item = player.getWorld().createEntity(ITEM, player.getLocation().getPosition());
-            item.offer(REPRESENTED_ITEM, spawnerItem.createSnapshot());
-            Sponge.getCauseStackManager().pushCause(player);
+            Entity item = player.getWorld().createEntity(ITEM.get(), player.getLocation().getPosition());
+            item.offer(Keys.ITEM_STACK_SNAPSHOT, spawnerItem.createSnapshot());
+            Sponge.getServer().getCauseStackManager().pushCause(player);
             player.getWorld().spawnEntity(item);
 
             if (this.dropEggPerm.check(player))
             {
-                ItemStack eggItem = ItemStack.of(ItemTypes.SPAWN_EGG, 1);
-                if (eggItem.offer(Keys.SPAWNABLE_ENTITY_TYPE, type).isSuccessful())
-                {
-                    Entity eggEntity = player.getWorld().createEntity(ITEM, player.getLocation().getPosition());
-                    eggEntity.offer(REPRESENTED_ITEM, eggItem.createSnapshot());
-                    player.getWorld().spawnEntity(eggEntity);
-                }
+                ItemStack eggItem = ItemStack.of(this.eggs.get(type));
+                Entity eggEntity = player.getWorld().createEntity(ITEM.get(), player.getLocation().getPosition());
+                eggEntity.offer(Keys.ITEM_STACK_SNAPSHOT, eggItem.createSnapshot());
+                player.getWorld().spawnEntity(eggEntity);
             }
             i18n.send(ACTION_BAR, player, POSITIVE, "Dropped inactive monster spawner!");
         }
@@ -207,7 +233,7 @@ public class Spawner extends CubeEngineModule
     {
         if (snap.getLocation().isPresent())
         {
-            if (brokenSpawners.remove(snap.getLocation().get()))
+            if (brokenSpawners.get(snap.getWorld()).remove(snap.getPosition()))
             {
                 event.setCancelled(true);
             }
@@ -217,20 +243,20 @@ public class Spawner extends CubeEngineModule
     @Listener(order = POST)
     public void onBlockPlace(ChangeBlockEvent.Place event, @First Player player)
     {
-        EntityArchetype hidden = EntityArchetype.builder().type(SNOWBALL).set(INVISIBLE, true).build();
+        EntityArchetype hidden = EntityArchetype.builder().type(SNOWBALL).add(Keys.IS_INVISIBLE, true).build();
         Optional<ItemStackSnapshot> inHand = event.getContext().get(EventContextKeys.USED_ITEM);
         if (inHand.isPresent() &&
-            places(event, MOB_SPAWNER) &&
-            hasEnchantment(inHand.get(), LURE))
+            places(event, BlockTypes.SPAWNER.get()) &&
+            hasEnchantment(inHand.get(), LURE.get()))
         {
             for (Transaction<BlockSnapshot> trans : event.getTransactions())
             {
-                if (trans.getFinal().getState().getType().equals(MOB_SPAWNER))
+                if (trans.getFinal().getState().getType().isAnyOf(BlockTypes.SPAWNER))
                 {
                     BlockSnapshot snap = trans.getFinal();
-                    Location<World> loc = snap.getLocation().get();
-                    loc.offer(SPAWNER_ENTITIES, new WeightedTable<>());
-                    loc.offer(SPAWNER_NEXT_ENTITY_TO_SPAWN, new WeightedSerializableObject<>(hidden, 1));
+                    ServerLocation loc = snap.getLocation().get();
+                    loc.offer(Keys.SPAWNABLE_ENTITIES, new WeightedTable<>());
+                    loc.offer(Keys.NEXT_ENTITY_TO_SPAWN, new WeightedSerializableObject<>(hidden, 1));
                     i18n.send(ACTION_BAR, player, POSITIVE, "Inactive monster spawner placed!");
                     return;
                 }
@@ -239,21 +265,18 @@ public class Spawner extends CubeEngineModule
     }
 
     @Listener(order = POST)
-    public void onInteract(InteractBlockEvent.Secondary event, @First Player player)
+    public void onInteract(InteractBlockEvent.Secondary event, @First ServerPlayer player)
     {
-        if (!event.getTargetBlock().getLocation().isPresent()) {
-            return;
-        }
-        Location<World> block = event.getTargetBlock().getLocation().get();
-        if (block.getBlockType().equals(MOB_SPAWNER)
-         && player.getItemInHand(MAIN_HAND).map(i -> i.getType().equals(ItemTypes.SPAWN_EGG)).orElse(false))
+        final ServerLocation block = event.getBlock().getLocation().get();
+        if (block.getBlockType().isAnyOf(BlockTypes.SPAWNER)
+         && player.getItemInHand(MAIN_HAND).getType().isAnyOf(ItemTypes.BAT_SPAWN_EGG))
         {
             event.setCancelled(true);
 
-            if (block.get(SPAWNER_ENTITIES).map(RandomObjectTable::isEmpty).orElse(false))
+            if (block.get(Keys.SPAWNABLE_ENTITIES).map(RandomObjectTable::isEmpty).orElse(false))
             {
-                ItemStack itemInHand = player.getItemInHand(MAIN_HAND).get();
-                EntityType type = itemInHand.get(Keys.SPAWNABLE_ENTITY_TYPE).get();
+                ItemStack itemInHand = player.getItemInHand(MAIN_HAND);
+                final EntityType<?> type = this.entities.get(itemInHand.getType());
 
                 Permission perm = this.perms.get(type);
                 if (perm == null)
@@ -261,12 +284,13 @@ public class Spawner extends CubeEngineModule
                     this.initPerm(type);
                     perm = this.perms.get(type);
                 }
-                if (perm == null && !player.hasPermission(eggPerms.getId()))
+
+                if (perm == null && !eggPerms.check(player))
                 {
                     i18n.send(ACTION_BAR, player, NEGATIVE, "Invalid SpawnEgg!");
                     return;
                 }
-                if (perm != null && !player.hasPermission(perm.getId()))
+                if (perm != null && !perm.check(player))
                 {
                     i18n.send(ACTION_BAR, player, NEGATIVE, "You are not allowed to change monster spawner to this EntityType!");
                     return;
@@ -275,8 +299,8 @@ public class Spawner extends CubeEngineModule
                 WeightedTable<EntityArchetype> spawns = new WeightedTable<>();
                 EntityArchetype nextSpawn = EntityArchetype.builder().type(type).build();
                 spawns.add(nextSpawn, 1);
-                block.offer(SPAWNER_ENTITIES, spawns);
-                block.offer(SPAWNER_NEXT_ENTITY_TO_SPAWN, new WeightedSerializableObject<>(nextSpawn, 1));
+                block.offer(Keys.SPAWNABLE_ENTITIES, spawns);
+                block.offer(Keys.NEXT_ENTITY_TO_SPAWN, new WeightedSerializableObject<>(nextSpawn, 1));
 
                 if (!player.gameMode().get().equals(CREATIVE))
                 {
