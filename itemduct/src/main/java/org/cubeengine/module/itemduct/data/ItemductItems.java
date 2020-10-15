@@ -19,6 +19,7 @@ package org.cubeengine.module.itemduct.data;
 
 import static java.util.Collections.singletonList;
 
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.cubeengine.module.itemduct.ItemductConfig;
@@ -53,14 +54,14 @@ public class ItemductItems
         Ingredient hopper = Ingredient.of(ItemTypes.HOPPER.get());
         activatorItem = ItemStack.of(ItemTypes.HOPPER, 1);
         activatorItem.offer(Keys.APPLIED_ENCHANTMENTS, singletonList(Enchantment.builder().type(EnchantmentTypes.LOOTING).level(1).build()));
-        activatorItem.offer(Keys.DISPLAY_NAME, TextComponent.of("ItemDuct Activator", NamedTextColor.GOLD));
+        activatorItem.offer(Keys.DISPLAY_NAME, Component.text("ItemDuct Activator", NamedTextColor.GOLD));
         activatorItem.offer(Keys.HIDE_ENCHANTMENTS, true);
         activatorItem.offer(ItemductData.USES, config.activatorUses);
-        activatorItem.offer(Keys.LORE, Collections.singletonList(TextComponent.of("Uses: ").append(TextComponent.of(config.activatorUses))));
+        activatorItem.offer(Keys.LORE, Collections.singletonList(Component.text("Uses: ").append(Component.text(config.activatorUses))));
 
         singleActivatorItem = activatorItem.copy();
         singleActivatorItem.offer(ItemductData.USES, 1);
-        singleActivatorItem.offer(Keys.LORE, Collections.singletonList(TextComponent.of("Single Use")));
+        singleActivatorItem.offer(Keys.LORE, Collections.singletonList(Component.text("Single Use")));
 
         recipe = CraftingRecipe.shapedBuilder().rows()
                 .row(hopper, hopper, hopper)
@@ -72,8 +73,8 @@ public class ItemductItems
 
         superActivatorItem = activatorItem.copy();
         superActivatorItem.offer(ItemductData.USES, config.superActivatorUses);
-        superActivatorItem.offer(Keys.LORE, Collections.singletonList(TextComponent.of("Uses: ").append(TextComponent.of(config.superActivatorUses == -1 ? "Infinite" : String.valueOf(config.superActivatorUses)))));
-        superActivatorItem.offer(Keys.DISPLAY_NAME, TextComponent.of("ItemDuct Super Activator", NamedTextColor.GOLD));
+        superActivatorItem.offer(Keys.LORE, Collections.singletonList(Component.text("Uses: ").append(Component.text(config.superActivatorUses == -1 ? "Infinite" : String.valueOf(config.superActivatorUses)))));
+        superActivatorItem.offer(Keys.DISPLAY_NAME, Component.text("ItemDuct Super Activator", NamedTextColor.GOLD));
 
         hopper = Ingredient.of(activatorItem);
         superRecipe = CraftingRecipe.shapedBuilder().rows()

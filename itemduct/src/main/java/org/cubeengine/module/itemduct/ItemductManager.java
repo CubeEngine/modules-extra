@@ -23,6 +23,7 @@ import static org.spongepowered.api.block.BlockTypes.OBSERVER;
 import static org.spongepowered.api.block.BlockTypes.STICKY_PISTON;
 
 import com.google.inject.Inject;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.module.itemduct.data.ItemductAdvancements;
@@ -85,11 +86,11 @@ public class ItemductManager
         int uses = item.get(ItemductData.USES).orElse(0);
         if (uses > 0)
         {
-            item.offer(Keys.LORE, Collections.singletonList(TextComponent.of("Uses: ").append(TextComponent.of(uses))));
+            item.offer(Keys.LORE, Collections.singletonList(Component.text("Uses: ").append(Component.text(uses))));
         }
         else if (uses == -1)
         {
-            item.offer(Keys.LORE, Collections.singletonList(TextComponent.of("Uses: Infinite")));
+            item.offer(Keys.LORE, Collections.singletonList(Component.text("Uses: Infinite")));
         }
     }
 
