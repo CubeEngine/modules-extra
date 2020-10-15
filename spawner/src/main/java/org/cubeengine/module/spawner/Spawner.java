@@ -243,12 +243,12 @@ public class Spawner
     @Listener(order = POST)
     public void onBlockPlace(ChangeBlockEvent.Place event, @First Player player)
     {
-        EntityArchetype hidden = EntityArchetype.builder().type(SNOWBALL).add(Keys.IS_INVISIBLE, true).build();
         Optional<ItemStackSnapshot> inHand = event.getContext().get(EventContextKeys.USED_ITEM);
         if (inHand.isPresent() &&
             places(event, BlockTypes.SPAWNER.get()) &&
             hasEnchantment(inHand.get(), LURE.get()))
         {
+            EntityArchetype hidden = EntityArchetype.builder().type(SNOWBALL).add(Keys.IS_INVISIBLE, true).build();
             for (Transaction<BlockSnapshot> trans : event.getTransactions())
             {
                 if (trans.getFinal().getState().getType().isAnyOf(BlockTypes.SPAWNER))
