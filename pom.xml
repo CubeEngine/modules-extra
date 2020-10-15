@@ -27,36 +27,28 @@
 
   <modules>
     <module>fly</module>
-    <module>customcommands</module>
     <module>fun</module>
     <module>writer</module>
     <module>shout</module>
-    <module>rulebook</module>
     <module>chat</module>
     <module>signmarket</module>
     <module>vote</module>
     <module>spawn</module>
-    <module>itemrepair</module>
     <module>hide</module>
     <module>backpack</module>
-    <module>faq</module>
-    <module>selector</module>
     <module>powertools</module>
     <module>kits</module>
     <module>spawner</module>
     <module>bigdata</module>
     <module>donations</module>
     <module>chopchop</module>
-    <module>unbreakableboat</module>
     <module>namehistory</module>
     <module>vigil</module>
     <module>authorization</module>
     <module>apiserver</module>
     <module>controlc</module>
-    <module>discworld</module>
     <module>elevator</module>
     <module>squelch</module>
-    <module>patient</module>
     <module>itemduct</module>
     <module>tablist</module>
     <module>stats</module>
