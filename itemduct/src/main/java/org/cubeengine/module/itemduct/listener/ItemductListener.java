@@ -65,7 +65,7 @@ public class ItemductListener
             final NetworkFilter networkFilter = new NetworkFilter(player.getWorld(), pos.toInt());
             if (!itemInHand.isEmpty()) {
                 event.setCancelled(true); // Activator in hand - we do not want to ever place it as a normal block
-                if (networkFilter.isValid()) {
+                if (networkFilter.isValid() && !networkFilter.isActive()) {
                     manager.activateNetwork(event, player, itemInHand, networkFilter);
                 }
             } else if (networkFilter.isActive()) {

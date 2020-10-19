@@ -53,30 +53,33 @@ public interface ItemductData
 
     static void registerFilterData(RegisterCatalogEvent<DataRegistration> event)
     {
-        final DataStore dataStore = DataStore.builder()
-                .key(ItemductData.FILTERS, "filters")
-                .holder(TypeTokens.BLOCK_ENTITY_TOKEN)
-                .build();
+        final ResourceKey rkey = ResourceKey.of(PluginItemduct.ITEMDUCT_ID, "filters");
+        final DataStore dataStore = DataStore.builder().pluginData(rkey)
+                                             .holder(TypeTokens.BLOCK_ENTITY_TOKEN)
+                                             .key(ItemductData.FILTERS, "filters")
+                                             .build();
 
         final DataRegistration registration = DataRegistration.builder()
-                .key(ItemductData.FILTERS)
-                .store(dataStore)
-                .key(ResourceKey.of(PluginItemduct.ITEMDUCT_ID, "filters"))
-                .build();
+                                                              .dataKey(ItemductData.FILTERS)
+                                                              .store(dataStore)
+                                                              .key(rkey)
+                                                              .build();
         event.register(registration);
     }
 
     static void registerUseData(RegisterCatalogEvent<DataRegistration> event) {
+        final ResourceKey rkey = ResourceKey.of(PluginItemduct.ITEMDUCT_ID, "uses");
         final DataStore dataStore = DataStore.builder()
-                .key(ItemductData.USES, "uses")
+                .pluginData(rkey)
                 .holder(TypeTokens.ITEM_STACK_TOKEN)
+                .key(ItemductData.USES, "uses")
                 .build();
 
         final DataRegistration registration = DataRegistration.builder()
-                .key(ItemductData.USES)
-                .store(dataStore)
-                .key(ResourceKey.of(PluginItemduct.ITEMDUCT_ID, "uses"))
-                .build();
+                                                              .dataKey(ItemductData.USES)
+                                                              .store(dataStore)
+                                                              .key(rkey)
+                                                              .build();
         event.register(registration);
     }
 }
