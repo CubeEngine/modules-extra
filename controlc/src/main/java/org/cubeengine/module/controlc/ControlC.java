@@ -17,25 +17,23 @@
  */
 package org.cubeengine.module.controlc;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import org.cubeengine.logscribe.Log;
-import org.cubeengine.libcube.CubeEngineModule;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import net.kyori.adventure.text.Component;
 import org.cubeengine.libcube.ModuleManager;
 import org.cubeengine.libcube.service.task.TaskManager;
-import org.cubeengine.processor.Dependency;
+import org.cubeengine.logscribe.Log;
 import org.cubeengine.processor.Module;
+import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
-import org.spongepowered.api.text.Text;
+import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
 
 @Singleton
 @Module
-public class ControlC extends CubeEngineModule implements SignalHandler
+public class ControlC implements SignalHandler
 {
     private Log logger;
     @Inject private TaskManager tm;
@@ -44,7 +42,7 @@ public class ControlC extends CubeEngineModule implements SignalHandler
     private long lastReceived = 0;
 
     @Listener
-    public void onEnable(GamePreInitializationEvent event)
+    public void onStarting(StartingEngineEvent<Server> event)
     {
         this.logger = this.mm.getLoggerFor(ControlC.class);
         try
@@ -70,7 +68,7 @@ public class ControlC extends CubeEngineModule implements SignalHandler
         {
             logger.info("Shutting down the server now!");
             tm.runTask(ControlC.class, () -> {
-                Sponge.getServer().shutdown(Text.of()); // tODO default message?
+                Sponge.getServer().shutdown(Component.text("Server is shutting down"));
                 lastReceived = -1;
             });
         }
