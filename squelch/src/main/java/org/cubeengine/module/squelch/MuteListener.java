@@ -17,22 +17,21 @@
  */
 package org.cubeengine.module.squelch;
 
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
-
+import java.sql.Date;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.module.squelch.command.IgnoreCommands;
 import org.cubeengine.module.squelch.command.MuteCommands;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.PlayerChatRouter;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.filter.cause.First;
-import org.spongepowered.api.event.message.MessageChannelEvent;
-import org.spongepowered.api.text.channel.MessageReceiver;
+import org.spongepowered.api.event.message.PlayerChatEvent;
 
-import java.sql.Date;
-import java.util.Iterator;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
 
-import javax.inject.Inject;
-
+@Singleton
 public class MuteListener
 {
     private final IgnoreCommands ignoreCmd;
@@ -48,7 +47,7 @@ public class MuteListener
     }
 
     @Listener
-    public void onChat(MessageChannelEvent.Chat event, @First Player source)
+    public void onChat(PlayerChatEvent event, @First ServerPlayer source)
     {
         // muted?
         Date muted = muteCmd.getMuted(source);
@@ -58,17 +57,13 @@ public class MuteListener
             i18n.send(source, NEGATIVE, "You try to speak but nothing happens!");
             return;
         }
-        // ignored?
-        for (Iterator<MessageReceiver> iterator = event.getChannel().get().getMembers().iterator(); iterator.hasNext(); )
-        {
-            final MessageReceiver player = iterator.next();
-            if (player instanceof Player)
+
+        final PlayerChatRouter originalChatRouter = event.getOriginalChatRouter();
+        event.setChatRouter((player, message) -> {
+            if (!this.ignoreCmd.checkIgnored(player, source.getUniqueId())) // ignored?
             {
-                if (this.ignoreCmd.checkIgnored(((Player) player), source))
-                {
-                    iterator.remove();
-                }
+                originalChatRouter.chat(player, message);
             }
-        }
+        });
     }
 }

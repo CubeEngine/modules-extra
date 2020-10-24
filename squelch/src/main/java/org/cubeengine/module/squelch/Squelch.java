@@ -17,37 +17,23 @@
  */
 package org.cubeengine.module.squelch;
 
-import org.cubeengine.libcube.CubeEngineModule;
+import com.google.inject.Singleton;
 import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
-import org.cubeengine.module.sql.database.ModuleTables;
 import org.cubeengine.libcube.service.event.ModuleListener;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.module.squelch.command.MuteCommands;
-import org.cubeengine.module.squelch.storage.TableIgnorelist;
-import org.cubeengine.module.squelch.storage.TableMuted;
 import org.cubeengine.processor.Module;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 @Singleton
 @Module
-@ModuleTables({TableMuted.class, TableIgnorelist.class})
-// TODO custom data for mute & ignore
-public class Squelch extends CubeEngineModule
+public class Squelch
 {
     @ModuleCommand private MuteCommands cmd;
     @ModuleConfig private SquelchConfig config;
-    @Inject private SquelchPerm perms;
     @ModuleListener private MuteListener muteListener;
 
     public SquelchConfig getConfig()
     {
         return config;
-    }
-
-    public SquelchPerm perms()
-    {
-        return this.perms;
     }
 }
