@@ -17,16 +17,18 @@
  */
 package org.cubeengine.module.spawn;
 
-import java.util.Optional;
-import org.spongepowered.api.data.key.Keys;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
+
+import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
-import org.spongepowered.api.event.entity.living.humanoid.player.RespawnPlayerEvent;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.event.entity.living.player.RespawnPlayerEvent;
+import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
-
-import static org.cubeengine.module.spawn.SpawnCommands.getSpawnLocation;
+import org.spongepowered.api.world.server.ServerWorld;
+import org.spongepowered.math.vector.Vector3d;
+import java.util.Optional;
 
 public class SpawnListener
 {
@@ -37,23 +39,38 @@ public class SpawnListener
         this.pm = pm;
     }
 
-    public void onJoin(ClientConnectionEvent.Login event)
+    public void onJoin(ServerSideConnectionEvent.Login event)
     {
-        if (event.getTargetUser().get(Keys.LAST_DATE_PLAYED).isPresent())
+        if (event.getUser().get(Keys.LAST_DATE_PLAYED).isPresent())
         {
             return;
         }
-        Subject subject = pm.getUserSubjects().loadSubject(event.getTargetUser().getIdentifier()).join();
-        subject.getOption(SpawnCommands.ROLESPAWN).ifPresent(s -> event.setToTransform(getSpawnLocation(s)));
+
+        final Optional<Vector3d> pos = SpawnCommands.getSubjectSpawnPos(event.getUser());
+        final Optional<Vector3d> rot = SpawnCommands.getSubjectSpawnRotation(event.getUser());
+        final Optional<ServerWorld> world = SpawnCommands.getSubjectSpawnWorld(event.getUser());
+        if (pos.isPresent() && rot.isPresent() && world.isPresent())
+        {
+            event.setToLocation(world.get().getLocation(pos.get()));
+            event.setToRotation(rot.get());
+        }
     }
+
+
 
     @Listener(order = Order.LATE)
     public void onSpawn(RespawnPlayerEvent event)
     {
         if (!event.isBedSpawn())
         {
-            Subject subject = pm.getUserSubjects().loadSubject(event.getTargetEntity().getIdentifier()).join();
-            subject.getOption(SpawnCommands.ROLESPAWN).ifPresent(s -> event.setToTransform(getSpawnLocation(s)));
+            final Optional<Vector3d> pos = SpawnCommands.getSubjectSpawnPos(event.getPlayer());
+            final Optional<Vector3d> rot = SpawnCommands.getSubjectSpawnRotation(event.getPlayer());
+            final Optional<ServerWorld> world = SpawnCommands.getSubjectSpawnWorld(event.getPlayer());
+            if (pos.isPresent() && rot.isPresent() && world.isPresent())
+            {
+                event.setToLocation(world.get().getLocation(pos.get()));
+                event.setToRotation(rot.get());
+            }
         }
     }
 }

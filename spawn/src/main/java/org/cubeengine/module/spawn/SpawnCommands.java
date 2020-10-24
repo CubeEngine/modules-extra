@@ -17,125 +17,166 @@
  */
 package org.cubeengine.module.spawn;
 
+import java.util.Optional;
 import java.util.UUID;
-import com.flowpowered.math.vector.Vector3d;
-import org.cubeengine.butler.parametric.Command;
-import org.cubeengine.butler.parametric.Default;
-import org.cubeengine.butler.parametric.Flag;
-import org.cubeengine.butler.parametric.Named;
-import org.cubeengine.butler.parametric.Parser;
-import org.cubeengine.libcube.util.StringUtils;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import net.kyori.adventure.audience.Audience;
+import org.cubeengine.libcube.service.command.annotation.Command;
+import org.cubeengine.libcube.service.command.annotation.Default;
+import org.cubeengine.libcube.service.command.annotation.Flag;
+import org.cubeengine.libcube.service.command.annotation.Named;
 import org.cubeengine.libcube.service.command.annotation.ParameterPermission;
+import org.cubeengine.libcube.service.command.annotation.Parser;
 import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.util.StringUtils;
+import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.entity.Transform;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
-import org.spongepowered.api.service.user.UserStorageService;
-import org.spongepowered.api.world.World;
+import org.spongepowered.api.util.Transform;
+import org.spongepowered.api.world.server.ServerWorld;
+import org.spongepowered.math.vector.Vector3d;
 
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 import static org.cubeengine.libcube.util.ContextUtil.toSet;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
 
+@Singleton
 public class SpawnCommands
 {
-    public static final String ROLESPAWN = "rolespawn";
-    private final Spawn module;
+    public static final String ROLESPAWN_WORLD = "rolespawn_world";
+    public static final String ROLESPAWN_POSITION = "rolespawn_position";
+    public static final String ROLESPAWN_ROTATION = "rolespawn_rotation";
+
     private I18n i18n;
     private PermissionService pm;
 
-    public SpawnCommands(Spawn module, I18n i18n, PermissionService pm)
+    @Inject
+    public SpawnCommands(I18n i18n, PermissionService pm)
     {
-        this.module = module;
         this.i18n = i18n;
         this.pm = pm;
     }
 
     @Command(desc = "Changes the respawnpoint")
-    public void setRoleSpawn(Player ctx, @Parser(SubjectParser.class) Subject role, @Default Context context)
+    public void setRoleSpawn(ServerPlayer ctx, @Parser(SubjectParser.class) Subject role, @Default Context context)
     {
-        setRoleSpawn(context, ctx.getTransform(), role);
+        setRoleSpawn(context, ctx.getWorld(), ctx.getTransform(), role);
         i18n.send(ctx, POSITIVE, "The spawn in {world} for the role {name#role} is now set to {vector}",
                             context, role.getIdentifier(),
                             ctx.getLocation().getPosition());
     }
 
-    private void setRoleSpawn(Context context, Transform<World> transform, Subject role)
+    private void setRoleSpawn(Context context, ServerWorld world, Transform transform, Subject role)
     {
-        String[] locStrings = new String[6];
-        locStrings[0] = String.valueOf(transform.getPosition().getFloorX());
-        locStrings[1] = String.valueOf(transform.getPosition().getFloorY());
-        locStrings[2] = String.valueOf(transform.getPosition().getFloorZ());
-        locStrings[3] = String.valueOf(transform.getYaw());
-        locStrings[4] = String.valueOf(transform.getPitch());
-        role.getSubjectData().setOption(toSet(context), "rolespawn", StringUtils.implode(":", locStrings));
+        String[] posStrings = new String[3];
+        posStrings[0] = String.valueOf(transform.getPosition().getFloorX());
+        posStrings[1] = String.valueOf(transform.getPosition().getFloorY());
+        posStrings[2] = String.valueOf(transform.getPosition().getFloorZ());
+        String[] rotStrings = new String[3];
+        rotStrings[0] = String.valueOf(transform.getYaw());
+        rotStrings[1] = String.valueOf(transform.getPitch());
+        role.getSubjectData().setOption(toSet(context), ROLESPAWN_WORLD, world.getKey().toString());
+        role.getSubjectData().setOption(toSet(context), ROLESPAWN_POSITION, StringUtils.implode(":", posStrings));
+        role.getSubjectData().setOption(toSet(context), ROLESPAWN_ROTATION, StringUtils.implode(":", rotStrings));
     }
 
     // TODO teleport all players to spawn
 
     @Command(desc = "Teleports a player to the configured rolespawn")
-    public void roleSpawn(CommandSource ctx, @Default Player player, @Default Context context,
-                      @Named({"role", "r"}) @Default @Parser(SubjectParser.class) Subject role,
-                      @ParameterPermission @Flag boolean force)
+    public void roleSpawn(CommandCause ctx, @Default ServerPlayer player, @Default Context context,
+                          @Named({"role", "r"}) @Default @Parser(SubjectParser.class) Subject role,
+                          @ParameterPermission @Flag boolean force)
     {
-        java.util.Optional<String> spawnString = role.getOption(toSet(context), ROLESPAWN);
         String name = role.getIdentifier();
         if (pm.getGroupSubjects() == role.getContainingCollection())
         {
-            name = Sponge.getServiceManager().provideUnchecked(UserStorageService.class).get(UUID.fromString(name)).get().getName();
+            name = Sponge.getServer().getUserManager().get(UUID.fromString(name)).get().getName();
         }
 
-        if (!spawnString.isPresent())
+        final Audience ctxAudience = ctx.getAudience();
+
+        final Optional<Vector3d> pos = getSubjectSpawnPos(role);
+        final Optional<Vector3d> rot = getSubjectSpawnRotation(role);
+        final Optional<ServerWorld> world = getSubjectSpawnWorld(role);
+        if (!pos.isPresent() || !rot.isPresent() || !world.isPresent())
         {
-            i18n.send(ctx, NEGATIVE, "No rolespawn set for {name} in {ctx}", name, context);
+            i18n.send(ctxAudience, NEGATIVE, "No rolespawn set for {name} in {ctx}", name, context);
             return;
         }
 
-        Transform<World> spawnPoint = getSpawnLocation(spawnString.get());
-        if (!player.isOnline()) // TODO tp users
+        if (!this.tpTo(player, world.get(), Transform.of(pos.get(), rot.get()), force))
         {
-            i18n.send(ctx, NEGATIVE, "You cannot teleport an offline player to spawn!");
+            i18n.send(ctxAudience, NEGATIVE, "Teleport failed!");
             return;
         }
-        if (!this.tpTo(player, spawnPoint, force))
+        if (!ctxAudience.equals(player))
         {
-            i18n.send(ctx, NEGATIVE, "Teleport failed!");
-            return;
-        }
-        if (!ctx.equals(player))
-        {
-            i18n.send(ctx, POSITIVE, "Teleported {user} to the spawn of the role {name#role} in {ctx}", player, name, context);
+            i18n.send(ctxAudience, POSITIVE, "Teleported {user} to the spawn of the role {name#role} in {ctx}", player, name, context);
         }
         else if (pm.getGroupSubjects() == role.getContainingCollection())
         {
-            i18n.send(ctx, POSITIVE, "You are now standing at your role's spawn in {ctx}!", context);
+            i18n.send(ctxAudience, POSITIVE, "You are now standing at your role's spawn in {ctx}!", context);
         }
         else
         {
-            i18n.send(ctx, POSITIVE, "You are now standing at the spawn of {name#role} in {ctx}!", name, context);
+            i18n.send(ctxAudience, POSITIVE, "You are now standing at the spawn of {name#role} in {ctx}!", name, context);
         }
     }
 
-    public static Transform<World> getSpawnLocation(String value)
+    public static ServerWorld getSpawnWorld(ServerPlayer player)
     {
-        String[] spawnStrings = StringUtils.explode(":",value);
-        int x = Integer.valueOf(spawnStrings[0]);
-        int y = Integer.valueOf(spawnStrings[1]);
-        int z = Integer.valueOf(spawnStrings[2]);
-        float yaw = Float.valueOf(spawnStrings[3]);
-        float pitch = Float.valueOf(spawnStrings[4]);
-        World world = Sponge.getServer().getWorld(spawnStrings[5]).get();
-        return new Transform<>(world, new Vector3d(x + .5, y + .5, z), new Vector3d(yaw, pitch, 0));
+        return getSubjectSpawnWorld(player).orElse(player.getWorld());
     }
 
-    private boolean tpTo(Player user, Transform<World> transform, boolean force)
+    public static Optional<ServerWorld> getSubjectSpawnWorld(Subject subject)
+    {
+        return subject.getOption(ROLESPAWN_WORLD)
+                      .map(ResourceKey::resolve)
+                      .flatMap(k -> Sponge.getServer().getWorldManager().getWorld(k));
+    }
+
+    public static Vector3d getSpawnPosition(ServerPlayer player)
+    {
+        return getSubjectSpawnPos(player).orElse(player.getPosition());
+    }
+
+    public static Optional<Vector3d> getSubjectSpawnPos(Subject player)
+    {
+        return player.getOption(ROLESPAWN_POSITION).map(s -> {
+            String[] spawnStrings = StringUtils.explode(":", s);
+            int x = Integer.valueOf(spawnStrings[0]);
+            int y = Integer.valueOf(spawnStrings[1]);
+            int z = Integer.valueOf(spawnStrings[2]);
+            return new Vector3d(x, y, z).add(0.5, 0, 0.5);
+        });
+    }
+
+    public static Vector3d getSpawnRotation(ServerPlayer player)
+    {
+        return getSubjectSpawnRotation(player).orElse(player.getRotation());
+    }
+
+    public static Optional<Vector3d> getSubjectSpawnRotation(Subject subject)
+    {
+        return subject.getOption(ROLESPAWN_ROTATION).map(s -> {
+            String[] spawnStrings = StringUtils.explode(":", s);
+            float yaw = Float.valueOf(spawnStrings[0]);
+            float pitch = Float.valueOf(spawnStrings[1]);
+            return new Vector3d(yaw, pitch, 0).add(0.5, 0.5, 0.5);
+        });
+    }
+
+    private boolean tpTo(ServerPlayer user, ServerWorld world, Transform transform, boolean force)
     {
         if (force)
         {
-            user.setTransform(transform);
+            user.setLocation(world.getLocation(transform.getPosition()));
+            user.setRotation(transform.getRotation());
             return true;
         }
         if (user.setLocationSafely(transform.getLocation()))

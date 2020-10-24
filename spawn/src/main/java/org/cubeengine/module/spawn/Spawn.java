@@ -17,35 +17,16 @@
  */
 package org.cubeengine.module.spawn;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import org.cubeengine.libcube.CubeEngineModule;
-import org.cubeengine.libcube.InjectService;
-import org.cubeengine.libcube.service.command.CommandManager;
-import org.cubeengine.libcube.service.event.EventManager;
-import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.processor.Dependency;
+import com.google.inject.Singleton;
+import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
+import org.cubeengine.libcube.service.event.ModuleListener;
 import org.cubeengine.processor.Module;
-import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
-import org.spongepowered.api.service.permission.PermissionService;
 
 // TODO integrate in teleport module reading subject option is not that advanced of a feature?
 @Singleton
 @Module
-public class Spawn extends CubeEngineModule
+public class Spawn
 {
-    @Inject private EventManager em;
-    @Inject private CommandManager cm;
-    @InjectService private PermissionService pm;
-    @Inject private I18n i18n;
-
-    @Listener
-    public void onEnable(GamePostInitializationEvent event)
-    {
-        em.registerListener(Spawn.class, new SpawnListener(pm));
-        cm.removeCommand("spawn", true); // unregister basics commands
-        cm.addCommands(cm, this, new SpawnCommands(this, i18n, pm));
-    }
+    @ModuleCommand private SpawnCommands spawnCommands;
+    @ModuleListener private SpawnListener listener;
 }
