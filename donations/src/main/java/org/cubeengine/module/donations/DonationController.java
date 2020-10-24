@@ -22,7 +22,6 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cubeengine.module.donations.DonationsConfig.DonationGoal;
-import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.i18n.formatter.MessageType;
 import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.libcube.service.Broadcaster;
@@ -31,19 +30,18 @@ import org.cubeengine.module.apiserver.ApiRequest;
 import org.cubeengine.module.apiserver.ApiResponse;
 import org.cubeengine.module.apiserver.RequestMethod;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.exception.CommandException;
 
 public class DonationController
 {
     private ObjectMapper mapper = new ObjectMapper();
     private DonationsConfig config;
-    private CommandManager cm;
     private TaskManager tm;
     private Broadcaster bc;
 
-    public DonationController(DonationsConfig config, CommandManager cm, TaskManager tm, Broadcaster bc)
+    public DonationController(DonationsConfig config, TaskManager tm, Broadcaster bc)
     {
         this.config = config;
-        this.cm = cm;
         this.tm = tm;
         this.bc = bc;
     }
@@ -71,7 +69,14 @@ public class DonationController
                         cmd = cmd.replace("{NAME}", userName);
                     }
                     cmd = cmd.replace("{TOTAL}", String.format("%.2f", newTotal));
-                    cm.runCommand(Sponge.getServer().getConsole(), cmd);
+                    try
+                    {
+                        Sponge.getCommandManager().process(Sponge.getSystemSubject(), cmd);
+                    }
+                    catch (CommandException e)
+                    {
+                        throw new IllegalStateException(e);
+                    }
                 }
             });
         }
@@ -127,7 +132,14 @@ public class DonationController
                     cmd = cmd.replace("{NAME}", user);
                 }
                 cmd = cmd.replace("{TOTAL}", String.format("%.2f", newTotal));
-                cm.runCommand(Sponge.getServer().getConsole(), cmd);
+                try
+                {
+                    Sponge.getCommandManager().process(Sponge.getSystemSubject(), cmd);
+                }
+                catch (CommandException e)
+                {
+                    throw new IllegalStateException(e);
+                }
             }
         });
 

@@ -17,39 +17,37 @@
  */
 package org.cubeengine.module.donations;
 
-import static org.cubeengine.module.apiserver.PluginApiServer.APISERVER_ID;
-import static org.cubeengine.module.apiserver.PluginApiServer.APISERVER_VERSION;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import org.cubeengine.libcube.CubeEngineModule;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.cubeengine.libcube.ModuleManager;
-import org.cubeengine.libcube.service.filesystem.FileManager;
-import org.cubeengine.libcube.service.command.CommandManager;
-import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.libcube.service.Broadcaster;
+import org.cubeengine.libcube.service.filesystem.FileManager;
+import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.module.apiserver.ApiServer;
 import org.cubeengine.processor.Dependency;
 import org.cubeengine.processor.Module;
+import org.spongepowered.api.Server;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
+
+import static org.cubeengine.module.apiserver.PluginApiServer.APISERVER_ID;
+import static org.cubeengine.module.apiserver.PluginApiServer.APISERVER_VERSION;
 
 @Singleton
 @Module(dependencies = @Dependency(value = APISERVER_ID, version = APISERVER_VERSION))
-public class Donations extends CubeEngineModule
+public class Donations
 {
-    @Inject private FileManager fm;
-    @Inject private CommandManager cm;
+    @Inject
+    private FileManager fm;
     @Inject private TaskManager tm;
     @Inject private Broadcaster bc;
     @Inject private ModuleManager mm;
 
     @Listener
-    public void onEnable(GamePreInitializationEvent event)
+    public void onEnable(StartedEngineEvent<Server> event)
     {
         ApiServer apiServer = ((ApiServer) mm.getModule(ApiServer.class));
-        DonationController controller = new DonationController(fm.loadConfig(this, DonationsConfig.class), cm, tm, bc);
+        DonationController controller = new DonationController(fm.loadConfig(this, DonationsConfig.class), tm, bc);
         apiServer.registerApiHandlers(Donations.class, controller);
     }
 }
