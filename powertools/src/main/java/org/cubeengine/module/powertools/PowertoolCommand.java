@@ -19,6 +19,13 @@ package org.cubeengine.module.powertools;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import net.kyori.adventure.identity.Identity;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import org.cubeengine.butler.CommandInvocation;
 import org.cubeengine.butler.alias.Alias;
 import org.cubeengine.butler.filter.Restricted;
@@ -27,17 +34,24 @@ import org.cubeengine.butler.parametric.Flag;
 import org.cubeengine.butler.parametric.Greed;
 import org.cubeengine.butler.parametric.Optional;
 import org.cubeengine.libcube.service.command.CommandManager;
+import org.cubeengine.libcube.service.command.DispatcherCommand;
+import org.cubeengine.libcube.service.command.annotation.Command;
+import org.cubeengine.libcube.service.command.annotation.Flag;
+import org.cubeengine.libcube.service.command.annotation.Greedy;
+import org.cubeengine.libcube.service.command.annotation.Option;
 import org.cubeengine.libcube.util.ChatFormat;
-import org.cubeengine.module.powertools.data.IPowertoolData;
 import org.cubeengine.module.powertools.data.PowertoolData;
 import org.cubeengine.libcube.service.command.ContainerCommand;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.matcher.MaterialMatcher;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.exception.CommandException;
+import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.mutable.item.LoreData;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
@@ -56,80 +70,84 @@ import static org.spongepowered.api.text.format.TextColors.YELLOW;
  * The PowerTool commands allow binding commands and/or chat-macros to a specific item.
  * <p>The data is appended onto the items lore
  */
+@Singleton
 @Command(name = "powertool", desc = "Binding shortcuts to an item.", alias = "pt")
-public class PowertoolCommand extends ContainerCommand
+public class PowertoolCommand extends DispatcherCommand
 {
     private final Powertools module;
     private MaterialMatcher materialMatcher;
     private I18n i18n;
 
-    public PowertoolCommand(CommandManager cm, Powertools module, MaterialMatcher materialMatcher, I18n i18n)
+    @Inject
+    public PowertoolCommand(Powertools module, MaterialMatcher materialMatcher, I18n i18n)
     {
-        super(cm, Powertools.class);
+        super(Powertools.class);
         this.module = module;
         this.materialMatcher = materialMatcher;
         this.i18n = i18n;
     }
 
-    @Override
-    protected boolean selfExecute(CommandInvocation invocation)
-    {
-        if (!invocation.isConsumed())
-        {
-            if ("?".equals(invocation.currentToken()))
-            {
-                return super.selfExecute(invocation);
-            }
-        }
-        if (invocation.tokens().size() - invocation.consumed() > 0)
-        {
-            return this.getCommand("add").execute(invocation); // TODO add replace flag
-        }
-        return this.getCommand("clear").execute(invocation);
-    }
+//    @Override
+//    protected boolean selfExecute(CommandInvocation invocation)
+//    {
+//        if (!invocation.isConsumed())
+//        {
+//            if ("?".equals(invocation.currentToken()))
+//            {
+//                return super.selfExecute(invocation);
+//            }
+//        }
+//        if (invocation.tokens().size() - invocation.consumed() > 0)
+//        {
+//            return this.getCommand("add").execute(invocation); // TODO add replace flag
+//        }
+//        return this.getCommand("clear").execute(invocation);
+//    }
 
     @Alias(value = "ptc")
     @Command(desc = "Removes all commands from your powertool")
-    @Restricted(value = Player.class, msg = "No more power for you!")
-    public void clear(Player context, @Flag boolean all)
+    @Restricted(value = ServerPlayer.class, msg = "No more power for you!")
+    public void clear(ServerPlayer context, @Flag boolean all)
     {
         if (all)
         {
             for (Inventory slot : context.getInventory().slots())
             {
-                if (slot.peek().isPresent())
+                if (!slot.peek().isEmpty())
                 {
-                    slot.set(this.setPowerTool(slot.peek().get(), null));
+                    slot.set(0, this.setPowerTool(slot.peek(), null));
                 }
             }
             i18n.send(context, POSITIVE, "Removed all commands bound to items in your inventory!");
             return;
         }
-        if (!context.getItemInHand(HandTypes.MAIN_HAND).isPresent())
+        final ItemStack itemInHand = context.getItemInHand(HandTypes.MAIN_HAND);
+        if (itemInHand.isEmpty())
         {
             i18n.send(context, NEUTRAL, "You are not holding any item in your hand.");
             return;
         }
-        context.setItemInHand(HandTypes.MAIN_HAND, this.setPowerTool(context.getItemInHand(HandTypes.MAIN_HAND).get(), null));
+        context.setItemInHand(HandTypes.MAIN_HAND, this.setPowerTool(itemInHand, null));
         i18n.send(context, POSITIVE, "Removed all commands bound to the item in your hand!");
     }
 
     @Alias(value = "ptr")
     @Command(alias = {"del", "delete", "rm"}, desc = "Removes a command from your powertool")
     @Restricted(value = Player.class, msg = "No more power for you!")
-    public void remove(Player context, @Optional @Greed(INFINITE) String command)
+    public void remove(ServerPlayer context, @Option @Greedy String command)
     {
-        if (!context.getItemInHand(HandTypes.MAIN_HAND).isPresent())
+        final ItemStack itemInHand = context.getItemInHand(HandTypes.MAIN_HAND);
+        if (itemInHand.isEmpty())
         {
             i18n.send(context, NEUTRAL, "You are not holding any item in your hand.");
             return;
         }
-        context.setItemInHand(HandTypes.MAIN_HAND, this.remove(context, context.getItemInHand(HandTypes.MAIN_HAND).get(), command));
+        context.setItemInHand(HandTypes.MAIN_HAND, this.remove(context, itemInHand.get(), command));
     }
 
-    private ItemStack remove(Player context, ItemStack item, String cmd)
+    private ItemStack remove(ServerPlayer context, ItemStack item, String cmd)
     {
-        List<String> powers = item.get(IPowertoolData.POWERS).orElse(null);
+        List<String> powers = item.get(PowertoolData.POWERS).orElse(null);
         if (cmd == null || cmd.isEmpty())
         {
             powers.remove(powers.size() - 1);
@@ -165,9 +183,10 @@ public class PowertoolCommand extends ContainerCommand
     @Alias(value = "pta")
     @Command(desc = "Adds a command to your powertool")
     @Restricted(value = Player.class, msg = "You already have enough power!")
-    public void add(Player context, @Greed(INFINITE) String commandString, @Flag boolean replace)
+    public void add(ServerPlayer context, @Greedy String commandString, @Flag boolean replace)
     {
-        if (!context.getItemInHand(HandTypes.MAIN_HAND).isPresent())
+        final ItemStack itemInHand = context.getItemInHand(HandTypes.MAIN_HAND);
+        if (itemInHand.isEmpty())
         {
             i18n.send(context, NEUTRAL, "You do not have an item in your hand to bind the command to!");
             return;
@@ -179,45 +198,43 @@ public class PowertoolCommand extends ContainerCommand
         }
         else
         {
-            powerTools = new ArrayList<>(this.getPowerTools(context.getItemInHand(HandTypes.MAIN_HAND).get()));
+            powerTools = new ArrayList<>(this.getPowerTools(itemInHand));
         }
         powerTools.add(commandString);
-        context.setItemInHand(HandTypes.MAIN_HAND, this.setPowerTool(context.getItemInHand(HandTypes.MAIN_HAND).get(), powerTools));
+        context.setItemInHand(HandTypes.MAIN_HAND, this.setPowerTool(itemInHand, powerTools));
     }
 
     @Alias(value = "ptl")
     @Command(desc = "Lists your powertool-bindings.")
     @Restricted(value = Player.class, msg = "You already have enough power!")
-    public void list(Player context, @Flag boolean all)
+    public void list(ServerPlayer context, @Flag boolean all)
     {
         if (all)
         {
             for (Inventory slot : context.getInventory().slots())
             {
-                if (slot.peek().isPresent())
+                if (!slot.peek().isEmpty())
                 {
-                    ItemStack item = slot.peek().get();
-                    PowertoolData data = item.get(PowertoolData.class).orElse(null);
-                    if (data != null)
-                    {
-                        context.sendMessage(Text.of(GOLD, data.get(Keys.DISPLAY_NAME).orElse(Text.of(materialMatcher.getNameFor(item))), GOLD, ":"));
-                        showPowerToolList(context, this.getPowerTools(item), false, false);
-                    }
+                    ItemStack item = slot.peek();
+                    item.get(PowertoolData.POWERS).ifPresent(list -> {
+                        context.sendMessage(Identity.nil(), item.get(Keys.DISPLAY_NAME).orElse(item.getType().asComponent()).color(NamedTextColor.GOLD).append(Component.text(":")));
+                        showPowerToolList(context, list, false, false);
+                    });
                 }
             }
             return;
         }
-        if (!context.getItemInHand(HandTypes.MAIN_HAND).isPresent())
+        if (context.getItemInHand(HandTypes.MAIN_HAND).isEmpty())
         {
             i18n.send(context, NEUTRAL, "You do not have an item in your hand.");
         }
         else
         {
-            this.showPowerToolList(context, this.getPowerTools(context.getItemInHand(HandTypes.MAIN_HAND).get()), false, true);
+            this.showPowerToolList(context, this.getPowerTools(context.getItemInHand(HandTypes.MAIN_HAND)), false, true);
         }
     }
 
-    private void showPowerToolList(Player context, List<String> powertools, boolean lastAsNew, boolean showIfEmpty)
+    private void showPowerToolList(ServerPlayer context, List<String> powertools, boolean lastAsNew, boolean showIfEmpty)
     {
         if ((powertools == null || powertools.isEmpty()))
         {
@@ -236,13 +253,13 @@ public class PowertoolCommand extends ContainerCommand
         if (lastAsNew)
         {
             i18n.send(context, NEUTRAL, "{amount} command(s) bound to this item:{}", i + 1, sb.toString());
-            Text newText = i18n.translate(context, NONE, "NEW");
-            context.sendMessage(Text.of(YELLOW, powertools.get(i), GOLD, newText));
+            final Component newText = i18n.translate(context, Style.style(NamedTextColor.GOLD), "NEW");
+            context.sendMessage(Identity.nil(), Component.text().append(Component.text(powertools.get(i), NamedTextColor.YELLOW)).append(newText).build());
         }
         else
         {
             i18n.send(context, NEUTRAL, "{amount} command(s) bound to this item:{}", i + 1, sb.toString());
-            context.sendMessage(Text.of(powertools.get(i)));
+            context.sendMessage(Identity.nil(), Component.text(powertools.get(i)));
         }
     }
 
@@ -250,23 +267,23 @@ public class PowertoolCommand extends ContainerCommand
     {
         if (newPowerTools == null)
         {
-            item.remove(PowertoolData.class);
+            item.remove(PowertoolData.POWERS);
         }
         else
         {
-            item.offer(new PowertoolData(newPowerTools));
+            item.offer(PowertoolData.POWERS, newPowerTools);
         }
 
-        List<Text> lore = item.get(Keys.ITEM_LORE).orElse(null);
+        List<Component> lore = item.get(Keys.LORE).orElse(null);
         if (lore == null)
         {
             lore = new ArrayList<>();
         }
-        List<Text> newLore = new ArrayList<>();
+        List<Component> newLore = new ArrayList<>();
 
-        for (Text text : lore)
+        for (Component text : lore)
         {
-            if (text.toPlain().equals("PowerTool"))
+            if (PlainComponentSerializer.plain().serialize(text).equals("PowerTool"))
             {
                 break;
             }
@@ -275,17 +292,17 @@ public class PowertoolCommand extends ContainerCommand
 
         if (newPowerTools != null && !newPowerTools.isEmpty())
         {
-            newLore.add(Text.of(DARK_GREEN, "PowerTool"));
-            newLore.addAll(newPowerTools.stream().map(Text::of).collect(toList()));
+            newLore.add(Component.text("PowerTool", NamedTextColor.DARK_GREEN));
+            newLore.addAll(newPowerTools.stream().map(Component::text).collect(toList()));
         }
 
         if (newLore.isEmpty())
         {
-            item.remove(LoreData.class);
+            item.remove(Keys.LORE);
             return item;
         }
 
-        item.offer(Keys.ITEM_LORE, newLore);
+        item.offer(Keys.LORE, newLore);
         return item;
     }
 
@@ -297,24 +314,32 @@ public class PowertoolCommand extends ContainerCommand
      */
     private List<String> getPowerTools(ItemStack item)
     {
-        return item.get(IPowertoolData.POWERS).orElse(new ArrayList<>());
+        return item.get(PowertoolData.POWERS).orElse(new ArrayList<>());
     }
 
     @Listener
-    public void onLeftClick(InteractBlockEvent.Primary event, @First Player player)
+    public void onLeftClick(InteractBlockEvent.Primary event, @First ServerPlayer player)
     {
-        if (player.getItemInHand(HandTypes.MAIN_HAND).isPresent() && player.hasPermission(module.perms().POWERTOOL_USE.getId()))
+        final ItemStack itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
+        if (!itemInHand.isEmpty() && player.hasPermission(module.perms().POWERTOOL_USE.getId()))
         {
-            List<String> powers = this.getPowerTools(player.getItemInHand(HandTypes.MAIN_HAND).get());
+            List<String> powers = this.getPowerTools(itemInHand);
             for (String power : powers)
             {
                 if (power.startsWith("/"))
                 {
-                    Sponge.getCommandManager().process(player, power.substring(1));
+                    try
+                    {
+                        Sponge.getCommandManager().process(player, power.substring(1));
+                    }
+                    catch (CommandException e)
+                    {
+                        throw new IllegalStateException(e);
+                    }
                 }
                 else
                 {
-                    player.getMessageChannel().send(Text.of(power));
+                    player.sendMessage(Identity.nil(), Component.text(power));
                 }
             }
             if (!powers.isEmpty())

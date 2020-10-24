@@ -17,106 +17,37 @@
  */
 package org.cubeengine.module.powertools.data;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.DataContainer;
-import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.manipulator.mutable.common.AbstractData;
-import org.spongepowered.api.data.merge.MergeFunction;
-import org.spongepowered.api.data.value.mutable.ListValue;
+import com.google.common.reflect.TypeToken;
+import org.cubeengine.module.powertools.PluginPowertools;
+import org.spongepowered.api.ResourceKey;
+import org.spongepowered.api.data.DataRegistration;
+import org.spongepowered.api.data.Key;
+import org.spongepowered.api.data.persistence.DataStore;
+import org.spongepowered.api.data.value.ListValue;
+import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.util.TypeTokens;
 
-public class PowertoolData extends AbstractData<PowertoolData, ImmutablePowertoolData> implements IPowertoolData
+public interface PowertoolData
 {
-    private List<String> powers;
+    TypeToken<ListValue<String>> TTLV_String = new TypeToken<ListValue<String>>() {};
 
-    public PowertoolData()
+    Key<ListValue<String>> POWERS = Key.builder().type(TTLV_String).key(ResourceKey.of(PluginPowertools.POWERTOOLS_ID, "powers")).build();
+
+    static void register(RegisterCatalogEvent<DataRegistration> event)
     {
+        final ResourceKey rkey = ResourceKey.of(PluginPowertools.POWERTOOLS_ID, "powers");
+        final DataStore dataStore = DataStore.builder().pluginData(rkey)
+                                             .holder(ItemStack.class)
+                                             .key(POWERS, "powers")
+                                             .build();
+
+        final DataRegistration registration = DataRegistration.builder()
+                                                              .dataKey(POWERS)
+                                                              .store(dataStore)
+                                                              .key(rkey)
+                                                              .build();
+        event.register(registration);
     }
 
-    public PowertoolData(List<String> powers)
-    {
-        this.powers = powers;
-        registerGettersAndSetters();
-    }
-
-    @Override
-    protected void registerGettersAndSetters()
-    {
-        registerFieldGetter(POWERS, PowertoolData.this::getPowers);
-        registerFieldSetter(POWERS, PowertoolData.this::setPowers);
-        registerKeyValue(POWERS, PowertoolData.this::powers);
-    }
-
-    public ListValue<String> powers()
-    {
-        return Sponge.getRegistry().getValueFactory().createListValue(POWERS, powers);
-    }
-
-    public void setPowers(List<String> powers)
-    {
-        this.powers = powers;
-    }
-
-    public List<String> getPowers()
-    {
-        return Collections.unmodifiableList(powers);
-    }
-
-    @Override
-    public Optional<PowertoolData> fill(DataHolder dataHolder, MergeFunction overlap)
-    {
-        Optional<List<String>> powers = dataHolder.get(POWERS);
-        if (powers.isPresent())
-        {
-            PowertoolData data = this.copy();
-            data.powers = powers.get();
-
-            data = overlap.merge(this, data);
-
-            if (data != this)
-            {
-                this.powers = data.powers;
-            }
-            return Optional.of(this);
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<PowertoolData> from(DataContainer container)
-    {
-        Optional<List<String>> powers = container.getStringList(POWERS.getQuery());
-        if (powers.isPresent())
-        {
-            this.powers = powers.get();
-            return Optional.of(this);
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public PowertoolData copy()
-    {
-        return new PowertoolData(powers);
-    }
-
-    @Override
-    public ImmutablePowertoolData asImmutable()
-    {
-        return new ImmutablePowertoolData(powers);
-    }
-
-    @Override
-    public DataContainer toContainer()
-    {
-        return super.toContainer().set(POWERS, this.powers);
-    }
-
-    @Override
-    public int getContentVersion()
-    {
-        return 1;
-    }
 }
