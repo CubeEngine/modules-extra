@@ -26,16 +26,20 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.cubeengine.reflect.Reflector;
 import org.cubeengine.libcube.util.StringUtils;
 import org.cubeengine.libcube.service.matcher.StringMatcher;
-import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 
 import static org.cubeengine.libcube.service.filesystem.FileExtensionFilter.YAML;
 
+@Singleton
 public class KitManager
 {
     private final Kits module;
@@ -44,7 +48,7 @@ public class KitManager
     private Reflector reflector;
     private StringMatcher sm;
 
-
+    @Inject
     public KitManager(Kits module, Reflector reflector, StringMatcher sm)
     {
         this.module = module;
@@ -53,10 +57,10 @@ public class KitManager
     }
 
     @Listener
-    public void onJoin(ClientConnectionEvent.Join event)
+    public void onJoin(ServerSideConnectionEvent.Join event)
     {
-        Player player = event.getTargetEntity();
-        if (player.get(Keys.FIRST_DATE_PLAYED).orElse(Instant.now()).equals(player.get(Keys.LAST_DATE_PLAYED).orElse(Instant.now())))
+        ServerPlayer player = event.getPlayer();
+        if (player.get(Keys.FIRST_DATE_JOINED).orElse(Instant.now()).equals(player.get(Keys.LAST_DATE_PLAYED).orElse(Instant.now())))
         {
             kitMap.values().stream().filter(Kit::isGiveKitOnFirstJoin).forEach(kit -> kit.give(player, true));
         }

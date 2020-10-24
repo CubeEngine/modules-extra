@@ -19,6 +19,8 @@ package org.cubeengine.module.module.kits;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.cubeengine.butler.CommandInvocation;
 import org.cubeengine.butler.parameter.argument.Completer;
 import org.cubeengine.butler.parameter.argument.ArgumentParser;
@@ -26,10 +28,12 @@ import org.cubeengine.butler.parameter.argument.ParserException;
 
 import static org.cubeengine.libcube.util.StringUtils.startsWithIgnoreCase;
 
+@Singleton
 public class KitParser implements ArgumentParser<Kit>, Completer
 {
     private final KitManager manager;
 
+    @Inject
     public KitParser(KitManager manager)
     {
         this.manager = manager;
@@ -45,6 +49,7 @@ public class KitParser implements ArgumentParser<Kit>, Completer
     @Override
     public Kit parse(Class aClass, CommandInvocation commandInvocation) throws ParserException
     {
+        // TODO permission check here?
         String consumed = commandInvocation.consume(1);
         Kit kit = manager.getKit(consumed);
         if (kit == null)

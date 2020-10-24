@@ -17,15 +17,17 @@
  */
 package org.cubeengine.module.module.kits;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
-
+import java.util.Map;
+import net.kyori.adventure.audience.Audience;
 import org.cubeengine.butler.parameter.IncorrectUsageException;
 import org.cubeengine.libcube.service.command.exception.PermissionDeniedException;
 import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.module.module.kits.data.KitData;
-import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.exception.CommandException;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.item.inventory.ItemStack;
 
 /**
@@ -66,12 +68,12 @@ public class Kit
         this.limitUsageDelay = limitUsageDelay;
     }
 
-    public boolean give(Player user, boolean force)
+    public boolean give(ServerPlayer user, boolean force)
     {
         return this.give(null, user, force);
     }
 
-    public boolean give(CommandSource sender, Player player, boolean force)
+    public boolean give(Audience sender, ServerPlayer player, boolean force)
     {
         if (!force && this.getPermission() != null)
         {
@@ -84,12 +86,7 @@ public class Kit
         {
             if (limitUsagePerPlayer > 0)
             {
-                boolean reached = false;
-                Optional<KitData> kitData = player.get(KitData.class);
-                if (kitData.isPresent())
-                {
-                    reached = limitUsagePerPlayer <= kitData.get().getTimes().getOrDefault(this.name, 0);
-                }
+                boolean reached = limitUsagePerPlayer <= player.get(KitData.TIMES).map(m -> m.get(this.name)).orElse(0);
                 if (reached)
                 {
                     // TODO this messages are not displayed & translated
@@ -98,13 +95,7 @@ public class Kit
             }
             if (limitUsageDelay > 0)
             {
-                boolean inDelay = false;
-                // System.currentTimeMillis() - lastUsage < limitUsageDelay)
-                Optional<KitData> kitData = player.get(KitData.class);
-                if (kitData.isPresent())
-                {
-                    inDelay = limitUsageDelay <= System.currentTimeMillis() - kitData.get().getTime().getOrDefault(this.name, System.currentTimeMillis());
-                }
+                boolean inDelay = limitUsageDelay <= System.currentTimeMillis() - player.get(KitData.TIME).map(m -> m.get(this.name)).orElse(System.currentTimeMillis())
                 if (inDelay)
                 {
                    throw new IncorrectUsageException(false, "This kit isn't available at the moment. Try again later!");
@@ -112,14 +103,12 @@ public class Kit
             }
         }
         items.forEach(i -> player.getInventory().offer(i.copy())); // TODO what if not enough place
-        KitData kitData = player.get(KitData.class).orElse(null);
-        if (kitData == null)
-        {
-            kitData = new KitData();
-        }
-        kitData.getTime().put(name, System.currentTimeMillis());
-        kitData.getTimes().put(name, kitData.getTimes().getOrDefault(name, 0) + 1);
-        player.offer(kitData);
+        final Map<String, Long> timeData = player.get(KitData.TIME).orElse(new HashMap<>());
+        final Map<String, Integer> timesData = player.get(KitData.TIMES).orElse(new HashMap<>());
+        timeData.put(name, System.currentTimeMillis());
+        timesData.compute(name, (k, v) -> v == null ? 1 : v + 1);
+        player.offer(KitData.TIME, timeData);
+        player.offer(KitData.TIMES, timesData);
         this.executeCommands(player);
         return true;
     }
@@ -134,14 +123,21 @@ public class Kit
         this.giveKitOnFirstJoin = giveKitOnFirstJoin;
     }
 
-    private void executeCommands(Player player)
+    private void executeCommands(ServerPlayer player)
     {
         if (this.commands != null && !this.commands.isEmpty())
         {
             for (String cmd : commands)
             {
                 cmd = cmd.replace("{PLAYER}", player.getName());
-                module.getCommandManager().runCommand(player, cmd);
+                try
+                {
+                    Sponge.getCommandManager().process(player, cmd);
+                }
+                catch (CommandException e)
+                {
+                    throw new IllegalStateException(e);
+                }
             }
         }
     }

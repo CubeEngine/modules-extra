@@ -18,106 +18,74 @@
 package org.cubeengine.module.module.kits;
 
 import java.nio.file.Path;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import org.cubeengine.libcube.CubeEngineModule;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.cubeengine.libcube.ModuleManager;
-import org.cubeengine.logscribe.Log;
-import org.cubeengine.reflect.Reflector;
-import org.cubeengine.libcube.service.command.CommandManager;
+import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.inventoryguard.InventoryGuardFactory;
 import org.cubeengine.libcube.service.matcher.StringMatcher;
 import org.cubeengine.libcube.service.permission.PermissionManager;
-import org.cubeengine.module.module.kits.data.ImmutableKitData;
+import org.cubeengine.logscribe.Log;
 import org.cubeengine.module.module.kits.data.KitData;
-import org.cubeengine.module.module.kits.data.KitDataBuilder;
-import org.spongepowered.api.Sponge;
+import org.cubeengine.processor.Module;
+import org.cubeengine.reflect.Reflector;
+import org.spongepowered.api.Server;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
-import org.spongepowered.api.event.game.state.GameStartedServerEvent;
-import org.spongepowered.api.plugin.PluginContainer;
-import org.cubeengine.processor.Module;
+import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
+import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 
 @Singleton
 @Module
-public class Kits extends CubeEngineModule
+public class Kits
 {
-    private KitManager kitManager;
+    @Inject private KitManager kitManager;
 
-    @Inject private KitsPerm perms;
-
-    @Inject private CommandManager cm;
     @Inject private EventManager em;
     @Inject private PermissionManager pm;
-    @Inject private I18n i18n;
-    @Inject private InventoryGuardFactory igf;
-    @Inject private Reflector reflector;
     private Path modulePath;
-    @Inject private StringMatcher sm;
-    private PluginContainer plugin;
     @Inject private ModuleManager mm;
     private Log logger;
 
+    @ModuleCommand private KitCommand kitCommand;
+    @Inject private KitsPerm perms;
+
     @Listener
-    public void onEnable(GamePreInitializationEvent event)
+    public void onEnable(StartedEngineEvent<Server> event)
     {
         this.logger = mm.getLoggerFor(Kits.class);
         this.modulePath = mm.getPathFor(Kits.class);
-        this.plugin = mm.getPlugin(Kits.class).get();
-        DataRegistration<KitData, ImmutableKitData> dr = DataRegistration.<KitData, ImmutableKitData>builder()
-                .dataClass(KitData.class).immutableClass(ImmutableKitData.class)
-                .builder(new KitDataBuilder()).manipulatorId("kits")
-                .dataName("CubeEngine Kits Data")
-                .buildAndRegister(plugin);
-        Sponge.getDataManager().registerLegacyManipulatorIds(KitData.class.getName(), dr);
-        KitData.TIME.getQuery();
 
-        this.kitManager = new KitManager(this, reflector, sm);
         em.registerListener(Kits.class, kitManager);
-        cm.getProviders().register(this, new KitParser(kitManager), Kit.class);
-
-        KitCommand cmd = new KitCommand(this, i18n, igf, cm);
-        cm.addCommand(cmd);
-        cmd.addCommand(new KitEditCommand(cm, i18n, kitManager));
+        this.kitManager.loadKits();
     }
 
     @Listener
-    public void onAfterStart(GameStartedServerEvent event)
+    public void onRegisterData(RegisterCatalogEvent<DataRegistration> event)
     {
-        this.kitManager.loadKits();
+        KitData.register(event);
     }
 
     public KitManager getKitManager()
     {
         return this.kitManager;
     }
+
     public KitsPerm perms()
     {
         return perms;
     }
-
 
     public PermissionManager getPermissionManager()
     {
         return pm;
     }
 
-    public CommandManager getCommandManager()
-    {
-        return cm;
-    }
-
     public Path getFolder()
     {
         return modulePath;
-    }
-
-    public PluginContainer getPlugin() {
-        return plugin;
     }
 
     public Log getLogger()
