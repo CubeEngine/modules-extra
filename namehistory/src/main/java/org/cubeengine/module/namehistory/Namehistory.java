@@ -17,50 +17,31 @@
  */
 package org.cubeengine.module.namehistory;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import org.cubeengine.butler.parametric.Command;
-import org.cubeengine.butler.parametric.Default;
-import org.cubeengine.libcube.CubeEngineModule;
-import org.cubeengine.libcube.service.command.CommandManager;
-import org.cubeengine.libcube.service.event.EventManager;
-import org.cubeengine.libcube.service.i18n.I18n;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.cubeengine.libcube.service.Broadcaster;
-import org.cubeengine.processor.Dependency;
+import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
 import org.cubeengine.processor.Module;
-import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.filter.cause.First;
-import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 
 import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.DAYS;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 
 @Singleton
 @Module
-public class Namehistory extends CubeEngineModule
+public class Namehistory
 {
-    private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    @Inject private EventManager em;
-    @Inject private CommandManager cm;
     @Inject private Broadcaster bc;
-    @Inject private I18n i18n;
+
+    @ModuleCommand private NamehistoryCommands namehistoryCommands;
 
     @Listener
-    public void onEnable(GamePreInitializationEvent event)
-    {
-        cm.addCommands(this, this);
-    }
-
-    @Listener
-    public void onJoin(ClientConnectionEvent.Join event, @First Player player)
+    public void onJoin(ServerSideConnectionEvent.Join event, @First Player player)
     {
         long days = 5;
         HistoryFetcher.get(player.getUniqueId()).thenAccept(historyData -> {
@@ -72,24 +53,6 @@ public class Namehistory extends CubeEngineModule
                 {
                     bc.broadcastMessage(POSITIVE, "{name} was renamed to {user}", list.get(list.size() - 2).name, player);
                 }
-            }
-        });
-    }
-
-    @Command(desc = "Shows the namehistory of a player")
-    public void namehistory(CommandSource context, @Default User player)
-    {
-        HistoryFetcher.get(player.getUniqueId()).thenAccept(historyData -> {
-            if (!historyData.isPresent() || historyData.get().names.size() <= 1)
-            {
-                i18n.send(context, NEGATIVE, "No namehistory available for {user}", player);
-                return;
-            }
-            i18n.send(context, POSITIVE, "The following names were known for {user}", player);
-            for (NameChange names : historyData.get().names)
-            {
-                i18n.send(context, NEUTRAL, " - {user} since {input}", names.name,
-                    names.changedToAt.isPresent() ? sdf.format(names.changedToAt.get().getTime()) : i18n.translate(context, NONE, "account creation").toPlain());
             }
         });
     }
