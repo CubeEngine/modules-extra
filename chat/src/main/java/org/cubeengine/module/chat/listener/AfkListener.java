@@ -17,103 +17,104 @@
  */
 package org.cubeengine.module.chat.listener;
 
-import static org.spongepowered.api.event.Order.POST;
-
 import org.cubeengine.module.chat.Chat;
+import org.cubeengine.module.chat.ChatPerm;
 import org.cubeengine.module.chat.command.AfkCommand;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
-import org.spongepowered.api.event.command.SendCommandEvent;
-import org.spongepowered.api.event.command.TabCompleteEvent;
+import org.spongepowered.api.event.command.ExecuteCommandEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
-import org.spongepowered.api.event.entity.projectile.LaunchProjectileEvent;
 import org.spongepowered.api.event.filter.cause.Root;
-import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
+import org.spongepowered.api.event.item.inventory.container.InteractContainerEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.event.network.ServerSideConnectionEvent;
+
+import static org.spongepowered.api.event.Order.POST;
 
 public class AfkListener
 {
-    private final Chat module;
-    private AfkCommand afkCommand;
+    private final AfkCommand afkCommand;
+    private ChatPerm perms;
 
-    public AfkListener(Chat module, AfkCommand afkCommand)
+    public AfkListener(AfkCommand afkCommand, ChatPerm perms)
     {
-        this.module = module;
         this.afkCommand = afkCommand;
+        this.perms = perms;
     }
 
     @Listener(order = POST)
     public void onMove(MoveEntityEvent event)
     {
-        if (event.getTargetEntity() instanceof Player)
+        if (event.getEntity() instanceof ServerPlayer)
         {
-            if (event.getFromTransform().getLocation().getBlockX() == event.getToTransform().getLocation().getBlockX()
-                    && event.getFromTransform().getLocation().getBlockZ() == event.getToTransform().getLocation().getBlockZ())
+            if (event.getOriginalPosition().getFloorX() == event.getDestinationPosition().getFloorX()
+             && event.getOriginalPosition().getFloorZ() == event.getDestinationPosition().getFloorZ())
             {
                 return;
             }
-            this.updateLastAction(((Player) event.getTargetEntity()));
+            this.updateLastAction(((ServerPlayer) event.getEntity()));
         }
 
     }
 
     @Listener(order = POST)
-    public void onInventoryInteract(InteractInventoryEvent event, @Root Player player)
+    public void onInventoryInteract(InteractContainerEvent event, @Root ServerPlayer player)
     {
         this.updateLastAction(player);
     }
 
     @Listener(order = POST)
-    public void playerInteract(InteractBlockEvent event, @Root Player player)
+    public void playerInteract(InteractBlockEvent event, @Root ServerPlayer player)
     {
         this.updateLastAction(player);
     }
 
 
     @Listener(order = POST)
-    public void playerInteract(InteractEntityEvent event, @Root Player player)
+    public void playerInteract(InteractEntityEvent event, @Root ServerPlayer player)
     {
         this.updateLastAction(player);
     }
 
     @Listener(order = POST)
-    public void onChat(MessageChannelEvent event, @Root Player player)
+    public void onChat(MessageChannelEvent event, @Root ServerPlayer player)
     {
         this.updateLastAction(player);
         afkCommand.run();
     }
 
     @Listener(order = POST)
-    public void onCommand(SendCommandEvent event, @Root Player player)
+    public void onCommand(ExecuteCommandEvent event, @Root ServerPlayer player)
     {
         this.updateLastAction(player);
     }
 
-    @Listener(order = POST)
-    public void onTabComplete(TabCompleteEvent event, @Root Player player)
-    {
-        this.updateLastAction(player);
-    }
+    // TODO new Event?
+//    @Listener(order = POST)
+//    public void onTabComplete(TabCompleteEvent event, @Root ServerPlayer player)
+//    {
+//        this.updateLastAction(player);
+//    }
 
     @Listener(order = POST)
-    public void onLeave(ClientConnectionEvent.Disconnect event, @Root Player player)
+    public void onLeave(ServerSideConnectionEvent.Disconnect event, @Root ServerPlayer player)
     {
         afkCommand.setAfk(player, false);
         afkCommand.resetLastAction(player);
     }
 
-    @Listener(order = POST)
-    public void onBowShot(LaunchProjectileEvent event, @Root Player source)
-    {
-        this.updateLastAction(source);
-    }
+    // TODO new Event?
+//    @Listener(order = POST)
+//    public void onBowShot(LaunchProjectileEvent event, @Root ServerPlayer source)
+//    {
+//        this.updateLastAction(source);
+//    }
 
-    private void updateLastAction(Player player)
+    private void updateLastAction(ServerPlayer player)
     {
-        if (afkCommand.isAfk(player) && player.hasPermission(module.perms().PREVENT_AUTOUNAFK.getId()))
+        if (afkCommand.isAfk(player) && perms.PREVENT_AUTOUNAFK.check(player))
         {
             return;
         }

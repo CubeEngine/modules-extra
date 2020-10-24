@@ -22,38 +22,54 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
-import org.cubeengine.butler.parametric.Command;
-import org.cubeengine.butler.parametric.Default;
-import org.cubeengine.module.chat.Chat;
-import org.cubeengine.module.chat.listener.AfkListener;
-import org.cubeengine.libcube.service.command.exception.PermissionDeniedException;
-import org.cubeengine.libcube.service.event.EventManager;
-import org.cubeengine.libcube.service.task.TaskManager;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.cubeengine.libcube.service.Broadcaster;
-import org.spongepowered.api.Game;
+import org.cubeengine.libcube.service.command.annotation.Command;
+import org.cubeengine.libcube.service.command.annotation.Default;
+import org.cubeengine.libcube.service.event.EventManager;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.task.TaskManager;
+import org.cubeengine.module.chat.Chat;
+import org.cubeengine.module.chat.ChatConfig;
+import org.cubeengine.module.chat.ChatPerm;
+import org.cubeengine.module.chat.listener.AfkListener;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.CommandSource;
+import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.service.user.UserStorageService;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 
+@Singleton
 public class AfkCommand implements Runnable
 {
-    private final Chat module;
     private long autoAfk;
     private long afkCheck;
     private final AfkListener listener;
     private Broadcaster bc;
+    private TaskManager tm;
+    private EventManager em;
+    private I18n i18n;
+    private ChatPerm perms;
 
     private Map<UUID, Boolean> afks = new HashMap<>();
     private Map<UUID, Long> actions = new HashMap<>();
 
-    public AfkCommand(Chat module, long autoAfk, long afkCheck, Broadcaster bc, TaskManager tm, EventManager em)
+    @Inject
+    public AfkCommand(Broadcaster bc, TaskManager tm, EventManager em, I18n i18n, ChatPerm perms)
     {
-        this.module = module;
-        this.autoAfk = autoAfk;
-        this.afkCheck = afkCheck;
-        this.listener = new AfkListener(module, this);
+        this.listener = new AfkListener(this, perms);
+        this.bc = bc;
+        this.tm = tm;
+        this.em = em;
+        this.i18n = i18n;
+        this.perms = perms;
+    }
+
+    public void init(ChatConfig config)
+    {
+        this.autoAfk = config.autoAfk.after.toMillis();
+        this.afkCheck = config.autoAfk.check.toMillis();
         if (afkCheck > 0)
         {
             em.registerListener(Chat.class, listener);
@@ -62,17 +78,16 @@ public class AfkCommand implements Runnable
                 tm.runTimer(Chat.class, this, 20, afkCheck / 50); // this is in ticks so /50
             }
         }
-        this.bc = bc;
     }
 
     @Command(desc = "Displays that you are afk")
-    public void afk(CommandSource context, @Default Player player)
+    public void afk(CommandCause context, @Default ServerPlayer player)
     {
-        if (!context.equals(player))
+        if (!context.getAudience().equals(player))
         {
-            if (context.hasPermission(module.perms().COMMAND_AFK_OTHER.getId()))
+            if (!perms.COMMAND_AFK_OTHER.check(context.getSubject(), context.getAudience(), i18n))
             {
-                throw new PermissionDeniedException(module.perms().COMMAND_AFK_OTHER);
+                return;
             }
         }
         if (afks.getOrDefault(player.getUniqueId(), false))
@@ -117,7 +132,7 @@ public class AfkCommand implements Runnable
     public void run()
     {
         afks.entrySet().stream().filter(Entry::getValue)
-            .map(Entry::getKey).map(uuid -> Sponge.getGame().getServiceManager().provide(UserStorageService.class).get().get(uuid))
+            .map(Entry::getKey).map(uuid -> Sponge.getServer().getUserManager().get(uuid))
             .filter(Optional::isPresent)
             .map(Optional::get)
             .forEach(this::updateAfk);
@@ -127,7 +142,7 @@ public class AfkCommand implements Runnable
     {
         if (user.getPlayer().isPresent())
         {
-            Player player = user.getPlayer().get();
+            ServerPlayer player = user.getPlayer().get();
             long lastAction = getLastAction(player);
             if (lastAction == 0)
             {
@@ -143,7 +158,8 @@ public class AfkCommand implements Runnable
             }
             else if (System.currentTimeMillis() - lastAction > this.autoAfk)
             {
-                if (!player.hasPermission(module.perms().PREVENT_AUTOAFK.getId()))
+
+                if (!perms.PREVENT_AUTOAFK.check(player))
                 {
                     setAfk(player, true);
                     this.bc.broadcastStatus("is now afk!", player);

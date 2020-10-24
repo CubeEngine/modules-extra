@@ -56,7 +56,7 @@ public class Itemduct
     @Inject private PluginContainer plugin;
 
     @Listener
-    public void onConstruct(StartedEngineEvent<Server> event)
+    public void onStarted(StartedEngineEvent<Server> event)
     {
         this.manager.setup(this.config);
     }

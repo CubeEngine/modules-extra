@@ -17,26 +17,19 @@
  */
 package org.cubeengine.module.chat;
 
-import org.cubeengine.libcube.CubeEngineModule;
+import com.google.inject.Singleton;
 import org.cubeengine.libcube.InjectService;
-import org.cubeengine.libcube.service.Broadcaster;
-import org.cubeengine.libcube.service.command.CommandManager;
-import org.cubeengine.libcube.service.event.EventManager;
+import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
 import org.cubeengine.libcube.service.event.ModuleListener;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
-import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.module.chat.command.AfkCommand;
 import org.cubeengine.module.chat.command.ChatCommands;
 import org.cubeengine.module.chat.listener.ChatFormatListener;
-import org.cubeengine.processor.Dependency;
 import org.cubeengine.processor.Module;
+import org.spongepowered.api.Server;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
+import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.service.permission.PermissionService;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 /**
  * /me 	Displays a message about yourself.
@@ -45,44 +38,27 @@ import javax.inject.Singleton;
 // TODO link item in hand
 @Singleton
 @Module
-public class Chat extends CubeEngineModule
+public class Chat
 {
     // TODO tablist-prefix data from subject or other module?
     @ModuleConfig private ChatConfig config;
-    @Inject private ChatPerm perms;
-
-    @Inject private EventManager em;
-    @Inject private CommandManager cm;
-    @Inject private I18n i18n;
-    @Inject private TaskManager tm;
-    @Inject private Broadcaster bc;
 
     @ModuleListener private ChatFormatListener chatFormatListener;
+
+    @ModuleCommand private AfkCommand afkCommand;
+    @ModuleCommand private ChatCommands chatCommands;
+
     @InjectService private PermissionService ps;
 
     @Listener
-    public void onEnable(GamePreInitializationEvent event)
+    public void onStarted(StartedEngineEvent<Server> event)
     {
-        AfkCommand afkCmd = new AfkCommand(this, config.autoAfk.after.toMillis(), config.autoAfk.check.toMillis(), bc, tm, em);
-        cm.addCommands(this, afkCmd);
-        cm.addCommands(this, new ChatCommands(this, i18n, bc, afkCmd));
+        this.afkCommand.init(config);
+        this.chatFormatListener.init(config);
     }
 
-    public ChatConfig getConfig()
+    public PermissionService getPermissionService()
     {
-        return config;
-    }
-
-    public ChatPerm perms()
-    {
-        return perms;
-    }
-
-    public PermissionService getPermissionService() {
         return ps;
-    }
-
-    public I18n getI18n() {
-        return i18n;
     }
 }
