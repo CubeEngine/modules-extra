@@ -17,37 +17,34 @@
  */
 package org.cubeengine.module.bigdata;
 
-import static org.cubeengine.libcube.util.LoggerUtil.setLoggerLevel;
-
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import com.google.inject.Singleton;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
-import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.module.bigdata.MongoDBConfiguration.Authentication;
 import org.cubeengine.processor.Module;
+import org.spongepowered.api.Server;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
-import org.spongepowered.api.event.game.state.GameStartingServerEvent;
-import org.spongepowered.api.event.game.state.GameStoppingEvent;
+import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
+import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
-import javax.inject.Singleton;
+import static org.cubeengine.libcube.util.LoggerUtil.setLoggerLevel;
 
 @Singleton
 @Module
-public class Bigdata extends CubeEngineModule
+public class Bigdata
 {
     @ModuleConfig private MongoDBConfiguration config;
     private MongoClient mongoClient;
 
     @Listener
-    public void onPreInit(GamePreInitializationEvent event)
+    public void onStarted(StartedEngineEvent<Server> event)
     {
         try
         {
@@ -59,12 +56,8 @@ public class Bigdata extends CubeEngineModule
         {
             throw new IllegalStateException("Failed to connect to the your MongoDB instance!", e);
         }
-    }
-
-    @Listener
-    public void onPostInit(GameStartingServerEvent event)
-    {
         lessSpamPls();
+
     }
 
     public void lessSpamPls()
@@ -92,7 +85,7 @@ public class Bigdata extends CubeEngineModule
     }
 
     @Listener
-    public void onShutdown(GameStoppingEvent event)
+    public void onShutdown(StoppingEngineEvent<Server> event)
     {
         this.releaseClient();
     }
