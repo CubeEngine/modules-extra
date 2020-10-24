@@ -20,17 +20,18 @@ package org.cubeengine.module.hide;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-import org.cubeengine.butler.parametric.Command;
-import org.cubeengine.butler.parametric.Default;
+import net.kyori.adventure.identity.Identity;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.cubeengine.libcube.service.command.annotation.Command;
+import org.cubeengine.libcube.service.command.annotation.Default;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.text.Text;
+import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
-import static org.spongepowered.api.text.format.TextColors.YELLOW;
 
 public class HideCommands
 {
@@ -44,85 +45,86 @@ public class HideCommands
     }
 
     @Command(desc = "Hides a player.")
-    public void hide(CommandSource context, @Default Player player)
+    public void hide(CommandCause context, @Default ServerPlayer player)
     {
         if (!this.module.isHidden(player))
         {
             this.module.hidePlayer(player, false);
-            if (context.equals(player))
+            if (context.getAudience().equals(player))
             {
                 i18n.send(player, POSITIVE, "You are now hidden!");
                 return;
             }
-            i18n.send(player, POSITIVE, "You were hidden by {sender}!", context);
-            i18n.send(context, POSITIVE, "{user} is now hidden!", player);
+            i18n.send(player, POSITIVE, "You were hidden by {sender}!", context.getAudience());
+            i18n.send(context.getAudience(), POSITIVE, "{user} is now hidden!", player);
             return;
         }
-        if (context.equals(player))
+        if (context.getAudience().equals(player))
         {
             i18n.send(player, NEUTRAL, "You are already hidden!");
             return;
         }
-        i18n.send(context, NEUTRAL, "{user} is already hidden!", player);
+        i18n.send(context.getAudience(), NEUTRAL, "{user} is already hidden!", player);
     }
 
     @Command(desc = "Unhides a player.")
-    public void unhide(CommandSource context, @Default Player player)
+    public void unhide(CommandCause context, @Default ServerPlayer player)
     {
         if (this.module.isHidden(player))
         {
             this.module.showPlayer(player, false);
-            if (context.equals(player))
+            if (context.getAudience().equals(player))
             {
                 i18n.send(player, POSITIVE, "You are now visible!");
                 return;
             }
-            i18n.send(player, POSITIVE, "You were unhidden by {sender}!", context);
-            i18n.send(context, POSITIVE, "{user} is now visible!", player);
+            i18n.send(player, POSITIVE, "You were unhidden by {sender}!", context.getAudience());
+            i18n.send(context.getAudience(), POSITIVE, "{user} is now visible!", player);
             return;
         }
-        if (context.equals(player))
+        if (context.getAudience().equals(player))
         {
             i18n.send(player, NEUTRAL, "You are already visible!");
             return;
         }
-        i18n.send(context, NEUTRAL, "{user} is already visible!", player);
+        i18n.send(context.getAudience(), NEUTRAL, "{user} is already visible!", player);
     }
 
     @Command(desc = "Checks whether a player is hidden.")
-    public void hidden(CommandSource context, @Default Player player)
+    public void hidden(CommandCause context, @Default ServerPlayer player)
     {
         if (this.module.isHidden(player))
         {
-            if (context.equals(player))
+            if (context.getAudience().equals(player))
             {
-                i18n.send(context, POSITIVE, "You are currently hidden!");
+                i18n.send(context.getAudience(), POSITIVE, "You are currently hidden!");
                 return;
             }
-            i18n.send(context, POSITIVE, "{user} is currently hidden!", player);
+            i18n.send(context.getAudience(), POSITIVE, "{user} is currently hidden!", player);
             return;
         }
-        if (context.equals(player))
+        if (context.getAudience().equals(player))
         {
-            i18n.send(context, NEUTRAL, "You are currently visible!");
+            i18n.send(context.getAudience(), NEUTRAL, "You are currently visible!");
             return;
         }
-        i18n.send(context, NEUTRAL, "{user} is currently visible!", player);
+        i18n.send(context.getAudience(), NEUTRAL, "{user} is currently visible!", player);
     }
 
     @Command(desc = "Lists all hidden players.")
-    public void listhiddens(CommandSource context) throws ExecutionException, InterruptedException
+    public void listhiddens(CommandCause context) throws ExecutionException, InterruptedException
     {
         Set<UUID> hiddens = this.module.getHiddenUsers();
         if (hiddens.isEmpty())
         {
-            i18n.send(context, NEUTRAL, "There are no hidden users!");
+            i18n.send(context.getAudience(), NEUTRAL, "There are no hidden users!");
             return;
         }
-        i18n.send(context, POSITIVE, "The following users are hidden:");
+        i18n.send(context.getAudience(), POSITIVE, "The following users are hidden:");
         for (UUID uuid : hiddens)
         {
-            context.sendMessage(Text.of(" - ", YELLOW, Sponge.getServer().getGameProfileManager().get(uuid).get().getName().orElse("???")));
+            context.sendMessage(Identity.nil(), Component.text().append(Component.text(" - ").color(NamedTextColor.YELLOW))
+                           .append(Component.text(Sponge.getServer().getGameProfileManager().get(uuid).get().getName().orElse("???"))).build());
         }
     }
 

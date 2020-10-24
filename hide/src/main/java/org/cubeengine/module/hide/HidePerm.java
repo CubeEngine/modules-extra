@@ -17,13 +17,17 @@
  */
 package org.cubeengine.module.hide;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionContainer;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 
 @SuppressWarnings("all")
+@Singleton
 public class HidePerm extends PermissionContainer
 {
+    @Inject
     public HidePerm(PermissionManager pm)
     {
         super(pm, Hide.class);

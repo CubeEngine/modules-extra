@@ -20,24 +20,23 @@ package org.cubeengine.module.hide;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import org.cubeengine.libcube.CubeEngineModule;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.cubeengine.libcube.service.Broadcaster;
-import org.cubeengine.libcube.service.command.CommandManager;
+import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
 import org.cubeengine.libcube.service.event.EventManager;
+import org.cubeengine.libcube.service.event.ModuleListener;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.processor.Module;
+import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.manipulator.mutable.entity.InvisibilityData;
+import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
-import org.spongepowered.api.event.game.state.GameStoppingEvent;
+import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
+import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
 
@@ -46,35 +45,24 @@ import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
 // TODO contextual - can see hidden players
 @Singleton
 @Module
-public class Hide extends CubeEngineModule
+public class Hide
 {
     private Set<UUID> hiddenUsers;
 
-    public HidePerm perms()
-    {
-        return perms;
-    }
-
-    private HidePerm perms;
-
-    @Inject private CommandManager cm;
-    @Inject private EventManager em;
-    @Inject private I18n i18n;
     @Inject private Broadcaster bc;
-    @Inject private PermissionManager pm;
+
+    @ModuleCommand private HideCommands hideCommands;
+    @ModuleListener private HideListener listener;
 
     @Listener
-    public void onEnable(GamePreInitializationEvent event)
+    public void onEnable(StartedEngineEvent<Server> event)
     {
         hiddenUsers = new HashSet<>();
         // canSeeHiddens = new HashSet<>();
-        cm.addCommands(cm, this, new HideCommands(this, i18n));
-        em.registerListener(Hide.class, new HideListener(this, i18n));
-        this.perms = new HidePerm(pm);
     }
 
     @Listener
-    public void onDisable(GameStoppingEvent event)
+    public void onDisable(StoppingEngineEvent<Server> event)
     {
         for (UUID hiddenId : hiddenUsers)
         {
@@ -86,7 +74,7 @@ public class Hide extends CubeEngineModule
     public void hidePlayer(final Player player, boolean join)
     {
         this.hiddenUsers.add(player.getUniqueId());
-        player.offer(Keys.INVISIBLE, true);
+        player.offer(Keys.IS_INVISIBLE, true);
         if (!join)
         {
             bc.broadcastTranslated(NEUTRAL, "{user:color=YELLOW} left the game", player.getName());
@@ -94,9 +82,9 @@ public class Hide extends CubeEngineModule
         // can see hidden + msg
     }
 
-    public void showPlayer(final User player, boolean quit)
+    public void showPlayer(final ServerPlayer player, boolean quit)
     {
-        player.remove(InvisibilityData.class);
+        player.remove(Keys.IS_INVISIBLE);
         if (!quit)
         {
             bc.broadcastTranslated(NEUTRAL, "{user:color=YELLOW} joined the game", player.getName());

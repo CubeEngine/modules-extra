@@ -18,44 +18,50 @@
 package org.cubeengine.module.hide;
 
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import net.kyori.adventure.text.Component;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.action.InteractEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
-import org.spongepowered.api.event.message.MessageChannelEvent;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.event.message.PlayerChatEvent;
+import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 import org.spongepowered.api.event.server.ClientPingServerEvent;
 import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.profile.GameProfileManager;
 
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 
+@Singleton
 public class HideListener
 {
     private final Hide module;
     private I18n i18n;
+    private HidePerm perms;
 
-    public HideListener(Hide module, I18n i18n)
+    @Inject
+    public HideListener(Hide module, I18n i18n, HidePerm perms)
     {
         this.module = module;
         this.i18n = i18n;
+        this.perms = perms;
     }
 
     @Listener
-    public void onJoin(ClientConnectionEvent.Join event)
+    public void onJoin(ServerSideConnectionEvent.Join event)
     {
-        Player player = event.getTargetEntity();
+        ServerPlayer player = event.getPlayer();
         if (module.isHidden(player))
         {
             module.hidePlayer(player, true);
         }
 
-        if (player.hasPermission(module.perms().AUTO_HIDE.getId()))
+        if (player.hasPermission(perms.AUTO_HIDE.getId()))
         {
             event.setMessageCancelled(true);
             module.hidePlayer(player, true);
@@ -64,37 +70,38 @@ public class HideListener
     }
     
     @Listener
-    public void onQuit(ClientConnectionEvent.Disconnect event)
+    public void onQuit(ServerSideConnectionEvent.Disconnect event)
     {
-        if (module.isHidden(event.getTargetEntity()))
+        if (module.isHidden(event.getPlayer()))
         {
-            event.setMessageCancelled(true);
-            module.showPlayer(event.getTargetEntity(), true);
+            event.setMessage(Component.empty());
+            // TODO? event.setMessageCancelled(true);
+            module.showPlayer(event.getPlayer(), true);
         }
     }
 
     @Listener
-    public void onInteract(InteractEvent event, @First Player player)
+    public void onInteract(InteractEvent event, @First ServerPlayer player)
     {
-        if (module.isHidden(player) && !player.hasPermission(module.perms().INTERACT.getId()))
-        {
-            event.setCancelled(true);
-        }
-    }
-
-    @Listener
-    public void onPickupItem(ChangeInventoryEvent.Pickup event, @First Player player)
-    {
-        if (module.isHidden(player) && !player.hasPermission(module.perms().PICKUP.getId()))
+        if (module.isHidden(player) && !player.hasPermission(perms.INTERACT.getId()))
         {
             event.setCancelled(true);
         }
     }
 
     @Listener
-    public void onChat(MessageChannelEvent.Chat event, @First Player player)
+    public void onPickupItem(ChangeInventoryEvent.Pickup event, @First ServerPlayer player)
     {
-        if (module.isHidden(player) && !player.hasPermission(module.perms().CHAT.getId()))
+        if (module.isHidden(player) && !player.hasPermission(perms.PICKUP.getId()))
+        {
+            event.setCancelled(true);
+        }
+    }
+
+    @Listener
+    public void onChat(PlayerChatEvent event, @First ServerPlayer player)
+    {
+        if (module.isHidden(player) && !player.hasPermission(perms.CHAT.getId()))
         {
             event.setCancelled(true);
         }
@@ -102,9 +109,9 @@ public class HideListener
 
 
     @Listener
-    public void onDropItem(DropItemEvent event, @First Player player)
+    public void onDropItem(DropItemEvent event, @First ServerPlayer player)
     {
-        if (module.isHidden(player) && !player.hasPermission(module.perms().DROP.getId()))
+        if (module.isHidden(player) && !player.hasPermission(perms.DROP.getId()))
         {
             event.setCancelled(true);
         }
