@@ -23,6 +23,4 @@ import org.cubeengine.reflect.codec.yaml.ReflectedYaml;
 public class TablistConfig extends ReflectedYaml
 {
     public String header;
-
-
 }

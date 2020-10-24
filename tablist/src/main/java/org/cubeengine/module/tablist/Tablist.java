@@ -17,53 +17,42 @@
  */
 package org.cubeengine.module.tablist;
 
-import static org.spongepowered.api.text.serializer.TextSerializers.FORMATTING_CODE;
-
-import org.cubeengine.libcube.CubeEngineModule;
+import java.util.Optional;
+import com.google.inject.Singleton;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
+import org.cubeengine.libcube.util.ChatFormat;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.entity.living.player.tab.TabListEntry;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GameInitializationEvent;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
-
-import java.util.Optional;
-
-import javax.inject.Singleton;
+import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 
 @Singleton
 @Module
-public class Tablist extends CubeEngineModule
+public class Tablist
 {
     @ModuleConfig private TablistConfig config;
 
     @Listener
-    public void onEnable(GameInitializationEvent event)
+    public void onJoin(ServerSideConnectionEvent.Join event)
     {
-        
-    }
-
-    @Listener
-    public void onJoin(ClientConnectionEvent.Join event)
-    {
-        Player player = event.getTargetEntity();
+        ServerPlayer player = event.getPlayer();
         String prefix = player.getOption("tablist-prefix").orElse("");
 
         if (this.config.header != null && !this.config.header.isEmpty())
         {
-            player.getTabList().setHeader(FORMATTING_CODE.deserialize(this.config.header));
+            player.getTabList().setHeader(ChatFormat.fromLegacy(this.config.header, '&'));
         }
 
-        for (Player p : Sponge.getServer().getOnlinePlayers())
+        for (ServerPlayer p : Sponge.getServer().getOnlinePlayers())
         {
             Optional<TabListEntry> entry = p.getTabList().getEntry(player.getUniqueId());
-            entry.ifPresent(tle -> tle.setDisplayName(FORMATTING_CODE.deserialize(prefix + player.getName())));
+            entry.ifPresent(tle -> tle.setDisplayName(ChatFormat.fromLegacy(prefix + player.getName(), '&')));
 
             String pPrefix = p.getOption("tablist-prefix").orElse("");
             Optional<TabListEntry> pEntry = player.getTabList().getEntry(p.getUniqueId());
-            pEntry.ifPresent(tle -> tle.setDisplayName(FORMATTING_CODE.deserialize(pPrefix + p.getName())));
+            pEntry.ifPresent(tle -> tle.setDisplayName(ChatFormat.fromLegacy(pPrefix + p.getName(), '&')));
         }
     }
 }
