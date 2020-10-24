@@ -17,151 +17,69 @@
  */
 package org.cubeengine.module.writer;
 
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
-import static org.spongepowered.api.block.BlockTypes.STANDING_SIGN;
-import static org.spongepowered.api.block.BlockTypes.WALL_SIGN;
-import static org.spongepowered.api.item.ItemTypes.WRITABLE_BOOK;
-import static org.spongepowered.api.item.ItemTypes.WRITTEN_BOOK;
-
-import org.cubeengine.butler.filter.Restricted;
-import org.cubeengine.butler.parametric.Command;
-import org.cubeengine.butler.parametric.Label;
-import org.cubeengine.butler.parametric.Named;
-import org.cubeengine.libcube.CubeEngineModule;
-import org.cubeengine.libcube.service.command.CommandManager;
-import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.processor.Dependency;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import net.kyori.adventure.text.Component;
+import org.cubeengine.libcube.util.ChatFormat;
 import org.cubeengine.processor.Module;
-import org.spongepowered.api.block.BlockType;
-import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.manipulator.mutable.item.PagedData;
-import org.spongepowered.api.data.manipulator.mutable.tileentity.SignData;
+import org.spongepowered.api.data.DataRegistration;
+import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.data.type.HandTypes;
-import org.spongepowered.api.data.value.mutable.ListValue;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.event.EventContextKeys;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
-import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.util.blockray.BlockRay;
-import org.spongepowered.api.util.blockray.BlockRayHit;
+import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
+import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.recipe.RecipeRegistration;
 import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
-
-import java.util.Iterator;
-import java.util.Optional;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import org.spongepowered.math.vector.Vector3i;
 
 /**
  * A module to edit signs and signed books
  */
 @Singleton
 @Module
-public class Writer extends CubeEngineModule
+public class Writer
 {
-    @Inject private CommandManager cm;
-    @Inject private I18n i18n;
+    @Inject private WriterPermissions perms;
 
     @Listener
-    public void onEnable(GamePreInitializationEvent event)
+    public void onRegisterData(RegisterCatalogEvent<DataRegistration>  event)
     {
-        cm.addCommands(cm, this, this);
+        WriterData.register(event);
     }
 
-    @Command(alias = "rewrite", desc = "Edit a sign or a signed book")
-    @Restricted(value = Player.class, msg = "Edit what?")
-    public void edit(Player context,
-                     @Named({"1", "Line1"}) @Label("1st line") String line1,
-                     @Named({"2", "Line2"}) @Label("2nd line") String line2,
-                     @Named({"3", "Line3"}) @Label("3rd line") String line3,
-                     @Named({"4", "Line4"}) @Label("4th line") String line4)
+    @Listener
+    public void onRecipeRegister(RegisterCatalogEvent<RecipeRegistration> event)
     {
-        if (line1 == null && line2 == null && line3 == null && line4 == null)
+        WriterItems.registerRecipes(event);
+    }
+
+    @Listener
+    public void onRightClickBlock(InteractBlockEvent.Secondary event, @First ServerPlayer player)
+    {
+        if (event.getContext().get(EventContextKeys.USED_HAND).orElse(null) != HandTypes.MAIN_HAND.get()
+            || !event.getBlock().getLocation().flatMap(Location::getBlockEntity).map(l -> l.supports(Keys.SIGN_LINES)).orElse(false)
+            || !player.getItemInHand(HandTypes.MAIN_HAND).get(WriterData.WRITER).isPresent()
+            || !player.getItemInHand(HandTypes.MAIN_HAND).getType().isAnyOf(ItemTypes.WRITABLE_BOOK)
+            || !perms.EDIT_SIGN.check(player))
         {
-            if (!this.editBookInHand(context))
-            {
-                i18n.send(context, NEGATIVE, "You need to specify at least one parameter to edit a sign!");
-                i18n.send(context, NEGATIVE, "Or hold a signed book in your hand to edit it.");
-            }
             return;
         }
-        if (!this.editSignInSight(context, line1, line2, line3, line4))
-        {
-            i18n.send(context, NEGATIVE, "You need to be looking at a sign less than {amount} blocks away!", 10);
-            i18n.send(context, NEGATIVE, "Or hold a signed book in your hand to edit it.");
-        }
+        List<String> pages = player.getItemInHand(HandTypes.MAIN_HAND).get(Keys.PLAIN_PAGES).orElse(Collections.emptyList());
+        final String firstPage = pages.get(0);
+        final List<String> lines = Arrays.asList(firstPage.split("\n"));
+        final List<Component> signLines = lines.subList(0, Math.min(4, lines.size())).stream()
+               .map(line -> ChatFormat.fromLegacy(line, '&')).collect(Collectors.toList());
+        final Vector3i pos = event.getBlock().getPosition();
+        player.getWorld().offer(pos, Keys.SIGN_LINES, signLines);
+
     }
 
-    /**
-     * Makes a signed book in the hand of given user editable
-     *
-     * @param user the user
-     *
-     * @return false if there is no written book in the hand of given user
-     */
-    public boolean editBookInHand(Player user)
-    {
-        Optional<ItemStack> oItem = user.getItemInHand(HandTypes.MAIN_HAND);
-        if (!oItem.isPresent() || oItem.get().getType() != WRITTEN_BOOK)
-        {
-            return false;
-        }
-
-        ItemStack item = oItem.get();
-        PagedData pages = item.get(PagedData.class).get();
-        item = ItemStack.builder().itemType(WRITABLE_BOOK).itemData(pages).build();
-        user.setItemInHand(HandTypes.MAIN_HAND, item);
-        i18n.send(user, POSITIVE, "Your book is now unsigned and ready to be edited.");
-        return true;
-    }
-
-    /**
-     * Edits the sign the user is looking at
-     *
-     * @param user  the user
-     * @param line1 the 1st line
-     * @param line2 the 2nd line
-     * @param line3 the 3rd line
-     * @param line4 the 4th line
-     *
-     * @return false if there is no sign to edit in sight
-     */
-    public boolean editSignInSight(Player user, String line1, String line2, String line3, String line4)
-    {
-        Iterator<BlockRayHit<World>> it = BlockRay.from(user).distanceLimit(10).iterator();
-        BlockRayHit<World> result = null;
-        while (it.hasNext())
-        {
-            BlockRayHit<World> next = it.next();
-            BlockType type = next.getLocation().getBlockType();
-            if (type == WALL_SIGN || type == STANDING_SIGN)
-            {
-                result = next;
-                break;
-            }
-        }
-        if (result == null)
-        {
-            return false;
-        }
-
-        Location<World> block = result.getLocation();
-        BlockType type = block.getBlockType();
-        if (type != WALL_SIGN && type != STANDING_SIGN)
-        {
-            return false;
-        }
-        SignData signData = block.get(SignData.class).get();
-        ListValue<Text> lines = signData.lines();
-        lines.set(0, line1 == null ? lines.get(0) : Text.of(line1));
-        lines.set(1, line2 == null ? lines.get(1) : Text.of(line2));
-        lines.set(2, line3 == null ? lines.get(2) : Text.of(line3));
-        lines.set(3, line4 == null ? lines.get(3) : Text.of(line4));
-        block.offer(Keys.SIGN_LINES, lines.get());
-        i18n.send(user, POSITIVE, "The sign has been changed!");
-        return true;
-    }
 }
