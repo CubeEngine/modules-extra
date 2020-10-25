@@ -95,7 +95,7 @@ public class Kit
             }
             if (limitUsageDelay > 0)
             {
-                boolean inDelay = limitUsageDelay <= System.currentTimeMillis() - player.get(KitData.TIME).map(m -> m.get(this.name)).orElse(System.currentTimeMillis())
+                boolean inDelay = limitUsageDelay <= System.currentTimeMillis() - player.get(KitData.TIME).map(m -> m.get(this.name)).orElse(System.currentTimeMillis());
                 if (inDelay)
                 {
                    throw new IncorrectUsageException(false, "This kit isn't available at the moment. Try again later!");
