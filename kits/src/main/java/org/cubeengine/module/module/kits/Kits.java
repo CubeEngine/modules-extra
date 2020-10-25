@@ -51,6 +51,7 @@ public class Kits
 
     @ModuleCommand private KitCommand kitCommand;
     @Inject private KitsPerm perms;
+    @Inject private I18n i18n;
 
     @Listener
     public void onEnable(StartedEngineEvent<Server> event)
@@ -91,5 +92,10 @@ public class Kits
     public Log getLogger()
     {
         return this.logger;
+    }
+
+    public I18n getI18n()
+    {
+        return this.i18n;
     }
 }

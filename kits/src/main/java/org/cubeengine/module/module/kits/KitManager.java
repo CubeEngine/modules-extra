@@ -62,7 +62,7 @@ public class KitManager
         ServerPlayer player = event.getPlayer();
         if (player.get(Keys.FIRST_DATE_JOINED).orElse(Instant.now()).equals(player.get(Keys.LAST_DATE_PLAYED).orElse(Instant.now())))
         {
-            kitMap.values().stream().filter(Kit::isGiveKitOnFirstJoin).forEach(kit -> kit.give(player, true));
+            kitMap.values().stream().filter(Kit::isGiveKitOnFirstJoin).forEach(kit -> kit.give(player));
         }
     }
 

@@ -17,11 +17,15 @@
  */
 package org.cubeengine.module.module.kits;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.cubeengine.libcube.service.command.DispatcherCommand;
 import org.cubeengine.libcube.service.command.annotation.Command;
+import org.cubeengine.libcube.service.command.annotation.Flag;
+import org.cubeengine.libcube.service.command.annotation.Greedy;
 import org.cubeengine.libcube.service.command.annotation.Option;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.util.ChatFormat;
@@ -59,7 +63,7 @@ public class KitEditCommand extends DispatcherCommand
     }
 
     @Command(desc = "Sets the custom message")
-    public void customMessage(CommandCause context, Kit kit, @Option String value)
+    public void customMessage(CommandCause context, Kit kit, @Greedy @Option String value)
     {
         kit.setCustomMessage(value);
         manager.saveKit(kit);
@@ -73,21 +77,47 @@ public class KitEditCommand extends DispatcherCommand
         i18n.send(context.getAudience(), POSITIVE, "The custom message for {name} was removed.", kit.getKitName());
     }
 
-    @Command(desc = "Sets commands to be run when a kit is received")
-    public void setCommand(CommandCause context, Kit kit, @Option String... commands)
+    @Command(desc = "Adds a command to be run when a kit is received")
+    public void addCommand(CommandCause context, Kit kit, @Greedy String command)
     {
-        kit.clearCommands();
-        if (commands != null)
+        List<String> commands = kit.getCommands();
+        if (commands == null)
         {
-            kit.setCommands(Arrays.asList(commands));
-            i18n.send(context.getAudience(), POSITIVE, "Kit commands for {name} set.", kit.getKitName());
+            commands = new ArrayList<>();
+        }
+        commands.add(command);
+        i18n.send(context.getAudience(), POSITIVE, "Added kit command to {name}.", kit.getKitName());
+        manager.saveKit(kit);
+    }
+
+    @Command(desc = "Sets commands to be run when a kit is received")
+    public void removeCommand(CommandCause context, Kit kit, @Option @Greedy String command, @Flag boolean all)
+    {
+        if (all)
+        {
+            kit.clearCommands();
+            i18n.send(context.getAudience(), POSITIVE, "Kit commands for {name} cleared.", kit.getKitName());
         }
         else
         {
-            i18n.send(context.getAudience(), POSITIVE, "Kit commands for {name} removed.", kit.getKitName());
+            final List<String> commands = kit.getCommands();
+            if (commands == null || commands.isEmpty())
+            {
+                i18n.send(context.getAudience(), POSITIVE, "Kit {name} had no commands.", kit.getKitName());
+                return;
+            }
+            if (commands.remove(command))
+            {
+                i18n.send(context.getAudience(), POSITIVE, "Kit command for {name} removed.", kit.getKitName());
+            }
+            else
+            {
+                i18n.send(context.getAudience(), POSITIVE, "Command not found in kit {name}.", kit.getKitName());
+            }
         }
         manager.saveKit(kit);
     }
+
 
     @Command(desc = "Controls permission check for a kit")
     public void kitPermission(CommandCause context, Kit kit, boolean value)
@@ -127,9 +157,8 @@ public class KitEditCommand extends DispatcherCommand
         {
             value = 0;
         }
-        value *= 1000;
 
-        kit.setUsageDelay(value);
+        kit.setUsageDelay(value * 1000);
         manager.saveKit(kit);
         if (value > 0)
         {

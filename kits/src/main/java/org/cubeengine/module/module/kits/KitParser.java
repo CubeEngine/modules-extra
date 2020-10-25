@@ -18,44 +18,52 @@
 package org.cubeengine.module.module.kits;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.cubeengine.butler.CommandInvocation;
-import org.cubeengine.butler.parameter.argument.Completer;
-import org.cubeengine.butler.parameter.argument.ArgumentParser;
-import org.cubeengine.butler.parameter.argument.ParserException;
+import org.cubeengine.libcube.service.command.annotation.ParserFor;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.spongepowered.api.command.exception.ArgumentParseException;
+import org.spongepowered.api.command.parameter.ArgumentReader.Mutable;
+import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.command.parameter.CommandContext.Builder;
+import org.spongepowered.api.command.parameter.Parameter.Key;
+import org.spongepowered.api.command.parameter.managed.ValueCompleter;
+import org.spongepowered.api.command.parameter.managed.ValueParser;
 
 import static org.cubeengine.libcube.util.StringUtils.startsWithIgnoreCase;
 
 @Singleton
-public class KitParser implements ArgumentParser<Kit>, Completer
+@ParserFor(Kit.class)
+public class KitParser implements ValueParser<Kit>, ValueCompleter
 {
     private final KitManager manager;
+    private I18n i18n;
 
     @Inject
-    public KitParser(KitManager manager)
+    public KitParser(KitManager manager, I18n i18n)
     {
         this.manager = manager;
+        this.i18n = i18n;
     }
 
     @Override
-    public List<String> suggest(Class type, CommandInvocation commandInvocation)
+    public List<String> complete(CommandContext context, String currentInput)
     {
-        String token = commandInvocation.currentToken();
-        return manager.getKitsNames().stream().filter(name -> startsWithIgnoreCase(name, token)).collect(Collectors.toList());
+        return manager.getKitsNames().stream().filter(name -> startsWithIgnoreCase(name, currentInput)).collect(Collectors.toList());
     }
 
     @Override
-    public Kit parse(Class aClass, CommandInvocation commandInvocation) throws ParserException
+    public Optional<? extends Kit> getValue(Key<? super Kit> parameterKey, Mutable reader, Builder context) throws ArgumentParseException
     {
-        // TODO permission check here?
-        String consumed = commandInvocation.consume(1);
+        final String consumed = reader.parseString();
         Kit kit = manager.getKit(consumed);
+
         if (kit == null)
         {
-            throw new ParserException("Kit {} not found!", consumed);
+            throw reader.createException(i18n.translate(context.getCause().getAudience(), "Kit {} not found!", consumed));
         }
-        return kit;
+        return Optional.of(kit);
     }
 }

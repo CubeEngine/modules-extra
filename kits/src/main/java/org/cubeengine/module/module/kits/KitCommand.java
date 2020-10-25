@@ -19,6 +19,7 @@ package org.cubeengine.module.module.kits;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import net.kyori.adventure.identity.Identity;
@@ -39,7 +40,6 @@ import org.cubeengine.libcube.util.ChatFormat;
 import org.cubeengine.libcube.util.FileUtil;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandCause;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.item.inventory.ContainerTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -121,15 +121,17 @@ public class KitCommand extends DispatcherCommand
         itemList.clear();
 
         final InventoryMenu menu = inventory.asMenu();
-        menu.registerClose((cause, container) -> inventory.slots().forEach(slot -> {
-                     final ItemStack item = slot.peek();
-                     if (!item.isEmpty())
-                     {
-                         itemList.add(item.copy());
-                     }
-                     manager.saveKit(kit);
-                    i18n.send(player, POSITIVE, "Created the {name#kit} kit!", kit.getKitName());
-                 }));
+        menu.registerClose((cause, container) -> {
+            inventory.slots().forEach(slot -> {
+                final ItemStack item = slot.peek();
+                if (!item.isEmpty())
+                {
+                    itemList.add(item.copy());
+                }
+            });
+            manager.saveKit(kit);
+            i18n.send(player, POSITIVE, "Created the {name#kit} kit!", kit.getKitName());
+        });
 
         menu.setTitle(i18n.translate(player.getLocale(), Style.empty(), "Kit Contents: {name}", kit.getKitName()));
         menu.open(player);
@@ -140,8 +142,14 @@ public class KitCommand extends DispatcherCommand
     @Command(desc = "Lists all currently available kits.")
     public void list(CommandCause context)
     {
+        final Set<String> kitsNames = manager.getKitsNames();
+        if (kitsNames.isEmpty())
+        {
+            i18n.send(context.getAudience(), NEUTRAL, "No kits created yet.");
+            return;
+        }
         i18n.send(context.getAudience(), POSITIVE, "The following kits are available:");
-        for (String kitName : manager.getKitsNames())
+        for (String kitName : kitsNames)
         {
             context.sendMessage(Identity.nil(), Component.text().append(Component.text(" - ", NamedTextColor.WHITE)).append(Component.text(kitName, NamedTextColor.YELLOW)).build());
         }
@@ -156,7 +164,16 @@ public class KitCommand extends DispatcherCommand
         {
             try
             {
-                if (kit.give(context.getAudience(), receiver, force))
+                if (kit.checkPerm(context, force))
+                {
+                    return;
+                }
+                if (kit.checkLimit(context, receiver, force))
+                {
+                    return;
+                }
+
+                if (kit.give(context, receiver, force))
                 {
                     if (receiver.equals(context.getAudience()))
                     {
@@ -197,7 +214,17 @@ public class KitCommand extends DispatcherCommand
             i18n.send(context.getAudience(), NEGATIVE, "You are not allowed to give kits to other players!");
             return;
         }
-        if (kit.give(context.getAudience(), player, force))
+
+        if (kit.checkPerm(context, force))
+        {
+            return;
+        }
+        if (kit.checkLimit(context, player, force))
+        {
+            return;
+        }
+
+        if (kit.give(context, player, force))
         {
             if (other)
             {
@@ -211,7 +238,7 @@ public class KitCommand extends DispatcherCommand
                 player.sendMessage(Identity.nil(), ChatFormat.fromLegacy(kit.getCustomMessage(), '&'));
                 return;
             }
-            if (kit.getCustomMessage().isEmpty())
+            if (kit.getCustomMessage() == null || kit.getCustomMessage().isEmpty())
             {
                 i18n.send(context.getAudience(), POSITIVE, "Received the {name#kit} kit. Enjoy.", kit.getKitName());
                 return;

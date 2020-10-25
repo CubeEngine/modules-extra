@@ -20,12 +20,11 @@ package org.cubeengine.module.module.kits;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import net.kyori.adventure.audience.Audience;
-import org.cubeengine.butler.parameter.IncorrectUsageException;
-import org.cubeengine.libcube.service.command.exception.PermissionDeniedException;
+import org.cubeengine.libcube.service.i18n.formatter.MessageType;
 import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.module.module.kits.data.KitData;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.command.exception.CommandException;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -68,40 +67,13 @@ public class Kit
         this.limitUsageDelay = limitUsageDelay;
     }
 
-    public boolean give(ServerPlayer user, boolean force)
+    public boolean give(ServerPlayer user)
     {
-        return this.give(null, user, force);
+        return this.give(null, user, true);
     }
 
-    public boolean give(Audience sender, ServerPlayer player, boolean force)
+    public boolean give(CommandCause sender, ServerPlayer player, boolean force)
     {
-        if (!force && this.getPermission() != null)
-        {
-            if (!sender.hasPermission(getPermission().getId()))
-            {
-                throw new PermissionDeniedException(getPermission());
-            }
-        }
-        if (!force)
-        {
-            if (limitUsagePerPlayer > 0)
-            {
-                boolean reached = limitUsagePerPlayer <= player.get(KitData.TIMES).map(m -> m.get(this.name)).orElse(0);
-                if (reached)
-                {
-                    // TODO this messages are not displayed & translated
-                    throw new IncorrectUsageException(false, "Kit-limit reached.");
-                }
-            }
-            if (limitUsageDelay > 0)
-            {
-                boolean inDelay = limitUsageDelay <= System.currentTimeMillis() - player.get(KitData.TIME).map(m -> m.get(this.name)).orElse(System.currentTimeMillis());
-                if (inDelay)
-                {
-                   throw new IncorrectUsageException(false, "This kit isn't available at the moment. Try again later!");
-                }
-            }
-        }
         items.forEach(i -> player.getInventory().offer(i.copy())); // TODO what if not enough place
         final Map<String, Long> timeData = player.get(KitData.TIME).orElse(new HashMap<>());
         final Map<String, Integer> timesData = player.get(KitData.TIMES).orElse(new HashMap<>());
@@ -111,6 +83,45 @@ public class Kit
         player.offer(KitData.TIMES, timesData);
         this.executeCommands(player);
         return true;
+    }
+
+    public boolean checkLimit(CommandCause sender, ServerPlayer player, boolean force)
+    {
+        if (!force)
+        {
+            if (limitUsagePerPlayer > 0)
+            {
+                boolean reached = limitUsagePerPlayer <= player.get(KitData.TIMES).map(m -> m.get(this.name)).orElse(0);
+                if (reached)
+                {
+                    module.getI18n().send(sender.getAudience(), MessageType.NEGATIVE, "Kit limit reached.");
+                    return true;
+                }
+            }
+            if (limitUsageDelay > 0)
+            {
+                boolean inDelay = limitUsageDelay >= System.currentTimeMillis() - player.get(KitData.TIME).map(m -> m.get(this.name)).orElse(System.currentTimeMillis());
+                if (inDelay)
+                {
+                    module.getI18n().send(sender.getAudience(), MessageType.NEGATIVE, "This kit isn't available at the moment. Try again later!");
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean checkPerm(CommandCause sender, boolean force)
+    {
+        if (!force && this.getPermission() != null)
+        {
+            if (!sender.hasPermission(getPermission().getId()))
+            {
+                module.getI18n().send(sender.getAudience(), MessageType.NEGATIVE, "You do not have the permission {name} to grant this kit.", getPermission());
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean isGiveKitOnFirstJoin()
@@ -161,7 +172,7 @@ public class Kit
         config.kitItems = this.items;
         config.kitName = this.name;
         config.limitUsage = this.limitUsagePerPlayer;
-        config.limitUsageDelay = java.time.Duration.ofSeconds(this.limitUsageDelay);
+        config.limitUsageDelay = java.time.Duration.ofMillis(this.limitUsageDelay);
         config.usePerm = this.permission != null;
     }
 
@@ -210,5 +221,10 @@ public class Kit
     public void setUsageDelay(long usageDelay)
     {
         this.limitUsageDelay = usageDelay;
+    }
+
+    public List<String> getCommands()
+    {
+        return this.commands;
     }
 }
