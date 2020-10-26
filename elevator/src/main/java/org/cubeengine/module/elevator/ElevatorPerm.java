@@ -17,12 +17,13 @@
  */
 package org.cubeengine.module.elevator;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionContainer;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 
-import javax.inject.Inject;
-
+@Singleton
 public class ElevatorPerm extends PermissionContainer
 {
 

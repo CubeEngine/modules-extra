@@ -17,45 +17,29 @@
  */
 package org.cubeengine.module.elevator;
 
-import org.cubeengine.libcube.CubeEngineModule;
-import org.cubeengine.libcube.service.event.EventManager;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import org.cubeengine.libcube.service.event.ModuleListener;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
-import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.module.elevator.data.ElevatorData;
-import org.cubeengine.module.elevator.data.ElevatorDataBuilder;
-import org.cubeengine.module.elevator.data.ImmutableElevatorData;
-import org.cubeengine.processor.Dependency;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
-import org.spongepowered.api.plugin.PluginContainer;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
 
 @Singleton
 @Module
-public class Elevator extends CubeEngineModule
+public class Elevator
 {
     @ModuleConfig private ElevatorConfig config;
     @Inject private ElevatorPerm perm;
-    @Inject private EventManager em;
-    @Inject private I18n i18n;
-    @Inject PluginContainer plugin;
+
+    @ModuleListener private ElevatorListener listener;
 
     @Listener
-    public void onEnable(GamePreInitializationEvent event)
+    public void onRegisterData(RegisterCatalogEvent<DataRegistration> event)
     {
-        DataRegistration.<ElevatorData, ImmutableElevatorData>builder()
-                .dataClass(ElevatorData.class).immutableClass(ImmutableElevatorData.class)
-                .builder(new ElevatorDataBuilder()).manipulatorId("elevator")
-                .dataName("CubeEngine Elevator Data")
-                .buildAndRegister(plugin);
-
-        ElevatorData.OWNER.getQuery();
-
-        em.registerListener(Elevator.class, new ElevatorListener(i18n, this));
+        ElevatorData.register(event);
     }
 
     public ElevatorPerm getPerm()

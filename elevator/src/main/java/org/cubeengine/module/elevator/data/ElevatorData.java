@@ -17,115 +17,44 @@
  */
 package org.cubeengine.module.elevator.data;
 
-import com.flowpowered.math.vector.Vector3i;
-import org.cubeengine.libcube.util.data.AbstractData;
-import org.spongepowered.api.block.tileentity.Sign;
-import org.spongepowered.api.data.DataContainer;
-import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.merge.MergeFunction;
-
-import java.util.Optional;
 import java.util.UUID;
+import com.google.common.reflect.TypeToken;
+import org.cubeengine.module.elevator.PluginElevator;
+import org.spongepowered.api.ResourceKey;
+import org.spongepowered.api.data.DataRegistration;
+import org.spongepowered.api.data.Key;
+import org.spongepowered.api.data.persistence.DataStore;
+import org.spongepowered.api.data.value.Value;
+import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
+import org.spongepowered.api.util.TypeTokens;
+import org.spongepowered.math.vector.Vector3i;
 
-public class ElevatorData extends AbstractData<ElevatorData, ImmutableElevatorData> implements IElevatorData
+public interface ElevatorData
 {
-    private UUID owner;
-    private Vector3i target;
+    TypeToken<Value<UUID>> TTV_UUID = new TypeToken<Value<UUID>>() {};
+    TypeToken<Value<Vector3i>> TTV_VECTOR = new TypeToken<Value<Vector3i>>() {};
 
-    public ElevatorData()
+    Key<Value<UUID>> OWNER = Key.builder().key(ResourceKey.of(PluginElevator.ELEVATOR_ID, "owner")).type(TTV_UUID).build();
+    Key<Value<Vector3i>> TARGET = Key.builder().key(ResourceKey.of(PluginElevator.ELEVATOR_ID, "target")).type(TTV_VECTOR).build();
+
+
+    static void register(RegisterCatalogEvent<DataRegistration> event)
     {
-        super(1, Sign.class);
+        final ResourceKey rkey = ResourceKey.of(PluginElevator.ELEVATOR_ID, "elevator");
+        final DataStore dataStore = DataStore.builder().pluginData(rkey)
+                                             .holder(TypeTokens.BLOCK_ENTITY_TOKEN)
+                                             .key(OWNER, "owner")
+                                             .key(TARGET, "target")
+                                             .build();
+
+        final DataRegistration registration = DataRegistration.builder()
+                                                              .dataKey(OWNER, TARGET)
+                                                              .store(dataStore)
+                                                              .key(rkey)
+                                                              .build();
+        event.register(registration);
     }
 
-    private ElevatorData with(UUID owner, Vector3i target)
-    {
-        this.owner = owner;
-        this.target = target;
-        return this;
-    }
 
-    public ElevatorData(IElevatorData data)
-    {
-        super(1);
-        with(data.getOwner(), data.getTarget());
-    }
 
-    @Override
-    protected void registerKeys()
-    {
-        registerSingle(OWNER, this::getOwner, this::setOwner);
-        registerSingle(TARGET, this::getTarget, this::setTarget);
-    }
-
-    @Override
-    public Vector3i getTarget()
-    {
-        return target;
-    }
-
-    public void setTarget(Vector3i target)
-    {
-        this.target = target;
-    }
-
-    @Override
-    public UUID getOwner()
-    {
-        return owner;
-    }
-
-    public void setOwner(UUID owner)
-    {
-        this.owner = owner;
-    }
-
-    @Override
-    public Optional<ElevatorData> fill(DataHolder dataholder, MergeFunction mergeFunction)
-    {
-        if (!supports(dataholder))
-        {
-            return Optional.empty();
-        }
-        ElevatorData merged = mergeFunction.merge(this,
-            new ElevatorData().with(
-                dataholder.get(OWNER).orElse(null),
-                dataholder.get(TARGET).orElse(null)));
-        if (merged != this)
-        {
-            this.with(merged.owner, merged.target);
-        }
-        return Optional.of(this);
-    }
-
-    @Override
-    public Optional<ElevatorData> from(DataContainer container)
-    {
-        Optional<UUID> owner = container.getObject(OWNER.getQuery(), UUID.class);
-        Optional<Vector3i> target = container.getObject(TARGET.getQuery(), Vector3i.class);
-
-        if (owner.isPresent())
-        {
-            with(owner.orElse(null), target.orElse(null));
-            return Optional.of(this);
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public ElevatorData copy()
-    {
-        return new ElevatorData(this);
-    }
-
-    @Override
-    public ImmutableElevatorData asImmutable()
-    {
-        return new ImmutableElevatorData(this);
-    }
-
-    @Override
-    public ElevatorData asMutable()
-    {
-        return this;
-    }
 }

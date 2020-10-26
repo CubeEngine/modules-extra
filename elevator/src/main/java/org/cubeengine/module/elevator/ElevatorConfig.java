@@ -32,5 +32,5 @@ public class ElevatorConfig extends ReflectedYaml
     @Comment("Dekor String to show elevators going down")
     public String downDecor = "▼";
     @Comment("The ItemType to use to create elevator signs")
-    public ItemType creationItem = ItemTypes.ENDER_PEARL;
+    public ItemType creationItem = ItemTypes.ENDER_PEARL.get();
 }

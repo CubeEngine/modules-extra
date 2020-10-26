@@ -17,64 +17,80 @@
  */
 package org.cubeengine.module.elevator;
 
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
-import static org.spongepowered.api.text.chat.ChatTypes.ACTION_BAR;
-
-import com.flowpowered.math.vector.Vector3d;
-import com.flowpowered.math.vector.Vector3i;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.sound.Sound.Source;
+import net.kyori.adventure.text.Component;
 import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.i18n.I18nTranslate.ChatType;
 import org.cubeengine.module.elevator.data.ElevatorData;
-import org.cubeengine.module.elevator.data.IElevatorData;
-import org.spongepowered.api.block.BlockType;
-import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.data.type.HandTypes;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.effect.particle.ParticleEffect;
+import org.spongepowered.api.effect.particle.ParticleTypes;
+import org.spongepowered.api.effect.sound.SoundTypes;
+import org.spongepowered.api.entity.living.player.gamemode.GameModes;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.event.EventContextKeys;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.util.blockray.BlockRay;
-import org.spongepowered.api.util.blockray.BlockRayHit;
+import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.ServerLocation;
+import org.spongepowered.api.world.server.ServerWorld;
+import org.spongepowered.math.vector.Vector3d;
+import org.spongepowered.math.vector.Vector3i;
+import org.spongepowered.plugin.PluginContainer;
 
-import java.util.List;
-import java.util.Optional;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 
+@Singleton
 public class ElevatorListener
 {
     private I18n i18n;
     private Elevator module;
+    private PluginContainer plugin;
 
-    public ElevatorListener(I18n i18n, Elevator module)
+    @Inject
+    public ElevatorListener(I18n i18n, Elevator module, PluginContainer plugin)
     {
         this.i18n = i18n;
         this.module = module;
+        this.plugin = plugin;
     }
 
     @Listener
-    public void onInteractBlock(InteractBlockEvent event, @Root Player player)
+    public void onInteractBlock(InteractBlockEvent event, @Root ServerPlayer player)
     {
-        if (!(event instanceof InteractBlockEvent.Primary.MainHand) && !(event instanceof InteractBlockEvent.Secondary.MainHand))
+        if (!event.getContext().get(EventContextKeys.USED_HAND).map(h -> h == HandTypes.MAIN_HAND.get()).orElse(false))
         {
             return;
         }
-        BlockType type = event.getTargetBlock().getState().getType();
-        if (type != BlockTypes.STANDING_SIGN && type != BlockTypes.WALL_SIGN)
+
+        if (!event.getBlock().getLocation().flatMap(Location::getBlockEntity).map(l -> l.supports(Keys.SIGN_LINES)).orElse(false))
         {
             return;
         }
-        Location<World> loc = event.getTargetBlock().getLocation().get();
-        ElevatorData data = loc.get(ElevatorData.class).orElse(null);
+
+        final ServerLocation loc = event.getBlock().getLocation().get();
+
+        final Optional<Vector3i> target = loc.get(ElevatorData.TARGET);
+        final Optional<UUID> owner = loc.get(ElevatorData.OWNER);
+        final ItemStack itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
+
         Boolean sneak = player.get(Keys.IS_SNEAKING).orElse(false);
         if (sneak)
         {
-            ItemStack itemInHand = player.getItemInHand(HandTypes.MAIN_HAND).orElse(ItemStack.empty());
-            if (data == null)
+            if (!owner.isPresent())
             {
                 if (!(event instanceof InteractBlockEvent.Primary))
                 {
@@ -85,19 +101,23 @@ public class ElevatorListener
                 {
                     if (player.hasPermission(module.getPerm().CREATE.getId()) && itemInHand.getType().equals(module.getConfig().creationItem))
                     {
-                        data = new ElevatorData();
-                        data.setOwner(player.getUniqueId());
-                        loc.offer(data);
-                        itemInHand.setQuantity(itemInHand.getQuantity() - 1);
+                        loc.offer(ElevatorData.OWNER, player.getUniqueId());
+                        if (!player.get(Keys.GAME_MODE).map(mode -> mode.equals(GameModes.CREATIVE.get())).orElse(false))
+                        {
+                            itemInHand.setQuantity(itemInHand.getQuantity() - 1);
+                        }
                         player.setItemInHand(HandTypes.MAIN_HAND, itemInHand);
 
-                        List<Text> list = loc.get(Keys.SIGN_LINES).get();
+                        List<Component> list = loc.get(Keys.SIGN_LINES).get();
                         // Set First Line with name of renamed Item
                         list.set(0, itemInHand.get(Keys.DISPLAY_NAME).orElse(list.get(0)));
                         loc.offer(Keys.SIGN_LINES, list);
 
-                        i18n.send(ACTION_BAR, player, POSITIVE, "Elevator created!");
-                        updateSign(loc, data);
+                        i18n.send(ChatType.ACTION_BAR, player, POSITIVE, "Elevator created!");
+                        updateSign(loc, null);
+
+                        player.getWorld().playSound(Sound.sound(SoundTypes.ENTITY_ENDER_EYE_DEATH, Source.PLAYER, 5f, 1), loc.getPosition());
+
                         event.setCancelled(true);
                     }
                 }
@@ -107,22 +127,33 @@ public class ElevatorListener
                 if (player.hasPermission(module.getPerm().ADJUST.getId()))
                 {
                     // Search order dependent on click
-                    Vector3i target = data.getTarget();
-                    target = findNextSign(loc, target, loc.getBlockPosition(), event instanceof InteractBlockEvent.Primary);
-                    data.setTarget(target);
-                    updateSign(loc, data);
+                    final Vector3i newTarget = findNextSign(loc, target.orElse(null), loc.getBlockPosition(), event instanceof InteractBlockEvent.Primary);
+                    if (newTarget == null)
+                    {
+                        player.getWorld().playSound(Sound.sound(SoundTypes.ENTITY_ENDERMAN_AMBIENT, Source.PLAYER, 5f, 10), loc.getPosition());
+                    }
+                    else
+                    {
+                        player.getWorld().playSound(Sound.sound(SoundTypes.ENTITY_ENDER_EYE_DEATH, Source.PLAYER, 5f, 1), loc.getPosition());
+                    }
+                    updateSign(loc, newTarget);
                     event.setCancelled(true);
                 }
             }
-            else if (itemInHand.getType() == ItemTypes.PAPER && event instanceof InteractBlockEvent.Primary)
+            else if (itemInHand.getType().isAnyOf(ItemTypes.PAPER) && event instanceof InteractBlockEvent.Primary)
             {
                 if (player.hasPermission(module.getPerm().RENAME.getId()))
                 {
-                    List<Text> list = loc.get(Keys.SIGN_LINES).get();
+                    List<Component> list = loc.get(Keys.SIGN_LINES).get();
                     // Set First Line with name of renamed Item
                     list.set(0, itemInHand.get(Keys.DISPLAY_NAME).orElse(list.get(0)));
                     loc.offer(Keys.SIGN_LINES, list);
-                    i18n.send(ACTION_BAR, player, POSITIVE, "Elevator name changed!");
+                    i18n.send(ChatType.ACTION_BAR, player, POSITIVE, "Elevator name changed!");
+                    player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_WOOL_BREAK, Source.PLAYER, 5f, 10), loc.getPosition());
+                    Sponge.getServer().getScheduler().submit(Task.builder().plugin(plugin).execute(() ->
+                        player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_WOOL_BREAK, Source.PLAYER, 5f, 10), loc.getPosition())).delayTicks(2).build());
+                    Sponge.getServer().getScheduler().submit(Task.builder().plugin(plugin).execute(() ->
+                       player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_WOOL_BREAK, Source.PLAYER, 2f, 1), loc.getPosition())).delayTicks(4).build());
                     event.setCancelled(true);
                 }
             }
@@ -132,88 +163,105 @@ public class ElevatorListener
 
         if (event instanceof InteractBlockEvent.Secondary && player.hasPermission(module.getPerm().USE.getId()))
         {
-            Optional<Vector3i> target = event.getTargetBlock().get(IElevatorData.TARGET);
             if (target.isPresent())
             {
-                if (loc.getExtent().get(target.get(), ElevatorData.class).isPresent())
+                Vector3i sign = target.get();
+                Vector3d pPos = player.getLocation().getPosition();
+                if (!player.getWorld().get(target.get(), ElevatorData.OWNER).isPresent())
                 {
-                    Vector3i sign = target.get();
-                    Vector3d pPos = player.getLocation().getPosition();
-                    Location<World> targetLoc = new Location<>(player.getWorld(), pPos.getX(), sign.getY() - 1, pPos.getZ());
-                    if (!player.setLocationSafely(targetLoc))
-                    {
-                        i18n.send(ACTION_BAR, player, NEGATIVE, "Target obstructed");
-                    }
+                    updateSign(loc, null);
                     event.setCancelled(true);
+                    return;
+                }
+                ServerLocation targetLoc = ServerLocation.of(player.getWorld(), pPos.getX(), sign.getY() -1, pPos.getZ());
+                final Optional<ServerLocation> safeLoc = Sponge.getServer().getTeleportHelper().getSafeLocation(targetLoc);
+                if (safeLoc.isPresent())
+                {
+                    player.setLocation(safeLoc.get());
+                    player.getWorld().playSound(Sound.sound(SoundTypes.ITEM_CHORUS_FRUIT_TELEPORT, Source.PLAYER, 5f, 10f), safeLoc.get().getPosition());
+                    final ParticleEffect particle = ParticleEffect.builder().type(ParticleTypes.PORTAL).quantity(50).offset(Vector3d.from(0.2, 0.5, 0.2)).build();
+                    player.getWorld().spawnParticles(particle, safeLoc.get().getPosition().add(0, 1, 0));
+                    player.getWorld().spawnParticles(particle, pPos.add(0,1,0));
                 }
                 else
                 {
-                    i18n.send(ACTION_BAR, player, NEGATIVE, "Target sign was destroyed!");
-                    event.setCancelled(true);
+                    i18n.send(ChatType.ACTION_BAR, player, NEGATIVE, "Target obstructed");
                 }
+                event.setCancelled(true);
             }
         }
 
-        if (event instanceof InteractBlockEvent.Secondary)
+        if (event instanceof InteractBlockEvent.Secondary && !itemInHand.isEmpty())
         {
-            Optional<ItemStack> itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
-            if (itemInHand.isPresent())
+            if (player.hasPermission(module.getPerm().CREATE.getId()) && itemInHand.getType().isAnyOf(module.getConfig().creationItem))
             {
-                if (player.hasPermission(module.getPerm().CREATE.getId()) && itemInHand.get().getType().equals(module.getConfig().creationItem))
-                {
-                    event.setCancelled(true);
-                }
+                event.setCancelled(true);
             }
         }
     }
 
-    private void updateSign(Location<World> loc, ElevatorData data)
+    private void updateSign(ServerLocation loc, Vector3i target)
     {
-        Text liftLine = Text.of(module.getConfig().liftDecor + " Lift " + module.getConfig().liftDecor);
-        Text targetLine = Text.of("No Target");
-        Text directionLine = Text.EMPTY;
-        if (data.getTarget() != null)
+        final Component liftLine = Component.text(module.getConfig().liftDecor + " Lift " + module.getConfig().liftDecor);
+        Component targetLine = Component.text("No Target");
+        Component directionLine = Component.text(module.getConfig().upDecor + " SNEAK " + module.getConfig().downDecor);
+        if (target != null)
         {
-            Optional<List<Text>> lines = loc.getExtent().get(data.getTarget(), Keys.SIGN_LINES);
+            final Optional<List<Component>> lines = loc.getWorld().get(target, Keys.SIGN_LINES);
             targetLine = lines.map(l -> l.get(0)).orElse(targetLine);
-            int blocks = loc.getBlockY() - data.getTarget().getY();
+            int blocks = loc.getBlockY() - target.getY();
             String decor = blocks < 0 ? module.getConfig().upDecor : module.getConfig().downDecor;
-            directionLine = Text.of(decor + " ",  Math.abs(blocks), " " + decor);
+            directionLine = Component.text(decor + " " + Math.abs(blocks) + " " + decor);
+            loc.offer(ElevatorData.TARGET, target);
+        }
+        else
+        {
+            loc.remove(ElevatorData.TARGET);
         }
 
-        List<Text> list = loc.get(Keys.SIGN_LINES).get();
+        List<Component> list = loc.get(Keys.SIGN_LINES).get();
         list.set(1, liftLine);
         list.set(2, targetLine);
         list.set(3, directionLine);
         loc.offer(Keys.SIGN_LINES, list);
-        loc.offer(data);
     }
 
-    private Vector3i findNextSign(Location<World> loc, Vector3i previous, Vector3i startPos, boolean up)
+    private Vector3i findNextSign(ServerLocation loc, Vector3i previous, Vector3i startPos, boolean up)
     {
         startPos = previous == null ? startPos : previous;
         // Search for next Elevator sign
-        BlockRay<World> ray = BlockRay.from(loc.getExtent(), startPos.toDouble())
-                .direction(new Vector3d(0, up ? 1 : -1, 0))
-                .narrowPhase(false)
-                .stopFilter(b -> b.getBlockY() <= loc.getExtent().getBlockMax().getY())
-                .stopFilter(b -> b.getBlockY() >= loc.getExtent().getBlockMin().getY()).build();
-        while (ray.hasNext())
+
+        final int max = loc.getWorld().getBlockMax().getY();
+        final int min = loc.getWorld().getBlockMin().getY();
+        final int blockX = loc.getBlockX();
+        final int blockZ = loc.getBlockZ();
+        final ServerWorld world = loc.getWorld();
+
+        int blockY = startPos.getY();
+        while (blockY <= max && blockY >= min)
         {
-            BlockRayHit<World> next = ray.next();
-            if (next.getBlockPosition().equals(startPos))
+            if (up)
+            {
+                blockY++;
+            }
+            else
+            {
+                blockY--;
+            }
+            if (blockY == loc.getBlockY())
             {
                 continue;
             }
-            Optional<ElevatorData> targetData = next.getLocation().get(ElevatorData.class);
-            if (targetData.isPresent() && !next.getBlockPosition().equals(loc.getBlockPosition()))
+            if (world.get(blockX, blockY, blockZ, ElevatorData.OWNER).isPresent())
             {
-                return next.getBlockPosition();
+                return new Vector3i(blockX, blockY, blockZ);
             }
         }
-
         // nothing found? Return same location as before when it is valid
-        Optional<ElevatorData> targetData = loc.getExtent().get(startPos, ElevatorData.class);
-        return targetData.isPresent() ? previous : null;
+        if (previous != null && world.get(blockX, previous.getY(), blockZ, ElevatorData.OWNER).isPresent())
+        {
+            return previous;
+        }
+        return null;
     }
 }
