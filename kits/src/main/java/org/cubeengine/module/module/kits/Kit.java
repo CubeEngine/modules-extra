@@ -100,7 +100,7 @@ public class Kit
             }
             if (limitUsageDelay > 0)
             {
-                boolean inDelay = limitUsageDelay >= System.currentTimeMillis() - player.get(KitData.TIME).map(m -> m.get(this.name)).orElse(System.currentTimeMillis());
+                boolean inDelay = limitUsageDelay >= System.currentTimeMillis() - player.get(KitData.TIME).map(m -> m.get(this.name)).orElse(0L);
                 if (inDelay)
                 {
                     module.getI18n().send(sender.getAudience(), MessageType.NEGATIVE, "This kit isn't available at the moment. Try again later!");
@@ -117,7 +117,7 @@ public class Kit
         {
             if (!sender.hasPermission(getPermission().getId()))
             {
-                module.getI18n().send(sender.getAudience(), MessageType.NEGATIVE, "You do not have the permission {name} to grant this kit.", getPermission());
+                module.getI18n().send(sender.getAudience(), MessageType.NEGATIVE, "You do not have the permission {name} to grant this kit.", getPermission().getId());
                 return true;
             }
         }
