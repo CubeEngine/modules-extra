@@ -230,7 +230,7 @@ public class ChatCommands
 
         for (Entry<Character, NamedTextColor> color : ChatFormat.namedColors.entrySet())
         {
-            builder.append(Component.text(" "))
+            builder.append(Component.space())
                    .append(Component.text(color.getValue().toString()).color(color.getValue()))
                    .append(Component.text(" (" + color.getKey() + ")"));
             if (i++ % 3 == 0)
@@ -241,7 +241,7 @@ public class ChatCommands
         builder.append(Component.newline());
         for (Entry<Character, TextDecoration> decoration : ChatFormat.textDecorations.entrySet())
         {
-            builder.append(Component.text(" "))
+            builder.append(Component.space())
                    .append(Component.text(decoration.getValue().toString()).decorate(decoration.getValue()))
                    .append(Component.text(" (" + decoration.getKey() + ")"));
             if (i++ % 3 == 0)
