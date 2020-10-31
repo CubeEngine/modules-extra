@@ -33,6 +33,7 @@ import org.cubeengine.libcube.service.i18n.I18nTranslate.ChatType;
 import org.cubeengine.module.chat.Chat;
 import org.cubeengine.module.chat.ChatConfig;
 import org.cubeengine.module.chat.ChatPerm;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
@@ -123,6 +124,7 @@ public class ChatFormatListener
             replacements.put("{SUFFIX}", fromLegacy(subject.getOption("chat-suffix").orElse(""), '&'));
 
             event.setMessage(fromLegacy(this.getFormat(subject), replacements, '&'));
+            event.setChatRouter((p, message) -> Sponge.getServer().sendMessage(p, message));
         }
         catch (ExecutionException | InterruptedException e)
         {
