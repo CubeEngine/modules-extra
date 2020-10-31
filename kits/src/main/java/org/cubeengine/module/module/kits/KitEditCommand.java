@@ -90,7 +90,7 @@ public class KitEditCommand extends DispatcherCommand
         manager.saveKit(kit);
     }
 
-    @Command(desc = "Sets commands to be run when a kit is received")
+    @Command(desc = "Removes commands to be run when a kit is received")
     public void removeCommand(CommandCause context, Kit kit, @Option @Greedy String command, @Flag boolean all)
     {
         if (all)
