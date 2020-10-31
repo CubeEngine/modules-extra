@@ -22,8 +22,11 @@ import org.cubeengine.module.squelch.PluginSquelch;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.data.Key;
+import org.spongepowered.api.data.persistence.DataStore;
 import org.spongepowered.api.data.value.ListValue;
 import org.spongepowered.api.data.value.Value;
+import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
 import org.spongepowered.api.util.TypeTokens;
 import java.util.UUID;
@@ -43,6 +46,11 @@ public interface SquelchData
 
     static void register(RegisterCatalogEvent<DataRegistration> event)
     {
-
+        final ResourceKey key = ResourceKey.of(PluginSquelch.SQUELCH_ID, "squelch");
+        final DataStore dataStore = DataStore.builder().pluginData(key)
+                                             .holder(ServerPlayer.class, User.class)
+                                             .key(IGNORED, "ignored")
+                                             .key(MUTED, "muted").build();
+        event.register(DataRegistration.builder().dataKey(IGNORED, MUTED).store(dataStore).key(key).build());
     }
 }

@@ -20,6 +20,7 @@ package org.cubeengine.module.squelch.command;
 import java.sql.Date;
 import java.time.Duration;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.Style;
 import org.cubeengine.converter.ConversionException;
@@ -33,11 +34,13 @@ import org.cubeengine.module.squelch.Squelch;
 import org.cubeengine.module.squelch.data.SquelchData;
 import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 
 import static java.util.concurrent.TimeUnit.DAYS;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
 
-public class  MuteCommands
+@Singleton
+public class MuteCommands
 {
     private Squelch module;
     private I18n i18n;
@@ -51,7 +54,7 @@ public class  MuteCommands
     }
 
     @Command(desc = "Mutes a player")
-    public void mute(CommandCause context, Player player, @Option String duration)
+    public void mute(CommandCause context, ServerPlayer player, @Option String duration)
     {
         Date muted = getMuted(player);
         if (muted != null && muted.getTime() > System.currentTimeMillis())
@@ -86,18 +89,18 @@ public class  MuteCommands
         i18n.send(context.getAudience(), NEUTRAL, "You muted {user} globally for {txt#amount}!", player, timeString);
     }
 
-    public Date getMuted(Player player)
+    public Date getMuted(ServerPlayer player)
     {
         return player.get(SquelchData.MUTED).map(Date::new).orElse(null);
     }
 
-    public void setMuted(Player player, Date date)
+    public void setMuted(ServerPlayer player, Date date)
     {
         player.offer(SquelchData.MUTED, date.getTime());
     }
 
     @Command(desc = "Unmutes a player")
-    public void unmute(CommandCause context, Player player)
+    public void unmute(CommandCause context, ServerPlayer player)
     {
         player.remove(SquelchData.MUTED);
         i18n.send(context.getAudience(), POSITIVE, "{user} is no longer muted!", player);

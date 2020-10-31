@@ -58,7 +58,7 @@ public class MuteListener
             return;
         }
 
-        final PlayerChatRouter originalChatRouter = event.getOriginalChatRouter();
+        final PlayerChatRouter originalChatRouter = event.getChatRouter().orElse(event.getOriginalChatRouter());
         event.setChatRouter((player, message) -> {
             if (!this.ignoreCmd.checkIgnored(player, source.getUniqueId())) // ignored?
             {

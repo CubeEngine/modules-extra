@@ -18,15 +18,16 @@
 package org.cubeengine.module.squelch.command;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import com.google.inject.Inject;
-import org.cubeengine.butler.filter.Restricted;
+import com.google.inject.Singleton;
 import org.cubeengine.libcube.service.command.annotation.Command;
+import org.cubeengine.libcube.service.command.annotation.Restricted;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.util.ChatFormat;
 import org.cubeengine.libcube.util.StringUtils;
-import org.cubeengine.module.squelch.Squelch;
 import org.cubeengine.module.squelch.SquelchPerm;
 import org.cubeengine.module.squelch.data.SquelchData;
 import org.spongepowered.api.entity.living.player.Player;
@@ -36,16 +37,15 @@ import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 
+@Singleton
 public class IgnoreCommands
 {
-    private final Squelch module;
     private I18n i18n;
     private SquelchPerm perms;
 
     @Inject
-    public IgnoreCommands(I18n i18n, Squelch module, SquelchPerm perms)
+    public IgnoreCommands(I18n i18n, SquelchPerm perms)
     {
-        this.module = module;
         this.i18n = i18n;
         this.perms = perms;
     }
@@ -80,12 +80,12 @@ public class IgnoreCommands
     }
 
     @Command(desc = "Ignores all messages from players")
-    public void ignore(ServerPlayer sender, List<User> players)
+    public void ignore(ServerPlayer sender, User player) // TODO User list
     {
         List<String> added = new ArrayList<>();
-        for (User user : players)
+        for (User user : Arrays.asList(player))
         {
-            if (user == sender)
+            if (user.getUniqueId().equals(sender.getUniqueId()))
             {
                 i18n.send(sender, NEGATIVE, "If you do not feel like talking to yourself just don't talk.");
             }
@@ -112,11 +112,11 @@ public class IgnoreCommands
     }
 
     @Command(desc = "Stops ignoring all messages from a player")
-    @Restricted(value = ServerPlayer.class, msg = "Congratulations! You are now looking at this text!")
-    public void unignore(ServerPlayer context, List<User> players)
+    @Restricted(msg = "Congratulations! You are now looking at this text!")
+    public void unignore(ServerPlayer context, User player) // TODO User list
     {
         List<String> added = new ArrayList<>();
-        for (User user : players)
+        for (User user : Arrays.asList(player))
         {
             if (!this.removeIgnore(context, user.getUniqueId()))
             {

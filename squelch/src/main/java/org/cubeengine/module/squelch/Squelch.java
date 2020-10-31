@@ -21,14 +21,20 @@ import com.google.inject.Singleton;
 import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
 import org.cubeengine.libcube.service.event.ModuleListener;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
+import org.cubeengine.module.squelch.command.IgnoreCommands;
 import org.cubeengine.module.squelch.command.MuteCommands;
+import org.cubeengine.module.squelch.data.SquelchData;
 import org.cubeengine.processor.Module;
+import org.spongepowered.api.data.DataRegistration;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
 
 @Singleton
 @Module
 public class Squelch
 {
-    @ModuleCommand private MuteCommands cmd;
+    @ModuleCommand private MuteCommands muteCommands;
+    @ModuleCommand private IgnoreCommands ignoreCommands;
     @ModuleConfig private SquelchConfig config;
     @ModuleListener private MuteListener muteListener;
 
@@ -36,4 +42,11 @@ public class Squelch
     {
         return config;
     }
+
+    @Listener
+    public void onRegisterData(RegisterCatalogEvent<DataRegistration> event)
+    {
+        SquelchData.register(event);
+    }
+
 }
