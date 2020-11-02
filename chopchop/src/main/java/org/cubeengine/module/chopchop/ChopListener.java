@@ -124,7 +124,7 @@ public class ChopListener
             BlockType type = transaction.getOriginal().getState().getType();
             ServerLocation orig = transaction.getOriginal().getLocation().get();
             ServerWorld world = orig.getWorld();
-            BlockType belowType = orig.add(DOWN.asBlockOffset()).getBlockType();
+            BlockType belowType = orig.relativeTo(DOWN).getBlockType();
             if (isLog(type) && isSoil(belowType))
             {
                 WoodType treeType = transaction.getOriginal().getState().get(Keys.WOOD_TYPE).get();

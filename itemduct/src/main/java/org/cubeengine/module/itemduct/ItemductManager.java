@@ -175,7 +175,7 @@ public class ItemductManager
                 boolean pull = false;
                 for (Direction dir : data.get().keySet())
                 {
-                    if (loc.add(dir.asBlockOffset()).getBlockType().equals(OBSERVER.get()))
+                    if (loc.relativeTo(dir).getBlockType().isAnyOf(OBSERVER))
                     {
                         pull = true;
                     }
@@ -235,7 +235,7 @@ public class ItemductManager
                     {
                         if (dir.isCardinal() || dir.isUpright())
                         {
-                            BlockType type = loc.add(dir.asBlockOffset()).getBlockType();
+                            BlockType type = loc.relativeTo(dir).getBlockType();
                             if (type.isAnyOf(STICKY_PISTON, OBSERVER))
                             {
                                 List<ItemStack> filters = data.get().get(dir);

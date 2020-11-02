@@ -44,7 +44,7 @@ public class NetworkFilter {
         this.filterLoc = world.getLocation(pos);
         final Direction dir = this.filterLoc.get(Keys.DIRECTION).orElse(Direction.NONE);
         this.filterDir = dir.getOpposite();
-        this.inventoryLoc = this.filterLoc.add(dir.asBlockOffset());
+        this.inventoryLoc = this.filterLoc.relativeTo(dir);
         this.filters = this.inventoryLoc.get(ItemductData.FILTERS).orElse(null);
         this.validType = dir != Direction.NONE
                 && ItemductBlocks.isEndPointType(this.filterLoc.getBlockType())
