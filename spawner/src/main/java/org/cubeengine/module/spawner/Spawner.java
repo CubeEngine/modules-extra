@@ -37,6 +37,7 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.block.entity.BlockEntity;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.entity.Entity;
@@ -198,7 +199,7 @@ public class Spawner
             Transaction<BlockSnapshot> trans = event.getTransactions().get(0);
             ServerLocation loc = trans.getFinal().getLocation().get();
             trans.getOriginal().restore(true, BlockChangeFlags.NONE);
-            EntityType<?> type = loc.get(Keys.NEXT_ENTITY_TO_SPAWN).map(a -> a.get().getType()).orElse(null);
+            EntityType<?> type = loc.getBlockEntity().flatMap(spawner -> spawner.get(Keys.NEXT_ENTITY_TO_SPAWN)).map(a -> a.get().getType()).orElse(null);
             trans.getDefault().restore(true, BlockChangeFlags.NONE);
 
             if (type == null || event.isCancelled())
@@ -208,6 +209,7 @@ public class Spawner
 
             ItemStack spawnerItem = this.spawnerItem.copy();
             spawnerItem.offer(Keys.APPLIED_ENCHANTMENTS, singletonList(Enchantment.builder().type(LURE).level(1).build()));
+            spawnerItem.offer(Keys.HIDE_ENCHANTMENTS, true);
             spawnerItem.offer(Keys.DISPLAY_NAME, i18n.translate(player, "Inactive monster spawner"));
 
             brokenSpawners.computeIfAbsent(loc.getWorldKey(), k -> new HashSet<>()).add(loc.getBlockPosition());
@@ -248,15 +250,17 @@ public class Spawner
             places(event, BlockTypes.SPAWNER.get()) &&
             hasEnchantment(inHand.get(), LURE.get()))
         {
-            EntityArchetype hidden = EntityArchetype.builder().type(SNOWBALL).add(Keys.IS_INVISIBLE, true).build();
+            EntityArchetype hidden = EntityArchetype.builder().type(SNOWBALL).add(Keys.IS_INVISIBLE, true)
+                                                    .build();
             for (Transaction<BlockSnapshot> trans : event.getTransactions())
             {
                 if (trans.getFinal().getState().getType().isAnyOf(BlockTypes.SPAWNER))
                 {
                     BlockSnapshot snap = trans.getFinal();
                     ServerLocation loc = snap.getLocation().get();
-                    loc.offer(Keys.SPAWNABLE_ENTITIES, new WeightedTable<>());
-                    loc.offer(Keys.NEXT_ENTITY_TO_SPAWN, new WeightedSerializableObject<>(hidden, 1));
+                    final BlockEntity spawner = loc.getBlockEntity().get();
+                    spawner.offer(Keys.SPAWNABLE_ENTITIES, new WeightedTable<>());
+                    spawner.offer(Keys.NEXT_ENTITY_TO_SPAWN, new WeightedSerializableObject<>(hidden, 1));
                     i18n.send(ACTION_BAR, player, POSITIVE, "Inactive monster spawner placed!");
                     return;
                 }
