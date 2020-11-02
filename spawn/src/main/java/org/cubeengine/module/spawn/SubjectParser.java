@@ -17,34 +17,54 @@
  */
 package org.cubeengine.module.spawn;
 
-import org.cubeengine.butler.CommandInvocation;
-import org.cubeengine.butler.parameter.argument.ArgumentParser;
-import org.cubeengine.butler.parameter.argument.DefaultValue;
-import org.cubeengine.butler.parameter.argument.ParserException;
-import org.spongepowered.api.entity.living.player.Player;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import com.google.inject.Singleton;
+import org.cubeengine.libcube.service.command.DefaultParameterProvider;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.command.exception.ArgumentParseException;
+import org.spongepowered.api.command.parameter.ArgumentReader.Mutable;
+import org.spongepowered.api.command.parameter.CommandContext.Builder;
+import org.spongepowered.api.command.parameter.Parameter.Key;
+import org.spongepowered.api.command.parameter.managed.ValueParser;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 
-import java.util.concurrent.ExecutionException;
-
-public class SubjectParser implements ArgumentParser<Subject>, DefaultValue<Subject>
+@Singleton
+public class SubjectParser implements ValueParser<Subject>, DefaultParameterProvider<Subject>
 {
-    private PermissionService pm;
-
-    public SubjectParser(PermissionService pm)
-    {
-        this.pm = pm;
-    }
-
     @Override
-    public Subject parse(Class aClass, CommandInvocation commandInvocation) throws ParserException
+    public Subject apply(CommandCause commandCause)
     {
         try
         {
-            String token = commandInvocation.currentToken();
+            if (commandCause.getAudience() instanceof ServerPlayer)
+            {
+                final PermissionService pm = Sponge.getServer().getServiceProvider().permissionService();
+                return pm.getUserSubjects().loadSubject((((ServerPlayer)commandCause.getAudience())).getIdentifier()).get();
+            }
+        }
+        catch (ExecutionException | InterruptedException e)
+        {
+            throw new IllegalStateException(e); // TODO better handling
+        }
+        // TODO exception
+        return null;
+    }
+
+    @Override
+    public Optional<? extends Subject> getValue(Key<? super Subject> parameterKey, Mutable reader, Builder context) throws ArgumentParseException
+    {
+        try
+        {
+            final PermissionService pm = Sponge.getServer().getServiceProvider().permissionService();
+
+            String token = reader.parseString();
             if (pm.getGroupSubjects().hasSubject(token).get())
             {
-                return pm.getGroupSubjects().loadSubject(token).get();
+                return Optional.of(pm.getGroupSubjects().loadSubject(token).join());
             }
         }
         catch (ExecutionException | InterruptedException e)
@@ -56,21 +76,4 @@ public class SubjectParser implements ArgumentParser<Subject>, DefaultValue<Subj
         return null;
     }
 
-    @Override
-    public Subject provide(CommandInvocation invocation)
-    {
-        try
-        {
-            if (invocation.getCommandSource() instanceof Player)
-            {
-                return pm.getUserSubjects().loadSubject(((Player)invocation.getCommandSource()).getIdentifier()).get();
-            }
-        }
-        catch (ExecutionException | InterruptedException e)
-        {
-            throw new IllegalStateException(e); // TODO better handling
-        }
-        // TODO exception
-        return null;
-    }
 }

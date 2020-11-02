@@ -17,28 +17,30 @@
  */
 package org.cubeengine.module.spawn;
 
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
-
+import java.util.Optional;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.entity.living.player.RespawnPlayerEvent;
 import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 import org.spongepowered.api.service.permission.PermissionService;
-import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.math.vector.Vector3d;
-import java.util.Optional;
 
+@Singleton
 public class SpawnListener
 {
     private PermissionService pm;
 
-    public SpawnListener(PermissionService pm)
+    @Inject
+    public SpawnListener(Spawn module)
     {
-        this.pm = pm;
+        this.pm = module.getPermissionService();
     }
 
+    @Listener
     public void onJoin(ServerSideConnectionEvent.Login event)
     {
         if (event.getUser().get(Keys.LAST_DATE_PLAYED).isPresent())
@@ -55,8 +57,6 @@ public class SpawnListener
             event.setToRotation(rot.get());
         }
     }
-
-
 
     @Listener(order = Order.LATE)
     public void onSpawn(RespawnPlayerEvent event)

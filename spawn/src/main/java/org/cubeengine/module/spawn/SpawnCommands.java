@@ -28,6 +28,8 @@ import org.cubeengine.libcube.service.command.annotation.Flag;
 import org.cubeengine.libcube.service.command.annotation.Named;
 import org.cubeengine.libcube.service.command.annotation.ParameterPermission;
 import org.cubeengine.libcube.service.command.annotation.Parser;
+import org.cubeengine.libcube.service.command.annotation.Using;
+import org.cubeengine.libcube.service.command.parser.ContextParser;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.util.StringUtils;
 import org.spongepowered.api.ResourceKey;
@@ -38,6 +40,7 @@ import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.util.Transform;
+import org.spongepowered.api.world.ServerLocation;
 import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.math.vector.Vector3d;
 
@@ -46,6 +49,7 @@ import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE
 import static org.cubeengine.libcube.util.ContextUtil.toSet;
 
 @Singleton
+@Using(ContextParser.class)
 public class SpawnCommands
 {
     public static final String ROLESPAWN_WORLD = "rolespawn_world";
@@ -53,22 +57,22 @@ public class SpawnCommands
     public static final String ROLESPAWN_ROTATION = "rolespawn_rotation";
 
     private I18n i18n;
-    private PermissionService pm;
+    private Spawn module;
 
     @Inject
-    public SpawnCommands(I18n i18n, PermissionService pm)
+    public SpawnCommands(I18n i18n, Spawn module)
     {
         this.i18n = i18n;
-        this.pm = pm;
+        this.module = module;
     }
 
     @Command(desc = "Changes the respawnpoint")
-    public void setRoleSpawn(ServerPlayer ctx, @Parser(SubjectParser.class) Subject role, @Default Context context)
+    public void setRoleSpawn(ServerPlayer player, @Parser(parser = SubjectParser.class) Subject role, @Default Context context)
     {
-        setRoleSpawn(context, ctx.getWorld(), ctx.getTransform(), role);
-        i18n.send(ctx, POSITIVE, "The spawn in {world} for the role {name#role} is now set to {vector}",
+        setRoleSpawn(context, player.getWorld(), player.getTransform(), role);
+        i18n.send(player, POSITIVE, "The spawn in {world} for the role {name#role} is now set to {vector}",
                             context, role.getIdentifier(),
-                            ctx.getLocation().getPosition());
+                            player.getLocation().getPosition());
     }
 
     private void setRoleSpawn(Context context, ServerWorld world, Transform transform, Subject role)
@@ -88,24 +92,24 @@ public class SpawnCommands
     // TODO teleport all players to spawn
 
     @Command(desc = "Teleports a player to the configured rolespawn")
-    public void roleSpawn(CommandCause ctx, @Default ServerPlayer player, @Default Context context,
-                          @Named({"role", "r"}) @Default @Parser(SubjectParser.class) Subject role,
+    public void roleSpawn(CommandCause cause, @Default ServerPlayer player, @Default Context context,
+                          @Named({"role", "r"}) @Default(SubjectParser.class) @Parser(parser = SubjectParser.class) Subject role,
                           @ParameterPermission @Flag boolean force)
     {
         String name = role.getIdentifier();
-        if (pm.getGroupSubjects() == role.getContainingCollection())
+        if (module.getPermissionService().getUserSubjects() == role.getContainingCollection())
         {
             name = Sponge.getServer().getUserManager().get(UUID.fromString(name)).get().getName();
         }
 
-        final Audience ctxAudience = ctx.getAudience();
+        final Audience ctxAudience = cause.getAudience();
 
         final Optional<Vector3d> pos = getSubjectSpawnPos(role);
         final Optional<Vector3d> rot = getSubjectSpawnRotation(role);
         final Optional<ServerWorld> world = getSubjectSpawnWorld(role);
         if (!pos.isPresent() || !rot.isPresent() || !world.isPresent())
         {
-            i18n.send(ctxAudience, NEGATIVE, "No rolespawn set for {name} in {ctx}", name, context);
+            i18n.send(ctxAudience, NEGATIVE, "No rolespawn set for {name} in {context}", name, context);
             return;
         }
 
@@ -116,15 +120,15 @@ public class SpawnCommands
         }
         if (!ctxAudience.equals(player))
         {
-            i18n.send(ctxAudience, POSITIVE, "Teleported {user} to the spawn of the role {name#role} in {ctx}", player, name, context);
+            i18n.send(ctxAudience, POSITIVE, "Teleported {user} to the spawn of the role {name#role} in {context}", player, name, context);
         }
-        else if (pm.getGroupSubjects() == role.getContainingCollection())
+        else if (module.getPermissionService().getGroupSubjects() == role.getContainingCollection())
         {
-            i18n.send(ctxAudience, POSITIVE, "You are now standing at your role's spawn in {ctx}!", context);
+            i18n.send(ctxAudience, POSITIVE, "You are now standing at your role's spawn in {context}!", context);
         }
         else
         {
-            i18n.send(ctxAudience, POSITIVE, "You are now standing at the spawn of {name#role} in {ctx}!", name, context);
+            i18n.send(ctxAudience, POSITIVE, "You are now standing at the spawn of {name#role} in {context}!", name, context);
         }
     }
 
@@ -171,17 +175,19 @@ public class SpawnCommands
         });
     }
 
-    private boolean tpTo(ServerPlayer user, ServerWorld world, Transform transform, boolean force)
+    private boolean tpTo(ServerPlayer player, ServerWorld world, Transform transform, boolean force)
     {
         if (force)
         {
-            user.setLocation(world.getLocation(transform.getPosition()));
-            user.setRotation(transform.getRotation());
+            player.setLocation(world.getLocation(transform.getPosition()));
+            player.setRotation(transform.getRotation());
             return true;
         }
-        if (user.setLocationSafely(transform.getLocation()))
+        final Optional<ServerLocation> safeLoc = Sponge.getServer().getTeleportHelper().getSafeLocation(world.getLocation(transform.getPosition()));
+        if (safeLoc.isPresent())
         {
-            user.setRotation(transform.getRotation());
+            player.setLocation(safeLoc.get());
+            player.setRotation(transform.getRotation());
             return true;
         }
         return false;
