@@ -17,7 +17,7 @@
  */
 package org.cubeengine.module.squelch.data;
 
-import com.google.common.reflect.TypeToken;
+import io.leangen.geantyref.TypeToken;
 import org.cubeengine.module.squelch.PluginSquelch;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.data.DataRegistration;

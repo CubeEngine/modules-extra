@@ -43,6 +43,7 @@ import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.util.Ticks;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.ServerLocation;
 import org.spongepowered.api.world.server.ServerWorld;
@@ -151,9 +152,9 @@ public class ElevatorListener
                     i18n.send(ChatType.ACTION_BAR, player, POSITIVE, "Elevator name changed!");
                     player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_WOOL_BREAK, Source.PLAYER, 5f, 10), loc.getPosition());
                     Sponge.getServer().getScheduler().submit(Task.builder().plugin(plugin).execute(() ->
-                        player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_WOOL_BREAK, Source.PLAYER, 5f, 10), loc.getPosition())).delayTicks(2).build());
+                        player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_WOOL_BREAK, Source.PLAYER, 5f, 10), loc.getPosition())).delay(Ticks.of(2)).build());
                     Sponge.getServer().getScheduler().submit(Task.builder().plugin(plugin).execute(() ->
-                       player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_WOOL_BREAK, Source.PLAYER, 2f, 1), loc.getPosition())).delayTicks(4).build());
+                       player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_WOOL_BREAK, Source.PLAYER, 2f, 1), loc.getPosition())).delay(Ticks.of(4)).build());
                     event.setCancelled(true);
                 }
             }

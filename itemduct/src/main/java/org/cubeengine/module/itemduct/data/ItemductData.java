@@ -17,9 +17,10 @@
  */
 package org.cubeengine.module.itemduct.data;
 
-import com.google.common.reflect.TypeToken;
+import io.leangen.geantyref.TypeToken;
 import org.cubeengine.module.itemduct.PluginItemduct;
 import org.spongepowered.api.ResourceKey;
+import org.spongepowered.api.block.entity.BlockEntity;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.data.Key;
 import org.spongepowered.api.data.persistence.DataStore;
@@ -55,7 +56,7 @@ public interface ItemductData
     {
         final ResourceKey rkey = ResourceKey.of(PluginItemduct.ITEMDUCT_ID, "filters");
         final DataStore dataStore = DataStore.builder().pluginData(rkey)
-                                             .holder(TypeTokens.BLOCK_ENTITY_TOKEN)
+                                             .holder(BlockEntity.class)
                                              .key(ItemductData.FILTERS, "filters")
                                              .build();
 
@@ -71,7 +72,7 @@ public interface ItemductData
         final ResourceKey rkey = ResourceKey.of(PluginItemduct.ITEMDUCT_ID, "uses");
         final DataStore dataStore = DataStore.builder()
                 .pluginData(rkey)
-                .holder(TypeTokens.ITEM_STACK_TOKEN)
+                .holder(ItemStack.class)
                 .key(ItemductData.USES, "uses")
                 .build();
 

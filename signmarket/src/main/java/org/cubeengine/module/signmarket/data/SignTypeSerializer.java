@@ -20,7 +20,7 @@ package org.cubeengine.module.signmarket.data;
 import static org.spongepowered.api.data.DataQuery.of;
 
 import java.util.Optional;
-import com.google.common.reflect.TypeToken;
+import io.leangen.geantyref.TypeToken;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.key.Key;

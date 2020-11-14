@@ -17,7 +17,7 @@
  */
 package org.cubeengine.module.powertools.data;
 
-import com.google.common.reflect.TypeToken;
+import io.leangen.geantyref.TypeToken;
 import org.cubeengine.module.powertools.PluginPowertools;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.data.DataRegistration;
@@ -26,7 +26,6 @@ import org.spongepowered.api.data.persistence.DataStore;
 import org.spongepowered.api.data.value.ListValue;
 import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.util.TypeTokens;
 
 public interface PowertoolData
 {

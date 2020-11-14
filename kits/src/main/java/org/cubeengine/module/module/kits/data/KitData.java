@@ -17,7 +17,7 @@
  */
 package org.cubeengine.module.module.kits.data;
 
-import com.google.common.reflect.TypeToken;
+import io.leangen.geantyref.TypeToken;
 import org.cubeengine.module.module.kits.PluginKits;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.data.DataRegistration;

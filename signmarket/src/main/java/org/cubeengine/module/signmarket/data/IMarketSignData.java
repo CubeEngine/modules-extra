@@ -21,8 +21,10 @@ import static org.spongepowered.api.data.DataQuery.of;
 
 import java.util.UUID;
 
-import com.google.common.reflect.TypeToken;
+import io.leangen.geantyref.TypeToken;
+import org.spongepowered.api.data.Key;
 import org.spongepowered.api.data.key.Key;
+import org.spongepowered.api.data.value.Value;
 import org.spongepowered.api.data.value.mutable.Value;
 import org.spongepowered.api.item.inventory.ItemStack;
 

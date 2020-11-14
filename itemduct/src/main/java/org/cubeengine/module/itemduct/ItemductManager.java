@@ -53,6 +53,7 @@ import org.spongepowered.api.item.inventory.type.ViewableInventory;
 import org.spongepowered.api.scheduler.ScheduledTask;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.util.Direction;
+import org.spongepowered.api.util.Ticks;
 import org.spongepowered.api.world.ServerLocation;
 import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.math.vector.Vector3i;
@@ -192,7 +193,7 @@ public class ItemductManager
                 {
                     task.cancel();
                 }
-                final Task build = Task.builder().delayTicks(20).intervalTicks(20).execute(this::trigger).plugin(plugin).build();
+                final Task build = Task.builder().delay(Ticks.of(20)).interval(Ticks.of(20)).execute(this::trigger).plugin(plugin).build();
                 task = Sponge.getServer().getScheduler().submit(build);
             }
 
