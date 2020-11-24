@@ -18,15 +18,15 @@
 package org.cubeengine.module.elevator.data;
 
 import java.util.UUID;
-import com.google.common.reflect.TypeToken;
+import io.leangen.geantyref.TypeToken;
 import org.cubeengine.module.elevator.PluginElevator;
 import org.spongepowered.api.ResourceKey;
+import org.spongepowered.api.block.entity.BlockEntity;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.data.Key;
 import org.spongepowered.api.data.persistence.DataStore;
 import org.spongepowered.api.data.value.Value;
 import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
-import org.spongepowered.api.util.TypeTokens;
 import org.spongepowered.math.vector.Vector3i;
 
 public interface ElevatorData
@@ -42,7 +42,7 @@ public interface ElevatorData
     {
         final ResourceKey rkey = ResourceKey.of(PluginElevator.ELEVATOR_ID, "elevator");
         final DataStore dataStore = DataStore.builder().pluginData(rkey)
-                                             .holder(TypeTokens.BLOCK_ENTITY_TOKEN)
+                                             .holder(BlockEntity.class)
                                              .key(OWNER, "owner")
                                              .key(TARGET, "target")
                                              .build();
