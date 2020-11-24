@@ -59,17 +59,17 @@ public class SpawnListener
     }
 
     @Listener(order = Order.LATE)
-    public void onSpawn(RespawnPlayerEvent event)
+    public void onSpawn(RespawnPlayerEvent.Recreate event)
     {
         if (!event.isBedSpawn())
         {
-            final Optional<Vector3d> pos = SpawnCommands.getSubjectSpawnPos(event.getPlayer());
-            final Optional<Vector3d> rot = SpawnCommands.getSubjectSpawnRotation(event.getPlayer());
-            final Optional<ServerWorld> world = SpawnCommands.getSubjectSpawnWorld(event.getPlayer());
+            final Optional<Vector3d> pos = SpawnCommands.getSubjectSpawnPos(event.getEntity());
+            final Optional<Vector3d> rot = SpawnCommands.getSubjectSpawnRotation(event.getEntity());
+            final Optional<ServerWorld> world = SpawnCommands.getSubjectSpawnWorld(event.getEntity());
             if (pos.isPresent() && rot.isPresent() && world.isPresent())
             {
-                event.setToLocation(world.get().getLocation(pos.get()));
-                event.setToRotation(rot.get());
+                event.setDestinationPosition(pos.get());
+                event.getRecreatedPlayer().setRotation(rot.get());
             }
         }
     }
