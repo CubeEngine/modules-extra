@@ -17,6 +17,7 @@
  */
 package org.cubeengine.module.spawner;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -235,7 +236,7 @@ public class Spawner
     {
         if (snap.getLocation().isPresent())
         {
-            if (brokenSpawners.get(snap.getWorld()).remove(snap.getPosition()))
+            if (brokenSpawners.getOrDefault(snap.getWorld(), Collections.emptySet()).remove(snap.getPosition()))
             {
                 event.setCancelled(true);
             }
