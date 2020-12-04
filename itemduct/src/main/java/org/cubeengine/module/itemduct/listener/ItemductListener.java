@@ -25,6 +25,7 @@ import org.cubeengine.module.itemduct.data.ItemductData;
 import org.cubeengine.module.itemduct.data.ItemductItems;
 import org.cubeengine.libcube.util.ItemUtil;
 import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.block.transaction.Operations;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.Player;
@@ -79,9 +80,9 @@ public class ItemductListener
     }
 
     @Listener
-    public void onBreak(ChangeBlockEvent.Break event)
+    public void onBreak(ChangeBlockEvent.All event)
     {
-        event.getTransactions().stream().filter(trans -> trans.getOriginal().getLocation().isPresent()).forEach(trans -> {
+        event.getTransactions(Operations.BREAK.get()).filter(trans -> trans.getOriginal().getLocation().isPresent()).forEach(trans -> {
             BlockType type = trans.getOriginal().getState().getType();
             ServerLocation loc = trans.getOriginal().getLocation().get();
             if (ItemductBlocks.isEndPointType(type)) {

@@ -39,6 +39,8 @@ import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.block.entity.BlockEntity;
+import org.spongepowered.api.block.transaction.BlockTransaction;
+import org.spongepowered.api.block.transaction.Operations;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.entity.Entity;
@@ -163,23 +165,33 @@ public class Spawner
         return false;
     }
 
-    private static boolean breaks(ChangeBlockEvent.Break event, BlockType type)
+    private static boolean breaks(ChangeBlockEvent.All event, BlockType type)
     {
-        return has(event, type, snap -> snap.getOriginal().getState().getType());
+        return has(event, type);
     }
 
-    private static boolean places(ChangeBlockEvent.Place event, BlockType type)
+    private static boolean places(ChangeBlockEvent.All event, BlockType type)
     {
-        return has(event, type, snap -> snap.getFinal().getState().getType());
+        return has(event, type);
     }
 
-    private static boolean has(ChangeBlockEvent event, BlockType type, Function<Transaction<BlockSnapshot>, BlockType> func)
+    private static boolean has(ChangeBlockEvent.All event, BlockType type)
     {
-        for (Transaction<BlockSnapshot> trans : event.getTransactions())
+        for (BlockTransaction trans : event.getTransactions())
         {
-            if (func.apply(trans).equals(type))
+            if (trans.getOperation().equals(Operations.BREAK.get()))
             {
-                return true;
+                if (trans.getOriginal().getState().getType().equals(type))
+                {
+                    return true;
+                }
+            }
+            else if (trans.getOperation().equals(Operations.PLACE.get()))
+            {
+                if (trans.getFinal().getState().getType().equals(type))
+                {
+                    return true;
+                }
             }
         }
         return false;
@@ -187,9 +199,9 @@ public class Spawner
 
     @Listener(order = POST)
     @IsCancelled(Tristate.UNDEFINED)
-    public void onBlockBreak(ChangeBlockEvent.Break event, @First ServerPlayer player)
+    public void onBlockBreak(ChangeBlockEvent.All event, @First ServerPlayer player)
     {
-        if (event.getTransactions().size() != 1)
+        if (event.getTransactions().size() != 1 && event.getTransactions(Operations.BREAK.get()).count() != 1)
         {
             return;
         }
@@ -244,10 +256,11 @@ public class Spawner
     }
 
     @Listener(order = POST)
-    public void onBlockPlace(ChangeBlockEvent.Place event, @First Player player)
+    public void onBlockPlace(ChangeBlockEvent.All event, @First Player player)
     {
         Optional<ItemStackSnapshot> inHand = event.getContext().get(EventContextKeys.USED_ITEM);
         if (inHand.isPresent() &&
+            event.getTransactions().size() == 1 && event.getTransactions(Operations.PLACE.get()).count() == 1 &&
             places(event, BlockTypes.SPAWNER.get()) &&
             hasEnchantment(inHand.get(), LURE.get()))
         {

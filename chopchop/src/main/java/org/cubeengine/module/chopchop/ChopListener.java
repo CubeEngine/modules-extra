@@ -39,6 +39,7 @@ import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.block.transaction.Operations;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.type.HandTypes;
@@ -99,9 +100,12 @@ public class ChopListener
     }
 
     @Listener
-    public void onChop(final ChangeBlockEvent.Break event, @First ServerPlayer player)
+    public void onChop(final ChangeBlockEvent.All event, @First ServerPlayer player)
     {
-        if (player.getItemInHand(HandTypes.MAIN_HAND).isEmpty() || event.getCause().getContext().containsKey(EventContextKeys.SIMULATED_PLAYER))
+
+        if (event.getTransactions(Operations.BREAK.get()).count() != 1 ||
+            player.getItemInHand(HandTypes.MAIN_HAND).isEmpty() ||
+            event.getCause().getContext().containsKey(EventContextKeys.SIMULATED_PLAYER))
         {
             return;
         }
