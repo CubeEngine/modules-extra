@@ -25,9 +25,8 @@ import org.cubeengine.module.squelch.command.IgnoreCommands;
 import org.cubeengine.module.squelch.command.MuteCommands;
 import org.cubeengine.module.squelch.data.SquelchData;
 import org.cubeengine.processor.Module;
-import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
+import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 
 @Singleton
 @Module
@@ -44,7 +43,7 @@ public class Squelch
     }
 
     @Listener
-    public void onRegisterData(RegisterCatalogEvent<DataRegistration> event)
+    public void onRegisterData(RegisterDataEvent event)
     {
         SquelchData.register(event);
     }

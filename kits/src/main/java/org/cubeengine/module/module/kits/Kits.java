@@ -24,17 +24,13 @@ import org.cubeengine.libcube.ModuleManager;
 import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.libcube.service.inventoryguard.InventoryGuardFactory;
-import org.cubeengine.libcube.service.matcher.StringMatcher;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.logscribe.Log;
 import org.cubeengine.module.module.kits.data.KitData;
 import org.cubeengine.processor.Module;
-import org.cubeengine.reflect.Reflector;
 import org.spongepowered.api.Server;
-import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
+import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 
 @Singleton
@@ -64,7 +60,7 @@ public class Kits
     }
 
     @Listener
-    public void onRegisterData(RegisterCatalogEvent<DataRegistration> event)
+    public void onRegisterData(RegisterDataEvent event)
     {
         KitData.register(event);
     }

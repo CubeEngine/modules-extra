@@ -23,9 +23,8 @@ import org.cubeengine.libcube.service.event.ModuleListener;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.module.elevator.data.ElevatorData;
 import org.cubeengine.processor.Module;
-import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
+import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 
 @Singleton
 @Module
@@ -37,7 +36,7 @@ public class Elevator
     @ModuleListener private ElevatorListener listener;
 
     @Listener
-    public void onRegisterData(RegisterCatalogEvent<DataRegistration> event)
+    public void onRegisterData(RegisterDataEvent event)
     {
         ElevatorData.register(event);
     }

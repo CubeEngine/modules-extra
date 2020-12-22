@@ -26,7 +26,7 @@ import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.data.Key;
 import org.spongepowered.api.data.persistence.DataStore;
 import org.spongepowered.api.data.value.Value;
-import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
+import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 import org.spongepowered.math.vector.Vector3i;
 
 public interface ElevatorData
@@ -38,7 +38,7 @@ public interface ElevatorData
     Key<Value<Vector3i>> TARGET = Key.builder().key(ResourceKey.of(PluginElevator.ELEVATOR_ID, "target")).type(TTV_VECTOR).build();
 
 
-    static void register(RegisterCatalogEvent<DataRegistration> event)
+    static void register(RegisterDataEvent event)
     {
         final ResourceKey rkey = ResourceKey.of(PluginElevator.ELEVATOR_ID, "elevator");
         final DataStore dataStore = DataStore.builder().pluginData(rkey)
@@ -50,7 +50,6 @@ public interface ElevatorData
         final DataRegistration registration = DataRegistration.builder()
                                                               .dataKey(OWNER, TARGET)
                                                               .store(dataStore)
-                                                              .key(rkey)
                                                               .build();
         event.register(registration);
     }

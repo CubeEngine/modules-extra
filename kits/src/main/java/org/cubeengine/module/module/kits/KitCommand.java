@@ -96,7 +96,7 @@ public class KitCommand extends DispatcherCommand
             return;
         }
 
-        ViewableInventory inventory = ViewableInventory.builder().type(ContainerTypes.GENERIC_9x6).completeStructure().build();
+        ViewableInventory inventory = ViewableInventory.builder().type(ContainerTypes.GENERIC_9X6).completeStructure().build();
         List<ItemStack> itemList = new ArrayList<>();
         Kit kit = manager.getExactKit(kitname);
         if (kit == null)

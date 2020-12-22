@@ -28,6 +28,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionManager;
@@ -63,6 +64,7 @@ import org.spongepowered.api.item.enchantment.Enchantment;
 import org.spongepowered.api.item.enchantment.EnchantmentType;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
+import org.spongepowered.api.registry.RegistryTypes;
 import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.util.weighted.RandomObjectTable;
 import org.spongepowered.api.util.weighted.WeightedSerializableObject;
@@ -114,7 +116,7 @@ public class Spawner
         this.registerType(ZOMBIE, ItemTypes.ZOMBIE_SPAWN_EGG);
         this.registerType(SLIME, ItemTypes.SLIME_SPAWN_EGG);
         this.registerType(GHAST, ItemTypes.GHAST_SPAWN_EGG);
-        this.registerType(ZOMBIE_PIGMAN, ItemTypes.ZOMBIE_PIGMAN_SPAWN_EGG);
+        this.registerType(ZOMBIFIED_PIGLIN, ItemTypes.ZOMBIFIED_PIGLIN_SPAWN_EGG);
         this.registerType(ENDERMAN, ItemTypes.ENDERMAN_SPAWN_EGG);
         this.registerType(CAVE_SPIDER, ItemTypes.CAVE_SPIDER_SPAWN_EGG);
         this.registerType(SILVERFISH, ItemTypes.SILVERFISH_SPAWN_EGG);
@@ -146,7 +148,8 @@ public class Spawner
 
     private void initPerm(EntityType<?> type)
     {
-        this.perms.put(type, pm.register(Spawner.class, type.getKey().getValue(), "Allows creating " + type.getKey() + " spawners", eggPerms));
+        final ResourceKey resourceKey = Sponge.getGame().registries().registry(RegistryTypes.ENTITY_TYPE).valueKey(type);
+        this.perms.put(type, pm.register(Spawner.class, resourceKey.getValue(), "Allows creating " + PlainComponentSerializer.plain().serialize(type.asComponent()) + " spawners", eggPerms));
     }
 
     private static boolean hasEnchantment(ItemStackSnapshot item, EnchantmentType ench)

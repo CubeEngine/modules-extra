@@ -27,7 +27,7 @@ import org.spongepowered.api.data.value.ListValue;
 import org.spongepowered.api.data.value.Value;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
-import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
+import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 import org.spongepowered.api.util.TypeTokens;
 import java.util.UUID;
 
@@ -44,13 +44,13 @@ public interface SquelchData
                                       .type(TypeTokens.LONG_VALUE_TOKEN).build();
 
 
-    static void register(RegisterCatalogEvent<DataRegistration> event)
+    static void register(RegisterDataEvent event)
     {
         final ResourceKey key = ResourceKey.of(PluginSquelch.SQUELCH_ID, "squelch");
         final DataStore dataStore = DataStore.builder().pluginData(key)
                                              .holder(ServerPlayer.class, User.class)
                                              .key(IGNORED, "ignored")
                                              .key(MUTED, "muted").build();
-        event.register(DataRegistration.builder().dataKey(IGNORED, MUTED).store(dataStore).key(key).build());
+        event.register(DataRegistration.builder().dataKey(IGNORED, MUTED).store(dataStore).build());
     }
 }

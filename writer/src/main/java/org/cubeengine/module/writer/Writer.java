@@ -34,9 +34,9 @@ import org.spongepowered.api.event.EventContextKeys;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
-import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
+import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
+import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent;
 import org.spongepowered.api.item.ItemTypes;
-import org.spongepowered.api.item.recipe.RecipeRegistration;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.math.vector.Vector3i;
 
@@ -50,13 +50,13 @@ public class Writer
     @Inject private WriterPermissions perms;
 
     @Listener
-    public void onRegisterData(RegisterCatalogEvent<DataRegistration>  event)
+    public void onRegisterData(RegisterDataEvent event)
     {
         WriterData.register(event);
     }
 
     @Listener
-    public void onRecipeRegister(RegisterCatalogEvent<RecipeRegistration> event)
+    public void onRecipeRegister(RegisterDataPackValueEvent event)
     {
         WriterItems.registerRecipes(event);
     }

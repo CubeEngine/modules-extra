@@ -25,7 +25,7 @@ import org.spongepowered.api.data.Key;
 import org.spongepowered.api.data.persistence.DataStore;
 import org.spongepowered.api.data.value.MapValue;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
-import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
+import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 
 public interface KitData
 {
@@ -36,7 +36,7 @@ public interface KitData
     Key<MapValue<String, Integer>> TIMES = Key.builder().type(TTMV_SI).key(ResourceKey.of(PluginKits.KITS_ID, "times_data")).build();
 
 
-    static void register(RegisterCatalogEvent<DataRegistration> event)
+    static void register(RegisterDataEvent event)
     {
         final ResourceKey key = ResourceKey.of(PluginKits.KITS_ID, "kit-usage");
         final DataStore dataStore = DataStore.builder()
@@ -47,7 +47,7 @@ public interface KitData
                                              .build();
 
         final DataRegistration registration = DataRegistration.builder()
-              .key(key).store(dataStore)
+              .store(dataStore)
               .dataKey(TIME, TIMES).build();
         event.register(registration);
     }

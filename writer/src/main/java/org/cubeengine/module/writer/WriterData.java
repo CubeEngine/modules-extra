@@ -21,7 +21,7 @@ import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.data.Key;
 import org.spongepowered.api.data.value.Value;
-import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
+import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.TypeTokens;
 
@@ -30,7 +30,7 @@ public interface WriterData
     Key<Value<Boolean>> WRITER = Key.builder().key(ResourceKey.of(PluginWriter.WRITER_ID, "writer"))
                                     .type(TypeTokens.BOOLEAN_VALUE_TOKEN).build();
 
-    static void register(RegisterCatalogEvent<DataRegistration> event)
+    static void register(RegisterDataEvent event)
     {
         event.register(DataRegistration.of(WRITER, ItemStack.class));
     }

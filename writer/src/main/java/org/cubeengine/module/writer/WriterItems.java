@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.data.Keys;
-import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
+import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.enchantment.Enchantment;
 import org.spongepowered.api.item.enchantment.EnchantmentTypes;
@@ -39,7 +39,7 @@ import static org.spongepowered.api.item.ItemTypes.WRITTEN_BOOK;
 
 public class WriterItems
 {
-    public static void registerRecipes(RegisterCatalogEvent<RecipeRegistration> event)
+    public static void registerRecipes(RegisterDataPackValueEvent event)
     {
         final ItemStack stack = ItemStack.of(WRITABLE_BOOK);
         stack.offer(Keys.HIDE_ENCHANTMENTS, true);

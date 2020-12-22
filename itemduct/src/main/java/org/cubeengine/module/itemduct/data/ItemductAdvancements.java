@@ -24,7 +24,7 @@ import org.spongepowered.api.advancement.AdvancementTypes;
 import org.spongepowered.api.advancement.DisplayInfo;
 import org.spongepowered.api.advancement.criteria.AdvancementCriterion;
 import org.spongepowered.api.advancement.criteria.ScoreAdvancementCriterion;
-import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
+import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.plugin.PluginContainer;
 
@@ -88,7 +88,7 @@ public class ItemductAdvancements {
                 .build();
     }
 
-    public static void register(RegisterCatalogEvent<Advancement> event) {
+    public static void register(RegisterDataPackValueEvent event) {
         event.register(ACTIVATE_NETWORK);
         event.register(ROOT);
         event.register(USE_FILTERS);

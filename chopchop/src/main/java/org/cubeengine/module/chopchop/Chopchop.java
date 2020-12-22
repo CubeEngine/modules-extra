@@ -34,7 +34,7 @@ import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
+import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent;
 import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.item.enchantment.Enchantment;
 import org.spongepowered.api.item.enchantment.EnchantmentTypes;
@@ -61,11 +61,10 @@ public class Chopchop
     {
         usePerm = pm.register(Chopchop.class, "use", "Allows using the Chop Chop Axe", null);
         autoplantPerm = pm.register(Chopchop.class, "auto-plant", "Replants saplings automatically", null);
-        listener.init();
     }
 
     @Listener
-    public void onRegistry(RegisterCatalogEvent<RecipeRegistration> event)
+    public void onRegistry(RegisterDataPackValueEvent event)
     {
         ItemStack axe = ItemStack.of(DIAMOND_AXE, 1);
         axe.offer(Keys.APPLIED_ENCHANTMENTS, singletonList(Enchantment.builder().type(EnchantmentTypes.PUNCH).level(5).build()));

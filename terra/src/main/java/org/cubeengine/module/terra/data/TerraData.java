@@ -22,7 +22,7 @@ import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
 
 public class TerraData
 {
-    public static void register(RegisterCatalogEvent<DataRegistration> event)
+    public static void register(RegisterDataEvent event)
     {
 
     }

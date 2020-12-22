@@ -26,7 +26,7 @@ import org.spongepowered.api.data.Key;
 import org.spongepowered.api.data.persistence.DataStore;
 import org.spongepowered.api.data.value.MapValue;
 import org.spongepowered.api.data.value.Value;
-import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
+import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.TypeTokens;
@@ -46,13 +46,13 @@ public interface ItemductData
             .type(TypeTokens.INTEGER_VALUE_TOKEN).build();
 
 
-    static void register(RegisterCatalogEvent<DataRegistration> event)
+    static void register(RegisterDataEvent event)
     {
         registerFilterData(event);
         registerUseData(event);
     }
 
-    static void registerFilterData(RegisterCatalogEvent<DataRegistration> event)
+    static void registerFilterData(RegisterDataEvent event)
     {
         final ResourceKey rkey = ResourceKey.of(PluginItemduct.ITEMDUCT_ID, "filters");
         final DataStore dataStore = DataStore.builder().pluginData(rkey)
@@ -63,12 +63,11 @@ public interface ItemductData
         final DataRegistration registration = DataRegistration.builder()
                                                               .dataKey(ItemductData.FILTERS)
                                                               .store(dataStore)
-                                                              .key(rkey)
                                                               .build();
         event.register(registration);
     }
 
-    static void registerUseData(RegisterCatalogEvent<DataRegistration> event) {
+    static void registerUseData(RegisterDataEvent event) {
         final ResourceKey rkey = ResourceKey.of(PluginItemduct.ITEMDUCT_ID, "uses");
         final DataStore dataStore = DataStore.builder()
                 .pluginData(rkey)
@@ -79,7 +78,6 @@ public interface ItemductData
         final DataRegistration registration = DataRegistration.builder()
                                                               .dataKey(ItemductData.USES)
                                                               .store(dataStore)
-                                                              .key(rkey)
                                                               .build();
         event.register(registration);
     }

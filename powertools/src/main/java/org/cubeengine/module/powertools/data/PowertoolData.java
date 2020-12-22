@@ -24,7 +24,7 @@ import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.data.Key;
 import org.spongepowered.api.data.persistence.DataStore;
 import org.spongepowered.api.data.value.ListValue;
-import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
+import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 
 public interface PowertoolData
@@ -33,7 +33,7 @@ public interface PowertoolData
 
     Key<ListValue<String>> POWERS = Key.builder().type(TTLV_String).key(ResourceKey.of(PluginPowertools.POWERTOOLS_ID, "powers")).build();
 
-    static void register(RegisterCatalogEvent<DataRegistration> event)
+    static void register(RegisterDataEvent event)
     {
         final ResourceKey rkey = ResourceKey.of(PluginPowertools.POWERTOOLS_ID, "powers");
         final DataStore dataStore = DataStore.builder().pluginData(rkey)

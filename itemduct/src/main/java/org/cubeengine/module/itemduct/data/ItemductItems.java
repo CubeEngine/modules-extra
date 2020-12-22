@@ -26,11 +26,12 @@ import org.cubeengine.module.itemduct.ItemductConfig;
 import org.cubeengine.module.itemduct.ItemductManager;
 import org.cubeengine.module.itemduct.PluginItemduct;
 import org.spongepowered.api.ResourceKey;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
-import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
+import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.enchantment.Enchantment;
 import org.spongepowered.api.item.enchantment.EnchantmentTypes;
@@ -38,6 +39,7 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.recipe.RecipeRegistration;
 import org.spongepowered.api.item.recipe.crafting.CraftingRecipe;
 import org.spongepowered.api.item.recipe.crafting.Ingredient;
+import org.spongepowered.api.registry.RegistryTypes;
 
 import java.util.Collections;
 
@@ -49,7 +51,7 @@ public class ItemductItems
     private static RecipeRegistration superRecipe;
     private static RecipeRegistration recipe;
 
-    public static void registerRecipes(RegisterCatalogEvent<RecipeRegistration> event, ItemductConfig config)
+    public static void registerRecipes(RegisterDataPackValueEvent event, ItemductConfig config)
     {
         Ingredient hopper = Ingredient.of(ItemTypes.HOPPER.get());
         activatorItem = ItemStack.of(ItemTypes.HOPPER, 1);

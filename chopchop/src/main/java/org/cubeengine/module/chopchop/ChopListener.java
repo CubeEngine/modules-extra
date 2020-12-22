@@ -17,23 +17,13 @@
  */
 package org.cubeengine.module.chopchop;
 
-import static java.util.Collections.emptyList;
-import static org.spongepowered.api.item.ItemTypes.APPLE;
-import static org.spongepowered.api.item.ItemTypes.DIAMOND_AXE;
-import static org.spongepowered.api.util.Direction.DOWN;
-import static org.spongepowered.api.util.Direction.EAST;
-import static org.spongepowered.api.util.Direction.NORTH;
-import static org.spongepowered.api.util.Direction.NORTHEAST;
-import static org.spongepowered.api.util.Direction.NORTHWEST;
-import static org.spongepowered.api.util.Direction.SOUTH;
-import static org.spongepowered.api.util.Direction.SOUTHEAST;
-import static org.spongepowered.api.util.Direction.SOUTHWEST;
-import static org.spongepowered.api.util.Direction.UP;
-import static org.spongepowered.api.util.Direction.WEST;
-
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Set;
 import com.google.inject.Inject;
 import net.kyori.adventure.sound.Sound;
 import org.cubeengine.libcube.util.ItemUtil;
+import org.cubeengine.module.chopchop.ChopchopConfig.Tree;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
@@ -43,8 +33,6 @@ import org.spongepowered.api.block.transaction.Operations;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.data.Transaction;
 import org.spongepowered.api.data.type.HandTypes;
-import org.spongepowered.api.data.type.WoodType;
-import org.spongepowered.api.data.type.WoodTypes;
 import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.EventContextKeys;
@@ -59,17 +47,15 @@ import org.spongepowered.api.world.ServerLocation;
 import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.math.vector.Vector3i;
 
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import static java.util.Collections.emptyList;
+import static org.spongepowered.api.item.ItemTypes.APPLE;
+import static org.spongepowered.api.item.ItemTypes.DIAMOND_AXE;
+import static org.spongepowered.api.util.Direction.*;
 
 public class ChopListener
 {
     private static final Set<Direction> dir8 = EnumSet.of(NORTH, NORTHEAST, EAST, SOUTHEAST, SOUTH, SOUTHWEST, WEST, NORTHWEST);
     private Chopchop module;
-    private Map<WoodType, BlockType> leafTypes = new HashMap<>();
 
     @Inject
     public ChopListener(Chopchop module)
@@ -77,22 +63,18 @@ public class ChopListener
         this.module = module;
     }
 
-    private boolean isLeaf(ServerWorld world, Vector3i pos, WoodType species)
+    private boolean isLeaf(ServerWorld world, Vector3i pos, Tree species)
     {
         final BlockState state = world.getBlock(pos);
         final BlockType type = state.getType();
-        boolean match = module.getConfig().leafTypes.contains(type);
-        final WoodType woodType = state.get(Keys.WOOD_TYPE).orElse(null);
-        return match && woodType == species;
+        return species.leafType == type;
     }
 
-    private boolean isLog(ServerWorld world, Vector3i pos, WoodType species)
+    private boolean isLog(ServerWorld world, Vector3i pos, Tree species)
     {
         final BlockState state = world.getBlock(pos);
         final BlockType type = state.getType();
-        boolean match = module.getConfig().logTypes.contains(type);
-        final WoodType woodType = state.get(Keys.WOOD_TYPE).orElse(null);
-        return match && woodType == species;
+        return species.logType == type;
     }
 
     private boolean isSoil(BlockType belowType) {
@@ -131,7 +113,7 @@ public class ChopListener
             BlockType belowType = orig.relativeTo(DOWN).getBlockType();
             if (isLog(type) && isSoil(belowType))
             {
-                WoodType treeType = transaction.getOriginal().getState().get(Keys.WOOD_TYPE).get();
+                final Tree treeType = getTreeType(type);
                 Set<Vector3i> treeBlocks = findTreeBlocks(world, orig.getBlockPosition(), treeType);
                 if (treeBlocks.isEmpty())
                 {
@@ -160,7 +142,7 @@ public class ChopListener
                             saplings.add(pos);
                         }
                     }
-                    if (this.module.getConfig().leafTypes.contains(world.getBlock(pos).getType()))
+                    if (isLeaf(world, pos, treeType))
                     {
                         world.removeBlock(pos);
                         leafSounds++;
@@ -174,13 +156,13 @@ public class ChopListener
                 ItemStack log = ItemStack.builder().itemType(type.getItem().get()).quantity(logs).build();
 
                 int apples = 0;
-                if (treeType == WoodTypes.JUNGLE)
+                if (treeType.leafType == BlockTypes.JUNGLE_LEAVES.get())
                 {
                     leaves = leaves / 40;
                 }
                 else
                 {
-                    if (treeType == WoodTypes.DARK_OAK || treeType == WoodTypes.OAK)
+                    if (treeType.leafType == BlockTypes.DARK_OAK_LEAVES.get() || treeType.leafType == BlockTypes.OAK_LEAVES.get())
                     {
                         apples = leaves / 200;
                     }
@@ -191,7 +173,7 @@ public class ChopListener
                     leaves = 1;
                 }
 
-                final BlockType saplingType = this.leafTypes.get(treeType);
+                final BlockType saplingType = treeType.saplingType;
                 if (saplingType != null)
                 {
                     final BlockState sapState = saplingType.getDefaultState();
@@ -229,12 +211,24 @@ public class ChopListener
         }
     }
 
-    private boolean isLog(BlockType type)
+    private Tree getTreeType(BlockType logType)
     {
-        return this.module.getConfig().logTypes.contains(type);
+        for (Tree tree : this.module.getConfig().trees)
+        {
+            if (tree.logType == logType)
+            {
+                return tree;
+            }
+        }
+        return null;
     }
 
-    private Set<Vector3i> findTreeBlocks(ServerWorld world, Vector3i pos, WoodType species)
+    private boolean isLog(BlockType type)
+    {
+        return this.module.getConfig().trees.stream().anyMatch(tree -> tree.logType == type);
+    }
+
+    private Set<Vector3i> findTreeBlocks(ServerWorld world, Vector3i pos, Tree species)
     {
         Set<Vector3i> blocks = new HashSet<>();
         Set<Vector3i> logs = new HashSet<>();
@@ -255,7 +249,7 @@ public class ChopListener
         return blocks;
     }
 
-    private void findLeaves(ServerWorld world, Set<Vector3i> logs, Set<Vector3i> finalLeaves, WoodType species)
+    private void findLeaves(ServerWorld world, Set<Vector3i> logs, Set<Vector3i> finalLeaves, Tree species)
     {
         Set<Vector3i> leaves = new HashSet<>();
         for (Vector3i log : logs)
@@ -294,7 +288,7 @@ public class ChopListener
         while (!lastLayer.isEmpty());
     }
 
-    private void findTrunk(ServerWorld world, Vector3i root, Vector3i base, WoodType species, Set<Vector3i> trunk)
+    private void findTrunk(ServerWorld world, Vector3i root, Vector3i base, Tree species, Set<Vector3i> trunk)
     {
         Set<Vector3i> blocks = new HashSet<>();
         for (Direction face : dir8)
@@ -334,12 +328,4 @@ public class ChopListener
         }
     }
 
-    public void init() {
-        Sponge.getRegistry().getCatalogRegistry().getAllOf(BlockType.class).stream().filter(t -> t != BlockTypes.AIR.get()).forEach(blockType -> {
-            if (module.getConfig().saplingTypes.contains(blockType)) {
-                blockType.getDefaultState().get(Keys.WOOD_TYPE).ifPresent(woodType -> this.leafTypes.put(woodType, blockType));
-            }
-        });
-
-    }
 }

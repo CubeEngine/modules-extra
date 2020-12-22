@@ -45,7 +45,7 @@ public class Powertools
     }
 
     @Listener
-    public void onRegisterData(RegisterCatalogEvent<DataRegistration> event)
+    public void onRegisterData(RegisterDataEvent event)
     {
         PowertoolData.register(event);
     }
