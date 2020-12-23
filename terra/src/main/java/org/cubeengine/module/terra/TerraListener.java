@@ -45,7 +45,6 @@ import org.spongepowered.api.world.ServerLocation;
 import org.spongepowered.api.world.WorldArchetype;
 import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.dimension.DimensionTypes;
-import org.spongepowered.api.world.gen.GeneratorModifierType;
 import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.math.vector.Vector3i;
 import org.spongepowered.plugin.PluginContainer;
@@ -64,24 +63,24 @@ public class TerraListener {
         if (TerraItems.isTerraEssence(event.getItemStackInUse()))
         {
             final ResourceKey key = ResourceKey.of(PluginTerra.TERRA_ID, player.getName().toLowerCase());
-            final GeneratorModifierType buffet = Sponge.getRegistry().getCatalogRegistry().get(GeneratorModifierType.class, ResourceKey.resolve("buffet")).get();
-            final DataContainer settings = buffet.getDefaultGeneratorSettings();
-            settings.set(DataQuery.of("biome_source", "type"), "minecraft:checkerboard");
-            List<BiomeType> biomeTypeList = TerraItems.getBiomesForItem(event.getItemStackInUse());
-            settings.set(DataQuery.of("biome_source", "options", "biomes"), biomeTypeList.stream().map(BiomeType::getKey).map(ResourceKey::asString).collect(Collectors.toList()));
+//            final GeneratorModifierType buffet = Sponge.getRegistry().getCatalogRegistry().get(GeneratorModifierType.class, ResourceKey.resolve("buffet")).get();
+//            final DataContainer settings = buffet.getDefaultGeneratorSettings();
+//            settings.set(DataQuery.of("biome_source", "type"), "minecraft:checkerboard");
+//            List<BiomeType> biomeTypeList = TerraItems.getBiomesForItem(event.getItemStackInUse());
+//            settings.set(DataQuery.of("biome_source", "options", "biomes"), biomeTypeList.stream().map(BiomeType::getKey).map(ResourceKey::asString).collect(Collectors.toList()));
             final WorldArchetype archeType = WorldArchetype.builder()
-                                                           .key(key)
                                                            .dimensionType(DimensionTypes.OVERWORLD.get())
-                                                           .generatorModifierType(buffet)
+//                                                           .generatorModifierType(buffet)
                                                            .keepSpawnLoaded(false)
                                                            .generateSpawnOnLoad(false)
-                                                           .generatorSettings(settings)
-                                                           .generateStructures(false)
+//                                                           .generatorSettings(settings)
+//                                                           .generateStructures(false)
                                                            .build();
             taskManager.runTask(Terra.class, () -> afterUseItem(key, archeType, player));
         }
     }
 
+    // TODO remove me
 //    @Listener
 //    public void onBlockAll(ChangeBlockEvent.All event)
 //    {

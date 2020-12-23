@@ -65,6 +65,8 @@ public class ChopchopConfig extends ReflectedYaml
             this.trees.add(Tree.of(BlockTypes.JUNGLE_LOG.get(), BlockTypes.JUNGLE_LEAVES.get(), BlockTypes.JUNGLE_SAPLING.get()));
             this.trees.add(Tree.of(BlockTypes.ACACIA_LOG.get(), BlockTypes.ACACIA_LEAVES.get(), BlockTypes.ACACIA_SAPLING.get()));
             this.trees.add(Tree.of(BlockTypes.DARK_OAK_LOG.get(), BlockTypes.DARK_OAK_LEAVES.get(), BlockTypes.DARK_OAK_SAPLING.get()));
+
+            // TODO BlockTypes.SHROOMLIGHT.get();
             this.trees.add(Tree.of(BlockTypes.CRIMSON_STEM.get(), BlockTypes.NETHER_WART_BLOCK.get(), BlockTypes.CRIMSON_FUNGUS.get()));
             this.trees.add(Tree.of(BlockTypes.WARPED_STEM.get(), BlockTypes.WARPED_WART_BLOCK.get(), BlockTypes.WARPED_FUNGUS.get()));
         }
@@ -75,6 +77,7 @@ public class ChopchopConfig extends ReflectedYaml
             soilTypes.add(BlockTypes.GRASS.get());
             soilTypes.add(BlockTypes.WARPED_NYLIUM.get());
             soilTypes.add(BlockTypes.CRIMSON_NYLIUM.get());
+            soilTypes.add(BlockTypes.NETHERRACK.get());
         }
     }
 }

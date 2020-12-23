@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.function.Supplier;
 import net.kyori.adventure.text.Component;
 import org.cubeengine.module.terra.PluginTerra;
 import org.spongepowered.api.ResourceKey;
@@ -31,7 +30,7 @@ import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.effect.potion.PotionEffect;
 import org.spongepowered.api.effect.potion.PotionEffectTypes;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
-import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
+import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.enchantment.Enchantment;
 import org.spongepowered.api.item.enchantment.EnchantmentTypes;
@@ -40,9 +39,11 @@ import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.item.recipe.RecipeRegistration;
 import org.spongepowered.api.item.recipe.crafting.Ingredient;
 import org.spongepowered.api.item.recipe.crafting.ShapelessCraftingRecipe;
+import org.spongepowered.api.registry.RegistryReference;
 import org.spongepowered.api.util.Color;
 import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.biome.BiomeTypes;
+import org.spongepowered.api.world.server.ServerWorld;
 
 public class TerraItems
 {
@@ -50,7 +51,7 @@ public class TerraItems
     public static final ItemStack INK_BOTTLE = ItemStack.of(ItemTypes.POTION.get());
     public static final ItemStack TERRA_ESSENCE = ItemStack.of(ItemTypes.POTION.get());
 
-    public static void registerRecipes(RegisterCatalogEvent<RecipeRegistration> event)
+    public static void registerRecipes(RegisterDataPackValueEvent event)
     {
         INK_BOTTLE.offer(Keys.COLOR, Color.BLACK);
         INK_BOTTLE.offer(Keys.CUSTOM_NAME, Component.text("Ink Bottle"));
@@ -98,38 +99,38 @@ public class TerraItems
         BLUE(Color.BLUE, Arrays.asList(BiomeTypes.OCEAN, BiomeTypes.DEEP_OCEAN, BiomeTypes.COLD_OCEAN, BiomeTypes.DEEP_COLD_OCEAN, BiomeTypes.LUKEWARM_OCEAN, BiomeTypes.DEEP_LUKEWARM_OCEAN, BiomeTypes.WARM_OCEAN, BiomeTypes.DEEP_WARM_OCEAN), Arrays.asList(BiomeTypes.BEACH)),
         DARK_MAGENTA(Color.DARK_MAGENTA, Arrays.asList(BiomeTypes.SMALL_END_ISLANDS, BiomeTypes.END_MIDLANDS, BiomeTypes.END_BARRENS, BiomeTypes.END_HIGHLANDS), Arrays.asList()),
         // does not work with normal terrain, BiomeTypes.THE_VOID
-        PURPLE(Color.PURPLE, Arrays.asList(BiomeTypes.NETHER), Arrays.asList()),
+        PURPLE(Color.PURPLE, Arrays.asList(BiomeTypes.NETHER_WASTES, BiomeTypes.CRIMSON_FOREST, BiomeTypes.WARPED_FOREST, BiomeTypes.SOUL_SAND_VALLEY, BiomeTypes.BASALT_DELTAS), Arrays.asList()),
         ;
 
 
         private final Color color;
-        private final List<Supplier<BiomeType>> biomeList;
-        private final List<Supplier<BiomeType>> additionalBiomeList;
+        private final List<RegistryReference<BiomeType>> biomeList;
+        private final List<RegistryReference<BiomeType>> additionalBiomeList;
         private List<BiomeType> biomes;
 
-        Essence(Color color, List<Supplier<BiomeType>> biomeList, List<Supplier<BiomeType>> additionalBiomeList)
+        Essence(Color color, List<RegistryReference<BiomeType>> biomeList, List<RegistryReference<BiomeType>> additionalBiomeList)
         {
             this.color = color;
             this.biomeList = biomeList;
             this.additionalBiomeList = additionalBiomeList;
         }
 
-        public List<BiomeType> getBiomes()
+        public List<BiomeType> getBiomes(ServerWorld world)
         {
             if (this.biomes == null)
             {
                 biomes = new ArrayList<>();
-                biomeList.forEach(b -> biomes.add(b.get()));
-                additionalBiomeList.forEach(b -> biomes.add(b.get()));
+                biomeList.forEach(b -> biomes.add(b.get(world.registries())));
+                additionalBiomeList.forEach(b -> biomes.add(b.get(world.registries())));
             }
             return biomes;
         }
 
-        public boolean hasBiome(BiomeType biomeType)
+        public boolean hasBiome(BiomeType biomeType, ServerWorld world)
         {
-            for (Supplier<BiomeType> biome : biomeList)
+            for (RegistryReference<BiomeType> biome : biomeList)
             {
-                if (biome.get().equals(biomeType))
+                if (biome.get(world.registries()).equals(biomeType))
                 {
                     return true;
                 }
@@ -158,7 +159,7 @@ public class TerraItems
             Color color = Color.BLACK;
             for (Essence value : Essence.values())
             {
-                if (value.hasBiome(biome.get()))
+                if (value.hasBiome(biome.get(), player.get().getWorld()))
                 {
                     color = value.color;
                     break;
@@ -178,16 +179,16 @@ public class TerraItems
         return stack.get(Keys.COLOR).isPresent(); // TODO later check custom data
     }
 
-    public static List<BiomeType> getBiomesForItem(ItemStackSnapshot stack)
+    public static List<BiomeType> getBiomesForItem(ItemStackSnapshot stack, ServerWorld world)
     {
         final Color color = stack.get(Keys.COLOR).orElse(Color.BLACK);
         for (Essence value : Essence.values())
         {
             if (value.color.equals(color))
             {
-                return value.getBiomes();
+                return value.getBiomes(world);
             }
         }
-        return Arrays.asList(BiomeTypes.PLAINS.get());
+        return Arrays.asList(BiomeTypes.PLAINS.get(world.registries()));
     }
 }

@@ -24,11 +24,10 @@ import org.cubeengine.module.terra.data.TerraData;
 import org.cubeengine.module.terra.data.TerraItems;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.Server;
-import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
+import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
+import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent;
 import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
-import org.spongepowered.api.item.recipe.RecipeRegistration;
 import org.spongepowered.plugin.PluginContainer;
 
 /*
@@ -49,13 +48,13 @@ public class Terra
     }
 
     @Listener
-    public void onRegisterRecipe(RegisterCatalogEvent<RecipeRegistration> event)
+    public void onRegisterRecipe(RegisterDataPackValueEvent event)
     {
         TerraItems.registerRecipes(event);
     }
 
     @Listener
-    public void onRegisterData(RegisterCatalogEvent<DataRegistration>  event)
+    public void onRegisterData(RegisterDataEvent event)
     {
         TerraData.register(event);
     }

@@ -17,8 +17,7 @@
  */
 package org.cubeengine.module.terra.data;
 
-import org.spongepowered.api.data.DataRegistration;
-import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
+import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 
 public class TerraData
 {
