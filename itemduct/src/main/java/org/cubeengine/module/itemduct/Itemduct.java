@@ -20,7 +20,7 @@ package org.cubeengine.module.itemduct;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.cubeengine.libcube.service.event.ModuleListener;
-import org.cubeengine.libcube.service.filesystem.ModuleConfig;
+import org.cubeengine.libcube.service.filesystem.FileManager;
 import org.cubeengine.module.itemduct.data.ItemductAdvancements;
 import org.cubeengine.module.itemduct.data.ItemductData;
 import org.cubeengine.module.itemduct.data.ItemductItems;
@@ -48,10 +48,12 @@ Upgrades?
 @Module
 public class Itemduct
 {
-    @ModuleConfig private ItemductConfig config;
+    private ItemductConfig config;
     @Inject private ItemductManager manager;
     @ModuleListener private ItemductListener listenerActivator;
     @Inject private PluginContainer plugin;
+    @Inject private FileManager fm;
+
 
     @Listener
     public void onStarted(StartedEngineEvent<Server> event)
@@ -69,7 +71,8 @@ public class Itemduct
     @Listener
     public void onRegisterDatapacks(RegisterDataPackValueEvent event)
     {
-        ItemductItems.registerRecipes(event, config);
+        this.config = this.fm.loadConfig(this, ItemductConfig.class);
+        ItemductItems.registerRecipes(event, config); // TODO config is not loaded yet :(
         ItemductAdvancements.init(plugin);
         ItemductAdvancements.register(event);
     }
