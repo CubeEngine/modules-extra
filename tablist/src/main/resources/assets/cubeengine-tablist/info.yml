@@ -1,0 +1,3 @@
+features:
+  - Customize tablist with a header
+  - Using Subject options (tablist-prefix) show prefix for players
