@@ -17,36 +17,38 @@
  */
 package org.cubeengine.module.stats;
 
-import com.google.common.collect.Iterables;
-import io.prometheus.client.CollectorRegistry;
-import io.prometheus.client.Gauge;
-import io.prometheus.client.exporter.HTTPServer;
-import io.prometheus.client.hotspot.*;
-import org.cubeengine.libcube.CubeEngineModule;
-import org.cubeengine.libcube.service.MonitoringService;
-import org.cubeengine.libcube.service.filesystem.ModuleConfig;
-import org.cubeengine.processor.Module;
-import org.spongepowered.api.Game;
-import org.spongepowered.api.Server;
-import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
-import org.spongepowered.api.event.game.state.GameStoppedEvent;
-import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.scheduler.Scheduler;
-import org.spongepowered.api.world.World;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import com.google.common.collect.Iterables;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import io.prometheus.client.CollectorRegistry;
+import io.prometheus.client.Gauge;
+import io.prometheus.client.exporter.HTTPServer;
+import io.prometheus.client.hotspot.ClassLoadingExports;
+import io.prometheus.client.hotspot.GarbageCollectorExports;
+import io.prometheus.client.hotspot.MemoryPoolsExports;
+import io.prometheus.client.hotspot.StandardExports;
+import io.prometheus.client.hotspot.ThreadExports;
+import io.prometheus.client.hotspot.VersionInfoExports;
+import org.cubeengine.libcube.service.filesystem.ModuleConfig;
+import org.cubeengine.processor.Module;
+import org.spongepowered.api.Game;
+import org.spongepowered.api.Server;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
+import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
+import org.spongepowered.api.world.server.ServerWorld;
+import org.spongepowered.plugin.PluginContainer;
 
 @Singleton
 @Module
-public class Stats extends CubeEngineModule
+public class Stats
 {
-    private StatsConfig config;
+    @ModuleConfig private StatsConfig config;
     private MonitoringService monitoring;
     private ScheduledExecutorService scheduler;
     private Game game;
@@ -83,16 +85,14 @@ public class Stats extends CubeEngineModule
             .create();
 
     @Inject
-    public Stats(@ModuleConfig StatsConfig config, PluginContainer plugin, MonitoringService monitoring,
-                 Scheduler scheduler, Game game) {
-        this.config = config;
+    public Stats(PluginContainer plugin, MonitoringService monitoring) {
         this.monitoring = monitoring;
-        this.scheduler = scheduler.createAsyncExecutor(plugin);
-        this.game = game;
+        this.scheduler = Sponge.getAsyncScheduler().createExecutor(plugin);
+        this.game = Sponge.getGame();
     }
 
     @Listener
-    public void onPreInit(GamePreInitializationEvent event)
+    public void onPreInit(StartedEngineEvent<Server> event)
     {
         final CollectorRegistry registry = monitoring.getRegistry();
         final InetSocketAddress bindAddr = new InetSocketAddress(config.bindAddress, config.bindPort);
@@ -132,12 +132,13 @@ public class Stats extends CubeEngineModule
         players.labels("online").set(server.getOnlinePlayers().size());
         players.labels("max").set(server.getMaxPlayers());
 
-        for (World world : server.getWorlds())
+        for (ServerWorld world : server.getWorldManager().getWorlds())
         {
-            loadedChunks.labels(world.getName()).set(Iterables.size(world.getLoadedChunks()));
-            playersOnline.labels(world.getName()).set(world.getPlayers().size());
-            entities.labels(world.getName()).set(world.getEntities().size());
-            tileEntities.labels(world.getName()).set(world.getTileEntities().size());
+            final String worldName = world.getProperties().getKey().asString();
+            loadedChunks.labels(worldName).set(Iterables.size(world.getLoadedChunks()));
+            playersOnline.labels(worldName).set(world.getPlayers().size());
+            entities.labels(worldName).set(world.getEntities().size());
+            tileEntities.labels(worldName).set(world.getBlockEntities().size());
         }
 
 
@@ -145,7 +146,7 @@ public class Stats extends CubeEngineModule
     }
 
     @Listener
-    public void onStop(GameStoppedEvent e)
+    public void onStop(StoppingEngineEvent<Server> e)
     {
         this.exporter.stop();
     }

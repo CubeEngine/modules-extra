@@ -37,6 +37,14 @@
             <artifactId>simpleclient_httpserver</artifactId>
             <version>${prometheusVersion}</version>
         </dependency>
+        <!-- Monitoring -->
+        <dependency>
+            <groupId>io.prometheus</groupId>
+            <artifactId>simpleclient</artifactId>
+            <version>${prometheusVersion}</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
