@@ -24,9 +24,8 @@ import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.module.powertools.data.PowertoolData;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.Server;
-import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.lifecycle.RegisterCatalogEvent;
+import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 
 @Singleton

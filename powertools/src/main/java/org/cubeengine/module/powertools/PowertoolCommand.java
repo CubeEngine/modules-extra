@@ -26,30 +26,20 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
-import org.cubeengine.butler.CommandInvocation;
-import org.cubeengine.butler.alias.Alias;
-import org.cubeengine.butler.filter.Restricted;
-import org.cubeengine.butler.parametric.Command;
-import org.cubeengine.butler.parametric.Flag;
-import org.cubeengine.butler.parametric.Greed;
-import org.cubeengine.butler.parametric.Optional;
-import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.command.DispatcherCommand;
 import org.cubeengine.libcube.service.command.annotation.Alias;
 import org.cubeengine.libcube.service.command.annotation.Command;
 import org.cubeengine.libcube.service.command.annotation.Flag;
 import org.cubeengine.libcube.service.command.annotation.Greedy;
 import org.cubeengine.libcube.service.command.annotation.Option;
-import org.cubeengine.libcube.util.ChatFormat;
-import org.cubeengine.module.powertools.data.PowertoolData;
-import org.cubeengine.libcube.service.command.ContainerCommand;
+import org.cubeengine.libcube.service.command.annotation.Restricted;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.matcher.MaterialMatcher;
+import org.cubeengine.libcube.util.ChatFormat;
+import org.cubeengine.module.powertools.data.PowertoolData;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.exception.CommandException;
 import org.spongepowered.api.data.Keys;
-import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.manipulator.mutable.item.LoreData;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
@@ -58,14 +48,9 @@ import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.text.Text;
 
 import static java.util.stream.Collectors.toList;
-import static org.cubeengine.butler.parameter.Parameter.INFINITE;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
-import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
-import static org.spongepowered.api.text.format.TextColors.GOLD;
-import static org.spongepowered.api.text.format.TextColors.YELLOW;
 
 /**
  * The PowerTool commands allow binding commands and/or chat-macros to a specific item.
@@ -76,15 +61,13 @@ import static org.spongepowered.api.text.format.TextColors.YELLOW;
 public class PowertoolCommand extends DispatcherCommand
 {
     private final Powertools module;
-    private MaterialMatcher materialMatcher;
     private I18n i18n;
 
     @Inject
-    public PowertoolCommand(Powertools module, MaterialMatcher materialMatcher, I18n i18n)
+    public PowertoolCommand(Powertools module, I18n i18n)
     {
         super(Powertools.class);
         this.module = module;
-        this.materialMatcher = materialMatcher;
         this.i18n = i18n;
     }
 
@@ -143,7 +126,7 @@ public class PowertoolCommand extends DispatcherCommand
             i18n.send(context, NEUTRAL, "You are not holding any item in your hand.");
             return;
         }
-        context.setItemInHand(HandTypes.MAIN_HAND, this.remove(context, itemInHand.get(), command));
+        context.setItemInHand(HandTypes.MAIN_HAND, this.remove(context, itemInHand, command));
     }
 
     private ItemStack remove(ServerPlayer context, ItemStack item, String cmd)
@@ -207,7 +190,7 @@ public class PowertoolCommand extends DispatcherCommand
 
     @Alias(value = "ptl")
     @Command(desc = "Lists your powertool-bindings.")
-    @Restricted(value = Player.class, msg = "You already have enough power!")
+    @Restricted(msg = "You already have enough power!")
     public void list(ServerPlayer context, @Flag boolean all)
     {
         if (all)

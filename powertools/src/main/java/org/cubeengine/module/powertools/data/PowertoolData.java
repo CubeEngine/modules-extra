@@ -44,7 +44,6 @@ public interface PowertoolData
         final DataRegistration registration = DataRegistration.builder()
                                                               .dataKey(POWERS)
                                                               .store(dataStore)
-                                                              .key(rkey)
                                                               .build();
         event.register(registration);
     }
