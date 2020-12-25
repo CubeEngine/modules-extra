@@ -34,7 +34,6 @@ import org.cubeengine.libcube.service.command.annotation.Greedy;
 import org.cubeengine.libcube.service.command.annotation.Option;
 import org.cubeengine.libcube.service.command.annotation.Restricted;
 import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.libcube.service.matcher.MaterialMatcher;
 import org.cubeengine.libcube.util.ChatFormat;
 import org.cubeengine.module.powertools.data.PowertoolData;
 import org.spongepowered.api.Sponge;
@@ -43,9 +42,12 @@ import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.event.Cancellable;
+import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
+import org.spongepowered.api.event.item.inventory.InteractItemEvent;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 
@@ -302,7 +304,18 @@ public class PowertoolCommand extends DispatcherCommand
     }
 
     @Listener
-    public void onLeftClick(InteractBlockEvent.Primary event, @First ServerPlayer player)
+    public void onLeftClick(InteractItemEvent.Primary event, @First ServerPlayer player)
+    {
+        this.onLeftClick0(event, player);
+    }
+
+    @Listener
+    public void onLeftClick(InteractBlockEvent.Primary.Start event, @First ServerPlayer player)
+    {
+        this.onLeftClick0(event, player);
+    }
+
+    private void onLeftClick0(Event event, ServerPlayer player)
     {
         final ItemStack itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
         if (!itemInHand.isEmpty() && player.hasPermission(module.perms().POWERTOOL_USE.getId()))
@@ -326,9 +339,9 @@ public class PowertoolCommand extends DispatcherCommand
                     player.sendMessage(Identity.nil(), Component.text(power));
                 }
             }
-            if (!powers.isEmpty())
+            if (!powers.isEmpty() && event instanceof Cancellable)
             {
-                event.setCancelled(true);
+                ((Cancellable)event).setCancelled(true);
             }
         }
     }
