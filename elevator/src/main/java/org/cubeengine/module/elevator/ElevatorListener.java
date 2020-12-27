@@ -36,9 +36,11 @@ import org.spongepowered.api.effect.particle.ParticleTypes;
 import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.EventContextKeys;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.block.InteractBlockEvent.Secondary;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -118,8 +120,10 @@ public class ElevatorListener
                         updateSign(loc, null);
 
                         player.getWorld().playSound(Sound.sound(SoundTypes.ENTITY_ENDER_EYE_DEATH, Source.PLAYER, 5f, 1), loc.getPosition());
-
-                        event.setCancelled(true);
+                        if (event instanceof Cancellable)
+                        {
+                            ((Cancellable)event).setCancelled(true);
+                        }
                     }
                 }
             }
@@ -138,7 +142,10 @@ public class ElevatorListener
                         player.getWorld().playSound(Sound.sound(SoundTypes.ENTITY_ENDER_EYE_DEATH, Source.PLAYER, 5f, 1), loc.getPosition());
                     }
                     updateSign(loc, newTarget);
-                    event.setCancelled(true);
+                    if (event instanceof Cancellable)
+                    {
+                        ((Cancellable)event).setCancelled(true);
+                    }
                 }
             }
             else if (itemInHand.getType().isAnyOf(ItemTypes.PAPER) && event instanceof InteractBlockEvent.Primary)
@@ -155,7 +162,10 @@ public class ElevatorListener
                         player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_WOOL_BREAK, Source.PLAYER, 5f, 10), loc.getPosition())).delay(Ticks.of(2)).build());
                     Sponge.getServer().getScheduler().submit(Task.builder().plugin(plugin).execute(() ->
                        player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_WOOL_BREAK, Source.PLAYER, 2f, 1), loc.getPosition())).delay(Ticks.of(4)).build());
-                    event.setCancelled(true);
+                    if (event instanceof Cancellable)
+                    {
+                        ((Cancellable)event).setCancelled(true);
+                    }
                 }
             }
             return;
@@ -171,7 +181,7 @@ public class ElevatorListener
                 if (!player.getWorld().get(target.get(), ElevatorData.OWNER).isPresent())
                 {
                     updateSign(loc, null);
-                    event.setCancelled(true);
+                    ((Secondary)event).setCancelled(true);
                     return;
                 }
                 ServerLocation targetLoc = ServerLocation.of(player.getWorld(), pPos.getX(), sign.getY() -1, pPos.getZ());
@@ -188,7 +198,7 @@ public class ElevatorListener
                 {
                     i18n.send(ChatType.ACTION_BAR, player, NEGATIVE, "Target obstructed");
                 }
-                event.setCancelled(true);
+                ((Secondary)event).setCancelled(true);
             }
         }
 
@@ -196,7 +206,7 @@ public class ElevatorListener
         {
             if (player.hasPermission(module.getPerm().CREATE.getId()) && itemInHand.getType().isAnyOf(module.getConfig().creationItem))
             {
-                event.setCancelled(true);
+                ((Secondary)event).setCancelled(true);
             }
         }
     }
