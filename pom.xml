@@ -54,25 +54,25 @@
 
     <modules>
         <module>fly</module>
-        <module>fun</module>
+<!--        <module>fun</module>-->
         <module>writer</module>
-        <module>shout</module>
+<!--        <module>shout</module>-->
         <module>chat</module>
-        <module>signmarket</module>
-        <module>vote</module>
+<!--        <module>signmarket</module>-->
+<!--        <module>vote</module>-->
         <module>spawn</module>
-        <module>hide</module>
-        <module>backpack</module>
+<!--        <module>hide</module>-->
+<!--        <module>backpack</module>-->
         <module>powertools</module>
         <module>kits</module>
         <module>spawner</module>
         <module>bigdata</module>
-        <module>donations</module>
+<!--        <module>donations</module>-->
         <module>chopchop</module>
         <module>namehistory</module>
-        <module>vigil</module>
-        <module>authorization</module>
-        <module>apiserver</module>
+<!--        <module>vigil</module>-->
+<!--        <module>authorization</module>-->
+<!--        <module>apiserver</module>-->
         <module>controlc</module>
         <module>elevator</module>
         <module>squelch</module>
