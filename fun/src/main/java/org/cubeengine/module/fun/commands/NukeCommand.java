@@ -17,38 +17,39 @@
  */
 package org.cubeengine.module.fun.commands;
 
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
-import static org.spongepowered.api.entity.EntityTypes.PRIMED_TNT;
-import static org.spongepowered.api.util.blockray.BlockRay.onlyAirFilter;
-
-import com.flowpowered.math.vector.Vector3d;
-import org.cubeengine.butler.parametric.Command;
-import org.cubeengine.butler.parametric.Flag;
-import org.cubeengine.butler.parametric.Named;
-import org.cubeengine.butler.parametric.Optional;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import org.cubeengine.libcube.service.command.annotation.Command;
+import org.cubeengine.libcube.service.command.annotation.Flag;
+import org.cubeengine.libcube.service.command.annotation.Named;
+import org.cubeengine.libcube.service.command.annotation.Option;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.util.math.shape.Cuboid;
 import org.cubeengine.libcube.util.math.shape.Shape;
 import org.cubeengine.module.fun.Fun;
 import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.entity.explosive.PrimedTNT;
+import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.data.Keys;
+import org.spongepowered.api.entity.EntityTypes;
+import org.spongepowered.api.entity.explosive.fused.PrimedTNT;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.world.ExplosionEvent;
-import org.spongepowered.api.util.blockray.BlockRay;
-import org.spongepowered.api.util.blockray.BlockRayHit;
-import org.spongepowered.api.world.Location;
+import org.spongepowered.api.util.blockray.RayTrace;
+import org.spongepowered.api.util.blockray.RayTraceResult;
+import org.spongepowered.api.world.LocatableBlock;
+import org.spongepowered.api.world.ServerLocation;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.explosion.Explosion;
+import org.spongepowered.api.world.server.ServerWorld;
+import org.spongepowered.math.vector.Vector3d;
 
-import java.util.HashSet;
-import java.util.Set;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 
 public class NukeCommand
 {
@@ -65,15 +66,15 @@ public class NukeCommand
     }
 
     @Command(desc = "Makes a carpet of TNT fall on a player or where you're looking")
-    public void nuke(CommandSource context,
-                     @Optional Integer diameter,
+    public void nuke(CommandCause context,
+                     @Option Integer diameter,
                      @Named({"player", "p"}) Player player,
                      @Named({"height", "h"}) Integer height,
                      @Named({"range", "r"}) Integer range,
                      @Flag boolean unsafe,
                      @Flag boolean quiet)
     {
-        Location<World> location;
+        ServerLocation location;
         range = range == null ? 4 : range;
         height = height == null ? 5 : height;
 
@@ -93,31 +94,31 @@ public class NukeCommand
 
         if(player != null)
         {
-            if (!context.equals(player) && !context.hasPermission(module.perms().COMMAND_NUKE_OTHER.getId()))
+            if (!context.getSubject().equals(player) && !context.hasPermission(module.perms().COMMAND_NUKE_OTHER.getId()))
             {
                 i18n.send(context, NEGATIVE, "You are not allowed to specify a player!");
                 return;
             }
-            location = ((Player)context).getLocation();
+            location = ((ServerPlayer)context).getServerLocation();
         }
         else
         {
-            if(!(context instanceof Player))
+            if(!(context instanceof ServerPlayer))
             {
                 i18n.send(context, NEGATIVE, "This command can only be used by a player!");
                 return;
             }
-            java.util.Optional<BlockRayHit<World>> end = BlockRay.from(((Player)context)).stopFilter(onlyAirFilter()).distanceLimit(100).build().end();
+            final Optional<RayTraceResult<LocatableBlock>> end = RayTrace.block().sourceEyePosition(((ServerPlayer)context.getSubject())).select(RayTrace.onlyAir()).limit(100).execute();
             if (!end.isPresent())
             {
                 throw new IllegalStateException();
             }
-            location = end.get().getLocation();
+            location = end.get().getSelectedObject().getServerLocation();
         }
 
         location = this.getSpawnLocation(location, height);
         Shape aShape = new Cuboid(new Vector3d(location.getX() + .5, location.getY() + .5, location.getZ()+ .5) , diameter, 1, diameter);
-        int blockAmount = this.spawnNuke(aShape, location.getExtent(), range, unsafe);
+        int blockAmount = this.spawnNuke(aShape, location.getWorld(), range, unsafe);
 
         if(!quiet)
         {
@@ -125,13 +126,13 @@ public class NukeCommand
         }
     }
 
-    private Location<World> getSpawnLocation(Location<World> location, int height)
+    private ServerLocation getSpawnLocation(ServerLocation location, int height)
     {
         int noBlock = 0;
         while (noBlock != Math.abs(height))
         {
             location.add(0, height > 0 ? 1 : -1, 0);
-            if (location.getBlock().getType() == BlockTypes.AIR)
+            if (location.getBlock().getType() == BlockTypes.AIR.get())
             {
                 noBlock++;
             }
@@ -148,14 +149,14 @@ public class NukeCommand
      *
      * @return the number of spawned tnt blocks.
      */
-    public int spawnNuke(Shape shape, World world, int range, boolean unsafe)
+    public int spawnNuke(Shape shape, ServerWorld world, int range, boolean unsafe)
     {
         int numberOfBlocks = 0;
         for (Vector3d vector : shape)
         {
-            PrimedTNT tnt = (PrimedTNT)world.createEntity(PRIMED_TNT, vector.clone());
-            tnt.setVelocity(new Vector3d(0,0,0));
-            tnt.offer(Keys.EXPLOSION_RADIUS, java.util.Optional.of(range));
+            PrimedTNT tnt = (PrimedTNT)world.createEntity(EntityTypes.TNT, vector.clone());
+            tnt.offer(Keys.VELOCITY, new Vector3d(0, 0, 0));
+            tnt.offer(Keys.EXPLOSION_RADIUS, range);
             // TODO push cause
             world.spawnEntity(tnt);
 
