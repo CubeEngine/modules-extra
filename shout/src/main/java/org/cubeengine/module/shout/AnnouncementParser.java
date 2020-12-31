@@ -17,23 +17,25 @@
  */
 package org.cubeengine.module.shout;
 
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
-
-import org.cubeengine.butler.CommandInvocation;
-import org.cubeengine.butler.parameter.argument.Completer;
-import org.cubeengine.butler.parameter.argument.ArgumentParser;
-import org.cubeengine.butler.parameter.argument.ParserException;
-import org.cubeengine.libcube.service.command.TranslatedParserException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import org.cubeengine.libcube.service.command.annotation.ParserFor;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.module.shout.announce.Announcement;
 import org.cubeengine.module.shout.announce.AnnouncementManager;
-import org.spongepowered.api.text.Text;
+import org.spongepowered.api.command.exception.ArgumentParseException;
+import org.spongepowered.api.command.parameter.ArgumentReader.Mutable;
+import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.command.parameter.CommandContext.Builder;
+import org.spongepowered.api.command.parameter.Parameter.Key;
+import org.spongepowered.api.command.parameter.managed.ValueCompleter;
+import org.spongepowered.api.command.parameter.managed.ValueParser;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
 
-public class AnnouncementParser implements ArgumentParser<Announcement>, Completer
+@ParserFor(Announcement.class)
+public class AnnouncementParser implements ValueParser<Announcement>, ValueCompleter
 {
     private AnnouncementManager manager;
     private I18n i18n;
@@ -45,23 +47,10 @@ public class AnnouncementParser implements ArgumentParser<Announcement>, Complet
     }
 
     @Override
-    public Announcement parse(Class clazz, CommandInvocation invocation) throws ParserException
-    {
-        String name = invocation.consume(1);
-        Announcement announcement = manager.getAnnouncement(name);
-        if (announcement == null)
-        {
-            Text trans = i18n.translate(invocation.getContext(Locale.class), NEGATIVE, "{input#announcement} was not found!", name);
-            throw new TranslatedParserException(trans);
-        }
-        return announcement;
-    }
-
-    @Override
-    public List<String> suggest(Class type, CommandInvocation invocation)
+    public List<String> complete(CommandContext context, String currentInput)
     {
         List<String> list = new ArrayList<>();
-        String token = invocation.currentToken();
+        String token = currentInput;
         for (Announcement announcement : manager.getAllAnnouncements())
         {
             if (announcement.getName().startsWith(token))
@@ -71,4 +60,18 @@ public class AnnouncementParser implements ArgumentParser<Announcement>, Complet
         }
         return list;
     }
+
+    @Override
+    public Optional<? extends Announcement> getValue(Key<? super Announcement> parameterKey, Mutable reader, Builder context) throws ArgumentParseException
+    {
+        String name = reader.parseString();
+        Announcement announcement = manager.getAnnouncement(name);
+        if (announcement == null)
+        {
+            throw reader.createException(i18n.translate(context.getCause(), NEGATIVE, "{input#announcement} was not found!", name));
+        }
+        return Optional.of(announcement);
+    }
+
+
 }

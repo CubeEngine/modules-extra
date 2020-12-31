@@ -29,20 +29,19 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import org.cubeengine.reflect.Reflector;
-import org.cubeengine.module.shout.Shout;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.logscribe.Log;
-import org.cubeengine.module.shout.announce.task.DynamicCycleTask;
 import org.cubeengine.libcube.service.matcher.StringMatcher;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.libcube.service.task.TaskManager;
+import org.cubeengine.logscribe.Log;
+import org.cubeengine.module.shout.Shout;
+import org.cubeengine.module.shout.announce.task.DynamicCycleTask;
+import org.cubeengine.reflect.Reflector;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.serializer.TextSerializers;
 
-import static org.cubeengine.libcube.service.filesystem.FileExtensionFilter.JSON;
 import static org.cubeengine.libcube.service.filesystem.FileExtensionFilter.YAML;
 
 /**
@@ -246,7 +245,9 @@ public class AnnouncementManager
         config.delay = delay;
         config.permName = permName;
         config.fixedCycle = fc;
-        config.announcement = TextSerializers.JSON.serialize(json ? TextSerializers.JSON.deserialize(message) : TextSerializers.FORMATTING_CODE.deserialize(message));
+        config.announcement = GsonComponentSerializer.gson().serialize(json ?
+                                                                       GsonComponentSerializer.gson().deserialize(message) :
+                                                                       LegacyComponentSerializer.legacyAmpersand().deserialize(message));
         config.weight = weight;
         config.save();
 

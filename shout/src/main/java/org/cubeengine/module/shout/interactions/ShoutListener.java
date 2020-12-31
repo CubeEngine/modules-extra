@@ -17,10 +17,9 @@
  */
 package org.cubeengine.module.shout.interactions;
 
-import org.cubeengine.module.shout.Shout;
 import org.cubeengine.module.shout.announce.AnnouncementManager;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 
 public class ShoutListener
 {
@@ -32,14 +31,14 @@ public class ShoutListener
     }
 
     @Listener
-    public void afterPlayerJoin(ClientConnectionEvent.Join event)
+    public void afterPlayerJoin(ServerSideConnectionEvent.Join event)
     {
-        am.initializeUser(event.getTargetEntity());
+        am.initializeUser(event.getPlayer());
     }
 
     @Listener
-    public void onQuit(ClientConnectionEvent.Disconnect event)
+    public void onQuit(ServerSideConnectionEvent.Disconnect event)
     {
-        am.stop(event.getTargetEntity());
+        am.stop(event.getPlayer());
     }
 }

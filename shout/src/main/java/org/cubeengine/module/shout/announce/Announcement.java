@@ -19,21 +19,18 @@ package org.cubeengine.module.shout.announce;
 
 import java.util.Collection;
 import java.util.Locale;
+import java.util.stream.Collectors;
+import com.google.gson.JsonParseException;
+import net.kyori.adventure.identity.Identity;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.cubeengine.libcube.service.permission.Permission;
+import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.module.shout.Shout;
 import org.cubeengine.module.shout.ShoutUtil;
-import org.cubeengine.libcube.service.permission.PermissionManager;
-import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.service.permission.PermissionDescription;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.channel.MessageChannel;
-import org.spongepowered.api.text.serializer.TextParseException;
-import org.spongepowered.api.text.serializer.TextSerializer;
-import org.spongepowered.api.text.serializer.TextSerializers;
-
-import static java.util.stream.Collectors.toList;
-import static org.spongepowered.api.text.serializer.TextSerializers.FORMATTING_CODE;
-import static org.spongepowered.api.text.serializer.TextSerializers.JSON;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 
 /**
  * Class to represent an announcement.
@@ -59,13 +56,13 @@ public class Announcement
      * @param   locale  The language to get the message in
      * @return	The message in that language if exist, else the message in the default locale will be returned
      */
-    public Text getMessage(Locale locale)
+    public Component getMessage(Locale locale)
     {
         String announcement = config.translated.getOrDefault(locale, config.announcement);
         try {
-            return JSON.deserialize(announcement);
-        } catch (TextParseException e) {
-            return FORMATTING_CODE.deserialize(announcement);
+            return GsonComponentSerializer.gson().deserialize(announcement);
+        } catch (JsonParseException e) {
+            return LegacyComponentSerializer.legacyAmpersand().deserialize(announcement);
         }
     }
 
@@ -94,23 +91,21 @@ public class Announcement
         return this.name;
     }
 
-    public boolean canAccess(CommandSource subject)
+    public boolean canAccess(ServerPlayer subject)
     {
         return getPermission() == null || subject.hasPermission(permission.getId());
     }
 
-    protected Collection<CommandSource> getReceivers()
+    protected Collection<ServerPlayer> getReceivers()
     {
-        return MessageChannel.TO_ALL.getMembers().stream()
-                                    .filter(m -> m instanceof CommandSource)
-                                    .map(CommandSource.class::cast)
-                                    .filter(this::canAccess)
-                                    .collect(toList());
+        return Sponge.getServer().getOnlinePlayers().stream()
+              .filter(this::canAccess)
+              .collect(Collectors.toList());
     }
 
-    public void announce(CommandSource receiver)
+    public void announce(ServerPlayer receiver)
     {
-        receiver.sendMessages(getMessage(receiver.getLocale()));
+        receiver.sendMessage(Identity.nil(), getMessage(receiver.getLocale()));
     }
 
     public void announce()

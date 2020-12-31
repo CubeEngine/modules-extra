@@ -20,63 +20,51 @@ package org.cubeengine.module.shout.interactions;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Locale;
-
-import org.cubeengine.butler.CommandInvocation;
-import org.cubeengine.butler.alias.Alias;
-import org.cubeengine.butler.parametric.Command;
-import org.cubeengine.butler.parametric.Flag;
-import org.cubeengine.butler.parametric.Greed;
-import org.cubeengine.butler.parametric.Label;
-import org.cubeengine.butler.parametric.Named;
-import org.cubeengine.libcube.service.command.CommandManager;
+import net.kyori.adventure.identity.Identity;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import org.cubeengine.libcube.service.command.DispatcherCommand;
 import org.cubeengine.libcube.service.command.annotation.Alias;
 import org.cubeengine.libcube.service.command.annotation.Command;
+import org.cubeengine.libcube.service.command.annotation.Delegate;
+import org.cubeengine.libcube.service.command.annotation.Flag;
+import org.cubeengine.libcube.service.command.annotation.Greedy;
+import org.cubeengine.libcube.service.command.annotation.Label;
+import org.cubeengine.libcube.service.command.annotation.Named;
+import org.cubeengine.libcube.service.command.annotation.Using;
+import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.module.shout.Shout;
 import org.cubeengine.module.shout.announce.Announcement;
-import org.cubeengine.libcube.service.command.CommandContext;
-import org.cubeengine.libcube.service.command.ContainerCommand;
-import org.cubeengine.libcube.service.i18n.I18n;
-import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.serializer.TextSerializer;
-import org.spongepowered.api.text.serializer.TextSerializers;
+import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.command.parameter.managed.ValueParser;
 
-import static org.cubeengine.butler.parameter.Parameter.INFINITE;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
 
+@Delegate("show")
+@Using(ValueParser.class)
 @Command(name = "shout", desc = "Announce a message to players on the server", alias = "announce")
-public class ShoutCommand extends ContainerCommand
+public class ShoutCommand extends DispatcherCommand
 {
     private final Shout module;
     private I18n i18n;
 
-    public ShoutCommand(CommandManager cm, Shout module, I18n i18n)
+    public ShoutCommand(Shout module, I18n i18n)
     {
-        super(cm, Shout.class);
         this.module = module;
         this.i18n = i18n;
     }
 
-    @Override
-    protected boolean selfExecute(CommandInvocation invocation)
-    {
-        if (invocation.tokens().size() - invocation.consumed() == 1)
-        {
-            return getCommand("show").execute(invocation);
-        }
-        return super.selfExecute(invocation);
-    }
-
     @Command(desc = "Displays an announcement")
-    public void show(CommandSource context, Announcement announcement)
+    public void show(CommandCause context, Announcement announcement)
     {
         announcement.announce();
         i18n.send(context, POSITIVE, "The announcement {name} has been announced!", announcement.getName());
     }
 
-    @Alias(value = {"announcements"})
+    @Alias(value = "announcements")
     @Command(alias = "announcements", desc = "List all announcements")
-    public void list(CommandSource context)
+    public void list(CommandCause context)
     {
         Collection<Announcement> list = this.module.getManager().getAllAnnouncements();
         if (list.isEmpty())
@@ -87,17 +75,17 @@ public class ShoutCommand extends ContainerCommand
         i18n.send(context, POSITIVE, "Here is the list of announcements:");
         for (Announcement announcement : list)
         {
-            context.sendMessage(Text.of(" - ", announcement.getName()));
+            context.sendMessage(Identity.nil(), Component.text(" - " + announcement.getName()));
         }
     }
 
     @Command(desc = "Creates a new announcement")
-    public void create(CommandSource ctx, String name,
-                       @Greed(INFINITE) String message,
+    public void create(CommandCause ctx, String name,
+                       @Greedy String message,
                        @Named({"delay", "d"}) @Label("<x> minutes|hours|days") String delay,
                        @Named({"permission", "p"}) String permission,
                        @Named("weight") Integer weight,
-                       @Flag(name = "fc", longName = "fixed-cycle") boolean fixedCycle,
+                       @Flag(value = "fc", longName = "fixed-cycle") boolean fixedCycle,
                        @Flag boolean asJson)
     {
         weight = weight == null ? 1 : weight;
@@ -133,41 +121,42 @@ public class ShoutCommand extends ContainerCommand
     }
 
     @Command(desc = "clean all loaded announcements from memory and load from disk")
-    public void reload(CommandContext context)
+    public void reload(CommandCause context)
     {
         module.getManager().reload();
-        context.sendTranslated(POSITIVE, "All the announcements have now been reloaded, and the players have been re-added");
+
+        i18n.send(context, POSITIVE, "All the announcements have now been reloaded, and the players have been re-added");
     }
 
     @Command(desc = "delete an announcement")
-    public void delete(CommandContext context, String announcement)
+    public void delete(CommandCause context, String announcement)
     {
         if (module.getManager().deleteAnnouncement(announcement))
         {
-            context.sendTranslated(POSITIVE, "Announcement {name} was deleted!", announcement);
+            i18n.send(context, POSITIVE, "Announcement {name} was deleted!", announcement);
         }
         else
         {
-            context.sendTranslated(POSITIVE, "There is now announcement named {}", announcement);
+            i18n.send(context, POSITIVE, "There is now announcement named {}", announcement);
         }
     }
 
     @Command(desc = "modifies an announcement")
-    public void modify(CommandContext context, Announcement announcement, @Greed(INFINITE) String message, @Named("locale") Locale locale, @Flag boolean append, @Flag boolean asJson)
+    public void modify(CommandCause context, Announcement announcement, @Greedy String message, @Named("locale") Locale locale, @Flag boolean append, @Flag boolean asJson)
     {
         message = message.replace("\\n", "\n");
-        Text newText = asJson ? TextSerializers.JSON.deserialize(message) : TextSerializers.FORMATTING_CODE.deserialize(message);
+        Component newText = asJson ? GsonComponentSerializer.gson().deserialize(message) : PlainComponentSerializer.plain().deserialize(message);
         if (locale == null)
         {
-            Text prev = TextSerializers.JSON.deserialize(append ? announcement.getConfig().announcement : "");
-            announcement.getConfig().announcement = TextSerializers.JSON.serialize(prev.toBuilder().append(newText).build());
+            Component prev = GsonComponentSerializer.gson().deserialize(append ? announcement.getConfig().announcement : "");
+            announcement.getConfig().announcement = GsonComponentSerializer.gson().serialize(prev.append(newText));
         }
         else
         {
-            Text prev = TextSerializers.JSON.deserialize(append ? announcement.getConfig().translated.getOrDefault(locale, "") : "");
-            announcement.getConfig().translated.put(locale, TextSerializers.JSON.serialize(prev.toBuilder().append(newText).build()));
+            Component prev = GsonComponentSerializer.gson().deserialize(append ? announcement.getConfig().translated.getOrDefault(locale, "") : "");
+            announcement.getConfig().translated.put(locale, GsonComponentSerializer.gson().serialize(prev.append(newText)));
         }
         announcement.getConfig().save();
-        context.sendTranslated(POSITIVE, "Updated announcement");
+        i18n.send(context, POSITIVE, "Updated announcement");
     }
 }
