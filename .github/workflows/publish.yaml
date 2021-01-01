@@ -21,7 +21,7 @@ jobs:
                   restore-keys: |
                       ${{ runner.os }}-maven-
             - name: Publish package
-              run: mvn package deploy -U --fail-at-end
+              run: mvn -T2C -U --fail-at-end package deploy
               env:
                   MAVEN_USERNAME: ${{ secrets.NEXUS_USER }}
                   MAVEN_PASSWORD: ${{ secrets.NEXUS_PASS }}
