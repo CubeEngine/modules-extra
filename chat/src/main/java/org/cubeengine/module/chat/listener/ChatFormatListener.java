@@ -111,7 +111,7 @@ public class ChatFormatListener
             Map<String, Component> replacements = new HashMap<>();
             String name = player.getName();
             replacements.put("{NAME}", Component.text(name));
-            Component displayName = player.get(Keys.DISPLAY_NAME).orElse(Component.text(name));
+            Component displayName = player.get(Keys.CUSTOM_NAME).orElse(Component.text(name));
             if (!plainSerializer.serialize(displayName).equals(name))
             {
                 final HoverEvent<Component> hoverEvent = HoverEvent.hoverEvent(Action.SHOW_TEXT, Component.text(name).color(NamedTextColor.DARK_GREEN));

@@ -56,7 +56,7 @@ public class ItemductItems
         Ingredient hopper = Ingredient.of(ItemTypes.HOPPER.get());
         activatorItem = ItemStack.of(ItemTypes.HOPPER, 1);
         activatorItem.offer(Keys.APPLIED_ENCHANTMENTS, singletonList(Enchantment.builder().type(EnchantmentTypes.LOOTING).level(1).build()));
-        activatorItem.offer(Keys.DISPLAY_NAME, Component.text("ItemDuct Activator", NamedTextColor.GOLD));
+        activatorItem.offer(Keys.CUSTOM_NAME, Component.text("ItemDuct Activator", NamedTextColor.GOLD));
         activatorItem.offer(Keys.HIDE_ENCHANTMENTS, true);
         activatorItem.offer(ItemductData.USES, config.activatorUses);
         activatorItem.offer(Keys.LORE, Collections.singletonList(Component.text("Uses: ").append(Component.text(config.activatorUses))));
@@ -76,7 +76,7 @@ public class ItemductItems
         superActivatorItem = activatorItem.copy();
         superActivatorItem.offer(ItemductData.USES, config.superActivatorUses);
         superActivatorItem.offer(Keys.LORE, Collections.singletonList(Component.text("Uses: ").append(Component.text(config.superActivatorUses == -1 ? "Infinite" : String.valueOf(config.superActivatorUses)))));
-        superActivatorItem.offer(Keys.DISPLAY_NAME, Component.text("ItemDuct Super Activator", NamedTextColor.GOLD));
+        superActivatorItem.offer(Keys.CUSTOM_NAME, Component.text("ItemDuct Super Activator", NamedTextColor.GOLD));
 
         hopper = Ingredient.of(activatorItem);
         superRecipe = CraftingRecipe.shapedBuilder().rows()

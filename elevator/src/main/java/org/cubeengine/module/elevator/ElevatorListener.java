@@ -113,7 +113,7 @@ public class ElevatorListener
 
                         List<Component> list = loc.get(Keys.SIGN_LINES).get();
                         // Set First Line with name of renamed Item
-                        list.set(0, itemInHand.get(Keys.DISPLAY_NAME).orElse(list.get(0)));
+                        list.set(0, itemInHand.get(Keys.CUSTOM_NAME).orElse(list.get(0)));
                         loc.offer(Keys.SIGN_LINES, list);
 
                         i18n.send(ChatType.ACTION_BAR, player, POSITIVE, "Elevator created!");

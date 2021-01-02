@@ -98,7 +98,7 @@ public class ChatCommands
 
         if ("-r".equalsIgnoreCase(name) || "-reset".equalsIgnoreCase(name))
         {
-            player.remove(Keys.DISPLAY_NAME);
+            player.remove(Keys.CUSTOM_NAME);
             i18n.send(ctxAudience, POSITIVE, "Display name reset to {user}", ctxAudience);
             return;
         }
@@ -111,7 +111,7 @@ public class ChatCommands
             return;
         }
         i18n.send(ctxAudience, POSITIVE, "Display name changed from {user} to {user}", ctxAudience, name);
-        player.offer(Keys.DISPLAY_NAME, ChatFormat.fromLegacy(name, '&'));
+        player.offer(Keys.CUSTOM_NAME, ChatFormat.fromLegacy(name, '&'));
     }
 
     @Command(desc = "Sends a private message to someone", alias = {"tell", "message", "pm", "m", "t", "whisper", "w"})

@@ -68,7 +68,7 @@ public class Chopchop
     {
         ItemStack axe = ItemStack.of(DIAMOND_AXE, 1);
         axe.offer(Keys.APPLIED_ENCHANTMENTS, singletonList(Enchantment.builder().type(EnchantmentTypes.PUNCH).level(5).build()));
-        axe.offer(Keys.DISPLAY_NAME, Component.text("Heavy Diamond Axe", NamedTextColor.GOLD));
+        axe.offer(Keys.CUSTOM_NAME, Component.text("Heavy Diamond Axe", NamedTextColor.GOLD));
         axe.offer(Keys.LORE, singletonList(Component.text("Chop Chop!", NamedTextColor.YELLOW)));
         axe.offer(Keys.HIDE_ENCHANTMENTS, true);
 

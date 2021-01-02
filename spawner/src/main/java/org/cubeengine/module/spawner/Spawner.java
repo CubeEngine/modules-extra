@@ -226,7 +226,7 @@ public class Spawner
             ItemStack spawnerItem = this.spawnerItem.copy();
             spawnerItem.offer(Keys.APPLIED_ENCHANTMENTS, singletonList(Enchantment.builder().type(LURE).level(1).build()));
             spawnerItem.offer(Keys.HIDE_ENCHANTMENTS, true);
-            spawnerItem.offer(Keys.DISPLAY_NAME, i18n.translate(player, "Inactive monster spawner"));
+            spawnerItem.offer(Keys.CUSTOM_NAME, i18n.translate(player, "Inactive monster spawner"));
 
             brokenSpawners.computeIfAbsent(loc.getWorldKey(), k -> new HashSet<>()).add(loc.getBlockPosition());
 

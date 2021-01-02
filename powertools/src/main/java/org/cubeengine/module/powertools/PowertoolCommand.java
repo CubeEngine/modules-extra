@@ -203,7 +203,7 @@ public class PowertoolCommand extends DispatcherCommand
                 {
                     ItemStack item = slot.peek();
                     item.get(PowertoolData.POWERS).ifPresent(list -> {
-                        context.sendMessage(Identity.nil(), item.get(Keys.DISPLAY_NAME).orElse(item.getType().asComponent()).color(NamedTextColor.GOLD).append(Component.text(":")));
+                        context.sendMessage(Identity.nil(), item.get(Keys.CUSTOM_NAME).orElse(item.getType().asComponent()).color(NamedTextColor.GOLD).append(Component.text(":")));
                         showPowerToolList(context, list, false, false);
                     });
                 }
