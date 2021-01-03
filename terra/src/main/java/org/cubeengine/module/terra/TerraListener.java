@@ -85,7 +85,7 @@ public class TerraListener {
                                                         .from(WorldTemplate.overworld())
                                                         .key(worldKey)
                                                         .worldType(WorldTypes.OVERWORLD)
-                                                        .generateSpawnOnLoad(false)
+                                                        .serializationBehavior(SerializationBehavior.NONE)
                                                         .displayName(Component.text("Dream world by " + player.getName()))
                                                         .generator(ChunkGenerator.noise(BiomeProvider.multiNoise(multiNoiseBiomeConfig), noiseGeneratorConfig))
                                                         .difficulty(Difficulties.HARD)
@@ -98,8 +98,6 @@ public class TerraListener {
     private void afterUseItem(ResourceKey worldKey, WorldTemplate template, ServerPlayer player)
     {
         final WorldManager wm = Sponge.getServer().getWorldManager();
-        this.time = System.currentTimeMillis();
-
         if (player.getWorld().getKey().equals(worldKey)) {
             player.setLocation(ServerLocation.of(wm.defaultWorld(), wm.defaultWorld().getProperties().spawnPosition()));
         }
@@ -107,22 +105,15 @@ public class TerraListener {
         CompletableFuture<Boolean> worldDeletedFuture = CompletableFuture.completedFuture(true);
         if (wm.world(worldKey).isPresent()) {
             wm.world(worldKey).get().getProperties().setSerializationBehavior(SerializationBehavior.NONE);
-            System.out.println("unload" + (System.currentTimeMillis() - this.time) + "ms");
-            worldDeletedFuture = wm.unloadWorld(worldKey).thenCompose(b -> {
-                System.out.println("delete" + (System.currentTimeMillis() - this.time) + "ms");
-                return wm.deleteWorld(worldKey);
-            });
+            worldDeletedFuture = wm.unloadWorld(worldKey).thenCompose(b -> wm.deleteWorld(worldKey));
         }
 
         worldDeletedFuture.thenCompose(b -> {
-            System.out.println("save" + (System.currentTimeMillis() - this.time) + "ms");
             wm.saveTemplate(template);
-            System.out.println("load" + (System.currentTimeMillis() - this.time) + "ms");
             return wm.loadWorld(template);
         }).thenAccept(w -> {
             taskManager.runTask(() -> tpPlayer(player, w));
         }).exceptionally(e -> {
-            player.sendMessage(Identity.nil(), Component.text("OH NO! " + e.getMessage(), NamedTextColor.DARK_RED));
             e.printStackTrace();
             return null;
         });
@@ -132,7 +123,6 @@ public class TerraListener {
     private void tpPlayer(ServerPlayer player, ServerWorld w)
     {
         setupWorld(w);
-        System.out.println("tp" + (System.currentTimeMillis() - this.time) + "ms");
         ServerLocation spawnLoc = w.getLocation(w.getProperties().spawnPosition());
         spawnLoc = Sponge.getServer().getTeleportHelper().getSafeLocation(spawnLoc).orElse(spawnLoc);
         player.setLocation(spawnLoc);
@@ -144,20 +134,8 @@ public class TerraListener {
 
     private void setupWorld(ServerWorld w)
     {
-        System.out.println("setup" + (System.currentTimeMillis() - this.time) + "ms");
         final Vector3i spawn = w.getProperties().spawnPosition();
         w.getBorder().setCenter(spawn.getX(), spawn.getZ());
         w.getBorder().setDiameter(16 * 17);
-        final int cx = spawn.getX() / 16;
-        final int cz = spawn.getZ() / 16;
-        final int GENERATE_RADIUS = 2;
-        System.out.println("pregen" + (System.currentTimeMillis() - this.time) + "ms");
-        for (int gcx = cx - GENERATE_RADIUS; gcx < cx + GENERATE_RADIUS; gcx++)
-        {
-            for (int gcz = cz - GENERATE_RADIUS; gcz < cz + GENERATE_RADIUS; gcz++)
-            {
-                w.loadChunk(gcx, 0, gcz, true);
-            }
-        }
     }
 }
