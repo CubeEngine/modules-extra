@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.data.Keys;
@@ -66,7 +67,7 @@ public class WriterItems
             .result(grid -> {
                 final ItemStack writtenBook = grid.query(QueryTypes.ITEM_TYPE, WRITTEN_BOOK).peek();
                 final List<String> lines = writtenBook.get(Keys.PAGES).orElse(
-                    Collections.emptyList()).stream().map(line -> PlainComponentSerializer.plain().serialize(line)).collect(
+                    Collections.emptyList()).stream().map(line -> GsonComponentSerializer.gson().serialize(line)).collect(
                     Collectors.toList());
                 final ItemStack writableBook = ItemStack.of(WRITABLE_BOOK);
                 writableBook.offer(Keys.PLAIN_PAGES, lines);
