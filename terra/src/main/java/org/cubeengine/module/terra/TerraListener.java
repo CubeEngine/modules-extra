@@ -19,26 +19,34 @@ package org.cubeengine.module.terra;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.i18n.I18nTranslate.ChatType;
+import org.cubeengine.libcube.service.i18n.formatter.MessageType;
 import org.cubeengine.libcube.service.task.SpongeTaskManager;
+import org.cubeengine.libcube.util.ItemUtil;
 import org.cubeengine.module.terra.data.TerraItems;
+import org.cubeengine.module.terra.data.TerraItems.Essence;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.effect.potion.PotionEffect;
 import org.spongepowered.api.effect.potion.PotionEffectTypes;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.entity.projectile.Potion;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.entity.ChangeEntityPotionEffectEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
 import org.spongepowered.api.registry.RegistryReference;
+import org.spongepowered.api.util.Color;
 import org.spongepowered.api.world.SerializationBehavior;
 import org.spongepowered.api.world.WorldTypes;
 import org.spongepowered.api.world.biome.AttributedBiome;
@@ -61,38 +69,65 @@ public class TerraListener {
 
     @Inject private PluginContainer plugin;
     @Inject private SpongeTaskManager taskManager;
+    @Inject private I18n i18n;
 
-    private long time;
+    private CompletableFuture<Void> future;
 
     @Listener
     public void onUseItem(UseItemStackEvent.Finish event, @First ServerPlayer player)
     {
         if (TerraItems.isTerraEssence(event.getItemStackInUse()))
         {
-            final ResourceKey worldKey = ResourceKey.of(PluginTerra.TERRA_ID, player.getName().toLowerCase());
+            if (this.future != null && !this.future.isDone())
+            {
+                i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "You don't feel like drinking this now.");
+                return;
+            }
 
-            List<RegistryReference<Biome>> biomeList = TerraItems.getBiomesForItem(event.getItemStackInUse());
-            final Random random = player.getWorld().getRandom();
-            final List<AttributedBiome> biomes = biomeList.stream().map(biome ->
-                AttributedBiome.of(biome, BiomeAttributes.of(random.nextFloat(), random.nextFloat(), random.nextFloat(), random.nextFloat(), random.nextFloat()))).collect(Collectors.toList());
-
-            final MultiNoiseBiomeConfig multiNoiseBiomeConfig = MultiNoiseBiomeConfig.builder().biomes(biomes)
-                                                                                     .build();
-
-            final NoiseGeneratorConfig noiseGeneratorConfig = NoiseGeneratorConfig.overworld();
-
-            final WorldTemplate template = WorldTemplate.builder()
-                                                        .from(WorldTemplate.overworld())
-                                                        .key(worldKey)
-                                                        .worldType(WorldTypes.OVERWORLD)
-                                                        .serializationBehavior(SerializationBehavior.NONE)
-                                                        .displayName(Component.text("Dream world by " + player.getName()))
-                                                        .generator(ChunkGenerator.noise(BiomeProvider.multiNoise(multiNoiseBiomeConfig), noiseGeneratorConfig))
-                                                        .difficulty(Difficulties.HARD)
-                                                        .loadOnStartup(false)
-                                                        .build();
-            taskManager.runTask(() -> afterUseItem(worldKey, template, player));
+            TerraItems.getEssenceForItem(event.getItemStackInUse()).ifPresent(essence -> runEssenceCode(player, essence));
         }
+    }
+
+    private void runEssenceCode(ServerPlayer player, Essence essence)
+    {
+        final ResourceKey worldKey = ResourceKey.of(PluginTerra.TERRA_ID, player.getName().toLowerCase());
+        final List<RegistryReference<Biome>> biomeList = essence.getBiomes();
+
+        final Random random = player.getWorld().getRandom();
+        final List<AttributedBiome> biomes = biomeList.stream().map(biome ->
+            AttributedBiome.of(biome, BiomeAttributes.of(random.nextFloat(), random.nextFloat(), random.nextFloat(), random.nextFloat(), random.nextFloat()))).collect(Collectors.toList());
+
+        final MultiNoiseBiomeConfig multiNoiseBiomeConfig = MultiNoiseBiomeConfig.builder().biomes(biomes).build();
+
+        final NoiseGeneratorConfig noiseGeneratorConfig = NoiseGeneratorConfig.overworld();
+
+        final WorldTemplate template = WorldTemplate.builder()
+                                                    .from(WorldTemplate.overworld())
+                                                    .key(worldKey)
+                                                    .worldType(WorldTypes.OVERWORLD)
+                                                    .serializationBehavior(SerializationBehavior.NONE)
+                                                    .displayName(Component.text("Dream world by " + player.getName()))
+                                                    .generator(ChunkGenerator.noise(BiomeProvider.multiNoise(multiNoiseBiomeConfig), noiseGeneratorConfig))
+                                                    .difficulty(Difficulties.HARD)
+                                                    .loadOnStartup(false)
+                                                    .build();
+        taskManager.runTask(() -> afterUseItem(worldKey, template, player));
+    }
+
+    @Listener
+    public void onSplash(ChangeEntityPotionEffectEvent event, @First Potion potion) {
+        final ServerPlayer player = event.getCause().first(ServerPlayer.class).orElse(null);
+        if (player == null)
+        {
+            return;
+        }
+        if (this.future != null && !this.future.isDone())
+        {
+            ItemUtil.spawnItem(potion.getServerLocation(), potion.item().get().createStack());
+            return;
+        }
+
+        TerraItems.getEssenceForItem(potion.item().get()).ifPresent(essence -> runEssenceCode(player, essence));
     }
 
     private void afterUseItem(ResourceKey worldKey, WorldTemplate template, ServerPlayer player)
@@ -108,7 +143,7 @@ public class TerraListener {
             worldDeletedFuture = wm.unloadWorld(worldKey).thenCompose(b -> wm.deleteWorld(worldKey));
         }
 
-        worldDeletedFuture.thenCompose(b -> {
+        future = worldDeletedFuture.thenCompose(b -> {
             wm.saveTemplate(template);
             return wm.loadWorld(template);
         }).thenAccept(w -> {
@@ -124,7 +159,7 @@ public class TerraListener {
     {
         setupWorld(w);
         ServerLocation spawnLoc = w.getLocation(w.getProperties().spawnPosition());
-        spawnLoc = Sponge.getServer().getTeleportHelper().getSafeLocation(spawnLoc).orElse(spawnLoc);
+        spawnLoc = Sponge.getServer().getTeleportHelper().getSafeLocation(spawnLoc, 50, 10).orElse(spawnLoc);
         player.setLocation(spawnLoc);
         final List<PotionEffect> list = player.get(Keys.POTION_EFFECTS).orElse(Collections.emptyList());
         list.removeIf(effect -> effect.getType() == PotionEffectTypes.BLINDNESS.get());
