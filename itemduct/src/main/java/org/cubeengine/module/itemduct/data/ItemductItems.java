@@ -51,7 +51,7 @@ public class ItemductItems
     private static RecipeRegistration superRecipe;
     private static RecipeRegistration recipe;
 
-    public static void registerRecipes(RegisterDataPackValueEvent event, ItemductConfig config)
+    public static void registerRecipes(RegisterDataPackValueEvent<RecipeRegistration>event, ItemductConfig config)
     {
         Ingredient hopper = Ingredient.of(ItemTypes.HOPPER.get());
         activatorItem = ItemStack.of(ItemTypes.HOPPER, 1);

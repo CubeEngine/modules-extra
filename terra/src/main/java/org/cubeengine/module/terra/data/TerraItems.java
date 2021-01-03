@@ -41,8 +41,8 @@ import org.spongepowered.api.item.recipe.crafting.Ingredient;
 import org.spongepowered.api.item.recipe.crafting.ShapelessCraftingRecipe;
 import org.spongepowered.api.registry.RegistryReference;
 import org.spongepowered.api.util.Color;
-import org.spongepowered.api.world.biome.BiomeType;
-import org.spongepowered.api.world.biome.BiomeTypes;
+import org.spongepowered.api.world.biome.Biome;
+import org.spongepowered.api.world.biome.Biomes;
 import org.spongepowered.api.world.server.ServerWorld;
 
 public class TerraItems
@@ -51,7 +51,7 @@ public class TerraItems
     public static final ItemStack INK_BOTTLE = ItemStack.of(ItemTypes.POTION.get());
     public static final ItemStack TERRA_ESSENCE = ItemStack.of(ItemTypes.POTION.get());
 
-    public static void registerRecipes(RegisterDataPackValueEvent event)
+    public static void registerRecipes(RegisterDataPackValueEvent<RecipeRegistration>event)
     {
         INK_BOTTLE.offer(Keys.COLOR, Color.BLACK);
         INK_BOTTLE.offer(Keys.CUSTOM_NAME, Component.text("Ink Bottle"));
@@ -88,49 +88,45 @@ public class TerraItems
 
     private enum Essence
     {
-        GREEN(Color.GREEN, Arrays.asList(BiomeTypes.PLAINS, BiomeTypes.SUNFLOWER_PLAINS, BiomeTypes.FOREST, BiomeTypes.BIRCH_FOREST, BiomeTypes.TALL_BIRCH_FOREST, BiomeTypes.BIRCH_FOREST_HILLS, BiomeTypes.FLOWER_FOREST), Arrays.asList(BiomeTypes.RIVER)),
-        DARK_GREEN(Color.DARK_GREEN, Arrays.asList(BiomeTypes.DARK_FOREST, BiomeTypes.DARK_FOREST_HILLS, BiomeTypes.SWAMP), Arrays.asList(BiomeTypes.RIVER)),
-        LIME(Color.LIME, Arrays.asList(BiomeTypes.JUNGLE, BiomeTypes.MODIFIED_JUNGLE, BiomeTypes.JUNGLE_EDGE, BiomeTypes.MODIFIED_JUNGLE_EDGE, BiomeTypes.BAMBOO_JUNGLE), Arrays.asList(BiomeTypes.RIVER, BiomeTypes.BEACH)),
-        MAGENTA(Color.MAGENTA, Arrays.asList(BiomeTypes.MUSHROOM_FIELD_SHORE, BiomeTypes.MUSHROOM_FIELDS), Arrays.asList(BiomeTypes.OCEAN, BiomeTypes.COLD_OCEAN, BiomeTypes.WARM_OCEAN, BiomeTypes.BEACH)),
-        YELLOW(Color.YELLOW, Arrays.asList(BiomeTypes.DESERT, BiomeTypes.DESERT_LAKES, BiomeTypes.DESERT_HILLS, BiomeTypes.SAVANNA, BiomeTypes.SHATTERED_SAVANNA, BiomeTypes.SHATTERED_SAVANNA_PLATEAU, BiomeTypes.SAVANNA_PLATEAU), Arrays.asList(BiomeTypes.RIVER)),
-        RED(Color.RED, Arrays.asList(BiomeTypes.BADLANDS, BiomeTypes.ERODED_BADLANDS, BiomeTypes.WOODED_BADLANDS_PLATEAU, BiomeTypes.MODIFIED_WOODED_BADLANDS_PLATEAU, BiomeTypes.BADLANDS_PLATEAU), Arrays.asList(BiomeTypes.DESERT_HILLS, BiomeTypes.RIVER)),
-        WHITE(Color.WHITE, Arrays.asList(BiomeTypes.TAIGA, BiomeTypes.TAIGA_HILLS, BiomeTypes.TAIGA_MOUNTAINS, BiomeTypes.SNOWY_TAIGA, BiomeTypes.SNOWY_TAIGA_HILLS, BiomeTypes.SNOWY_TAIGA_MOUNTAINS, BiomeTypes.GIANT_TREE_TAIGA, BiomeTypes.GIANT_TREE_TAIGA_HILLS, BiomeTypes.GIANT_SPRUCE_TAIGA, BiomeTypes.GIANT_SPRUCE_TAIGA_HILLS), Arrays.asList(BiomeTypes.FROZEN_RIVER, BiomeTypes.RIVER, BiomeTypes.SNOWY_BEACH)),
-        GRAY(Color.GRAY, Arrays.asList(BiomeTypes.SNOWY_TUNDRA, BiomeTypes.SNOWY_MOUNTAINS, BiomeTypes.MOUNTAINS, BiomeTypes.MOUNTAIN_EDGE, BiomeTypes.GRAVELLY_MOUNTAINS, BiomeTypes.MODIFIED_GRAVELLY_MOUNTAINS, BiomeTypes.WOODED_MOUNTAINS, BiomeTypes.FROZEN_OCEAN, BiomeTypes.DEEP_FROZEN_OCEAN, BiomeTypes.SNOWY_BEACH, BiomeTypes.ICE_SPIKES), Arrays.asList(BiomeTypes.FROZEN_RIVER, BiomeTypes.RIVER)),
-        BLUE(Color.BLUE, Arrays.asList(BiomeTypes.OCEAN, BiomeTypes.DEEP_OCEAN, BiomeTypes.COLD_OCEAN, BiomeTypes.DEEP_COLD_OCEAN, BiomeTypes.LUKEWARM_OCEAN, BiomeTypes.DEEP_LUKEWARM_OCEAN, BiomeTypes.WARM_OCEAN, BiomeTypes.DEEP_WARM_OCEAN), Arrays.asList(BiomeTypes.BEACH)),
-        DARK_MAGENTA(Color.DARK_MAGENTA, Arrays.asList(BiomeTypes.SMALL_END_ISLANDS, BiomeTypes.END_MIDLANDS, BiomeTypes.END_BARRENS, BiomeTypes.END_HIGHLANDS), Arrays.asList()),
-        // does not work with normal terrain, BiomeTypes.THE_VOID
-        PURPLE(Color.PURPLE, Arrays.asList(BiomeTypes.NETHER_WASTES, BiomeTypes.CRIMSON_FOREST, BiomeTypes.WARPED_FOREST, BiomeTypes.SOUL_SAND_VALLEY, BiomeTypes.BASALT_DELTAS), Arrays.asList()),
+        GREEN(Color.GREEN, Arrays.asList(Biomes.PLAINS, Biomes.SUNFLOWER_PLAINS, Biomes.FOREST, Biomes.BIRCH_FOREST, Biomes.TALL_BIRCH_FOREST, Biomes.BIRCH_FOREST_HILLS, Biomes.FLOWER_FOREST), Arrays.asList(Biomes.RIVER)),
+        DARK_GREEN(Color.DARK_GREEN, Arrays.asList(Biomes.DARK_FOREST, Biomes.DARK_FOREST_HILLS, Biomes.SWAMP), Arrays.asList(Biomes.RIVER)),
+        LIME(Color.LIME, Arrays.asList(Biomes.JUNGLE, Biomes.MODIFIED_JUNGLE, Biomes.JUNGLE_EDGE, Biomes.MODIFIED_JUNGLE_EDGE, Biomes.BAMBOO_JUNGLE), Arrays.asList(Biomes.RIVER, Biomes.BEACH)),
+        MAGENTA(Color.MAGENTA, Arrays.asList(Biomes.MUSHROOM_FIELD_SHORE, Biomes.MUSHROOM_FIELDS), Arrays.asList(Biomes.OCEAN, Biomes.COLD_OCEAN, Biomes.WARM_OCEAN, Biomes.BEACH)),
+        YELLOW(Color.YELLOW, Arrays.asList(Biomes.DESERT, Biomes.DESERT_LAKES, Biomes.DESERT_HILLS, Biomes.SAVANNA, Biomes.SHATTERED_SAVANNA, Biomes.SHATTERED_SAVANNA_PLATEAU, Biomes.SAVANNA_PLATEAU), Arrays.asList(Biomes.RIVER)),
+        RED(Color.RED, Arrays.asList(Biomes.BADLANDS, Biomes.ERODED_BADLANDS, Biomes.WOODED_BADLANDS_PLATEAU, Biomes.MODIFIED_WOODED_BADLANDS_PLATEAU, Biomes.BADLANDS_PLATEAU), Arrays.asList(Biomes.DESERT_HILLS, Biomes.RIVER)),
+        WHITE(Color.WHITE, Arrays.asList(Biomes.TAIGA, Biomes.TAIGA_HILLS, Biomes.TAIGA_MOUNTAINS, Biomes.SNOWY_TAIGA, Biomes.SNOWY_TAIGA_HILLS, Biomes.SNOWY_TAIGA_MOUNTAINS, Biomes.GIANT_TREE_TAIGA, Biomes.GIANT_TREE_TAIGA_HILLS, Biomes.GIANT_SPRUCE_TAIGA, Biomes.GIANT_SPRUCE_TAIGA_HILLS), Arrays.asList(Biomes.FROZEN_RIVER, Biomes.RIVER, Biomes.SNOWY_BEACH)),
+        GRAY(Color.GRAY, Arrays.asList(Biomes.SNOWY_TUNDRA, Biomes.SNOWY_MOUNTAINS, Biomes.MOUNTAINS, Biomes.MOUNTAIN_EDGE, Biomes.GRAVELLY_MOUNTAINS, Biomes.MODIFIED_GRAVELLY_MOUNTAINS, Biomes.WOODED_MOUNTAINS, Biomes.FROZEN_OCEAN, Biomes.DEEP_FROZEN_OCEAN, Biomes.SNOWY_BEACH, Biomes.ICE_SPIKES), Arrays.asList(Biomes.FROZEN_RIVER, Biomes.RIVER)),
+        BLUE(Color.BLUE, Arrays.asList(Biomes.OCEAN, Biomes.DEEP_OCEAN, Biomes.COLD_OCEAN, Biomes.DEEP_COLD_OCEAN, Biomes.LUKEWARM_OCEAN, Biomes.DEEP_LUKEWARM_OCEAN, Biomes.WARM_OCEAN, Biomes.DEEP_WARM_OCEAN), Arrays.asList(Biomes.BEACH)),
+        DARK_MAGENTA(Color.DARK_MAGENTA, Arrays.asList(Biomes.SMALL_END_ISLANDS, Biomes.END_MIDLANDS, Biomes.END_BARRENS, Biomes.END_HIGHLANDS), Arrays.asList()),
+        // does not work with normal terrain, Biomes.THE_VOID
+        PURPLE(Color.PURPLE, Arrays.asList(Biomes.NETHER_WASTES, Biomes.CRIMSON_FOREST, Biomes.WARPED_FOREST, Biomes.SOUL_SAND_VALLEY, Biomes.BASALT_DELTAS), Arrays.asList()),
         ;
 
 
         private final Color color;
-        private final List<RegistryReference<BiomeType>> biomeList;
-        private final List<RegistryReference<BiomeType>> additionalBiomeList;
-        private List<BiomeType> biomes;
+        private final List<RegistryReference<Biome>> biomeList;
+        private final List<RegistryReference<Biome>> additionalBiomeList;
 
-        Essence(Color color, List<RegistryReference<BiomeType>> biomeList, List<RegistryReference<BiomeType>> additionalBiomeList)
+        Essence(Color color, List<RegistryReference<Biome>> biomeList, List<RegistryReference<Biome>> additionalBiomeList)
         {
             this.color = color;
             this.biomeList = biomeList;
             this.additionalBiomeList = additionalBiomeList;
         }
 
-        public List<BiomeType> getBiomes(ServerWorld world)
+        public List<RegistryReference<Biome>> getBiomes()
         {
-            if (this.biomes == null)
-            {
-                biomes = new ArrayList<>();
-                biomeList.forEach(b -> biomes.add(b.get(world.registries())));
-                additionalBiomeList.forEach(b -> biomes.add(b.get(world.registries())));
-            }
-            return biomes;
+            final List<RegistryReference<Biome>> allBiomes = new ArrayList<>();
+            allBiomes.addAll(this.biomeList);
+            allBiomes.addAll(this.additionalBiomeList);
+            return allBiomes;
         }
 
-        public boolean hasBiome(BiomeType biomeType, ServerWorld world)
+        public boolean hasBiome(Biome Biome, ServerWorld world)
         {
-            for (RegistryReference<BiomeType> biome : biomeList)
+            for (RegistryReference<Biome> biome : biomeList)
             {
-                if (biome.get(world.registries()).equals(biomeType))
+                if (biome.get(world.registries()).equals(Biome))
                 {
                     return true;
                 }
@@ -153,7 +149,7 @@ public class TerraItems
     {
         final ItemStack craftedEssence = TerraItems.TERRA_ESSENCE.copy();
         final Optional<ServerPlayer> player = Sponge.getServer().getCauseStackManager().getCurrentCause().first(ServerPlayer.class);
-        final Optional<BiomeType> biome = player.map(p -> p.getWorld().getBiome(p.getBlockPosition()));
+        final Optional<Biome> biome = player.map(p -> p.getWorld().getBiome(p.getBlockPosition()));
         if (biome.isPresent())
         {
             Color color = Color.BLACK;
@@ -179,16 +175,16 @@ public class TerraItems
         return stack.get(Keys.COLOR).isPresent(); // TODO later check custom data
     }
 
-    public static List<BiomeType> getBiomesForItem(ItemStackSnapshot stack, ServerWorld world)
+    public static List<RegistryReference<Biome>> getBiomesForItem(ItemStackSnapshot stack)
     {
         final Color color = stack.get(Keys.COLOR).orElse(Color.BLACK);
         for (Essence value : Essence.values())
         {
             if (value.color.equals(color))
             {
-                return value.getBiomes(world);
+                return value.getBiomes();
             }
         }
-        return Arrays.asList(BiomeTypes.PLAINS.get(world.registries()));
+        return Arrays.asList(Biomes.PLAINS);
     }
 }

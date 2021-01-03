@@ -40,7 +40,7 @@ import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.permission.Subject;
 import org.spongepowered.api.util.Transform;
-import org.spongepowered.api.world.ServerLocation;
+import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.math.vector.Vector3d;
 
@@ -141,10 +141,10 @@ public class SpawnCommands
     {
         return subject.getOption(ROLESPAWN_WORLD)
                       .map(ResourceKey::resolve)
-                      .flatMap(k -> Sponge.getServer().getWorldManager().getWorld(k));
+                      .flatMap(k -> Sponge.getServer().getWorldManager().world(k));
     }
 
-    public static Vector3d getSpawnPosition(ServerPlayer player)
+    public static Vector3d spawnPosition(ServerPlayer player)
     {
         return getSubjectSpawnPos(player).orElse(player.getPosition());
     }

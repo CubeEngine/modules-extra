@@ -132,7 +132,7 @@ public class Stats
         players.labels("online").set(server.getOnlinePlayers().size());
         players.labels("max").set(server.getMaxPlayers());
 
-        for (ServerWorld world : server.getWorldManager().getWorlds())
+        for (ServerWorld world : server.getWorldManager().worlds())
         {
             final String worldName = world.getProperties().getKey().asString();
             loadedChunks.labels(worldName).set(Iterables.size(world.getLoadedChunks()));

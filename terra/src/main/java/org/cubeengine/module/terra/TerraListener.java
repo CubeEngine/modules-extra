@@ -19,33 +19,40 @@ package org.cubeengine.module.terra;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.LinearComponents;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.cubeengine.libcube.service.task.SpongeTaskManager;
 import org.cubeengine.module.terra.data.TerraItems;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.block.transaction.BlockTransaction;
-import org.spongepowered.api.block.transaction.BlockTransactionReceipt;
 import org.spongepowered.api.data.Keys;
-import org.spongepowered.api.data.persistence.DataContainer;
-import org.spongepowered.api.data.persistence.DataQuery;
 import org.spongepowered.api.effect.potion.PotionEffect;
 import org.spongepowered.api.effect.potion.PotionEffectTypes;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.block.ChangeBlockEvent;
-import org.spongepowered.api.event.block.NotifyNeighborBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
-import org.spongepowered.api.world.ServerLocation;
-import org.spongepowered.api.world.WorldArchetype;
-import org.spongepowered.api.world.biome.BiomeType;
-import org.spongepowered.api.world.dimension.DimensionTypes;
+import org.spongepowered.api.registry.RegistryReference;
+import org.spongepowered.api.world.SerializationBehavior;
+import org.spongepowered.api.world.WorldTypes;
+import org.spongepowered.api.world.biome.AttributedBiome;
+import org.spongepowered.api.world.biome.Biome;
+import org.spongepowered.api.world.biome.BiomeAttributes;
+import org.spongepowered.api.world.biome.provider.BiomeProvider;
+import org.spongepowered.api.world.biome.provider.MultiNoiseBiomeConfig;
+import org.spongepowered.api.world.difficulty.Difficulties;
+import org.spongepowered.api.world.generation.ChunkGenerator;
+import org.spongepowered.api.world.generation.config.NoiseGeneratorConfig;
+import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.api.world.server.ServerWorld;
+import org.spongepowered.api.world.server.WorldManager;
+import org.spongepowered.api.world.server.WorldTemplate;
 import org.spongepowered.math.vector.Vector3i;
 import org.spongepowered.plugin.PluginContainer;
 
@@ -62,94 +69,72 @@ public class TerraListener {
     {
         if (TerraItems.isTerraEssence(event.getItemStackInUse()))
         {
-            final ResourceKey key = ResourceKey.of(PluginTerra.TERRA_ID, player.getName().toLowerCase());
-//            final GeneratorModifierType buffet = Sponge.getRegistry().getCatalogRegistry().get(GeneratorModifierType.class, ResourceKey.resolve("buffet")).get();
-//            final DataContainer settings = buffet.getDefaultGeneratorSettings();
-//            settings.set(DataQuery.of("biome_source", "type"), "minecraft:checkerboard");
-//            List<BiomeType> biomeTypeList = TerraItems.getBiomesForItem(event.getItemStackInUse());
-//            settings.set(DataQuery.of("biome_source", "options", "biomes"), biomeTypeList.stream().map(BiomeType::getKey).map(ResourceKey::asString).collect(Collectors.toList()));
-            final WorldArchetype archeType = WorldArchetype.builder()
-                                                           .dimensionType(DimensionTypes.OVERWORLD.get())
-//                                                           .generatorModifierType(buffet)
-                                                           .keepSpawnLoaded(false)
-                                                           .generateSpawnOnLoad(false)
-//                                                           .generatorSettings(settings)
-//                                                           .generateStructures(false)
-                                                           .build();
-            taskManager.runTask(() -> afterUseItem(key, archeType, player));
+            final ResourceKey worldKey = ResourceKey.of(PluginTerra.TERRA_ID, player.getName().toLowerCase());
+
+            List<RegistryReference<Biome>> biomeList = TerraItems.getBiomesForItem(event.getItemStackInUse());
+            final Random random = player.getWorld().getRandom();
+            final List<AttributedBiome> biomes = biomeList.stream().map(biome ->
+                AttributedBiome.of(biome, BiomeAttributes.of(random.nextFloat(), random.nextFloat(), random.nextFloat(), random.nextFloat(), random.nextFloat()))).collect(Collectors.toList());
+
+            final MultiNoiseBiomeConfig multiNoiseBiomeConfig = MultiNoiseBiomeConfig.builder().biomes(biomes)
+                                                                                     .build();
+
+            final NoiseGeneratorConfig noiseGeneratorConfig = NoiseGeneratorConfig.overworld();
+
+            final WorldTemplate template = WorldTemplate.builder()
+                                                        .from(WorldTemplate.overworld())
+                                                        .key(worldKey)
+                                                        .worldType(WorldTypes.OVERWORLD)
+                                                        .generateSpawnOnLoad(false)
+                                                        .displayName(Component.text("Dream world by " + player.getName()))
+                                                        .generator(ChunkGenerator.noise(BiomeProvider.multiNoise(multiNoiseBiomeConfig), noiseGeneratorConfig))
+                                                        .difficulty(Difficulties.HARD)
+                                                        .loadOnStartup(false)
+                                                        .build();
+            taskManager.runTask(() -> afterUseItem(worldKey, template, player));
         }
     }
 
-    // TODO remove me
-//    @Listener
-//    public void onBlockAll(ChangeBlockEvent.All event)
-//    {
-//        for (BlockTransaction transaction : event.getTransactions())
-//        {
-//            final Vector3i pos = transaction.getOriginal().getPosition();
-//            if (pos.getX() >> 4 == -16 && pos.getZ() >> 4 == -16)
-//            {
-////                transaction.setValid(false);
-//                if (!event.getCause().first(ServerPlayer.class).isPresent())
-//                {
-//                    event.setCancelled(true);
-//                }
-//
-//                return;
-//            }
-//        }
-//
-////        System.out.println("ChangeBlockEvent.All:");
-////        for (BlockTransaction receipt : event.getTransactions())
-////        {
-////
-////            System.out.println(receipt.getOperation().getKey().asString() + " at " +
-////                                   receipt.getOriginal().getPosition() + " " +
-////                                   receipt.getOriginal().getState().getType().getKey().asString() + "->" +
-////                                   receipt.getFinal().getState().getType().getKey().asString());
-////        }
-//    }
-
-//    @Listener
-//    public void onBlock(ChangeBlockEvent.Post event)
-//    {
-////        if (event.getWorld().getKey().getNamespace().equals(PluginTerra.TERRA_ID))
-//        {
-//            System.out.println("ChangeBlockEvent.Post:");
-//            for (BlockTransactionReceipt receipt : event.getReceipts())
-//            {
-//
-//                System.out.println(receipt.getOperation().getKey().asString() + " at " +
-//                                receipt.getOriginal().getPosition() + " " +
-//                                       receipt.getOriginal().getState().getType().getKey().asString() + "->" +
-//                                       receipt.getFinal().getState().getType().getKey().asString());
-//            }
-//        }
-//    }
-
-    private void afterUseItem(ResourceKey key, WorldArchetype archeType, ServerPlayer player)
+    private void afterUseItem(ResourceKey worldKey, WorldTemplate template, ServerPlayer player)
     {
+        final WorldManager wm = Sponge.getServer().getWorldManager();
         this.time = System.currentTimeMillis();
-        System.out.println("del");
-        Sponge.getServer().getWorldManager().deleteWorld(key);
-        System.out.println("prop" + (System.currentTimeMillis() - this.time) + "ms");
-        Sponge.getServer().getWorldManager().createProperties(key, archeType).thenAccept(prop -> {
-            System.out.println("world" + (System.currentTimeMillis() - this.time) + "ms");
-            Sponge.getServer().getWorldManager().loadWorld(prop).thenAccept(w -> {
-                taskManager.runAsynchronousTask(Terra.class, () -> {
-                    setupWorld(w);
-                    taskManager.runTask(Terra.class, () -> tpPlayer(player, w));
-                });
+
+        if (player.getWorld().getKey().equals(worldKey)) {
+            player.setLocation(ServerLocation.of(wm.defaultWorld(), wm.defaultWorld().getProperties().spawnPosition()));
+        }
+
+        CompletableFuture<Boolean> worldDeletedFuture = CompletableFuture.completedFuture(true);
+        if (wm.world(worldKey).isPresent()) {
+            wm.world(worldKey).get().getProperties().setSerializationBehavior(SerializationBehavior.NONE);
+            System.out.println("unload" + (System.currentTimeMillis() - this.time) + "ms");
+            worldDeletedFuture = wm.unloadWorld(worldKey).thenCompose(b -> {
+                System.out.println("delete" + (System.currentTimeMillis() - this.time) + "ms");
+                return wm.deleteWorld(worldKey);
             });
+        }
+
+        worldDeletedFuture.thenCompose(b -> {
+            System.out.println("save" + (System.currentTimeMillis() - this.time) + "ms");
+            wm.saveTemplate(template);
+            System.out.println("load" + (System.currentTimeMillis() - this.time) + "ms");
+            return wm.loadWorld(template);
+        }).thenAccept(w -> {
+            taskManager.runTask(Terra.class, () -> tpPlayer(player, w));
+        }).exceptionally(e -> {
+            player.sendMessage(Identity.nil(), Component.text("OH NO! " + e.getMessage(), NamedTextColor.DARK_RED));
+            e.printStackTrace();
+            return null;
         });
     }
 
 
     private void tpPlayer(ServerPlayer player, ServerWorld w)
     {
+        setupWorld(w);
         System.out.println("tp" + (System.currentTimeMillis() - this.time) + "ms");
-        ServerLocation spawnLoc = w.getLocation(w.getProperties().getSpawnPosition());
-        Sponge.getServer().getTeleportHelper().getSafeLocation(spawnLoc).orElse(spawnLoc);
+        ServerLocation spawnLoc = w.getLocation(w.getProperties().spawnPosition());
+        spawnLoc = Sponge.getServer().getTeleportHelper().getSafeLocation(spawnLoc).orElse(spawnLoc);
         player.setLocation(spawnLoc);
         final List<PotionEffect> list = player.get(Keys.POTION_EFFECTS).orElse(Collections.emptyList());
         list.removeIf(effect -> effect.getType() == PotionEffectTypes.BLINDNESS.get());
@@ -160,7 +145,7 @@ public class TerraListener {
     private void setupWorld(ServerWorld w)
     {
         System.out.println("setup" + (System.currentTimeMillis() - this.time) + "ms");
-        final Vector3i spawn = w.getProperties().getSpawnPosition();
+        final Vector3i spawn = w.getProperties().spawnPosition();
         w.getBorder().setCenter(spawn.getX(), spawn.getZ());
         w.getBorder().setDiameter(16 * 17);
         final int cx = spawn.getX() / 16;

@@ -27,6 +27,7 @@ import org.cubeengine.module.itemduct.data.ItemductItems;
 import org.cubeengine.module.itemduct.listener.ItemductListener;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.Server;
+import org.spongepowered.api.advancement.Advancement;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.filter.cause.Root;
@@ -34,6 +35,7 @@ import org.spongepowered.api.event.item.inventory.CraftItemEvent;
 import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent;
 import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
+import org.spongepowered.api.item.recipe.RecipeRegistration;
 import org.spongepowered.plugin.PluginContainer;
 
 /*
@@ -69,10 +71,15 @@ public class Itemduct
 //    }
 
     @Listener
-    public void onRegisterDatapacks(RegisterDataPackValueEvent event)
+    public void onRegisterDatapacks(RegisterDataPackValueEvent<RecipeRegistration>event)
     {
         this.config = this.fm.loadConfig(this, ItemductConfig.class);
         ItemductItems.registerRecipes(event, config); // TODO config is not loaded yet :(
+    }
+
+    @Listener
+    public void onRegisterAdvancements(RegisterDataPackValueEvent<Advancement> event)
+    {
         ItemductAdvancements.init(plugin);
         ItemductAdvancements.register(event);
     }

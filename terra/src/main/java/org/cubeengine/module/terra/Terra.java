@@ -28,6 +28,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent;
 import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
+import org.spongepowered.api.item.recipe.RecipeRegistration;
 import org.spongepowered.plugin.PluginContainer;
 
 /*
@@ -48,7 +49,7 @@ public class Terra
     }
 
     @Listener
-    public void onRegisterRecipe(RegisterDataPackValueEvent event)
+    public void onRegisterRecipe(RegisterDataPackValueEvent<RecipeRegistration>event)
     {
         TerraItems.registerRecipes(event);
     }

@@ -64,7 +64,7 @@ public class Chopchop
     }
 
     @Listener
-    public void onRegistry(RegisterDataPackValueEvent event)
+    public void onRegistry(RegisterDataPackValueEvent<RecipeRegistration>event)
     {
         ItemStack axe = ItemStack.of(DIAMOND_AXE, 1);
         axe.offer(Keys.APPLIED_ENCHANTMENTS, singletonList(Enchantment.builder().type(EnchantmentTypes.PUNCH).level(5).build()));

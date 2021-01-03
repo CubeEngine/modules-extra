@@ -37,6 +37,7 @@ import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent;
 import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.recipe.RecipeRegistration;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.math.vector.Vector3i;
 
@@ -56,7 +57,7 @@ public class Writer
     }
 
     @Listener
-    public void onRecipeRegister(RegisterDataPackValueEvent event)
+    public void onRecipeRegister(RegisterDataPackValueEvent<RecipeRegistration>event)
     {
         WriterItems.registerRecipes(event);
     }

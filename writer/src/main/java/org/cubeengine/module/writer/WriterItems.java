@@ -39,7 +39,7 @@ import static org.spongepowered.api.item.ItemTypes.WRITTEN_BOOK;
 
 public class WriterItems
 {
-    public static void registerRecipes(RegisterDataPackValueEvent event)
+    public static void registerRecipes(RegisterDataPackValueEvent<RecipeRegistration>event)
     {
         final ItemStack stack = ItemStack.of(WRITABLE_BOOK);
         stack.offer(Keys.HIDE_ENCHANTMENTS, true);

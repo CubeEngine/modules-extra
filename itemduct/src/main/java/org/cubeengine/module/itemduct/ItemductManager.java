@@ -54,7 +54,7 @@ import org.spongepowered.api.scheduler.ScheduledTask;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.Ticks;
-import org.spongepowered.api.world.ServerLocation;
+import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.math.vector.Vector3i;
 import org.spongepowered.plugin.PluginContainer;
@@ -209,7 +209,7 @@ public class ItemductManager
     {
         List<Network> networks = new ArrayList<>();
         for (Map.Entry<ResourceKey, Map<Vector3i, Long>> entry : triggers.entrySet()) {
-            final ServerWorld world = Sponge.getServer().getWorldManager().getWorld(entry.getKey()).orElse(null);
+            final ServerWorld world = Sponge.getServer().getWorldManager().world(entry.getKey()).orElse(null);
             final Map<Vector3i, Long> activatedPositions = entry.getValue();
             if (world == null) {
                 activatedPositions.clear();
