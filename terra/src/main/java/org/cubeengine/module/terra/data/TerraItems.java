@@ -95,8 +95,8 @@ public class TerraItems
                                  .result(grid -> TerraItems.getSplashEssence(grid), TERRA_ESSENCE)
                                  .key(ResourceKey.of(PluginTerra.TERRA_ID, "random_terraessence"))
                                  .build();
-        event.register(randomTerraEssence);
-        
+        event.register(splashEssence);
+
     }
 
     public enum Essence

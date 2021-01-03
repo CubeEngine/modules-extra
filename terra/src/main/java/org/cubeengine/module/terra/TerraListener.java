@@ -81,6 +81,7 @@ public class TerraListener {
             if (this.future != null && !this.future.isDone())
             {
                 i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "You don't feel like drinking this now.");
+                event.setCancelled(true);
                 return;
             }
 
@@ -124,6 +125,7 @@ public class TerraListener {
         if (this.future != null && !this.future.isDone())
         {
             ItemUtil.spawnItem(potion.getServerLocation(), potion.item().get().createStack());
+            event.setCancelled(true);
             return;
         }
 
