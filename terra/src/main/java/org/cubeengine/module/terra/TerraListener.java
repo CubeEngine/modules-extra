@@ -120,7 +120,7 @@ public class TerraListener {
             System.out.println("load" + (System.currentTimeMillis() - this.time) + "ms");
             return wm.loadWorld(template);
         }).thenAccept(w -> {
-            taskManager.runTask(Terra.class, () -> tpPlayer(player, w));
+            taskManager.runTask(() -> tpPlayer(player, w));
         }).exceptionally(e -> {
             player.sendMessage(Identity.nil(), Component.text("OH NO! " + e.getMessage(), NamedTextColor.DARK_RED));
             e.printStackTrace();
