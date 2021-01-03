@@ -17,11 +17,11 @@
  */
 package org.cubeengine.module.fly;
 
+import java.time.Duration;
 import java.util.HashMap;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.libcube.service.task.Task;
 import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.data.Keys;
@@ -34,6 +34,7 @@ import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.query.QueryTypes;
+import org.spongepowered.api.scheduler.ScheduledTask;
 
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
 
@@ -45,7 +46,7 @@ public class Fly
     @Inject private TaskManager tm;
     @Inject private FlyPermissions perms;
 
-    private final HashMap<Player, Task> tasks = new HashMap<>();
+    private final HashMap<Player, ScheduledTask> tasks = new HashMap<>();
 
     @Listener
     public void playerInteract(final InteractBlockEvent.Secondary event, @First ServerPlayer player)
@@ -78,32 +79,30 @@ public class Fly
         player.setPosition(player.getPosition().add(0, 0.05, 0)); //make sure the player stays flying
         player.offer(Keys.IS_FLYING, true);
         i18n.send(player, POSITIVE, "You can now fly!");
-        Task flymore = new Task(Fly.class, tm)
-        {
-            public void run()//2 feather/min
+        long feathersPerMinute = 2;
+        Duration delay = Duration.ofMinutes(1).dividedBy(feathersPerMinute);
+        ScheduledTask flyMoreTask = tm.runTimer(task -> {
+            if (!player.get(Keys.IS_FLYING).get())
             {
-                if (!player.get(Keys.IS_FLYING).get())
-                {
-                    player.offer(Keys.CAN_FLY, false);
-                    this.cancelTask();
-                    return;
-                }
-                if (player.getInventory().contains(ItemTypes.FEATHER.get()))
-                {
-                    player.getInventory().query(QueryTypes.ITEM_STACK_IGNORE_QUANTITY, feather).poll(1);
-                }
-                else
-                {
-                    player.offer(Keys.CAN_FLY, false);
-                    this.cancelTask();
-                }
+                player.offer(Keys.CAN_FLY, false);
+                task.cancel();
+                return;
             }
-        };
-        flymore.scheduleAsyncRepeatingTask(1000 * 30, 1000 * 30);
-        Task oldTask = this.tasks.put(player, flymore);
+            if (player.getInventory().contains(ItemTypes.FEATHER.get()))
+            {
+                player.getInventory().query(QueryTypes.ITEM_STACK_IGNORE_QUANTITY, feather).poll(1);
+            }
+            else
+            {
+                player.offer(Keys.CAN_FLY, false);
+                task.cancel();
+            }
+        }, delay, delay);
+
+        ScheduledTask oldTask = this.tasks.put(player, flyMoreTask);
         if (oldTask != null)
         {
-            oldTask.cancelTask();
+            oldTask.cancel();
         }
     }
 

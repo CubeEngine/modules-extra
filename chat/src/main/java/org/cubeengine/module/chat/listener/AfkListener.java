@@ -82,7 +82,7 @@ public class AfkListener
     public void onChat(MessageChannelEvent event, @Root ServerPlayer player)
     {
         this.updateLastAction(player);
-        afkCommand.run();
+        afkCommand.checkAfk();
     }
 
     @Listener(order = POST)

@@ -17,11 +17,14 @@
  */
 package org.cubeengine.module.chat.command;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.cubeengine.libcube.service.Broadcaster;
@@ -39,9 +42,10 @@ import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.scheduler.ScheduledTask;
 
 @Singleton
-public class AfkCommand implements Runnable
+public class AfkCommand
 {
     private long autoAfk;
     private long afkCheck;
@@ -75,7 +79,7 @@ public class AfkCommand implements Runnable
             em.registerListener(Chat.class, listener);
             if (autoAfk > 0)
             {
-                tm.runTimer(Chat.class, this, 20, afkCheck / 50); // this is in ticks so /50
+                tm.runTimer(t -> checkAfk(), Duration.ofSeconds(1), config.autoAfk.check);
             }
         }
     }
@@ -93,7 +97,7 @@ public class AfkCommand implements Runnable
         if (afks.getOrDefault(player.getUniqueId(), false))
         {
             updateLastAction(player);
-            this.run();
+            checkAfk();
             return;
         }
         setAfk(player, true);
@@ -128,8 +132,7 @@ public class AfkCommand implements Runnable
         actions.remove(player.getUniqueId());
     }
 
-    @Override
-    public void run()
+    public void checkAfk()
     {
         afks.entrySet().stream().filter(Entry::getValue)
             .map(Entry::getKey).map(uuid -> Sponge.getServer().getUserManager().get(uuid))

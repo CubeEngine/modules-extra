@@ -76,7 +76,7 @@ public class TerraListener {
 //                                                           .generatorSettings(settings)
 //                                                           .generateStructures(false)
                                                            .build();
-            taskManager.runTask(Terra.class, () -> afterUseItem(key, archeType, player));
+            taskManager.runTask(() -> afterUseItem(key, archeType, player));
         }
     }
 

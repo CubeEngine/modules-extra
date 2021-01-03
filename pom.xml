@@ -79,7 +79,7 @@
         <module>itemduct</module>
         <module>tablist</module>
         <module>stats</module>
-        <module>terra</module>
+<!--        <module>terra</module>-->
     </modules>
 
     <build>
