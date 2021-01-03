@@ -35,10 +35,8 @@ import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
-import org.spongepowered.api.item.inventory.crafting.CraftingGridInventory;
 import org.spongepowered.api.item.recipe.RecipeRegistration;
 import org.spongepowered.api.item.recipe.crafting.Ingredient;
-import org.spongepowered.api.item.recipe.crafting.ShapedCraftingRecipe;
 import org.spongepowered.api.item.recipe.crafting.ShapelessCraftingRecipe;
 import org.spongepowered.api.registry.RegistryReference;
 import org.spongepowered.api.util.Color;
@@ -50,6 +48,7 @@ public class TerraItems
 {
 
     public static final ItemStack INK_BOTTLE = ItemStack.of(ItemTypes.POTION.get());
+    public static final ItemStack SPLASH_INK_BOTTLE = ItemStack.of(ItemTypes.SPLASH_POTION.get());
     public static final ItemStack TERRA_ESSENCE = ItemStack.of(ItemTypes.POTION.get());
     public static final ItemStack SPLASH_TERRA_ESSENCE = ItemStack.of(ItemTypes.SPLASH_POTION.get());
 
@@ -64,12 +63,23 @@ public class TerraItems
                               .key(ResourceKey.of(PluginTerra.TERRA_ID, "inkbottle"))
                               .build();
         event.register(inkBottleRecipe);
+
+        SPLASH_INK_BOTTLE.offer(Keys.COLOR, Color.BLACK);
+        SPLASH_INK_BOTTLE.offer(Keys.CUSTOM_NAME, Component.text("Splash Ink Bottle"));
+        SPLASH_INK_BOTTLE.offer(Keys.HIDE_MISCELLANEOUS, true);
+        final RecipeRegistration splashInkBottleRecipe = ShapelessCraftingRecipe.builder()
+                              .addIngredients(ItemTypes.GLASS_BOTTLE, ItemTypes.INK_SAC, ItemTypes.GUNPOWDER)
+                              .result(SPLASH_INK_BOTTLE)
+                              .key(ResourceKey.of(PluginTerra.TERRA_ID, "splash_inkbottle"))
+                              .build();
+        event.register(splashInkBottleRecipe);
+
         TERRA_ESSENCE.offer(Keys.COLOR, Color.WHITE);
         TERRA_ESSENCE.offer(Keys.CUSTOM_NAME, Component.text("Terra Essence"));
         TERRA_ESSENCE.offer(Keys.POTION_EFFECTS, Arrays.asList(PotionEffect.of(PotionEffectTypes.BLINDNESS.get(), 0, 20 * 60)));
         TERRA_ESSENCE.offer(Keys.HIDE_MISCELLANEOUS, true);
         final RecipeRegistration terraEssenceRecipe = ShapelessCraftingRecipe.builder()
-                               .addIngredients(ItemTypes.SUGAR, ItemTypes.BLAZE_POWDER, ItemTypes.GUNPOWDER, ItemTypes.REDSTONE)
+                               .addIngredients(ItemTypes.SUGAR, ItemTypes.ENDER_PEARL)
                                .addIngredients(Ingredient.of(INK_BOTTLE))
                                .result(grid -> TerraItems.getCraftedEssence(), TERRA_ESSENCE)
                                .key(ResourceKey.of(PluginTerra.TERRA_ID, "terraessence"))
@@ -77,25 +87,33 @@ public class TerraItems
         event.register(terraEssenceRecipe);
 
         final RecipeRegistration randomTerraEssence = ShapelessCraftingRecipe.builder()
-             .addIngredients(ItemTypes.SUGAR, ItemTypes.BLAZE_POWDER, ItemTypes.GUNPOWDER, ItemTypes.REDSTONE, ItemTypes.NETHER_STAR)
+             .addIngredients(ItemTypes.SUGAR, ItemTypes.ENDER_PEARL, ItemTypes.NETHER_STAR)
              .addIngredients(Ingredient.of(INK_BOTTLE))
-             .result(grid -> TerraItems.getRandomCraftedEssence(), TERRA_ESSENCE)
+             .result(grid -> TerraItems.getRandomCraftedEssence(TERRA_ESSENCE), TERRA_ESSENCE)
              .key(ResourceKey.of(PluginTerra.TERRA_ID, "random_terraessence"))
              .build();
         event.register(randomTerraEssence);
 
         SPLASH_TERRA_ESSENCE.offer(Keys.COLOR, Color.WHITE);
-        SPLASH_TERRA_ESSENCE.offer(Keys.CUSTOM_NAME, Component.text("Terra Essence"));
+        SPLASH_TERRA_ESSENCE.offer(Keys.CUSTOM_NAME, Component.text("Splash Terra Essence"));
         SPLASH_TERRA_ESSENCE.offer(Keys.POTION_EFFECTS, Arrays.asList(PotionEffect.of(PotionEffectTypes.BLINDNESS.get(), 0, 20 * 60)));
         SPLASH_TERRA_ESSENCE.offer(Keys.HIDE_MISCELLANEOUS, true);
-        final RecipeRegistration splashEssence = ShapedCraftingRecipe.builder()
-                                 .aisle("ggg", "gpg", "ggg")
-                                 .where('g', Ingredient.of(ItemTypes.GUNPOWDER))
-                                 .where('p', Ingredient.of(ItemTypes.POTION))
-                                 .result(grid -> TerraItems.getSplashEssence(grid), TERRA_ESSENCE)
-                                 .key(ResourceKey.of(PluginTerra.TERRA_ID, "random_terraessence"))
+        final RecipeRegistration splashEssence = ShapelessCraftingRecipe.builder()
+                                 .addIngredients(ItemTypes.SUGAR, ItemTypes.ENDER_PEARL)
+                                 .addIngredients(Ingredient.of(SPLASH_INK_BOTTLE))
+                                 .result(grid -> TerraItems.getRandomCraftedEssence(SPLASH_TERRA_ESSENCE), TERRA_ESSENCE)
+                                 .key(ResourceKey.of(PluginTerra.TERRA_ID, "splash_terraessence"))
                                  .build();
         event.register(splashEssence);
+
+        final RecipeRegistration splashRandomTerraEssence = ShapelessCraftingRecipe.builder()
+                                     .addIngredients(ItemTypes.SUGAR, ItemTypes.ENDER_PEARL, ItemTypes.NETHER_STAR)
+                                     .addIngredients(Ingredient.of(INK_BOTTLE))
+                                     .result(grid -> TerraItems.getRandomCraftedEssence(SPLASH_TERRA_ESSENCE), TERRA_ESSENCE)
+                                     .key(ResourceKey.of(PluginTerra.TERRA_ID, "splash_random_terraessence"))
+                                     .build();
+        event.register(splashRandomTerraEssence);
+
 
     }
 
@@ -152,10 +170,10 @@ public class TerraItems
 
     private static Random random = new Random();
 
-    private static ItemStack getRandomCraftedEssence()
+    private static ItemStack getRandomCraftedEssence(ItemStack baseStack)
     {
         final Essence essence = Essence.values()[random.nextInt(Essence.values().length)];
-        final ItemStack craftedEssence = TerraItems.TERRA_ESSENCE.copy();
+        final ItemStack craftedEssence = baseStack.copy();
         craftedEssence.offer(Keys.COLOR, essence.color);
         craftedEssence.offer(Keys.CUSTOM_NAME, Component.text(essence.name, NamedTextColor.AQUA));
         return craftedEssence;
@@ -181,15 +199,6 @@ public class TerraItems
             craftedEssence.offer(Keys.CUSTOM_NAME, Component.text(essence.name, NamedTextColor.AQUA));
 
         }
-        return craftedEssence;
-    }
-
-    private static ItemStack getSplashEssence(CraftingGridInventory grid)
-    {
-        final ItemStack potion = grid.peek(1, 1).get();
-        final ItemStack craftedEssence = TerraItems.SPLASH_TERRA_ESSENCE.copy();
-        potion.offer(Keys.COLOR, potion.get(Keys.COLOR).orElse(Color.BLACK));
-        potion.offer(Keys.CUSTOM_NAME, potion.get(Keys.CUSTOM_NAME).orElse(Component.text("useless black Potion", NamedTextColor.BLACK)));
         return craftedEssence;
     }
 
