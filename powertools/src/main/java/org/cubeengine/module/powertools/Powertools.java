@@ -40,7 +40,7 @@ public class Powertools
     @Listener
     public void onEnable(StartedEngineEvent<Server> event)
     {
-        em.registerListener(Powertools.class, powertoolCommand);
+        em.registerListener(powertoolCommand);
     }
 
     @Listener

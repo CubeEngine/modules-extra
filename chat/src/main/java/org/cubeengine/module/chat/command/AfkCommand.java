@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -33,7 +32,6 @@ import org.cubeengine.libcube.service.command.annotation.Default;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.task.TaskManager;
-import org.cubeengine.module.chat.Chat;
 import org.cubeengine.module.chat.ChatConfig;
 import org.cubeengine.module.chat.ChatPerm;
 import org.cubeengine.module.chat.listener.AfkListener;
@@ -42,7 +40,6 @@ import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
-import org.spongepowered.api.scheduler.ScheduledTask;
 
 @Singleton
 public class AfkCommand
@@ -76,7 +73,7 @@ public class AfkCommand
         this.afkCheck = config.autoAfk.check.toMillis();
         if (afkCheck > 0)
         {
-            em.registerListener(Chat.class, listener);
+            em.registerListener(listener);
             if (autoAfk > 0)
             {
                 tm.runTimer(t -> checkAfk(), Duration.ofSeconds(1), config.autoAfk.check);

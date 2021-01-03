@@ -55,7 +55,7 @@ public class Kits
         this.logger = mm.getLoggerFor(Kits.class);
         this.modulePath = mm.getPathFor(Kits.class);
 
-        em.registerListener(Kits.class, kitManager);
+        em.registerListener(kitManager);
         this.kitManager.loadKits();
     }
 
