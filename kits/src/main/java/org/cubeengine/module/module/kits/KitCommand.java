@@ -30,6 +30,7 @@ import org.cubeengine.libcube.service.command.DispatcherCommand;
 import org.cubeengine.libcube.service.command.annotation.Alias;
 import org.cubeengine.libcube.service.command.annotation.Command;
 import org.cubeengine.libcube.service.command.annotation.Default;
+import org.cubeengine.libcube.service.command.annotation.Delegate;
 import org.cubeengine.libcube.service.command.annotation.Flag;
 import org.cubeengine.libcube.service.command.annotation.ParameterPermission;
 import org.cubeengine.libcube.service.command.annotation.Restricted;
@@ -49,6 +50,7 @@ import org.spongepowered.api.item.inventory.type.ViewableInventory;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
 
 @Singleton
+@Delegate("give")
 @Command(name = "kit", desc = "Manages kits")
 @Using(KitParser.class)
 public class KitCommand extends DispatcherCommand
@@ -67,16 +69,6 @@ public class KitCommand extends DispatcherCommand
         this.igf = igf;
         this.manager = module.getKitManager();
     }
-
-//    @Override
-//    protected boolean selfExecute(CommandInvocation invocation)
-//    {
-//        if (invocation.tokens().size() - invocation.consumed() >= 1)
-//        {
-//            return this.getCommand("give").execute(invocation);
-//        }
-//        return super.selfExecute(invocation);
-//    }
 
     @Command(alias = "remove", desc = "Deletes a kit")
     public void delete(CommandCause context, Kit kit)
