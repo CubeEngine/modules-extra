@@ -17,7 +17,6 @@
  */
 package org.cubeengine.module.chat.listener;
 
-import org.cubeengine.module.chat.Chat;
 import org.cubeengine.module.chat.ChatPerm;
 import org.cubeengine.module.chat.command.AfkCommand;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
@@ -86,7 +85,7 @@ public class AfkListener
     }
 
     @Listener(order = POST)
-    public void onCommand(ExecuteCommandEvent event, @Root ServerPlayer player)
+    public void onCommand(ExecuteCommandEvent.Pre event, @Root ServerPlayer player)
     {
         this.updateLastAction(player);
     }
