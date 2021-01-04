@@ -17,6 +17,8 @@
  */
 package org.cubeengine.module.terra.data;
 
+import static org.spongepowered.api.world.biome.Biomes.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,6 +26,7 @@ import java.util.Optional;
 import java.util.Random;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import org.cubeengine.module.terra.PluginTerra;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Sponge;
@@ -119,18 +122,22 @@ public class TerraItems
 
     public enum Essence
     {
-        GREEN("Green Landscape", Color.GREEN, Arrays.asList(Biomes.PLAINS, Biomes.SUNFLOWER_PLAINS, Biomes.FOREST, Biomes.BIRCH_FOREST, Biomes.TALL_BIRCH_FOREST, Biomes.BIRCH_FOREST_HILLS, Biomes.FLOWER_FOREST), Arrays.asList(Biomes.RIVER)),
-        DARK_GREEN("Dark Swamp", Color.DARK_GREEN, Arrays.asList(Biomes.DARK_FOREST, Biomes.DARK_FOREST_HILLS, Biomes.SWAMP), Arrays.asList(Biomes.RIVER)),
-        LIME("Viney Jungle", Color.LIME, Arrays.asList(Biomes.JUNGLE, Biomes.MODIFIED_JUNGLE, Biomes.JUNGLE_EDGE, Biomes.MODIFIED_JUNGLE_EDGE, Biomes.BAMBOO_JUNGLE), Arrays.asList(Biomes.RIVER, Biomes.BEACH)),
-        MAGENTA("Mushrooms", Color.MAGENTA, Arrays.asList(Biomes.MUSHROOM_FIELD_SHORE, Biomes.MUSHROOM_FIELDS), Arrays.asList()),
-        YELLOW("Deserted Savanna", Color.YELLOW, Arrays.asList(Biomes.DESERT, Biomes.DESERT_LAKES, Biomes.DESERT_HILLS, Biomes.SAVANNA, Biomes.SHATTERED_SAVANNA, Biomes.SHATTERED_SAVANNA_PLATEAU, Biomes.SAVANNA_PLATEAU), Arrays.asList(Biomes.RIVER)),
-        RED("Colorful Badlands", Color.RED, Arrays.asList(Biomes.BADLANDS, Biomes.ERODED_BADLANDS, Biomes.WOODED_BADLANDS_PLATEAU, Biomes.MODIFIED_WOODED_BADLANDS_PLATEAU, Biomes.BADLANDS_PLATEAU), Arrays.asList(Biomes.DESERT_HILLS, Biomes.RIVER)),
-        WHITE("Cold Mountains", Color.WHITE, Arrays.asList(Biomes.TAIGA, Biomes.TAIGA_HILLS, Biomes.TAIGA_MOUNTAINS, Biomes.SNOWY_TAIGA, Biomes.SNOWY_TAIGA_HILLS, Biomes.SNOWY_TAIGA_MOUNTAINS, Biomes.GIANT_TREE_TAIGA, Biomes.GIANT_TREE_TAIGA_HILLS, Biomes.GIANT_SPRUCE_TAIGA, Biomes.GIANT_SPRUCE_TAIGA_HILLS), Arrays.asList(Biomes.FROZEN_RIVER, Biomes.RIVER, Biomes.SNOWY_BEACH)),
-        GRAY("Frozen World", Color.GRAY, Arrays.asList(Biomes.SNOWY_TUNDRA, Biomes.SNOWY_MOUNTAINS, Biomes.MOUNTAINS, Biomes.MOUNTAIN_EDGE, Biomes.GRAVELLY_MOUNTAINS, Biomes.MODIFIED_GRAVELLY_MOUNTAINS, Biomes.WOODED_MOUNTAINS, Biomes.ICE_SPIKES), Arrays.asList(Biomes.FROZEN_RIVER, Biomes.RIVER)),
-        BLUE("Coral Reef", Color.BLUE, Arrays.asList(Biomes.LUKEWARM_OCEAN), Arrays.asList()),
-        DARK_MAGENTA("The End", Color.DARK_MAGENTA, Arrays.asList(Biomes.SMALL_END_ISLANDS, Biomes.END_MIDLANDS, Biomes.END_BARRENS, Biomes.END_HIGHLANDS), Arrays.asList()),
-        // does not work with normal terrain, Biomes.THE_VOID
-        PURPLE("Hellscape", Color.PURPLE, Arrays.asList(Biomes.NETHER_WASTES, Biomes.CRIMSON_FOREST, Biomes.WARPED_FOREST, Biomes.SOUL_SAND_VALLEY, Biomes.BASALT_DELTAS), Arrays.asList()),
+        GREEN_LANDSCAPE("Green Landscape", Color.ofRgb(0x336633), Arrays.asList(PLAINS, SUNFLOWER_PLAINS, FOREST, BIRCH_FOREST, TALL_BIRCH_FOREST, BIRCH_FOREST_HILLS, FLOWER_FOREST), Arrays.asList()),
+        SWAMP_FOREST("Dark Swamp", Color.ofRgb(0x333333), Arrays.asList(DARK_FOREST, DARK_FOREST_HILLS, SWAMP), Arrays.asList()),
+        JUNGLE("Viney Jungle", Color.ofRgb(0x339933), Arrays.asList(Biomes.JUNGLE, MODIFIED_JUNGLE, JUNGLE_EDGE, MODIFIED_JUNGLE_EDGE, BAMBOO_JUNGLE), Arrays.asList(BEACH)),
+        MUSHROOMS("Mushrooms", Color.ofRgb(0x996666), Arrays.asList(MUSHROOM_FIELD_SHORE, MUSHROOM_FIELDS), Arrays.asList(COLD_OCEAN)),
+        SAVANNA("Dry Savanna", Color.ofRgb(0x666633), Arrays.asList(Biomes.SAVANNA, SHATTERED_SAVANNA, SHATTERED_SAVANNA_PLATEAU, SAVANNA_PLATEAU), Arrays.asList()),
+        DESERT("Hot Desert", Color.ofRgb(0xCCCC99), Arrays.asList(Biomes.DESERT, DESERT_LAKES, DESERT_HILLS), Arrays.asList()),
+        MESA("Colorful Badlands", Color.ofRgb(0xCC6633), Arrays.asList(BADLANDS, ERODED_BADLANDS, WOODED_BADLANDS_PLATEAU, MODIFIED_WOODED_BADLANDS_PLATEAU, BADLANDS_PLATEAU), Arrays.asList( DESERT_HILLS)),
+        TAIGA("Chilly Mountains", Color.ofRgb(0x333300), Arrays.asList(Biomes.TAIGA, TAIGA_HILLS, TAIGA_MOUNTAINS, SNOWY_TAIGA, SNOWY_TAIGA_HILLS, SNOWY_TAIGA_MOUNTAINS, GIANT_TREE_TAIGA, GIANT_TREE_TAIGA_HILLS, GIANT_SPRUCE_TAIGA, GIANT_SPRUCE_TAIGA_HILLS), Arrays.asList(SNOWY_BEACH, COLD_OCEAN)),
+        TUNDRA("Cold Mountains", Color.ofRgb(0xFFFFFF), Arrays.asList(SNOWY_TUNDRA, SNOWY_MOUNTAINS, MOUNTAINS, MOUNTAIN_EDGE, GRAVELLY_MOUNTAINS, MODIFIED_GRAVELLY_MOUNTAINS, WOODED_MOUNTAINS), Arrays.asList()),
+        // Special Biomes
+        ICE_SPIKES("Frozen World", Color.ofRgb(0x6699CC), Arrays.asList(Biomes.ICE_SPIKES), Arrays.asList()),
+        CORAL_REEF("Coral Reef", Color.ofRgb(0xCC66CC), Arrays.asList(WARM_OCEAN), Arrays.asList()),
+        FLOWERY_FOREST("Flowery Forest", Color.ofRgb(0xCC6600), Arrays.asList(FLOWER_FOREST), Arrays.asList()),
+        // Needs special casing
+        END("The End", Color.ofRgb(0x999966), Arrays.asList(SMALL_END_ISLANDS, END_MIDLANDS, END_BARRENS, END_HIGHLANDS), Arrays.asList()),
+        NETHER("Hellscape", Color.ofRgb(0x330000), Arrays.asList(NETHER_WASTES, CRIMSON_FOREST, WARPED_FOREST, SOUL_SAND_VALLEY, BASALT_DELTAS), Arrays.asList()),
         ;
 
 
@@ -175,7 +182,7 @@ public class TerraItems
         final Essence essence = Essence.values()[random.nextInt(Essence.values().length)];
         final ItemStack craftedEssence = baseStack.copy();
         craftedEssence.offer(Keys.COLOR, essence.color);
-        craftedEssence.offer(Keys.CUSTOM_NAME, Component.text(essence.name, NamedTextColor.AQUA));
+        craftedEssence.offer(Keys.CUSTOM_NAME, baseStack.get(Keys.CUSTOM_NAME).get().append(Component.space()).append(Component.text(essence.name, TextColor.color(essence.color.getRgb()))));
         return craftedEssence;
     }
 
@@ -186,7 +193,7 @@ public class TerraItems
         final Optional<Biome> biome = player.map(p -> p.getWorld().getBiome(p.getBlockPosition()));
         if (biome.isPresent())
         {
-            Essence essence = Essence.GREEN;
+            Essence essence = Essence.GREEN_LANDSCAPE;
             for (Essence value : Essence.values())
             {
                 if (value.hasBiome(biome.get(), player.get().getWorld()))

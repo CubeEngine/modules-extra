@@ -19,7 +19,6 @@ package org.cubeengine.module.terra;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -38,7 +37,6 @@ import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.effect.potion.PotionEffect;
 import org.spongepowered.api.effect.potion.PotionEffectTypes;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.entity.projectile.Potion;
 import org.spongepowered.api.event.Listener;
@@ -46,7 +44,6 @@ import org.spongepowered.api.event.entity.ChangeEntityPotionEffectEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
 import org.spongepowered.api.registry.RegistryReference;
-import org.spongepowered.api.util.Color;
 import org.spongepowered.api.world.SerializationBehavior;
 import org.spongepowered.api.world.WorldTypes;
 import org.spongepowered.api.world.biome.AttributedBiome;
@@ -96,11 +93,24 @@ public class TerraListener {
 
         final Random random = player.getWorld().getRandom();
         final List<AttributedBiome> biomes = biomeList.stream().map(biome ->
-            AttributedBiome.of(biome, BiomeAttributes.of(random.nextFloat(), random.nextFloat(), random.nextFloat(), random.nextFloat(), random.nextFloat()))).collect(Collectors.toList());
+            AttributedBiome.of(biome, BiomeAttributes.of(random.nextFloat() *4 -2, random.nextFloat()*4-2, random.nextFloat()*4-2, random.nextFloat()*4-2, random.nextFloat()))).collect(Collectors.toList());
 
         final MultiNoiseBiomeConfig multiNoiseBiomeConfig = MultiNoiseBiomeConfig.builder().biomes(biomes).build();
 
-        final NoiseGeneratorConfig noiseGeneratorConfig = NoiseGeneratorConfig.overworld();
+        final NoiseGeneratorConfig noiseGeneratorConfig;
+        if (essence == Essence.NETHER)
+        {
+             noiseGeneratorConfig = NoiseGeneratorConfig.nether();
+        }
+        else if (essence == Essence.END)
+        {
+            noiseGeneratorConfig = NoiseGeneratorConfig.end();
+        }
+        else
+        {
+            noiseGeneratorConfig = NoiseGeneratorConfig.overworld();
+
+        }
 
         final WorldTemplate template = WorldTemplate.builder()
                                                     .from(WorldTemplate.overworld())
@@ -108,7 +118,7 @@ public class TerraListener {
                                                     .worldType(WorldTypes.OVERWORLD)
                                                     .serializationBehavior(SerializationBehavior.NONE)
                                                     .displayName(Component.text("Dream world by " + player.getName()))
-                                                    .generator(ChunkGenerator.noise(BiomeProvider.multiNoise(multiNoiseBiomeConfig), noiseGeneratorConfig))
+                                                    .generator(ChunkGenerator.noise(BiomeProvider.multiNoise(multiNoiseBiomeConfig), System.currentTimeMillis(), noiseGeneratorConfig))
                                                     .difficulty(Difficulties.HARD)
                                                     .loadOnStartup(false)
                                                     .build();
