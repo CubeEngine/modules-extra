@@ -147,7 +147,7 @@ public class Kit
                 }
                 catch (CommandException e)
                 {
-                    throw new IllegalStateException(e);
+                    throw new IllegalStateException("Error while running " + cmd, e) ;
                 }
             }
         }
