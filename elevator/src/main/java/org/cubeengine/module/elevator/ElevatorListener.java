@@ -44,6 +44,8 @@ import org.spongepowered.api.event.block.InteractBlockEvent.Secondary;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.Slot;
+import org.spongepowered.api.registry.RegistryTypes;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.util.Ticks;
 import org.spongepowered.api.world.Location;
@@ -74,6 +76,13 @@ public class ElevatorListener
     @Listener
     public void onInteractBlock(InteractBlockEvent event, @Root ServerPlayer player)
     {
+        if (event instanceof Cancellable)
+        {
+            if (((Cancellable)event).isCancelled())
+            {
+                return;
+            }
+        }
         if (!event.getContext().get(EventContextKeys.USED_HAND).map(h -> h == HandTypes.MAIN_HAND.get()).orElse(false))
         {
             return;
