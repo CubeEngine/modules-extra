@@ -34,6 +34,7 @@ import org.cubeengine.module.terra.data.TerraItems;
 import org.cubeengine.module.terra.data.TerraItems.Essence;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.effect.potion.PotionEffect;
 import org.spongepowered.api.effect.potion.PotionEffectTypes;
@@ -44,6 +45,7 @@ import org.spongepowered.api.event.entity.ChangeEntityPotionEffectEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
 import org.spongepowered.api.registry.RegistryReference;
+import org.spongepowered.api.registry.RegistryTypes;
 import org.spongepowered.api.world.SerializationBehavior;
 import org.spongepowered.api.world.WorldTypes;
 import org.spongepowered.api.world.biome.AttributedBiome;
@@ -54,10 +56,14 @@ import org.spongepowered.api.world.biome.provider.MultiNoiseBiomeConfig;
 import org.spongepowered.api.world.difficulty.Difficulties;
 import org.spongepowered.api.world.generation.ChunkGenerator;
 import org.spongepowered.api.world.generation.config.NoiseGeneratorConfig;
+import org.spongepowered.api.world.generation.config.structure.SeparatedStructureConfig;
+import org.spongepowered.api.world.generation.config.structure.StructureGenerationConfig;
+import org.spongepowered.api.world.generation.structure.Structures;
 import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.api.world.server.WorldManager;
 import org.spongepowered.api.world.server.WorldTemplate;
+import org.spongepowered.api.world.server.WorldTemplate.Builder;
 import org.spongepowered.math.vector.Vector3i;
 import org.spongepowered.plugin.PluginContainer;
 
@@ -89,6 +95,8 @@ public class TerraListener {
     private void runEssenceCode(ServerPlayer player, Essence essence)
     {
         final ResourceKey worldKey = ResourceKey.of(PluginTerra.TERRA_ID, player.getName().toLowerCase());
+        final Builder templateBuilder = WorldTemplate.builder().from(WorldTemplate.overworld()).key(worldKey);
+
         final List<RegistryReference<Biome>> biomeList = essence.getBiomes();
 
         final Random random = player.getWorld().getRandom();
@@ -96,32 +104,33 @@ public class TerraListener {
             AttributedBiome.of(biome, BiomeAttributes.of(random.nextFloat() *4 -2, random.nextFloat()*4-2, random.nextFloat()*4-2, random.nextFloat()*4-2, random.nextFloat()))).collect(Collectors.toList());
 
         final MultiNoiseBiomeConfig multiNoiseBiomeConfig = MultiNoiseBiomeConfig.builder().biomes(biomes).build();
-
         final NoiseGeneratorConfig noiseGeneratorConfig;
         if (essence == Essence.NETHER)
         {
              noiseGeneratorConfig = NoiseGeneratorConfig.nether();
+             templateBuilder.worldType(WorldTypes.THE_NETHER);
         }
         else if (essence == Essence.END)
         {
-            noiseGeneratorConfig = NoiseGeneratorConfig.end();
+            final StructureGenerationConfig endStructures = StructureGenerationConfig.builder().addStructure(Structures.END_CITY.get(), SeparatedStructureConfig.of(15, 10, random.nextInt())).build();
+            noiseGeneratorConfig = NoiseGeneratorConfig.builder().from(NoiseGeneratorConfig.floatingIslands())
+                                                       .defaultBlock(BlockTypes.END_STONE.get().getDefaultState())
+                                                       .structureConfig(endStructures)
+                                                       .build();
+
+            templateBuilder.worldType(RegistryTypes.WORLD_TYPE.defaultReferenced(Terra.WORLD_TYPE_END));
         }
         else
         {
             noiseGeneratorConfig = NoiseGeneratorConfig.overworld();
-
         }
 
-        final WorldTemplate template = WorldTemplate.builder()
-                                                    .from(WorldTemplate.overworld())
-                                                    .key(worldKey)
-                                                    .worldType(WorldTypes.OVERWORLD)
-                                                    .serializationBehavior(SerializationBehavior.NONE)
-                                                    .displayName(Component.text("Dream world by " + player.getName()))
-                                                    .generator(ChunkGenerator.noise(BiomeProvider.multiNoise(multiNoiseBiomeConfig), System.currentTimeMillis(), noiseGeneratorConfig))
-                                                    .difficulty(Difficulties.HARD)
-                                                    .loadOnStartup(false)
-                                                    .build();
+        final WorldTemplate template = templateBuilder.serializationBehavior(SerializationBehavior.NONE)
+                                                      .displayName(Component.text("Dream world by " + player.getName()))
+                                                      .generator(ChunkGenerator.noise(BiomeProvider.multiNoise(multiNoiseBiomeConfig), System.currentTimeMillis(), noiseGeneratorConfig))
+                                                      .difficulty(Difficulties.HARD)
+                                                      .loadOnStartup(false)
+                                                      .build();
         taskManager.runTask(() -> afterUseItem(worldKey, template, player));
     }
 
