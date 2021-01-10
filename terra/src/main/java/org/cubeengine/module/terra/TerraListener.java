@@ -171,11 +171,14 @@ public class TerraListener {
     {
         setupWorld(w);
         ServerLocation spawnLoc = w.getLocation(w.getProperties().spawnPosition());
+        if (spawnLoc.getPosition().getY() == 127)
+        {
+            spawnLoc = Sponge.getServer().getTeleportHelper().getSafeLocation(spawnLoc.add(Vector3i.UP.mul(-60)), 50, 10).orElse(spawnLoc);
+        }
         spawnLoc = Sponge.getServer().getTeleportHelper().getSafeLocation(spawnLoc, 50, 10).orElse(spawnLoc);
         player.setLocation(spawnLoc);
         final List<PotionEffect> list = player.get(Keys.POTION_EFFECTS).orElse(Collections.emptyList());
         list.removeIf(effect -> effect.getType() == PotionEffectTypes.BLINDNESS.get());
-        list.add(PotionEffect.of(PotionEffectTypes.BLINDNESS, 0, 40));
         player.offer(Keys.POTION_EFFECTS, list);
     }
 
