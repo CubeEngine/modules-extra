@@ -20,56 +20,85 @@ package org.cubeengine.module.controlc;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import net.kyori.adventure.text.Component;
-import org.cubeengine.libcube.ModuleManager;
 import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.logscribe.Log;
 import org.cubeengine.processor.Module;
+import org.spongepowered.api.Game;
 import org.spongepowered.api.Server;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
 
+import java.util.concurrent.ThreadFactory;
+
 @Singleton
 @Module
 public class ControlC implements SignalHandler
 {
-    private Log logger;
-    @Inject private TaskManager tm;
-    @Inject private ModuleManager mm;
+    private static final long NO_CTRL_C_SEEN = -1;
+    private static final long CTRL_C_AGAIN_TIMEOUT = 5000;
 
-    private long lastReceived = 0;
+    private final Log logger;
+    private final TaskManager tm;
+    private final Game game;
+    private final ThreadFactory tf;
+
+    private long lastReceived = NO_CTRL_C_SEEN;
+
+    @Inject
+    public ControlC(Log logger, TaskManager tm, Game game, ThreadFactory tf) {
+        this.logger = logger;
+        this.tm = tm;
+        this.game = game;
+        this.tf = tf;
+    }
 
     @Listener
     public void onStarting(StartingEngineEvent<Server> event)
     {
-        this.logger = this.mm.getLoggerFor(ControlC.class);
+        installSignalHandler();
+        installShutdownHook();
+    }
+
+    private void installSignalHandler()
+    {
         try
         {
             Class.forName("sun.misc.Signal");
 
             Signal.handle(new Signal("INT"), this);
         }
-        catch (ClassNotFoundException ignored)
+        catch (ClassNotFoundException e)
         {
+            logger.warn("Failed to install signal handle!", e);
         }
+    }
+
+    private void installShutdownHook()
+    {
+        Runtime.getRuntime().addShutdownHook(this.tf.newThread(this::onProcessTerminated));
+    }
+
+    private void onProcessTerminated()
+    {
+        // TODO @faithcaio implement me
     }
 
     @Override
     public void handle(Signal signal)
     {
-        if (lastReceived == -1)
+        if (lastReceived == NO_CTRL_C_SEEN)
         {
             return;
         }
         final long time = System.currentTimeMillis();
-        if (time - lastReceived <= 5000)
+        if (time - lastReceived <= CTRL_C_AGAIN_TIMEOUT)
         {
             logger.info("Shutting down the server now!");
             tm.runTask(() -> {
-                Sponge.getServer().shutdown(Component.text("Server is shutting down"));
-                lastReceived = -1;
+                game.getServer().shutdown(Component.text("Server is shutting down"));
+                lastReceived = NO_CTRL_C_SEEN;
             });
         }
         else
