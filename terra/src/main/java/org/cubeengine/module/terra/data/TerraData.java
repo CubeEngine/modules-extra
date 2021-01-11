@@ -38,9 +38,14 @@ public class TerraData
                                                          .key(ResourceKey.of(PluginTerra.TERRA_ID, "worlduuid"))
                                                          .type(TypeTokens.UUID_VALUE_TOKEN).build();
 
+    public static final Key<Value<UUID>> POTION_UUID = Key.builder()
+                                                         .key(ResourceKey.of(PluginTerra.TERRA_ID, "potionuuid"))
+                                                         .type(TypeTokens.UUID_VALUE_TOKEN).build();
+
     public static void register(RegisterDataEvent event)
     {
         event.register(DataRegistration.of(WORLD_KEY, ItemStack.class, ItemStackSnapshot.class));
         event.register(DataRegistration.of(WORLD_UUID, ItemStack.class, ItemStackSnapshot.class));
+        event.register(DataRegistration.of(POTION_UUID, ItemStack.class, ItemStackSnapshot.class));
     }
 }

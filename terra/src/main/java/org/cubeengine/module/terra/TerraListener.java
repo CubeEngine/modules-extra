@@ -72,6 +72,7 @@ public class TerraListener {
     private CompletableFuture<ServerWorld> worldGenerationQueue = CompletableFuture.completedFuture(null);
 
     private Map<ResourceKey, CompletableFuture<ServerWorld>> futureWorlds = new HashMap<>();
+    private Map<UUID, UUID> potions = new HashMap<>();
 
     @Listener
     public void onUseItem(UseItemStackEvent.Finish event, @First ServerPlayer player)
@@ -147,6 +148,9 @@ public class TerraListener {
                 {
                     itemInHand.offer(Keys.LORE, Arrays.asList(coldPotionLore(player), potionOwnerLore(player, worldKey.getValue())));
                     itemInHand.offer(TerraData.WORLD_KEY, worldKey.asString());
+                    final UUID potionUuid = UUID.randomUUID();
+                    this.potions.put(player.getUniqueId(), potionUuid);
+                    itemInHand.offer(TerraData.POTION_UUID, potionUuid);
 
                     final WorldTemplate template = essence.createWorldTemplate(player, worldKey);
 
@@ -155,9 +159,13 @@ public class TerraListener {
                     futureWorlds.put(worldKey, doneFuture);
                     worldGenerationQueue = worldGenerationQueue.thenCompose(f -> generateWorld(worldKey, template, doneFuture));
                 }
-                else if (futureWorlds.get(worldKey) != null)
+                else if (futureWorlds.get(worldKey) != null) // Currently generating
                 {
-                    event.setCancelled(true);
+                    final UUID curPotionUuid = this.potions.get(player.getUniqueId());
+                    if (curPotionUuid == null || !curPotionUuid.equals(itemInHand.get(TerraData.POTION_UUID).orElse(null)))
+                    {
+                        event.setCancelled(true); // Only allow the current potion
+                    }
                 }
             }
         }
@@ -259,6 +267,8 @@ public class TerraListener {
             lore.add(potionOwnerLore(audience, worldKey.getValue()));
             terraPotion.offer(Keys.LORE, lore);
             terraPotion.offer(TerraData.WORLD_UUID, futureWorld.join().getUniqueId());
+            final UUID potionUuid = terraPotion.get(TerraData.POTION_UUID).get();
+            this.potions.values().removeIf(uuid -> uuid.equals(potionUuid));
         }
         return terraPotion;
     }
