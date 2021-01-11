@@ -55,7 +55,7 @@ public class Terra
     @Listener
     public void onRegisterRecipe(RegisterDataPackValueEvent<RecipeRegistration>event)
     {
-        TerraItems.registerRecipes(event);
+        TerraItems.registerRecipes(event, this);
     }
 
     @Listener
@@ -70,4 +70,8 @@ public class Terra
         TerraData.register(event);
     }
 
+    public TerraListener getListener()
+    {
+        return this.listener;
+    }
 }

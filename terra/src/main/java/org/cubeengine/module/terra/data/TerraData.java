@@ -17,12 +17,30 @@
  */
 package org.cubeengine.module.terra.data;
 
+import org.cubeengine.module.terra.PluginTerra;
+import org.spongepowered.api.ResourceKey;
+import org.spongepowered.api.data.DataRegistration;
+import org.spongepowered.api.data.Key;
+import org.spongepowered.api.data.value.Value;
 import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
+import org.spongepowered.api.util.TypeTokens;
+import java.util.UUID;
 
 public class TerraData
 {
+    public static final Key<Value<String>> WORLD_KEY = Key.builder()
+                                                          .key(ResourceKey.of(PluginTerra.TERRA_ID, "worldkey"))
+                                                          .type(TypeTokens.STRING_VALUE_TOKEN).build();
+
+    public static final Key<Value<UUID>> WORLD_UUID = Key.builder()
+                                                         .key(ResourceKey.of(PluginTerra.TERRA_ID, "worlduuid"))
+                                                         .type(TypeTokens.UUID_VALUE_TOKEN).build();
+
     public static void register(RegisterDataEvent event)
     {
-
+        event.register(DataRegistration.of(WORLD_KEY, ItemStack.class, ItemStackSnapshot.class));
+        event.register(DataRegistration.of(WORLD_UUID, ItemStack.class, ItemStackSnapshot.class));
     }
 }

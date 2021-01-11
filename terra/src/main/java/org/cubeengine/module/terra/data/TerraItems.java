@@ -17,35 +17,56 @@
  */
 package org.cubeengine.module.terra.data;
 
-import static org.spongepowered.api.world.biome.Biomes.*;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.cubeengine.module.terra.PluginTerra;
+import org.cubeengine.module.terra.Terra;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.effect.potion.PotionEffect;
 import org.spongepowered.api.effect.potion.PotionEffectTypes;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent;
 import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.item.recipe.RecipeRegistration;
+import org.spongepowered.api.item.recipe.RecipeTypes;
+import org.spongepowered.api.item.recipe.cooking.CookingRecipe;
 import org.spongepowered.api.item.recipe.crafting.Ingredient;
 import org.spongepowered.api.item.recipe.crafting.ShapelessCraftingRecipe;
 import org.spongepowered.api.registry.RegistryReference;
+import org.spongepowered.api.registry.RegistryTypes;
 import org.spongepowered.api.util.Color;
+import org.spongepowered.api.world.SerializationBehavior;
+import org.spongepowered.api.world.WorldTypes;
+import org.spongepowered.api.world.biome.AttributedBiome;
 import org.spongepowered.api.world.biome.Biome;
+import org.spongepowered.api.world.biome.BiomeAttributes;
 import org.spongepowered.api.world.biome.Biomes;
+import org.spongepowered.api.world.biome.provider.BiomeProvider;
+import org.spongepowered.api.world.biome.provider.MultiNoiseBiomeConfig;
+import org.spongepowered.api.world.difficulty.Difficulties;
+import org.spongepowered.api.world.generation.ChunkGenerator;
+import org.spongepowered.api.world.generation.config.NoiseGeneratorConfig;
+import org.spongepowered.api.world.generation.config.structure.SeparatedStructureConfig;
+import org.spongepowered.api.world.generation.config.structure.StructureGenerationConfig;
+import org.spongepowered.api.world.generation.structure.Structures;
 import org.spongepowered.api.world.server.ServerWorld;
+import org.spongepowered.api.world.server.WorldTemplate;
+import org.spongepowered.api.world.server.WorldTemplate.Builder;
+
+import static org.spongepowered.api.world.biome.Biomes.*;
 
 public class TerraItems
 {
@@ -54,9 +75,12 @@ public class TerraItems
     public static final ItemStack SPLASH_INK_BOTTLE = ItemStack.of(ItemTypes.SPLASH_POTION.get());
     public static final ItemStack TERRA_ESSENCE = ItemStack.of(ItemTypes.POTION.get());
     public static final ItemStack SPLASH_TERRA_ESSENCE = ItemStack.of(ItemTypes.SPLASH_POTION.get());
+    private static Terra terra;
 
-    public static void registerRecipes(RegisterDataPackValueEvent<RecipeRegistration>event)
+    public static void registerRecipes(RegisterDataPackValueEvent<RecipeRegistration> event, Terra terra)
     {
+        TerraItems.terra = terra;
+
         INK_BOTTLE.offer(Keys.COLOR, Color.BLACK);
         INK_BOTTLE.offer(Keys.CUSTOM_NAME, Component.text("Ink Bottle"));
         INK_BOTTLE.offer(Keys.HIDE_MISCELLANEOUS, true);
@@ -79,7 +103,7 @@ public class TerraItems
 
         TERRA_ESSENCE.offer(Keys.COLOR, Color.WHITE);
         TERRA_ESSENCE.offer(Keys.CUSTOM_NAME, Component.text("Terra Essence"));
-        TERRA_ESSENCE.offer(Keys.POTION_EFFECTS, Arrays.asList(PotionEffect.of(PotionEffectTypes.BLINDNESS.get(), 0, 20 * 60)));
+        TERRA_ESSENCE.offer(Keys.POTION_EFFECTS, Arrays.asList(PotionEffect.of(PotionEffectTypes.SATURATION.get(), 0, 20)));
         TERRA_ESSENCE.offer(Keys.HIDE_MISCELLANEOUS, true);
         final RecipeRegistration terraEssenceRecipe = ShapelessCraftingRecipe.builder()
                                .addIngredients(ItemTypes.SUGAR, ItemTypes.ENDER_PEARL)
@@ -99,7 +123,7 @@ public class TerraItems
 
         SPLASH_TERRA_ESSENCE.offer(Keys.COLOR, Color.WHITE);
         SPLASH_TERRA_ESSENCE.offer(Keys.CUSTOM_NAME, Component.text("Splash Terra Essence"));
-        SPLASH_TERRA_ESSENCE.offer(Keys.POTION_EFFECTS, Arrays.asList(PotionEffect.of(PotionEffectTypes.BLINDNESS.get(), 0, 20 * 60)));
+        SPLASH_TERRA_ESSENCE.offer(Keys.POTION_EFFECTS, Arrays.asList(PotionEffect.of(PotionEffectTypes.SATURATION.get(), 0, 20)));
         SPLASH_TERRA_ESSENCE.offer(Keys.HIDE_MISCELLANEOUS, true);
         final RecipeRegistration splashEssence = ShapelessCraftingRecipe.builder()
                                  .addIngredients(ItemTypes.SUGAR, ItemTypes.ENDER_PEARL)
@@ -117,7 +141,24 @@ public class TerraItems
                                      .build();
         event.register(splashRandomTerraEssence);
 
+        final Ingredient coldPotionIngredient = Ingredient.of(ResourceKey.of(PluginTerra.TERRA_ID, "cold_potion"), stack -> isTerraEssence(stack.createSnapshot()), ItemStack.of(ItemTypes.POTION));
+        final RecipeRegistration heatUpPotion = CookingRecipe.builder().type(RecipeTypes.CAMPFIRE_COOKING)
+                                                     .ingredient(coldPotionIngredient)
+                                                     .result(i -> TerraItems.heatedPotion(i), ItemStack.of(ItemTypes.POTION))
+                                                     .cookingTime(20 * 15).experience(0)
+                                                     .key(ResourceKey.of(PluginTerra.TERRA_ID, "heatup-potion"))
+                                                     .build();
+        event.register(heatUpPotion);
+    }
 
+    private static ItemStack heatedPotion(Inventory campFire)
+    {
+        final ItemStack original = campFire.peek();
+        if (original.get(TerraData.WORLD_KEY).isPresent())
+        {
+            return terra.getListener().finalizePotion(original.copy());
+        }
+        return original;
     }
 
     public enum Essence
@@ -173,16 +214,59 @@ public class TerraItems
             }
             return false;
         }
+
+        public WorldTemplate createWorldTemplate(ServerPlayer player, ResourceKey worldKey)
+        {
+            final Builder templateBuilder = WorldTemplate.builder().from(WorldTemplate.overworld()).key(worldKey);
+
+            final List<RegistryReference<Biome>> biomeList = getBiomes();
+
+            final Random random = player.getWorld().getRandom();
+            final List<AttributedBiome> biomes = biomeList.stream().map(biome ->
+                AttributedBiome.of(biome, BiomeAttributes.of(random.nextFloat() *4 -2, random.nextFloat()*4-2, random.nextFloat()*4-2, random.nextFloat()*4-2, random.nextFloat()))).collect(
+                Collectors.toList());
+
+            final MultiNoiseBiomeConfig multiNoiseBiomeConfig = MultiNoiseBiomeConfig.builder().biomes(biomes).build();
+            final NoiseGeneratorConfig noiseGeneratorConfig;
+            if (this == NETHER)
+            {
+                 noiseGeneratorConfig = NoiseGeneratorConfig.nether();
+                 templateBuilder.worldType(WorldTypes.THE_NETHER);
+            }
+            else if (this == END)
+            {
+                final StructureGenerationConfig endStructures = StructureGenerationConfig.builder().addStructure(Structures.END_CITY.get(), SeparatedStructureConfig.of(15, 10, random.nextInt())).build();
+                noiseGeneratorConfig = NoiseGeneratorConfig.builder().from(NoiseGeneratorConfig.floatingIslands())
+                                                           .defaultBlock(BlockTypes.END_STONE.get().getDefaultState())
+                                                           .structureConfig(endStructures)
+                                                           .build();
+
+                templateBuilder.worldType(RegistryTypes.WORLD_TYPE.defaultReferenced(Terra.WORLD_TYPE_END));
+            }
+            else
+            {
+                noiseGeneratorConfig = NoiseGeneratorConfig.overworld();
+            }
+            return templateBuilder.serializationBehavior(SerializationBehavior.NONE)
+                                                          .displayName(Component.text("Dream world by " + player.getName()))
+                                                          .generator(ChunkGenerator.noise(BiomeProvider.multiNoise(multiNoiseBiomeConfig), System.currentTimeMillis(), noiseGeneratorConfig))
+                                                          .difficulty(Difficulties.HARD)
+                                                          .loadOnStartup(false)
+                                                          .build();
+        }
     }
 
     private static Random random = new Random();
 
     private static ItemStack getRandomCraftedEssence(ItemStack baseStack)
     {
+        final Optional<ServerPlayer> player = Sponge.getServer().getCauseStackManager().getCurrentCause().first(ServerPlayer.class);
         final Essence essence = Essence.values()[random.nextInt(Essence.values().length)];
         final ItemStack craftedEssence = baseStack.copy();
         craftedEssence.offer(Keys.COLOR, essence.color);
         craftedEssence.offer(Keys.CUSTOM_NAME, baseStack.get(Keys.CUSTOM_NAME).get().append(Component.space()).append(Component.text(essence.name, TextColor.color(essence.color.getRgb()))));
+        craftedEssence.offer(Keys.LORE, Arrays.asList(terra.getListener().coldPotionLore(player.get()),
+                                                      terra.getListener().hintPotionLore(player.get())));
         return craftedEssence;
     }
 
@@ -204,6 +288,8 @@ public class TerraItems
             }
             craftedEssence.offer(Keys.COLOR, essence.color);
             craftedEssence.offer(Keys.CUSTOM_NAME, Component.text(essence.name, NamedTextColor.AQUA));
+            craftedEssence.offer(Keys.LORE, Arrays.asList(terra.getListener().coldPotionLore(player.get()),
+                                                          terra.getListener().hintPotionLore(player.get())));
 
         }
         return craftedEssence;
@@ -215,7 +301,7 @@ public class TerraItems
         {
             return false;
         }
-        return stack.get(Keys.COLOR).isPresent(); // TODO later check custom data
+        return stack.get(Keys.COLOR).isPresent();
     }
 
     public static Optional<Essence> getEssenceForItem(ItemStackSnapshot stack)

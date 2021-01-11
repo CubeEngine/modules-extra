@@ -17,164 +17,214 @@
  */
 package org.cubeengine.module.terra;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.sound.Sound.Source;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.Style;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.i18n.I18nTranslate.ChatType;
 import org.cubeengine.libcube.service.i18n.formatter.MessageType;
-import org.cubeengine.libcube.service.task.SpongeTaskManager;
-import org.cubeengine.libcube.util.ItemUtil;
+import org.cubeengine.module.terra.data.TerraData;
 import org.cubeengine.module.terra.data.TerraItems;
 import org.cubeengine.module.terra.data.TerraItems.Essence;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.block.entity.carrier.Campfire;
 import org.spongepowered.api.data.Keys;
+import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.effect.potion.PotionEffect;
 import org.spongepowered.api.effect.potion.PotionEffectTypes;
+import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
-import org.spongepowered.api.entity.projectile.Potion;
+import org.spongepowered.api.event.EventContextKeys;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.entity.ChangeEntityPotionEffectEvent;
+import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
-import org.spongepowered.api.registry.RegistryReference;
-import org.spongepowered.api.registry.RegistryTypes;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.world.SerializationBehavior;
-import org.spongepowered.api.world.WorldTypes;
-import org.spongepowered.api.world.biome.AttributedBiome;
-import org.spongepowered.api.world.biome.Biome;
-import org.spongepowered.api.world.biome.BiomeAttributes;
-import org.spongepowered.api.world.biome.provider.BiomeProvider;
-import org.spongepowered.api.world.biome.provider.MultiNoiseBiomeConfig;
-import org.spongepowered.api.world.difficulty.Difficulties;
-import org.spongepowered.api.world.generation.ChunkGenerator;
-import org.spongepowered.api.world.generation.config.NoiseGeneratorConfig;
-import org.spongepowered.api.world.generation.config.structure.SeparatedStructureConfig;
-import org.spongepowered.api.world.generation.config.structure.StructureGenerationConfig;
-import org.spongepowered.api.world.generation.structure.Structures;
 import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.api.world.server.WorldManager;
 import org.spongepowered.api.world.server.WorldTemplate;
-import org.spongepowered.api.world.server.WorldTemplate.Builder;
 import org.spongepowered.math.vector.Vector3i;
-import org.spongepowered.plugin.PluginContainer;
 
 @Singleton
 public class TerraListener {
 
-    @Inject private PluginContainer plugin;
-    @Inject private SpongeTaskManager taskManager;
     @Inject private I18n i18n;
 
-    private CompletableFuture<Void> future;
+    private CompletableFuture<ServerWorld> worldGenerationQueue = CompletableFuture.completedFuture(null);
+
+    private Map<ResourceKey, CompletableFuture<ServerWorld>> futureWorlds = new HashMap<>();
 
     @Listener
     public void onUseItem(UseItemStackEvent.Finish event, @First ServerPlayer player)
     {
-        if (TerraItems.isTerraEssence(event.getItemStackInUse()))
+        if (!event.getContext().get(EventContextKeys.USED_HAND).get().equals(HandTypes.MAIN_HAND.get()))
         {
-            if (this.future != null && !this.future.isDone())
+            return;
+        }
+        final ItemStackSnapshot terraPotion = event.getItemStackInUse();
+        if (TerraItems.isTerraEssence(terraPotion))
+        {
+            final Optional<UUID> uuid = event.getItemStackInUse().get(TerraData.WORLD_UUID);
+            final Optional<ResourceKey> worldKey = terraPotion.get(TerraData.WORLD_KEY).map(ResourceKey::resolve);
+            if (uuid.isPresent() && worldKey.isPresent())
             {
-                i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "You don't feel like drinking this now.");
+                final Optional<ServerWorld> world = Sponge.getServer().getWorldManager().world(worldKey.get());
+                if (world.isPresent() && world.get().getUniqueId().equals(uuid.get()))
+                {
+                    this.tpPlayer(player, world.get());
+                    return;
+                }
                 event.setCancelled(true);
+                player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_GLASS_BREAK, Source.PLAYER, 1, 1));
+                player.setItemInHand(HandTypes.MAIN_HAND, ItemStack.empty());
+                i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "The potion broke. It must have been too old.");
                 return;
             }
-
-            TerraItems.getEssenceForItem(event.getItemStackInUse()).ifPresent(essence -> runEssenceCode(player, essence));
+            i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "The liquid is too cold to drink.");
+            event.setCancelled(true);
         }
-    }
-
-    private void runEssenceCode(ServerPlayer player, Essence essence)
-    {
-        final ResourceKey worldKey = ResourceKey.of(PluginTerra.TERRA_ID, player.getName().toLowerCase());
-        final Builder templateBuilder = WorldTemplate.builder().from(WorldTemplate.overworld()).key(worldKey);
-
-        final List<RegistryReference<Biome>> biomeList = essence.getBiomes();
-
-        final Random random = player.getWorld().getRandom();
-        final List<AttributedBiome> biomes = biomeList.stream().map(biome ->
-            AttributedBiome.of(biome, BiomeAttributes.of(random.nextFloat() *4 -2, random.nextFloat()*4-2, random.nextFloat()*4-2, random.nextFloat()*4-2, random.nextFloat()))).collect(Collectors.toList());
-
-        final MultiNoiseBiomeConfig multiNoiseBiomeConfig = MultiNoiseBiomeConfig.builder().biomes(biomes).build();
-        final NoiseGeneratorConfig noiseGeneratorConfig;
-        if (essence == Essence.NETHER)
-        {
-             noiseGeneratorConfig = NoiseGeneratorConfig.nether();
-             templateBuilder.worldType(WorldTypes.THE_NETHER);
-        }
-        else if (essence == Essence.END)
-        {
-            final StructureGenerationConfig endStructures = StructureGenerationConfig.builder().addStructure(Structures.END_CITY.get(), SeparatedStructureConfig.of(15, 10, random.nextInt())).build();
-            noiseGeneratorConfig = NoiseGeneratorConfig.builder().from(NoiseGeneratorConfig.floatingIslands())
-                                                       .defaultBlock(BlockTypes.END_STONE.get().getDefaultState())
-                                                       .structureConfig(endStructures)
-                                                       .build();
-
-            templateBuilder.worldType(RegistryTypes.WORLD_TYPE.defaultReferenced(Terra.WORLD_TYPE_END));
-        }
-        else
-        {
-            noiseGeneratorConfig = NoiseGeneratorConfig.overworld();
-        }
-
-        final WorldTemplate template = templateBuilder.serializationBehavior(SerializationBehavior.NONE)
-                                                      .displayName(Component.text("Dream world by " + player.getName()))
-                                                      .generator(ChunkGenerator.noise(BiomeProvider.multiNoise(multiNoiseBiomeConfig), System.currentTimeMillis(), noiseGeneratorConfig))
-                                                      .difficulty(Difficulties.HARD)
-                                                      .loadOnStartup(false)
-                                                      .build();
-        taskManager.runTask(() -> afterUseItem(worldKey, template, player));
     }
 
     @Listener
-    public void onSplash(ChangeEntityPotionEffectEvent event, @First Potion potion) {
-        final ServerPlayer player = event.getCause().first(ServerPlayer.class).orElse(null);
-        if (player == null)
+    public void onUseItem(UseItemStackEvent.Tick event, @First ServerPlayer player)
+    {
+        if (!event.getContext().get(EventContextKeys.USED_HAND).get().equals(HandTypes.MAIN_HAND.get()) || !TerraItems.isTerraEssence(event.getItemStackInUse()))
         {
             return;
         }
-        if (this.future != null && !this.future.isDone())
+        final Optional<UUID> uuid = event.getItemStackInUse().get(TerraData.WORLD_UUID);
+        if (!uuid.isPresent())
         {
-            ItemUtil.spawnItem(potion.getServerLocation(), potion.item().get().createStack());
+            i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "The liquid is too cold to drink.");
+            event.setRemainingDuration(20);
             event.setCancelled(true);
             return;
         }
-
-        TerraItems.getEssenceForItem(potion.item().get()).ifPresent(essence -> runEssenceCode(player, essence));
+        if (event.getRemainingDuration() > 15)
+        {
+            event.setRemainingDuration(15); // Gulp it down fast
+            final List<PotionEffect> potionEffects = player.get(Keys.POTION_EFFECTS).orElse(new ArrayList<>());
+            potionEffects.add(PotionEffect.of(PotionEffectTypes.BLINDNESS, 0, 60));
+            player.offer(Keys.POTION_EFFECTS, potionEffects);
+        }
     }
 
-    private void afterUseItem(ResourceKey worldKey, WorldTemplate template, ServerPlayer player)
+    @Listener
+    public void onStartPotionHeatup(InteractBlockEvent.Secondary event, @First ServerPlayer player)
     {
-        final WorldManager wm = Sponge.getServer().getWorldManager();
-        if (player.getWorld().getKey().equals(worldKey)) {
-            player.setLocation(ServerLocation.of(wm.defaultWorld(), wm.defaultWorld().getProperties().spawnPosition()));
+        if (event.getBlock().getState().getType().isAnyOf(BlockTypes.CAMPFIRE))
+        {
+            final Campfire campfire = (Campfire) event.getBlock().getLocation().get().getBlockEntity().get();
+            if (campfire.getInventory().freeCapacity() <= 0)
+            {
+                return;
+            }
+            final ItemStack itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
+            if (TerraItems.isTerraEssence(itemInHand.createSnapshot()))
+            {
+                final Essence essence = TerraItems.getEssenceForItem(itemInHand.createSnapshot()).get();
+                final ResourceKey worldKey = ResourceKey.of(PluginTerra.TERRA_ID, player.getName().toLowerCase());
+                if (futureWorlds.getOrDefault(worldKey, CompletableFuture.completedFuture(null)).isDone())
+                {
+                    itemInHand.offer(Keys.LORE, Arrays.asList(coldPotionLore(player), potionOwnerLore(player, worldKey.getValue())));
+                    itemInHand.offer(TerraData.WORLD_KEY, worldKey.asString());
+
+                    final WorldTemplate template = essence.createWorldTemplate(player, worldKey);
+
+                    this.evacuateWorld(worldKey);
+                    final CompletableFuture<ServerWorld> doneFuture = new CompletableFuture<>();
+                    futureWorlds.put(worldKey, doneFuture);
+                    worldGenerationQueue = worldGenerationQueue.thenCompose(f -> generateWorld(worldKey, template, doneFuture));
+                }
+                else if (futureWorlds.get(worldKey) != null)
+                {
+                    event.setCancelled(true);
+                }
+            }
         }
 
+    }
+
+    public Component potionOwnerLore(Audience audience, String name)
+    {
+        return i18n.translate(audience, MessageType.POSITIVE, "The essence is attuned to {player}", name);
+    }
+
+    public Component coldPotionLore(Audience player)
+    {
+        return i18n.translate(player, Style.style(NamedTextColor.AQUA), "The liquid is freezing cold");
+    }
+
+    private void evacuateWorld(ResourceKey worldKey)
+    {
+        Sponge.getServer().getWorldManager().world(worldKey).ifPresent(w -> {
+            final ServerWorld defaultWorld = Sponge.getServer().getWorldManager().defaultWorld();
+            final Collection<ServerPlayer> players = new ArrayList<>(w.getPlayers());
+            for (ServerPlayer player : players)
+            {
+                i18n.send(player, MessageType.NEUTRAL, "The world you were in disappeared as if it was a dream.");
+                player.setLocation(defaultWorld.getLocation(defaultWorld.getProperties().spawnPosition()));
+            }
+        });
+    }
+
+// TODO event not called yet
+//    @Listener
+//    public void onSplash(ChangeEntityPotionEffectEvent event, @First Potion potion) {
+//        final ServerPlayer player = event.getCause().first(ServerPlayer.class).orElse(null);
+//        if (player == null)
+//        {
+//            return;
+//        }
+//        if (this.worldGenerationQueue != null && !this.worldGenerationQueue.isDone())
+//        {
+//            ItemUtil.spawnItem(potion.getServerLocation(), potion.item().get().createStack());
+//            event.setCancelled(true);
+//            return;
+//        }
+//
+//    }
+
+    private CompletableFuture<ServerWorld> generateWorld(ResourceKey worldKey, WorldTemplate template, CompletableFuture<ServerWorld> doneFuture)
+    {
+        // Evacuate
+        final WorldManager wm = Sponge.getServer().getWorldManager();
+
+        // Unload and delete
         CompletableFuture<Boolean> worldDeletedFuture = CompletableFuture.completedFuture(true);
         if (wm.world(worldKey).isPresent()) {
             wm.world(worldKey).get().getProperties().setSerializationBehavior(SerializationBehavior.NONE);
             worldDeletedFuture = wm.unloadWorld(worldKey).thenCompose(b -> wm.deleteWorld(worldKey));
         }
 
-        future = worldDeletedFuture.thenCompose(b -> {
+        // Save Template and Load
+        return worldDeletedFuture.thenCompose(b -> {
             wm.saveTemplate(template);
             return wm.loadWorld(template);
-        }).thenAccept(w -> {
-            taskManager.runTask(() -> tpPlayer(player, w));
-        }).exceptionally(e -> {
-            e.printStackTrace();
-            return null;
+        }).thenApply(w -> {
+            doneFuture.complete(w);
+            return w;
         });
     }
-
 
     private void tpPlayer(ServerPlayer player, ServerWorld w)
     {
@@ -186,9 +236,6 @@ public class TerraListener {
         }
         spawnLoc = Sponge.getServer().getTeleportHelper().getSafeLocation(spawnLoc, 50, 10).orElse(spawnLoc);
         player.setLocation(spawnLoc);
-        final List<PotionEffect> list = player.get(Keys.POTION_EFFECTS).orElse(Collections.emptyList());
-        list.removeIf(effect -> effect.getType() == PotionEffectTypes.BLINDNESS.get());
-        player.offer(Keys.POTION_EFFECTS, list);
     }
 
     private void setupWorld(ServerWorld w)
@@ -196,5 +243,28 @@ public class TerraListener {
         final Vector3i spawn = w.getProperties().spawnPosition();
         w.getBorder().setCenter(spawn.getX(), spawn.getZ());
         w.getBorder().setDiameter(16 * 17);
+    }
+
+    public ItemStack finalizePotion(ItemStack terraPotion)
+    {
+        final ResourceKey worldKey = ResourceKey.resolve(terraPotion.get(TerraData.WORLD_KEY).get());
+        final CompletableFuture<ServerWorld> futureWorld = this.futureWorlds.get(worldKey);
+        if (futureWorld != null && futureWorld.isDone())
+        {
+            final Optional<ServerPlayer> optPlayer = Sponge.getServer().getPlayer(worldKey.getValue());
+            final Audience audience = optPlayer.map(Audience.class::cast).orElse(Sponge.getGame().getSystemSubject());
+            final ArrayList<Component> lore = new ArrayList<>();
+            lore.add(i18n.translate(audience, Style.style(NamedTextColor.GOLD), "The liquid feels warm and glows with excitement."));
+            lore.add(i18n.translate(audience, Style.style(NamedTextColor.GRAY), "Drink it!"));
+            lore.add(potionOwnerLore(audience, worldKey.getValue()));
+            terraPotion.offer(Keys.LORE, lore);
+            terraPotion.offer(TerraData.WORLD_UUID, futureWorld.join().getUniqueId());
+        }
+        return terraPotion;
+    }
+
+    public Component hintPotionLore(Audience player)
+    {
+        return i18n.translate(player, Style.style(NamedTextColor.GRAY), "Try heating it on a campfire.");
     }
 }
