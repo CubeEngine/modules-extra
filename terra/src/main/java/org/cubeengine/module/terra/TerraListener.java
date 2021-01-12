@@ -37,6 +37,7 @@ import net.kyori.adventure.text.format.Style;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.i18n.I18nTranslate.ChatType;
 import org.cubeengine.libcube.service.i18n.formatter.MessageType;
+import org.cubeengine.logscribe.Log;
 import org.cubeengine.module.terra.data.TerraData;
 import org.cubeengine.module.terra.data.TerraItems;
 import org.cubeengine.module.terra.data.TerraItems.Essence;
@@ -53,10 +54,12 @@ import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.EventContextKeys;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.block.entity.CookingEvent;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
+import org.spongepowered.api.scheduler.ScheduledTask;
 import org.spongepowered.api.world.SerializationBehavior;
 import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.api.world.server.ServerWorld;
@@ -65,9 +68,11 @@ import org.spongepowered.api.world.server.WorldTemplate;
 import org.spongepowered.math.vector.Vector3i;
 
 @Singleton
-public class TerraListener {
+public class TerraListener
+{
 
     @Inject private I18n i18n;
+    @Inject private Log logger;
 
     private CompletableFuture<ServerWorld> worldGenerationQueue = CompletableFuture.completedFuture(null);
 
@@ -102,6 +107,41 @@ public class TerraListener {
             }
             i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "The liquid is too cold to drink.");
             event.setCancelled(true);
+        }
+    }
+
+    // Deletes Terra worlds without players
+    public void checkForUnload(ScheduledTask task)
+    {
+        for (ServerWorld world : Sponge.getServer().getWorldManager().worlds())
+        {
+            if (world.getKey().getNamespace().equals(PluginTerra.TERRA_ID))
+            {
+                if (world.getPlayers().isEmpty())
+                {
+                    logger.info("Deleting empty Terra world: " + world.getKey());
+                    Sponge.getServer().getWorldManager().deleteWorld(world.getKey());
+                }
+            }
+        }
+    }
+
+    @Listener
+    public void onCampfireTick(CookingEvent.Tick event)
+    {
+        if (!(event.getBlockEntity() instanceof Campfire))
+        {
+            return;
+        }
+        final ItemStackSnapshot original = event.getTransactions().get(0).getOriginal();
+        if (TerraItems.isTerraEssence(original))
+        {
+            final ResourceKey worldKey = ResourceKey.resolve(original.get(TerraData.WORLD_KEY).get());
+            final CompletableFuture<ServerWorld> futureWorld = this.futureWorlds.get(worldKey);
+            if (futureWorld == null || !futureWorld.isDone())
+            {
+                event.setCancelled(true);
+            }
         }
     }
 
@@ -142,6 +182,20 @@ public class TerraListener {
             final ItemStack itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
             if (TerraItems.isTerraEssence(itemInHand.createSnapshot()))
             {
+                if (itemInHand.get(TerraData.WORLD_UUID).isPresent())
+                {
+                    i18n.send(ChatType.ACTION_BAR, player, MessageType.NEUTRAL, "The essence is ready to drink");
+                    event.setCancelled(true);
+                    return;
+                }
+                if (itemInHand.get(TerraData.POTION_UUID).isPresent())
+                {
+                    i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "Bad Potion");
+                    player.setItemInHand(HandTypes.MAIN_HAND, ItemStack.empty());
+                    player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_GLASS_BREAK, Source.PLAYER, 1, 1));
+                    event.setCancelled(true);
+                    return;
+                }
                 final Essence essence = TerraItems.getEssenceForItem(itemInHand.createSnapshot()).get();
                 final ResourceKey worldKey = ResourceKey.of(PluginTerra.TERRA_ID, player.getName().toLowerCase());
                 if (futureWorlds.getOrDefault(worldKey, CompletableFuture.completedFuture(null)).isDone())
@@ -158,6 +212,8 @@ public class TerraListener {
                     final CompletableFuture<ServerWorld> doneFuture = new CompletableFuture<>();
                     futureWorlds.put(worldKey, doneFuture);
                     worldGenerationQueue = worldGenerationQueue.thenCompose(f -> generateWorld(worldKey, template, doneFuture));
+
+                    i18n.send(ChatType.ACTION_BAR, player, MessageType.POSITIVE, "Tiny images form in the bubbling essence");
                 }
                 else if (futureWorlds.get(worldKey) != null) // Currently generating
                 {
@@ -165,6 +221,11 @@ public class TerraListener {
                     if (curPotionUuid == null || !curPotionUuid.equals(itemInHand.get(TerraData.POTION_UUID).orElse(null)))
                     {
                         event.setCancelled(true); // Only allow the current potion
+                        i18n.send(ChatType.ACTION_BAR, player, MessageType.POSITIVE, "Only one essence at a time");
+                    }
+                    else
+                    {
+                        i18n.send(ChatType.ACTION_BAR, player, MessageType.POSITIVE, "It slowly heats up");
                     }
                 }
             }

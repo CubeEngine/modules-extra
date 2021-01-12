@@ -20,16 +20,19 @@ package org.cubeengine.module.terra;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.cubeengine.libcube.service.event.ModuleListener;
+import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.module.terra.data.TerraData;
 import org.cubeengine.module.terra.data.TerraItems;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.Server;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent;
 import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.item.recipe.RecipeRegistration;
+import org.spongepowered.api.util.Ticks;
 import org.spongepowered.api.world.WorldTypeTemplate;
 import org.spongepowered.plugin.PluginContainer;
 
@@ -44,12 +47,15 @@ public class Terra
 {
     @ModuleListener private TerraListener listener;
     @Inject private PluginContainer plugin;
+    @Inject private TaskManager tm;
 
     public static final ResourceKey WORLD_TYPE_END = ResourceKey.of(PluginTerra.TERRA_ID, "the_end");
 
     @Listener
     public void onStarted(StartedEngineEvent<Server> event)
     {
+        final Ticks minutes = Ticks.ofWallClockMinutes(Sponge.getServer(), 10);
+        tm.runTimer(this.listener::checkForUnload, Ticks.ofWallClockSeconds(Sponge.getServer(), 10), minutes);
     }
 
     @Listener

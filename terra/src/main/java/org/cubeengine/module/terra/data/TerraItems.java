@@ -145,7 +145,7 @@ public class TerraItems
         final RecipeRegistration heatUpPotion = CookingRecipe.builder().type(RecipeTypes.CAMPFIRE_COOKING)
                                                      .ingredient(coldPotionIngredient)
                                                      .result(i -> TerraItems.heatedPotion(i), ItemStack.of(ItemTypes.POTION))
-                                                     .cookingTime(20 * 15).experience(0)
+                                                     .cookingTime(20).experience(0)
                                                      .key(ResourceKey.of(PluginTerra.TERRA_ID, "heatup-potion"))
                                                      .build();
         event.register(heatUpPotion);
@@ -226,7 +226,7 @@ public class TerraItems
                 AttributedBiome.of(biome, BiomeAttributes.of(random.nextFloat() *4 -2, random.nextFloat()*4-2, random.nextFloat()*4-2, random.nextFloat()*4-2, random.nextFloat()))).collect(
                 Collectors.toList());
 
-            final MultiNoiseBiomeConfig multiNoiseBiomeConfig = MultiNoiseBiomeConfig.builder().biomes(biomes).build();
+            final MultiNoiseBiomeConfig multiNoiseBiomeConfig = MultiNoiseBiomeConfig.builder().addBiomes(biomes).build();
             final NoiseGeneratorConfig noiseGeneratorConfig;
             if (this == NETHER)
             {
