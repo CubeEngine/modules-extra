@@ -17,7 +17,6 @@
  */
 package org.cubeengine.module.tablist;
 
-import java.util.Optional;
 import com.google.inject.Singleton;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.libcube.util.ChatFormat;
@@ -47,12 +46,14 @@ public class Tablist
 
         for (ServerPlayer p : Sponge.getServer().getOnlinePlayers())
         {
-            Optional<TabListEntry> entry = p.getTabList().getEntry(player.getUniqueId());
-            entry.ifPresent(tle -> tle.setDisplayName(ChatFormat.fromLegacy(prefix + player.getName(), '&')));
+            final TabListEntry entry = p.getTabList().getEntry(player.getUniqueId()).orElse(
+                TabListEntry.builder().list(p.getTabList()).profile(player.getProfile()).displayName(player.displayName().get()).gameMode(player.gameMode().get()).build());
+            entry.setDisplayName(ChatFormat.fromLegacy(prefix + player.getName(), '&'));
 
             String pPrefix = p.getOption("tablist-prefix").orElse("");
-            Optional<TabListEntry> pEntry = player.getTabList().getEntry(p.getUniqueId());
-            pEntry.ifPresent(tle -> tle.setDisplayName(ChatFormat.fromLegacy(pPrefix + p.getName(), '&')));
+            TabListEntry pEntry = player.getTabList().getEntry(p.getUniqueId()).orElse(
+                TabListEntry.builder().list(player.getTabList()).profile(p.getProfile()).displayName(p.displayName().get()).gameMode(p.gameMode().get()).build());
+            pEntry.setDisplayName(ChatFormat.fromLegacy(pPrefix + p.getName(), '&'));
         }
     }
 }
