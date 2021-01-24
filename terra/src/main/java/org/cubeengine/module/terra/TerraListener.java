@@ -156,19 +156,20 @@ public class TerraListener
         final Optional<UUID> uuid = event.getItemStackInUse().get(TerraData.WORLD_UUID);
         if (!uuid.isPresent())
         {
+            if (event.getItemStackInUse().get(TerraData.POTION_UUID).isPresent())
+            {
+                i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "Bad Potion");
+                player.setItemInHand(HandTypes.MAIN_HAND, ItemStack.empty());
+                player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_GLASS_BREAK, Source.PLAYER, 1, 1));
+                event.setCancelled(true);
+                return;
+            }
             i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "The liquid is too cold to drink.");
             event.setRemainingDuration(20);
             event.setCancelled(true);
             return;
         }
-        if (event.getItemStackInUse().get(TerraData.POTION_UUID).isPresent())
-        {
-            i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "Bad Potion");
-            player.setItemInHand(HandTypes.MAIN_HAND, ItemStack.empty());
-            player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_GLASS_BREAK, Source.PLAYER, 1, 1));
-            event.setCancelled(true);
-            return;
-        }
+
         if (event.getRemainingDuration() > 15)
         {
             event.setRemainingDuration(15); // Gulp it down fast
