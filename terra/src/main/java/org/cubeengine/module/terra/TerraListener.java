@@ -161,6 +161,14 @@ public class TerraListener
             event.setCancelled(true);
             return;
         }
+        if (event.getItemStackInUse().get(TerraData.POTION_UUID).isPresent())
+        {
+            i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "Bad Potion");
+            player.setItemInHand(HandTypes.MAIN_HAND, ItemStack.empty());
+            player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_GLASS_BREAK, Source.PLAYER, 1, 1));
+            event.setCancelled(true);
+            return;
+        }
         if (event.getRemainingDuration() > 15)
         {
             event.setRemainingDuration(15); // Gulp it down fast
@@ -319,7 +327,7 @@ public class TerraListener
     {
         final ResourceKey worldKey = ResourceKey.resolve(terraPotion.get(TerraData.WORLD_KEY).get());
         final CompletableFuture<ServerWorld> futureWorld = this.futureWorlds.get(worldKey);
-        if (futureWorld != null && futureWorld.isDone())
+        if (futureWorld != null && futureWorld.isDone() && !futureWorld.isCompletedExceptionally())
         {
             final Optional<ServerPlayer> optPlayer = Sponge.getServer().getPlayer(worldKey.getValue());
             final Audience audience = optPlayer.map(Audience.class::cast).orElse(Sponge.getGame().getSystemSubject());
@@ -345,13 +353,29 @@ public class TerraListener
         i18n.send(audience, MessageType.POSITIVE, "Terra worlds:");
         for (Entry<ResourceKey, CompletableFuture<ServerWorld>> entry : futureWorlds.entrySet())
         {
-            if (entry.getValue().isDone())
+            if (entry.getValue().isCompletedExceptionally())
+            {
+                i18n.send(audience, MessageType.NEGATIVE, " - {name} failed to generate.", entry.getKey().asString());
+            }
+            else if (entry.getValue().isDone())
             {
                 i18n.send(audience, MessageType.POSITIVE, " - {name} is done generating.", entry.getKey().asString());
             }
             else
             {
                 i18n.send(audience, MessageType.NEUTRAL, " - {name} is generating.", entry.getKey().asString());
+            }
+        }
+    }
+
+    public void cancelAll(Audience audience)
+    {
+        for (Entry<ResourceKey, CompletableFuture<ServerWorld>> entry : futureWorlds.entrySet())
+        {
+            if (!entry.getValue().isDone())
+            {
+                entry.getValue().completeExceptionally(new InterruptedException("Interrupted by Command"));
+                i18n.send(audience, MessageType.POSITIVE, " - Cancelled generating {name}", entry.getKey().asString());
             }
         }
     }

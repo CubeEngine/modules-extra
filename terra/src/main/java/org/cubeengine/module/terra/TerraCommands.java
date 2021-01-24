@@ -38,4 +38,10 @@ public class TerraCommands extends DispatcherCommand
     {
         this.listener.printStatus(cause.getAudience());
     }
+
+    @Command(desc = "Cancels all current waiting worlds")
+    public void cancel(CommandCause cause)
+    {
+        this.listener.cancelAll(cause.getAudience());
+    }
 }
