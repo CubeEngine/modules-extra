@@ -19,6 +19,7 @@ package org.cubeengine.module.terra;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
 import org.cubeengine.libcube.service.event.ModuleListener;
 import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.module.terra.data.TerraData;
@@ -46,6 +47,7 @@ splash to teleport multiple players
 public class Terra
 {
     @ModuleListener private TerraListener listener;
+    @ModuleCommand private TerraCommands terraCommands;
     @Inject private PluginContainer plugin;
     @Inject private TaskManager tm;
 

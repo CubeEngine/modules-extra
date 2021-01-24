@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -337,5 +338,21 @@ public class TerraListener
     public Component hintPotionLore(Audience player)
     {
         return i18n.translate(player, Style.style(NamedTextColor.GRAY), "Try heating it on a campfire.");
+    }
+
+    public void printStatus(Audience audience)
+    {
+        i18n.send(audience, MessageType.POSITIVE, "Terra worlds:");
+        for (Entry<ResourceKey, CompletableFuture<ServerWorld>> entry : futureWorlds.entrySet())
+        {
+            if (entry.getValue().isDone())
+            {
+                i18n.send(audience, MessageType.POSITIVE, " - {name} is done generating.", entry.getKey().asString());
+            }
+            else
+            {
+                i18n.send(audience, MessageType.NEUTRAL, " - {name} is generating.", entry.getKey().asString());
+            }
+        }
     }
 }
