@@ -73,7 +73,6 @@
 <!--        <module>vigil</module>-->
 <!--        <module>authorization</module>-->
 <!--        <module>apiserver</module>-->
-        <module>controlc</module>
         <module>elevator</module>
         <module>squelch</module>
         <module>itemduct</module>
