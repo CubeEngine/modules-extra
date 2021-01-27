@@ -74,6 +74,7 @@ public class ChopchopConfig extends ReflectedYaml
         if (soilTypes.isEmpty())
         {
             soilTypes.add(BlockTypes.DIRT.get());
+            soilTypes.add(BlockTypes.PODZOL.get());
             soilTypes.add(BlockTypes.GRASS.get());
             soilTypes.add(BlockTypes.WARPED_NYLIUM.get());
             soilTypes.add(BlockTypes.CRIMSON_NYLIUM.get());
