@@ -58,6 +58,7 @@ public class Terra
     {
         final Ticks minutes = Ticks.ofWallClockMinutes(Sponge.getServer(), 10);
         tm.runTimer(this.listener::checkForUnload, Ticks.ofWallClockSeconds(Sponge.getServer(), 10), minutes);
+        tm.runTimer(task -> this.listener.doGenerate(), Ticks.of(20), Ticks.of(20));
     }
 
     @Listener

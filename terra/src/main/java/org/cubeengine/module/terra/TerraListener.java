@@ -21,12 +21,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import net.kyori.adventure.audience.Audience;
@@ -75,7 +78,8 @@ public class TerraListener
     @Inject private I18n i18n;
     @Inject private Log logger;
 
-    private CompletableFuture<ServerWorld> worldGenerationQueue = CompletableFuture.completedFuture(null);
+    private Queue<Supplier<CompletableFuture<ServerWorld>>> worldGenerationQueue = new LinkedList<>();
+    private CompletableFuture<ServerWorld> currentGeneration = null;
 
     private Map<ResourceKey, CompletableFuture<ServerWorld>> futureWorlds = new HashMap<>();
     private Map<UUID, UUID> potions = new HashMap<>();
@@ -114,14 +118,18 @@ public class TerraListener
     // Deletes Terra worlds without players
     public void checkForUnload(ScheduledTask task)
     {
-        for (ServerWorld world : Sponge.getServer().getWorldManager().worlds())
+        // TODO grace period
+        for (ServerWorld world : new ArrayList<>(Sponge.getServer().getWorldManager().worlds()))
         {
-            if (world.getKey().getNamespace().equals(PluginTerra.TERRA_ID))
+            if (!futureWorlds.containsKey(world.getKey()) || futureWorlds.get(world.getKey()).isDone())
             {
-                if (world.getPlayers().isEmpty())
+                if (world.getKey().getNamespace().equals(PluginTerra.TERRA_ID))
                 {
-                    logger.info("Deleting empty Terra world: " + world.getKey());
-                    Sponge.getServer().getWorldManager().deleteWorld(world.getKey());
+                    if (world.getPlayers().isEmpty())
+                    {
+                        logger.info("Deleting empty Terra world: " + world.getKey());
+                        Sponge.getServer().getWorldManager().deleteWorld(world.getKey());
+                    }
                 }
             }
         }
@@ -221,7 +229,7 @@ public class TerraListener
                     this.evacuateWorld(worldKey);
                     final CompletableFuture<ServerWorld> doneFuture = new CompletableFuture<>();
                     futureWorlds.put(worldKey, doneFuture);
-                    worldGenerationQueue = worldGenerationQueue.thenCompose(f -> generateWorld(worldKey, template, doneFuture));
+                    worldGenerationQueue.add(() -> generateWorld(worldKey, template, doneFuture));
 
                     i18n.send(ChatType.ACTION_BAR, player, MessageType.POSITIVE, "Tiny images form in the bubbling essence");
                 }
@@ -351,7 +359,7 @@ public class TerraListener
 
     public void printStatus(Audience audience)
     {
-        i18n.send(audience, MessageType.POSITIVE, "Terra worlds:");
+        i18n.send(audience, MessageType.POSITIVE, "Terra worlds ({amount} in queue):", worldGenerationQueue.size());
         for (Entry<ResourceKey, CompletableFuture<ServerWorld>> entry : futureWorlds.entrySet())
         {
             if (entry.getValue().isCompletedExceptionally())
@@ -378,6 +386,19 @@ public class TerraListener
                 entry.getValue().completeExceptionally(new InterruptedException("Interrupted by Command"));
                 i18n.send(audience, MessageType.POSITIVE, " - Cancelled generating {name}", entry.getKey().asString());
             }
+        }
+        worldGenerationQueue.clear();
+    }
+
+    public void doGenerate()
+    {
+        if (this.worldGenerationQueue.isEmpty())
+        {
+            return;
+        }
+        if (currentGeneration == null || currentGeneration.isDone())
+        {
+            currentGeneration = this.worldGenerationQueue.poll().get();
         }
     }
 }

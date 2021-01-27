@@ -59,6 +59,7 @@ import org.spongepowered.api.world.biome.provider.MultiNoiseBiomeConfig;
 import org.spongepowered.api.world.difficulty.Difficulties;
 import org.spongepowered.api.world.generation.ChunkGenerator;
 import org.spongepowered.api.world.generation.config.NoiseGeneratorConfig;
+import org.spongepowered.api.world.generation.config.WorldGenerationConfig;
 import org.spongepowered.api.world.generation.config.structure.SeparatedStructureConfig;
 import org.spongepowered.api.world.generation.config.structure.StructureGenerationConfig;
 import org.spongepowered.api.world.generation.structure.Structures;
@@ -226,7 +227,8 @@ public class TerraItems
                 AttributedBiome.of(biome, BiomeAttributes.of(random.nextFloat() *4 -2, random.nextFloat()*4-2, random.nextFloat()*4-2, random.nextFloat()*4-2, random.nextFloat()))).collect(
                 Collectors.toList());
 
-            final MultiNoiseBiomeConfig multiNoiseBiomeConfig = MultiNoiseBiomeConfig.builder().addBiomes(biomes).build();
+
+            final MultiNoiseBiomeConfig multiNoiseBiomeConfig = MultiNoiseBiomeConfig.builder().seed(random.nextLong()).addBiomes(biomes).build();
             final NoiseGeneratorConfig noiseGeneratorConfig;
             if (this == NETHER)
             {
@@ -249,8 +251,9 @@ public class TerraItems
             }
             return templateBuilder.serializationBehavior(SerializationBehavior.NONE)
                                                           .displayName(Component.text("Dream world by " + player.getName()))
-                                                          .generator(ChunkGenerator.noise(BiomeProvider.multiNoise(multiNoiseBiomeConfig), System.currentTimeMillis(), noiseGeneratorConfig))
+                                                          .generator(ChunkGenerator.noise(BiomeProvider.multiNoise(multiNoiseBiomeConfig), random.nextLong(), noiseGeneratorConfig))
                                                           .difficulty(Difficulties.HARD)
+                                                          .generationConfig(WorldGenerationConfig.Mutable.builder().seed(random.nextLong()).build())
                                                           .loadOnStartup(false)
                                                           .build();
         }
