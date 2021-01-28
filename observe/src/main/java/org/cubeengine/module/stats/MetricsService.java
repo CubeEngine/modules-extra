@@ -26,34 +26,33 @@ import org.spongepowered.plugin.PluginContainer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Singleton
 public class MetricsService
 {
     private final CollectorRegistry registry;
-    private final AtomicReference<HTTPServer> exporter;
+    private HTTPServer exporter;
 
     @Inject
     public MetricsService()
     {
         this.registry = new CollectorRegistry();
-        this.exporter = new AtomicReference<>(null);
+        this.exporter = null;
     }
 
-    public void register(PluginContainer plugin, Collector collector)
+    public synchronized void register(PluginContainer plugin, Collector collector)
     {
         this.registry.register(collector);
     }
 
-    void startExporter(InetSocketAddress bindAddr) throws IOException {
-        this.exporter.compareAndSet(null, new HTTPServer(bindAddr, registry, true));
+    synchronized void startExporter(InetSocketAddress bindAddr) throws IOException {
+        if (this.exporter == null) {
+            this.exporter = new HTTPServer(bindAddr, registry, true);
+        }
     }
 
-    void stopExporter() {
-        this.exporter.get().stop();
-        this.exporter.set(null);
+    synchronized void stopExporter() {
+        this.exporter.stop();
+        this.exporter = null;
     }
 }
