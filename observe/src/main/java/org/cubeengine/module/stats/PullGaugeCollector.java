@@ -27,9 +27,9 @@ import static java.util.Collections.emptyList;
 
 public class PullGaugeCollector<T> extends Collector {
     private final T root;
-    private final List<Gauge<T>> gauges;
+    private final List<Function<T, MetricFamilySamples>> gauges;
 
-    public PullGaugeCollector(T root, List<Gauge<T>> gauges) {
+    public PullGaugeCollector(T root, List<Function<T, MetricFamilySamples>> gauges) {
         this.root = root;
         this.gauges = gauges;
     }
@@ -38,8 +38,8 @@ public class PullGaugeCollector<T> extends Collector {
     public List<MetricFamilySamples> collect() {
         List<MetricFamilySamples> samples = new ArrayList<>(gauges.size());
 
-        for (Gauge<T> gauge : gauges) {
-            samples.add(gauge.sample(root));
+        for (Function<T, MetricFamilySamples> gauge : gauges) {
+            samples.add(gauge.apply(root));
         }
 
         return samples;
@@ -49,73 +49,29 @@ public class PullGaugeCollector<T> extends Collector {
         return new Builder<>(root, emptyList());
     }
 
-    private interface Gauge<T> {
-        MetricFamilySamples sample(T root);
-    }
-
-    private static final class DirectGauge<T> implements Gauge<T> {
-        private final PullGauge<T> gauge;
-
-        public DirectGauge(PullGauge<T> gauge) {
-            this.gauge = gauge;
-        }
-
-        public MetricFamilySamples sample(T root) {
-            return gauge.sample(root);
-        }
-    }
-
-    private static final class SingleIndirectGauge<T, V> implements Gauge<T> {
-        private final Function<T, V> selector;
-        private final PullGauge<V> gauge;
-
-        public SingleIndirectGauge(Function<T, V> selector, PullGauge<V> gauge) {
-            this.selector = selector;
-            this.gauge = gauge;
-        }
-
-        public MetricFamilySamples sample(T root) {
-            return gauge.sample(selector.apply(root));
-        }
-    }
-
-    private static final class MultiIndirectGauge<T, V> implements Gauge<T> {
-        private final Function<T, Iterable<V>> selector;
-        private final PullGauge<V> gauge;
-
-        public MultiIndirectGauge(Function<T, Iterable<V>> selector, PullGauge<V> gauge) {
-            this.selector = selector;
-            this.gauge = gauge;
-        }
-
-        public MetricFamilySamples sample(T root) {
-            return gauge.sampleAll(selector.apply(root));
-        }
-    }
-
     public static final class Builder<T> {
         private final T root;
-        private final List<Gauge<T>> gauges;
+        private final List<Function<T, MetricFamilySamples>> gauges;
 
-        public Builder(T root, List<Gauge<T>> gauges) {
+        public Builder(T root, List<Function<T, MetricFamilySamples>> gauges) {
             this.root = root;
             this.gauges = gauges;
         }
 
         public Builder<T> withGauge(PullGauge<T> gauge) {
-            return withGauge(new DirectGauge<>(gauge));
+            return withGauge(gauge::sample);
         }
 
         public <V> Builder<T> withGauge(PullGauge<V> gauge, Function<T, V> selector) {
-            return withGauge(new SingleIndirectGauge<>(selector, gauge));
+            return withGauge(root -> gauge.sample(selector.apply(root)));
         }
 
         public <V> Builder<T> withMultiGauge(PullGauge<V> gauge, Function<T, Iterable<V>> selector) {
-            return withGauge(new MultiIndirectGauge<>(selector, gauge));
+            return withGauge(root -> gauge.sampleAll(selector.apply(root)));
         }
 
-        private Builder<T> withGauge(Gauge<T> gauge) {
-            final ArrayList<Gauge<T>> newGauges = new ArrayList<>(gauges.size() + 1);
+        public Builder<T> withGauge(Function<T, MetricFamilySamples> gauge) {
+            final ArrayList<Function<T, MetricFamilySamples>> newGauges = new ArrayList<>(gauges.size() + 1);
             newGauges.addAll(gauges);
             newGauges.add(gauge);
             return new Builder<>(root, newGauges);
