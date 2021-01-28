@@ -18,8 +18,6 @@
 package org.cubeengine.module.stats;
 
 import com.google.common.collect.Iterables;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import io.prometheus.client.Collector;
 import org.cubeengine.module.stats.PullGauge.Label;
 import org.cubeengine.module.stats.PullGauge.LabeledValue;
@@ -32,7 +30,6 @@ import java.util.List;
 import static org.cubeengine.module.stats.PullGauge.Label.label;
 import static org.cubeengine.module.stats.PullGauge.LabeledValue.value;
 
-@Singleton
 public class SpongeCollector extends Collector {
     private final PullGaugeCollector<Server> server;
 
@@ -65,7 +62,6 @@ public class SpongeCollector extends Collector {
             .help("Players online per world")
             .build();
 
-    @Inject
     public SpongeCollector(Server server) {
         this.server = PullGaugeCollector.build(server)
                 .withGauge(PLAYERS)

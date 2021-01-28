@@ -42,13 +42,11 @@ public class Observe
     @ModuleConfig private ObserveConfig config;
     private final PluginContainer plugin;
     private final MetricsService metricsService;
-    private final SpongeCollector spongeCollector;
 
     @Inject
-    public Observe(PluginContainer plugin, MetricsService metricsService, SpongeCollector spongeCollector) {
+    public Observe(PluginContainer plugin, MetricsService metricsService) {
         this.plugin = plugin;
         this.metricsService = metricsService;
-        this.spongeCollector = spongeCollector;
     }
 
     @Listener
@@ -62,7 +60,7 @@ public class Observe
         metricsService.register(this.plugin, new ClassLoadingExports());
         metricsService.register(this.plugin, new VersionInfoExports());
 
-        metricsService.register(plugin, spongeCollector);
+        metricsService.register(plugin, new SpongeCollector(event.getEngine()));
 
         try
         {
