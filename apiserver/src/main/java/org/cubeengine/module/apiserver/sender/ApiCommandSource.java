@@ -39,12 +39,13 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.cubeengine.libcube.service.command.AbstractCommandSource;
+import org.spongepowered.api.SystemSubject;
 import org.spongepowered.api.command.source.RconSource;
 import org.spongepowered.api.network.RemoteConnection;
 import org.spongepowered.api.text.Text;
 
 
-public abstract class ApiCommandSource extends AbstractCommandSource implements RconSource
+public abstract class ApiCommandSource extends AbstractCommandSource implements SystemSubject
 {
     private RemoteConnection connection;
     private ObjectMapper mapper;

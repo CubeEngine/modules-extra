@@ -23,6 +23,8 @@ import static org.cubeengine.libcube.util.StringUtils.deCamelCase;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.cubeengine.logscribe.Log;
 import org.cubeengine.logscribe.LogFactory;
 import io.netty.bootstrap.ServerBootstrap;
@@ -30,7 +32,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import org.cubeengine.libcube.CubeEngineModule;
 import org.cubeengine.libcube.ModuleManager;
 import org.cubeengine.libcube.service.command.CommandManager;
 import org.cubeengine.libcube.service.filesystem.FileManager;
@@ -43,8 +44,10 @@ import org.cubeengine.libcube.util.LoggerUtil;
 import org.cubeengine.module.authorization.Authorization;
 import org.cubeengine.processor.Module;
 import org.cubeengine.reflect.Reflector;
+import org.spongepowered.api.Server;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
+import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.plugin.PluginContainer;
 
 import java.lang.annotation.Annotation;
@@ -67,15 +70,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 /**
  * This class represents the API server and provides methods to configure and control it
  */
 @Singleton
 @Module
-public class ApiServer extends CubeEngineModule
+public class ApiServer
 {
     private final Log log;
     private ModuleManager mm;
@@ -132,7 +132,7 @@ public class ApiServer extends CubeEngineModule
     }
 
     @Listener
-    public void onEnable(GamePostInitializationEvent event)
+    public void onEnable(StartedEngineEvent<Server> event)
     {
         reflector.getDefaultConverterManager().registerConverter(new InetAddressConverter(), InetAddress.class);
 

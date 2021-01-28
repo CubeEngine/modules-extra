@@ -71,8 +71,8 @@
         <module>chopchop</module>
         <module>namehistory</module>
 <!--        <module>vigil</module>-->
-<!--        <module>authorization</module>-->
-<!--        <module>apiserver</module>-->
+        <module>authorization</module>
+        <module>apiserver</module>
         <module>elevator</module>
         <module>squelch</module>
         <module>itemduct</module>

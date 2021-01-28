@@ -24,10 +24,8 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
-import org.cubeengine.libcube.CubeEngineModule;
+import com.google.inject.Inject;
 import org.cubeengine.libcube.InjectService;
 import org.cubeengine.libcube.ModuleManager;
 import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
@@ -40,22 +38,21 @@ import org.cubeengine.module.sql.database.Database;
 import org.cubeengine.module.sql.database.ModuleTables;
 import org.cubeengine.processor.Module;
 import org.jooq.DSLContext;
+import org.spongepowered.api.Server;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
+import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.service.ban.BanService;
 import org.spongepowered.api.service.permission.PermissionService;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.runAsync;
 import static org.cubeengine.module.authorization.HashHelper.*;
-import static org.cubeengine.module.authorization.storage.TableAuth.TABLE_AUTH;
 
-@Singleton
 @Module
-@ModuleTables(TableAuth.class)
-public class Authorization extends CubeEngineModule
+public class Authorization
 {
     @Inject private FileManager fm;
     @InjectService private PermissionService ps;
@@ -71,11 +68,10 @@ public class Authorization extends CubeEngineModule
 
     private String staticSalt;
     private final Map<UUID, Triplet<Long, String, Integer>> failedLogins = new ConcurrentHashMap<>();
-    private final Map<UUID, Auth> auths = new ConcurrentHashMap<>();
     private final Set<UUID> loggedIn = new CopyOnWriteArraySet<>();
 
     @Listener
-    public void onEnable(GamePostInitializationEvent event)
+    public void onEnable(StartedEngineEvent<Server> event)
     {
         this.staticSalt = HashHelper.loadStaticSalt(mm.getPathFor(Authorization.class).resolve(".salt"));
         ps.registerContextCalculator(new AuthContextCalculator(this));
@@ -105,12 +101,6 @@ public class Authorization extends CubeEngineModule
     protected void removeFailedLogins(Player user)
     {
         this.failedLogins.remove(user.getUniqueId());
-    }
-
-    public void resetAllPasswords()
-    {
-        this.db.getDSL().update(TABLE_AUTH).set(TABLE_AUTH.PASSWD, (byte[])null).execute();
-        reset();
     }
 
     public boolean isLoggedIn(UUID player)
