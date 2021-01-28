@@ -22,10 +22,12 @@ import com.google.inject.Singleton;
 import io.prometheus.client.Collector;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.exporter.HTTPServer;
+import org.apache.logging.log4j.Level;
 import org.spongepowered.plugin.PluginContainer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.List;
 
 @Singleton
 public class MetricsService
@@ -42,7 +44,17 @@ public class MetricsService
 
     public synchronized void register(PluginContainer plugin, Collector collector)
     {
-        this.registry.register(collector);
+        this.registry.register(new Collector() {
+            @Override
+            public List<MetricFamilySamples> collect() {
+                try {
+                    return collector.collect();
+                } catch (RuntimeException e) {
+                    plugin.getLogger().log(Level.ERROR, "Failed to collect samples!", e);
+                    throw e;
+                }
+            }
+        });
     }
 
     synchronized void startExporter(InetSocketAddress bindAddr) throws IOException {

@@ -41,7 +41,7 @@ public class SpongeCollector extends Collector {
             .help("Maximum online players")
             .build();
 
-    private static final PullGauge<Server> TPS = PullGauge.build("sponge_server_ticks_per_second", Server::getTicksPerSecond)
+    private static final PullGauge<Server> TPS = PullGauge.build("sponge_server_tps", Server::getTicksPerSecond)
             .unit("tps")
             .help("Server tick rate")
             .build();
