@@ -36,7 +36,7 @@ public class MetricsService
     @Inject
     public MetricsService()
     {
-        this.registry = new ProxyCollectorRegistry(new CollectorRegistry());
+        this.registry = new CollectorRegistry();
         this.exporter = null;
     }
 
