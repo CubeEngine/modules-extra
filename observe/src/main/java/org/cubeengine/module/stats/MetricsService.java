@@ -21,35 +21,39 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import io.prometheus.client.Collector;
 import io.prometheus.client.CollectorRegistry;
+import io.prometheus.client.exporter.HTTPServer;
+import org.spongepowered.plugin.PluginContainer;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Singleton
-public class MonitoringService
+public class MetricsService
 {
     private final CollectorRegistry registry;
-    private final Set<Collector> registeredCollectors = new HashSet<>();
+    private final AtomicReference<HTTPServer> exporter;
 
     @Inject
-    public MonitoringService()
+    public MetricsService()
     {
         this.registry = new CollectorRegistry();
+        this.exporter = new AtomicReference<>(null);
     }
 
-    public CollectorRegistry getRegistry()
+    public void register(PluginContainer plugin, Collector collector)
     {
-        return registry;
-    }
-
-    public boolean register(Collector collector)
-    {
-        if (registeredCollectors.contains(collector))
-        {
-            return false;
-        }
         this.registry.register(collector);
-        this.registeredCollectors.add(collector);
-        return true;
+    }
+
+    void startExporter(InetSocketAddress bindAddr) throws IOException {
+        this.exporter.compareAndSet(null, new HTTPServer(bindAddr, registry, true));
+    }
+
+    void stopExporter() {
+        this.exporter.get().stop();
+        this.exporter.set(null);
     }
 }

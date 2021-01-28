@@ -8,10 +8,10 @@
         <version>2-api8-SNAPSHOT</version>
     </parent>
 
-    <artifactId>stats</artifactId>
-    <name>stats</name>
+    <artifactId>observe</artifactId>
+    <name>observe</name>
     <version>1.1.0-SNAPSHOT</version>
-    <description>stats!</description>
+    <description>Observability!</description>
 
     <scm>
         <url>scm:git:https://github.com/CubeEngine/modules-extra</url>
@@ -19,6 +19,10 @@
         <developerConnection>scm:git:git@github.com:CubeEngine/modules-extra.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
+
+    <properties>
+        <prometheusVersion>0.10.0</prometheusVersion>
+    </properties>
 
     <dependencies>
         <dependency>

@@ -77,7 +77,7 @@
         <module>squelch</module>
         <module>itemduct</module>
         <module>tablist</module>
-        <module>stats</module>
+        <module>observe</module>
         <module>terra</module>
     </modules>
 

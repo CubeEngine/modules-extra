@@ -22,9 +22,8 @@ import org.cubeengine.reflect.codec.yaml.ReflectedYaml;
 import java.time.Duration;
 
 @SuppressWarnings("all")
-public class StatsConfig extends ReflectedYaml
+public class ObserveConfig extends ReflectedYaml
 {
-    public String bindAddress = "localhost";
-    public int bindPort = 12345;
-    public Duration samplingInterval = Duration.ofMillis(5000);
+    public String bindAddress = "0.0.0.0";
+    public int bindPort = 9000;
 }
