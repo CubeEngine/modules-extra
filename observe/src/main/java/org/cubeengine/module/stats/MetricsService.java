@@ -55,4 +55,11 @@ public class MetricsService
         this.exporter.stop();
         this.exporter = null;
     }
+
+    public synchronized int getPort() {
+        if (this.exporter == null) {
+            throw new IllegalStateException("Exporter not started!");
+        }
+        return this.exporter.getPort();
+    }
 }
