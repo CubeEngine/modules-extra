@@ -58,7 +58,7 @@ public class SpongeCollector extends Collector {
             .help("Block entities loaded per world")
             .build();
 
-    private static final PullGauge<ServerWorld> WORLD_PLAYERS = PullGauge.build("sponge_world_block_entity_count", SpongeCollector::playerCount)
+    private static final PullGauge<ServerWorld> WORLD_PLAYERS = PullGauge.build("sponge_world_player_count", SpongeCollector::playerCount)
             .help("Players online per world")
             .build();
 
