@@ -143,7 +143,7 @@ public class Kit
                 cmd = cmd.replace("{PLAYER}", player.getName());
                 try
                 {
-                    Sponge.getCommandManager().process(player, cmd);
+                    Sponge.getServer().getCommandManager().process(player, cmd);
                 }
                 catch (CommandException e)
                 {

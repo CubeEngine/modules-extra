@@ -327,7 +327,7 @@ public class PowertoolCommand extends DispatcherCommand
                 {
                     try
                     {
-                        Sponge.getCommandManager().process(player, power.substring(1));
+                        Sponge.getServer().getCommandManager().process(player, power.substring(1));
                     }
                     catch (CommandException e)
                     {

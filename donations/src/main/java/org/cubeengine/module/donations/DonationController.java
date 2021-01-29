@@ -71,7 +71,7 @@ public class DonationController
                     cmd = cmd.replace("{TOTAL}", String.format("%.2f", newTotal));
                     try
                     {
-                        Sponge.getCommandManager().process(Sponge.getSystemSubject(), cmd);
+                        Sponge.getServer().getCommandManager().process(Sponge.getSystemSubject(), cmd);
                     }
                     catch (CommandException e)
                     {
@@ -134,7 +134,7 @@ public class DonationController
                 cmd = cmd.replace("{TOTAL}", String.format("%.2f", newTotal));
                 try
                 {
-                    Sponge.getCommandManager().process(Sponge.getSystemSubject(), cmd);
+                    Sponge.getServer().getCommandManager().process(Sponge.getSystemSubject(), cmd);
                 }
                 catch (CommandException e)
                 {
