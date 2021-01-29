@@ -15,11 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cubeengine.module.stats;
+package org.cubeengine.module.observe;
 
 import org.cubeengine.reflect.codec.yaml.ReflectedYaml;
-
-import java.time.Duration;
 
 @SuppressWarnings("all")
 public class ObserveConfig extends ReflectedYaml

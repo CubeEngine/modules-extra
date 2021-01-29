@@ -15,12 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cubeengine.module.stats;
+package org.cubeengine.module.observe;
 
 import com.google.common.collect.Iterables;
 import io.prometheus.client.Collector;
-import org.cubeengine.module.stats.PullGauge.Label;
-import org.cubeengine.module.stats.PullGauge.LabeledValue;
+import org.cubeengine.module.observe.PullGauge.Label;
+import org.cubeengine.module.observe.PullGauge.LabeledValue;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.block.entity.BlockEntity;
 import org.spongepowered.api.entity.Entity;
@@ -38,8 +38,8 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
-import static org.cubeengine.module.stats.PullGauge.Label.label;
-import static org.cubeengine.module.stats.PullGauge.LabeledValue.value;
+import static org.cubeengine.module.observe.PullGauge.Label.label;
+import static org.cubeengine.module.observe.PullGauge.LabeledValue.value;
 
 public class SpongeCollector extends Collector {
     private final PullGaugeCollector<Server> server;
