@@ -102,7 +102,7 @@ public class SpongeCollector extends Collector {
     }
 
     private static List<LabeledValue> entityCount(ServerWorld world) {
-        return countByType(world, world.getEntities().stream(), Entity::getType, RegistryTypes.BLOCK_TYPE);
+        return countByType(world, world.getEntities().stream(), Entity::getType, RegistryTypes.ENTITY_TYPE);
     }
 
     private static <T> List<LabeledValue> countByType(ServerWorld world, Stream<T> objects, Function<T, DefaultedRegistryValue> getType, DefaultedRegistryType<?> registryType) {
