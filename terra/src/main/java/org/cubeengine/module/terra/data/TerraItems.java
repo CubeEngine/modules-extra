@@ -223,17 +223,23 @@ public class TerraItems
             final List<RegistryReference<Biome>> biomeList = getBiomes();
 
             final Random random = player.getWorld().getRandom();
-            final List<AttributedBiome> biomes = biomeList.stream().map(biome ->
-                AttributedBiome.of(biome, BiomeAttributes.of(random.nextFloat() *4 -2, random.nextFloat()*4-2, random.nextFloat()*4-2, random.nextFloat()*4-2, random.nextFloat()))).collect(
-                Collectors.toList());
 
+            final List<AttributedBiome> biomes = biomeList.stream().map(biome -> {
+                final Biome originalBiome = biome.get(player.getWorld().registries());
+                final BiomeAttributes biomeAttributes = BiomeAttributes.of((float) originalBiome.getTemperature(),
+                                                                           (float) originalBiome.getHumidity(),
+                                                                           random.nextFloat() * 4 - 2,
+                                                                           random.nextFloat() * 4 - 2,
+                                                                           random.nextFloat() / 5);
+                return AttributedBiome.of(biome, biomeAttributes);
+            }).collect(Collectors.toList());
 
             final MultiNoiseBiomeConfig multiNoiseBiomeConfig = MultiNoiseBiomeConfig.builder().seed(random.nextLong()).addBiomes(biomes).build();
             final NoiseGeneratorConfig noiseGeneratorConfig;
             if (this == NETHER)
             {
-                 noiseGeneratorConfig = NoiseGeneratorConfig.nether();
-                 templateBuilder.worldType(WorldTypes.THE_NETHER);
+                noiseGeneratorConfig = NoiseGeneratorConfig.nether();
+                templateBuilder.worldType(WorldTypes.THE_NETHER);
             }
             else if (this == END)
             {
