@@ -17,7 +17,7 @@
  */
 package org.cubeengine.module.stats;
 
-import io.prometheus.client.Collector;
+import io.prometheus.client.Collector.MetricFamilySamples.Sample;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,31 +25,43 @@ import java.util.List;
 import java.util.function.Function;
 
 final class LabeledPullGauge<T> extends PullGauge<T> {
-    private final Function<T, LabeledValue> f;
+    private final MultiSampler<T> f;
 
-    public LabeledPullGauge(String name, String unit, String help, Function<T, LabeledValue> f) {
+    public LabeledPullGauge(String name, String unit, String help, MultiSampler<T> f) {
         super(name, unit, help);
         this.f = f;
     }
 
     @Override
-    protected Collector.MetricFamilySamples.Sample makeSample(T subject) {
-        final LabeledValue labeledValue = f.apply(subject);
-        final Iterable<Label> labels = labeledValue.getLabels();
-        final List<String> labelNames;
-        final List<String> labelValues;
-        if (labels instanceof Collection) {
-            final int size = ((Collection<Label>) labels).size();
-            labelNames = new ArrayList<>(size);
-            labelValues = new ArrayList<>(size);
-        } else {
-            labelNames = new ArrayList<>();
-            labelValues = new ArrayList<>();
+    protected List<Sample> makeSamples(T subject) {
+        final List<LabeledValue> values = f.apply(subject);
+        List<Sample> samples = new ArrayList<>(values.size());
+        for (LabeledValue labeledValue : values) {
+            final Iterable<Label> labels = labeledValue.getLabels();
+            final List<String> labelNames;
+            final List<String> labelValues;
+            if (labels instanceof Collection) {
+                final int size = ((Collection<Label>) labels).size();
+                labelNames = new ArrayList<>(size);
+                labelValues = new ArrayList<>(size);
+            } else {
+                labelNames = new ArrayList<>();
+                labelValues = new ArrayList<>();
+            }
+            for (Label label : labels) {
+                labelNames.add(label.getName());
+                labelValues.add(label.getValue());
+            }
+
+            samples.add(sample(labelNames, labelValues, labeledValue.getValue()));
         }
-        for (Label label : labels) {
-            labelNames.add(label.getName());
-            labelValues.add(label.getValue());
-        }
-        return sample(labelNames, labelValues, labeledValue.getValue());
+
+        return samples;
+    }
+
+    public interface Sampler<T> extends Function<T, LabeledValue> {
+    }
+
+    public interface MultiSampler<T> extends Function<T, List<LabeledValue>> {
     }
 }

@@ -22,11 +22,22 @@ import io.prometheus.client.Collector;
 import org.cubeengine.module.stats.PullGauge.Label;
 import org.cubeengine.module.stats.PullGauge.LabeledValue;
 import org.spongepowered.api.Server;
+import org.spongepowered.api.block.entity.BlockEntity;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.registry.DefaultedRegistryType;
+import org.spongepowered.api.registry.DefaultedRegistryValue;
+import org.spongepowered.api.registry.RegistryTypes;
 import org.spongepowered.api.world.server.ServerWorld;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.groupingBy;
 import static org.cubeengine.module.stats.PullGauge.Label.label;
 import static org.cubeengine.module.stats.PullGauge.LabeledValue.value;
 
@@ -86,16 +97,30 @@ public class SpongeCollector extends Collector {
         return value(world.getPlayers().size(), worldLabels(world));
     }
 
-    private static LabeledValue blockEntityCount(ServerWorld world) {
-        return value(world.getBlockEntities().size(), worldLabels(world));
+    private static List<LabeledValue> blockEntityCount(ServerWorld world) {
+        return countByType(world, world.getBlockEntities().stream(), BlockEntity::getType, RegistryTypes.BLOCK_ENTITY_TYPE);
     }
 
-    private static LabeledValue entityCount(ServerWorld world) {
-        return value(world.getEntities().size(), worldLabels(world));
+    private static List<LabeledValue> entityCount(ServerWorld world) {
+        return countByType(world, world.getEntities().stream(), Entity::getType, RegistryTypes.BLOCK_TYPE);
+    }
+
+    private static <T> List<LabeledValue> countByType(ServerWorld world, Stream<T> objects, Function<T, DefaultedRegistryValue> getType, DefaultedRegistryType<?> registryType) {
+        final Label worldLabel = worldLabel(world);
+        final Map<String, Long> counts = objects.collect(groupingBy(e -> getType.apply(e).key(registryType).asString(), counting()));
+        List<LabeledValue> values = new ArrayList<>(counts.size());
+        for (Map.Entry<String, Long> type : counts.entrySet()) {
+            values.add(value(type.getValue(), worldLabel, label("type", type.getKey())));
+        }
+        return values;
     }
 
     private static List<Label> worldLabels(ServerWorld world) {
-        return Collections.singletonList(label("key", world.getProperties().getKey().asString()));
+        return Collections.singletonList(worldLabel(world));
+    }
+
+    private static Label worldLabel(ServerWorld world) {
+        return label("key", world.getProperties().getKey().asString());
     }
 
     @Override

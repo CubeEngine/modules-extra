@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 
 import static io.prometheus.client.Collector.Type.GAUGE;
@@ -55,10 +54,10 @@ abstract class PullGauge<T> {
         return new MetricFamilySamples(name, unit, GAUGE, help, samples);
     }
 
-    protected abstract Sample makeSample(T subject);
+    protected abstract List<Sample> makeSamples(T subject);
 
     public final MetricFamilySamples sample(T subject) {
-        return bundle(singletonList(makeSample(subject)));
+        return bundle(makeSamples(subject));
     }
 
     public final MetricFamilySamples sampleAll(Iterable<T> subjects) {
@@ -70,7 +69,7 @@ abstract class PullGauge<T> {
         }
 
         for (T subject : subjects) {
-            samples.add(makeSample(subject));
+            samples.addAll(makeSamples(subject));
         }
 
         return bundle(samples);
@@ -80,7 +79,11 @@ abstract class PullGauge<T> {
         return new Builder<>("", "", (unit, help) -> new SimplePullGauge<>(name, unit, help, f));
     }
 
-    public static <T> Builder<T> build(String name, Function<T, LabeledValue> f) {
+    public static <T> Builder<T> build(String name, LabeledPullGauge.Sampler<T> f) {
+        return new Builder<>("", "", (unit, help) -> new LabeledPullGauge<>(name, unit, help, v -> singletonList(f.apply(v))));
+    }
+
+    public static <T> Builder<T> build(String name, LabeledPullGauge.MultiSampler<T> f) {
         return new Builder<>("", "", (unit, help) -> new LabeledPullGauge<>(name, unit, help, f));
     }
 

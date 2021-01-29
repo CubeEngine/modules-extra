@@ -17,11 +17,12 @@
  */
 package org.cubeengine.module.stats;
 
-import io.prometheus.client.Collector;
+import io.prometheus.client.Collector.MetricFamilySamples.Sample;
 
+import java.util.List;
 import java.util.function.ToDoubleFunction;
 
-import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 final class SimplePullGauge<T> extends PullGauge<T> {
     private final ToDoubleFunction<T> f;
@@ -32,7 +33,7 @@ final class SimplePullGauge<T> extends PullGauge<T> {
     }
 
     @Override
-    protected Collector.MetricFamilySamples.Sample makeSample(T subject) {
-        return sample(f.applyAsDouble(subject));
+    protected List<Sample> makeSamples(T subject) {
+        return singletonList(sample(f.applyAsDouble(subject)));
     }
 }
