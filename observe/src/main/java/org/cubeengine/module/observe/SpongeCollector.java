@@ -57,6 +57,11 @@ public class SpongeCollector extends Collector {
             .help("Server tick rate")
             .build();
 
+    private static final PullGauge<Server> AVERAGE_TICK_TIME = PullGauge.build("sponge_server_avg_tick_time_millis", Server::getAverageTickTime)
+            .unit("millis")
+            .help("Tick time averaged over the last 100 ticks")
+            .build();
+
     private static final PullGauge<ServerWorld> LOADED_CHUNKS = PullGauge.build("sponge_world_loaded_chunk_count", SpongeCollector::loadedChunkCount)
             .help("Chunks loaded per world")
             .build();
@@ -78,6 +83,7 @@ public class SpongeCollector extends Collector {
                 .withGauge(PLAYERS)
                 .withGauge(MAX_PLAYERS)
                 .withGauge(TPS)
+                .withGauge(AVERAGE_TICK_TIME)
                 .withMultiGauge(LOADED_CHUNKS, SpongeCollector::worlds)
                 .withMultiGauge(ENTITIES, SpongeCollector::worlds)
                 .withMultiGauge(BLOCK_ENTITIES, SpongeCollector::worlds)
