@@ -41,6 +41,13 @@
             <artifactId>simpleclient_httpserver</artifactId>
             <version>${prometheusVersion}</version>
         </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-http</artifactId>
+            <version>4.1.58.Final</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
         <!-- Monitoring -->
         <dependency>
             <groupId>io.prometheus</groupId>

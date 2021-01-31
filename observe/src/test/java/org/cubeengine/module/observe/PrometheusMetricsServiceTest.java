@@ -18,6 +18,8 @@
 package org.cubeengine.module.observe;
 
 import io.prometheus.client.hotspot.GarbageCollectorExports;
+import org.apache.logging.log4j.LogManager;
+import org.cubeengine.libcube.service.task.TaskManager;
 import org.junit.Test;
 import org.spongepowered.plugin.PluginContainer;
 
@@ -25,39 +27,59 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Proxy;
+import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.function.DoubleSupplier;
 
-public class MetricsServiceTest {
+public class PrometheusMetricsServiceTest {
 
     @Test
     public void metrics() throws IOException {
-        final MetricsService metricsService = new MetricsService();
-        final PluginContainer plugin = (PluginContainer) Proxy.newProxyInstance(PluginContainer.class.getClassLoader(), new Class[]{ PluginContainer.class }, (proxy, method, args) -> null);
-        metricsService.register(plugin, new GarbageCollectorExports());
-        metricsService.register(plugin, PullGaugeCollector.<DoubleSupplier>build(Math::random).withGauge(PullGauge.build("test", DoubleSupplier::getAsDouble).help("dummy").build()).build());
+        final PluginContainer plugin = (PluginContainer) Proxy.newProxyInstance(PluginContainer.class.getClassLoader(), new Class[]{ PluginContainer.class }, (proxy, method, args) -> {
+            if (method.getName().equals("getLogger")) {
+                return LogManager.getLogger();
+            } else {
+                return null;
+            }
+        });
+
+        final TaskManager tm = (TaskManager) Proxy.newProxyInstance(TaskManager.class.getClassLoader(), new Class[] { TaskManager.class }, (proxy, method, args) -> {
+            switch (method.getName()) {
+                case "runTask":
+                case "runTaskAsync":
+                    if (args.length == 1 && args[0] instanceof Runnable) {
+                        ((Runnable) args[0]).run();
+                    }
+            }
+            return null;
+        });
 
         final String host = "localhost";
         final InetSocketAddress addr = new InetSocketAddress(host, 0);
-        metricsService.startExporter(addr);
+        final PrometheusMetricsService metricsService = new PrometheusMetricsService(Thread::new, tm, addr, plugin.getLogger());
+        metricsService.registerAsync(plugin, new GarbageCollectorExports());
+        metricsService.registerSync(plugin, PullGaugeCollector.<DoubleSupplier>build(Math::random).withGauge(PullGauge.build("test", DoubleSupplier::getAsDouble).help("dummy").build()).build());
+
+        metricsService.startExporter();
 
         final String urlBase = "http://" + host + ":" + metricsService.getPort();
 
-        System.out.println(readUrlData(new URL(urlBase + "/")));
         System.out.println(readUrlData(new URL(urlBase + "/other")));
         System.out.println(readUrlData(new URL(urlBase + "/metrics")));
-        System.out.println(readUrlData(new URL(urlBase + "/-/healthy")));
+        System.out.println(readUrlData(new URL(urlBase + "/health")));
 
         metricsService.stopExporter();
     }
 
     private static String readUrlData(URL url) throws IOException {
         System.out.println("URL: " + url);
-        URLConnection connection = url.openConnection();
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.connect();
+        if (connection.getResponseCode() == 404) {
+            return "<<NOT FOUND>>";
+        }
         final InputStream data = connection.getInputStream();
         byte[] buf = new byte[1000];
         ByteArrayOutputStream agg = new ByteArrayOutputStream();

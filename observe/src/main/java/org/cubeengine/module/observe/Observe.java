@@ -17,17 +17,23 @@
  */
 package org.cubeengine.module.observe;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.concurrent.ThreadFactory;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.nio.NioEventLoopGroup;
 import io.prometheus.client.hotspot.ClassLoadingExports;
 import io.prometheus.client.hotspot.GarbageCollectorExports;
 import io.prometheus.client.hotspot.MemoryPoolsExports;
 import io.prometheus.client.hotspot.StandardExports;
 import io.prometheus.client.hotspot.ThreadExports;
 import io.prometheus.client.hotspot.VersionInfoExports;
+import org.apache.logging.log4j.Logger;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
+import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.event.Listener;
@@ -41,35 +47,36 @@ public class Observe
 {
     @ModuleConfig private ObserveConfig config;
     private final PluginContainer plugin;
-    private final MetricsService metricsService;
+    private PrometheusMetricsService metricsService;
+    private final Logger logger;
+    private final ThreadFactory tf;
+    private final TaskManager tm;
+    private ServerBootstrap bootstrap = null;
+    private NioEventLoopGroup eventLoopGroup = null;
+    private Channel channel = null;
 
     @Inject
-    public Observe(PluginContainer plugin, MetricsService metricsService) {
+    public Observe(PluginContainer plugin, Logger logger, ThreadFactory tf, TaskManager tm) {
         this.plugin = plugin;
-        this.metricsService = metricsService;
+        this.logger = logger;
+        this.tf = tf;
+        this.tm = tm;
     }
 
     @Listener
     public void onPreInit(StartedEngineEvent<Server> event)
     {
+        this.metricsService = new PrometheusMetricsService(tf, tm, InetSocketAddress.createUnresolved(config.bindAddress, config.bindPort), logger);
+        metricsService.registerSync(this.plugin, new StandardExports());
+        metricsService.registerSync(this.plugin, new MemoryPoolsExports());
+        metricsService.registerSync(this.plugin, new GarbageCollectorExports());
+        metricsService.registerSync(this.plugin, new ThreadExports());
+        metricsService.registerSync(this.plugin, new ClassLoadingExports());
+        metricsService.registerSync(this.plugin, new VersionInfoExports());
 
-        metricsService.register(this.plugin, new StandardExports());
-        metricsService.register(this.plugin, new MemoryPoolsExports());
-        metricsService.register(this.plugin, new GarbageCollectorExports());
-        metricsService.register(this.plugin, new ThreadExports());
-        metricsService.register(this.plugin, new ClassLoadingExports());
-        metricsService.register(this.plugin, new VersionInfoExports());
+        metricsService.registerSync(plugin, new SpongeCollector(event.getEngine()));
 
-        metricsService.register(plugin, new SpongeCollector(event.getEngine()));
-
-        try
-        {
-            metricsService.startExporter(new InetSocketAddress(config.bindAddress, config.bindPort));
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+        metricsService.startExporter();
     }
 
     @Listener
