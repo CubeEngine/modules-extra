@@ -56,15 +56,15 @@ public class PrometheusMetricsServiceTest {
             return null;
         });
 
-        final String host = "localhost";
-        final InetSocketAddress addr = new InetSocketAddress(host, 0);
+        final ObserveConfig config = new ObserveConfig();
+        final InetSocketAddress addr = new InetSocketAddress(config.bindAddress, 0);
         final PrometheusMetricsService metricsService = new PrometheusMetricsService(Thread::new, tm, addr, plugin.getLogger());
         metricsService.registerAsync(plugin, new GarbageCollectorExports());
         metricsService.registerSync(plugin, PullGaugeCollector.<DoubleSupplier>build(Math::random).withGauge(PullGauge.build("test", DoubleSupplier::getAsDouble).help("dummy").build()).build());
 
         metricsService.startExporter();
 
-        final String urlBase = "http://" + host + ":" + metricsService.getPort();
+        final String urlBase = "http://localhost:" + metricsService.getPort();
 
         System.out.println(readUrlData(new URL(urlBase + "/other")));
         System.out.println(readUrlData(new URL(urlBase + "/metrics")));

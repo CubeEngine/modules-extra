@@ -66,7 +66,7 @@ public class Observe
     @Listener
     public void onPreInit(StartedEngineEvent<Server> event)
     {
-        this.metricsService = new PrometheusMetricsService(tf, tm, InetSocketAddress.createUnresolved(config.bindAddress, config.bindPort), logger);
+        this.metricsService = new PrometheusMetricsService(tf, tm, new InetSocketAddress(config.bindAddress, config.bindPort), logger);
         metricsService.registerSync(this.plugin, new StandardExports());
         metricsService.registerSync(this.plugin, new MemoryPoolsExports());
         metricsService.registerSync(this.plugin, new GarbageCollectorExports());
