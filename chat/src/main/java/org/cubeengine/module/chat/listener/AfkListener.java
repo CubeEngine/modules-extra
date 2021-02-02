@@ -25,6 +25,7 @@ import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.command.ExecuteCommandEvent;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
+import org.spongepowered.api.event.filter.Getter;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.item.inventory.container.InteractContainerEvent;
 import org.spongepowered.api.event.message.MessageChannelEvent;
@@ -44,18 +45,14 @@ public class AfkListener
     }
 
     @Listener(order = POST)
-    public void onMove(MoveEntityEvent event)
+    public void onMove(MoveEntityEvent event, @Getter("getEntity") ServerPlayer player)
     {
-        if (event.getEntity() instanceof ServerPlayer)
+        if (event.getOriginalPosition().getFloorX() == event.getDestinationPosition().getFloorX()
+            && event.getOriginalPosition().getFloorZ() == event.getDestinationPosition().getFloorZ())
         {
-            if (event.getOriginalPosition().getFloorX() == event.getDestinationPosition().getFloorX()
-             && event.getOriginalPosition().getFloorZ() == event.getDestinationPosition().getFloorZ())
-            {
-                return;
-            }
-            this.updateLastAction(((ServerPlayer) event.getEntity()));
+            return;
         }
-
+        this.updateLastAction(player);
     }
 
     @Listener(order = POST)
