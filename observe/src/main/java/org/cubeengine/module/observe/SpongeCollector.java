@@ -17,6 +17,8 @@
  */
 package org.cubeengine.module.observe;
 
+import co.aikar.timings.Timing;
+import co.aikar.timings.Timings;
 import com.google.common.collect.Iterables;
 import io.prometheus.client.Collector;
 import org.cubeengine.module.observe.PullGauge.Label;
@@ -28,6 +30,7 @@ import org.spongepowered.api.registry.DefaultedRegistryType;
 import org.spongepowered.api.registry.DefaultedRegistryValue;
 import org.spongepowered.api.registry.RegistryTypes;
 import org.spongepowered.api.world.server.ServerWorld;
+import org.spongepowered.plugin.PluginContainer;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -100,7 +103,10 @@ public class SpongeCollector extends Collector {
             .help("Players online per world")
             .build();
 
-    public SpongeCollector(Server server) {
+    private final Timing timing;
+
+    public SpongeCollector(Server server, PluginContainer timing) {
+        this.timing = Timings.of(timing, "sponge-collector");
         final PullGaugeCollector.Builder<Server> builder = PullGaugeCollector.build(server)
                 .withGauge(PLAYERS)
                 .withGauge(MAX_PLAYERS)
@@ -187,7 +193,9 @@ public class SpongeCollector extends Collector {
 
     @Override
     public List<MetricFamilySamples> collect() {
-        return server.collect();
+        try (Timing ignore = timing.startTiming()) {
+            return server.collect();
+        }
     }
 
 
