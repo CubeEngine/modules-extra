@@ -188,7 +188,7 @@ public class SpongeCollector extends Collector {
                 agg = time;
             }
         }
-        return agg;
+        return agg / 1e6;
     }
 
     @Override
