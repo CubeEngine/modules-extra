@@ -47,15 +47,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static io.netty.channel.ChannelFutureListener.CLOSE;
 import static io.netty.channel.ChannelFutureListener.CLOSE_ON_FAILURE;
@@ -117,14 +114,14 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
 
         final CompletableFuture<Stream<Collector.MetricFamilySamples>> asyncSamples = getSamples(asyncRegistry, query, tm::runTaskAsync);
 
-        sequence(asList(syncSamples, asyncSamples)).whenComplete((allSamples, t) -> {
-            if (t == null) {
-                writeMetricsResponse(ctx, contentType, allSamples.stream().reduce(Stream.empty(), Stream::concat));
-            } else {
-                logger.error("Failed to collect the samples!", t);
-                error(ctx, INTERNAL_SERVER_ERROR);
-            }
-        });
+        sequence(asList(syncSamples, asyncSamples))
+                .thenAccept(allSamples -> writeMetricsResponse(ctx, contentType, allSamples.stream().reduce(Stream.empty(), Stream::concat)))
+                .whenCompleteAsync((allSamples, t) -> {
+                    if (t != null) {
+                        logger.error("Failed to collect the samples!", t);
+                        error(ctx, INTERNAL_SERVER_ERROR);
+                    }
+                });
 
     }
 
@@ -185,8 +182,8 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
         try {
             TextFormat.writeFormat(contentType, writer, streamAsEnumeration(samples));
             writer.flush();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to write samples to response buffer!", e);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Failed to write samples to response buffer!", e);
         }
         final DefaultFullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.OK, buffer);
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
