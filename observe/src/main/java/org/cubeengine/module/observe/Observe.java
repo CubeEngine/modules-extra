@@ -75,6 +75,7 @@ public class Observe
         metricsService.registerAsync(plugin, new VersionInfoExports());
 
         metricsService.registerSync(plugin, new SpongeCollector(event.getEngine(), plugin));
+        metricsService.registerSync(plugin, new TIckTimeCollector(event.getEngine(), tm, plugin));
 
         metricsService.startExporter();
     }

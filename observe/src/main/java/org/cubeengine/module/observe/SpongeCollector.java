@@ -32,7 +32,6 @@ import org.spongepowered.api.registry.RegistryTypes;
 import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.plugin.PluginContainer;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,19 +45,7 @@ import static org.cubeengine.module.observe.PullGauge.Label.label;
 import static org.cubeengine.module.observe.PullGauge.LabeledValue.value;
 
 public class SpongeCollector extends Collector {
-    private final PullGaugeCollector<Server> server;
-    private static Field TICK_TIMES_FIELD = null;
-
-    static {
-        try {
-            Class<?> clazz = Class.forName("net.minecraft.server.MinecraftServer");
-            TICK_TIMES_FIELD = clazz.getField("tickTimes");
-        } catch (Exception e) {
-            System.out.println("Failed to find timings field for additional internal value based metrics!");
-            e.printStackTrace(System.out);
-        }
-    }
-
+    private final PullGaugeCollector<Server> collector;
     private static final PullGauge<Server> PLAYERS = PullGauge.build("sponge_server_online_player_count", (Server s) -> s.getOnlinePlayers().size())
             .help("Total online players")
             .build();
@@ -73,16 +60,6 @@ public class SpongeCollector extends Collector {
             .build();
 
     private static final PullGauge<Server> AVERAGE_TICK_TIME = PullGauge.build("sponge_server_avg_tick_time_millis", Server::getAverageTickTime)
-            .unit("millis")
-            .help("Tick time averaged over the last 100 ticks")
-            .build();
-
-    private static final PullGauge<Server> MIN_TICK_TIME = PullGauge.build("sponge_server_min_tick_time_millis", (Server s) -> getMaxTickTime(s, -1, (min, t) -> t < min))
-            .unit("millis")
-            .help("Tick time averaged over the last 100 ticks")
-            .build();
-
-    private static final PullGauge<Server> MAX_TICK_TIME = PullGauge.build("sponge_server_max_tick_time_millis", (Server s) -> getMaxTickTime(s, -1, (max, t) -> t > max))
             .unit("millis")
             .help("Tick time averaged over the last 100 ticks")
             .build();
@@ -105,9 +82,9 @@ public class SpongeCollector extends Collector {
 
     private final Timing timing;
 
-    public SpongeCollector(Server server, PluginContainer timing) {
-        this.timing = Timings.of(timing, "sponge-collector");
-        final PullGaugeCollector.Builder<Server> builder = PullGaugeCollector.build(server)
+    public SpongeCollector(Server server, PluginContainer plugin) {
+        this.timing = Timings.of(plugin, "sponge-collector");
+        this.collector = PullGaugeCollector.build(server)
                 .withGauge(PLAYERS)
                 .withGauge(MAX_PLAYERS)
                 .withGauge(TPS)
@@ -115,16 +92,8 @@ public class SpongeCollector extends Collector {
                 .withMultiGauge(LOADED_CHUNKS, SpongeCollector::worlds)
                 .withMultiGauge(ENTITIES, SpongeCollector::worlds)
                 .withMultiGauge(BLOCK_ENTITIES, SpongeCollector::worlds)
-                .withMultiGauge(WORLD_PLAYERS, SpongeCollector::worlds);
-
-        if (TICK_TIMES_FIELD != null) {
-            this.server = builder
-                    .withGauge(MIN_TICK_TIME)
-                    .withGauge(MAX_TICK_TIME)
-                    .build();
-        } else {
-            this.server = builder.build();
-        }
+                .withMultiGauge(WORLD_PLAYERS, SpongeCollector::worlds)
+                .build();
     }
 
     private static Iterable<ServerWorld> worlds(Server server) {
@@ -165,41 +134,10 @@ public class SpongeCollector extends Collector {
         return label("key", world.getProperties().getKey().asString());
     }
 
-    private static long[] getTickTimes(Server server) {
-        try {
-            return (long[]) TICK_TIMES_FIELD.get(server);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    private static double getMaxTickTime(Server server, long def, Comp comp) {
-        final long[] tickTimes = getTickTimes(server);
-        if (tickTimes == null) {
-            return def;
-        }
-        if (tickTimes.length == 0) {
-            return def;
-        }
-        long agg = tickTimes[0];
-        for (int i = 1; i < tickTimes.length; i++) {
-            long time = tickTimes[i];
-            if (comp.comp(agg, time)) {
-                agg = time;
-            }
-        }
-        return agg / 1e6;
-    }
-
     @Override
     public List<MetricFamilySamples> collect() {
         try (Timing ignore = timing.startTiming()) {
-            return server.collect();
+            return collector.collect();
         }
-    }
-
-
-    private interface Comp {
-        boolean comp(long agg, long current);
     }
 }
