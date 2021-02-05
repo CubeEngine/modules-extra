@@ -167,7 +167,7 @@ public class TerraItems
     {
         GREEN_LANDSCAPE("Green Landscape", Color.ofRgb(0x336633), Arrays.asList(PLAINS, SUNFLOWER_PLAINS, FOREST, BIRCH_FOREST, TALL_BIRCH_FOREST, BIRCH_FOREST_HILLS, FLOWER_FOREST), Arrays.asList()),
         SWAMP_FOREST("Dark Swamp", Color.ofRgb(0x333333), Arrays.asList(DARK_FOREST, DARK_FOREST_HILLS, SWAMP), Arrays.asList()),
-        JUNGLE("Viney Jungle", Color.ofRgb(0x339933), Arrays.asList(Biomes.JUNGLE, MODIFIED_JUNGLE, JUNGLE_EDGE, MODIFIED_JUNGLE_EDGE, BAMBOO_JUNGLE), Arrays.asList(BEACH)),
+        JUNGLE("Viney Jungle", Color.ofRgb(0x339933), Arrays.asList(Biomes.JUNGLE, MODIFIED_JUNGLE, JUNGLE_EDGE, MODIFIED_JUNGLE_EDGE, BAMBOO_JUNGLE), Arrays.asList()),
         MUSHROOMS("Mushrooms", Color.ofRgb(0x996666), Arrays.asList(MUSHROOM_FIELD_SHORE, MUSHROOM_FIELDS), Arrays.asList(COLD_OCEAN)),
         SAVANNA("Dry Savanna", Color.ofRgb(0x666633), Arrays.asList(Biomes.SAVANNA, SHATTERED_SAVANNA, SHATTERED_SAVANNA_PLATEAU, SAVANNA_PLATEAU), Arrays.asList()),
         DESERT("Hot Desert", Color.ofRgb(0xCCCC99), Arrays.asList(Biomes.DESERT, DESERT_LAKES, DESERT_HILLS), Arrays.asList()),
