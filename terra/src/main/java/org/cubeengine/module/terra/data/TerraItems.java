@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -277,6 +278,16 @@ public class TerraItems
         craftedEssence.offer(Keys.LORE, Arrays.asList(terra.getListener().coldPotionLore(player.get()),
                                                       terra.getListener().hintPotionLore(player.get())));
         return craftedEssence;
+    }
+
+    public static ItemStack getEssence(Essence essence, Audience audience)
+    {
+        final ItemStack newEssence = TerraItems.TERRA_ESSENCE.copy();
+        newEssence.offer(Keys.COLOR, essence.color);
+        newEssence.offer(Keys.CUSTOM_NAME, Component.text(essence.name, NamedTextColor.AQUA));
+        newEssence.offer(Keys.LORE, Arrays.asList(terra.getListener().coldPotionLore(audience),
+                                                  terra.getListener().hintPotionLore(audience)));
+        return newEssence;
     }
 
     private static ItemStack getCraftedEssence()

@@ -20,7 +20,13 @@ package org.cubeengine.module.terra;
 import com.google.inject.Inject;
 import org.cubeengine.libcube.service.command.DispatcherCommand;
 import org.cubeengine.libcube.service.command.annotation.Command;
+import org.cubeengine.module.terra.data.TerraItems;
+import org.cubeengine.module.terra.data.TerraItems.Essence;
 import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.item.inventory.ContainerTypes;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.type.ViewableInventory;
 
 @Command(name = "terra", desc = "Terra Commands")
 public class TerraCommands extends DispatcherCommand
@@ -43,5 +49,17 @@ public class TerraCommands extends DispatcherCommand
     public void cancel(CommandCause cause)
     {
         this.listener.cancelAll(cause.getAudience());
+    }
+
+    @Command(desc = "Provides all basic essences")
+    public void essence(ServerPlayer player)
+    {
+        final ViewableInventory view = ViewableInventory.builder().type(ContainerTypes.GENERIC_9X6).completeStructure().build();
+        for (Essence value : Essence.values())
+        {
+            final ItemStack essence = TerraItems.getEssence(value, player);
+            view.offer(essence);
+        }
+        player.openInventory(view);
     }
 }
