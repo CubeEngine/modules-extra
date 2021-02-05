@@ -107,6 +107,7 @@ public class TerraItems
         TERRA_ESSENCE.offer(Keys.CUSTOM_NAME, Component.text("Terra Essence"));
         TERRA_ESSENCE.offer(Keys.POTION_EFFECTS, Arrays.asList(PotionEffect.of(PotionEffectTypes.SATURATION.get(), 0, 20)));
         TERRA_ESSENCE.offer(Keys.HIDE_MISCELLANEOUS, true);
+        TERRA_ESSENCE.offer(TerraData.TERRA_POTION, true);
         final RecipeRegistration terraEssenceRecipe = ShapelessCraftingRecipe.builder()
                                .addIngredients(ItemTypes.SUGAR, ItemTypes.ENDER_PEARL)
                                .addIngredients(Ingredient.of(INK_BOTTLE))
@@ -127,6 +128,7 @@ public class TerraItems
         SPLASH_TERRA_ESSENCE.offer(Keys.CUSTOM_NAME, Component.text("Splash Terra Essence"));
         SPLASH_TERRA_ESSENCE.offer(Keys.POTION_EFFECTS, Arrays.asList(PotionEffect.of(PotionEffectTypes.SATURATION.get(), 0, 20)));
         SPLASH_TERRA_ESSENCE.offer(Keys.HIDE_MISCELLANEOUS, true);
+        SPLASH_TERRA_ESSENCE.offer(TerraData.TERRA_POTION, true);
         final RecipeRegistration splashEssence = ShapelessCraftingRecipe.builder()
                                  .addIngredients(ItemTypes.SUGAR, ItemTypes.ENDER_PEARL)
                                  .addIngredients(Ingredient.of(SPLASH_INK_BOTTLE))
@@ -321,7 +323,7 @@ public class TerraItems
         {
             return false;
         }
-        return stack.get(Keys.COLOR).isPresent();
+        return stack.get(Keys.COLOR).isPresent() && stack.get(TerraData.TERRA_POTION).isPresent();
     }
 
     public static Optional<Essence> getEssenceForItem(ItemStackSnapshot stack)

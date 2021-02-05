@@ -180,30 +180,34 @@ public class TerraListener
         {
             return;
         }
-        final Optional<UUID> uuid = event.getItemStackInUse().get(TerraData.WORLD_UUID);
-        if (!uuid.isPresent())
+        if (TerraItems.isTerraEssence(event.getItemStackInUse()))
         {
-            if (event.getItemStackInUse().get(TerraData.POTION_UUID).isPresent())
+            final Optional<UUID> uuid = event.getItemStackInUse().get(TerraData.WORLD_UUID);
+            if (!uuid.isPresent())
             {
-                i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "Bad Potion");
-                player.setItemInHand(HandTypes.MAIN_HAND, ItemStack.empty());
-                player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_GLASS_BREAK, Source.PLAYER, 1, 1), player.getPosition());
+                if (event.getItemStackInUse().get(TerraData.POTION_UUID).isPresent())
+                {
+                    i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "Bad Potion");
+                    player.setItemInHand(HandTypes.MAIN_HAND, ItemStack.empty());
+                    player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_GLASS_BREAK, Source.PLAYER, 1, 1), player.getPosition());
+                    event.setCancelled(true);
+                    return;
+                }
+                i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "The liquid is too cold to drink.");
+                event.setRemainingDuration(20);
                 event.setCancelled(true);
                 return;
             }
-            i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "The liquid is too cold to drink.");
-            event.setRemainingDuration(20);
-            event.setCancelled(true);
-            return;
+
+            if (event.getRemainingDuration() > 15)
+            {
+                event.setRemainingDuration(15); // Gulp it down fast
+                final List<PotionEffect> potionEffects = player.get(Keys.POTION_EFFECTS).orElse(new ArrayList<>());
+                potionEffects.add(PotionEffect.of(PotionEffectTypes.BLINDNESS, 0, 60));
+                player.offer(Keys.POTION_EFFECTS, potionEffects);
+            }
         }
 
-        if (event.getRemainingDuration() > 15)
-        {
-            event.setRemainingDuration(15); // Gulp it down fast
-            final List<PotionEffect> potionEffects = player.get(Keys.POTION_EFFECTS).orElse(new ArrayList<>());
-            potionEffects.add(PotionEffect.of(PotionEffectTypes.BLINDNESS, 0, 60));
-            player.offer(Keys.POTION_EFFECTS, potionEffects);
-        }
     }
 
     @Listener
