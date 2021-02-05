@@ -19,7 +19,6 @@ package org.cubeengine.module.observe;
 
 import co.aikar.timings.Timing;
 import co.aikar.timings.Timings;
-import io.prometheus.client.Collector;
 import io.prometheus.client.GaugeMetricFamily;
 import org.cubeengine.libcube.service.task.TaskManager;
 import org.spongepowered.api.Server;
@@ -30,7 +29,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TIckTimeCollector extends Collector {
+public class TickTimeCollector extends SyncCollector {
     private static Field TICK_TIMES_FIELD = null;
 
     static {
@@ -49,7 +48,7 @@ public class TIckTimeCollector extends Collector {
     private long maxTime = 0;
     private long minTime = 0;
 
-    public TIckTimeCollector(Server server, TaskManager tm, PluginContainer plugin) {
+    public TickTimeCollector(Server server, TaskManager tm, PluginContainer plugin) {
         this.server = server;
         this.timing = Timings.of(plugin, "tick-time-collector");
         final long[] tickTimes = getTickTimes(server);

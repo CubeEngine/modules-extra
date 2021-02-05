@@ -67,15 +67,15 @@ public class Observe
     public void onPreInit(StartedEngineEvent<Server> event)
     {
         this.metricsService = new PrometheusMetricsService(tf, tm, new InetSocketAddress(config.bindAddress, config.bindPort), logger);
-        metricsService.registerAsync(plugin, new StandardExports());
-        metricsService.registerAsync(plugin, new MemoryPoolsExports());
-        metricsService.registerAsync(plugin, new GarbageCollectorExports());
-        metricsService.registerAsync(plugin, new ThreadExports());
-        metricsService.registerAsync(plugin, new ClassLoadingExports());
-        metricsService.registerAsync(plugin, new VersionInfoExports());
+        metricsService.register(plugin, new StandardExports());
+        metricsService.register(plugin, new MemoryPoolsExports());
+        metricsService.register(plugin, new GarbageCollectorExports());
+        metricsService.register(plugin, new ThreadExports());
+        metricsService.register(plugin, new ClassLoadingExports());
+        metricsService.register(plugin, new VersionInfoExports());
 
-        metricsService.registerSync(plugin, new SpongeCollector(event.getEngine(), plugin));
-        metricsService.registerSync(plugin, new TIckTimeCollector(event.getEngine(), tm, plugin));
+        metricsService.register(plugin, new SpongeCollector(event.getEngine(), plugin));
+        metricsService.register(plugin, new TickTimeCollector(event.getEngine(), tm, plugin));
 
         metricsService.startExporter();
     }

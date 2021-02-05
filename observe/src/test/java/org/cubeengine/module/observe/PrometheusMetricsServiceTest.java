@@ -59,8 +59,8 @@ public class PrometheusMetricsServiceTest {
         final ObserveConfig config = new ObserveConfig();
         final InetSocketAddress addr = new InetSocketAddress(config.bindAddress, 0);
         final PrometheusMetricsService metricsService = new PrometheusMetricsService(Thread::new, tm, addr, plugin.getLogger());
-        metricsService.registerAsync(plugin, new GarbageCollectorExports());
-        metricsService.registerSync(plugin, PullGaugeCollector.<DoubleSupplier>build(Math::random).withGauge(PullGauge.build("test", DoubleSupplier::getAsDouble).help("dummy").build()).build());
+        metricsService.register(plugin, new GarbageCollectorExports());
+        metricsService.register(plugin, PullGaugeCollector.<DoubleSupplier>build(Math::random).withGauge(PullGauge.build("test", DoubleSupplier::getAsDouble).help("dummy").build()).build());
 
         metricsService.startExporter();
 

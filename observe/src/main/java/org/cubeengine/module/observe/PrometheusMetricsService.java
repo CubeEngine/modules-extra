@@ -57,12 +57,12 @@ public class PrometheusMetricsService
         this.asyncRegistry = new CollectorRegistry();
     }
 
-    public synchronized void registerSync(PluginContainer plugin, Collector collector)
+    public synchronized void register(PluginContainer plugin, SyncCollector collector)
     {
         this.syncRegistry.register(collector);
     }
 
-    public synchronized void registerAsync(PluginContainer plugin, Collector collector)
+    public synchronized void register(PluginContainer plugin, Collector collector)
     {
         this.asyncRegistry.register(collector);
     }

@@ -20,7 +20,6 @@ package org.cubeengine.module.observe;
 import co.aikar.timings.Timing;
 import co.aikar.timings.Timings;
 import com.google.common.collect.Iterables;
-import io.prometheus.client.Collector;
 import org.cubeengine.module.observe.PullGauge.Label;
 import org.cubeengine.module.observe.PullGauge.LabeledValue;
 import org.spongepowered.api.Server;
@@ -44,7 +43,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static org.cubeengine.module.observe.PullGauge.Label.label;
 import static org.cubeengine.module.observe.PullGauge.LabeledValue.value;
 
-public class SpongeCollector extends Collector {
+public class SpongeCollector extends SyncCollector {
     private final PullGaugeCollector<Server> collector;
     private static final PullGauge<Server> PLAYERS = PullGauge.build("sponge_server_online_player_count", (Server s) -> s.getOnlinePlayers().size())
             .help("Total online players")
