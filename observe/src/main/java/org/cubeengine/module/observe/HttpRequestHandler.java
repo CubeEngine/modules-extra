@@ -146,21 +146,6 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
         return promise;
     }
 
-    public static <T> Stream<T> enumerationAsStream(Enumeration<T> e) {
-        return StreamSupport.stream(
-                Spliterators.spliteratorUnknownSize(
-                        new Iterator<T>() {
-                            public T next() {
-                                return e.nextElement();
-                            }
-
-                            public boolean hasNext() {
-                                return e.hasMoreElements();
-                            }
-                        },
-                        Spliterator.ORDERED), false);
-    }
-
     public static <T> Enumeration<T> streamAsEnumeration(Stream<T> s) {
         final Iterator<T> iterator = s.iterator();
         return new Enumeration<T>() {
