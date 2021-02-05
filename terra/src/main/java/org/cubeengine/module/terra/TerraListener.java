@@ -67,6 +67,7 @@ import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.scheduler.ScheduledTask;
+import org.spongepowered.api.util.Ticks;
 import org.spongepowered.api.world.SerializationBehavior;
 import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.api.world.server.ServerWorld;
@@ -159,6 +160,20 @@ public class TerraListener
     }
 
     @Listener
+    public void onCampfireTick(CookingEvent.Finish event)
+    {
+        if (!(event.getBlockEntity() instanceof Campfire))
+        {
+            return;
+        }
+        final ItemStackSnapshot result = event.getCookedItems().get(0);
+        if (TerraItems.isTerraEssence(result))
+        {
+            event.getBlockEntity().getWorld().playSound(Sound.sound(SoundTypes.ENTITY_GENERIC_EXTINGUISH_FIRE, Source.PLAYER, 5, 2f), event.getBlockEntity().getBlockPosition().toDouble());
+        }
+    }
+
+    @Listener
     public void onUseItem(UseItemStackEvent.Tick event, @First ServerPlayer player)
     {
         if (!event.getContext().get(EventContextKeys.USED_HAND).get().equals(HandTypes.MAIN_HAND.get()) || !TerraItems.isTerraEssence(event.getItemStackInUse()))
@@ -208,6 +223,7 @@ public class TerraListener
             evacuateWorld(player.getWorld().getKey());
             player.getWorld().playSound(Sound.sound(SoundTypes.ITEM_TOTEM_USE, Source.PLAYER, 1, 1), player.getPosition());
             player.offer(Keys.FALL_DISTANCE, 0.0);
+            player.offer(Keys.FIRE_TICKS, Ticks.of(0));
 
             for (Entity leashedEntity : leashed)
             {
@@ -357,6 +373,8 @@ public class TerraListener
         }
         spawnLoc = Sponge.getServer().getTeleportHelper().getSafeLocation(spawnLoc, 50, 10).orElse(spawnLoc);
         player.setLocation(spawnLoc);
+        player.playSound(Sound.sound(SoundTypes.BLOCK_END_PORTAL_SPAWN, Source.PLAYER, 1, 0.5f), player.getPosition());
+        player.playSound(Sound.sound(SoundTypes.BLOCK_PORTAL_TRIGGER, Source.PLAYER, 1, 2f), player.getPosition());
     }
 
     private void setupWorld(ServerWorld w)
