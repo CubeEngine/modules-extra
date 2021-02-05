@@ -31,6 +31,10 @@ import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.DoubleSupplier;
 
 public class PrometheusMetricsServiceTest {
@@ -45,13 +49,17 @@ public class PrometheusMetricsServiceTest {
             }
         });
 
+        final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+
         final TaskManager tm = (TaskManager) Proxy.newProxyInstance(TaskManager.class.getClassLoader(), new Class[] { TaskManager.class }, (proxy, method, args) -> {
             switch (method.getName()) {
                 case "runTask":
                 case "runTaskAsync":
-                    if (args.length == 1 && args[0] instanceof Runnable) {
-                        ((Runnable) args[0]).run();
-                    }
+                    ((Runnable) args[0]).run();
+                    break;
+                case "runTaskAsyncDelayed":
+                    executorService.schedule(((Runnable) args[0]), ((Duration) args[1]).toMillis(), TimeUnit.MILLISECONDS);
+                    break;
             }
             return null;
         });

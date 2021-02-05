@@ -125,9 +125,14 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
 
     }
 
+    private <T> CompletableFuture<T> timeoutAfter(Duration duration) {
+        CompletableFuture<T> promise = new CompletableFuture<>();
+        tm.runTaskAsyncDelayed(() -> promise.completeExceptionally(new TimeoutException()), duration);
+        return promise;
+    }
+
     private CompletableFuture<Stream<Collector.MetricFamilySamples>> getSamples(CollectorRegistry registry, Set<String> query, Consumer<Runnable> executor) {
         final CompletableFuture<Stream<Collector.MetricFamilySamples>> promise = new CompletableFuture<>();
-        tm.runTaskAsyncDelayed(() -> promise.completeExceptionally(new TimeoutException()), Duration.ofSeconds(5));
         executor.accept(() -> {
             try {
                 List<Collector.MetricFamilySamples> samples = new ArrayList<>();
