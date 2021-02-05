@@ -200,8 +200,8 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
         try {
             TextFormat.writeFormat(contentType, writer, streamAsEnumeration(samples));
             writer.flush();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to write samples to response buffer!", e);
         }
         final DefaultFullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.OK, buffer);
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
