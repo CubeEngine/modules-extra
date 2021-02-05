@@ -59,6 +59,8 @@ import org.spongepowered.api.event.EventContextKeys;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.entity.CookingEvent;
+import org.spongepowered.api.event.entity.DamageEntityEvent;
+import org.spongepowered.api.event.filter.Getter;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.item.inventory.UseItemStackEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -185,6 +187,18 @@ public class TerraListener
             final List<PotionEffect> potionEffects = player.get(Keys.POTION_EFFECTS).orElse(new ArrayList<>());
             potionEffects.add(PotionEffect.of(PotionEffectTypes.BLINDNESS, 0, 60));
             player.offer(Keys.POTION_EFFECTS, potionEffects);
+        }
+    }
+
+    @Listener
+    public void onFatalFallDamage(DamageEntityEvent event, @Getter("getEntity") ServerPlayer player)
+    {
+        if (event.getFinalDamage() > player.health().get() && player.getWorld().getKey().getNamespace().equals(PluginTerra.TERRA_ID))
+        {
+            event.setCancelled(true);
+            evacuateWorld(player.getWorld().getKey());
+            player.getWorld().playSound(Sound.sound(SoundTypes.ITEM_TOTEM_USE, Source.PLAYER, 1, 1), player.getPosition());
+            player.offer(Keys.FALL_DISTANCE, 0.0);
         }
     }
 
