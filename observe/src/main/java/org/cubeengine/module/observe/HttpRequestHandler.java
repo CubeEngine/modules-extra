@@ -113,11 +113,9 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
         final String contentType = TextFormat.chooseContentType(message.headers().get(HttpHeaderNames.ACCEPT));
         final Set<String> query = parseQuery(message.uri());
 
-        final CompletableFuture<Stream<Collector.MetricFamilySamples>> syncSamples = getSamples(syncRegistry, query, tm::runTask)
-                .thenApplyAsync(HttpRequestHandler::enumerationAsStream);
+        final CompletableFuture<Stream<Collector.MetricFamilySamples>> syncSamples = getSamples(syncRegistry, query, tm::runTask);
 
-        final CompletableFuture<Stream<Collector.MetricFamilySamples>> asyncSamples = getSamples(asyncRegistry, query, tm::runTaskAsync)
-                .thenApplyAsync(HttpRequestHandler::enumerationAsStream);
+        final CompletableFuture<Stream<Collector.MetricFamilySamples>> asyncSamples = getSamples(asyncRegistry, query, tm::runTaskAsync);
 
         sequence(asList(syncSamples, asyncSamples)).whenComplete((allSamples, t) -> {
             if (t == null) {
@@ -130,12 +128,17 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
 
     }
 
-    private CompletableFuture<Enumeration<Collector.MetricFamilySamples>> getSamples(CollectorRegistry registry, Set<String> query, Consumer<Runnable> executor) {
-        final CompletableFuture<Enumeration<Collector.MetricFamilySamples>> promise = new CompletableFuture<>();
+    private CompletableFuture<Stream<Collector.MetricFamilySamples>> getSamples(CollectorRegistry registry, Set<String> query, Consumer<Runnable> executor) {
+        final CompletableFuture<Stream<Collector.MetricFamilySamples>> promise = new CompletableFuture<>();
         tm.runTaskAsyncDelayed(() -> promise.completeExceptionally(new TimeoutException()), Duration.ofSeconds(5));
         executor.accept(() -> {
             try {
-                promise.complete(registry.filteredMetricFamilySamples(query));
+                List<Collector.MetricFamilySamples> samples = new ArrayList<>();
+                final Enumeration<Collector.MetricFamilySamples> enumeration = registry.filteredMetricFamilySamples(query);
+                while (enumeration.hasMoreElements()) {
+                    samples.add(enumeration.nextElement());
+                }
+                promise.complete(samples.stream());
             } catch (Exception e) {
                 promise.completeExceptionally(e);
             }
