@@ -105,7 +105,7 @@ public class TerraListener
                     return;
                 }
                 event.setCancelled(true);
-                player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_GLASS_BREAK, Source.PLAYER, 1, 1));
+                player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_GLASS_BREAK, Source.PLAYER, 1, 1), player.getPosition());
                 player.setItemInHand(HandTypes.MAIN_HAND, ItemStack.empty());
                 i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "The potion broke. It must have been too old.");
                 return;
@@ -169,7 +169,7 @@ public class TerraListener
             {
                 i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "Bad Potion");
                 player.setItemInHand(HandTypes.MAIN_HAND, ItemStack.empty());
-                player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_GLASS_BREAK, Source.PLAYER, 1, 1));
+                player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_GLASS_BREAK, Source.PLAYER, 1, 1), player.getPosition());
                 event.setCancelled(true);
                 return;
             }
@@ -211,8 +211,13 @@ public class TerraListener
                 {
                     i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "Bad Potion");
                     player.setItemInHand(HandTypes.MAIN_HAND, ItemStack.empty());
-                    player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_GLASS_BREAK, Source.PLAYER, 1, 1));
+                    player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_GLASS_BREAK, Source.PLAYER, 1, 1), player.getPosition());
                     event.setCancelled(true);
+                    return;
+                }
+                if (player.getWorld().getKey().getNamespace().equals(PluginTerra.TERRA_ID))
+                {
+                    i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "It feels wrong to do that here.");
                     return;
                 }
                 final Essence essence = TerraItems.getEssenceForItem(itemInHand.createSnapshot()).get();
