@@ -54,6 +54,7 @@ import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.effect.potion.PotionEffect;
 import org.spongepowered.api.effect.potion.PotionEffectTypes;
 import org.spongepowered.api.effect.sound.SoundTypes;
+import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.EventContextKeys;
 import org.spongepowered.api.event.Listener;
@@ -196,9 +197,22 @@ public class TerraListener
         if (event.getFinalDamage() > player.health().get() && player.getWorld().getKey().getNamespace().equals(PluginTerra.TERRA_ID))
         {
             event.setCancelled(true);
+            List<Entity> leashed = new ArrayList<>();
+            for (Entity nearbyEntity : player.getNearbyEntities(5))
+            {
+                if (nearbyEntity.get(Keys.LEASH_HOLDER).map(holder -> holder.equals(player)).orElse(false))
+                {
+                    leashed.add(nearbyEntity);
+                }
+            }
             evacuateWorld(player.getWorld().getKey());
             player.getWorld().playSound(Sound.sound(SoundTypes.ITEM_TOTEM_USE, Source.PLAYER, 1, 1), player.getPosition());
             player.offer(Keys.FALL_DISTANCE, 0.0);
+
+            for (Entity leashedEntity : leashed)
+            {
+                leashedEntity.setLocation(player.getServerLocation());
+            }
         }
     }
 
