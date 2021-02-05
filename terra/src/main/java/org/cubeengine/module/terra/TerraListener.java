@@ -128,6 +128,7 @@ public class TerraListener
                     if (world.getPlayers().isEmpty())
                     {
                         logger.info("Deleting empty Terra world: " + world.getKey());
+                        futureWorlds.remove(world.getKey());
                         Sponge.getServer().getWorldManager().deleteWorld(world.getKey());
                     }
                 }
