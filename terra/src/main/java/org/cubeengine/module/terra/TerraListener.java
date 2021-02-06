@@ -150,11 +150,15 @@ public class TerraListener
         final ItemStackSnapshot original = event.getTransactions().get(0).getOriginal();
         if (TerraItems.isTerraEssence(original))
         {
-            final ResourceKey worldKey = ResourceKey.resolve(original.get(TerraData.WORLD_KEY).get());
-            final CompletableFuture<ServerWorld> futureWorld = this.futureWorlds.get(worldKey);
-            if (futureWorld == null || !futureWorld.isDone())
+            final Optional<String> worldKeyString = original.get(TerraData.WORLD_KEY);
+            if (worldKeyString.isPresent())
             {
-                event.setCancelled(true);
+                final ResourceKey worldKey = ResourceKey.resolve(worldKeyString.get());
+                final CompletableFuture<ServerWorld> futureWorld = this.futureWorlds.get(worldKey);
+                if (futureWorld == null || !futureWorld.isDone())
+                {
+                    event.setCancelled(true);
+                }
             }
         }
     }
