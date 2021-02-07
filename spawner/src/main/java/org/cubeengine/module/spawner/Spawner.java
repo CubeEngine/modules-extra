@@ -247,8 +247,12 @@ public class Spawner
     }
 
     @Listener
-    public void onSpawnerExp(SpawnEntityEvent event, @Root BlockSnapshot snap)
+    public void onSpawnerExp(SpawnEntityEvent event, @First BlockSnapshot snap)
     {
+        if (event instanceof SpawnEntityEvent.Pre)
+        {
+            return;
+        }
         if (snap.getLocation().isPresent())
         {
             if (brokenSpawners.getOrDefault(snap.getWorld(), Collections.emptySet()).remove(snap.getPosition()))
