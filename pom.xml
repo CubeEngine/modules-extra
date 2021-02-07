@@ -79,6 +79,7 @@
         <module>tablist</module>
         <module>observe</module>
         <module>terra</module>
+        <module>mechanism</module>
     </modules>
 
     <build>
