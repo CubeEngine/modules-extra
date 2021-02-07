@@ -44,8 +44,6 @@ import org.spongepowered.api.event.block.InteractBlockEvent.Secondary;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.item.inventory.Slot;
-import org.spongepowered.api.registry.RegistryTypes;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.util.Ticks;
 import org.spongepowered.api.world.Location;
@@ -208,6 +206,11 @@ public class ElevatorListener
                     i18n.send(ChatType.ACTION_BAR, player, NEGATIVE, "Target obstructed");
                 }
                 ((Secondary)event).setCancelled(true);
+            }
+            else if (owner.isPresent())
+            {
+                player.getWorld().playSound(Sound.sound(SoundTypes.ENTITY_ENDERMAN_AMBIENT, Source.PLAYER, 5f, 10), loc.getPosition());
+                updateSign(loc, null);
             }
         }
 
