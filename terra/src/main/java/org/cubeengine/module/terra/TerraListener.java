@@ -41,6 +41,7 @@ import net.kyori.adventure.text.format.Style;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.i18n.I18nTranslate.ChatType;
 import org.cubeengine.libcube.service.i18n.formatter.MessageType;
+import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.logscribe.Log;
 import org.cubeengine.module.terra.data.TerraData;
 import org.cubeengine.module.terra.data.TerraItems;
@@ -81,6 +82,7 @@ public class TerraListener
 
     @Inject private I18n i18n;
     @Inject private Log logger;
+    @Inject private TaskManager taskManager;
 
     private Queue<Supplier<CompletableFuture<ServerWorld>>> worldGenerationQueue = new LinkedList<>();
     private CompletableFuture<ServerWorld> currentGeneration = null;
@@ -228,15 +230,18 @@ public class TerraListener
                     leashed.add(nearbyEntity);
                 }
             }
-            evacuateWorld(player.getWorld().getKey());
-            player.getWorld().playSound(Sound.sound(SoundTypes.ITEM_TOTEM_USE, Source.PLAYER, 1, 1), player.getPosition());
+
             player.offer(Keys.FALL_DISTANCE, 0.0);
             player.offer(Keys.FIRE_TICKS, Ticks.of(0));
 
-            for (Entity leashedEntity : leashed)
-            {
-                leashedEntity.setLocation(player.getServerLocation());
-            }
+            taskManager.runTask(() -> {
+                evacuateWorld(player.getWorld().getKey());
+                player.getWorld().playSound(Sound.sound(SoundTypes.ITEM_TOTEM_USE, Source.PLAYER, 1, 1), player.getPosition());
+                for (Entity leashedEntity : leashed)
+                {
+                    leashedEntity.setLocation(player.getServerLocation());
+                }
+            });
         }
     }
 
