@@ -21,6 +21,7 @@ import org.cubeengine.module.terra.PluginTerra;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.data.Key;
+import org.spongepowered.api.data.persistence.DataStore;
 import org.spongepowered.api.data.value.Value;
 import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -48,9 +49,10 @@ public class TerraData
 
     public static void register(RegisterDataEvent event)
     {
-        event.register(DataRegistration.of(WORLD_KEY, ItemStack.class, ItemStackSnapshot.class));
-        event.register(DataRegistration.of(WORLD_UUID, ItemStack.class, ItemStackSnapshot.class));
-        event.register(DataRegistration.of(POTION_UUID, ItemStack.class, ItemStackSnapshot.class));
-        event.register(DataRegistration.of(TERRA_POTION, ItemStack.class, ItemStackSnapshot.class));
+        final DataStore dataStore = DataStore.builder()
+                             .pluginData(ResourceKey.of(PluginTerra.TERRA_ID, "terra"))
+                             .holder(ItemStack.class, ItemStackSnapshot.class)
+                             .keys(WORLD_KEY, WORLD_UUID, POTION_UUID, TERRA_POTION).build();
+        event.register(DataRegistration.builder().dataKey(WORLD_KEY, WORLD_UUID, POTION_UUID, TERRA_POTION).store(dataStore).build());
     }
 }
