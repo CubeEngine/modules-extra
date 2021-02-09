@@ -51,12 +51,12 @@ public class HiddenLever extends PermissionContainer implements SignMechanism
         super(pm, Mechanism.class);
     }
 
-    private final Permission hiddenLeverPerm = this.register("sign.hidden-button.use", "Allows using hidden buttons");;
+    private final Permission hiddenLeverPerm = this.register("sign.hidden-lever.use", "Allows using hidden levers");;
 
 
     public ItemStack makeSign(ItemStack signStack)
     {
-        signStack.offer(Keys.CUSTOM_NAME, Component.text("[Mechanism]", NamedTextColor.GOLD).append(Component.text(HiddenLever.NAME, NamedTextColor.DARK_AQUA)));
+        signStack.offer(Keys.CUSTOM_NAME, Component.text("[Mechanism]", NamedTextColor.GOLD).append(Component.space()).append(Component.text(HiddenLever.NAME, NamedTextColor.DARK_AQUA)));
         signStack.offer(MechanismData.MECHANISM, HiddenLever.NAME);
         signStack.offer(Keys.LORE, Arrays.asList(Component.text(NAME, NamedTextColor.YELLOW)));
         return signStack;
