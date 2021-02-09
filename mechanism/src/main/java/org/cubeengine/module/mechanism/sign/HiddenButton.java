@@ -59,7 +59,7 @@ public class HiddenButton extends PermissionContainer implements SignMechanism
 
     public ItemStack makeSign(ItemStack signStack)
     {
-        signStack.offer(Keys.CUSTOM_NAME, Component.text("[Mechanism]", NamedTextColor.GOLD));
+        signStack.offer(Keys.CUSTOM_NAME, Component.text("[Mechanism]", NamedTextColor.GOLD).append(Component.text(HiddenButton.NAME, NamedTextColor.DARK_AQUA)));
         signStack.offer(MechanismData.MECHANISM, HiddenButton.NAME);
         signStack.offer(Keys.LORE, Arrays.asList(Component.text(NAME, NamedTextColor.YELLOW)));
         return signStack;
