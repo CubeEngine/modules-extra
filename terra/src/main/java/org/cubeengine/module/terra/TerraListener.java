@@ -453,6 +453,7 @@ public class TerraListener
             }
         }
         worldGenerationQueue.clear();
+        currentGeneration = null;
     }
 
     public void doGenerate()
