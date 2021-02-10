@@ -17,14 +17,8 @@
  */
 package org.cubeengine.module.observe;
 
-import java.net.InetSocketAddress;
-import java.util.concurrent.ThreadFactory;
-
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.prometheus.client.hotspot.ClassLoadingExports;
 import io.prometheus.client.hotspot.GarbageCollectorExports;
 import io.prometheus.client.hotspot.MemoryPoolsExports;
@@ -34,12 +28,17 @@ import io.prometheus.client.hotspot.VersionInfoExports;
 import org.apache.logging.log4j.Logger;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.libcube.service.task.TaskManager;
+import org.cubeengine.module.observe.metrics.MetricsService;
+import org.cubeengine.module.observe.metrics.PrometheusMetricsService;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
+import org.spongepowered.api.event.lifecycle.ProvideServiceEvent;
 import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 import org.spongepowered.plugin.PluginContainer;
+
+import java.net.InetSocketAddress;
+import java.util.concurrent.ThreadFactory;
 
 @Singleton
 @Module
@@ -47,13 +46,10 @@ public class Observe
 {
     @ModuleConfig private ObserveConfig config;
     private final PluginContainer plugin;
-    private PrometheusMetricsService metricsService;
+    private WebServer webServer;
     private final Logger logger;
     private final ThreadFactory tf;
     private final TaskManager tm;
-    private ServerBootstrap bootstrap = null;
-    private NioEventLoopGroup eventLoopGroup = null;
-    private Channel channel = null;
 
     @Inject
     public Observe(PluginContainer plugin, Logger logger, ThreadFactory tf, TaskManager tm) {
@@ -63,26 +59,34 @@ public class Observe
         this.tm = tm;
     }
 
+
     @Listener
-    public void onPreInit(StartedEngineEvent<Server> event)
+    public void onProvideService(ProvideServiceEvent<MetricsService> event)
     {
-        this.metricsService = new PrometheusMetricsService(tf, tm, new InetSocketAddress(config.bindAddress, config.bindPort), logger);
-        metricsService.register(plugin, new StandardExports());
-        metricsService.register(plugin, new MemoryPoolsExports());
-        metricsService.register(plugin, new GarbageCollectorExports());
-        metricsService.register(plugin, new ThreadExports());
-        metricsService.register(plugin, new ClassLoadingExports());
-        metricsService.register(plugin, new VersionInfoExports());
+        event.suggest(() -> {
+            this.webServer = new WebServer(new InetSocketAddress(config.bindAddress, config.bindPort), tf, logger);
+            final PrometheusMetricsService service = new PrometheusMetricsService(tm, webServer, logger);
 
-        metricsService.register(plugin, new SpongeCollector(event.getEngine(), plugin));
-        metricsService.register(plugin, new TickTimeCollector(event.getEngine(), tm, plugin));
+            service.registerCollector(plugin, new StandardExports());
+            service.registerCollector(plugin, new MemoryPoolsExports());
+            service.registerCollector(plugin, new GarbageCollectorExports());
+            service.registerCollector(plugin, new ThreadExports());
+            service.registerCollector(plugin, new ClassLoadingExports());
+            service.registerCollector(plugin, new VersionInfoExports());
 
-        metricsService.startExporter();
+            service.registerCollector(plugin, new SpongeCollector(event.getGame().getServer(), plugin));
+            service.registerCollector(plugin, new TickTimeCollector(event.getGame().getServer(), tm, plugin));
+
+            webServer.start();
+            return service;
+        });
     }
 
     @Listener
     public void onStop(StoppingEngineEvent<Server> e)
     {
-        metricsService.stopExporter();
+        if (webServer != null) {
+            webServer.stop();
+        }
     }
 }

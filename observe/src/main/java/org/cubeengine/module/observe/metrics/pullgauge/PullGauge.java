@@ -15,10 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cubeengine.module.observe;
+package org.cubeengine.module.observe.metrics.pullgauge;
 
 import io.prometheus.client.Collector.MetricFamilySamples;
 import io.prometheus.client.Collector.MetricFamilySamples.Sample;
+import org.cubeengine.module.observe.LabeledPullGauge;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +32,7 @@ import static io.prometheus.client.Collector.Type.GAUGE;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
-abstract class PullGauge<T> {
+public abstract class PullGauge<T> {
     private final String name;
     private final String unit;
     private final String help;

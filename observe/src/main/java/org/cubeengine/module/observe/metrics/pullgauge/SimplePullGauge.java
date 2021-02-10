@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cubeengine.module.observe;
+package org.cubeengine.module.observe.metrics.pullgauge;
 
 import io.prometheus.client.Collector.MetricFamilySamples.Sample;
 
@@ -24,7 +24,7 @@ import java.util.function.ToDoubleFunction;
 
 import static java.util.Collections.singletonList;
 
-final class SimplePullGauge<T> extends PullGauge<T> {
+public final class SimplePullGauge<T> extends PullGauge<T> {
     private final ToDoubleFunction<T> f;
 
     public SimplePullGauge(String name, String unit, String help, ToDoubleFunction<T> f) {

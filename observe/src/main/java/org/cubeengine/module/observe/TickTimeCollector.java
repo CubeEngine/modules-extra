@@ -21,6 +21,7 @@ import co.aikar.timings.Timing;
 import co.aikar.timings.Timings;
 import io.prometheus.client.GaugeMetricFamily;
 import org.cubeengine.libcube.service.task.TaskManager;
+import org.cubeengine.module.observe.metrics.SyncCollector;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.util.Ticks;
 import org.spongepowered.plugin.PluginContainer;

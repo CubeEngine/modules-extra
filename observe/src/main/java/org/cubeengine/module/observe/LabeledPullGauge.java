@@ -18,13 +18,14 @@
 package org.cubeengine.module.observe;
 
 import io.prometheus.client.Collector.MetricFamilySamples.Sample;
+import org.cubeengine.module.observe.metrics.pullgauge.PullGauge;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
-final class LabeledPullGauge<T> extends PullGauge<T> {
+public final class LabeledPullGauge<T> extends PullGauge<T> {
     private final MultiSampler<T> f;
 
     public LabeledPullGauge(String name, String unit, String help, MultiSampler<T> f) {

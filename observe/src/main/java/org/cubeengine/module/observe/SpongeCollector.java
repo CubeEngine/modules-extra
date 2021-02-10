@@ -20,8 +20,11 @@ package org.cubeengine.module.observe;
 import co.aikar.timings.Timing;
 import co.aikar.timings.Timings;
 import com.google.common.collect.Iterables;
-import org.cubeengine.module.observe.PullGauge.Label;
-import org.cubeengine.module.observe.PullGauge.LabeledValue;
+import org.cubeengine.module.observe.metrics.pullgauge.PullGauge;
+import org.cubeengine.module.observe.metrics.pullgauge.PullGauge.Label;
+import org.cubeengine.module.observe.metrics.pullgauge.PullGauge.LabeledValue;
+import org.cubeengine.module.observe.metrics.SyncCollector;
+import org.cubeengine.module.observe.metrics.pullgauge.PullGaugeCollector;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.block.entity.BlockEntity;
 import org.spongepowered.api.entity.Entity;
@@ -40,8 +43,8 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
-import static org.cubeengine.module.observe.PullGauge.Label.label;
-import static org.cubeengine.module.observe.PullGauge.LabeledValue.value;
+import static org.cubeengine.module.observe.metrics.pullgauge.PullGauge.Label.label;
+import static org.cubeengine.module.observe.metrics.pullgauge.PullGauge.LabeledValue.value;
 
 public class SpongeCollector extends SyncCollector {
     private final PullGaugeCollector<Server> collector;

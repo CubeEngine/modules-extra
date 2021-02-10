@@ -20,6 +20,9 @@ package org.cubeengine.module.observe;
 import io.prometheus.client.hotspot.GarbageCollectorExports;
 import org.apache.logging.log4j.LogManager;
 import org.cubeengine.libcube.service.task.TaskManager;
+import org.cubeengine.module.observe.metrics.PrometheusMetricsService;
+import org.cubeengine.module.observe.metrics.pullgauge.PullGauge;
+import org.cubeengine.module.observe.metrics.pullgauge.PullGaugeCollector;
 import org.junit.Test;
 import org.spongepowered.plugin.PluginContainer;
 
@@ -66,19 +69,20 @@ public class PrometheusMetricsServiceTest {
 
         final ObserveConfig config = new ObserveConfig();
         final InetSocketAddress addr = new InetSocketAddress(config.bindAddress, 0);
-        final PrometheusMetricsService metricsService = new PrometheusMetricsService(Thread::new, tm, addr, plugin.getLogger());
-        metricsService.register(plugin, new GarbageCollectorExports());
-        metricsService.register(plugin, PullGaugeCollector.<DoubleSupplier>build(Math::random).withGauge(PullGauge.build("test", DoubleSupplier::getAsDouble).help("dummy").build()).build());
+        final WebServer webServer = new WebServer(addr, Thread::new, plugin.getLogger());
+        final PrometheusMetricsService metricsService = new PrometheusMetricsService(tm, webServer, plugin.getLogger());
+        metricsService.registerCollector(plugin, new GarbageCollectorExports());
+        metricsService.registerCollector(plugin, PullGaugeCollector.<DoubleSupplier>build(Math::random).withGauge(PullGauge.build("test", DoubleSupplier::getAsDouble).help("dummy").build()).build());
 
-        metricsService.startExporter();
+        webServer.start();
 
-        final String urlBase = "http://localhost:" + metricsService.getPort();
+        final String urlBase = "http://localhost:" + webServer.getBoundAddress().getPort();
 
         System.out.println(readUrlData(new URL(urlBase + "/other")));
         System.out.println(readUrlData(new URL(urlBase + "/metrics")));
         System.out.println(readUrlData(new URL(urlBase + "/health")));
 
-        metricsService.stopExporter();
+        webServer.stop();
     }
 
     private static String readUrlData(URL url) throws IOException {
