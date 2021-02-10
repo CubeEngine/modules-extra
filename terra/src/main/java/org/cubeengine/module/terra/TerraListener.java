@@ -84,8 +84,8 @@ public class TerraListener
     @Inject private Log logger;
     @Inject private TaskManager taskManager;
 
-    private Queue<Supplier<CompletableFuture<ServerWorld>>> worldGenerationQueue = new LinkedList<>();
-    private CompletableFuture<ServerWorld> currentGeneration = null;
+    private Queue<Supplier<CompletableFuture<Void>>> worldGenerationQueue = new LinkedList<>();
+    private CompletableFuture<Void> currentGeneration = null;
 
     private Map<ResourceKey, CompletableFuture<ServerWorld>> futureWorlds = new HashMap<>();
     private Map<UUID, UUID> potions = new HashMap<>();
@@ -354,7 +354,7 @@ public class TerraListener
 //
 //    }
 
-    private CompletableFuture<ServerWorld> generateWorld(ResourceKey worldKey, WorldTemplate template, CompletableFuture<ServerWorld> doneFuture)
+    private CompletableFuture<Void> generateWorld(ResourceKey worldKey, WorldTemplate template, CompletableFuture<ServerWorld> doneFuture)
     {
         // Evacuate
         final WorldManager wm = Sponge.getServer().getWorldManager();
@@ -370,9 +370,17 @@ public class TerraListener
         return worldDeletedFuture.thenCompose(b -> {
             wm.saveTemplate(template);
             return wm.loadWorld(template);
-        }).thenApply(w -> {
-            doneFuture.complete(w);
-            return w;
+        }).handle((w, t) -> {
+            if (t == null)
+            {
+                doneFuture.complete(w);
+            }
+            else
+            {
+                logger.error(t, "Error while generating world {}", worldKey);
+                doneFuture.completeExceptionally(t);
+            }
+            return null;
         });
     }
 
