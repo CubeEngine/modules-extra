@@ -144,14 +144,14 @@ public class PrometheusMetricsService implements MetricsService, WebHandler
     }
 
     private CompletableFuture<Stream<Collector.MetricFamilySamples>> getSamples(CollectorRegistry registry, Set<String> query, ExecutorService executor) {
-        return timeout(CompletableFuture.supplyAsync(() -> {
+        return CompletableFuture.supplyAsync(() -> {
             List<Collector.MetricFamilySamples> samples = new ArrayList<>();
             final Enumeration<Collector.MetricFamilySamples> enumeration = registry.filteredMetricFamilySamples(query);
             while (enumeration.hasMoreElements()) {
                 samples.add(enumeration.nextElement());
             }
             return samples.stream();
-        }, executor));
+        }, executor);
     }
 
     private <T> CompletableFuture<T> timeout(CompletableFuture<T> promise) {
