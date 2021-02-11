@@ -19,7 +19,7 @@ package org.cubeengine.module.observe.metrics.pullgauge;
 
 import io.prometheus.client.Collector.MetricFamilySamples;
 import io.prometheus.client.Collector.MetricFamilySamples.Sample;
-import org.cubeengine.module.observe.LabeledPullGauge;
+import org.cubeengine.module.observe.metrics.LabeledPullGauge;
 
 import java.util.ArrayList;
 import java.util.Arrays;

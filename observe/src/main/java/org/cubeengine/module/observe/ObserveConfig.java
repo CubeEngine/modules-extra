@@ -24,4 +24,6 @@ public class ObserveConfig extends ReflectedYaml
 {
     public String bindAddress = "0.0.0.0";
     public int bindPort = 9000;
+    public String metricsEndpoint = "/metrics";
+    public String healthEndpoint = "/health";
 }

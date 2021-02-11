@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cubeengine.module.observe.metrics;
+package org.cubeengine.module.observe.metrics.impl;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -31,8 +31,10 @@ import io.prometheus.client.exporter.common.TextFormat;
 import org.apache.logging.log4j.Logger;
 import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.module.observe.FailureCallback;
+import org.cubeengine.module.observe.WebHandler;
 import org.cubeengine.module.observe.SuccessCallback;
-import org.cubeengine.module.observe.WebServer;
+import org.cubeengine.module.observe.metrics.MetricsService;
+import org.cubeengine.module.observe.metrics.SyncCollector;
 import org.spongepowered.plugin.PluginContainer;
 
 import java.io.IOException;
@@ -48,29 +50,27 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
-import java.util.function.BiFunction;
-import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.INTERNAL_SERVER_ERROR;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static java.util.Arrays.asList;
+import static org.cubeengine.module.observe.Util.sequence;
 
-public class PrometheusMetricsService implements MetricsService
+public class PrometheusMetricsService implements MetricsService, WebHandler
 {
     private final CollectorRegistry syncRegistry;
     private final CollectorRegistry asyncRegistry;
     private final TaskManager tm;
     private final Logger logger;
 
-    public PrometheusMetricsService(TaskManager tm, WebServer server, Logger logger)
+    public PrometheusMetricsService(TaskManager tm, Logger logger)
     {
         this.tm = tm;
         this.logger = logger;
         this.syncRegistry = new CollectorRegistry();
         this.asyncRegistry = new CollectorRegistry();
-        server.registerHandler("/metrics", this::handleMetricsRequest);
     }
 
     public synchronized void registerCollector(PluginContainer plugin, SyncCollector collector)
@@ -98,7 +98,7 @@ public class PrometheusMetricsService implements MetricsService
         // TODO implement me
     }
 
-    private void handleMetricsRequest(SuccessCallback success, FailureCallback failure, FullHttpRequest message, QueryStringDecoder queryStringDecoder) {
+    public void handleRequest(SuccessCallback success, FailureCallback failure, FullHttpRequest message, QueryStringDecoder queryStringDecoder) {
         final String contentType = TextFormat.chooseContentType(message.headers().get(HttpHeaderNames.ACCEPT));
         final Set<String> query = parseQuery(queryStringDecoder);
 
@@ -134,24 +134,6 @@ public class PrometheusMetricsService implements MetricsService
         return promise;
     }
 
-
-    public <T> CompletableFuture<List<T>> sequence(List<CompletableFuture<T>> com) {
-
-        CompletableFuture<List<T>> identity = CompletableFuture.completedFuture(new ArrayList<>(com.size()));
-
-        BiFunction<CompletableFuture<List<T>>, CompletableFuture<T>, CompletableFuture<List<T>>> combineToList = (acc, next) -> acc.thenCombine(next, (a, b) -> {
-            a.add(b);
-            return a;
-        });
-
-        BinaryOperator<CompletableFuture<List<T>>> combineLists = (a, b) -> a.thenCombine(b, (l1, l2) -> {
-            l1.addAll(l2);
-            return l1;
-        });
-
-        return com.stream().reduce(identity, combineToList, combineLists);
-
-    }
 
     private void writeMetricsResponse(SuccessCallback success, FailureCallback failure, String contentType, Stream<Collector.MetricFamilySamples> samples, ByteBufAllocator allocator) {
         final ByteBuf buffer = allocator.buffer();

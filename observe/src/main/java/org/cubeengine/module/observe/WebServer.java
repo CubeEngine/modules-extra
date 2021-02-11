@@ -21,7 +21,7 @@ public class WebServer {
     private final InetSocketAddress bindAddress;
     private final ThreadFactory threadFactory;
     private final Logger logger;
-    private final ConcurrentHashMap<String, Handler> handlerMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, WebHandler> handlerMap = new ConcurrentHashMap<>();
 
     private NioEventLoopGroup eventLoopGroup;
     private Channel channel;
@@ -32,8 +32,16 @@ public class WebServer {
         this.logger = logger;
     }
 
-    public boolean registerHandler(String route, Handler handler) {
-        return handlerMap.putIfAbsent(route, handler) != null;
+    public boolean registerHandler(String route, WebHandler handler) {
+        return handlerMap.putIfAbsent(route, handler) == null;
+    }
+
+    public boolean registerHandlerAndStart(String route, WebHandler handler) {
+        if (registerHandler(route, handler)) {
+            start();
+            return true;
+        }
+        return false;
     }
 
     synchronized void start() {

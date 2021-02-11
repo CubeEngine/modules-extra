@@ -36,9 +36,9 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequest>
 {
     private final Logger logger;
-    private final ConcurrentMap<String, Handler> handlerMap;
+    private final ConcurrentMap<String, WebHandler> handlerMap;
 
-    public HttpRequestHandler(Logger logger, ConcurrentMap<String, Handler> handlerMap)
+    public HttpRequestHandler(Logger logger, ConcurrentMap<String, WebHandler> handlerMap)
     {
         this.logger = logger;
         this.handlerMap = handlerMap;
@@ -55,12 +55,12 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
     {
         final QueryStringDecoder queryStringDecoder = new QueryStringDecoder(message.uri());
 
-        final Handler handler = handlerMap.get(queryStringDecoder.path());
+        final WebHandler handler = handlerMap.get(queryStringDecoder.path());
         if (handler == null) {
             logger.warn("Received request for {}", message.uri());
             error(ctx, HttpResponseStatus.NOT_FOUND, null);
         } else {
-            handler.handle((response) -> writeSuccessful(ctx, response), (code, t) -> error(ctx, code, t), message, queryStringDecoder);
+            handler.handleRequest((response) -> writeSuccessful(ctx, response), (code, t) -> error(ctx, code, t), message, queryStringDecoder);
         }
     }
 

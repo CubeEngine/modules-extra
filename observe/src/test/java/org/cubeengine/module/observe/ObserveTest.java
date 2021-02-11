@@ -20,11 +20,15 @@ package org.cubeengine.module.observe;
 import io.prometheus.client.hotspot.GarbageCollectorExports;
 import org.apache.logging.log4j.LogManager;
 import org.cubeengine.libcube.service.task.TaskManager;
-import org.cubeengine.module.observe.metrics.PrometheusMetricsService;
+import org.cubeengine.module.observe.health.HealthState;
+import org.cubeengine.module.observe.health.impl.SimpleHealthCheckService;
+import org.cubeengine.module.observe.metrics.impl.PrometheusMetricsService;
 import org.cubeengine.module.observe.metrics.pullgauge.PullGauge;
 import org.cubeengine.module.observe.metrics.pullgauge.PullGaugeCollector;
+import org.junit.Assert;
 import org.junit.Test;
 import org.spongepowered.plugin.PluginContainer;
+import org.spongepowered.plugin.metadata.PluginMetadata;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -40,15 +44,25 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.DoubleSupplier;
 
-public class PrometheusMetricsServiceTest {
+import static org.junit.Assert.assertTrue;
+
+public class ObserveTest {
 
     @Test
-    public void metrics() throws IOException {
+    public void themAll() throws IOException {
         final PluginContainer plugin = (PluginContainer) Proxy.newProxyInstance(PluginContainer.class.getClassLoader(), new Class[]{ PluginContainer.class }, (proxy, method, args) -> {
-            if (method.getName().equals("getLogger")) {
-                return LogManager.getLogger();
-            } else {
-                return null;
+            switch (method.getName()) {
+                case "getLogger":
+                    return LogManager.getLogger();
+                case "getMetadata":
+                    return PluginMetadata.builder()
+                            .setLoader("observe")
+                            .setId("observe")
+                            .setVersion("1.0.0")
+                            .setMainClass(Observe.class.getName())
+                            .build();
+                default:
+                    return null;
             }
         });
 
@@ -70,16 +84,19 @@ public class PrometheusMetricsServiceTest {
         final ObserveConfig config = new ObserveConfig();
         final InetSocketAddress addr = new InetSocketAddress(config.bindAddress, 0);
         final WebServer webServer = new WebServer(addr, Thread::new, plugin.getLogger());
-        final PrometheusMetricsService metricsService = new PrometheusMetricsService(tm, webServer, plugin.getLogger());
+        final PrometheusMetricsService metricsService = new PrometheusMetricsService(tm, plugin.getLogger());
         metricsService.registerCollector(plugin, new GarbageCollectorExports());
         metricsService.registerCollector(plugin, PullGaugeCollector.<DoubleSupplier>build(Math::random).withGauge(PullGauge.build("test", DoubleSupplier::getAsDouble).help("dummy").build()).build());
+        assertTrue(webServer.registerHandlerAndStart(config.metricsEndpoint, metricsService));
 
-        webServer.start();
+        final SimpleHealthCheckService healthCheckService = new SimpleHealthCheckService(tm);
+        healthCheckService.registerProbe(plugin, "test", () -> HealthState.BROKEN);
+        assertTrue(webServer.registerHandlerAndStart(config.healthEndpoint, healthCheckService));
 
         final String urlBase = "http://localhost:" + webServer.getBoundAddress().getPort();
 
         System.out.println(readUrlData(new URL(urlBase + "/other")));
-        System.out.println(readUrlData(new URL(urlBase + "/metrics")));
+        System.out.println(readUrlData(new URL(urlBase + config.metricsEndpoint)));
         System.out.println(readUrlData(new URL(urlBase + "/health")));
 
         webServer.stop();

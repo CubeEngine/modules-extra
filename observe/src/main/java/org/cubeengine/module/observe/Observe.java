@@ -28,12 +28,16 @@ import io.prometheus.client.hotspot.VersionInfoExports;
 import org.apache.logging.log4j.Logger;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.libcube.service.task.TaskManager;
+import org.cubeengine.module.observe.health.HealthCheckService;
+import org.cubeengine.module.observe.health.impl.SimpleHealthCheckService;
 import org.cubeengine.module.observe.metrics.MetricsService;
-import org.cubeengine.module.observe.metrics.PrometheusMetricsService;
+import org.cubeengine.module.observe.metrics.impl.PrometheusMetricsService;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.Server;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.ProvideServiceEvent;
+import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 import org.spongepowered.plugin.PluginContainer;
 
@@ -59,27 +63,58 @@ public class Observe
         this.tm = tm;
     }
 
+    private synchronized WebServer getWebServer() {
+        if (webServer == null) {
+            this.webServer = new WebServer(new InetSocketAddress(config.bindAddress, config.bindPort), tf, logger);
+        }
+        return webServer;
+    }
 
     @Listener
-    public void onProvideService(ProvideServiceEvent<MetricsService> event)
+    public void onStarted(StartedEngineEvent<Server> event)
     {
-        event.suggest(() -> {
-            this.webServer = new WebServer(new InetSocketAddress(config.bindAddress, config.bindPort), tf, logger);
-            final PrometheusMetricsService service = new PrometheusMetricsService(tm, webServer, logger);
+        // TODO remove this once interfaces are part of the API
+        providerHealth();
+        providerMetrics();
+    }
 
-            service.registerCollector(plugin, new StandardExports());
-            service.registerCollector(plugin, new MemoryPoolsExports());
-            service.registerCollector(plugin, new GarbageCollectorExports());
-            service.registerCollector(plugin, new ThreadExports());
-            service.registerCollector(plugin, new ClassLoadingExports());
-            service.registerCollector(plugin, new VersionInfoExports());
+    @Listener
+    public void onProvideMetrics(ProvideServiceEvent<MetricsService> event)
+    {
+        event.suggest(this::providerMetrics);
+    }
 
-            service.registerCollector(plugin, new SpongeCollector(event.getGame().getServer(), plugin));
-            service.registerCollector(plugin, new TickTimeCollector(event.getGame().getServer(), tm, plugin));
+    @Listener
+    public void onProvideHealth(ProvideServiceEvent<HealthCheckService> event)
+    {
+        event.suggest(this::providerHealth);
+    }
 
-            webServer.start();
-            return service;
-        });
+    private MetricsService providerMetrics() {
+        final PrometheusMetricsService service = new PrometheusMetricsService(tm, logger);
+
+        service.registerCollector(plugin, new StandardExports());
+        service.registerCollector(plugin, new MemoryPoolsExports());
+        service.registerCollector(plugin, new GarbageCollectorExports());
+        service.registerCollector(plugin, new ThreadExports());
+        service.registerCollector(plugin, new ClassLoadingExports());
+        service.registerCollector(plugin, new VersionInfoExports());
+
+        final Server server = Sponge.getServer();
+        service.registerCollector(plugin, new SpongeCollector(server, plugin));
+        service.registerCollector(plugin, new TickTimeCollector(server, tm, plugin));
+
+        getWebServer().registerHandlerAndStart(config.metricsEndpoint, service);
+        return service;
+    }
+
+    private HealthCheckService providerHealth() {
+        final SimpleHealthCheckService service = new SimpleHealthCheckService(tm);
+
+        //service.registerProbe(plugin, new StandardExports());
+
+        getWebServer().registerHandlerAndStart(config.metricsEndpoint, service);
+        return service;
     }
 
     @Listener
