@@ -1,3 +1,20 @@
+/*
+ * This file is part of CubeEngine.
+ * CubeEngine is licensed under the GNU General Public License Version 3.
+ *
+ * CubeEngine is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * CubeEngine is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.cubeengine.module.observe.health.impl;
 
 import com.google.gson.Gson;
@@ -7,7 +24,6 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.QueryStringDecoder;
-import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.libcube.util.Pair;
 import org.cubeengine.module.observe.FailureCallback;
 import org.cubeengine.module.observe.WebHandler;
@@ -23,6 +39,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
@@ -30,15 +47,15 @@ import static org.cubeengine.module.observe.Util.sequence;
 
 public class SimpleHealthCheckService implements HealthCheckService, WebHandler {
 
-    private final TaskManager tm;
+    private final ExecutorService syncExecutor;
 
     private final Gson gson = new Gson();
 
     private final Map<String, SyncHealthProbe> syncProbes = new HashMap<>();
     private final Map<String, AsyncHealthProbe> asyncProbes = new HashMap<>();
 
-    public SimpleHealthCheckService(TaskManager tm) {
-        this.tm = tm;
+    public SimpleHealthCheckService(ExecutorService syncExecutor) {
+        this.syncExecutor = syncExecutor;
     }
 
     public void handleRequest(SuccessCallback success, FailureCallback failure, FullHttpRequest request, QueryStringDecoder queryStringDecoder) {
@@ -59,10 +76,10 @@ public class SimpleHealthCheckService implements HealthCheckService, WebHandler 
                     state = value;
                 }
             }
-
+            final HttpResponseStatus httpStatus = state != HealthState.HEALTHY ? HttpResponseStatus.SERVICE_UNAVAILABLE :  HttpResponseStatus.OK;
             final ByteBuf buffer = request.content().alloc().buffer();
             buffer.writeCharSequence(gson.toJson(new HealthResult(state, details)), StandardCharsets.UTF_8);
-            final DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, buffer);
+            final DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, httpStatus, buffer);
             response.headers().set("Content-Type", "application/json");
             success.succeed(response);
         });
@@ -77,22 +94,13 @@ public class SimpleHealthCheckService implements HealthCheckService, WebHandler 
             probes = new HashMap<>(this.syncProbes);
         }
 
-
-        CompletableFuture<Map<String, HealthState>> promise = new CompletableFuture<>();
-        tm.runTask(() -> {
-            try {
-                Map<String, HealthState> result = new HashMap<>(probes.size());
-                synchronized (this) {
-                    for (Map.Entry<String, SyncHealthProbe> entry : probes.entrySet()) {
-                        result.put(entry.getKey(), entry.getValue().probe());
-                    }
-                }
-                promise.complete(result);
-            } catch (Exception e) {
-                promise.completeExceptionally(e);
+        return CompletableFuture.supplyAsync(() -> {
+            Map<String, HealthState> result = new HashMap<>(probes.size());
+            for (Map.Entry<String, SyncHealthProbe> entry : probes.entrySet()) {
+                result.put(entry.getKey(), entry.getValue().probe());
             }
-        });
-        return promise;
+            return result;
+        }, syncExecutor);
     }
 
     private CompletableFuture<Map<String, HealthState>> getAsyncStates() {

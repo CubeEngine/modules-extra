@@ -19,18 +19,18 @@ package org.cubeengine.module.observe;
 
 import io.prometheus.client.hotspot.GarbageCollectorExports;
 import org.apache.logging.log4j.LogManager;
-import org.cubeengine.libcube.service.task.TaskManager;
+import org.cubeengine.libcube.util.Pair;
 import org.cubeengine.module.observe.health.HealthState;
 import org.cubeengine.module.observe.health.impl.SimpleHealthCheckService;
 import org.cubeengine.module.observe.metrics.impl.PrometheusMetricsService;
 import org.cubeengine.module.observe.metrics.pullgauge.PullGauge;
 import org.cubeengine.module.observe.metrics.pullgauge.PullGaugeCollector;
-import org.junit.Assert;
 import org.junit.Test;
 import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.metadata.PluginMetadata;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Proxy;
@@ -38,13 +38,11 @@ import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.function.DoubleSupplier;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ObserveTest {
 
@@ -68,47 +66,43 @@ public class ObserveTest {
 
         final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
-        final TaskManager tm = (TaskManager) Proxy.newProxyInstance(TaskManager.class.getClassLoader(), new Class[] { TaskManager.class }, (proxy, method, args) -> {
-            switch (method.getName()) {
-                case "runTask":
-                case "runTaskAsync":
-                    ((Runnable) args[0]).run();
-                    break;
-                case "runTaskAsyncDelayed":
-                    executorService.schedule(((Runnable) args[0]), ((Duration) args[1]).toMillis(), TimeUnit.MILLISECONDS);
-                    break;
-            }
-            return null;
-        });
-
-        final ObserveConfig config = new ObserveConfig();
-        final InetSocketAddress addr = new InetSocketAddress(config.bindAddress, 0);
+        final InetSocketAddress addr = new InetSocketAddress("0.0.0.0", 0);
         final WebServer webServer = new WebServer(addr, Thread::new, plugin.getLogger());
-        final PrometheusMetricsService metricsService = new PrometheusMetricsService(tm, plugin.getLogger());
+        final PrometheusMetricsService metricsService = new PrometheusMetricsService(executorService, executorService, plugin.getLogger());
         metricsService.registerCollector(plugin, new GarbageCollectorExports());
         metricsService.registerCollector(plugin, PullGaugeCollector.<DoubleSupplier>build(Math::random).withGauge(PullGauge.build("test", DoubleSupplier::getAsDouble).help("dummy").build()).build());
-        assertTrue(webServer.registerHandlerAndStart(config.metricsEndpoint, metricsService));
+        assertTrue(webServer.registerHandlerAndStart("/metrics", metricsService));
 
-        final SimpleHealthCheckService healthCheckService = new SimpleHealthCheckService(tm);
-        healthCheckService.registerProbe(plugin, "test", () -> HealthState.BROKEN);
-        assertTrue(webServer.registerHandlerAndStart(config.healthEndpoint, healthCheckService));
+        final SimpleHealthCheckService healthyService = new SimpleHealthCheckService(executorService);
+        healthyService.registerProbe(plugin, "test", () -> HealthState.HEALTHY);
+        assertTrue(webServer.registerHandlerAndStart("/healthy", healthyService));
+
+        final SimpleHealthCheckService brokenService = new SimpleHealthCheckService(executorService);
+        brokenService.registerProbe(plugin, "test", () -> HealthState.BROKEN);
+        assertTrue(webServer.registerHandlerAndStart("/broken", brokenService));
 
         final String urlBase = "http://localhost:" + webServer.getBoundAddress().getPort();
 
-        System.out.println(readUrlData(new URL(urlBase + "/other")));
-        System.out.println(readUrlData(new URL(urlBase + config.metricsEndpoint)));
-        System.out.println(readUrlData(new URL(urlBase + "/health")));
+        assertThrows(FileNotFoundException.class, () -> {
+            System.out.println(readUrlData(new URL(urlBase + "/other")));
+        });
+
+        System.out.println(readUrlData(new URL(urlBase + "/metrics")));
+
+
+        assertEquals(new Pair<>(200, "{\"state\":\"HEALTHY\",\"details\":{\"observe:test\":\"HEALTHY\"}}"), readUrlData(new URL(urlBase + "/healthy")));
+
+        assertThrows(IOException.class, () -> {
+            readUrlData(new URL(urlBase + "/broken"));
+        });
 
         webServer.stop();
     }
 
-    private static String readUrlData(URL url) throws IOException {
+    private static Pair<Integer, String> readUrlData(URL url) throws IOException {
         System.out.println("URL: " + url);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.connect();
-        if (connection.getResponseCode() == 404) {
-            return "<<NOT FOUND>>";
-        }
         final InputStream data = connection.getInputStream();
         byte[] buf = new byte[1000];
         ByteArrayOutputStream agg = new ByteArrayOutputStream();
@@ -121,7 +115,7 @@ public class ObserveTest {
             agg.write(buf, 0, bytesRead);
         }
 
-        return agg.toString(StandardCharsets.UTF_8.toString());
+        return new Pair<>(connection.getResponseCode(), agg.toString(StandardCharsets.UTF_8.toString()));
     }
 
 }

@@ -39,6 +39,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.ProvideServiceEvent;
 import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
+import org.spongepowered.api.scheduler.TaskExecutorService;
 import org.spongepowered.plugin.PluginContainer;
 
 import java.net.InetSocketAddress;
@@ -74,24 +75,27 @@ public class Observe
     public void onStarted(StartedEngineEvent<Server> event)
     {
         // TODO remove this once interfaces are part of the API
-        providerHealth();
-        providerMetrics();
+        provideHealth();
+        provideMetrics();
     }
 
     @Listener
     public void onProvideMetrics(ProvideServiceEvent<MetricsService> event)
     {
-        event.suggest(this::providerMetrics);
+        event.suggest(this::provideMetrics);
     }
 
     @Listener
     public void onProvideHealth(ProvideServiceEvent<HealthCheckService> event)
     {
-        event.suggest(this::providerHealth);
+        event.suggest(this::provideHealth);
     }
 
-    private MetricsService providerMetrics() {
-        final PrometheusMetricsService service = new PrometheusMetricsService(tm, logger);
+    private MetricsService provideMetrics() {
+        final TaskExecutorService syncExecutor = Sponge.getServer().getScheduler().createExecutor(plugin);
+        final TaskExecutorService asyncExecutor = Sponge.getAsyncScheduler().createExecutor(plugin);
+
+        final PrometheusMetricsService service = new PrometheusMetricsService(syncExecutor, asyncExecutor, logger);
 
         service.registerCollector(plugin, new StandardExports());
         service.registerCollector(plugin, new MemoryPoolsExports());
@@ -108,8 +112,9 @@ public class Observe
         return service;
     }
 
-    private HealthCheckService providerHealth() {
-        final SimpleHealthCheckService service = new SimpleHealthCheckService(tm);
+    private HealthCheckService provideHealth() {
+        final TaskExecutorService executor = Sponge.getServer().getScheduler().createExecutor(plugin);
+        final SimpleHealthCheckService service = new SimpleHealthCheckService(executor);
 
         //service.registerProbe(plugin, new StandardExports());
 

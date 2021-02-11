@@ -29,7 +29,6 @@ import io.prometheus.client.Collector;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.exporter.common.TextFormat;
 import org.apache.logging.log4j.Logger;
-import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.module.observe.FailureCallback;
 import org.cubeengine.module.observe.WebHandler;
 import org.cubeengine.module.observe.SuccessCallback;
@@ -49,8 +48,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.INTERNAL_SERVER_ERROR;
@@ -60,17 +61,17 @@ import static org.cubeengine.module.observe.Util.sequence;
 
 public class PrometheusMetricsService implements MetricsService, WebHandler
 {
-    private final CollectorRegistry syncRegistry;
-    private final CollectorRegistry asyncRegistry;
-    private final TaskManager tm;
+    private final CollectorRegistry syncRegistry = new CollectorRegistry();
+    private final CollectorRegistry asyncRegistry = new CollectorRegistry();
+    private final ExecutorService syncExecutor;
+    private final ScheduledExecutorService asyncExecutor;
     private final Logger logger;
 
-    public PrometheusMetricsService(TaskManager tm, Logger logger)
+    public PrometheusMetricsService(ExecutorService syncExecutor, ScheduledExecutorService asyncExecutor, Logger logger)
     {
-        this.tm = tm;
+        this.syncExecutor = syncExecutor;
+        this.asyncExecutor = asyncExecutor;
         this.logger = logger;
-        this.syncRegistry = new CollectorRegistry();
-        this.asyncRegistry = new CollectorRegistry();
     }
 
     public synchronized void registerCollector(PluginContainer plugin, SyncCollector collector)
@@ -102,13 +103,12 @@ public class PrometheusMetricsService implements MetricsService, WebHandler
         final String contentType = TextFormat.chooseContentType(message.headers().get(HttpHeaderNames.ACCEPT));
         final Set<String> query = parseQuery(queryStringDecoder);
 
-        final CompletableFuture<Stream<Collector.MetricFamilySamples>> syncSamples = getSamples(syncRegistry, query, tm::runTask);
-
-        final CompletableFuture<Stream<Collector.MetricFamilySamples>> asyncSamples = getSamples(asyncRegistry, query, tm::runTaskAsync);
+        final CompletableFuture<Stream<Collector.MetricFamilySamples>> syncSamples = getSamples(syncRegistry, query, syncExecutor);
+        final CompletableFuture<Stream<Collector.MetricFamilySamples>> asyncSamples = getSamples(asyncRegistry, query, asyncExecutor);
 
         sequence(asList(syncSamples, asyncSamples))
                 .thenAccept(allSamples -> writeMetricsResponse(success, failure, contentType, allSamples.stream().reduce(Stream.empty(), Stream::concat), message.content().alloc()))
-                .whenCompleteAsync((allSamples, t) -> {
+                .whenComplete((allSamples, t) -> {
                     if (t != null) {
                         logger.error("Failed to collect the samples!", t);
                         failure.fail(INTERNAL_SERVER_ERROR, t);
@@ -117,21 +117,15 @@ public class PrometheusMetricsService implements MetricsService, WebHandler
 
     }
 
-    private CompletableFuture<Stream<Collector.MetricFamilySamples>> getSamples(CollectorRegistry registry, Set<String> query, Consumer<Runnable> executor) {
-        final CompletableFuture<Stream<Collector.MetricFamilySamples>> promise = new CompletableFuture<>();
-        executor.accept(() -> {
-            try {
-                List<Collector.MetricFamilySamples> samples = new ArrayList<>();
-                final Enumeration<Collector.MetricFamilySamples> enumeration = registry.filteredMetricFamilySamples(query);
-                while (enumeration.hasMoreElements()) {
-                    samples.add(enumeration.nextElement());
-                }
-                promise.complete(samples.stream());
-            } catch (Exception e) {
-                promise.completeExceptionally(e);
+    private CompletableFuture<Stream<Collector.MetricFamilySamples>> getSamples(CollectorRegistry registry, Set<String> query, ExecutorService executor) {
+        return CompletableFuture.supplyAsync(() -> {
+            List<Collector.MetricFamilySamples> samples = new ArrayList<>();
+            final Enumeration<Collector.MetricFamilySamples> enumeration = registry.filteredMetricFamilySamples(query);
+            while (enumeration.hasMoreElements()) {
+                samples.add(enumeration.nextElement());
             }
-        });
-        return promise;
+            return samples.stream();
+        }, executor);
     }
 
 
@@ -152,7 +146,7 @@ public class PrometheusMetricsService implements MetricsService, WebHandler
 
     private <T> CompletableFuture<T> timeoutAfter(Duration duration) {
         CompletableFuture<T> promise = new CompletableFuture<>();
-        tm.runTaskAsyncDelayed(() -> promise.completeExceptionally(new TimeoutException()), duration);
+        asyncExecutor.schedule(() -> promise.completeExceptionally(new TimeoutException()), duration.toMillis(), TimeUnit.MILLISECONDS);
         return promise;
     }
 
