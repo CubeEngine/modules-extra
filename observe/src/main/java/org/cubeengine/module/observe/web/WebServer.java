@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cubeengine.module.observe;
+package org.cubeengine.module.observe.web;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -61,7 +61,7 @@ public class WebServer {
         return false;
     }
 
-    synchronized void start() {
+    public synchronized void start() {
         if (this.eventLoopGroup != null) {
             return;
         }
@@ -94,13 +94,14 @@ public class WebServer {
         }
     }
 
-    synchronized void stop() {
+    public synchronized void stop() {
         this.channel = null;
         if (this.eventLoopGroup != null) {
             this.eventLoopGroup.shutdownGracefully(2, 5, TimeUnit.SECONDS);
             this.eventLoopGroup = null;
         }
     }
+
     public synchronized InetSocketAddress getBoundAddress() {
         if (this.channel == null) {
             throw new IllegalStateException("Server seems not to be running!");

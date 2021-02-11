@@ -25,6 +25,7 @@ import org.cubeengine.module.observe.health.impl.SimpleHealthCheckService;
 import org.cubeengine.module.observe.metrics.impl.PrometheusMetricsService;
 import org.cubeengine.module.observe.metrics.pullgauge.PullGauge;
 import org.cubeengine.module.observe.metrics.pullgauge.PullGaugeCollector;
+import org.cubeengine.module.observe.web.WebServer;
 import org.junit.Test;
 import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.metadata.PluginMetadata;

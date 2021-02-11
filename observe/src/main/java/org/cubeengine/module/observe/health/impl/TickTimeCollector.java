@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cubeengine.module.observe;
+package org.cubeengine.module.observe.health.impl;
 
 import co.aikar.timings.Timing;
 import co.aikar.timings.Timings;

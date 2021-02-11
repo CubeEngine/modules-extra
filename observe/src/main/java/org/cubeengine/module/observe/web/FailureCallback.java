@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cubeengine.module.observe;
+package org.cubeengine.module.observe.web;
 
-import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
 
-public interface SuccessCallback {
-    void succeed(FullHttpResponse response);
+public interface FailureCallback {
+    void fail(HttpResponseStatus status, Throwable t);
 }
