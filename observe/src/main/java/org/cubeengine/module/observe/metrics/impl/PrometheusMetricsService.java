@@ -43,26 +43,31 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.INTERNAL_SERVER_ERROR;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static java.util.Arrays.asList;
-import static org.cubeengine.module.observe.Util.sequence;
+import static java.util.Collections.newSetFromMap;
+import static org.cubeengine.module.observe.Util.*;
 
 public class PrometheusMetricsService implements MetricsService, WebHandler
 {
+    private static final Duration TIMEOUT = Duration.ofSeconds(10);
+
     private final CollectorRegistry syncRegistry = new CollectorRegistry();
     private final CollectorRegistry asyncRegistry = new CollectorRegistry();
+    private final Map<PluginContainer, Set<Collector>> collectorsPerPlugins = new HashMap<>();
     private final ExecutorService syncExecutor;
     private final ScheduledExecutorService asyncExecutor;
     private final Logger logger;
@@ -77,26 +82,47 @@ public class PrometheusMetricsService implements MetricsService, WebHandler
     public synchronized void registerCollector(PluginContainer plugin, SyncCollector collector)
     {
         this.syncRegistry.register(collector);
+        trackCollector(plugin, collector);
     }
 
     public synchronized void registerCollector(PluginContainer plugin, Collector collector)
     {
         this.asyncRegistry.register(collector);
+        trackCollector(plugin, collector);
+    }
+
+    private void trackCollector(PluginContainer plugin, Collector collector) {
+        this.collectorsPerPlugins.computeIfAbsent(plugin, ignored -> newSetFromMap(new IdentityHashMap<>())).add(collector);
     }
 
     @Override
-    public void unregisterCollector(PluginContainer plugin, SyncCollector collector) {
+    public synchronized void unregisterCollector(PluginContainer plugin, SyncCollector collector) {
         this.syncRegistry.unregister(collector);
+        forgetCollector(plugin, collector);
     }
 
     @Override
-    public void unregisterCollector(PluginContainer plugin, Collector collector) {
+    public synchronized void unregisterCollector(PluginContainer plugin, Collector collector) {
         this.asyncRegistry.unregister(collector);
+        forgetCollector(plugin, collector);
+    }
+
+    private void forgetCollector(PluginContainer plugin, Collector collector) {
+        final Set<Collector> collectors = this.collectorsPerPlugins.get(plugin);
+        if (collectors != null) {
+            collectors.remove(collector);
+        }
     }
 
     @Override
     public void unregisterCollectors(PluginContainer plugin) {
-        // TODO implement me
+        final Set<Collector> collectors = this.collectorsPerPlugins.remove(plugin);
+        if (collectors != null) {
+            for (Collector collector : collectors) {
+                this.syncRegistry.unregister(collector);
+                this.asyncRegistry.unregister(collector);
+            }
+        }
     }
 
     public void handleRequest(SuccessCallback success, FailureCallback failure, FullHttpRequest message, QueryStringDecoder queryStringDecoder) {
@@ -118,16 +144,19 @@ public class PrometheusMetricsService implements MetricsService, WebHandler
     }
 
     private CompletableFuture<Stream<Collector.MetricFamilySamples>> getSamples(CollectorRegistry registry, Set<String> query, ExecutorService executor) {
-        return CompletableFuture.supplyAsync(() -> {
+        return timeout(CompletableFuture.supplyAsync(() -> {
             List<Collector.MetricFamilySamples> samples = new ArrayList<>();
             final Enumeration<Collector.MetricFamilySamples> enumeration = registry.filteredMetricFamilySamples(query);
             while (enumeration.hasMoreElements()) {
                 samples.add(enumeration.nextElement());
             }
             return samples.stream();
-        }, executor);
+        }, executor));
     }
 
+    private <T> CompletableFuture<T> timeout(CompletableFuture<T> promise) {
+        return race(promise, timeoutAfter(TIMEOUT, asyncExecutor));
+    }
 
     private void writeMetricsResponse(SuccessCallback success, FailureCallback failure, String contentType, Stream<Collector.MetricFamilySamples> samples, ByteBufAllocator allocator) {
         final ByteBuf buffer = allocator.buffer();
@@ -142,12 +171,6 @@ public class PrometheusMetricsService implements MetricsService, WebHandler
         final DefaultFullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.OK, buffer);
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, contentType);
         success.succeed(response);
-    }
-
-    private <T> CompletableFuture<T> timeoutAfter(Duration duration) {
-        CompletableFuture<T> promise = new CompletableFuture<>();
-        asyncExecutor.schedule(() -> promise.completeExceptionally(new TimeoutException()), duration.toMillis(), TimeUnit.MILLISECONDS);
-        return promise;
     }
 
     public static <T> Enumeration<T> streamAsEnumeration(Stream<T> s) {

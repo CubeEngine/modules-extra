@@ -17,9 +17,15 @@
  */
 package org.cubeengine.module.observe;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 
@@ -42,5 +48,39 @@ public abstract class Util {
         });
 
         return futures.stream().reduce(identity, combineToList, combineLists);
+    }
+
+
+    public static <T> CompletableFuture<T> timeoutAfter(Duration duration, ScheduledExecutorService executorService) {
+        CompletableFuture<T> promise = new CompletableFuture<>();
+        executorService.schedule(() -> promise.completeExceptionally(new TimeoutException()), duration.toMillis(), TimeUnit.MILLISECONDS);
+        return promise;
+    }
+
+    public static <T> CompletableFuture<T> race(CompletableFuture<T> a, CompletableFuture<T> b) {
+        final CompletableFuture<T> promise = new CompletableFuture<>();
+        final Lock lock = new ReentrantLock();
+        completeSynchronized(lock, promise, a, b);
+        completeSynchronized(lock, promise, b, a);
+
+        return promise;
+    }
+
+    private static <T> void completeSynchronized(Lock lock, CompletableFuture<T> promise, CompletableFuture<T> first, CompletableFuture<T> second) {
+        first.whenComplete((v, t) -> {
+            lock.lock();
+            try {
+                if (!promise.isDone()) {
+                    second.cancel(false);
+                    if (t != null) {
+                        promise.completeExceptionally(t);
+                    } else {
+                        promise.complete(v);
+                    }
+                }
+            } finally {
+                lock.unlock();
+            }
+        });
     }
 }
