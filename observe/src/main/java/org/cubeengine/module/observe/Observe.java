@@ -29,6 +29,7 @@ import org.apache.logging.log4j.Logger;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.module.observe.health.HealthCheckService;
+import org.cubeengine.module.observe.health.impl.LastTickHealth;
 import org.cubeengine.module.observe.health.impl.SimpleHealthCheckService;
 import org.cubeengine.module.observe.health.impl.TickTimeCollector;
 import org.cubeengine.module.observe.metrics.MetricsService;
@@ -42,6 +43,7 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.ProvideServiceEvent;
 import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
+import org.spongepowered.api.scheduler.Scheduler;
 import org.spongepowered.api.scheduler.TaskExecutorService;
 import org.spongepowered.plugin.PluginContainer;
 
@@ -116,10 +118,11 @@ public class Observe
     }
 
     private HealthCheckService provideHealth() {
-        final TaskExecutorService executor = Sponge.getServer().getScheduler().createExecutor(plugin);
+        final Scheduler scheduler = Sponge.getServer().getScheduler();
+        final TaskExecutorService executor = scheduler.createExecutor(plugin);
         final SimpleHealthCheckService service = new SimpleHealthCheckService(executor);
 
-        //service.registerProbe(plugin, new StandardExports());
+        service.registerProbe(plugin, "last-tick", new LastTickHealth(plugin, scheduler, 45000L));
 
         getWebServer().registerHandlerAndStart(config.metricsEndpoint, service);
         return service;

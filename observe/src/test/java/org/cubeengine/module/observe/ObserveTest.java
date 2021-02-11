@@ -60,6 +60,10 @@ public class ObserveTest {
                             .setVersion("1.0.0")
                             .setMainClass(Observe.class.getName())
                             .build();
+                case "hashCode":
+                    return 1;
+                case "equals":
+                    return true;
                 default:
                     return null;
             }
