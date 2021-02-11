@@ -124,7 +124,7 @@ public class Observe
 
         service.registerProbe(plugin, "last-tick", new LastTickHealth(plugin, scheduler, 45000L));
 
-        getWebServer().registerHandlerAndStart(config.metricsEndpoint, service);
+        getWebServer().registerHandlerAndStart(config.healthEndpoint, service);
         return service;
     }
 
