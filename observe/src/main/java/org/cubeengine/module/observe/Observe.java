@@ -35,6 +35,8 @@ import org.cubeengine.module.observe.health.impl.TickTimeCollector;
 import org.cubeengine.module.observe.metrics.MetricsService;
 import org.cubeengine.module.observe.metrics.impl.PrometheusMetricsService;
 import org.cubeengine.module.observe.metrics.impl.SpongeCollector;
+import org.cubeengine.module.observe.tracing.JaegerTracingService;
+import org.cubeengine.module.observe.tracing.TracingService;
 import org.cubeengine.module.observe.web.WebServer;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.Server;
@@ -96,6 +98,12 @@ public class Observe
         event.suggest(this::provideHealth);
     }
 
+    @Listener
+    public void onProvideTracing(ProvideServiceEvent<TracingService> event)
+    {
+        event.suggest(this::provideTracing);
+    }
+
     private MetricsService provideMetrics() {
         final TaskExecutorService syncExecutor = Sponge.getServer().getScheduler().createExecutor(plugin);
         final TaskExecutorService asyncExecutor = Sponge.getAsyncScheduler().createExecutor(plugin);
@@ -126,6 +134,10 @@ public class Observe
 
         getWebServer().registerHandlerAndStart(config.healthEndpoint, service);
         return service;
+    }
+
+    private TracingService provideTracing() {
+        return new JaegerTracingService(plugin.getMetadata().getId());
     }
 
     @Listener
