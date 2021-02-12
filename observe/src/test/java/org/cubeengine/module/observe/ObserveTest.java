@@ -17,6 +17,7 @@
  */
 package org.cubeengine.module.observe;
 
+import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.hotspot.GarbageCollectorExports;
 import org.apache.logging.log4j.LogManager;
 import org.cubeengine.libcube.util.Pair;
@@ -73,7 +74,7 @@ public class ObserveTest {
 
         final InetSocketAddress addr = new InetSocketAddress("0.0.0.0", 0);
         final WebServer webServer = new WebServer(addr, Thread::new, plugin.getLogger());
-        final PrometheusMetricsService metricsService = new PrometheusMetricsService(executorService, executorService, plugin.getLogger());
+        final PrometheusMetricsService metricsService = new PrometheusMetricsService(executorService, executorService, new CollectorRegistry(), plugin.getLogger());
         metricsService.registerCollector(plugin, new GarbageCollectorExports());
         metricsService.registerCollector(plugin, PullGaugeCollector.<DoubleSupplier>build(Math::random).withGauge(PullGauge.build("test", DoubleSupplier::getAsDouble).help("dummy").build()).build());
         assertTrue(webServer.registerHandlerAndStart("/metrics", metricsService));

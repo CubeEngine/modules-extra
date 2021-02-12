@@ -66,16 +66,17 @@ public class PrometheusMetricsService implements MetricsService, WebHandler
     private static final Duration TIMEOUT = Duration.ofSeconds(10);
 
     private final CollectorRegistry syncRegistry = new CollectorRegistry();
-    private final CollectorRegistry asyncRegistry = new CollectorRegistry();
+    private final CollectorRegistry asyncRegistry;
     private final Map<PluginContainer, Set<Collector>> collectorsPerPlugins = new HashMap<>();
     private final ExecutorService syncExecutor;
     private final ScheduledExecutorService asyncExecutor;
     private final Logger logger;
 
-    public PrometheusMetricsService(ExecutorService syncExecutor, ScheduledExecutorService asyncExecutor, Logger logger)
+    public PrometheusMetricsService(ExecutorService syncExecutor, ScheduledExecutorService asyncExecutor, CollectorRegistry asyncCollectorRegistry, Logger logger)
     {
         this.syncExecutor = syncExecutor;
         this.asyncExecutor = asyncExecutor;
+        this.asyncRegistry = asyncCollectorRegistry;
         this.logger = logger;
     }
 

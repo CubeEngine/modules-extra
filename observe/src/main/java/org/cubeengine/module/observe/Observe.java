@@ -19,6 +19,7 @@ package org.cubeengine.module.observe;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.hotspot.ClassLoadingExports;
 import io.prometheus.client.hotspot.GarbageCollectorExports;
 import io.prometheus.client.hotspot.MemoryPoolsExports;
@@ -35,8 +36,9 @@ import org.cubeengine.module.observe.health.impl.TickTimeCollector;
 import org.cubeengine.module.observe.metrics.MetricsService;
 import org.cubeengine.module.observe.metrics.impl.PrometheusMetricsService;
 import org.cubeengine.module.observe.metrics.impl.SpongeCollector;
-import org.cubeengine.module.observe.tracing.JaegerTracingService;
+import org.cubeengine.module.observe.tracing.impl.JaegerTracingService;
 import org.cubeengine.module.observe.tracing.TracingService;
+import org.cubeengine.module.observe.tracing.impl.PrometheusMetricsFactory;
 import org.cubeengine.module.observe.web.WebServer;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.Server;
@@ -62,6 +64,7 @@ public class Observe
     private final Logger logger;
     private final ThreadFactory tf;
     private final TaskManager tm;
+    private final CollectorRegistry asyncCollectorRegistry = new CollectorRegistry();
 
     @Inject
     public Observe(PluginContainer plugin, Logger logger, ThreadFactory tf, TaskManager tm) {
@@ -108,7 +111,7 @@ public class Observe
         final TaskExecutorService syncExecutor = Sponge.getServer().getScheduler().createExecutor(plugin);
         final TaskExecutorService asyncExecutor = Sponge.getAsyncScheduler().createExecutor(plugin);
 
-        final PrometheusMetricsService service = new PrometheusMetricsService(syncExecutor, asyncExecutor, logger);
+        final PrometheusMetricsService service = new PrometheusMetricsService(syncExecutor, asyncExecutor, asyncCollectorRegistry, logger);
 
         service.registerCollector(plugin, new StandardExports());
         service.registerCollector(plugin, new MemoryPoolsExports());
@@ -137,7 +140,8 @@ public class Observe
     }
 
     private TracingService provideTracing() {
-        return new JaegerTracingService(plugin.getMetadata().getId());
+        final PrometheusMetricsFactory metricsFactory = new PrometheusMetricsFactory(asyncCollectorRegistry);
+        return new JaegerTracingService(plugin.getMetadata().getId(), metricsFactory);
     }
 
     @Listener

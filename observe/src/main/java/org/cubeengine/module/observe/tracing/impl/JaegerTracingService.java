@@ -15,18 +15,23 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cubeengine.module.observe.tracing;
+package org.cubeengine.module.observe.tracing.impl;
 
 import io.jaegertracing.Configuration;
 import io.jaegertracing.internal.JaegerTracer;
+import io.jaegertracing.spi.MetricsFactory;
 import io.opentracing.Tracer;
+import org.cubeengine.module.observe.tracing.TracingService;
 
 public class JaegerTracingService implements TracingService {
 
     private final JaegerTracer tracer;
 
-    public JaegerTracingService(String serviceName) {
-        this.tracer = Configuration.fromEnv(serviceName).getTracer();
+    public JaegerTracingService(String serviceName, MetricsFactory metricsFactory) {
+        this.tracer = Configuration
+                .fromEnv(serviceName)
+                .withMetricsFactory(metricsFactory)
+                .getTracer();
     }
 
     @Override
