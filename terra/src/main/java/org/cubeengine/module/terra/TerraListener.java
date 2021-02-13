@@ -217,7 +217,7 @@ public class TerraListener
     }
 
     @Listener
-    public void onFatalFallDamage(DamageEntityEvent event, @Getter("getEntity") ServerPlayer player)
+    public void onFatalDamage(DamageEntityEvent event, @Getter("getEntity") ServerPlayer player)
     {
         if (event.getFinalDamage() > player.health().get() && player.getWorld().getKey().getNamespace().equals(PluginTerra.TERRA_ID))
         {
@@ -233,9 +233,14 @@ public class TerraListener
 
             player.offer(Keys.FALL_DISTANCE, 0.0);
             player.offer(Keys.FIRE_TICKS, Ticks.of(0));
+            player.offer(Keys.HEALTH, player.get(Keys.MAX_HEALTH).orElse(20.0));
 
             taskManager.runTask(() -> {
-                evacuateWorld(player.getWorld().getKey());
+                i18n.send(player, MessageType.NEUTRAL, "The world you were in disappeared as if it was a dream.");
+
+                final ServerWorld defaultWorld = Sponge.getServer().getWorldManager().defaultWorld();
+                player.setLocation(defaultWorld.getLocation(defaultWorld.getProperties().spawnPosition()));
+
                 player.getWorld().playSound(Sound.sound(SoundTypes.ITEM_TOTEM_USE, Source.PLAYER, 1, 1), player.getPosition());
                 for (Entity leashedEntity : leashed)
                 {
