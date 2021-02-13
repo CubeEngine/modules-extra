@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cubeengine.module.observe.metrics;
+package org.cubeengine.module.observe.metrics.pullgauge;
 
 import io.prometheus.client.Collector.MetricFamilySamples.Sample;
 import org.cubeengine.module.observe.metrics.pullgauge.PullGauge;

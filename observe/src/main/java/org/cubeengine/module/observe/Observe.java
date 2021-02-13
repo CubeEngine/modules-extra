@@ -111,18 +111,22 @@ public class Observe
         final TaskExecutorService syncExecutor = Sponge.getServer().getScheduler().createExecutor(plugin);
         final TaskExecutorService asyncExecutor = Sponge.getAsyncScheduler().createExecutor(plugin);
 
-        final PrometheusMetricsService service = new PrometheusMetricsService(syncExecutor, asyncExecutor, asyncCollectorRegistry, logger);
+        final PrometheusMetricsService service = new PrometheusMetricsService(syncExecutor, asyncExecutor, logger);
 
-        service.registerCollector(plugin, new StandardExports());
-        service.registerCollector(plugin, new MemoryPoolsExports());
-        service.registerCollector(plugin, new GarbageCollectorExports());
-        service.registerCollector(plugin, new ThreadExports());
-        service.registerCollector(plugin, new ClassLoadingExports());
-        service.registerCollector(plugin, new VersionInfoExports());
+        final CollectorRegistry asyncRegistry = new CollectorRegistry();
+        asyncRegistry.register(new StandardExports());
+        asyncRegistry.register(new MemoryPoolsExports());
+        asyncRegistry.register(new GarbageCollectorExports());
+        asyncRegistry.register(new ThreadExports());
+        asyncRegistry.register(new ClassLoadingExports());
+        asyncRegistry.register(new VersionInfoExports());
+        service.addCollectorRegistry(plugin, asyncRegistry, true);
 
+        final CollectorRegistry syncRegistry = new CollectorRegistry();
         final Server server = Sponge.getServer();
-        service.registerCollector(plugin, new SpongeCollector(server, plugin));
-        service.registerCollector(plugin, new TickTimeCollector(server, tm, plugin));
+        syncRegistry.register(new SpongeCollector(server, plugin));
+        syncRegistry.register(new TickTimeCollector(server, tm, plugin));
+        service.addCollectorRegistry(plugin, syncRegistry, false);
 
         getWebServer().registerHandlerAndStart(config.metricsEndpoint, service);
         return service;

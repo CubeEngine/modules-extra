@@ -19,7 +19,10 @@ package org.cubeengine.module.observe;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +31,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public abstract class Util {
     private Util() {
@@ -83,4 +89,23 @@ public abstract class Util {
             }
         });
     }
+
+
+    public static <T> Stream<T> enumerationAsStream(Enumeration<T> e) {
+        return StreamSupport.stream(
+                new Spliterators.AbstractSpliterator<T>(Long.MAX_VALUE, Spliterator.ORDERED) {
+                    public boolean tryAdvance(Consumer<? super T> action) {
+                        if (e.hasMoreElements()) {
+                            action.accept(e.nextElement());
+                            return true;
+                        }
+                        return false;
+                    }
+
+                    public void forEachRemaining(Consumer<? super T> action) {
+                        while (e.hasMoreElements()) action.accept(e.nextElement());
+                    }
+                }, false);
+    }
+
 }

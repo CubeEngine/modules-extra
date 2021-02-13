@@ -74,9 +74,11 @@ public class ObserveTest {
 
         final InetSocketAddress addr = new InetSocketAddress("0.0.0.0", 0);
         final WebServer webServer = new WebServer(addr, Thread::new, plugin.getLogger());
-        final PrometheusMetricsService metricsService = new PrometheusMetricsService(executorService, executorService, new CollectorRegistry(), plugin.getLogger());
-        metricsService.registerCollector(plugin, new GarbageCollectorExports());
-        metricsService.registerCollector(plugin, PullGaugeCollector.<DoubleSupplier>build(Math::random).withGauge(PullGauge.build("test", DoubleSupplier::getAsDouble).help("dummy").build()).build());
+        final PrometheusMetricsService metricsService = new PrometheusMetricsService(executorService, executorService, plugin.getLogger());
+        CollectorRegistry registry = new CollectorRegistry();
+        registry.register(new GarbageCollectorExports());
+        registry.register(PullGaugeCollector.<DoubleSupplier>build(Math::random).withGauge(PullGauge.build("test", DoubleSupplier::getAsDouble).help("dummy").build()).build());
+        metricsService.addCollectorRegistry(plugin, registry, true);
         assertTrue(webServer.registerHandlerAndStart("/metrics", metricsService));
 
         final SimpleHealthCheckService healthyService = new SimpleHealthCheckService(executorService);
@@ -93,7 +95,10 @@ public class ObserveTest {
             System.out.println(readUrlData(new URL(urlBase + "/other")));
         });
 
-        System.out.println(readUrlData(new URL(urlBase + "/metrics")));
+        final Pair<Integer, String> metricsResult = readUrlData(new URL(urlBase + "/metrics"));
+        assertEquals(200, metricsResult.getLeft().intValue());
+        assertFalse(metricsResult.getRight().isEmpty());
+        System.out.println(metricsResult.getRight());
 
 
         assertEquals(new Pair<>(200, "{\"state\":\"HEALTHY\",\"details\":{\"observe:test\":\"HEALTHY\"}}"), readUrlData(new URL(urlBase + "/healthy")));
@@ -106,7 +111,6 @@ public class ObserveTest {
     }
 
     private static Pair<Integer, String> readUrlData(URL url) throws IOException {
-        System.out.println("URL: " + url);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.connect();
         final InputStream data = connection.getInputStream();

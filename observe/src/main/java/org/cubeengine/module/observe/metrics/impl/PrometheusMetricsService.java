@@ -33,7 +33,6 @@ import org.cubeengine.module.observe.web.FailureCallback;
 import org.cubeengine.module.observe.web.WebHandler;
 import org.cubeengine.module.observe.web.SuccessCallback;
 import org.cubeengine.module.observe.metrics.MetricsService;
-import org.cubeengine.module.observe.metrics.SyncCollector;
 import org.spongepowered.plugin.PluginContainer;
 
 import java.io.IOException;
@@ -41,14 +40,12 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -57,102 +54,98 @@ import java.util.stream.Stream;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.INTERNAL_SERVER_ERROR;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-import static java.util.Arrays.asList;
-import static java.util.Collections.newSetFromMap;
 import static org.cubeengine.module.observe.Util.*;
 
 public class PrometheusMetricsService implements MetricsService, WebHandler
 {
     private static final Duration TIMEOUT = Duration.ofSeconds(10);
 
-    private final CollectorRegistry syncRegistry = new CollectorRegistry();
-    private final CollectorRegistry asyncRegistry;
-    private final Map<PluginContainer, Set<Collector>> collectorsPerPlugins = new HashMap<>();
+    private final List<Registration> syncRegistries;
+    private final List<Registration> asyncRegistries;
     private final ExecutorService syncExecutor;
     private final ScheduledExecutorService asyncExecutor;
     private final Logger logger;
 
-    public PrometheusMetricsService(ExecutorService syncExecutor, ScheduledExecutorService asyncExecutor, CollectorRegistry asyncCollectorRegistry, Logger logger)
+    public PrometheusMetricsService(ExecutorService syncExecutor, ScheduledExecutorService asyncExecutor, Logger logger)
     {
         this.syncExecutor = syncExecutor;
         this.asyncExecutor = asyncExecutor;
-        this.asyncRegistry = asyncCollectorRegistry;
+        this.syncRegistries = new ArrayList<>();
+        this.asyncRegistries = new ArrayList<>();
         this.logger = logger;
     }
 
-    public synchronized void registerCollector(PluginContainer plugin, SyncCollector collector)
-    {
-        this.syncRegistry.register(collector);
-        trackCollector(plugin, collector);
-    }
-
-    public synchronized void registerCollector(PluginContainer plugin, Collector collector)
-    {
-        this.asyncRegistry.register(collector);
-        trackCollector(plugin, collector);
-    }
-
-    private void trackCollector(PluginContainer plugin, Collector collector) {
-        this.collectorsPerPlugins.computeIfAbsent(plugin, ignored -> newSetFromMap(new IdentityHashMap<>())).add(collector);
-    }
-
     @Override
-    public synchronized void unregisterCollector(PluginContainer plugin, SyncCollector collector) {
-        this.syncRegistry.unregister(collector);
-        forgetCollector(plugin, collector);
-    }
-
-    @Override
-    public synchronized void unregisterCollector(PluginContainer plugin, Collector collector) {
-        this.asyncRegistry.unregister(collector);
-        forgetCollector(plugin, collector);
-    }
-
-    private void forgetCollector(PluginContainer plugin, Collector collector) {
-        final Set<Collector> collectors = this.collectorsPerPlugins.get(plugin);
-        if (collectors != null) {
-            collectors.remove(collector);
+    public synchronized void addCollectorRegistry(PluginContainer plugin, CollectorRegistry registry, boolean asyncCapable) {
+        final Registration registration = new Registration(plugin, registry);
+        if (asyncCapable) {
+            asyncRegistries.add(registration);
+        } else {
+            syncRegistries.add(registration);
         }
     }
 
     @Override
-    public void unregisterCollectors(PluginContainer plugin) {
-        final Set<Collector> collectors = this.collectorsPerPlugins.remove(plugin);
-        if (collectors != null) {
-            for (Collector collector : collectors) {
-                this.syncRegistry.unregister(collector);
-                this.asyncRegistry.unregister(collector);
-            }
-        }
+    public synchronized void removeCollectorRegistry(PluginContainer plugin, CollectorRegistry registry) {
+        syncRegistries.removeIf(r -> r.getPlugin().equals(plugin) && r.getRegistry().equals(registry));
+        asyncRegistries.removeIf(r -> r.getPlugin().equals(plugin) && r.getRegistry().equals(registry));
+    }
+
+    @Override
+    public synchronized void removeAllCollectorRegistries(PluginContainer plugin) {
+        syncRegistries.removeIf(r -> r.getPlugin().equals(plugin));
+        asyncRegistries.removeIf(r -> r.getPlugin().equals(plugin));
     }
 
     public void handleRequest(SuccessCallback success, FailureCallback failure, FullHttpRequest message, QueryStringDecoder queryStringDecoder) {
         final String contentType = TextFormat.chooseContentType(message.headers().get(HttpHeaderNames.ACCEPT));
         final Set<String> query = parseQuery(queryStringDecoder);
 
-        final CompletableFuture<Stream<Collector.MetricFamilySamples>> syncSamples = getSamples(syncRegistry, query, syncExecutor);
-        final CompletableFuture<Stream<Collector.MetricFamilySamples>> asyncSamples = getSamples(asyncRegistry, query, asyncExecutor);
+        final List<Registration> syncRegistries;
+        final List<Registration> asyncRegistries;
+        synchronized (this) {
+            syncRegistries = new ArrayList<>(this.syncRegistries);
+            asyncRegistries = new ArrayList<>(this.asyncRegistries);
+        }
 
-        sequence(asList(syncSamples, asyncSamples))
-                .thenAccept(allSamples -> writeMetricsResponse(success, failure, contentType, allSamples.stream().reduce(Stream.empty(), Stream::concat), message.content().alloc()))
+        final CompletableFuture<Stream<Collector.MetricFamilySamples>> syncSamples = getSyncSamples(syncRegistries, query);
+        final CompletableFuture<Stream<Collector.MetricFamilySamples>> asyncSamples = getAsyncSamples(asyncRegistries, query);
+
+        syncSamples.thenComposeAsync((sync) -> asyncSamples.thenApply((async) -> Stream.concat(sync, async)))
                 .whenComplete((allSamples, t) -> {
                     if (t != null) {
                         logger.error("Failed to collect the samples!", t);
                         failure.fail(INTERNAL_SERVER_ERROR, t);
+                    } else {
+                        writeMetricsResponse(success, failure, contentType, allSamples, message.content().alloc());
                     }
                 });
 
     }
 
-    private CompletableFuture<Stream<Collector.MetricFamilySamples>> getSamples(CollectorRegistry registry, Set<String> query, ExecutorService executor) {
+    private static void eagerScrapeInto(CollectorRegistry registry, Set<String> query, List<Collector.MetricFamilySamples> output) {
+        final Enumeration<Collector.MetricFamilySamples> enumeration = registry.filteredMetricFamilySamples(query);
+        while (enumeration.hasMoreElements()) {
+            output.add(enumeration.nextElement());
+        }
+    }
+
+    private CompletableFuture<Stream<Collector.MetricFamilySamples>> getSyncSamples(Collection<Registration> registrations, Set<String> query) {
+
         return CompletableFuture.supplyAsync(() -> {
             List<Collector.MetricFamilySamples> samples = new ArrayList<>();
-            final Enumeration<Collector.MetricFamilySamples> enumeration = registry.filteredMetricFamilySamples(query);
-            while (enumeration.hasMoreElements()) {
-                samples.add(enumeration.nextElement());
+            for (Registration registration : registrations) {
+                eagerScrapeInto(registration.getRegistry(), query, samples);
             }
             return samples.stream();
-        }, executor);
+        }, syncExecutor);
+    }
+
+    private static CompletableFuture<Stream<Collector.MetricFamilySamples>> getAsyncSamples(List<Registration> registrations, Set<String> query) {
+        final Stream<Collector.MetricFamilySamples> samples = registrations.stream()
+                .parallel()
+                .flatMap(registration -> enumerationAsStream(registration.getRegistry().filteredMetricFamilySamples(query)));
+        return CompletableFuture.completedFuture(samples);
     }
 
     private <T> CompletableFuture<T> timeout(CompletableFuture<T> promise) {
@@ -197,4 +190,21 @@ public class PrometheusMetricsService implements MetricsService, WebHandler
         return new HashSet<>(names);
     }
 
+    private static final class Registration {
+        private final PluginContainer plugin;
+        private final CollectorRegistry registry;
+
+        public Registration(PluginContainer plugin, CollectorRegistry registry) {
+            this.plugin = plugin;
+            this.registry = registry;
+        }
+
+        public PluginContainer getPlugin() {
+            return plugin;
+        }
+
+        public CollectorRegistry getRegistry() {
+            return registry;
+        }
+    }
 }
