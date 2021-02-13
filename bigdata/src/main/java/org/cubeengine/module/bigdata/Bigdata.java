@@ -17,13 +17,12 @@
  */
 package org.cubeengine.module.bigdata;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import com.google.inject.Singleton;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientOptions;
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCredential;
-import com.mongodb.ServerAddress;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
@@ -106,27 +105,21 @@ public class Bigdata
         {
             return mongoClient;
         }
-        try
+        Authentication authConfig = config.authentication;
+//            MongoClientOptions options = MongoClientOptions.builder().connectTimeout(this.config.connectionTimeout).build();
+        final ConnectionString connectionString = new ConnectionString("mongodb://" + this.config.host + ":" + this.config.port);
+        if (authConfig != null && authConfig.username != null && authConfig.password != null)
         {
-            Authentication authConfig = config.authentication;
-            ServerAddress address = new ServerAddress(InetAddress.getByName(this.config.host), this.config.port);
-            MongoClientOptions options = MongoClientOptions.builder().connectTimeout(this.config.connectionTimeout).build();
-            if (authConfig != null && authConfig.username != null && authConfig.password != null)
-            {
-                MongoCredential credential = MongoCredential.createCredential(authConfig.username, db, authConfig.password.toCharArray());
-                mongoClient = new MongoClient(address, credential, options);
-            }
-            else
-            {
-                mongoClient = new MongoClient(address, options);
-            }
-            // Check if available by pinging the database...
-            mongoClient.getDatabase(db).runCommand(new Document("ping", 1));
-            return mongoClient;
+            MongoCredential credential = MongoCredential.createCredential(authConfig.username, db, authConfig.password.toCharArray());
+            final MongoClientSettings settings = MongoClientSettings.builder().credential(credential).applyConnectionString(connectionString).build();
+            mongoClient = MongoClients.create(settings);
         }
-        catch (UnknownHostException e)
+        else
         {
-            throw new IllegalStateException("Invalid host", e);
+            mongoClient = MongoClients.create(connectionString);
         }
+        // Check if available by pinging the database...
+        mongoClient.getDatabase(db).runCommand(new Document("ping", 1));
+        return mongoClient;
     }
 }

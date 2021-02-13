@@ -19,12 +19,12 @@ package org.cubeengine.module.vigil.report.entity;
 
 import org.cubeengine.module.vigil.report.BaseReport;
 import org.cubeengine.module.vigil.report.Report;
-import org.spongepowered.api.event.entity.TargetEntityEvent;
+import org.spongepowered.api.event.Event;
 
 /* TODO
 - damage entity?
  */
-public abstract class EntityReport<T extends TargetEntityEvent> extends BaseReport<T> implements Report.Readonly
+public abstract class EntityReport<T extends Event> extends BaseReport<T> implements Report.Readonly
 {
     public static final String ENTITY = "entity";
     public static final String ENTITY_DATA = "data";

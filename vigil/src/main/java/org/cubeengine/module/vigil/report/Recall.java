@@ -17,57 +17,46 @@
  */
 package org.cubeengine.module.vigil.report;
 
-import static org.cubeengine.module.vigil.report.Report.CAUSECONTEXT;
-import static org.cubeengine.module.vigil.report.Report.CAUSE_INDIRECT;
-import static org.cubeengine.module.vigil.report.Report.FULLCAUSELIST;
-import static org.cubeengine.module.vigil.report.Report.LOCATION;
-import static org.cubeengine.module.vigil.report.block.BlockReport.BLOCK_CHANGES;
-import static org.cubeengine.module.vigil.report.block.BlockReport.BLOCK_DATA;
-import static org.cubeengine.module.vigil.report.block.BlockReport.BLOCK_STATE;
-import static org.cubeengine.module.vigil.report.block.BlockReport.BLOCK_UNSAFE_DATA;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.TextComponent.Builder;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.cubeengine.module.vigil.report.entity.EntityReport;
+import org.spongepowered.api.ResourceKey;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.block.BlockTypes;
+import org.spongepowered.api.data.persistence.DataContainer;
+import org.spongepowered.api.data.persistence.DataQuery;
+import org.spongepowered.api.data.persistence.DataView;
+import org.spongepowered.api.entity.EntitySnapshot;
+import org.spongepowered.api.entity.EntityType;
+import org.spongepowered.api.event.EventContextKeys;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
+import org.spongepowered.api.registry.RegistryTypes;
+import org.spongepowered.api.world.server.ServerLocation;
+import org.spongepowered.api.world.server.ServerWorld;
+
+import static org.cubeengine.module.vigil.report.Report.*;
 import static org.cubeengine.module.vigil.report.block.BlockReport.CAUSE;
 import static org.cubeengine.module.vigil.report.block.BlockReport.CAUSE_NAME;
 import static org.cubeengine.module.vigil.report.block.BlockReport.CAUSE_PLAYER_UUID;
 import static org.cubeengine.module.vigil.report.block.BlockReport.CAUSE_TARGET;
 import static org.cubeengine.module.vigil.report.block.BlockReport.CAUSE_TYPE;
 import static org.cubeengine.module.vigil.report.block.BlockReport.CauseType;
-import static org.cubeengine.module.vigil.report.block.BlockReport.ORIGINAL;
-import static org.cubeengine.module.vigil.report.block.BlockReport.REPLACEMENT;
 import static org.cubeengine.module.vigil.report.block.BlockReport.WORLD;
 import static org.cubeengine.module.vigil.report.block.BlockReport.X;
 import static org.cubeengine.module.vigil.report.block.BlockReport.Y;
 import static org.cubeengine.module.vigil.report.block.BlockReport.Z;
-import static org.spongepowered.api.text.format.TextColors.DARK_GREEN;
-import static org.spongepowered.api.text.format.TextColors.YELLOW;
-
-import org.cubeengine.libcube.util.ChatFormat;
-import org.cubeengine.module.vigil.report.entity.EntityReport;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.block.BlockType;
-import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.data.DataContainer;
-import org.spongepowered.api.data.DataQuery;
-import org.spongepowered.api.data.DataView;
-import org.spongepowered.api.entity.EntitySnapshot;
-import org.spongepowered.api.entity.EntityType;
-import org.spongepowered.api.event.cause.EventContextKeys;
-import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.item.inventory.ItemStackSnapshot;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.action.TextActions;
-import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.text.translation.Translation;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import static org.cubeengine.module.vigil.report.block.BlockReport.*;
 
 public class Recall
 {
@@ -94,14 +83,13 @@ public class Recall
 
         toContainer(container, data, BLOCK_UNSAFE_DATA);
 
-        return Sponge.getGame().getRegistry().createBuilder(BlockSnapshot.Builder.class).build(container);
+        return BlockSnapshot.builder().build(container);
     }
 
     public static Optional<ItemStackSnapshot> item(Map<String, Object> data)
     {
         DataContainer container = ((DataContainer) toContainer(data));
-        return Sponge.getGame().getRegistry().createBuilder(ItemStack.Builder.class)
-                .build(container).map(ItemStack::createSnapshot);
+        return Optional.of(ItemStack.builder().fromContainer(container).build().createSnapshot());
     }
 
     public static Optional<BlockSnapshot> origSnapshot(Action action)
@@ -117,7 +105,7 @@ public class Recall
     }
 
     @SuppressWarnings("unchecked")
-    public static Text cause(Action action)
+    public static Component cause(Action action)
     {
         Map<String, Object> data = action.getData(CAUSE);
         List<Map<String, Object>> list = (List<Map<String, Object>>)data.get(FULLCAUSELIST);
@@ -125,108 +113,96 @@ public class Recall
         return cause(list, context);
     }
 
-    public static Text cause(List<Map<String, Object>> list, Map<String, Object> context)
+    public static Component cause(List<Map<String, Object>> list, Map<String, Object> context)
     {
-        Text notifier = Text.of();
-        if (context != null) {
-            notifier = cause(((Map<String, Object>) context.get(EventContextKeys.NOTIFIER.getId())), notifier, CauseType.CAUSE_PLAYER);
-        }
-
         if (list.size() > 6) {
             list = list.subList(0, 6);
         }
-        Text text = Text.of("?");
-        Iterator<Map<String, Object>> it = list.iterator();
-        if (!list.isEmpty())
+        final Builder builder = Component.text();
+        boolean first = true;
+        for (Map<String, Object> elem : list)
         {
-            Map<String, Object> elem = it.next();
             CauseType type = CauseType.valueOf(elem.get(CAUSE_TYPE).toString());
-            text = cause(elem, text, type);
-        }
-        while (it.hasNext())
-        {
-            Map<String, Object> elem = it.next();
-            text = text.toBuilder().append(Text.of("…").toBuilder().onHover(
-                    TextActions.showText(Text.of(text, "←", cause(elem, Text.of(),
-                            CauseType.valueOf(elem.get(CAUSE_TYPE).toString()))))).build()).build();
-        }
-        // Notifier
-        if (!notifier.isEmpty())
-        {
-            if (!text.equals(notifier))
+            if (first)
             {
-                text = Text.of(text, ChatFormat.GREY, "←", notifier);
+                builder.append(cause(elem, Component.text("?"), type));
             }
+            else
+            {
+                final Component cause = cause(elem, Component.empty(), type);
+                final TextComponent hover = builder.build().append(Component.text("←")).append(cause);
+                builder.append(Component.text("…").hoverEvent(HoverEvent.showText(hover)));
+            }
+            first = false;
         }
-        return text;
+
+        // Notifier
+        if (context != null && context.containsKey(EventContextKeys.NOTIFIER.getKey().asString())) {
+            final Map<String, Object> notifierContext = (Map<String, Object>)context.get(EventContextKeys.NOTIFIER.getKey().asString());
+            builder.append(Component.text("←", NamedTextColor.GRAY)).append(cause(notifierContext, Component.empty(), CauseType.CAUSE_PLAYER));
+        }
+        return builder.build();
     }
 
-    private static Text cause(Map<String, Object> source, Text text, CauseType type)
+    private static Component cause(Map<String, Object> source, Component defText, CauseType type)
     {
         if (source == null) {
-            return text;
+            return defText;
         }
-        Object causeName = source.get(CAUSE_NAME);
+        final String causeName = source.get(CAUSE_NAME).toString();
+        final Object causePlayerUUID = source.get(CAUSE_PLAYER_UUID);
         switch (type)
         {
             case CAUSE_PLAYER:
-                text = Text.of(DARK_GREEN, causeName).toBuilder()
-                           .onHover(TextActions.showText(Text.of(YELLOW, source.get(CAUSE_PLAYER_UUID)))).build();
-                break;
+                return Component.text(causeName, NamedTextColor.DARK_GREEN).hoverEvent(HoverEvent.showText(Component.text(causePlayerUUID.toString(), NamedTextColor.YELLOW)));
             case CAUSE_BLOCK:
-                Optional<BlockType> bType = Sponge.getRegistry().getType(BlockType.class, causeName.toString());
+                final Optional<BlockType> bType = RegistryTypes.BLOCK_TYPE.get().findValue(ResourceKey.resolve(causeName));
                 if (!bType.isPresent())
                 {
-                    text = Text.of(TextColors.GOLD, "unknown Block"); // TODO translate
+                    return Component.text("unknown Block", NamedTextColor.GOLD); // TODO translate
                 }
-                else
+                if (bType.get().isAnyOf(BlockTypes.LAVA, BlockTypes.FIRE))
                 {
-                    if (bType.get() == BlockTypes.LAVA || bType.get() == BlockTypes.FLOWING_LAVA || bType.get() == BlockTypes.FIRE)
-                    {
-                        text = Text.of(TextColors.RED, bType.get().getTranslation());
-                    }
-                    else
-                    {
-                        text = Text.of(TextColors.GOLD, bType.get().getTranslation());
-                    }
+                    return bType.get().asComponent().color(NamedTextColor.RED);
                 }
-                break;
+                return bType.get().asComponent().color(NamedTextColor.GOLD);
             case CAUSE_TNT:
-                text = Text.of(TextColors.RED, "TNT"); // TODO translatable
-                if (source.get(CAUSE_PLAYER_UUID) == null)
+
+                final TextComponent tntCause;
+                if (causePlayerUUID == null)
                 {
-                    text = text.toBuilder().append(Text.of(" (", Text.of(TextColors.GOLD, causeName), ")")).build();
+                    tntCause = Component.text(causeName, NamedTextColor.GOLD);
                 }
                 else
                 {
-                    text = text.toBuilder().append(Text.of(" (", Text.of(DARK_GREEN, causeName).toBuilder()
-                                                                     .onHover(TextActions.showText(Text.of(YELLOW, source.get(CAUSE_PLAYER_UUID)))).build(), ")")).build();
+                    tntCause = Component.text(causeName, NamedTextColor.DARK_GREEN).hoverEvent(HoverEvent.showText(Component.text(causePlayerUUID.toString(), NamedTextColor.YELLOW)));
                 }
-                break;
+                return Component.text("TNT", NamedTextColor.RED) // TODO translatable
+                        .append(Component.space()).append(Component.text("(")).append(tntCause).append(Component.text(")"));
             case CAUSE_DAMAGE:
-                text = Text.of(TextColors.GOLD, causeName);
-                break;
+                return Component.text(causeName, NamedTextColor.GOLD);
             case CAUSE_ENTITY:
-                text = Text.of(TextColors.GOLD, Sponge.getRegistry().getType(EntityType.class, causeName.toString())
-                        .map(EntityType::getTranslation).map(Translation::get).orElse(causeName.toString()));
+                final Component entityCause = RegistryTypes.ENTITY_TYPE.get().findValue(ResourceKey.resolve(causeName)).map(EntityType::asComponent)
+                                                                       .orElse(Component.text(causeName)).color(NamedTextColor.GOLD);
+
                 // TODO translation
                 if (source.containsKey(CAUSE_TARGET) && source.get(CAUSE_TARGET) != null)
                 {
                     Map<String, Object> sourceTarget = ((Map<String, Object>) source.get(CAUSE_TARGET));
                     CauseType targetType = CauseType.valueOf(sourceTarget.get(CAUSE_TYPE).toString());
-                    text = Text.of(text, TextColors.GRAY, "◎", cause(sourceTarget, Text.of("?"), targetType));
+                    entityCause.append(Component.text("◎", NamedTextColor.GRAY)).append(cause(sourceTarget, Component.text("?"), targetType));
                 }
 
                 if (source.containsKey(CAUSE_INDIRECT))
                 {
                     Map<String, Object> indirect = ((Map<String, Object>) source.get(CAUSE_INDIRECT));
                     CauseType targetType = CauseType.valueOf(indirect.get(CAUSE_TYPE).toString());
-                    text = Text.of(text, TextColors.GRAY, "↶", cause(indirect, Text.of("?"), targetType));
+                    entityCause.append(Component.text("↶", NamedTextColor.GRAY)).append(cause(indirect, Component.text("?"), targetType));
                 }
-
-                break;
+                return entityCause;
+            default:
+                return defText;
         }
-        return text;
     }
 
     public static Object toContainer(Object data)
@@ -253,13 +229,13 @@ public class Recall
         return EntitySnapshot.builder().build(((DataView)toContainer(map))).orElse(null);
     }
 
-    public static Location<World> location(Action action)
+    public static ServerLocation location(Action action)
     {
-        Map<String, Object> data = action.getData(LOCATION);
-        World world = Sponge.getServer().getWorld(UUID.fromString(data.get(WORLD.asString("_")).toString())).get();
-        Integer x = (Integer)data.get(X.asString("_"));
-        Integer y = (Integer)data.get(Y.asString("_"));
-        Integer z = (Integer)data.get(Z.asString("_"));
-        return new Location<>(world, x, y, z);
+        final Map<String, Object> data = action.getData(LOCATION);
+        final ServerWorld world = Sponge.getServer().getWorldManager().world(ResourceKey.resolve(data.get(WORLD).toString())).get();
+        final Integer x = (Integer)data.get(X.asString("_"));
+        final Integer y = (Integer)data.get(Y.asString("_"));
+        final Integer z = (Integer)data.get(Z.asString("_"));
+        return world.getLocation(x, y, z);
     }
 }

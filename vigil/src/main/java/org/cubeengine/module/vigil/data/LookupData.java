@@ -17,22 +17,14 @@
  */
 package org.cubeengine.module.vigil.data;
 
-import org.cubeengine.libcube.util.data.AbstractData;
-import org.cubeengine.module.vigil.report.Report;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.DataContainer;
-import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.merge.MergeFunction;
-import org.spongepowered.api.item.inventory.ItemStack;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.cubeengine.module.vigil.report.Report;
 
-public class LookupData extends AbstractData<LookupData, ImmutableLookupData> implements ILookupData
+public class LookupData
 {
     private UUID creator;
 
@@ -44,23 +36,6 @@ public class LookupData extends AbstractData<LookupData, ImmutableLookupData> im
     private boolean showDetailedInventory = false;
 
     private List<String> reports = new ArrayList<>();
-
-    public LookupData()
-    {
-        super(1, ItemStack.class);
-    }
-
-    protected LookupData(ILookupData lookupData)
-    {
-        this();
-        this.creator = lookupData.getCreator();
-        this.fullDate = lookupData.isFullDate();
-        this.noDate = lookupData.isNoDate();
-        this.showLocation = lookupData.isShowLocation();
-        this.fullLocation = lookupData.isFullLocation();
-        this.showDetailedInventory = lookupData.showDetailedInventory();
-        this.reports = new ArrayList<>(lookupData.getReports());
-    }
 
     // ------ SETTERS ------
 
@@ -114,138 +89,57 @@ public class LookupData extends AbstractData<LookupData, ImmutableLookupData> im
 
     // ------ GETTERS ------
 
-    @Override
     public UUID getCreator()
     {
         return creator;
     }
 
-    @Override
     public boolean isFullDate()
     {
         return fullDate;
     }
 
-    @Override
     public boolean isShowLocation()
     {
         return showLocation;
     }
 
-    @Override
     public boolean isNoDate()
     {
         return noDate;
     }
 
-    @Override
     public boolean isFullLocation()
     {
         return fullLocation;
     }
 
-    @Override
     public boolean showDetailedInventory()
     {
         return showDetailedInventory;
     }
 
-    @Override
     public List<String> filteredReports()
     {
         return this.reports;
     }
 
-    @Override
     public List<String> getReports()
     {
         return reports;
     }
 
-    // ----- DATA IMPLEMENTATION -----
 
-    @Override
-    protected void registerKeys()
-    {
-        registerSingle(ILookupData.CREATOR, this::getCreator, this::withCreator);
-        registerSingle(ILookupData.FULLDATE, this::isFullDate, this::withFullDate);
-        registerSingle(ILookupData.SHOWLOC, this::isShowLocation, this::withShowLocation);
-        registerSingle(ILookupData.NODATE, this::isNoDate, this::withNoDate);
-        registerSingle(ILookupData.FULLLOC, this::isFullLocation, this::withFullLocation);
-        registerSingle(ILookupData.DETAILINV, this::showDetailedInventory, this::withDetailedInventory);
-        registerGetter(ILookupData.REPORTS, this::filteredReports);
-        registerValue(ILookupData.REPORTS, () -> Sponge.getRegistry().getValueFactory().createListValue(REPORTS, this.filteredReports()));
-        registerSetter(ILookupData.REPORTS, this::setReports);
-    }
-
-    @Override
-    public LookupData asMutable()
-    {
-        return this;
-    }
-
-    @Override
-    public Optional<LookupData> fill(DataHolder dataHolder, MergeFunction overlap)
-    {
-        if (!supports(dataHolder))
-        {
-            return Optional.empty();
-        }
-        LookupData newData = new LookupData().withCreator(dataHolder.get(CREATOR).get())
-                    .withFullDate(dataHolder.get(FULLDATE).orElse(false))
-                    .withShowLocation(dataHolder.get(SHOWLOC).orElse(false))
-                    .withNoDate(dataHolder.get(NODATE).orElse(false))
-                    .withFullLocation(dataHolder.get(FULLLOC).orElse(false))
-                    .withDetailedInventory(dataHolder.get(DETAILINV).orElse(false))
-                    .setReports(dataHolder.get(REPORTS).orElse(new ArrayList<>()));
-
-        LookupData merged = overlap.merge(this, newData);
-        if (merged != this)
-        {
-            this.withCreator(merged.creator)
-                .withFullDate(merged.fullDate)
-                .withShowLocation(merged.showLocation)
-                .withNoDate(merged.noDate)
-                .withFullLocation(merged.fullLocation)
-                .withDetailedInventory(merged.showDetailedInventory)
-                .setReports(merged.reports);
-        }
-        return Optional.of(this);
-    }
-
-    @Override
-    public Optional<LookupData> from(DataContainer container)
-    {
-        Optional<UUID> creator = container.getObject(CREATOR.getQuery(), UUID.class);
-        boolean fullDate = container.getBoolean(FULLDATE.getQuery()).orElse(false);
-        boolean noDate = container.getBoolean(SHOWLOC.getQuery()).orElse(false);
-        boolean showLocation = container.getBoolean(NODATE.getQuery()).orElse(false);
-        boolean fullLocation = container.getBoolean(FULLLOC.getQuery()).orElse(false);
-        boolean showDetailedInventory = container.getBoolean(DETAILINV.getQuery()).orElse(false);
-        List<String> reports = container.getStringList(REPORTS.getQuery()).orElse(new ArrayList<>());
-        if (creator.isPresent())
-        {
-            this.withCreator(creator.get())
-                .withFullDate(fullDate)
-                .withNoDate(noDate)
-                .withShowLocation(showLocation)
-                .withFullLocation(fullLocation)
-                .withDetailedInventory(showDetailedInventory)
-                .setReports(reports);
-            return Optional.of(this);
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public ImmutableLookupData asImmutable()
-    {
-        return new ImmutableLookupData(this);
-    }
-
-    @Override
     public LookupData copy()
     {
-        return new LookupData(this);
+        final LookupData copy = new LookupData();
+        copy.creator = this.creator;
+        copy.fullDate = this.fullDate;
+        copy.noDate = this.noDate;
+        copy.showLocation = this.showLocation;
+        copy.fullLocation = this.fullLocation;
+        copy.showDetailedInventory = this.showDetailedInventory;
+        copy.reports = this.reports;
+        return copy;
     }
 }

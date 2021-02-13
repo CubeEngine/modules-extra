@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.function.Function;
 import org.bson.Document;
 
-
 public class Action
 {
     public static class DataKey<T> {

@@ -21,7 +21,9 @@ import org.cubeengine.libcube.service.config.ConfigWorld;
 import org.cubeengine.module.vigil.report.Report;
 import org.cubeengine.reflect.annotations.Comment;
 import org.cubeengine.reflect.codec.yaml.ReflectedYaml;
+import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.server.ServerWorld;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,20 +42,20 @@ public class VigilConfig extends ReflectedYaml
     @Comment("Custom prepared reports. Values are MongoDB query string (Json format)")
     public Map<String, String> preparedReports = new HashMap<>();
 
-    private transient Map<UUID, List<Class<? extends Report>>> disabledReportsMap = new HashMap<>();
+    private transient Map<ResourceKey, List<Class<? extends Report>>> disabledReportsMap = new HashMap<>();
 
-    public void markDirty(World world)
+    public void markDirty(ServerWorld world)
     {
-        disabledReportsMap.remove(world.getUniqueId());
+        disabledReportsMap.remove(world.getKey());
     }
 
-    public List<Class<? extends Report>> getDisabledReports(World world)
+    public List<Class<? extends Report>> getDisabledReports(ServerWorld world)
     {
-        List<Class<? extends Report>> reports = disabledReportsMap.get(world.getUniqueId());
+        List<Class<? extends Report>> reports = disabledReportsMap.get(world.getKey());
         if (reports == null)
         {
             reports = new ArrayList<>();
-            disabledReportsMap.put(world.getUniqueId(), reports);
+            disabledReportsMap.put(world.getKey(), reports);
             ConfigWorld cWorld = new ConfigWorld(world);
             for (String name : disabledReports.getOrDefault(cWorld, Collections.emptyList()))
             {
@@ -67,7 +69,7 @@ public class VigilConfig extends ReflectedYaml
             {
                 List<String> list = new ArrayList<>();
                 disabledReports.put(cWorld, list);
-                reports.forEach(c -> list.add(c.getClass().getName())); // Save long names
+                reports.forEach(c -> list.add(c.getName())); // Save long names
                 this.save();
             }
         }

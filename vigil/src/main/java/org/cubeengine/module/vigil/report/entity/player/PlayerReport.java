@@ -18,7 +18,7 @@
 package org.cubeengine.module.vigil.report.entity.player;
 
 import org.cubeengine.module.vigil.report.entity.EntityReport;
-import org.spongepowered.api.event.entity.living.humanoid.player.TargetPlayerEvent;
+import org.spongepowered.api.event.Event;
 
 /* TODO player
 -teleport
@@ -26,6 +26,6 @@ import org.spongepowered.api.event.entity.living.humanoid.player.TargetPlayerEve
 
 -player-death
  */
-public abstract class PlayerReport<T extends TargetPlayerEvent> extends EntityReport<T>
+public abstract class PlayerReport<T extends Event> extends EntityReport<T>
 {
 }

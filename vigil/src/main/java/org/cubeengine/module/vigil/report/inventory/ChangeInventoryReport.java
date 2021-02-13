@@ -17,38 +17,34 @@
  */
 package org.cubeengine.module.vigil.report.inventory;
 
-import static org.spongepowered.api.item.inventory.ItemStackComparators.ITEM_DATA;
-import static org.spongepowered.api.item.inventory.ItemStackComparators.PROPERTIES;
-import static org.spongepowered.api.item.inventory.ItemStackComparators.TYPE;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Ordering;
-import org.cubeengine.module.vigil.Receiver;
-import org.cubeengine.module.vigil.report.Action;
-import org.cubeengine.module.vigil.report.Observe;
-import org.cubeengine.module.vigil.report.Recall;
-import org.cubeengine.module.vigil.report.Report;
-import org.cubeengine.module.vigil.report.ReportUtil;
-import org.spongepowered.api.data.Transaction;
-import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
-import org.spongepowered.api.event.item.inventory.ClickInventoryEvent;
-import org.spongepowered.api.item.ItemTypes;
-import org.spongepowered.api.item.inventory.BlockCarrier;
-import org.spongepowered.api.item.inventory.Inventory;
-import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.item.inventory.ItemStackComparators;
-import org.spongepowered.api.item.inventory.property.SlotIndex;
-import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
-import org.spongepowered.api.item.inventory.transaction.SlotTransaction;
-import org.spongepowered.api.text.Text;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
+import net.kyori.adventure.text.Component;
+import org.cubeengine.module.vigil.Receiver;
+import org.cubeengine.module.vigil.report.Action;
+import org.cubeengine.module.vigil.report.Observe;
+import org.cubeengine.module.vigil.report.Recall;
+import org.cubeengine.module.vigil.report.Report;
+import org.cubeengine.module.vigil.report.ReportUtil;
+import org.spongepowered.api.data.Keys;
+import org.spongepowered.api.data.Transaction;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
+import org.spongepowered.api.event.item.inventory.container.ClickContainerEvent;
+import org.spongepowered.api.item.ItemTypes;
+import org.spongepowered.api.item.inventory.BlockCarrier;
+import org.spongepowered.api.item.inventory.Inventory;
+import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.query.QueryTypes;
+import org.spongepowered.api.item.inventory.transaction.SlotTransaction;
+
+import static org.spongepowered.api.item.inventory.ItemStackComparators.*;
 
 /* TODO
 inventory
@@ -63,14 +59,12 @@ public class ChangeInventoryReport extends InventoryReport<ChangeInventoryEvent>
     public static final String ORIGINAL = "original";
     public static final String REPLACEMENT = "replacement";
     public static final String SLOT_INDEX = "slot-index";
-    private static final Comparator<ItemStack> COMPARATOR = Ordering.compound(ImmutableList.of(TYPE, PROPERTIES, ITEM_DATA));
+    private static final Comparator<ItemStack> COMPARATOR = Ordering.compound(ImmutableList.of(TYPE.get(), ITEM_DATA.get()));
 
     @Override
     public void showReport(List<Action> actions, Receiver receiver)
     {
-        Text cause = Recall.cause(actions.get(0));
-
-
+        Component cause = Recall.cause(actions.get(0));
 
         LinkedList<Transaction<ItemStack>> transactions = new LinkedList<>();
 
@@ -183,7 +177,7 @@ public class ChangeInventoryReport extends InventoryReport<ChangeInventoryEvent>
             return false;
         }
         if (Recall.location(action).equals(Recall.location(otherAction))
-         && Recall.cause(action).equals(Recall.cause(otherAction)))
+            && Recall.cause(action).equals(Recall.cause(otherAction)))
         {
             return true;
         }
@@ -198,13 +192,13 @@ public class ChangeInventoryReport extends InventoryReport<ChangeInventoryEvent>
     }
 
     @Listener
-    public void listen(ClickInventoryEvent event)
+    public void listen(ClickContainerEvent event)
     {
         List<SlotTransaction> upperTransactions = new ArrayList<>();
-        int upperSize = event.getTargetInventory().iterator().next().capacity();
+        int upperSize = event.getInventory().children().get(0).capacity();
         for (SlotTransaction transaction : event.getTransactions())
         {
-            Integer affectedSlot = transaction.getSlot().getInventoryProperty(SlotIndex.class).map(SlotIndex::getValue).orElse(-1);
+            Integer affectedSlot = transaction.getSlot().get(Keys.SLOT_INDEX).orElse(-1);
             boolean upper = affectedSlot != -1 && affectedSlot < upperSize;
             if (upper)
             {
@@ -212,16 +206,16 @@ public class ChangeInventoryReport extends InventoryReport<ChangeInventoryEvent>
             }
         }
 
-        Inventory te = event.getTargetInventory().query(QueryOperationTypes.TYPE.of(BlockCarrier.class));
+        Inventory te = event.getInventory().query(QueryTypes.TYPE, BlockCarrier.class);
         if (!(te instanceof BlockCarrier))
         {
-            te = te.first();
+            te = te.children().get(0);
         }
         if (te instanceof BlockCarrier)
         {
             Action action = this.observe(event);
             action.addData(INVENTORY_CHANGES, Observe.transactions(upperTransactions));
-            action.addData(Report.LOCATION, Observe.location(((BlockCarrier) te).getLocation()));
+            action.addData(Report.LOCATION, Observe.location(((BlockCarrier) te).getServerLocation()));
             this.report(action);
         }
     }

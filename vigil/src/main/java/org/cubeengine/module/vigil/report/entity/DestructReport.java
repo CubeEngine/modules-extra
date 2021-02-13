@@ -19,12 +19,14 @@ package org.cubeengine.module.vigil.report.entity;
 
 import java.util.List;
 import java.util.Optional;
+import net.kyori.adventure.text.Component;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.Observe;
 import org.cubeengine.module.vigil.report.Recall;
 import org.cubeengine.module.vigil.report.Report;
 import org.cubeengine.module.vigil.report.ReportUtil;
+import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.EntityTypes;
@@ -36,7 +38,7 @@ import org.spongepowered.api.event.entity.DestructEntityEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackComparators;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
-import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.Component;
 
 import static org.spongepowered.api.text.action.TextActions.showText;
 
@@ -63,21 +65,21 @@ public class DestructReport extends EntityReport<DestructEntityEvent>
         Action action = actions.get(0);
         //Optional<BlockSnapshot> orig = action.getCached(BLOCKS_ORIG, Recall::origSnapshot).get(0);
 
-        Text cause = Recall.cause(action);
+        Component cause = Recall.cause(action);
         EntitySnapshot entity = Recall.entity(action);
-        if (entity.getType() == EntityTypes.ITEM)
+        if (entity.getType() == EntityTypes.ITEM.get())
         {
-            Text name = ReportUtil.name(entity);
-            ItemStack i = entity.get(Keys.REPRESENTED_ITEM).map(ItemStackSnapshot::createStack).orElse(null);
-            Text item = Text.of("?");
+            Component name = ReportUtil.name(entity);
+            ItemStack i = entity.get(Keys.ITEM_STACK_SNAPSHOT).map(ItemStackSnapshot::createStack).orElse(null);
+            Component item = Component.text("?");
             if (i != null)
             {
-                item = Text.of(i.getTranslation().get(receiver.getLocale())).toBuilder().onHover(showText(Text.of(i.getType().getId()))).build();
+                item = Component.text(i.getTranslation().get(receiver.getLocale())).toBuilder().onHover(showText(Component.of(i.getType().getId()))).build();
             }
             int count = 0;
             for (Action a : actions)
             {
-                count += Recall.entity(a).get(Keys.REPRESENTED_ITEM).map(ItemStackSnapshot::getQuantity).orElse(0);
+                count += Recall.entity(a).get(Keys.ITEM_STACK_SNAPSHOT).map(ItemStackSnapshot::getQuantity).orElse(0);
             }
             if (count == 0)
             {
@@ -87,7 +89,7 @@ public class DestructReport extends EntityReport<DestructEntityEvent>
             receiver.sendReport(this, actions, count,
                                 "{txt} destroyed {txt}",
                                 "{txt} destroyed {txt} x{}",
-                                cause, Text.of(name, ": ", item), count);
+                                cause, Component.text(name, ": ", item), count);
         }
         else if (Living.class.isAssignableFrom(entity.getType().getEntityClass()))
         {

@@ -20,31 +20,91 @@ package org.cubeengine.module.vigil.report.block;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import com.flowpowered.math.vector.Vector3i;
+import net.kyori.adventure.text.Component;
+import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.BaseReport;
 import org.cubeengine.module.vigil.report.Observe;
 import org.cubeengine.module.vigil.report.Recall;
+import org.cubeengine.module.vigil.report.Report;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
-import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.block.trait.BlockTrait;
-import org.spongepowered.api.block.trait.BooleanTraits;
-import org.spongepowered.api.data.DataQuery;
-import org.spongepowered.api.data.Transaction;
+import org.spongepowered.api.block.transaction.BlockTransactionReceipt;
+import org.spongepowered.api.data.Keys;
+import org.spongepowered.api.data.persistence.DataQuery;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
-import org.spongepowered.api.world.BlockChangeFlag;
+import org.spongepowered.api.registry.RegistryTypes;
 import org.spongepowered.api.world.BlockChangeFlags;
+import org.spongepowered.api.world.server.ServerLocation;
 
-public abstract class BlockReport<T extends ChangeBlockEvent> extends BaseReport<T>
+import static org.cubeengine.module.vigil.report.ReportUtil.name;
+import static org.spongepowered.api.block.BlockTypes.AIR;
+
+/* TODO Break
+Sign
+Trample ?
+Bucket
+Inventory
+Jukebox item
+tnt ignite?
+decay
+fade
+fall
+
+sheep eat
+
+entitybreak
+endermanpickup
+ */
+/* TODO Place
+Bucket
+grow
+
+ignite (fire spreads)
+-fireball
+-lava
+-lighter
+-lightning
+-other
+-spread
+
+flow
+-lava
+-water
+
+form
+grow
+
+pistonmove
+spread
+
+entityform
+entitychange
+endermanplace
+ */
+/* TODO change
+sign
+noteblock
+jukebox
+repeater
+plate
+lever
+door
+comparatpr
+cake
+button
+
+bonemeal?
+ */
+public abstract class BlockReport extends BaseReport<ChangeBlockEvent.Post>
 {
     public static final Action.DataKey<Map<String, Object>> BLOCK_CHANGES = new Action.DataKey<>("block-changes");
     public static final Action.DataKey<Optional<BlockSnapshot>> BLOCKS_ORIG = new Action.DataKey<>(BLOCK_CHANGES.name + "-orig");
     public static final Action.DataKey<Optional<BlockSnapshot>> BLOCKS_REPL = new Action.DataKey<>(BLOCK_CHANGES.name + "-repl");
+    public static final Action.DataKey<String> OPERATION = new Action.DataKey<>("operation");
     public static final DataQuery BLOCK_STATE = DataQuery.of("BlockState");
     public static final DataQuery BLOCK_DATA = DataQuery.of("TileEntityData");
     public static final DataQuery BLOCK_UNSAFE_DATA = DataQuery.of("UnsafeData");
@@ -53,69 +113,45 @@ public abstract class BlockReport<T extends ChangeBlockEvent> extends BaseReport
     public static final Action.DataKey<Map<String, Object>> REPLACEMENT = new Action.DataKey<>("replacement");
 
     @Override
-    protected Action observe(ChangeBlockEvent event)
+    protected Action observe(ChangeBlockEvent.Post event)
     {
         Action action = newReport();
         action.addData(CAUSE, Observe.causes(event.getCause()));
         return action;
     }
 
-    protected void report(ChangeBlockEvent event)
+    protected void report(ChangeBlockEvent.Post event)
     {
-        UUID multi = UUID.randomUUID();
-        for (Map.Entry<Vector3i, List<Transaction<BlockSnapshot>>> entry : event.getTransactions().stream().collect(Collectors.groupingBy(t -> t.getOriginal().getPosition())).entrySet())
+        for (BlockTransactionReceipt receipt : event.getReceipts())
         {
-            // Only get one transaction for one block
-            Transaction<BlockSnapshot> trans = entry.getValue().get(0);
-            if (!isActive(trans.getOriginal().getLocation().get().getExtent()))
+            final ServerLocation loc = receipt.getOriginal().getLocation().get();
+            if (!isActive(loc.getWorld()))
+            {
+                continue;
+            }
+            if (isRedstoneChange(receipt.getOriginal().getState(), receipt.getFinal().getState()))
             {
                 continue;
             }
 
-            if (isRedstoneChange(trans.getOriginal().getState(), trans.getFinal().getState()))
-            {
-                continue;
-            }
+            final Action action = observe(event);
+            action.addData(BLOCK_CHANGES, Observe.transactions(receipt));
+            action.addData(LOCATION, Observe.location(loc));
+            action.addData(OPERATION, receipt.getOperation().key(RegistryTypes.OPERATION).asString());
 
-            Action action = observe(event);
-            action.addData(BLOCK_CHANGES, Observe.transactions(trans));
-            action.addData(LOCATION, Observe.location(trans.getOriginal().getLocation().get()));
-            if (event.getTransactions().size() > 1)
-            {
-                action.addData(MULTIACTION, multi.toString());
-            }
             report(action);
         }
     }
 
     private static boolean isRedstoneChange(BlockState origState, BlockState finalState)
     {
-        if (origState.getType().equals(finalState.getType()) && origState.getType().equals(BlockTypes.REDSTONE_WIRE))
+        if (!origState.getType().equals(finalState.getType()))
         {
-            return true;
+            return false;
         }
-
-        return isChangeFromOrTo(origState, finalState, BlockTypes.POWERED_REPEATER, BlockTypes.UNPOWERED_REPEATER)
-            || isChangeFromOrTo(origState, finalState, BlockTypes.POWERED_COMPARATOR, BlockTypes.UNPOWERED_COMPARATOR)
-            || isChangeFromOrTo(origState, finalState, BlockTypes.REDSTONE_TORCH, BlockTypes.UNLIT_REDSTONE_TORCH)
-            || isChangeTrait(origState, finalState, BlockTypes.DROPPER, BooleanTraits.DROPPER_TRIGGERED, false)
-            || isChangeTrait(origState, finalState, BlockTypes.DISPENSER, BooleanTraits.DISPENSER_TRIGGERED, false)
-            || isChangeTrait(origState, finalState, BlockTypes.HOPPER, BooleanTraits.HOPPER_ENABLED, true);
-    }
-
-    private static boolean isChangeFromOrTo(BlockState origState, BlockState finalState, BlockType from, BlockType to)
-    {
-        return origState.getType().equals(from) && finalState.getType().equals(to)
-            || origState.getType().equals(to) && finalState.getType().equals(from);
-    }
-
-    private static <T extends Comparable<T>> boolean isChangeTrait(BlockState origState, BlockState finalSate, BlockType type, BlockTrait<T> trait, T traitDefault)
-    {
-        if (origState.getType().equals(finalSate.getType()) && origState.getType().equals(type))
-        {
-            return origState.withTrait(trait, traitDefault).equals(finalSate.withTrait(trait, traitDefault));
-        }
-        return false;
+        return origState.getType().isAnyOf(BlockTypes.REDSTONE_WIRE, BlockTypes.REPEATER, BlockTypes.COMPARATOR,
+                                        BlockTypes.REDSTONE_TORCH, BlockTypes.REDSTONE_WALL_TORCH,
+                                        BlockTypes.DROPPER, BlockTypes.DISPENSER, BlockTypes.HOPPER);
     }
 
     protected boolean group(Optional<BlockSnapshot> repl1, Optional<BlockSnapshot> repl2)
@@ -127,7 +163,7 @@ public abstract class BlockReport<T extends ChangeBlockEvent> extends BaseReport
 
         if (repl1.isPresent() && repl2.isPresent())
         {
-            if (!repl1.get().getWorldUniqueId().equals(repl2.get().getWorldUniqueId()))
+            if (!repl1.get().getWorld().equals(repl2.get().getWorld()))
             {
                 return false;
             }
@@ -137,6 +173,128 @@ public abstract class BlockReport<T extends ChangeBlockEvent> extends BaseReport
             }
         }
         return true;
+    }
+
+    @Override
+    public boolean group(Object lookup, Action action, Action otherAction, Report otherReport)
+    {
+        if (!this.equals(otherReport))
+        {
+            return false;
+        }
+
+        Optional<BlockSnapshot> orig1 = action.getCached(BLOCKS_ORIG, Recall::origSnapshot);
+        Optional<BlockSnapshot> orig2 = otherAction.getCached(BLOCKS_ORIG, Recall::origSnapshot);
+
+        if (!group(orig1, orig2))
+        {
+            return false;
+        }
+
+        Optional<BlockSnapshot> repl1 = action.getCached(BLOCKS_ORIG, Recall::origSnapshot);
+        Optional<BlockSnapshot> repl2 = otherAction.getCached(BLOCKS_ORIG, Recall::origSnapshot);
+
+        if (!group(repl1, repl2))
+        {
+            return false;
+        }
+
+        if (!action.getData(CAUSE).equals(otherAction.getData(CAUSE)))
+        {
+            // TODO check same cause better
+            return false;
+        }
+
+        // TODO in short timeframe (minutes? configurable)
+        return true;
+    }
+
+    @Override
+    public void showReport(List<Action> actions, Receiver receiver)
+    {
+        Action action = actions.get(0);
+
+        Optional<BlockSnapshot> orig = action.getCached(BLOCKS_ORIG, Recall::origSnapshot);
+        Optional<BlockSnapshot> repl = action.getCached(BLOCKS_REPL, Recall::replSnapshot);
+        if (repl.isPresent())
+        {
+            if (orig.isPresent() && orig.get().getState().getType() == repl.get().getState().getType())
+            {
+                showReportModify(actions, receiver, action, orig.get(), repl.get());
+                return;
+            }
+            showReportPlace(actions, receiver, action, orig, repl.get());
+            return;
+        }
+        if (orig.isPresent())
+        {
+            showReportBreak(actions, receiver, action, orig.get());
+            return;
+        }
+        throw new IllegalStateException();
+    }
+
+    private void showReportModify(List<Action> actions, Receiver receiver, Action action, BlockSnapshot orig, BlockSnapshot repl)
+    {
+        Component cause = Recall.cause(action);
+
+        final Optional<Integer> growth = repl.get(Keys.GROWTH_STAGE);
+        if (growth.isPresent())
+        {
+// TODO max growth is gone?
+//                        if (growth.get().equals(growth.get().getMaxValue()))
+//                        {
+//                            receiver.sendReport(this, actions, actions.size(),
+//                                                "{txt} let {txt} grow to maturity",
+//                                                "{txt} let {txt} grow to maturity x{}",
+//                                                cause, name(orig.get(), receiver), actions.size());
+//                            return;
+//                        }
+            receiver.sendReport(this, actions, actions.size(),
+                                "{txt} let {txt} grow",
+                                "{txt} let {txt} grow x{}",
+                                cause, name(orig, receiver), actions.size());
+            return;
+        }
+        // TODO other modifyables
+        receiver.sendReport(this, actions, actions.size(),
+                            "{txt} modified {txt}",
+                            "{txt} modified {txt} x{}",
+                            cause, name(orig, receiver), actions.size());
+    }
+
+    private void showReportPlace(List<Action> actions, Receiver receiver, Action action, Optional<BlockSnapshot> orig, BlockSnapshot repl)
+    {
+        Component cause = Recall.cause(action);
+
+        if (orig.isPresent() && !orig.get().getState().getType().equals(AIR))
+        {
+            receiver.sendReport(this, actions, actions.size(),
+                                "{txt} replace {txt} with {txt}",
+                                "{txt} replace {txt} with {txt} x{}",
+                                cause, name(orig.get(), receiver), name(repl, receiver), actions.size());
+        }
+        else
+        {
+            receiver.sendReport(this, actions, actions.size(),
+                                "{txt} place {txt}",
+                                "{txt} place {txt} x{}",
+                                cause, name(repl, receiver), actions.size());
+        }
+    }
+
+    private void showReportBreak(List<Action> actions, Receiver receiver, Action action, BlockSnapshot orig)
+    {
+        receiver.sendReport(this, actions, actions.size(),
+                            "{txt} break {txt}",
+                            "{txt} break {txt} x{}",
+                            Recall.cause(action), name(orig, receiver), actions.size());
+    }
+
+    @Listener(order = Order.POST)
+    public void listen(ChangeBlockEvent.Post event)
+    {
+        report(event);
     }
 
     @Override

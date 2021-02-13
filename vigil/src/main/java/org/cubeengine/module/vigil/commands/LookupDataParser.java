@@ -17,13 +17,12 @@
  */
 package org.cubeengine.module.vigil.commands;
 
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
-
-import org.cubeengine.butler.CommandInvocation;
-import org.cubeengine.butler.parameter.argument.ArgumentParser;
-import org.cubeengine.butler.parameter.argument.Completer;
-import org.cubeengine.butler.parameter.argument.DefaultValue;
-import org.cubeengine.butler.parameter.argument.ParserException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.cubeengine.libcube.service.command.TranslatedParserException;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.module.vigil.data.LookupData;
@@ -36,12 +35,7 @@ import org.cubeengine.module.vigil.report.inventory.ChangeInventoryReport;
 import org.cubeengine.module.vigil.report.inventory.InventoryOpenReport;
 import org.spongepowered.api.entity.living.player.Player;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.stream.Collectors;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
 
 public class LookupDataParser implements ArgumentParser<LookupData>, Completer, DefaultValue<LookupData>
 {
@@ -57,8 +51,7 @@ public class LookupDataParser implements ArgumentParser<LookupData>, Completer, 
         this.types.put("chest", this.defaultType.copy().withReports(ChangeInventoryReport.class, InventoryOpenReport.class));
         // TODO this.types.put("player", this.defaultType.copy());
         this.types.put("kills", this.defaultType.copy().withReports(DestructReport.class));
-        this.types.put("block", this.defaultType.copy().withReports(BreakBlockReport.class, PlaceBlockReport.class, ModifyBlockReport.class,
-                ExplosionReport.class));
+        this.types.put("block", this.defaultType.copy().withReports(BreakBlockReport.class, PlaceBlockReport.class, ModifyBlockReport.class, ExplosionReport.class));
     }
 
     @Override

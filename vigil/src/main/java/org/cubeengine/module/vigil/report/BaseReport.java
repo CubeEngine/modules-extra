@@ -19,7 +19,7 @@ package org.cubeengine.module.vigil.report;
 
 import org.cubeengine.module.vigil.Vigil;
 import org.spongepowered.api.event.Event;
-import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.server.ServerWorld;
 
 public abstract class BaseReport<T extends Event> implements Report
 {
@@ -51,7 +51,7 @@ public abstract class BaseReport<T extends Event> implements Report
      */
     protected abstract Action observe(T event);
 
-    protected boolean isActive(World world)
+    protected boolean isActive(ServerWorld world)
     {
         for (Class<? extends Report> disabled : vigil.getConfig().getDisabledReports(world))
         {

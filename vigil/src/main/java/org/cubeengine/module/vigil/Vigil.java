@@ -17,16 +17,16 @@
  */
 package org.cubeengine.module.vigil;
 
-import static org.cubeengine.module.bigdata.PluginBigdata.BIGDATA_ID;
-import static org.cubeengine.module.bigdata.PluginBigdata.BIGDATA_VERSION;
-
 import java.util.concurrent.ThreadFactory;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import org.cubeengine.libcube.CubeEngineModule;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.cubeengine.libcube.ModuleManager;
+import org.cubeengine.libcube.service.command.CommandManager;
+import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.matcher.StringMatcher;
+import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.module.bigdata.Bigdata;
 import org.cubeengine.module.vigil.commands.LookupDataParser;
 import org.cubeengine.module.vigil.commands.ReportParser;
@@ -39,11 +39,6 @@ import org.cubeengine.module.vigil.data.LookupDataBuilder;
 import org.cubeengine.module.vigil.report.Report;
 import org.cubeengine.module.vigil.report.ReportManager;
 import org.cubeengine.module.vigil.storage.QueryManager;
-import org.cubeengine.libcube.service.command.CommandManager;
-import org.cubeengine.libcube.service.event.EventManager;
-import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.libcube.service.matcher.StringMatcher;
-import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.processor.Dependency;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.data.DataRegistration;
@@ -51,12 +46,16 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.plugin.PluginContainer;
 
+import static org.cubeengine.module.bigdata.PluginBigdata.BIGDATA_ID;
+import static org.cubeengine.module.bigdata.PluginBigdata.BIGDATA_VERSION;
+
 @Singleton
 @Module(dependencies = @Dependency(value = BIGDATA_ID, version = BIGDATA_VERSION))
-public class Vigil extends CubeEngineModule
+public class Vigil
 {
     @ModuleConfig private VigilConfig config;
-    @Inject private EventManager em;
+    @Inject
+    private EventManager em;
     private ThreadFactory tf;
     @Inject private Bigdata bd;
     @Inject private CommandManager cm;

@@ -17,33 +17,30 @@
  */
 package org.cubeengine.module.vigil.report.entity.player;
 
+import java.util.Arrays;
+import java.util.List;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.BaseReport;
 import org.cubeengine.module.vigil.report.Observe;
 import org.cubeengine.module.vigil.report.Recall;
 import org.cubeengine.module.vigil.report.Report;
+import org.spongepowered.api.event.Cause;
+import org.spongepowered.api.event.EventContext;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.EventContext;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-public class JoinReport extends BaseReport<ClientConnectionEvent.Join> implements Report.Readonly, Report.ReportGrouping
+public class JoinReport extends BaseReport<ServerSideConnectionEvent.Join> implements Report.Readonly, Report.ReportGrouping
 {
 
     public static final List<Class<? extends Report>> groupings = Arrays.asList(JoinReport.class, QuitReport.class);
 
     @Override
-    protected Action observe(ClientConnectionEvent.Join event)
+    protected Action observe(ServerSideConnectionEvent.Join event)
     {
         Action action = newReport();
-        action.addData(CAUSE, Observe.causes(Cause.of(EventContext.empty(), event.getTargetEntity())));
-        action.addData(LOCATION, Observe.location(event.getTargetEntity().getLocation()));
+        action.addData(CAUSE, Observe.causes(Cause.of(EventContext.empty(), event.getPlayer())));
+        action.addData(LOCATION, Observe.location(event.getPlayer().getServerLocation()));
         return action;
     }
 
@@ -53,7 +50,7 @@ public class JoinReport extends BaseReport<ClientConnectionEvent.Join> implement
     }
 
     @Listener
-    public void onJoin(ClientConnectionEvent.Join event)
+    public void onJoin(ServerSideConnectionEvent.Join event)
     {
         report(observe(event));
     }

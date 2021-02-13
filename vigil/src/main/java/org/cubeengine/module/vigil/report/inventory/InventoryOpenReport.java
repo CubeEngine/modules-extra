@@ -18,6 +18,7 @@
 package org.cubeengine.module.vigil.report.inventory;
 
 import java.util.List;
+import net.kyori.adventure.text.Component;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.Observe;
@@ -27,19 +28,18 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.filter.cause.First;
-import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
-import org.spongepowered.api.text.Text;
+import org.spongepowered.api.event.item.inventory.container.InteractContainerEvent;
 
-public class InventoryOpenReport extends InventoryReport<InteractInventoryEvent.Open> implements Report.Readonly
+public class InventoryOpenReport extends InventoryReport<InteractContainerEvent.Open> implements Report.Readonly
 {
     @Override
     public void showReport(List<Action> actions, Receiver receiver)
     {
         Action action = actions.get(0);
         receiver.sendReport(this, actions, actions.size(),
-                "{txt} open {txt}",
-                "{txt} open {txt} x{}",
-                Recall.cause(action), Text.of("?"), actions.size());
+                            "{txt} open {txt}",
+                            "{txt} open {txt} x{}",
+                            Recall.cause(action), Component.text("?"), actions.size());
     }
 
     @Override
@@ -60,7 +60,7 @@ public class InventoryOpenReport extends InventoryReport<InteractInventoryEvent.
     }
 
     @Override
-    public Action observe(InteractInventoryEvent.Open event)
+    public Action observe(InteractContainerEvent.Open event)
     {
         Action action = newReport();
         action.addData(CAUSE, Observe.causes(event.getCause()));
@@ -69,7 +69,7 @@ public class InventoryOpenReport extends InventoryReport<InteractInventoryEvent.
     }
 
     @Listener(order = Order.POST)
-    public void listen(InteractInventoryEvent.Open event, @First Player player)
+    public void listen(InteractContainerEvent.Open event, @First Player player)
     {
         report(observe(event));
     }

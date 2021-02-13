@@ -20,30 +20,20 @@ package org.cubeengine.module.vigil;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.CRITICAL;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NONE;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
-import static org.spongepowered.api.text.action.TextActions.executeCallback;
-import static org.spongepowered.api.text.action.TextActions.showText;
-import static org.spongepowered.api.text.format.TextColors.GRAY;
-import static org.spongepowered.api.text.format.TextColors.RED;
-import static org.spongepowered.api.text.format.TextColors.WHITE;
 
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.util.StringUtils;
 import org.cubeengine.libcube.util.TimeUtil;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.Recall;
 import org.cubeengine.module.vigil.report.Report;
-import org.cubeengine.module.vigil.report.ReportActions;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.service.pagination.PaginationList.Builder;
 import org.spongepowered.api.service.pagination.PaginationService;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.action.TextActions;
-import org.spongepowered.api.text.chat.ChatTypes;
-import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 
@@ -56,13 +46,13 @@ import java.util.stream.Collectors;
 
 public class Receiver
 {
-    private final CommandSource cmdSource;
+    private final Audience cmdSource;
     private final I18n i18n;
     private Lookup lookup;
 
-    private List<Text> lines = new ArrayList<>();
+    private List<Component> lines = new ArrayList<>();
 
-    public Receiver(CommandSource cmdSource, I18n i18n, Lookup lookup)
+    public Receiver(Audience cmdSource, I18n i18n, Lookup lookup)
     {
         this.cmdSource = cmdSource;
         this.i18n = i18n;
@@ -78,7 +68,7 @@ public class Receiver
             reports = Text.of(((Report.ReportGrouping) report).getReportsList().stream().map(Class::getSimpleName).collect(Collectors.joining("/")));
         }
         Text trans = i18n.translate(cmdSource, NEUTRAL, msg, args)
-                .toBuilder().onHover(TextActions.showText(reports)).build();
+                         .toBuilder().onHover(TextActions.showText(reports)).build();
         sendReport(actions, trans);
     }
 
@@ -90,7 +80,7 @@ public class Receiver
             reports = Text.of(((Report.ReportGrouping) report).getReportsList().stream().map(Class::getSimpleName).collect(Collectors.joining("/")));
         }
         Text trans = i18n.translateN(cmdSource, NEUTRAL, size, msgSingular, msgPlural, args)
-                .toBuilder().onHover(TextActions.showText(reports)).build();
+                         .toBuilder().onHover(TextActions.showText(reports)).build();
         sendReport(actions, trans);
     }
 
@@ -213,17 +203,17 @@ public class Receiver
                 {
 
                     return Text.of(Text.of(GRAY, ftShort).toBuilder().onHover(showText(fFull)).build()
-                                ,WHITE, " - ",Text.of(GRAY, ltShort).toBuilder().onHover(showText(lFull)).build());
+                        ,WHITE, " - ",Text.of(GRAY, ltShort).toBuilder().onHover(showText(lFull)).build());
                 }
 
                 return Text.of(Text.of(GRAY, fdShort, " ", ftShort).toBuilder().onHover(showText(fFull)).build()
-                              , WHITE, " - " ,Text.of(GRAY, ltShort).toBuilder().onHover(showText(lFull)).build());
+                    , WHITE, " - " ,Text.of(GRAY, ltShort).toBuilder().onHover(showText(lFull)).build());
             }
             else
             {
                 String ldShort = dateShort.format(firstDate);
                 return Text.of(Text.of(GRAY, fdShort, " ", ftShort).toBuilder().onHover(showText(fFull)).build()
-                             ,  WHITE,    " - "  ,Text.of(GRAY, ldShort, " ", ltShort).toBuilder().onHover(showText(fFull)).build());
+                    ,  WHITE,    " - "  ,Text.of(GRAY, ldShort, " ", ltShort).toBuilder().onHover(showText(fFull)).build());
             }
         }
     }
@@ -250,11 +240,11 @@ public class Receiver
         String titleLineSort = i18n.getTranslation(cmdSource, "(newest first)");
         Text titleLine = Text.of(titleLineAmount, " ", TextColors.YELLOW, titleLineSort);
         Text titleTimings = i18n.translate(cmdSource, NEUTRAL, "Query: {input#time} Report: {input#time}",
-                TimeUtil.formatDuration(lookup.timing(Lookup.LookupTiming.LOOKUP)),
-                TimeUtil.formatDuration(lookup.timing(Lookup.LookupTiming.REPORT)));
+                                           TimeUtil.formatDuration(lookup.timing(Lookup.LookupTiming.LOOKUP)),
+                                           TimeUtil.formatDuration(lookup.timing(Lookup.LookupTiming.REPORT)));
         titleLine = titleLine.toBuilder().onHover(TextActions.showText(titleTimings)).build();
         builder.title(titleLine).padding(Text.of("-"))
-                // TODO reverse order
+               // TODO reverse order
                .contents(lines).linesPerPage(2 + Math.min(lines.size(), 18)).sendTo(cmdSource);
         // TODO remove linesPerPage when Sponge puts the lines to the bottom
     }

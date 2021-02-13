@@ -18,6 +18,7 @@
 package org.cubeengine.module.vigil.report.entity.player;
 
 import java.util.List;
+import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.BaseReport;
@@ -26,14 +27,16 @@ import org.cubeengine.module.vigil.report.Recall;
 import org.cubeengine.module.vigil.report.Report.Readonly;
 import org.cubeengine.module.vigil.report.Report.SimpleGrouping;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.message.MessageChannelEvent;
+import org.spongepowered.api.event.message.PlayerChatEvent;
 
 import static java.util.Collections.singletonList;
 
-public class ChatReport extends BaseReport<MessageChannelEvent.Chat> implements Readonly, SimpleGrouping
+public class ChatReport extends BaseReport<PlayerChatEvent> implements Readonly, SimpleGrouping
 {
     private static final String CHAT = "chat";
 
@@ -46,12 +49,13 @@ public class ChatReport extends BaseReport<MessageChannelEvent.Chat> implements 
     }
 
     @Override
-    public Action observe(MessageChannelEvent.Chat event)
+    public Action observe(PlayerChatEvent event)
     {
         Action action = newReport();
         action.addData(CAUSE, Observe.causes(event.getCause()));
-        action.addData(CHAT, event.getRawMessage().toPlain());
-        action.addData(LOCATION, Observe.location(event.getCause().first(Player.class).get().getLocation()));
+        action.addData(CHAT, PlainComponentSerializer.plain().serialize(event.getOriginalMessage()));
+        final ServerPlayer serverPlayer = event.getCause().first(ServerPlayer.class).get(); // event-filter ensures this is present
+        action.addData(LOCATION, Observe.location(serverPlayer.getServerLocation()));
         return action;
     }
 
@@ -62,7 +66,7 @@ public class ChatReport extends BaseReport<MessageChannelEvent.Chat> implements 
     }
 
     @Listener(order = Order.POST)
-    public void onChat(MessageChannelEvent.Chat event, @First Player player)
+    public void onChat(PlayerChatEvent event, @First Player player)
     {
         report(observe(event));
     }

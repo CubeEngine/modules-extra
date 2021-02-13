@@ -20,53 +20,38 @@ package org.cubeengine.module.vigil.report;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent.Builder;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.block.BlockReport;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockType;
-import org.spongepowered.api.data.DataContainer;
-import org.spongepowered.api.data.DataQuery;
-import org.spongepowered.api.data.DataView;
-import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.Keys;
+import org.spongepowered.api.data.persistence.DataContainer;
+import org.spongepowered.api.data.persistence.DataQuery;
+import org.spongepowered.api.data.persistence.DataView;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.Text.Builder;
-import org.spongepowered.api.text.action.TextActions;
-import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.text.translation.Translation;
-
-import static org.spongepowered.api.text.action.TextActions.showItem;
-import static org.spongepowered.api.text.action.TextActions.showText;
-import static org.spongepowered.api.text.format.TextColors.GOLD;
-import static org.spongepowered.api.text.format.TextColors.YELLOW;
+import org.spongepowered.api.registry.RegistryTypes;
 
 public class ReportUtil
 {
-    public static Text name(BlockSnapshot snapshot, Receiver receiver)
+    public static Component name(BlockSnapshot snapshot, Receiver receiver)
     {
         BlockType type = snapshot.getState().getType();
-        Translation trans = type.getTranslation();
-        if (snapshot.getState().getType().getItem().isPresent())
-        {
-            trans = ItemStack.builder().fromBlockSnapshot(snapshot).build().getTranslation();
-        }
-
-        Builder builder = Text.builder();
-
-        builder.append(Text.of(GOLD, trans).toBuilder().onHover(
-            showText(Text.of(type.getName()))).build());
-
+        final Builder builder = Component.text();
+        builder.append(type.asComponent().color(NamedTextColor.GOLD).hoverEvent(HoverEvent.showText(Component.text(type.key(RegistryTypes.BLOCK_TYPE).asString()))));
         Optional<List<DataView>> items = snapshot.toContainer().getViewList(BlockReport.BLOCK_ITEMS);
         if (items.isPresent() && !items.get().isEmpty())
         {
             // TODO lookup config : detailed inventory? click on ∋ to activate/deactivate or using cmd
-            builder.append(Text.of(" ∋ ["));
+            builder.append(Component.text(" ∋ ["));
             if (receiver.getLookup().getSettings().showDetailedInventory())
             {
-                builder.append(Text.of(" "));
+                builder.append(Component.space());
                 for (DataView dataView : items.get())
                 {
                     DataContainer itemData = DataContainer.createNew();
@@ -82,33 +67,31 @@ public class ReportUtil
                     itemData.set(DataQuery.of("UnsafeDamage"), dataView.get(DataQuery.of("Damage")).get());
 
                     ItemStack item = ItemStack.builder().fromContainer(itemData).build();
-
-                    builder.append(Text.of(dataView.getInt(DataQuery.of("Slot")).get()).toBuilder()
-                            .onHover(showItem(item.createSnapshot())).build());
-                    builder.append(Text.of(" "));
+                    builder.append(Component.text(dataView.getInt(DataQuery.of("Slot")).get()).toBuilder()
+                                            .hoverEvent(item.createSnapshot().asHoverEvent()).build());
+                    builder.append(Component.space());
                 }
             }
             else
             {
-                builder.append(Text.of("..."));
+                builder.append(Component.text("..."));
             }
-            builder.append(Text.of("]"));
+            builder.append(Component.text("]"));
         }
 
-        Optional<List<Text>> sign = snapshot.get(Keys.SIGN_LINES);
+        Optional<List<Component>> sign = snapshot.get(Keys.SIGN_LINES);
         if (sign.isPresent())
         {
-            builder.append(Text.of(" "), Text.of("[I]").toBuilder().onHover(showText(Text.joinWith(Text.NEW_LINE, sign.get()))).build());
+            builder.append(Component.space()).append(Component.text("[I]").hoverEvent(HoverEvent.showText(Component.join(Component.newline(), sign.get()))));
         }
 
         return builder.build();
 
     }
 
-    public static Text name(EntitySnapshot entity)
+    public static Component name(EntitySnapshot entity)
     {
-        return Text.of(entity.getType().getTranslation()).toBuilder()
-                   .onHover(showText(Text.of(entity.getType().getId()))).build();
+        return entity.getType().asComponent().hoverEvent(HoverEvent.showText(Component.text(entity.getType().key(RegistryTypes.ENTITY_TYPE).asString())));
     }
 
     public static <LT, T> boolean containsSingle(List<LT> list, Function<LT, T> func)
@@ -130,9 +113,9 @@ public class ReportUtil
     }
 
 
-    public static Text name(ItemStackSnapshot itemStackSnapshot)
+    public static Component name(ItemStackSnapshot itemStackSnapshot)
     {
-        Translation trans = itemStackSnapshot.getTranslation();
-        return Text.of(trans).toBuilder().append(Text.of(YELLOW, " x", GOLD, itemStackSnapshot.getQuantity())).onHover(TextActions.showText(Text.of(itemStackSnapshot.getType().getId()))).build();
+        return itemStackSnapshot.get(Keys.DISPLAY_NAME).get().append(Component.text(" x", NamedTextColor.YELLOW)).append(Component.text(itemStackSnapshot.getQuantity(), NamedTextColor.GRAY))
+               .hoverEvent(HoverEvent.showText(Component.text(itemStackSnapshot.getType().key(RegistryTypes.ITEM_TYPE).asString())));
     }
 }

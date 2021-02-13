@@ -26,23 +26,25 @@ import org.cubeengine.module.vigil.report.Recall;
 import org.cubeengine.module.vigil.report.Report.Readonly;
 import org.cubeengine.module.vigil.report.Report.SimpleGrouping;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.command.SendCommandEvent;
+import org.spongepowered.api.event.command.ExecuteCommandEvent;
 import org.spongepowered.api.event.filter.cause.First;
 
 import static java.util.Collections.singletonList;
 
-public class CommandReport extends BaseReport<SendCommandEvent> implements Readonly, SimpleGrouping
+public class CommandReport extends BaseReport<ExecuteCommandEvent> implements Readonly, SimpleGrouping
 {
     private static final String COMMAND = "commmand";
 
     @Override
-    public Action observe(SendCommandEvent event)
+    public Action observe(ExecuteCommandEvent event)
     {
         Action action = newReport();
         action.addData(CAUSE, Observe.causes(event.getCause()));
         action.addData(COMMAND, event.getCommand());
-        action.addData(LOCATION, Observe.location(event.getCause().first(Player.class).get().getLocation()));
+        final ServerPlayer serverPlayer = event.getCause().first(ServerPlayer.class).get(); // event-filter ensures this is present
+        action.addData(LOCATION, Observe.location(serverPlayer.getServerLocation()));
         return action;
     }
 
@@ -62,7 +64,7 @@ public class CommandReport extends BaseReport<SendCommandEvent> implements Reado
 
 
     @Listener
-    public void onCommand(SendCommandEvent event, @First Player player)
+    public void onCommand(ExecuteCommandEvent event, @First Player player)
     {
         report(observe(event));
     }

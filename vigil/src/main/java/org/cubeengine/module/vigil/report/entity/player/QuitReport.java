@@ -17,27 +17,26 @@
  */
 package org.cubeengine.module.vigil.report.entity.player;
 
+import java.util.List;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.BaseReport;
 import org.cubeengine.module.vigil.report.Observe;
 import org.cubeengine.module.vigil.report.Recall;
 import org.cubeengine.module.vigil.report.Report;
+import org.spongepowered.api.event.Cause;
+import org.spongepowered.api.event.EventContext;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.EventContext;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 
-import java.util.List;
-
-public class QuitReport extends BaseReport<ClientConnectionEvent.Disconnect> implements Report.Readonly, Report.ReportGrouping
+public class QuitReport extends BaseReport<ServerSideConnectionEvent.Disconnect> implements Report.Readonly, Report.ReportGrouping
 {
     @Override
-    protected Action observe(ClientConnectionEvent.Disconnect event)
+    protected Action observe(ServerSideConnectionEvent.Disconnect event)
     {
         Action action = newReport();
-        action.addData(CAUSE, Observe.causes(Cause.of(EventContext.empty(), event.getTargetEntity())));
-        action.addData(LOCATION, Observe.location(event.getTargetEntity().getLocation()));
+        action.addData(CAUSE, Observe.causes(Cause.of(EventContext.empty(), event.getPlayer())));
+        action.addData(LOCATION, Observe.location(event.getPlayer().getServerLocation()));
         return action;
     }
 
@@ -48,7 +47,7 @@ public class QuitReport extends BaseReport<ClientConnectionEvent.Disconnect> imp
     }
 
     @Listener
-    public void onQuit(ClientConnectionEvent.Disconnect event)
+    public void onQuit(ServerSideConnectionEvent.Disconnect event)
     {
         report(observe(event));
     }
@@ -58,6 +57,6 @@ public class QuitReport extends BaseReport<ClientConnectionEvent.Disconnect> imp
     {
         Action action = actions.get(0);
         receiver.sendReport(this, actions, actions.size(), "{txt} left the game", "{txt} left the game x{}",
-                Recall.cause(action), actions.size());
+                            Recall.cause(action), actions.size());
     }
 }

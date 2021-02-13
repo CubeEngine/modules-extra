@@ -70,7 +70,7 @@
 <!--        <module>donations</module>-->
         <module>chopchop</module>
         <module>namehistory</module>
-<!--        <module>vigil</module>-->
+        <module>vigil</module>
 <!--        <module>authorization</module>-->
 <!--        <module>apiserver</module>-->
         <module>elevator</module>

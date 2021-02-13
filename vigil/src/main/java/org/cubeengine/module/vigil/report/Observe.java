@@ -17,54 +17,6 @@
  */
 package org.cubeengine.module.vigil.report;
 
-import static java.util.stream.Collectors.toList;
-import static org.cubeengine.module.vigil.report.Report.CAUSE_INDIRECT;
-import static org.cubeengine.module.vigil.report.Report.CAUSE_NAME;
-import static org.cubeengine.module.vigil.report.Report.CAUSE_PLAYER_UUID;
-import static org.cubeengine.module.vigil.report.Report.CAUSE_TYPE;
-import static org.cubeengine.module.vigil.report.Report.CauseType.CAUSE_BLOCK;
-import static org.cubeengine.module.vigil.report.Report.CauseType.CAUSE_DAMAGE;
-import static org.cubeengine.module.vigil.report.Report.CauseType.CAUSE_ENTITY;
-import static org.cubeengine.module.vigil.report.Report.CauseType.CAUSE_PLAYER;
-import static org.cubeengine.module.vigil.report.Report.CauseType.CAUSE_TNT;
-import static org.cubeengine.module.vigil.report.Report.WORLD;
-import static org.cubeengine.module.vigil.report.Report.X;
-import static org.cubeengine.module.vigil.report.Report.Y;
-import static org.cubeengine.module.vigil.report.Report.Z;
-import static org.cubeengine.module.vigil.report.block.BlockReport.BLOCK_DATA;
-import static org.cubeengine.module.vigil.report.block.BlockReport.BLOCK_STATE;
-import static org.cubeengine.module.vigil.report.block.BlockReport.BLOCK_UNSAFE_DATA;
-import static org.cubeengine.module.vigil.report.block.BlockReport.CAUSE_TARGET;
-import static org.cubeengine.module.vigil.report.block.BlockReport.ORIGINAL;
-import static org.cubeengine.module.vigil.report.block.BlockReport.REPLACEMENT;
-
-import org.cubeengine.module.vigil.report.entity.EntityReport;
-import org.cubeengine.module.vigil.report.inventory.ChangeInventoryReport;
-import org.spongepowered.api.block.BlockSnapshot;
-import org.spongepowered.api.block.BlockState;
-import org.spongepowered.api.block.BlockType;
-import org.spongepowered.api.data.DataContainer;
-import org.spongepowered.api.data.DataQuery;
-import org.spongepowered.api.data.DataView;
-import org.spongepowered.api.data.Transaction;
-import org.spongepowered.api.entity.Entity;
-import org.spongepowered.api.entity.EntitySnapshot;
-import org.spongepowered.api.entity.explosive.PrimedTNT;
-import org.spongepowered.api.entity.living.Agent;
-import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.EventContextKey;
-import org.spongepowered.api.event.cause.entity.damage.source.BlockDamageSource;
-import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
-import org.spongepowered.api.event.cause.entity.damage.source.EntityDamageSource;
-import org.spongepowered.api.event.cause.entity.damage.source.IndirectEntityDamageSource;
-import org.spongepowered.api.item.inventory.ItemStackSnapshot;
-import org.spongepowered.api.item.inventory.property.SlotIndex;
-import org.spongepowered.api.item.inventory.transaction.SlotTransaction;
-import org.spongepowered.api.world.LocatableBlock;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -75,6 +27,39 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.cubeengine.module.vigil.report.entity.EntityReport;
+import org.cubeengine.module.vigil.report.inventory.ChangeInventoryReport;
+import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.block.BlockState;
+import org.spongepowered.api.block.BlockType;
+import org.spongepowered.api.block.transaction.BlockTransactionReceipt;
+import org.spongepowered.api.data.Keys;
+import org.spongepowered.api.data.Transaction;
+import org.spongepowered.api.data.persistence.DataContainer;
+import org.spongepowered.api.data.persistence.DataQuery;
+import org.spongepowered.api.data.persistence.DataView;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntitySnapshot;
+import org.spongepowered.api.entity.explosive.fused.PrimedTNT;
+import org.spongepowered.api.entity.living.Agent;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.event.Cause;
+import org.spongepowered.api.event.EventContextKey;
+import org.spongepowered.api.event.cause.entity.damage.source.BlockDamageSource;
+import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
+import org.spongepowered.api.event.cause.entity.damage.source.EntityDamageSource;
+import org.spongepowered.api.event.cause.entity.damage.source.IndirectEntityDamageSource;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
+import org.spongepowered.api.item.inventory.transaction.SlotTransaction;
+import org.spongepowered.api.registry.RegistryTypes;
+import org.spongepowered.api.world.LocatableBlock;
+import org.spongepowered.api.world.server.ServerLocation;
+
+import static java.util.stream.Collectors.toList;
+import static org.cubeengine.module.vigil.report.Report.*;
+import static org.cubeengine.module.vigil.report.Report.CauseType.*;
+import static org.cubeengine.module.vigil.report.block.BlockReport.CAUSE_TARGET;
+import static org.cubeengine.module.vigil.report.block.BlockReport.*;
 
 public class Observe
 {
@@ -98,7 +83,7 @@ public class Observe
 
         for (EventContextKey<?> key : causes.getContext().keySet())
         {
-            context.put(key.getId().replace(".", "_"), cause(causes.getContext().get(key).get(), new HashSet<>()));
+            context.put(key.getKey().asString(), cause(causes.getContext().get(key).get(), new HashSet<>()));
         }
 
         return data;
@@ -169,26 +154,24 @@ public class Observe
     {
         Map<String, Object> data = new HashMap<>();
         data.put(CAUSE_TYPE, CAUSE_DAMAGE.toString());
-        data.put(CAUSE_NAME, cause.getType().getId());
+        data.put(CAUSE_NAME, cause.getType().key(RegistryTypes.DAMAGE_TYPE).asString());
         return data;
     }
 
     private static Map<String, Object> tntCause(PrimedTNT cause)
     {
         Map<String, Object> data = new HashMap<>();
-        if (cause.getDetonator().isPresent())
-        {
-            if (cause.getDetonator().get() instanceof Player)
+        cause.get(Keys.DETONATOR).ifPresent(detonator -> {
+            if (detonator instanceof Player)
             {
-                data.put(CAUSE_NAME, ((Player)cause.getDetonator().get()).getName());
-                data.put(CAUSE_PLAYER_UUID, cause.getDetonator().get().getUniqueId());
+                data.put(CAUSE_NAME, ((Player)detonator).getName());
+                data.put(CAUSE_PLAYER_UUID, detonator.getUniqueId());
             }
             else
             {
-                data.put(CAUSE_NAME, cause.getDetonator().get().getType().getId());
+                data.put(CAUSE_NAME, detonator.getType().key(RegistryTypes.ENTITY_TYPE).asString());
             }
-        }
-
+        });
         data.put(CAUSE_TYPE, CAUSE_TNT.toString());
         return data;
     }
@@ -197,14 +180,11 @@ public class Observe
     {
         Map<String, Object> data = new HashMap<>();
         data.put(CAUSE_TYPE, CAUSE_ENTITY.toString());
-        data.put(CAUSE_NAME, cause.getType().getId());
+        data.put(CAUSE_NAME, cause.getType().key(RegistryTypes.ENTITY_TYPE).asString());
 
         if (doRecursion && cause instanceof Agent)
         {
-            if (((Agent) cause).getTarget().isPresent())
-            {
-                data.put(CAUSE_TARGET, cause(((Agent) cause).getTarget().get(), false, new HashSet<>()));
-            }
+            cause.get(Keys.TARGET_ENTITY).ifPresent(targetEntity -> data.put(CAUSE_TARGET, cause(targetEntity, false, new HashSet<>())));
         }
         return data;
     }
@@ -214,7 +194,7 @@ public class Observe
         BlockType type = block.getType();
         Map<String, Object> data = new HashMap<>();
         data.put(CAUSE_TYPE, CAUSE_BLOCK.toString());
-        data.put(CAUSE_NAME, type.getId());
+        data.put(CAUSE_NAME, type.key(RegistryTypes.BLOCK_TYPE).asString());
         return data;
     }
 
@@ -234,7 +214,7 @@ public class Observe
         container.get(query).ifPresent(value -> data.put(query.asString('_'), value));
     }
 
-    public static Map<String, Object> location(Location<World> location)
+    public static Map<String, Object> location(ServerLocation location)
     {
         if (location == null)
         {
@@ -243,7 +223,7 @@ public class Observe
 
         Map<String, Object> info = new HashMap<>();
 
-        info.put(WORLD.asString("_"), location.getExtent().getUniqueId().toString());
+        info.put(WORLD.asString("_"), location.getWorld().getUniqueId().toString());
         // TODO worldname also recall it
         info.put(X.asString("_"), location.getBlockX());
         info.put(Y.asString("_"), location.getBlockY());
@@ -261,16 +241,10 @@ public class Observe
 
         DataContainer blockContainer = block.toContainer();
         Optional<List<DataView>> data = blockContainer.getViewList(BLOCK_DATA);
-        if (data.isPresent())
-        {
-            info.put(BLOCK_DATA.asString("_"), toRawData(data.get()));
-        }
+        data.ifPresent(dataViews -> info.put(BLOCK_DATA.asString("_"), toRawData(dataViews)));
 
         Optional<Object> unsafe = blockContainer.get(BLOCK_UNSAFE_DATA);
-        if (unsafe.isPresent())
-        {
-            info.put(BLOCK_UNSAFE_DATA.asString("_"), toRawData(unsafe.get()));
-        }
+        unsafe.ifPresent(o -> info.put(BLOCK_UNSAFE_DATA.asString("_"), toRawData(o)));
 
         return info;
     }
@@ -289,8 +263,8 @@ public class Observe
         if (data instanceof DataView)
         {
             return ((DataView)data).getValues(false).entrySet().stream()
-                .collect(Collectors.toMap(e -> toRawData(e.getKey()),
-                                          e -> toRawData(e.getValue())));
+                                   .collect(Collectors.toMap(e -> toRawData(e.getKey()),
+                                                             e -> toRawData(e.getValue())));
         }
         if (data instanceof Map)
         {
@@ -335,6 +309,26 @@ public class Observe
     }
 
     /**
+     * Observes a BlockTransactionReceipt
+     *
+     * @param transaction the transaction to observe
+     * @return the observed data
+     */
+    public static Map<String, Object> transactions(BlockTransactionReceipt transaction)
+    {
+        Map<String, Object> data = new HashMap<>();
+        BlockSnapshot original = transaction.getOriginal();
+        if (original.getLocation().isPresent())
+        {
+            //System.out.print(transaction.getFinal().getLocation().get().getPosition() +  " " + transaction.getFinal().getState().getType() + "\n");
+            //data.put(LOCATION, location(transaction.getFinal().getLocation().get()));
+            ORIGINAL.put(data, blockSnapshot(original));
+            REPLACEMENT.put(data, blockSnapshot(transaction.getFinal()));
+        }
+        return data;
+    }
+
+    /**
      * Observes a SlotTransaction
      *
      * @param transactions the transaction to observe
@@ -350,7 +344,7 @@ public class Observe
             ItemStackSnapshot finalStack = transaction.getFinal();
             data.put(ChangeInventoryReport.ORIGINAL, toRawData(originalStack.toContainer()));
             data.put(ChangeInventoryReport.REPLACEMENT, toRawData(finalStack.toContainer()));
-            data.put(ChangeInventoryReport.SLOT_INDEX, transaction.getSlot().getInventoryProperty(SlotIndex.class).map(SlotIndex::getValue).orElse(-1));
+            data.put(ChangeInventoryReport.SLOT_INDEX, transaction.getSlot().get(Keys.SLOT_INDEX).orElse(-1));
             list.add(data);
         }
         return list;

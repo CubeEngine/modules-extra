@@ -21,12 +21,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import com.flowpowered.math.vector.Vector3i;
 import org.bson.Document;
 import org.cubeengine.module.vigil.data.LookupData;
 import org.cubeengine.module.vigil.report.Report;
+import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.server.ServerLocation;
+import org.spongepowered.math.vector.Vector3i;
 
 public class Lookup
 {
@@ -35,7 +37,7 @@ public class Lookup
 
     private LookupData settings;
 
-    private UUID world;
+    private ResourceKey world;
     private Vector3i position;
     private int radius = 0;
     private Document prepared;
@@ -51,9 +53,9 @@ public class Lookup
         this.settings = settings;
     }
 
-    public Lookup with(Location<World> loc)
+    public Lookup with(ServerLocation loc)
     {
-        this.world = loc.getExtent().getUniqueId();
+        this.world = loc.getWorld().getKey();
         this.position = loc.getBlockPosition();
         return this;
     }
@@ -90,7 +92,7 @@ public class Lookup
         return lookup;
     }
 
-    public UUID getWorld()
+    public ResourceKey getWorld()
     {
         return world;
     }

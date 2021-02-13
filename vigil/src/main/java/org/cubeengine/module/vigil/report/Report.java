@@ -39,7 +39,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.cubeengine.module.vigil.Receiver;
-import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.data.persistence.DataQuery;
 
 import static java.util.Collections.emptyList;
 

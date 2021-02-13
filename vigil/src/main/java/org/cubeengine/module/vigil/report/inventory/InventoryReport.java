@@ -18,14 +18,14 @@
 package org.cubeengine.module.vigil.report.inventory;
 
 import org.cubeengine.module.vigil.report.BaseReport;
-import org.spongepowered.api.event.item.inventory.TargetInventoryEvent;
+import org.spongepowered.api.event.Event;
 
 /* TODO
 item
 -craft
 -enchant
  */
-public abstract class InventoryReport<T extends TargetInventoryEvent> extends BaseReport<T>
+public abstract class InventoryReport<T extends Event> extends BaseReport<T>
 {
 
 }
