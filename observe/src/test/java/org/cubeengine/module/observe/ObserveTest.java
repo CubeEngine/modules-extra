@@ -18,6 +18,8 @@
 package org.cubeengine.module.observe;
 
 import io.prometheus.client.CollectorRegistry;
+import io.prometheus.client.Counter;
+import io.prometheus.client.Histogram;
 import io.prometheus.client.hotspot.GarbageCollectorExports;
 import org.apache.logging.log4j.LogManager;
 import org.cubeengine.libcube.util.Pair;
@@ -80,6 +82,8 @@ public class ObserveTest {
         registry.register(PullGaugeCollector.<DoubleSupplier>build(Math::random).withGauge(PullGauge.build("test", DoubleSupplier::getAsDouble).help("dummy").build()).build());
         metricsService.addCollectorRegistry(plugin, registry, true);
         assertTrue(webServer.registerHandlerAndStart("/metrics", metricsService));
+
+        Counter.build().name("test_counter_default_registry").help("test counter").register();
 
         final SimpleHealthCheckService healthyService = new SimpleHealthCheckService(executorService);
         healthyService.registerProbe(plugin, "test", () -> HealthState.HEALTHY);
