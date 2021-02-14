@@ -20,14 +20,18 @@ package org.cubeengine.module.vigil.report.block;
 import java.util.List;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
+import org.cubeengine.module.vigil.report.Observe;
 import org.cubeengine.module.vigil.report.Recall;
 import org.cubeengine.module.vigil.report.Report;
 import org.spongepowered.api.block.BlockSnapshot;
+import org.spongepowered.api.block.transaction.BlockTransactionReceipt;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.world.ExplosionEvent;
+import org.spongepowered.api.registry.RegistryTypes;
+import org.spongepowered.api.world.server.ServerLocation;
 
 import static org.cubeengine.module.vigil.report.ReportUtil.name;
 
@@ -40,7 +44,7 @@ tnt
 wither
  */
 // TODO wait for Sponge implementation
-public class ExplosionReport extends BlockReport<ExplosionEvent.Post> implements Report.Readonly
+public class ExplosionReport extends BaseBlockReport<ExplosionEvent.Post> implements Report.Readonly
 {
     @Override
     public void showReport(List<Action> actions, Receiver receiver)
@@ -66,4 +70,24 @@ public class ExplosionReport extends BlockReport<ExplosionEvent.Post> implements
         // TODO cause filtering
         report(event);
     }
+
+    protected void report(ExplosionEvent.Post event)
+    {
+        for (BlockTransactionReceipt receipt : event.getReceipts())
+        {
+            final ServerLocation loc = receipt.getOriginal().getLocation().get();
+            if (!isActive(loc.getWorld()))
+            {
+                continue;
+            }
+
+            final Action action = observe(event);
+            action.addData(BLOCK_CHANGES, Observe.transactions(receipt));
+            action.addData(LOCATION, Observe.location(loc));
+            action.addData(OPERATION, receipt.getOperation().key(RegistryTypes.OPERATION).asString());
+
+            report(action);
+        }
+    }
+
 }

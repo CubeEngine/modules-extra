@@ -22,43 +22,48 @@ import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 import static org.cubeengine.libcube.util.ConfirmManager.requestConfirmation;
 
-import org.cubeengine.butler.parametric.Command;
-import org.cubeengine.butler.parametric.Complete;
-import org.cubeengine.butler.parametric.Default;
-import org.cubeengine.libcube.service.command.CommandManager;
-import org.cubeengine.libcube.service.command.ContainerCommand;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import net.kyori.adventure.audience.Audience;
+import org.cubeengine.libcube.service.command.DispatcherCommand;
+import org.cubeengine.libcube.service.command.annotation.Command;
+import org.cubeengine.libcube.service.command.annotation.Default;
+import org.cubeengine.libcube.service.command.annotation.Parser;
+import org.cubeengine.libcube.service.command.annotation.Using;
 import org.cubeengine.libcube.service.config.ConfigWorld;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.module.vigil.Vigil;
 import org.cubeengine.module.vigil.report.Report;
-import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.world.World;
+import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.world.server.ServerWorld;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+@Singleton
 @Command(name = "admin", desc = "Vigil-Admin Commands")
-public class VigilAdminCommands extends ContainerCommand
+@Using(ReportParser.class)
+public class VigilAdminCommands extends DispatcherCommand
 {
     private I18n i18n;
     private Vigil module;
 
-    public VigilAdminCommands(CommandManager cm, I18n i18n, Vigil module)
+    @Inject
+    public VigilAdminCommands(I18n i18n, Vigil module)
     {
-        super(cm, Vigil.class);
         this.i18n = i18n;
         this.module = module;
     }
 
     @Command(desc = "purges all logs")
-    public void purge(CommandSource ctx)
+    public void purge(CommandCause ctx)
     {
-        requestConfirmation(i18n, i18n.translate(ctx.getLocale(), NEUTRAL, "Do you really want do delete ALL logs?"), ctx, () -> runPurge(ctx));
+        requestConfirmation(i18n, i18n.translate(ctx, NEUTRAL, "Do you really want do delete ALL logs?"), ctx.getAudience(), () -> runPurge(ctx.getAudience()));
     }
 
     @Command(desc = "enables or disables reports in a world")
-    public void setReportActive(CommandSource ctx, World world, @Complete(ReportParser.class) String name, @Default boolean enable) // TODO completer
+    public void setReportActive(CommandCause ctx, ServerWorld world, @Parser(completer = ReportParser.class) String name, @Default boolean enable) // TODO completer
     {
         Class<? extends Report> report = "*".equals(name) ? Report.class : Report.getReport(name).orElse(null);
         if (report == null)
@@ -81,7 +86,7 @@ public class VigilAdminCommands extends ContainerCommand
         module.getConfig().save();
     }
 
-    private void runPurge(CommandSource ctx)
+    private void runPurge(Audience ctx)
     {
         CompletableFuture.runAsync(() -> module.getQueryManager().purge()).thenRun(() -> i18n.send(ctx, POSITIVE, "Purged all logs from database!"));
     }

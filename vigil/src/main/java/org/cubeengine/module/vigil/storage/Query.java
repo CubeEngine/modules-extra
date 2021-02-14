@@ -18,59 +18,34 @@
 package org.cubeengine.module.vigil.storage;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import com.flowpowered.math.vector.Vector3d;
-import com.flowpowered.math.vector.Vector3i;
-import com.mongodb.QueryOperators;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
 import org.bson.Document;
-import org.cubeengine.module.vigil.report.Action;
-import org.cubeengine.module.vigil.report.Report;
-import org.cubeengine.module.vigil.report.entity.EntityReport;
-import org.spongepowered.api.data.manipulator.mutable.RepresentedItemData;
-import org.spongepowered.api.world.World;
+import org.bson.conversions.Bson;
+import org.spongepowered.api.ResourceKey;
+import org.spongepowered.math.vector.Vector3i;
 
-import static com.mongodb.QueryOperators.AND;
-import static com.mongodb.QueryOperators.IN;
-import static com.mongodb.QueryOperators.OR;
 import static org.cubeengine.module.vigil.report.Action.DATA;
 import static org.cubeengine.module.vigil.report.Action.TYPE;
 import static org.cubeengine.module.vigil.report.Report.*;
 import static org.cubeengine.module.vigil.report.block.BlockReport.BLOCK_CHANGES;
-import static org.cubeengine.module.vigil.report.entity.EntityReport.ENTITY;
-import static org.cubeengine.module.vigil.report.entity.EntityReport.ENTITY_DATA;
-
-import javax.print.Doc;
 
 public class Query
 {
-    private final Document query = new Document();
-    private List<Object> and = new ArrayList<>();
-
-    public Query()
-    {
-        query.put(AND, and);
-    }
+    private List<Bson> andFilters = new ArrayList<>();
 
     public FindIterable<Document> find(MongoCollection<Document> collection)
     {
-        return collection.find(query);
+        return collection.find(Filters.and(andFilters));
     }
 
-    public Query world(UUID world)
+    public Query world(ResourceKey world)
     {
-        Document block = new Document();
-        Document other = new Document();
-
-        block.put(String.join(".", DATA.name, BLOCK_CHANGES.name, LOCATION, WORLD.asString("_")), world.toString());
-        other.put(String.join(".", DATA.name, LOCATION, WORLD.asString("_")), world.toString());
-
-        and.add(new Document(OR, Arrays.asList(block, other)));
+        final Bson block = Filters.eq(String.join(".", DATA.name, BLOCK_CHANGES.name, LOCATION, WORLD.asString("_")), world.asString());
+        final Bson other = Filters.eq(String.join(".", DATA.name, LOCATION, WORLD.asString("_")), world.asString());
+        andFilters.add(Filters.or(block, other));
         return this;
     }
 
@@ -82,41 +57,33 @@ public class Query
         position.put(String.join(".", DATA.name, LOCATION, Y.asString("_")), pos.getY());
         position.put(String.join(".", DATA.name, LOCATION, Z.asString("_")), pos.getZ());
 
-        and.add(position);
+        andFilters.add(position);
         return this;
     }
 
     public Query radius(Vector3i pos, int radius)
     {
-        Document posRadius = new Document();
+        final String xLoc = String.join(".", DATA.name, LOCATION, X.asString("_"));
+        final Bson gtX = Filters.gt(xLoc, pos.getX() - radius);
+        final Bson ltX = Filters.lt(xLoc, pos.getX() + radius);
 
-        Document cond = new Document();
-        cond.put(QueryOperators.GT, pos.getX() - radius);
-        cond.put(QueryOperators.LT, pos.getX() + radius);
+        final String zLoc = String.join(".", DATA.name, LOCATION, Z.asString("_"));
+        final Bson gtZ = Filters.gt(zLoc, pos.getZ() - radius);
+        final Bson ltZ = Filters.lt(zLoc, pos.getZ() + radius);
 
-        posRadius.put(String.join(".", DATA.name, LOCATION, X.asString("_")), cond);
-
-        cond = new Document();
-        cond.put(QueryOperators.GT, pos.getZ() - radius);
-        cond.put(QueryOperators.LT, pos.getZ() + radius);
-
-        posRadius.put(String.join(".", DATA.name, LOCATION, Z.asString("_")), cond);
-
-        and.add(posRadius);
+        andFilters.add(Filters.and(gtX, ltX, gtZ, ltZ));
         return this;
     }
 
     public Query reportFilters(List<String> reports)
     {
-        Document types = new Document();
-        types.put(TYPE.name, new Document(IN, reports));
-        and.add(types);
+        andFilters.add(Filters.in(TYPE.name, reports));
         return this;
     }
 
     public Query prepared(Document prepared)
     {
-        this.and.add(prepared);
+        this.andFilters.add(prepared);
         return this;
     }
 }

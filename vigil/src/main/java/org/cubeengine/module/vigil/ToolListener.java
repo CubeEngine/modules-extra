@@ -17,29 +17,32 @@
  */
 package org.cubeengine.module.vigil;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionManager;
-import org.cubeengine.module.vigil.data.ImmutableLookupData;
-import org.cubeengine.module.vigil.data.LookupData;
+import org.cubeengine.module.vigil.data.VigilData;
 import org.cubeengine.module.vigil.storage.QueryManager;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.data.type.HandTypes;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.event.EventContextKeys;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
+import org.spongepowered.api.event.block.InteractBlockEvent.Primary.Start;
+import org.spongepowered.api.event.block.InteractBlockEvent.Secondary;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.server.ServerLocation;
 
-import java.util.Optional;
-
+@Singleton
 public class ToolListener
 {
     private QueryManager qm;
     private final Permission toolPerm;
 
+    @Inject
     public ToolListener(PermissionManager pm, QueryManager qm)
     {
         this.qm = qm;
@@ -47,36 +50,52 @@ public class ToolListener
     }
 
     @Listener
-    public void onClick(InteractBlockEvent event, @First Player player)
+    public void onClick(InteractBlockEvent.Secondary event, @First ServerPlayer player)
     {
-        if (event instanceof InteractBlockEvent.Primary.MainHand || event instanceof InteractBlockEvent.Secondary.MainHand)
+        handleLRClicks(event, player);
+    }
+
+    @Listener
+    public void onClick(InteractBlockEvent.Primary.Start event, @First ServerPlayer player)
+    {
+        handleLRClicks(event, player);
+    }
+
+    private void handleLRClicks(InteractBlockEvent event, ServerPlayer player)
+    {
+        if (event.getContext().get(EventContextKeys.USED_HAND).map(h -> h.equals(HandTypes.MAIN_HAND.get())).orElse(false))
         {
-            Optional<ItemStack> itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
-            if (itemInHand.isPresent() && itemInHand.get().get(LookupData.class).isPresent())
-            {
-                if (!player.hasPermission(toolPerm.getId()) || event.getTargetBlock() == BlockSnapshot.NONE)
+            ItemStack itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
+            itemInHand.get(VigilData.REPORTS).ifPresent(reports -> {
+                if (!toolPerm.check(player) || event.getBlock() == BlockSnapshot.NONE.get())
                 {
                     return;
                 }
-                Location<World> loc;
-                if (event instanceof InteractBlockEvent.Primary)
+                ServerLocation loc;
+                if (event instanceof InteractBlockEvent.Primary.Start)
                 {
-                    loc = event.getTargetBlock().getLocation().get();
+                    loc = event.getBlock().getLocation().get();
+
+                    ((Start)event).setCancelled(true);
+                }
+                else if (event instanceof InteractBlockEvent.Secondary)
+                {
+                    loc = event.getBlock().getLocation().get().relativeTo(event.getTargetSide());
+                    ((Secondary)event).setCancelled(true);
                 }
                 else
                 {
-                    loc = event.getTargetBlock().getLocation().get().getRelative(event.getTargetSide());
+                    throw new IllegalStateException("impossible");
                 }
+                qm.queryAndShow(new Lookup(itemInHand).with(loc), player);
 
-                qm.queryAndShow(new Lookup(itemInHand.get().get(LookupData.class).get()).with(loc), player);
-                event.setCancelled(true);
-            }
+            });
         }
     }
 
     @Listener
     public void onDropTool(DropItemEvent.Pre event)
     {
-        event.getDroppedItems().removeIf(item -> item.get(ImmutableLookupData.class).isPresent());
+        event.getDroppedItems().removeIf(item -> item.get(VigilData.REPORTS).isPresent());
     }
 }

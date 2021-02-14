@@ -42,6 +42,7 @@ import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.explosive.fused.PrimedTNT;
 import org.spongepowered.api.entity.living.Agent;
+import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Cause;
 import org.spongepowered.api.event.EventContextKey;
@@ -355,10 +356,11 @@ public class Observe
      * @param entity the entity
      * @return the observed data
      */
-    public static Map<String, Object> entity(EntitySnapshot entity)
+    public static Map<String, Object> entity(Entity entity)
     {
         Map<String, Object> data = new HashMap<>();
-        data.put(EntityReport.ENTITY_DATA, toRawData(entity.toContainer()));
+        data.put(EntityReport.ENTITY_DATA, toRawData(entity.createSnapshot().toContainer()));
+        data.put(EntityReport.LIVING, entity instanceof Living);
         return data;
     }
 }

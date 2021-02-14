@@ -28,4 +28,5 @@ public abstract class EntityReport<T extends Event> extends BaseReport<T> implem
 {
     public static final String ENTITY = "entity";
     public static final String ENTITY_DATA = "data";
+    public static final String LIVING = "isLiving";
 }

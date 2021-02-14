@@ -20,13 +20,12 @@ package org.cubeengine.module.vigil;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import org.bson.Document;
 import org.cubeengine.module.vigil.data.LookupData;
+import org.cubeengine.module.vigil.data.VigilData;
 import org.cubeengine.module.vigil.report.Report;
 import org.spongepowered.api.ResourceKey;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
+import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.math.vector.Vector3i;
 
@@ -51,6 +50,12 @@ public class Lookup
     public Lookup(LookupData settings)
     {
         this.settings = settings;
+    }
+
+    public Lookup(ItemStack itemInHand)
+    {
+        this.settings = new LookupData();
+        VigilData.syncFromStack(itemInHand, this.settings);
     }
 
     public Lookup with(ServerLocation loc)

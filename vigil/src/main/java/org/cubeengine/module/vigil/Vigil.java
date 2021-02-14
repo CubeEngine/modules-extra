@@ -17,34 +17,18 @@
  */
 package org.cubeengine.module.vigil;
 
-import java.util.concurrent.ThreadFactory;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.cubeengine.libcube.ModuleManager;
-import org.cubeengine.libcube.service.command.CommandManager;
-import org.cubeengine.libcube.service.event.EventManager;
+import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
+import org.cubeengine.libcube.service.event.ModuleListener;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
-import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.libcube.service.matcher.StringMatcher;
-import org.cubeengine.libcube.service.permission.PermissionManager;
-import org.cubeengine.module.bigdata.Bigdata;
-import org.cubeengine.module.vigil.commands.LookupDataParser;
-import org.cubeengine.module.vigil.commands.ReportParser;
-import org.cubeengine.module.vigil.commands.VigilAdminCommands;
 import org.cubeengine.module.vigil.commands.VigilCommands;
-import org.cubeengine.module.vigil.commands.VigilLookupCommands;
-import org.cubeengine.module.vigil.data.ImmutableLookupData;
-import org.cubeengine.module.vigil.data.LookupData;
-import org.cubeengine.module.vigil.data.LookupDataBuilder;
-import org.cubeengine.module.vigil.report.Report;
-import org.cubeengine.module.vigil.report.ReportManager;
+import org.cubeengine.module.vigil.data.VigilData;
 import org.cubeengine.module.vigil.storage.QueryManager;
 import org.cubeengine.processor.Dependency;
 import org.cubeengine.processor.Module;
-import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.game.state.GameInitializationEvent;
-import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 
 import static org.cubeengine.module.bigdata.PluginBigdata.BIGDATA_ID;
 import static org.cubeengine.module.bigdata.PluginBigdata.BIGDATA_VERSION;
@@ -53,45 +37,15 @@ import static org.cubeengine.module.bigdata.PluginBigdata.BIGDATA_VERSION;
 @Module(dependencies = @Dependency(value = BIGDATA_ID, version = BIGDATA_VERSION))
 public class Vigil
 {
+    @Inject private QueryManager qm;
     @ModuleConfig private VigilConfig config;
-    @Inject
-    private EventManager em;
-    private ThreadFactory tf;
-    @Inject private Bigdata bd;
-    @Inject private CommandManager cm;
-    @Inject private I18n i18n;
-    @Inject private StringMatcher sm;
-    @Inject private PermissionManager pm;
-    @Inject private PluginContainer plugin;
-    @Inject private ModuleManager mm;
-
-    private QueryManager qm;
-    private ReportManager rm;
+    @ModuleListener private ToolListener toolListener;
+    @ModuleCommand private VigilCommands vigilCommands;
 
     @Listener
-    public void onEnable(GameInitializationEvent event)
+    public void onRegisterData(RegisterDataEvent event)
     {
-        this.tf = mm.getThreadFactory(Vigil.class);
-        rm = new ReportManager(this, em, i18n);
-        qm = new QueryManager(tf, bd.getDatabase().getCollection("vigil"), rm, i18n, plugin);
-        this.cm.getProviders().register(this, new LookupDataParser(i18n), LookupData.class);;
-        this.cm.getProviders().register(this, new ReportParser(this), Report.class);
-        VigilCommands vc = new VigilCommands(sm, i18n, cm);
-        cm.addCommand(vc);
-        vc.addCommand(new VigilAdminCommands(cm, i18n, this));
-        cm.addCommands(vc, this, new VigilLookupCommands(this, cm, i18n, qm));
-
-        em.registerListener(Vigil.class, new ToolListener(pm, qm));
-
-        DataRegistration<LookupData, ImmutableLookupData> dr =
-                DataRegistration.<LookupData, ImmutableLookupData>builder()
-                        .dataClass(LookupData.class).immutableClass(ImmutableLookupData.class)
-                        .builder(new LookupDataBuilder()).manipulatorId("vigil-lookup")
-                        .dataName("CubeEngine vigil Lookup Data")
-                        .buildAndRegister(plugin);
-
-
-
+        VigilData.register(event);
     }
 
     public VigilConfig getConfig()
@@ -102,10 +56,5 @@ public class Vigil
     public QueryManager getQueryManager()
     {
         return qm;
-    }
-
-    public ReportManager getReportManager()
-    {
-        return rm;
     }
 }

@@ -27,6 +27,7 @@ import org.spongepowered.api.data.value.ListValue;
 import org.spongepowered.api.data.value.Value;
 import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.util.TypeTokens;
 
 public interface VigilData
@@ -44,7 +45,7 @@ public interface VigilData
         final ResourceKey rkey = ResourceKey.of(PluginVigil.VIGIL_ID, "lookup-data");
         final DataStore dataStore = DataStore.builder()
                                              .pluginData(rkey)
-                                             .holder(ItemStack.class)
+                                             .holder(ItemStack.class, ItemStackSnapshot.class)
                                              .keys(CREATOR, FULL_DATE, SHOW_LOC, NO_DATE, FULL_LOC, DETAIL_INV, REPORTS)
                                              .build();
 
@@ -53,5 +54,28 @@ public interface VigilData
                                                               .store(dataStore)
                                                               .build();
         event.register(registration);
+    }
+
+    static void syncToStack(ItemStack itemStack, LookupData data)
+    {
+        itemStack.offer(CREATOR, data.getCreator());
+        itemStack.offer(FULL_DATE, data.isFullDate());
+        itemStack.offer(SHOW_LOC, data.isShowLocation());
+        itemStack.offer(NO_DATE, data.isNoDate());
+        itemStack.offer(FULL_LOC, data.isFullLocation());
+        itemStack.offer(DETAIL_INV, data.showDetailedInventory());
+        itemStack.offer(REPORTS, data.getReports());
+    }
+
+    static void syncFromStack(ItemStack itemStack, LookupData data)
+    {
+        itemStack.get(CREATOR).ifPresent(data::setCreator);
+        itemStack.get(FULL_DATE).ifPresent(data::setFullDate);
+        itemStack.get(SHOW_LOC).ifPresent(data::setShowLocation);
+        itemStack.get(NO_DATE).ifPresent(data::setNoDate);
+        itemStack.get(FULL_LOC).ifPresent(data::setFullLocation);
+        itemStack.get(DETAIL_INV).ifPresent(data::setDetailedInventory);
+        itemStack.get(REPORTS).ifPresent(data::setReports);
+
     }
 }

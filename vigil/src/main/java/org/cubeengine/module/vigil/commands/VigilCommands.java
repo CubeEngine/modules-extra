@@ -17,48 +17,48 @@
  */
 package org.cubeengine.module.vigil.commands;
 
-import static java.util.Arrays.asList;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NONE;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
-
-import org.cubeengine.butler.alias.Alias;
-import org.cubeengine.butler.filter.Restricted;
-import org.cubeengine.butler.parametric.Command;
-import org.cubeengine.butler.parametric.Default;
-import org.cubeengine.butler.parametric.Label;
-import org.cubeengine.libcube.service.command.CommandManager;
-import org.cubeengine.libcube.service.command.ContainerCommand;
+import java.util.Collections;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.cubeengine.libcube.service.command.DispatcherCommand;
 import org.cubeengine.libcube.service.command.annotation.Alias;
 import org.cubeengine.libcube.service.command.annotation.Command;
+import org.cubeengine.libcube.service.command.annotation.Default;
+import org.cubeengine.libcube.service.command.annotation.Label;
+import org.cubeengine.libcube.service.command.annotation.Restricted;
+import org.cubeengine.libcube.service.command.annotation.Using;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.matcher.StringMatcher;
 import org.cubeengine.libcube.util.SpawnUtil;
-import org.cubeengine.module.vigil.Vigil;
 import org.cubeengine.module.vigil.data.LookupData;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.key.Keys;
+import org.cubeengine.module.vigil.data.VigilData;
+import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.data.type.HandTypes;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.transaction.InventoryTransactionResult;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.format.TextColors;
 
-import java.util.Collections;
+import static java.util.Arrays.asList;
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
 
+@Singleton
+@Using(LookupDataParser.class)
 @Command(name = "vigil", alias = "log", desc = "Vigil-Module Commands")
-public class VigilCommands extends ContainerCommand
+public class VigilCommands extends DispatcherCommand
 {
-    public static final Text toolName = Text.of(TextColors.DARK_AQUA, "Vigil Log-Tool");
+    public static final Component toolName = Component.text("Vigil Log-Tool", NamedTextColor.DARK_AQUA);
 
     private StringMatcher sm;
     private I18n i18n;
 
-    public VigilCommands(StringMatcher sm, I18n i18n, CommandManager cm)
+    @Inject
+    public VigilCommands(VigilAdminCommands adminCommands, VigilLookupCommands lookupCommands, StringMatcher sm, I18n i18n)
     {
-        super(cm, Vigil.class);
+        super(adminCommands, lookupCommands);
         this.sm = sm;
         this.i18n = i18n;
     }
@@ -72,8 +72,8 @@ public class VigilCommands extends ContainerCommand
         "kills: Shows kill-interactions only\n" +
         "block: Shows block-changes only
      */
-    @Restricted(value = Player.class, msg = "Why don't you check in your log-file? You won't need a block there!")
-    public void block(Player context, @Default @Label("log-type") LookupData logType)
+    @Restricted(msg = "Why don't you check in your log-file? You won't need a block there!")
+    public void block(ServerPlayer context, @Default @Label("log-type") LookupData logType)
     {
         findLogTool(context, logType);
     }
@@ -87,8 +87,8 @@ public class VigilCommands extends ContainerCommand
         "kills: Shows kill-interactions only\n" +
         "block: Shows block-changes only
      */
-    @Restricted(value = Player.class, msg = "Why don't you check in your log-file? You won't need an item there!")
-    public void tool(Player context, @Default @Label("log-type") LookupData logType)
+    @Restricted(msg = "Why don't you check in your log-file? You won't need an item there!")
+    public void tool(ServerPlayer context, @Default @Label("log-type") LookupData logType)
     {
         findLogTool(context, logType);
     }
@@ -97,7 +97,7 @@ public class VigilCommands extends ContainerCommand
     {
         if (type == null)
         {
-            return block ? ItemTypes.BEDROCK : ItemTypes.BOOK;
+            return block ? ItemTypes.BEDROCK.get() : ItemTypes.BOOK.get();
         }
         String match = sm.matchString(type, "chest", "player", "kills", "block");
         if (match != null)
@@ -106,33 +106,34 @@ public class VigilCommands extends ContainerCommand
             {
                 case "chest":
                 case "container":
-                    return block ? ItemTypes.CHEST : ItemTypes.BRICK;
+                    return block ? ItemTypes.CHEST.get() : ItemTypes.BRICK.get();
                 case "player":
-                    return block ? ItemTypes.PUMPKIN : ItemTypes.CLAY_BALL;
+                    return block ? ItemTypes.CARVED_PUMPKIN.get() : ItemTypes.CLAY_BALL.get();
                 case "kills":
-                    return block ? ItemTypes.SOUL_SAND : ItemTypes.BONE;
+                    return block ? ItemTypes.SOUL_SAND.get() : ItemTypes.BONE.get();
                 case "block":
-                    return block ? ItemTypes.LOG : ItemTypes.NETHERBRICK;
+                    return block ? ItemTypes.OAK_LOG.get() : ItemTypes.NETHER_BRICK.get();
             }
         }
         return null;
     }
 
     @SuppressWarnings("deprecation")
-    private void findLogTool(Player player, LookupData logType)
+    private void findLogTool(ServerPlayer player, LookupData data)
     {
-        ItemStack itemStack = Sponge.getGame().getRegistry().createBuilder(ItemStack.Builder.class).itemType(ItemTypes.BOOK).quantity(1).build();
-        itemStack.offer(Keys.DISPLAY_NAME, toolName);
-        itemStack.offer(Keys.ITEM_LORE, asList(i18n.translate(player, NONE, "created by {name}", player.getName())));
-        itemStack.offer(Keys.ITEM_ENCHANTMENTS, Collections.emptyList());
-        itemStack.offer(logType);
-        java.util.Optional<ItemStack> inHand = player.getItemInHand(HandTypes.MAIN_HAND);
+
+        ItemStack itemStack = ItemStack.of(ItemTypes.BOOK);
+        itemStack.offer(Keys.CUSTOM_NAME, toolName);
+        itemStack.offer(Keys.LORE, asList(i18n.translate(player, "created by {name}", player.getName())));
+        itemStack.offer(Keys.APPLIED_ENCHANTMENTS, Collections.emptyList());
+        VigilData.syncToStack(itemStack, data);
+        ItemStack inHand = player.getItemInHand(HandTypes.MAIN_HAND);
         player.setItemInHand(HandTypes.MAIN_HAND, itemStack);
-        if (inHand.isPresent())
+        if (!inHand.isEmpty())
         {
-            if (player.getInventory().offer(inHand.get()).getType() != InventoryTransactionResult.Type.SUCCESS)
+            if (player.getInventory().offer(inHand).getType() != InventoryTransactionResult.Type.SUCCESS)
             {
-                SpawnUtil.spawnItem(inHand.get(), player.getLocation());
+                SpawnUtil.spawnItem(inHand, player.getServerLocation());
             }
         }
         i18n.send(player, POSITIVE, "Received a new Log-Tool!");

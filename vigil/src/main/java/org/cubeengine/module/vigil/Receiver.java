@@ -17,32 +17,33 @@
  */
 package org.cubeengine.module.vigil;
 
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.CRITICAL;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
-
-import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.text.Component;
-import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.libcube.util.StringUtils;
-import org.cubeengine.libcube.util.TimeUtil;
-import org.cubeengine.module.vigil.report.Action;
-import org.cubeengine.module.vigil.report.Recall;
-import org.cubeengine.module.vigil.report.Report;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.service.pagination.PaginationList.Builder;
-import org.spongepowered.api.service.pagination.PaginationService;
-import org.spongepowered.api.world.Location;
-import org.spongepowered.api.world.World;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.i18n.I18nTranslate.ChatType;
+import org.cubeengine.libcube.util.StringUtils;
+import org.cubeengine.libcube.util.TimeUtil;
+import org.cubeengine.module.vigil.report.Action;
+import org.cubeengine.module.vigil.report.Recall;
+import org.cubeengine.module.vigil.report.Report;
+import org.cubeengine.module.vigil.report.ReportActions;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.adventure.SpongeComponents;
+import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.service.pagination.PaginationList.Builder;
+import org.spongepowered.api.util.locale.LocaleSource;
+import org.spongepowered.api.world.server.ServerLocation;
+
+import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
 
 public class Receiver
 {
@@ -62,25 +63,23 @@ public class Receiver
     // TODO translate msgs on this method
     public void sendReport(Report report, List<Action> actions, String msg, Object... args)
     {
-        Text reports = Text.of(report.getClass().getSimpleName());
+        Component reports = Component.text(report.getClass().getSimpleName());
         if (report instanceof Report.ReportGrouping)
         {
-            reports = Text.of(((Report.ReportGrouping) report).getReportsList().stream().map(Class::getSimpleName).collect(Collectors.joining("/")));
+            reports = Component.text(((Report.ReportGrouping) report).getReportsList().stream().map(Class::getSimpleName).collect(Collectors.joining("/")));
         }
-        Text trans = i18n.translate(cmdSource, NEUTRAL, msg, args)
-                         .toBuilder().onHover(TextActions.showText(reports)).build();
+        Component trans = i18n.translate(cmdSource, NEUTRAL, msg, args).hoverEvent(HoverEvent.showText(reports));
         sendReport(actions, trans);
     }
 
     public void sendReport(Report report, List<Action> actions, int size, String msgSingular, String msgPlural, Object... args)
     {
-        Text reports = Text.of(report.getClass().getSimpleName());
+        Component reports = Component.text(report.getClass().getSimpleName());
         if (report instanceof Report.ReportGrouping)
         {
-            reports = Text.of(((Report.ReportGrouping) report).getReportsList().stream().map(Class::getSimpleName).collect(Collectors.joining("/")));
+            reports = Component.text(((Report.ReportGrouping) report).getReportsList().stream().map(Class::getSimpleName).collect(Collectors.joining("/")));
         }
-        Text trans = i18n.translateN(cmdSource, NEUTRAL, size, msgSingular, msgPlural, args)
-                         .toBuilder().onHover(TextActions.showText(reports)).build();
+        Component trans = i18n.translateN(cmdSource, NEUTRAL, size, msgSingular, msgPlural, args).hoverEvent(HoverEvent.showText(reports));
         sendReport(actions, trans);
     }
 
@@ -89,56 +88,56 @@ public class Receiver
     private static final SimpleDateFormat timeLong = new SimpleDateFormat("HH:mm:ss");
     private static final SimpleDateFormat timeShort = new SimpleDateFormat("HH:mm");
 
-    private static final Text RED_SEPARATOR = Text.of(RED, " - ");
+    private static final Component RED_SEPARATOR = Component.text(" - ", NamedTextColor.RED);
 
-    private void sendReport(List<Action> actions, Text trans)
+    private void sendReport(List<Action> actions, Component trans)
     {
         Action firstAction = actions.get(0);
         Action lastAction = actions.get(actions.size() - 1);
 
-        Text date = getDatePrefix(firstAction, lastAction);
-        Text loc = getLocation(firstAction, lastAction);
-        if (!date.isEmpty() && !loc.isEmpty())
+        Component date = lookup.getSettings().isNoDate() ? null : getDatePrefix(firstAction, lastAction);
+        Component loc = lookup.getSettings().isShowLocation() ? null : getLocation(firstAction, lastAction);
+        if (date != null && loc != null)
         {
-            lines.add(Text.of(date, WHITE, " ", i18n.translate(cmdSource, NONE, "at"), " ", loc, Text.NEW_LINE, "  ", trans));
+            lines.add(
+                date.color(NamedTextColor.WHITE).append(Component.space()).append(i18n.translate(cmdSource, "at"))
+                    .append(Component.space()).append(loc).append(Component.newline()).append(Component.text("  ")).append(trans));
         }
         else
         {
-            Text prefix = Text.EMPTY;
-            if (!date.isEmpty())
+            Component prefix = Component.empty();
+            if (date != null)
             {
-                prefix = Text.of(date, RED_SEPARATOR);
+                prefix = date.append(RED_SEPARATOR);
             }
-            else if (!loc.isEmpty())
+            else if (loc != null)
             {
-                prefix = Text.of(loc, RED_SEPARATOR);
+                prefix = loc.append(RED_SEPARATOR);
             }
-            lines.add(Text.of(prefix, trans));
+            lines.add(prefix.append(trans));
         }
     }
 
-    private Text getLocation(Action firstAction, Action lastAction)
+    private Component getLocation(Action firstAction, Action lastAction)
     {
-        if (!lookup.getSettings().isShowLocation())
-        {
-            return Text.EMPTY;
-        }
         if (firstAction == lastAction)
         {
-            Location<World> location = Recall.location(firstAction);
-            Text.Builder builder = Text.of(GRAY, location.getBlockX(), WHITE, ":", GRAY, location.getBlockY(), WHITE, ":", GRAY, location.getBlockZ()).toBuilder();
-            builder.onHover(showText(i18n.translate(cmdSource, NEUTRAL, "Click to teleport to the location in {world}", location.getExtent())))
-                   .onClick(executeCallback(c -> showTeleport(location)));
+            ServerLocation location = Recall.location(firstAction);
+            final Component worldName = location.getWorld().getProperties().displayName().orElse(Component.text(location.getWorldKey().asString()));
+            final TextComponent text = Component.join(Component.text(":", NamedTextColor.WHITE), Component.text(location.getBlockX()),
+                                                               Component.text(location.getBlockY()), Component.text(location.getBlockZ())).hoverEvent(
+                HoverEvent.showText(i18n.translate(cmdSource, NEUTRAL, "Click to teleport to the location in {txt#world}", worldName))).clickEvent(
+                SpongeComponents.executeCallback(c -> showTeleport(location)));
             if (lookup.getSettings().isFullLocation())
             {
-                builder.append(Text.of(" ", i18n.translate(cmdSource, NONE, "in"), " ", GRAY, location.getExtent().getName()));
+                return Component.space().append(i18n.translate(cmdSource, "in")).append(Component.space()).append(worldName.color(NamedTextColor.GRAY));
             }
-            return builder.build();
+            return text;
         }
-        return Text.of("range"); // TODO
+        return Component.text("range"); // TODO
     }
 
-    private void showTeleport(Location<World> loc)
+    private void showTeleport(ServerLocation loc)
     {
         if (cmdSource instanceof Player)
         {
@@ -150,19 +149,15 @@ public class Receiver
         }
     }
 
-    private Text getDatePrefix(Action firstAction, Action lastAction)
+    private Component getDatePrefix(Action firstAction, Action lastAction)
     {
-        if (lookup.getSettings().isNoDate())
-        {
-            return Text.EMPTY;
-        }
         if (firstAction == lastAction)
         {
             Date date = firstAction.getDate();
             String dLong = dateLong.format(date);
             boolean sameDay = dateLong.format(new Date()).equals(dLong);
             String tLong = timeLong.format(date);
-            Text full = Text.of(GRAY, dLong, " ", tLong);
+            Component full = Component.text(dLong, NamedTextColor.GRAY).append(Component.space()).append(Component.text(tLong));
             if (lookup.getSettings().isFullDate())
             {
                 return full;
@@ -170,11 +165,11 @@ public class Receiver
             String tShort = timeShort.format(date);
             if (sameDay) // Today?
             {
-                return Text.of(GRAY, tShort).toBuilder().onHover(showText(full)).build();
+                return Component.text(tShort, NamedTextColor.GRAY).hoverEvent(HoverEvent.showText(full));
             }
             else
             {
-                return Text.of(GRAY, dateShort.format(date), " ", tShort).toBuilder().onHover(showText(full)).build();
+                return Component.text(dateShort.format(date), NamedTextColor.GRAY).append(Component.space()).append(Component.text(tShort)).hoverEvent(HoverEvent.showText(full));
             }
         }
         else
@@ -186,34 +181,33 @@ public class Receiver
             String ldLong = dateLong.format(lastDate);
             boolean sameDay = fdLong.equals(ldLong);
             boolean toDay = dateLong.format(new Date()).equals(fdLong);
-            String ftLong = timeLong.format(firstDate);
-            String ltLong = timeLong.format(lastDate);
-            Text fFull = Text.of(GRAY, fdLong, " ", ftLong);
-            Text lFull = Text.of(GRAY, ldLong, " ", ltLong);
+            final TextComponent ftLong = Component.text(timeLong.format(firstDate));
+            Component fFull = Component.text(fdLong, NamedTextColor.GRAY).append(Component.space()).append(ftLong);
+            final TextComponent ltLong = Component.text(timeLong.format(lastDate));
+            Component lFull = Component.text(ldLong, NamedTextColor.GRAY).append(Component.space()).append(ltLong);
             if (lookup.getSettings().isFullDate())
             {
-                return Text.of(fFull, TextColors.WHITE, " - ", lFull);
+                return fFull.append(Component.text(" - ", NamedTextColor.WHITE)).append(lFull);
             }
-            String fdShort = dateShort.format(firstDate);
-            String ftShort = timeShort.format(firstDate);
-            String ltShort = timeShort.format(lastDate);
+            Component fdShort = Component.text(dateShort.format(firstDate));
+            Component ftShort = Component.text(timeShort.format(firstDate));
+            Component ltShort = Component.text(timeShort.format(lastDate));
             if (sameDay)
             {
                 if (toDay)
                 {
-
-                    return Text.of(Text.of(GRAY, ftShort).toBuilder().onHover(showText(fFull)).build()
-                        ,WHITE, " - ",Text.of(GRAY, ltShort).toBuilder().onHover(showText(lFull)).build());
+                    return ftShort.color(NamedTextColor.GRAY).hoverEvent(HoverEvent.showText(fFull)).append(Component.text(" - ", NamedTextColor.WHITE))
+                        .append(ltShort.color(NamedTextColor.GRAY).hoverEvent(HoverEvent.showText(lFull)));
                 }
-
-                return Text.of(Text.of(GRAY, fdShort, " ", ftShort).toBuilder().onHover(showText(fFull)).build()
-                    , WHITE, " - " ,Text.of(GRAY, ltShort).toBuilder().onHover(showText(lFull)).build());
+                return fdShort.color(NamedTextColor.GRAY).append(Component.space()).append(ftShort).hoverEvent(HoverEvent.showText(fFull)).append(Component.text(" - ", NamedTextColor.WHITE))
+                              .append(ltShort.color(NamedTextColor.GRAY).hoverEvent(HoverEvent.showText(lFull)));
             }
             else
             {
-                String ldShort = dateShort.format(firstDate);
-                return Text.of(Text.of(GRAY, fdShort, " ", ftShort).toBuilder().onHover(showText(fFull)).build()
-                    ,  WHITE,    " - "  ,Text.of(GRAY, ldShort, " ", ltShort).toBuilder().onHover(showText(fFull)).build());
+                Component ldShort = Component.text(dateShort.format(firstDate));
+                return fdShort.color(NamedTextColor.GRAY).append(Component.space()).append(ftShort).hoverEvent(HoverEvent.showText(fFull))
+                       .append(Component.text(" - ", NamedTextColor.WHITE))
+                       .append(ldShort.color(NamedTextColor.GRAY)).append(Component.space()).append(ltShort).hoverEvent(HoverEvent.showText(fFull));
             }
         }
     }
@@ -224,26 +218,26 @@ public class Receiver
         {
             if (cmdSource instanceof Player)
             {
-                i18n.send(ChatTypes.ACTION_BAR, ((Player) cmdSource), NEGATIVE, "Nothing logged here");
+                i18n.send(ChatType.ACTION_BAR, ((Player) cmdSource), NEGATIVE, "Nothing logged here");
                 return;
             }
             i18n.send(cmdSource, NEGATIVE, "Nothing logged here");
             return;
         }
-        cmdSource.sendMessage(Text.of(TextColors.GOLD, StringUtils.repeat("-", 53)));
+
+        cmdSource.sendMessage(Component.text(StringUtils.repeat("-", 53), NamedTextColor.GOLD));
         for (ReportActions reportAction : reportActions)
         {
             reportAction.showReport(this);
         }
-        Builder builder = Sponge.getGame().getServiceManager().provideUnchecked(PaginationService.class).builder();
-        Text titleLineAmount = i18n.translate(cmdSource, POSITIVE, "Showing {amount} Logs", lines.size());
+        final Builder builder = Sponge.getGame().getServiceProvider().paginationService().builder();
+        Component titleLineAmount = i18n.translate(cmdSource, POSITIVE, "Showing {amount} Logs", lines.size());
         String titleLineSort = i18n.getTranslation(cmdSource, "(newest first)");
-        Text titleLine = Text.of(titleLineAmount, " ", TextColors.YELLOW, titleLineSort);
-        Text titleTimings = i18n.translate(cmdSource, NEUTRAL, "Query: {input#time} Report: {input#time}",
-                                           TimeUtil.formatDuration(lookup.timing(Lookup.LookupTiming.LOOKUP)),
-                                           TimeUtil.formatDuration(lookup.timing(Lookup.LookupTiming.REPORT)));
-        titleLine = titleLine.toBuilder().onHover(TextActions.showText(titleTimings)).build();
-        builder.title(titleLine).padding(Text.of("-"))
+        Component titleTimings = i18n.translate(cmdSource, NEUTRAL, "Query: {input#time} Report: {input#time}",
+                                                TimeUtil.formatDuration(lookup.timing(Lookup.LookupTiming.LOOKUP)),
+                                                TimeUtil.formatDuration(lookup.timing(Lookup.LookupTiming.REPORT)));
+        final Component titleLine = titleLineAmount.append(Component.space()).append(Component.text(titleLineSort, NamedTextColor.YELLOW)).hoverEvent(HoverEvent.showText(titleTimings));
+        builder.title(titleLine).padding(Component.text("-"))
                // TODO reverse order
                .contents(lines).linesPerPage(2 + Math.min(lines.size(), 18)).sendTo(cmdSource);
         // TODO remove linesPerPage when Sponge puts the lines to the bottom
@@ -251,7 +245,11 @@ public class Receiver
 
     public Locale getLocale()
     {
-        return cmdSource.getLocale();
+        if (cmdSource instanceof LocaleSource)
+        {
+            return ((LocaleSource)cmdSource).getLocale();
+        }
+        return Locale.getDefault();
     }
 
     public Lookup getLookup()
@@ -259,7 +257,7 @@ public class Receiver
         return lookup;
     }
 
-    public CommandSource getSender()
+    public Audience getSender()
     {
         return cmdSource;
     }

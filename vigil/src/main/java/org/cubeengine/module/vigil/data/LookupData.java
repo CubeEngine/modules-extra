@@ -39,37 +39,37 @@ public class LookupData
 
     // ------ SETTERS ------
 
-    public LookupData withCreator(UUID uuid)
+    public LookupData setCreator(UUID uuid)
     {
         this.creator = uuid;
         return this;
     }
 
-    private LookupData withFullDate(boolean set)
+    public LookupData setFullDate(boolean set)
     {
         this.fullDate = set;
         return this;
     }
 
-    private LookupData withNoDate(boolean set)
+    public LookupData setNoDate(boolean set)
     {
         this.noDate = set;
         return this;
     }
 
-    private LookupData withShowLocation(boolean set)
+    public LookupData setShowLocation(boolean set)
     {
         this.showLocation = set;
         return this;
     }
 
-    private LookupData withFullLocation(boolean set)
+    public LookupData setFullLocation(boolean set)
     {
         this.fullLocation = set;
         return this;
     }
 
-    private LookupData withDetailedInventory(boolean set)
+    public LookupData setDetailedInventory(boolean set)
     {
         this.showDetailedInventory = set;
         return this;
@@ -81,7 +81,7 @@ public class LookupData
         return this;
     }
 
-    public LookupData withReports(Class<? extends Report>... reports)
+    public LookupData setReports(Class<? extends Report>... reports)
     {
         this.reports = Arrays.stream(reports).map(Class::getName).collect(Collectors.toList());
         return this;

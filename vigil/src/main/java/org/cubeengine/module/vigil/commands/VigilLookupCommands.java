@@ -17,44 +17,41 @@
  */
 package org.cubeengine.module.vigil.commands;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.bson.Document;
-import org.cubeengine.butler.alias.Alias;
-import org.cubeengine.butler.parametric.Command;
-import org.cubeengine.butler.parametric.Flag;
-import org.cubeengine.butler.parametric.Named;
-import org.cubeengine.libcube.service.command.CommandManager;
-import org.cubeengine.libcube.service.command.ContainerCommand;
 import org.cubeengine.libcube.service.command.annotation.Alias;
 import org.cubeengine.libcube.service.command.annotation.Command;
-import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.command.annotation.Flag;
+import org.cubeengine.libcube.service.command.annotation.Named;
+import org.cubeengine.libcube.service.command.annotation.Using;
 import org.cubeengine.module.vigil.Lookup;
 import org.cubeengine.module.vigil.Vigil;
 import org.cubeengine.module.vigil.data.LookupData;
 import org.cubeengine.module.vigil.report.Report;
 import org.cubeengine.module.vigil.storage.QueryManager;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 
-@Command(name = "vigil", alias = "log", desc = "Vigil-Module Commands")
-public class VigilLookupCommands extends ContainerCommand
+@Singleton
+@Using(ReportParser.class)
+public class VigilLookupCommands
 {
 
     private Vigil module;
-    private I18n i18n;
     private QueryManager qm;
 
-    public VigilLookupCommands(Vigil module, CommandManager cm, I18n i18n, QueryManager qm)
+    @Inject
+    public VigilLookupCommands(Vigil module, QueryManager qm)
     {
-        super(cm, Vigil.class);
         this.module = module;
-        this.i18n = i18n;
         this.qm = qm;
     }
 
     @Alias(value = "lookup")
     @Command(desc = "Performs a lookup.")
-    public void lookup(Player context, @Named("radius") Integer radius, @Named("report") Report report,
-            @Named("prepared") String preparedLookup,
-            @Flag boolean last)
+    public void lookup(ServerPlayer context, @Named("radius") Integer radius, @Named("report") Report report,
+                       @Named("prepared") String preparedLookup,
+                       @Flag boolean last)
     {
         LookupData ld = new LookupData();
         Lookup lookup = preparedLookup == null ? new Lookup(ld) : new Lookup(Document.parse(module.getConfig().preparedReports.get(preparedLookup)));
@@ -63,7 +60,7 @@ public class VigilLookupCommands extends ContainerCommand
             lookup = this.qm.getLast(context).orElse(lookup);
         }
 
-        lookup = lookup.with(context.getLocation()).withRadius(radius)
+        lookup = lookup.with(context.getServerLocation()).withRadius(radius)
             .withReport(report);
 
         System.out.print(report + "\n");
@@ -72,7 +69,7 @@ public class VigilLookupCommands extends ContainerCommand
     }
 
     @Command(desc = "Performs a lookup nearby")
-    public void nearby(Player context, @Named("report") Report report)
+    public void nearby(ServerPlayer context, @Named("report") Report report)
     {
         this.lookup(context, 5, report, null, false);
     }

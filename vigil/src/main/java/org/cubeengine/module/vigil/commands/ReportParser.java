@@ -17,45 +17,42 @@
  */
 package org.cubeengine.module.vigil.commands;
 
-import org.cubeengine.butler.CommandInvocation;
-import org.cubeengine.butler.parameter.argument.ArgumentParser;
-import org.cubeengine.butler.parameter.argument.Completer;
-import org.cubeengine.butler.parameter.argument.ParserException;
-import org.cubeengine.module.vigil.Vigil;
-import org.cubeengine.module.vigil.report.Report;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import org.cubeengine.libcube.service.command.annotation.ParserFor;
+import org.cubeengine.module.vigil.report.Report;
+import org.cubeengine.module.vigil.report.ReportManager;
+import org.spongepowered.api.command.exception.ArgumentParseException;
+import org.spongepowered.api.command.parameter.ArgumentReader.Mutable;
+import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.command.parameter.CommandContext.Builder;
+import org.spongepowered.api.command.parameter.Parameter.Key;
+import org.spongepowered.api.command.parameter.managed.ValueCompleter;
+import org.spongepowered.api.command.parameter.managed.ValueParser;
 
-public class ReportParser implements ArgumentParser<Report>, Completer {
+@ParserFor(Report.class)
+@Singleton
+public class ReportParser implements ValueParser<Report>, ValueCompleter
+{
 
     public static final String REPORT_BASE = "org.cubeengine.module.vigil.report";
-    private Vigil module;
+    private ReportManager manager;
 
-    public ReportParser(Vigil module)
+    @Inject
+    public ReportParser(ReportManager manager)
     {
-        this.module = module;
+        this.manager = manager;
     }
 
     @Override
-    public Report parse(Class type, CommandInvocation invocation) throws ParserException
-    {
-        String token = invocation.consume(1);
-        Optional<? extends Class<? extends Report>> reportClass = Report.getReport(token);
-        if (reportClass.isPresent()) {
-            Report report = this.module.getReportManager().getReports().get(reportClass.get().getName());
-            return report;
-        }
-        throw new ParserException("Could not find Report named: " + token);
-    }
-
-    @Override
-    public List<String> suggest(Class type, CommandInvocation invocation)
+    public List<String> complete(CommandContext context, String currentInput)
     {
         List<String> list = new ArrayList<>();
-        String token = invocation.currentToken();
-        for (String report : this.module.getReportManager().getReports().keySet())
+        String token = currentInput;
+        for (String report : this.manager.getReports().keySet())
         {
             if (report.startsWith(REPORT_BASE))
             {
@@ -67,5 +64,18 @@ public class ReportParser implements ArgumentParser<Report>, Completer {
             }
         }
         return list;
+    }
+
+    @Override
+    public Optional<? extends Report> getValue(Key<? super Report> parameterKey, Mutable reader, Builder context) throws ArgumentParseException
+    {
+        final String token = reader.parseString();
+        Optional<? extends Class<? extends Report>> reportClass = Report.getReport(token);
+        if (reportClass.isPresent()) {
+            Report report = this.manager.getReports().get(reportClass.get().getName());
+            return Optional.of(report);
+        }
+        return Optional.empty();
+        // TODO error msg throw new ParserException("Could not find Report named: " + token);
     }
 }

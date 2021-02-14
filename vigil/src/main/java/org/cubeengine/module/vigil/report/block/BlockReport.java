@@ -18,26 +18,21 @@
 package org.cubeengine.module.vigil.report.block;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import net.kyori.adventure.text.Component;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
-import org.cubeengine.module.vigil.report.BaseReport;
 import org.cubeengine.module.vigil.report.Observe;
 import org.cubeengine.module.vigil.report.Recall;
-import org.cubeengine.module.vigil.report.Report;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.block.transaction.BlockTransactionReceipt;
 import org.spongepowered.api.data.Keys;
-import org.spongepowered.api.data.persistence.DataQuery;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.registry.RegistryTypes;
-import org.spongepowered.api.world.BlockChangeFlags;
 import org.spongepowered.api.world.server.ServerLocation;
 
 import static org.cubeengine.module.vigil.report.ReportUtil.name;
@@ -99,116 +94,8 @@ button
 
 bonemeal?
  */
-public abstract class BlockReport extends BaseReport<ChangeBlockEvent.Post>
+public class BlockReport extends BaseBlockReport<ChangeBlockEvent.Post>
 {
-    public static final Action.DataKey<Map<String, Object>> BLOCK_CHANGES = new Action.DataKey<>("block-changes");
-    public static final Action.DataKey<Optional<BlockSnapshot>> BLOCKS_ORIG = new Action.DataKey<>(BLOCK_CHANGES.name + "-orig");
-    public static final Action.DataKey<Optional<BlockSnapshot>> BLOCKS_REPL = new Action.DataKey<>(BLOCK_CHANGES.name + "-repl");
-    public static final Action.DataKey<String> OPERATION = new Action.DataKey<>("operation");
-    public static final DataQuery BLOCK_STATE = DataQuery.of("BlockState");
-    public static final DataQuery BLOCK_DATA = DataQuery.of("TileEntityData");
-    public static final DataQuery BLOCK_UNSAFE_DATA = DataQuery.of("UnsafeData");
-    public static final DataQuery BLOCK_ITEMS = DataQuery.of("UnsafeData", "Items");
-    public static final Action.DataKey<Map<String, Object>> ORIGINAL = new Action.DataKey<>("original");
-    public static final Action.DataKey<Map<String, Object>> REPLACEMENT = new Action.DataKey<>("replacement");
-
-    @Override
-    protected Action observe(ChangeBlockEvent.Post event)
-    {
-        Action action = newReport();
-        action.addData(CAUSE, Observe.causes(event.getCause()));
-        return action;
-    }
-
-    protected void report(ChangeBlockEvent.Post event)
-    {
-        for (BlockTransactionReceipt receipt : event.getReceipts())
-        {
-            final ServerLocation loc = receipt.getOriginal().getLocation().get();
-            if (!isActive(loc.getWorld()))
-            {
-                continue;
-            }
-            if (isRedstoneChange(receipt.getOriginal().getState(), receipt.getFinal().getState()))
-            {
-                continue;
-            }
-
-            final Action action = observe(event);
-            action.addData(BLOCK_CHANGES, Observe.transactions(receipt));
-            action.addData(LOCATION, Observe.location(loc));
-            action.addData(OPERATION, receipt.getOperation().key(RegistryTypes.OPERATION).asString());
-
-            report(action);
-        }
-    }
-
-    private static boolean isRedstoneChange(BlockState origState, BlockState finalState)
-    {
-        if (!origState.getType().equals(finalState.getType()))
-        {
-            return false;
-        }
-        return origState.getType().isAnyOf(BlockTypes.REDSTONE_WIRE, BlockTypes.REPEATER, BlockTypes.COMPARATOR,
-                                        BlockTypes.REDSTONE_TORCH, BlockTypes.REDSTONE_WALL_TORCH,
-                                        BlockTypes.DROPPER, BlockTypes.DISPENSER, BlockTypes.HOPPER);
-    }
-
-    protected boolean group(Optional<BlockSnapshot> repl1, Optional<BlockSnapshot> repl2)
-    {
-        if ((repl1.isPresent() && !repl2.isPresent()) || (!repl1.isPresent() && repl2.isPresent()))
-        {
-            return false;
-        }
-
-        if (repl1.isPresent() && repl2.isPresent())
-        {
-            if (!repl1.get().getWorld().equals(repl2.get().getWorld()))
-            {
-                return false;
-            }
-            if (!repl1.get().getState().equals(repl2.get().getState()))
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public boolean group(Object lookup, Action action, Action otherAction, Report otherReport)
-    {
-        if (!this.equals(otherReport))
-        {
-            return false;
-        }
-
-        Optional<BlockSnapshot> orig1 = action.getCached(BLOCKS_ORIG, Recall::origSnapshot);
-        Optional<BlockSnapshot> orig2 = otherAction.getCached(BLOCKS_ORIG, Recall::origSnapshot);
-
-        if (!group(orig1, orig2))
-        {
-            return false;
-        }
-
-        Optional<BlockSnapshot> repl1 = action.getCached(BLOCKS_ORIG, Recall::origSnapshot);
-        Optional<BlockSnapshot> repl2 = otherAction.getCached(BLOCKS_ORIG, Recall::origSnapshot);
-
-        if (!group(repl1, repl2))
-        {
-            return false;
-        }
-
-        if (!action.getData(CAUSE).equals(otherAction.getData(CAUSE)))
-        {
-            // TODO check same cause better
-            return false;
-        }
-
-        // TODO in short timeframe (minutes? configurable)
-        return true;
-    }
-
     @Override
     public void showReport(List<Action> actions, Receiver receiver)
     {
@@ -291,23 +178,43 @@ public abstract class BlockReport extends BaseReport<ChangeBlockEvent.Post>
                             Recall.cause(action), name(orig, receiver), actions.size());
     }
 
+    protected void report(ChangeBlockEvent.Post event)
+    {
+        for (BlockTransactionReceipt receipt : event.getReceipts())
+        {
+            final ServerLocation loc = receipt.getOriginal().getLocation().get();
+            if (!isActive(loc.getWorld()))
+            {
+                continue;
+            }
+            if (isRedstoneChange(receipt.getOriginal().getState(), receipt.getFinal().getState()))
+            {
+                continue;
+            }
+
+            final Action action = observe(event);
+            action.addData(BLOCK_CHANGES, Observe.transactions(receipt));
+            action.addData(LOCATION, Observe.location(loc));
+            action.addData(OPERATION, receipt.getOperation().key(RegistryTypes.OPERATION).asString());
+
+            report(action);
+        }
+    }
+
+    private static boolean isRedstoneChange(BlockState origState, BlockState finalState)
+    {
+        if (!origState.getType().equals(finalState.getType()))
+        {
+            return false;
+        }
+        return origState.getType().isAnyOf(BlockTypes.REDSTONE_WIRE, BlockTypes.REPEATER, BlockTypes.COMPARATOR,
+                                           BlockTypes.REDSTONE_TORCH, BlockTypes.REDSTONE_WALL_TORCH,
+                                           BlockTypes.DROPPER, BlockTypes.DISPENSER, BlockTypes.HOPPER);
+    }
+
     @Listener(order = Order.POST)
     public void listen(ChangeBlockEvent.Post event)
     {
         report(event);
-    }
-
-    @Override
-    public void apply(Action action, boolean noOp)
-    {
-        // TODO noOp
-        action.getCached(BLOCKS_REPL, Recall::replSnapshot).get().restore(true, BlockChangeFlags.NONE);
-    }
-
-    @Override
-    public void unapply(Action action, boolean noOp)
-    {
-        // TODO noOp
-        action.getCached(BLOCKS_ORIG, Recall::origSnapshot).get().restore(true, BlockChangeFlags.NONE);
     }
 }

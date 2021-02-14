@@ -17,65 +17,71 @@
  */
 package org.cubeengine.module.vigil.commands;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
-import org.cubeengine.libcube.service.command.TranslatedParserException;
-import org.cubeengine.libcube.service.i18n.I18n;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import org.cubeengine.libcube.service.command.DefaultParameterProvider;
+import org.cubeengine.libcube.service.command.annotation.ParserFor;
 import org.cubeengine.module.vigil.data.LookupData;
-import org.cubeengine.module.vigil.report.block.BreakBlockReport;
+import org.cubeengine.module.vigil.report.block.BlockReport;
 import org.cubeengine.module.vigil.report.block.ExplosionReport;
-import org.cubeengine.module.vigil.report.block.ModifyBlockReport;
-import org.cubeengine.module.vigil.report.block.PlaceBlockReport;
 import org.cubeengine.module.vigil.report.entity.DestructReport;
 import org.cubeengine.module.vigil.report.inventory.ChangeInventoryReport;
 import org.cubeengine.module.vigil.report.inventory.InventoryOpenReport;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.command.exception.ArgumentParseException;
+import org.spongepowered.api.command.parameter.ArgumentReader.Mutable;
+import org.spongepowered.api.command.parameter.CommandContext;
+import org.spongepowered.api.command.parameter.CommandContext.Builder;
+import org.spongepowered.api.command.parameter.Parameter.Key;
+import org.spongepowered.api.command.parameter.managed.ValueCompleter;
+import org.spongepowered.api.command.parameter.managed.ValueParser;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
-
-public class LookupDataParser implements ArgumentParser<LookupData>, Completer, DefaultValue<LookupData>
+@Singleton
+@ParserFor(LookupData.class)
+public class LookupDataParser implements ValueParser<LookupData>, ValueCompleter, DefaultParameterProvider<LookupData>
 {
     private Map<String, LookupData> types = new HashMap<>();
     private LookupData defaultType;
 
-    private I18n i18n;
-
-    public LookupDataParser(I18n i18n)
+    @Inject
+    public LookupDataParser()
     {
-        this.i18n = i18n;
         this.defaultType = new LookupData();
-        this.types.put("chest", this.defaultType.copy().withReports(ChangeInventoryReport.class, InventoryOpenReport.class));
+        this.types.put("chest", this.defaultType.copy().setReports(ChangeInventoryReport.class, InventoryOpenReport.class));
         // TODO this.types.put("player", this.defaultType.copy());
-        this.types.put("kills", this.defaultType.copy().withReports(DestructReport.class));
-        this.types.put("block", this.defaultType.copy().withReports(BreakBlockReport.class, PlaceBlockReport.class, ModifyBlockReport.class, ExplosionReport.class));
+        this.types.put("kills", this.defaultType.copy().setReports(DestructReport.class));
+        this.types.put("block", this.defaultType.copy().setReports(BlockReport.class, ExplosionReport.class));
     }
 
     @Override
-    public LookupData parse(Class clazz, CommandInvocation ci) throws ParserException
+    public LookupData apply(CommandCause cause)
     {
-        String token = ci.consume(1);
-        if (!types.keySet().contains(token.toLowerCase()))
+        return defaultType.copy().setCreator(((ServerPlayer) cause.getSubject()).getUniqueId());
+    }
+
+    @Override
+    public List<String> complete(CommandContext context, String currentInput)
+    {
+        return this.types.keySet().stream().filter(k -> k.startsWith(currentInput)).collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<? extends LookupData> getValue(Key<? super LookupData> parameterKey, Mutable reader, Builder context) throws ArgumentParseException
+    {
+        String token = reader.parseString();
+        if (!types.containsKey(token.toLowerCase()))
         {
-            throw new TranslatedParserException(i18n.translate(ci.getContext(Locale.class), NEGATIVE, "{input} is not a valid log-type. Use chest, container, player, block or kills instead!", token));
+            return Optional.empty();
+            // TODO error msg throw new TranslatedParserException(i18n.translate(ci.getContext(Locale.class), NEGATIVE, "{input} is not a valid log-type. Use chest, container, player, block or kills instead!", token));
         }
         LookupData data = types.get(token.toLowerCase()).copy();
-        return data.withCreator(((Player) ci.getCommandSource()).getUniqueId());
+        return Optional.of(data.setCreator(((ServerPlayer) context.getSubject()).getUniqueId()));
     }
 
-    @Override
-    public List<String> suggest(Class clazz, CommandInvocation ci)
-    {
-        String token = ci.currentToken();
-        return new ArrayList<>(this.types.keySet().stream().filter(k -> k.startsWith(token)).collect(Collectors.toList()));
-    }
-
-    @Override
-    public LookupData provide(CommandInvocation ci)
-    {
-        return defaultType.copy().withCreator(((Player) ci.getCommandSource()).getUniqueId());
-    }
 }

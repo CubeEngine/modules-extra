@@ -32,13 +32,17 @@ import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadFactory;
 import java.util.function.Consumer;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.mongodb.MongoTimeoutException;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Indexes;
 import org.bson.Document;
 import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.i18n.I18nTranslate.ChatType;
 import org.cubeengine.libcube.service.i18n.formatter.MessageType;
+import org.cubeengine.module.bigdata.Bigdata;
 import org.cubeengine.module.vigil.Lookup;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
@@ -47,25 +51,26 @@ import org.cubeengine.module.vigil.report.ReportActions;
 import org.cubeengine.module.vigil.report.ReportManager;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.plugin.PluginContainer;
-import org.spongepowered.api.scheduler.SpongeExecutorService;
-import org.spongepowered.api.text.chat.ChatTypes;
+import org.spongepowered.api.scheduler.TaskExecutorService;
+import org.spongepowered.plugin.PluginContainer;
 
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static java.util.stream.Collectors.toList;
 
+@Singleton
 public class QueryManager
 {
     private final Queue<Action> actions = new ConcurrentLinkedQueue<>();
     private final ExecutorService storeExecuter;
     private PluginContainer plugin;
     private Future<?> storeFuture;
-    private final SpongeExecutorService queryShowExecutor;
-    private Map<UUID, Future> queryFuture = new HashMap<>();
+    private TaskExecutorService queryShowExecutor;
+    private Map<UUID, CompletableFuture<Void>> queryFuture = new HashMap<>();
     private final Semaphore storeLatch = new Semaphore(1);
 
     private int batchSize = 2000; // TODO config
-    private MongoCollection<Document> db;
+    private MongoCollection<Document> mongo;
+    private Bigdata bigdata;
     private ReportManager reportManager;
     private I18n i18n;
 
@@ -73,18 +78,35 @@ public class QueryManager
 
     private Map<UUID, Lookup> lastLookups = new HashMap<>();
 
-    public QueryManager(ThreadFactory tf, MongoCollection<Document> db, ReportManager reportManager, I18n i18n, PluginContainer plugin)
+    @Inject
+    public QueryManager(ThreadFactory tf, Bigdata bigdata, ReportManager reportManager, I18n i18n, PluginContainer plugin)
     {
-        this.db = db;
+        this.bigdata = bigdata;
         this.reportManager = reportManager;
         this.i18n = i18n;
-        storeExecuter = newSingleThreadExecutor(tf);
-        queryShowExecutor = Sponge.getScheduler().createSyncExecutor(plugin);
+        this.storeExecuter = newSingleThreadExecutor(tf);
         this.plugin = plugin;
-        db.createIndex(Indexes.hashed("type"));
-        db.createIndex(Indexes.descending("date"));
-        db.createIndex(Indexes.ascending("data.location.Position_X", "data.location.Position_Z", "data.location.Position_Y"));
-        db.createIndex(Indexes.hashed("data.location.WorldUuid"));
+    }
+
+    public void initQueryShowExecutor()
+    {
+        if (this.queryShowExecutor == null)
+        {
+            this.queryShowExecutor = Sponge.getServer().getScheduler().createExecutor(plugin);
+        }
+    }
+
+    public MongoCollection<Document> vigilCollection()
+    {
+        if (this.mongo == null)
+        {
+            this.mongo = bigdata.getDatabase().getCollection("vigil");
+            this.mongo.createIndex(Indexes.hashed("type"));
+            this.mongo.createIndex(Indexes.descending("date"));
+            this.mongo.createIndex(Indexes.ascending("data.location.Position_X", "data.location.Position_Z", "data.location.Position_Y"));
+            this.mongo.createIndex(Indexes.hashed("data.location.WorldUuid"));
+        }
+        return this.mongo;
     }
 
     /**
@@ -132,7 +154,7 @@ public class QueryManager
             }
 
             List<Document> storeList = storing.stream().map(Action::getDocument).collect(toList());
-            db.insertMany(storeList);
+            vigilCollection().insertMany(storeList);
         }
         catch (MongoTimeoutException e)
         {
@@ -161,20 +183,21 @@ public class QueryManager
 
     public void queryAndShow(Lookup lookup, Player player) // TODO lookup object
     {
+        this.initQueryShowExecutor();
         this.lastLookups.put(player.getUniqueId(), lookup);
 
         // TODO lookup cancel previous?
-        Future future = queryFuture.get(player.getUniqueId());
+        CompletableFuture<Void> future = queryFuture.get(player.getUniqueId());
         if (future != null && !future.isDone())
         {
-            i18n.send(ChatTypes.ACTION_BAR, player, MessageType.NEGATIVE,"There is another lookup active!");
+            i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "There is another lookup active!");
             return;
         }
         Query query = buildQuery(lookup);
 
         future = CompletableFuture.supplyAsync(() -> lookup(lookup, query)) // Async MongoDB Lookup
-                .thenApply(result -> this.prepareReports(lookup, player, result)) // Still Async Prepare Reports
-                .thenAcceptAsync(r -> this.show(lookup, player, r), queryShowExecutor); // Resync to show information
+                                                                               .thenApply(result -> this.prepareReports(lookup, player, result)) // Still Async Prepare Reports
+                                                                               .thenAcceptAsync(r -> this.show(lookup, player, r), queryShowExecutor);// Resync to show information
         queryFuture.put(player.getUniqueId(), future);
     }
 
@@ -182,7 +205,7 @@ public class QueryManager
     {
         lookup.time(Lookup.LookupTiming.LOOKUP);
         List<Action> actions = new ArrayList<>();
-        FindIterable<Document> results = query.find(db).sort(new Document("date", -1));
+        FindIterable<Document> results = query.find(vigilCollection()).sort(new Document("date", -1));
         for (Document result : results)
         {
             actions.add(new Action(result));
@@ -253,14 +276,9 @@ public class QueryManager
         return query;
     }
 
-    private void prepareReports()
-    {
-
-    }
-
     public void purge()
     {
-        this.db.deleteMany(new Document());
+        this.vigilCollection().deleteMany(new Document());
     }
 
     public Optional<Lookup> getLast(Player player)

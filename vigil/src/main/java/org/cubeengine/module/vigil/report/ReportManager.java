@@ -19,6 +19,8 @@ package org.cubeengine.module.vigil.report;
 
 import java.util.HashMap;
 import java.util.Map;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.cubeengine.module.vigil.Vigil;
 import org.cubeengine.module.vigil.report.block.BlockReport;
 import org.cubeengine.module.vigil.report.entity.DestructReport;
@@ -29,6 +31,7 @@ import org.cubeengine.module.vigil.report.inventory.ChangeInventoryReport;
 import org.cubeengine.libcube.service.event.EventManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 
+@Singleton
 public class ReportManager
 {
     private Vigil module;
@@ -37,6 +40,7 @@ public class ReportManager
 
     private Map<String, Report> reports = new HashMap<>();
 
+    @Inject
     public ReportManager(Vigil module, EventManager em, I18n i18n)
     {
         this.module = module;
