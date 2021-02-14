@@ -142,10 +142,11 @@ public class PrometheusMetricsService implements MetricsService, WebHandler
     }
 
     private static CompletableFuture<Stream<Collector.MetricFamilySamples>> getAsyncSamples(List<Registration> registrations, Set<String> query) {
-        final Stream<Collector.MetricFamilySamples> samples = registrations.stream()
+        final Stream<Collector.MetricFamilySamples> defaultSamples = enumerationAsStream(CollectorRegistry.defaultRegistry.filteredMetricFamilySamples(query));
+        final Stream<Collector.MetricFamilySamples> pluginSamples = registrations.stream()
                 .parallel()
                 .flatMap(registration -> enumerationAsStream(registration.getRegistry().filteredMetricFamilySamples(query)));
-        return CompletableFuture.completedFuture(samples);
+        return CompletableFuture.completedFuture(Stream.concat(defaultSamples, pluginSamples));
     }
 
     private <T> CompletableFuture<T> timeout(CompletableFuture<T> promise) {
