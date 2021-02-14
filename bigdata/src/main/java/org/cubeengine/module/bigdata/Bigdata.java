@@ -20,11 +20,13 @@ package org.cubeengine.module.bigdata;
 import com.google.inject.Singleton;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
+import com.mongodb.MongoClientSettings.Builder;
 import com.mongodb.MongoCredential;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
+import org.bson.UuidRepresentation;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.module.bigdata.MongoDBConfiguration.Authentication;
 import org.cubeengine.processor.Module;
@@ -61,14 +63,14 @@ public class Bigdata
 
     public void lessSpamPls()
     {
-        setLoggerLevel("org.mongodb.driver.connection", "WARN");
-        setLoggerLevel("org.mongodb.driver.management", "WARN");
-        setLoggerLevel("org.mongodb.driver.cluster", "WARN");
-        setLoggerLevel("org.mongodb.driver.protocol.insert", "WARN");
-        setLoggerLevel("org.mongodb.driver.protocol.query", "WARN");
-        setLoggerLevel("org.mongodb.driver.protocol.update", "WARN");
-        setLoggerLevel("org.mongodb.driver.protocol.command", "WARN");
-        setLoggerLevel("org.mongodb.driver.management", "ERROR");
+//        setLoggerLevel("org.mongodb.driver.connection", "WARN");
+//        setLoggerLevel("org.mongodb.driver.management", "WARN");
+//        setLoggerLevel("org.mongodb.driver.cluster", "WARN");
+//        setLoggerLevel("org.mongodb.driver.protocol.insert", "WARN");
+//        setLoggerLevel("org.mongodb.driver.protocol.query", "WARN");
+//        setLoggerLevel("org.mongodb.driver.protocol.update", "WARN");
+//        setLoggerLevel("org.mongodb.driver.protocol.command", "WARN");
+//        setLoggerLevel("org.mongodb.driver.management", "ERROR");
     }
 
     public void releaseClient()
@@ -108,15 +110,16 @@ public class Bigdata
         Authentication authConfig = config.authentication;
 //            MongoClientOptions options = MongoClientOptions.builder().connectTimeout(this.config.connectionTimeout).build();
         final ConnectionString connectionString = new ConnectionString("mongodb://" + this.config.host + ":" + this.config.port);
+        final Builder settingsBuilder = MongoClientSettings.builder().applyConnectionString(connectionString).uuidRepresentation(UuidRepresentation.STANDARD);
         if (authConfig != null && authConfig.username != null && authConfig.password != null)
         {
             MongoCredential credential = MongoCredential.createCredential(authConfig.username, db, authConfig.password.toCharArray());
-            final MongoClientSettings settings = MongoClientSettings.builder().credential(credential).applyConnectionString(connectionString).build();
-            mongoClient = MongoClients.create(settings);
+            settingsBuilder.credential(credential);
+            mongoClient = MongoClients.create(settingsBuilder.build());
         }
         else
         {
-            mongoClient = MongoClients.create(connectionString);
+            mongoClient = MongoClients.create(settingsBuilder.build());
         }
         // Check if available by pinging the database...
         mongoClient.getDatabase(db).runCommand(new Document("ping", 1));
