@@ -109,9 +109,9 @@ public class PrometheusMetricsService implements MetricsService, WebHandler
         }
 
         final CompletableFuture<Stream<Collector.MetricFamilySamples>> syncSamples = getSyncSamples(syncRegistries, query);
-        final CompletableFuture<Stream<Collector.MetricFamilySamples>> asyncSamples = getAsyncSamples(asyncRegistries, query);
+        final Stream<Collector.MetricFamilySamples> asyncSamples = getAsyncSamples(asyncRegistries, query);
 
-        syncSamples.thenComposeAsync((sync) -> asyncSamples.thenApply((async) -> Stream.concat(sync, async)))
+        syncSamples.thenApplyAsync((sync) -> Stream.concat(sync, asyncSamples))
                 .whenComplete((allSamples, t) -> {
                     if (t != null) {
                         logger.error("Failed to collect the samples!", t);
@@ -141,12 +141,12 @@ public class PrometheusMetricsService implements MetricsService, WebHandler
         }, syncExecutor);
     }
 
-    private static CompletableFuture<Stream<Collector.MetricFamilySamples>> getAsyncSamples(List<Registration> registrations, Set<String> query) {
+    private static Stream<Collector.MetricFamilySamples> getAsyncSamples(List<Registration> registrations, Set<String> query) {
         final Stream<Collector.MetricFamilySamples> defaultSamples = enumerationAsStream(CollectorRegistry.defaultRegistry.filteredMetricFamilySamples(query));
         final Stream<Collector.MetricFamilySamples> pluginSamples = registrations.stream()
                 .parallel()
                 .flatMap(registration -> enumerationAsStream(registration.getRegistry().filteredMetricFamilySamples(query)));
-        return CompletableFuture.completedFuture(Stream.concat(defaultSamples, pluginSamples));
+        return Stream.concat(defaultSamples, pluginSamples);
     }
 
     private <T> CompletableFuture<T> timeout(CompletableFuture<T> promise) {
