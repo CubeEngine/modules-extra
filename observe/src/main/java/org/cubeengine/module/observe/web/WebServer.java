@@ -23,6 +23,7 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
@@ -37,8 +38,8 @@ public class WebServer {
 
     private final InetSocketAddress bindAddress;
     private final ThreadFactory threadFactory;
-    private final Logger logger;
     private final ConcurrentHashMap<String, WebHandler> handlerMap = new ConcurrentHashMap<>();
+    private final HttpRequestHandler requestHandler;
 
     private NioEventLoopGroup eventLoopGroup;
     private Channel channel;
@@ -46,7 +47,7 @@ public class WebServer {
     public WebServer(InetSocketAddress bindAddress, ThreadFactory threadFactory, Logger logger) {
         this.bindAddress = bindAddress;
         this.threadFactory = threadFactory;
-        this.logger = logger;
+        this.requestHandler = new HttpRequestHandler(logger, handlerMap);
     }
 
     public boolean registerHandler(String route, WebHandler handler) {
@@ -80,7 +81,8 @@ public class WebServer {
                                     .addLast("decoder", new HttpRequestDecoder())
                                     .addLast("aggregator", new HttpObjectAggregator(1000))
                                     .addLast("encoder", new HttpResponseEncoder())
-                                    .addLast("httpHandler", new HttpRequestHandler(logger, handlerMap));
+                                    .addLast("compressor", new HttpContentCompressor())
+                                    .addLast("httpHandler", requestHandler);
                         }
                     })
                     .localAddress(this.bindAddress);

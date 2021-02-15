@@ -17,6 +17,7 @@
  */
 package org.cubeengine.module.observe.web;
 
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
@@ -33,6 +34,7 @@ import static io.netty.channel.ChannelFutureListener.CLOSE_ON_FAILURE;
 import static io.netty.handler.codec.http.HttpResponseStatus.INTERNAL_SERVER_ERROR;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
+@Sharable
 public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequest>
 {
     private final Logger logger;
@@ -51,7 +53,7 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest message) throws Exception
+    protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest message)
     {
         final QueryStringDecoder queryStringDecoder = new QueryStringDecoder(message.uri());
 
