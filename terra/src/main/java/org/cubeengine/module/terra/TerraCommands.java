@@ -24,6 +24,8 @@ import org.cubeengine.module.terra.data.TerraItems;
 import org.cubeengine.module.terra.data.TerraItems.Essence;
 import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ContainerTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.type.ViewableInventory;
@@ -60,6 +62,7 @@ public class TerraCommands extends DispatcherCommand
             final ItemStack essence = TerraItems.getEssence(value, player);
             view.offer(essence);
         }
+        view.offer(ItemStack.of(ItemTypes.CAMPFIRE));
         player.openInventory(view);
     }
 }

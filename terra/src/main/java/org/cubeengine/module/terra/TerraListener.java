@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -79,16 +80,85 @@ import org.spongepowered.math.vector.Vector3i;
 @Singleton
 public class TerraListener
 {
-
     @Inject private I18n i18n;
     @Inject private Log logger;
     @Inject private TaskManager taskManager;
 
-    private Queue<Supplier<CompletableFuture<Void>>> worldGenerationQueue = new LinkedList<>();
-    private CompletableFuture<Void> currentGeneration = null;
+    private Queue<WorldGeneration> worldGenerationQueue = new LinkedList<>();
+    private WorldGeneration currentGeneration = null;
 
-    private Map<ResourceKey, CompletableFuture<ServerWorld>> futureWorlds = new HashMap<>();
+    private Map<ResourceKey, WorldGeneration> futureWorlds = new HashMap<>();
     private Map<UUID, UUID> potions = new HashMap<>();
+
+    private class WorldGeneration
+    {
+        private ResourceKey worldKey;
+        private WorldTemplate template;
+        private CompletableFuture<ServerWorld> worldFuture;
+
+        public WorldGeneration(ResourceKey worldKey, WorldTemplate template)
+        {
+            this.worldKey = worldKey;
+            this.template = template;
+        }
+
+        private void generateWorld()
+        {
+            // Evacuate
+            final WorldManager wm = Sponge.getServer().getWorldManager();
+
+            // Unload and delete
+            CompletableFuture<Boolean> worldDeletedFuture = CompletableFuture.completedFuture(true);
+            if (wm.world(worldKey).isPresent()) {
+                wm.world(worldKey).get().getProperties().setSerializationBehavior(SerializationBehavior.NONE);
+                worldDeletedFuture = wm.unloadWorld(worldKey).thenCompose(b -> wm.deleteWorld(worldKey));
+            }
+
+            // Save Template and Load
+            this.worldFuture = worldDeletedFuture.thenCompose(b -> {
+                wm.saveTemplate(template);
+                return wm.loadWorld(template);
+            });
+
+            this.worldFuture.handle((w, t) -> {
+                if (t != null)
+                {
+                    logger.error(t, "Error while generating world {}", worldKey);
+                }
+                return null;
+            });
+        }
+
+        public boolean isDone()
+        {
+            return this.worldFuture != null && this.worldFuture.isDone();
+        }
+
+        public boolean isReady()
+        {
+            return this.worldFuture != null && this.worldFuture.isDone() && !this.worldFuture.isCompletedExceptionally();
+        }
+
+        public ServerWorld getWorld()
+        {
+            try
+            {
+                return this.worldFuture.get();
+            }
+            catch (InterruptedException | ExecutionException e)
+            {
+                throw new IllegalStateException(e);
+            }
+        }
+
+        public void cancel()
+        {
+            if (this.worldFuture != null)
+            {
+                this.worldFuture.completeExceptionally(new InterruptedException("Interrupted by Command"));
+            }
+        }
+    }
 
     @Listener
     public void onUseItem(UseItemStackEvent.Finish event, @First ServerPlayer player)
@@ -156,7 +226,7 @@ public class TerraListener
             if (worldKeyString.isPresent())
             {
                 final ResourceKey worldKey = ResourceKey.resolve(worldKeyString.get());
-                final CompletableFuture<ServerWorld> futureWorld = this.futureWorlds.get(worldKey);
+                final WorldGeneration futureWorld = this.futureWorlds.get(worldKey);
                 if (futureWorld == null || !futureWorld.isDone())
                 {
                     event.setCancelled(true);
@@ -284,7 +354,7 @@ public class TerraListener
                 }
                 final Essence essence = TerraItems.getEssenceForItem(itemInHand.createSnapshot()).get();
                 final ResourceKey worldKey = ResourceKey.of(PluginTerra.TERRA_ID, player.getName().toLowerCase());
-                if (futureWorlds.getOrDefault(worldKey, CompletableFuture.completedFuture(null)).isDone())
+                if (!futureWorlds.containsKey(worldKey) || futureWorlds.get(worldKey).isDone())
                 {
                     itemInHand.offer(Keys.LORE, Arrays.asList(coldPotionLore(player), potionOwnerLore(player, worldKey.getValue())));
                     itemInHand.offer(TerraData.WORLD_KEY, worldKey.asString());
@@ -295,9 +365,10 @@ public class TerraListener
                     final WorldTemplate template = essence.createWorldTemplate(player, worldKey);
 
                     this.evacuateWorld(worldKey);
-                    final CompletableFuture<ServerWorld> doneFuture = new CompletableFuture<>();
-                    futureWorlds.put(worldKey, doneFuture);
-                    worldGenerationQueue.add(() -> generateWorld(worldKey, template, doneFuture));
+
+                    final WorldGeneration worldGeneration = new WorldGeneration(worldKey, template);
+                    futureWorlds.put(worldKey, worldGeneration);
+                    worldGenerationQueue.add(worldGeneration);
 
                     i18n.send(ChatType.ACTION_BAR, player, MessageType.POSITIVE, "Tiny images form in the bubbling essence");
                 }
@@ -359,35 +430,6 @@ public class TerraListener
 //
 //    }
 
-    private CompletableFuture<Void> generateWorld(ResourceKey worldKey, WorldTemplate template, CompletableFuture<ServerWorld> doneFuture)
-    {
-        // Evacuate
-        final WorldManager wm = Sponge.getServer().getWorldManager();
-
-        // Unload and delete
-        CompletableFuture<Boolean> worldDeletedFuture = CompletableFuture.completedFuture(true);
-        if (wm.world(worldKey).isPresent()) {
-            wm.world(worldKey).get().getProperties().setSerializationBehavior(SerializationBehavior.NONE);
-            worldDeletedFuture = wm.unloadWorld(worldKey).thenCompose(b -> wm.deleteWorld(worldKey));
-        }
-
-        // Save Template and Load
-        return worldDeletedFuture.thenCompose(b -> {
-            wm.saveTemplate(template);
-            return wm.loadWorld(template);
-        }).handle((w, t) -> {
-            if (t == null)
-            {
-                doneFuture.complete(w);
-            }
-            else
-            {
-                logger.error(t, "Error while generating world {}", worldKey);
-                doneFuture.completeExceptionally(t);
-            }
-            return null;
-        });
-    }
 
     private void tpPlayer(ServerPlayer player, ServerWorld w)
     {
@@ -413,8 +455,8 @@ public class TerraListener
     public ItemStack finalizePotion(ItemStack terraPotion)
     {
         final ResourceKey worldKey = ResourceKey.resolve(terraPotion.get(TerraData.WORLD_KEY).get());
-        final CompletableFuture<ServerWorld> futureWorld = this.futureWorlds.get(worldKey);
-        if (futureWorld != null && futureWorld.isDone() && !futureWorld.isCompletedExceptionally())
+        final WorldGeneration futureWorld = this.futureWorlds.get(worldKey);
+        if (futureWorld != null && futureWorld.isReady())
         {
             final Optional<ServerPlayer> optPlayer = Sponge.getServer().getPlayer(worldKey.getValue());
             final Audience audience = optPlayer.map(Audience.class::cast).orElse(Sponge.getGame().getSystemSubject());
@@ -423,7 +465,7 @@ public class TerraListener
             lore.add(i18n.translate(audience, Style.style(NamedTextColor.GRAY), "Drink it!"));
             lore.add(potionOwnerLore(audience, worldKey.getValue()));
             terraPotion.offer(Keys.LORE, lore);
-            terraPotion.offer(TerraData.WORLD_UUID, futureWorld.join().getUniqueId());
+            terraPotion.offer(TerraData.WORLD_UUID, futureWorld.getWorld().getUniqueId());
             final UUID potionUuid = terraPotion.get(TerraData.POTION_UUID).get();
             this.potions.values().removeIf(uuid -> uuid.equals(potionUuid));
         }
@@ -438,30 +480,39 @@ public class TerraListener
     public void printStatus(Audience audience)
     {
         i18n.send(audience, MessageType.POSITIVE, "Terra worlds ({amount} in queue):", worldGenerationQueue.size());
-        for (Entry<ResourceKey, CompletableFuture<ServerWorld>> entry : futureWorlds.entrySet())
+        for (Entry<ResourceKey, WorldGeneration> entry : futureWorlds.entrySet())
         {
-            if (entry.getValue().isCompletedExceptionally())
+            if (entry.getValue().isReady())
             {
-                i18n.send(audience, MessageType.NEGATIVE, " - {name} failed to generate.", entry.getKey().asString());
+                i18n.send(audience, MessageType.POSITIVE, " - {name} is done generating.", entry.getKey().asString());
+
             }
             else if (entry.getValue().isDone())
             {
-                i18n.send(audience, MessageType.POSITIVE, " - {name} is done generating.", entry.getKey().asString());
+                i18n.send(audience, MessageType.NEGATIVE, " - {name} failed to generate.", entry.getKey().asString());
             }
             else
             {
-                i18n.send(audience, MessageType.NEUTRAL, " - {name} is generating.", entry.getKey().asString());
+                final boolean current = currentGeneration == entry.getValue();
+                if (current)
+                {
+                    i18n.send(audience, MessageType.NEUTRAL, " - {name} is generating.", entry.getKey().asString());
+                }
+                else
+                {
+                    i18n.send(audience, MessageType.NEUTRAL, " - {name} waiting to generate.", entry.getKey().asString());
+                }
             }
         }
     }
 
     public void cancelAll(Audience audience)
     {
-        for (Entry<ResourceKey, CompletableFuture<ServerWorld>> entry : futureWorlds.entrySet())
+        for (Entry<ResourceKey, WorldGeneration> entry : futureWorlds.entrySet())
         {
             if (!entry.getValue().isDone())
             {
-                entry.getValue().completeExceptionally(new InterruptedException("Interrupted by Command"));
+                entry.getValue().cancel();
                 i18n.send(audience, MessageType.POSITIVE, " - Cancelled generating {name}", entry.getKey().asString());
             }
         }
@@ -477,7 +528,8 @@ public class TerraListener
         }
         if (currentGeneration == null || currentGeneration.isDone())
         {
-            currentGeneration = this.worldGenerationQueue.poll().get();
+            this.currentGeneration = this.worldGenerationQueue.poll();
+            this.currentGeneration.generateWorld();
         }
     }
 }
