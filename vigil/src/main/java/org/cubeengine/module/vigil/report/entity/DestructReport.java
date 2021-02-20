@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
+import org.bson.Document;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.Observe;
@@ -63,7 +64,7 @@ public class DestructReport extends EntityReport<DestructEntityEvent>
 
         Component cause = Recall.cause(action);
         EntitySnapshot entity = Recall.entity(action);
-        final Boolean isLiving = action.getData(EntityReport.LIVING);
+        Boolean isLiving = action.< Document>getData(EntityReport.ENTITY).getBoolean(EntityReport.LIVING);
         if (entity.getType() == EntityTypes.ITEM.get())
         {
             Component name = ReportUtil.name(entity);

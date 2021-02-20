@@ -96,11 +96,11 @@ public class Receiver
         Action lastAction = actions.get(actions.size() - 1);
 
         Component date = lookup.getSettings().isNoDate() ? null : getDatePrefix(firstAction, lastAction);
-        Component loc = lookup.getSettings().isShowLocation() ? null : getLocation(firstAction, lastAction);
+        Component loc = lookup.getSettings().isShowLocation() ? null : getLocation(actions, firstAction, lastAction);
         if (date != null && loc != null)
         {
             lines.add(
-                date.color(NamedTextColor.WHITE).append(Component.space()).append(i18n.translate(cmdSource, "at"))
+                date.append(Component.space()).append(i18n.translate(cmdSource, "at"))
                     .append(Component.space()).append(loc).append(Component.newline()).append(Component.text("  ")).append(trans));
         }
         else
@@ -118,9 +118,24 @@ public class Receiver
         }
     }
 
-    private Component getLocation(Action firstAction, Action lastAction)
+    private Component getLocation(List<Action> actions, Action firstAction, Action lastAction)
     {
-        if (firstAction == lastAction)
+        final boolean singleAction = firstAction == lastAction;
+        boolean singleLocation = true;
+        if (!singleAction)
+        {
+            final ServerLocation firstLoc = Recall.location(firstAction);
+            for (Action action : actions)
+            {
+                final ServerLocation loc = Recall.location(action);
+                if (!firstLoc.equals(loc))
+                {
+                    singleLocation = false;
+                    break;
+                }
+            }
+        }
+        if (singleAction || singleLocation)
         {
             ServerLocation location = Recall.location(firstAction);
             final Component worldName = location.getWorld().getProperties().displayName().orElse(Component.text(location.getWorldKey().asString()));
@@ -179,35 +194,32 @@ public class Receiver
 
             String fdLong = dateLong.format(firstDate);
             String ldLong = dateLong.format(lastDate);
-            boolean sameDay = fdLong.equals(ldLong);
-            boolean toDay = dateLong.format(new Date()).equals(fdLong);
+            boolean isSameDay = fdLong.equals(ldLong);
+            boolean isToday = dateLong.format(new Date()).equals(fdLong);
             final TextComponent ftLong = Component.text(timeLong.format(firstDate));
-            Component fFull = Component.text(fdLong, NamedTextColor.GRAY).append(Component.space()).append(ftLong);
             final TextComponent ltLong = Component.text(timeLong.format(lastDate));
-            Component lFull = Component.text(ldLong, NamedTextColor.GRAY).append(Component.space()).append(ltLong);
+            final Component fFull = Component.text(fdLong, NamedTextColor.GRAY).append(Component.space()).append(ftLong);
+            final Component lFull = Component.text(ldLong, NamedTextColor.GRAY).append(Component.space()).append(ltLong);
+            final TextComponent dash = Component.text(" - ", NamedTextColor.WHITE);
             if (lookup.getSettings().isFullDate())
             {
-                return fFull.append(Component.text(" - ", NamedTextColor.WHITE)).append(lFull);
+                return fFull.append(dash).append(lFull);
             }
-            Component fdShort = Component.text(dateShort.format(firstDate));
-            Component ftShort = Component.text(timeShort.format(firstDate));
-            Component ltShort = Component.text(timeShort.format(lastDate));
-            if (sameDay)
+            final Component fdShort = Component.text(dateShort.format(firstDate), NamedTextColor.GRAY);
+            final Component ftShort = Component.text(timeShort.format(firstDate), NamedTextColor.GRAY).hoverEvent(HoverEvent.showText(fFull));
+            final Component ltShort = Component.text(timeShort.format(lastDate), NamedTextColor.GRAY).hoverEvent(HoverEvent.showText(lFull));
+            if (isSameDay)
             {
-                if (toDay)
+                if (isToday)
                 {
-                    return ftShort.color(NamedTextColor.GRAY).hoverEvent(HoverEvent.showText(fFull)).append(Component.text(" - ", NamedTextColor.WHITE))
-                        .append(ltShort.color(NamedTextColor.GRAY).hoverEvent(HoverEvent.showText(lFull)));
+                    return ftShort.append(dash).append(ltShort);
                 }
-                return fdShort.color(NamedTextColor.GRAY).append(Component.space()).append(ftShort).hoverEvent(HoverEvent.showText(fFull)).append(Component.text(" - ", NamedTextColor.WHITE))
-                              .append(ltShort.color(NamedTextColor.GRAY).hoverEvent(HoverEvent.showText(lFull)));
+                return fdShort.append(Component.space()).append(ftShort).append(dash).append(ltShort);
             }
             else
             {
-                Component ldShort = Component.text(dateShort.format(firstDate));
-                return fdShort.color(NamedTextColor.GRAY).append(Component.space()).append(ftShort).hoverEvent(HoverEvent.showText(fFull))
-                       .append(Component.text(" - ", NamedTextColor.WHITE))
-                       .append(ldShort.color(NamedTextColor.GRAY)).append(Component.space()).append(ltShort).hoverEvent(HoverEvent.showText(fFull));
+                final Component ldShort = Component.text(dateShort.format(firstDate), NamedTextColor.GRAY);
+                return fdShort.append(Component.space()).append(ftShort).append(dash).append(ldShort).append(Component.space()).append(ltShort);
             }
         }
     }
@@ -238,8 +250,8 @@ public class Receiver
                                                 TimeUtil.formatDuration(lookup.timing(Lookup.LookupTiming.REPORT)));
         final Component titleLine = titleLineAmount.append(Component.space()).append(Component.text(titleLineSort, NamedTextColor.YELLOW)).hoverEvent(HoverEvent.showText(titleTimings));
         builder.title(titleLine).padding(Component.text("-"))
-               // TODO reverse order
-               .contents(lines).linesPerPage(2 + Math.min(lines.size(), 18)).sendTo(cmdSource);
+               // TODO reverse order setting
+               .contents(lines).linesPerPage(6 + Math.min(lines.size() * 2, 14)).sendTo(cmdSource);
         // TODO remove linesPerPage when Sponge puts the lines to the bottom
     }
 

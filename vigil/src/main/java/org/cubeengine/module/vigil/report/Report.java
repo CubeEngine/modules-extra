@@ -45,7 +45,7 @@ import static java.util.Collections.emptyList;
 
 public interface Report
 {
-    DataQuery WORLD = DataQuery.of("WorldUuid");
+    DataQuery WORLD = DataQuery.of("WorldKey");
     DataQuery X = DataQuery.of("Position", "X");
     DataQuery Y = DataQuery.of("Position", "Y");
     DataQuery Z = DataQuery.of("Position", "Z");

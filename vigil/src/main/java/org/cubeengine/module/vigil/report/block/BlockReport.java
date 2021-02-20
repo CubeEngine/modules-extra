@@ -17,13 +17,21 @@
  */
 package org.cubeengine.module.vigil.report.block;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bson.BsonDocument;
+import org.bson.Document;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.Observe;
 import org.cubeengine.module.vigil.report.Recall;
+import org.cubeengine.module.vigil.report.Report;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockTypes;
@@ -100,28 +108,76 @@ public class BlockReport extends BaseBlockReport<ChangeBlockEvent.Post>
     public void showReport(List<Action> actions, Receiver receiver)
     {
         Action action = actions.get(0);
-
+        boolean samelocGroup = action.getData("samelocgroup") == null ? false : true;
         Optional<BlockSnapshot> orig = action.getCached(BLOCKS_ORIG, Recall::origSnapshot);
         Optional<BlockSnapshot> repl = action.getCached(BLOCKS_REPL, Recall::replSnapshot);
-        if (repl.isPresent())
+
+        if (samelocGroup)
+        {
+            Component cause = Recall.cause(action);
+            List<Component> replacements = new ArrayList<>();
+            for (Action action1 : actions)
+            {
+                final BlockSnapshot repl1 = action1.getCached(BLOCKS_REPL, Recall::replSnapshot).orElse(BlockSnapshot.empty());
+                orig = action1.getCached(BLOCKS_ORIG, Recall::replSnapshot);
+                replacements.add(name(repl1, receiver));
+            }
+            Collections.reverse(replacements);
+            final TextComponent separator = Component.text("↴", NamedTextColor.GRAY).append(Component.newline());
+
+            if (repl.isPresent() && !repl.get().getState().getType().isAnyOf(AIR))
+            {
+                Component replacementText = name(repl.get(), receiver).append(Component.text("...").hoverEvent(HoverEvent.showText(Component.join(separator, replacements))));
+                if (orig.isPresent() && !orig.get().getState().getType().equals(AIR.get()))
+                {
+                    if (repl.get().equals(orig.get()))
+                    {
+                        receiver.sendReport(this, actions, "{txt} ended up leaving {txt}", cause, replacementText);
+                    }
+                    else
+                    {
+                        receiver.sendReport(this, actions, "{txt} ended up replacing {txt} with {txt}", cause, name(orig.get(), receiver), replacementText);
+                    }
+                }
+                else
+                {
+                    receiver.sendReport(this, actions, "{txt} ended up placing {txt}", cause, replacementText);
+                }
+                return;
+            }
+            if (repl.get().equals(orig.get()))
+            {
+                final Component origText = name(orig.get(), receiver).append(Component.text("...").hoverEvent(HoverEvent.showText(Component.join(separator, replacements))));
+                    receiver.sendReport(this, actions, "{txt} ended up leaving {txt}", cause, origText);
+            }
+            else
+            {
+                final Component origText = name(orig.get(), receiver).append(Component.text("...").hoverEvent(HoverEvent.showText(Component.join(separator, replacements))));
+                    receiver.sendReport(this, actions, "{txt} ended up breaking {txt}", cause, origText);
+            }
+
+            return;
+        }
+
+        if (repl.isPresent() && !repl.get().getState().getType().isAnyOf(AIR))
         {
             if (orig.isPresent() && orig.get().getState().getType() == repl.get().getState().getType())
             {
-                showReportModify(actions, receiver, action, orig.get(), repl.get());
+                showReportModify(actions, receiver, action, orig.get(), repl.get(), samelocGroup);
                 return;
             }
-            showReportPlace(actions, receiver, action, orig, repl.get());
+            showReportPlace(actions, receiver, action, orig, repl.get(), samelocGroup);
             return;
         }
         if (orig.isPresent())
         {
-            showReportBreak(actions, receiver, action, orig.get());
+            showReportBreak(actions, receiver, action, orig.get(), samelocGroup);
             return;
         }
         throw new IllegalStateException();
     }
 
-    private void showReportModify(List<Action> actions, Receiver receiver, Action action, BlockSnapshot orig, BlockSnapshot repl)
+    private void showReportModify(List<Action> actions, Receiver receiver, Action action, BlockSnapshot orig, BlockSnapshot repl, boolean samelocGroup)
     {
         Component cause = Recall.cause(action);
 
@@ -150,31 +206,30 @@ public class BlockReport extends BaseBlockReport<ChangeBlockEvent.Post>
                             cause, name(orig, receiver), actions.size());
     }
 
-    private void showReportPlace(List<Action> actions, Receiver receiver, Action action, Optional<BlockSnapshot> orig, BlockSnapshot repl)
+    private void showReportPlace(List<Action> actions, Receiver receiver, Action action, Optional<BlockSnapshot> orig, BlockSnapshot repl, boolean samelocGroup)
     {
         Component cause = Recall.cause(action);
-
-        if (orig.isPresent() && !orig.get().getState().getType().equals(AIR))
+        if (orig.isPresent() && !orig.get().getState().getType().equals(AIR.get()))
         {
             receiver.sendReport(this, actions, actions.size(),
-                                "{txt} replace {txt} with {txt}",
-                                "{txt} replace {txt} with {txt} x{}",
+                                "{txt} replaced {txt} with {txt}",
+                                "{txt} replaced {txt} with {txt} x{}",
                                 cause, name(orig.get(), receiver), name(repl, receiver), actions.size());
         }
         else
         {
             receiver.sendReport(this, actions, actions.size(),
-                                "{txt} place {txt}",
-                                "{txt} place {txt} x{}",
+                                "{txt} placed {txt}",
+                                "{txt} placed {txt} x{}",
                                 cause, name(repl, receiver), actions.size());
         }
     }
 
-    private void showReportBreak(List<Action> actions, Receiver receiver, Action action, BlockSnapshot orig)
+    private void showReportBreak(List<Action> actions, Receiver receiver, Action action, BlockSnapshot orig, boolean samelocGroup)
     {
         receiver.sendReport(this, actions, actions.size(),
-                            "{txt} break {txt}",
-                            "{txt} break {txt} x{}",
+                            "{txt} broke {txt}",
+                            "{txt} broke {txt} x{}",
                             Recall.cause(action), name(orig, receiver), actions.size());
     }
 
@@ -211,6 +266,98 @@ public class BlockReport extends BaseBlockReport<ChangeBlockEvent.Post>
                                            BlockTypes.REDSTONE_TORCH, BlockTypes.REDSTONE_WALL_TORCH,
                                            BlockTypes.DROPPER, BlockTypes.DISPENSER, BlockTypes.HOPPER);
     }
+
+
+    protected boolean group(Optional<BlockSnapshot> repl1, Optional<BlockSnapshot> repl2)
+    {
+        if ((repl1.isPresent() && !repl2.isPresent()) || (!repl1.isPresent() && repl2.isPresent()))
+        {
+            return false;
+        }
+
+        if (repl1.isPresent() && repl2.isPresent())
+        {
+            if (!repl1.get().getWorld().equals(repl2.get().getWorld()))
+            {
+                return false;
+            }
+            if (!repl1.get().getState().equals(repl2.get().getState()))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean group(Object lookup, Action action, Action otherAction, Report otherReport)
+    {
+        if (!this.getClass().equals(otherReport.getClass()))
+        {
+            return false;
+        }
+
+        if (this.isSameLocationGroup(lookup, action, otherAction, otherReport))
+        {
+            action.addData("samelocgroup", true);
+            otherAction.addData("samelocgroup", true);
+            return true;
+        }
+
+        Optional<BlockSnapshot> orig1 = action.getCached(BLOCKS_ORIG, Recall::origSnapshot);
+        Optional<BlockSnapshot> orig2 = otherAction.getCached(BLOCKS_ORIG, Recall::origSnapshot);
+
+        if (!group(orig1, orig2))
+        {
+            return false;
+        }
+
+        Optional<BlockSnapshot> repl1 = action.getCached(BLOCKS_ORIG, Recall::origSnapshot);
+        Optional<BlockSnapshot> repl2 = otherAction.getCached(BLOCKS_ORIG, Recall::origSnapshot);
+
+        if (!group(repl1, repl2))
+        {
+            return false;
+        }
+
+        final Document thisCause = action.getData(CAUSE);
+        final Document otherCause = otherAction.getData(CAUSE);
+        if (!thisCause.get(FULLCAUSELIST).equals(otherCause.get(FULLCAUSELIST)))
+        {
+            return false;
+        }
+
+        // TODO in short timeframe (minutes? configurable)
+        return true;
+    }
+
+    private boolean isSameLocationGroup(Object lookup, Action action, Action otherAction, Report otherReport)
+    {
+        if (!action.getData(LOCATION).equals(otherAction.getData(LOCATION)))
+        {
+            return false;
+        }
+        final Document thisCause = action.getData(CAUSE);
+        final Document otherCause = otherAction.getData(CAUSE);
+        if (!thisCause.get(FULLCAUSELIST).equals(otherCause.get(FULLCAUSELIST)))
+        {
+            return false;
+        }
+
+        if (action.getDate().getTime() - otherAction.getDate().getTime() > 1000 * 60)
+        {
+            return false;
+        }
+
+        Optional<BlockSnapshot> orig1 = action.getCached(BLOCKS_ORIG, Recall::origSnapshot);
+        Optional<BlockSnapshot> orig2 = otherAction.getCached(BLOCKS_ORIG, Recall::origSnapshot);
+        Optional<BlockSnapshot> repl1 = action.getCached(BLOCKS_ORIG, Recall::origSnapshot);
+        Optional<BlockSnapshot> repl2 = otherAction.getCached(BLOCKS_ORIG, Recall::origSnapshot);
+
+
+        return orig1.isPresent() && repl2.isPresent() && orig1.get().equals(repl2.get());
+    }
+
 
     @Listener(order = Order.POST)
     public void listen(ChangeBlockEvent.Post event)

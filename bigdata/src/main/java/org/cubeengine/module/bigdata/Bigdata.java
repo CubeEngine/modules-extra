@@ -77,7 +77,10 @@ public class Bigdata
     {
         try
         {
-            this.mongoClient.close();
+            if (this.mongoClient != null)
+            {
+                this.mongoClient.close();
+            }
         }
         finally
         {

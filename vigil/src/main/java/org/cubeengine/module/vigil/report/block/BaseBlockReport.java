@@ -42,62 +42,6 @@ public abstract class BaseBlockReport<T extends Event> extends BaseReport<T>
     public static final Action.DataKey<Map<String, Object>> ORIGINAL = new Action.DataKey<>("original");
     public static final Action.DataKey<Map<String, Object>> REPLACEMENT = new Action.DataKey<>("replacement");
 
-    protected boolean group(Optional<BlockSnapshot> repl1, Optional<BlockSnapshot> repl2)
-    {
-        if ((repl1.isPresent() && !repl2.isPresent()) || (!repl1.isPresent() && repl2.isPresent()))
-        {
-            return false;
-        }
-
-        if (repl1.isPresent() && repl2.isPresent())
-        {
-            if (!repl1.get().getWorld().equals(repl2.get().getWorld()))
-            {
-                return false;
-            }
-            if (!repl1.get().getState().equals(repl2.get().getState()))
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public boolean group(Object lookup, Action action, Action otherAction, Report otherReport)
-    {
-        if (!this.equals(otherReport))
-        {
-            return false;
-        }
-
-        Optional<BlockSnapshot> orig1 = action.getCached(BLOCKS_ORIG, Recall::origSnapshot);
-        Optional<BlockSnapshot> orig2 = otherAction.getCached(BLOCKS_ORIG, Recall::origSnapshot);
-
-        if (!group(orig1, orig2))
-        {
-            return false;
-        }
-
-        Optional<BlockSnapshot> repl1 = action.getCached(BLOCKS_ORIG, Recall::origSnapshot);
-        Optional<BlockSnapshot> repl2 = otherAction.getCached(BLOCKS_ORIG, Recall::origSnapshot);
-
-        if (!group(repl1, repl2))
-        {
-            return false;
-        }
-
-        if (!action.getData(CAUSE).equals(otherAction.getData(CAUSE)))
-        {
-            // TODO check same cause better
-            return false;
-        }
-
-        // TODO in short timeframe (minutes? configurable)
-        return true;
-    }
-
-
     @Override
     public void apply(Action action, boolean noOp)
     {

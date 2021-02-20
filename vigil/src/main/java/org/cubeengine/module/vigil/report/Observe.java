@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -39,11 +40,11 @@ import org.spongepowered.api.data.persistence.DataContainer;
 import org.spongepowered.api.data.persistence.DataQuery;
 import org.spongepowered.api.data.persistence.DataView;
 import org.spongepowered.api.entity.Entity;
-import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.explosive.fused.PrimedTNT;
 import org.spongepowered.api.entity.living.Agent;
 import org.spongepowered.api.entity.living.Living;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Cause;
 import org.spongepowered.api.event.EventContextKey;
 import org.spongepowered.api.event.cause.entity.damage.source.BlockDamageSource;
@@ -70,7 +71,7 @@ public class Observe
         List<Object> causeList = new ArrayList<>();
         data.put(Report.FULLCAUSELIST, causeList);
         Set<Object> set = new HashSet<>();
-        for (Object namedCause : causes.all())
+        for (Object namedCause : new LinkedHashSet<>(causes.all()))
         {
             Map<String, Object> causeData = cause(namedCause, set);
             if (causeData != null)
@@ -84,7 +85,11 @@ public class Observe
 
         for (EventContextKey<?> key : causes.getContext().keySet())
         {
-            context.put(key.getKey().asString(), cause(causes.getContext().get(key).get(), new HashSet<>()));
+            final Map<String, Object> cause = cause(causes.getContext().get(key).get(), new HashSet<>());
+            if (cause != null)
+            {
+                context.put(key.getKey().asString(), cause);
+            }
         }
 
         return data;
@@ -126,10 +131,13 @@ public class Observe
         {
             return Observe.damageCause(((DamageSource)cause));
         }
-
-        if (cause instanceof Player)
+        if (cause instanceof User)
         {
-            return playerCause(((Player) cause));
+            return userCause((User) cause);
+        }
+        else if (cause instanceof Player)
+        {
+            return playerCause((Player) cause);
         }
         else if (cause instanceof LocatableBlock)
         {
@@ -210,6 +218,17 @@ public class Observe
         return data;
     }
 
+    public static Map<String, Object> userCause(User player)
+    {
+        Map<String, Object> data = new HashMap<>();
+        data.put(CAUSE_TYPE, CAUSE_PLAYER.toString());
+
+        data.put(CAUSE_PLAYER_UUID, player.getUniqueId());
+        data.put(CAUSE_NAME, player.getName());
+        // TODO configurable data.put("ip", player.getConnection().getAddress().getAddress().getHostAddress());
+        return data;
+    }
+
     public static void fromContainter(Map<String, Object> data, DataContainer container, DataQuery query)
     {
         container.get(query).ifPresent(value -> data.put(query.asString('_'), value));
@@ -224,7 +243,7 @@ public class Observe
 
         Map<String, Object> info = new HashMap<>();
 
-        info.put(WORLD.asString("_"), location.getWorld().getUniqueId().toString());
+        info.put(WORLD.asString("_"), location.getWorld().getKey().toString());
         // TODO worldname also recall it
         info.put(X.asString("_"), location.getBlockX());
         info.put(Y.asString("_"), location.getBlockY());

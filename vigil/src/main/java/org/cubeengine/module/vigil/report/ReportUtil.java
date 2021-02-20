@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TextComponent.Builder;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -48,8 +49,18 @@ public class ReportUtil
         if (items.isPresent() && !items.get().isEmpty())
         {
             // TODO lookup config : detailed inventory? click on ∋ to activate/deactivate or using cmd
-            builder.append(Component.text(" ∋ ["));
-            if (receiver.getLookup().getSettings().showDetailedInventory())
+            final boolean detailedInventory = receiver.getLookup().getSettings().showDetailedInventory();
+            TextComponent elementsHover = Component.text("Inventory Content", NamedTextColor.GRAY);
+            if (!detailedInventory)
+            {
+                elementsHover = elementsHover.append(Component.space()).append(Component.text("(hidden)", NamedTextColor.DARK_GRAY));
+                // TODO
+                // elementsHover = elementsHover.append(Component.newline()).append(Component.text("Click to show"));
+            }
+
+            final TextComponent elements = Component.text("∋").hoverEvent(HoverEvent.showText(elementsHover)); // TODO translate
+            builder.append(Component.space()).append(elements).append(Component.space()).append(Component.text("["));
+            if (detailedInventory)
             {
                 builder.append(Component.space());
                 for (DataView dataView : items.get())
@@ -64,7 +75,7 @@ public class ReportUtil
                         itemData.set(DataQuery.of("UnsafeData"), tag.get().getValues(false));
                     }
 
-                    itemData.set(DataQuery.of("UnsafeDamage"), dataView.get(DataQuery.of("Damage")).get());
+//                    itemData.set(DataQuery.of("UnsafeDamage"), dataView.get(DataQuery.of("Damage")).get());
 
                     ItemStack item = ItemStack.builder().fromContainer(itemData).build();
                     builder.append(Component.text(dataView.getInt(DataQuery.of("Slot")).get()).toBuilder()

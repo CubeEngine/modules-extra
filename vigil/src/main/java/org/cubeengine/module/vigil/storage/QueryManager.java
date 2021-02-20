@@ -31,6 +31,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -116,14 +117,17 @@ public class QueryManager
      */
     public void report(Action action)
     {
-        actions.add(action);
-        // Start inserting queued actions ; if not already running
-        if (storeLatch.availablePermits() > 0 && (storeFuture == null || storeFuture.isDone()))
+        if (!this.storeExecuter.isShutdown())
         {
-            storeFuture = storeExecuter.submit(() -> store(batchSize));
-        }
+            actions.add(action);
+            // Start inserting queued actions ; if not already running
+            if (storeLatch.availablePermits() > 0 && (storeFuture == null || storeFuture.isDone()))
+            {
+                storeFuture = storeExecuter.submit(() -> store(batchSize));
+            }
 
-        callbacks.forEach(c -> c.accept(action));
+            callbacks.forEach(c -> c.accept(action));
+        }
     }
 
     public void addCallback(Consumer<Action> callback) {
@@ -162,13 +166,19 @@ public class QueryManager
         }
         catch (Exception e)
         {
-            System.out.print("[Vigil] " + e.getMessage() + "\n");
-            //e.printStackTrace(); //TODO log in logger!
-            actions.addAll(storing); // read actions to store later // TODO this may cause duplicates!!
+
+            // TODO better exception handling
+            System.err.print("[Vigil] " + e.getMessage() + "\n");
+            System.err.println("The following documents were discarded:");
+            for (Action action : storing)
+            {
+                System.err.println(action.getDocument().toString());
+            }
+//            actions.addAll(storing); // read actions to store later // TODO this may cause duplicates!!
         }
         finally
         {
-            // Release latch up to 1 permit
+            // Release latch up to 1 pe rmit
             if (storeLatch.availablePermits() == 0)
             {
                 storeLatch.release();
@@ -197,7 +207,11 @@ public class QueryManager
 
         future = CompletableFuture.supplyAsync(() -> lookup(lookup, query)) // Async MongoDB Lookup
                                                                                .thenApply(result -> this.prepareReports(lookup, player, result)) // Still Async Prepare Reports
-                                                                               .thenAcceptAsync(r -> this.show(lookup, player, r), queryShowExecutor);// Resync to show information
+                                                                               .thenAcceptAsync(r -> this.show(lookup, player, r), queryShowExecutor)// Resync to show information
+            .exceptionally(t -> {
+                plugin.getLogger().error("Error showing reports", t);
+                return null;
+            });
         queryFuture.put(player.getUniqueId(), future);
     }
 
@@ -284,5 +298,26 @@ public class QueryManager
     public Optional<Lookup> getLast(Player player)
     {
         return Optional.ofNullable(this.lastLookups.get(player.getUniqueId()));
+    }
+
+    public void shutdown()
+    {
+        System.out.println("Shutting down Vigil");
+        if (this.queryShowExecutor != null)
+        {
+            this.queryShowExecutor.shutdown();
+        }
+        try
+        {
+            if (this.storeExecuter != null)
+            {
+                this.storeExecuter.shutdown();
+                this.storeExecuter.awaitTermination(30, TimeUnit.SECONDS);
+            }
+        }
+        catch (InterruptedException e)
+        {
+            throw new IllegalStateException(e);
+        }
     }
 }

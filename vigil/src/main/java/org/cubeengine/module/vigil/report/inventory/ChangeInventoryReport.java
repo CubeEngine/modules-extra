@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import net.kyori.adventure.text.Component;
@@ -39,10 +40,12 @@ import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent;
 import org.spongepowered.api.event.item.inventory.container.ClickContainerEvent;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.BlockCarrier;
+import org.spongepowered.api.item.inventory.Container;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.query.QueryTypes;
 import org.spongepowered.api.item.inventory.transaction.SlotTransaction;
+import org.spongepowered.api.item.inventory.type.CarriedInventory;
 
 import static org.spongepowered.api.item.inventory.ItemStackComparators.*;
 
@@ -154,11 +157,11 @@ public class ChangeInventoryReport extends InventoryReport<ChangeInventoryEvent>
             {
                 continue;
             }
-            if (stack1.getType() == ItemTypes.AIR)
+            if (stack1.getType().isAnyOf(ItemTypes.AIR))
             {
                 receiver.sendReport(this, actions, "{txt} inserted {txt}", cause, ReportUtil.name(stack2.createSnapshot()));
             }
-            else if (stack2.getType() == ItemTypes.AIR)
+            else if (stack2.getType().isAnyOf(ItemTypes.AIR))
             {
                 receiver.sendReport(this, actions, "{txt} took {txt}", cause, ReportUtil.name(stack1.createSnapshot()));
             }
@@ -195,7 +198,7 @@ public class ChangeInventoryReport extends InventoryReport<ChangeInventoryEvent>
     public void listen(ClickContainerEvent event)
     {
         List<SlotTransaction> upperTransactions = new ArrayList<>();
-        int upperSize = event.getInventory().children().get(0).capacity();
+        int upperSize = event.getInventory().getViewed().get(0).capacity();
         for (SlotTransaction transaction : event.getTransactions())
         {
             Integer affectedSlot = transaction.getSlot().get(Keys.SLOT_INDEX).orElse(-1);
@@ -206,18 +209,16 @@ public class ChangeInventoryReport extends InventoryReport<ChangeInventoryEvent>
             }
         }
 
-        Inventory te = event.getInventory().query(QueryTypes.TYPE, BlockCarrier.class);
-        if (!(te instanceof BlockCarrier))
-        {
-            te = te.children().get(0);
-        }
-        if (te instanceof BlockCarrier)
-        {
-            Action action = this.observe(event);
-            action.addData(INVENTORY_CHANGES, Observe.transactions(upperTransactions));
-            action.addData(Report.LOCATION, Observe.location(((BlockCarrier) te).getServerLocation()));
-            this.report(action);
-        }
+        final Container inventory = event.getInventory();
+        ((CarriedInventory)inventory).getCarrier().ifPresent(carrier -> {
+            if (carrier instanceof BlockCarrier)
+            {
+                Action action = this.observe(event);
+                action.addData(INVENTORY_CHANGES, Observe.transactions(upperTransactions));
+                action.addData(Report.LOCATION, Observe.location(((BlockCarrier) carrier).getServerLocation()));
+                this.report(action);
+            }
+        });
     }
 
     @Override

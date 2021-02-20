@@ -51,13 +51,11 @@ public class Query
 
     public Query position(Vector3i pos)
     {
-        Document position = new Document();
+        final Bson blockX = Filters.eq(String.join(".", DATA.name, LOCATION, X.asString("_")), pos.getX());
+        final Bson blockY = Filters.eq(String.join(".", DATA.name, LOCATION, Y.asString("_")), pos.getY());
+        final Bson blockZ = Filters.eq(String.join(".", DATA.name, LOCATION, Z.asString("_")), pos.getZ());
 
-        position.put(String.join(".", DATA.name, LOCATION, X.asString("_")), pos.getX());
-        position.put(String.join(".", DATA.name, LOCATION, Y.asString("_")), pos.getY());
-        position.put(String.join(".", DATA.name, LOCATION, Z.asString("_")), pos.getZ());
-
-        andFilters.add(position);
+        andFilters.add(Filters.and(blockX, blockY, blockZ));
         return this;
     }
 

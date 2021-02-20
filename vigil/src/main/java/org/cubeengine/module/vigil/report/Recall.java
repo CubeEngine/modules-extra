@@ -17,6 +17,8 @@
  */
 package org.cubeengine.module.vigil.report;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -120,18 +122,21 @@ public class Recall
         }
         final Builder builder = Component.text();
         boolean first = true;
+        Map<String, Object> firstCause = Collections.emptyMap();
+        final TextComponent hoverTitle = Component.text("Cause Stack", NamedTextColor.GRAY).append(Component.newline());
         for (Map<String, Object> elem : list)
         {
             CauseType type = CauseType.valueOf(elem.get(CAUSE_TYPE).toString());
             if (first)
             {
-                builder.append(cause(elem, Component.text("?"), type));
+                builder.append(cause(elem, Component.text("?"), type, Component.text("Root cause", NamedTextColor.GRAY).append(Component.newline())));
+                firstCause = elem;
             }
             else
             {
-                final Component cause = cause(elem, Component.empty(), type);
+                final Component cause = cause(elem, Component.empty(), type, Component.empty());
                 final TextComponent hover = builder.build().append(Component.text("←")).append(cause);
-                builder.append(Component.text("…").hoverEvent(HoverEvent.showText(hover)));
+                builder.append(Component.text("…").hoverEvent(HoverEvent.showText(hoverTitle.append(hover))));
             }
             first = false;
         }
@@ -139,22 +144,26 @@ public class Recall
         // Notifier
         if (context != null && context.containsKey(EventContextKeys.NOTIFIER.getKey().asString())) {
             final Map<String, Object> notifierContext = (Map<String, Object>)context.get(EventContextKeys.NOTIFIER.getKey().asString());
-            builder.append(Component.text("←", NamedTextColor.GRAY)).append(cause(notifierContext, Component.empty(), CauseType.CAUSE_PLAYER));
+            if (!notifierContext.get("UUID").equals(firstCause.get("UUID")))
+            {
+                final TextComponent notifier = Component.text("!←", NamedTextColor.GRAY);
+                builder.append(notifier).append(cause(notifierContext, Component.empty(), CauseType.CAUSE_PLAYER, notifier.append(Component.space()).append(Component.text("Notifier").append(Component.newline())))); // TODO translate
+            }
         }
         return builder.build();
     }
 
-    private static Component cause(Map<String, Object> source, Component defText, CauseType type)
+    private static Component cause(Map<String, Object> source, Component defText, CauseType targetType, Component causeType)
     {
         if (source == null) {
             return defText;
         }
         final String causeName = source.get(CAUSE_NAME).toString();
         final Object causePlayerUUID = source.get(CAUSE_PLAYER_UUID);
-        switch (type)
+        switch (targetType)
         {
             case CAUSE_PLAYER:
-                return Component.text(causeName, NamedTextColor.DARK_GREEN).hoverEvent(HoverEvent.showText(Component.text(causePlayerUUID.toString(), NamedTextColor.YELLOW)));
+                return Component.text(causeName, NamedTextColor.DARK_GREEN).hoverEvent(HoverEvent.showText(causeType.append(Component.text(causePlayerUUID.toString(), NamedTextColor.YELLOW))));
             case CAUSE_BLOCK:
                 final Optional<BlockType> bType = RegistryTypes.BLOCK_TYPE.get().findValue(ResourceKey.resolve(causeName));
                 if (!bType.isPresent())
@@ -189,15 +198,15 @@ public class Recall
                 if (source.containsKey(CAUSE_TARGET) && source.get(CAUSE_TARGET) != null)
                 {
                     Map<String, Object> sourceTarget = ((Map<String, Object>) source.get(CAUSE_TARGET));
-                    CauseType targetType = CauseType.valueOf(sourceTarget.get(CAUSE_TYPE).toString());
-                    entityCause.append(Component.text("◎", NamedTextColor.GRAY)).append(cause(sourceTarget, Component.text("?"), targetType));
+                    CauseType targetType2 = CauseType.valueOf(sourceTarget.get(CAUSE_TYPE).toString());
+                    entityCause.append(Component.text("◎", NamedTextColor.GRAY)).append(cause(sourceTarget, Component.text("?"), targetType2, Component.empty()));
                 }
 
                 if (source.containsKey(CAUSE_INDIRECT))
                 {
                     Map<String, Object> indirect = ((Map<String, Object>) source.get(CAUSE_INDIRECT));
-                    CauseType targetType = CauseType.valueOf(indirect.get(CAUSE_TYPE).toString());
-                    entityCause.append(Component.text("↶", NamedTextColor.GRAY)).append(cause(indirect, Component.text("?"), targetType));
+                    CauseType targetType2 = CauseType.valueOf(indirect.get(CAUSE_TYPE).toString());
+                    entityCause.append(Component.text("↶", NamedTextColor.GRAY)).append(cause(indirect, Component.text("?"), targetType2, Component.empty()));
                 }
                 return entityCause;
             default:
@@ -232,7 +241,7 @@ public class Recall
     public static ServerLocation location(Action action)
     {
         final Map<String, Object> data = action.getData(LOCATION);
-        final ServerWorld world = Sponge.getServer().getWorldManager().world(ResourceKey.resolve(data.get(WORLD).toString())).get();
+        final ServerWorld world = Sponge.getServer().getWorldManager().world(ResourceKey.resolve(data.get(WORLD.toString()).toString())).get();
         final Integer x = (Integer)data.get(X.asString("_"));
         final Integer y = (Integer)data.get(Y.asString("_"));
         final Integer z = (Integer)data.get(Z.asString("_"));

@@ -27,8 +27,11 @@ import org.cubeengine.module.vigil.data.VigilData;
 import org.cubeengine.module.vigil.storage.QueryManager;
 import org.cubeengine.processor.Dependency;
 import org.cubeengine.processor.Module;
+import org.spongepowered.api.Server;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.lifecycle.LifecycleEvent;
 import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
+import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 
 import static org.cubeengine.module.bigdata.PluginBigdata.BIGDATA_ID;
 import static org.cubeengine.module.bigdata.PluginBigdata.BIGDATA_VERSION;
@@ -56,5 +59,11 @@ public class Vigil
     public QueryManager getQueryManager()
     {
         return qm;
+    }
+
+    @Listener
+    public void onShutdown(StoppingEngineEvent<Server> event)
+    {
+        this.qm.shutdown();
     }
 }
