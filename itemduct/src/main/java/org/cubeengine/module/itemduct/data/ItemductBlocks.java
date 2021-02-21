@@ -30,6 +30,8 @@ import static org.spongepowered.api.block.BlockTypes.GLASS;
 import static org.spongepowered.api.block.BlockTypes.GLASS_PANE;
 import static org.spongepowered.api.block.BlockTypes.GRAY_STAINED_GLASS;
 import static org.spongepowered.api.block.BlockTypes.GRAY_STAINED_GLASS_PANE;
+import static org.spongepowered.api.block.BlockTypes.GREEN_STAINED_GLASS;
+import static org.spongepowered.api.block.BlockTypes.GREEN_STAINED_GLASS_PANE;
 import static org.spongepowered.api.block.BlockTypes.LIGHT_BLUE_STAINED_GLASS;
 import static org.spongepowered.api.block.BlockTypes.LIGHT_BLUE_STAINED_GLASS_PANE;
 import static org.spongepowered.api.block.BlockTypes.LIGHT_GRAY_STAINED_GLASS;
@@ -86,7 +88,7 @@ public class ItemductBlocks
         this.pipeTypes.add(PURPLE_STAINED_GLASS.get());
         this.pipeTypes.add(BLACK_STAINED_GLASS.get());
         this.pipeTypes.add(BROWN_STAINED_GLASS.get());
-        this.pipeTypes.add(GRAY_STAINED_GLASS.get());
+        this.pipeTypes.add(GREEN_STAINED_GLASS.get());
         this.pipeTypes.add(RED_STAINED_GLASS.get());
         this.pipeTypes.add(BLACK_STAINED_GLASS.get());
 
@@ -105,7 +107,7 @@ public class ItemductBlocks
         this.directionalPipeTypes.add(PURPLE_STAINED_GLASS_PANE.get());
         this.directionalPipeTypes.add(BLACK_STAINED_GLASS_PANE.get());
         this.directionalPipeTypes.add(BROWN_STAINED_GLASS_PANE.get());
-        this.directionalPipeTypes.add(GRAY_STAINED_GLASS_PANE.get());
+        this.directionalPipeTypes.add(GREEN_STAINED_GLASS_PANE.get());
         this.directionalPipeTypes.add(RED_STAINED_GLASS_PANE.get());
         this.directionalPipeTypes.add(BLACK_STAINED_GLASS_PANE.get());
 
