@@ -286,7 +286,7 @@ public class TerraItems
     {
         final ItemStack newEssence = TerraItems.TERRA_ESSENCE.copy();
         newEssence.offer(Keys.COLOR, essence.color);
-        newEssence.offer(Keys.CUSTOM_NAME, Component.text(essence.name, NamedTextColor.AQUA));
+        newEssence.offer(Keys.CUSTOM_NAME, newEssence.get(Keys.CUSTOM_NAME).get().append(Component.space()).append(Component.text(essence.name, TextColor.color(essence.color.getRgb()))));
         newEssence.offer(Keys.LORE, Arrays.asList(terra.getListener().coldPotionLore(audience),
                                                   terra.getListener().hintPotionLore(audience)));
         return newEssence;
@@ -309,7 +309,7 @@ public class TerraItems
                 }
             }
             craftedEssence.offer(Keys.COLOR, essence.color);
-            craftedEssence.offer(Keys.CUSTOM_NAME, Component.text(essence.name, NamedTextColor.AQUA));
+            craftedEssence.offer(Keys.CUSTOM_NAME, craftedEssence.get(Keys.CUSTOM_NAME).get().append(Component.space()).append(Component.text(essence.name, TextColor.color(essence.color.getRgb()))));
             craftedEssence.offer(Keys.LORE, Arrays.asList(terra.getListener().coldPotionLore(player.get()),
                                                           terra.getListener().hintPotionLore(player.get())));
 
