@@ -17,6 +17,7 @@
  */
 package org.cubeengine.module.bigdata;
 
+import java.util.concurrent.TimeUnit;
 import com.google.inject.Singleton;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
@@ -25,6 +26,7 @@ import com.mongodb.MongoCredential;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.connection.ClusterConnectionMode;
 import org.bson.Document;
 import org.bson.UuidRepresentation;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
@@ -34,8 +36,6 @@ import org.spongepowered.api.Server;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
-
-import static org.cubeengine.libcube.util.LoggerUtil.setLoggerLevel;
 
 @Singleton
 @Module
@@ -55,7 +55,7 @@ public class Bigdata
         }
         catch (RuntimeException e)
         {
-            throw new IllegalStateException("Failed to connect to the your MongoDB instance!", e);
+            throw new IllegalStateException("Failed to connect to the MongoDB instance!", e);
         }
         lessSpamPls();
 
@@ -111,9 +111,14 @@ public class Bigdata
             return mongoClient;
         }
         Authentication authConfig = config.authentication;
-//            MongoClientOptions options = MongoClientOptions.builder().connectTimeout(this.config.connectionTimeout).build();
-        final ConnectionString connectionString = new ConnectionString("mongodb://" + this.config.host + ":" + this.config.port);
-        final Builder settingsBuilder = MongoClientSettings.builder().applyConnectionString(connectionString).uuidRepresentation(UuidRepresentation.STANDARD);
+        final ConnectionString connectionString = new ConnectionString("mongodb://" + this.config.host + ":" + this.config.port + "/?connectTimeoutMS=" + this.config.connectionTimeout + "&socketTimeoutMS=" + this.config.connectionTimeout);
+        final Builder settingsBuilder = MongoClientSettings.builder().applyConnectionString(connectionString)
+                                                           .applyToClusterSettings(b -> {
+                                                               b.mode(ClusterConnectionMode.SINGLE);
+                                                               b.serverSelectionTimeout(0 , TimeUnit.SECONDS);
+                                                           })
+                                                           .uuidRepresentation(UuidRepresentation.STANDARD);
+
         if (authConfig != null && authConfig.username != null && authConfig.password != null)
         {
             MongoCredential credential = MongoCredential.createCredential(authConfig.username, db, authConfig.password.toCharArray());
