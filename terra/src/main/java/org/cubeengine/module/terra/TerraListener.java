@@ -496,7 +496,15 @@ public class TerraListener
                 final boolean current = currentGeneration == entry.getValue();
                 if (current)
                 {
-                    i18n.send(audience, MessageType.NEUTRAL, " - {name} is generating.", entry.getKey().asString());
+                    final Optional<ServerWorld> world = Sponge.getServer().getWorldManager().world(entry.getKey());
+                    if (world.isPresent())
+                    {
+                        i18n.send(audience, MessageType.NEUTRAL, " - {name} is generating. {count}/441 chunks", entry.getKey().asString(), ((Collection<?>)world.get().getLoadedChunks()).size());
+                    }
+                    else
+                    {
+                        i18n.send(audience, MessageType.NEGATIVE, " - {name} is generating but the world is missing!?", entry.getKey().asString());
+                    }
                 }
                 else
                 {
@@ -517,6 +525,7 @@ public class TerraListener
             }
         }
         worldGenerationQueue.clear();
+        futureWorlds.clear();
         currentGeneration = null;
     }
 
