@@ -115,7 +115,7 @@ public class Bigdata
         final Builder settingsBuilder = MongoClientSettings.builder().applyConnectionString(connectionString)
                                                            .applyToClusterSettings(b -> {
                                                                b.mode(ClusterConnectionMode.SINGLE);
-                                                               b.serverSelectionTimeout(0 , TimeUnit.SECONDS);
+                                                               b.serverSelectionTimeout(1 , TimeUnit.SECONDS);
                                                            })
                                                            .uuidRepresentation(UuidRepresentation.STANDARD);
 
