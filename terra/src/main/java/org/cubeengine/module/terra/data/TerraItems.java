@@ -181,7 +181,7 @@ public class TerraItems
         CORAL_REEF("Coral Reef", Color.ofRgb(0xCC66CC), Arrays.asList(WARM_OCEAN), Arrays.asList()),
         FLOWERY_FOREST("Flowery Forest", Color.ofRgb(0xCC6600), Arrays.asList(FLOWER_FOREST), Arrays.asList()),
         // Needs special casing
-        END("The End", Color.ofRgb(0x999966), Arrays.asList(SMALL_END_ISLANDS, END_MIDLANDS, END_BARRENS, END_HIGHLANDS), Arrays.asList()),
+        END("End Highlands", Color.ofRgb(0x999966), Arrays.asList(END_HIGHLANDS, END_BARRENS, END_MIDLANDS, SMALL_END_ISLANDS, THE_END), Arrays.asList()),
         NETHER("Hellscape", Color.ofRgb(0x330000), Arrays.asList(NETHER_WASTES, CRIMSON_FOREST, WARPED_FOREST, SOUL_SAND_VALLEY, BASALT_DELTAS), Arrays.asList()),
         ;
 
@@ -224,6 +224,11 @@ public class TerraItems
             final Builder templateBuilder = WorldTemplate.builder().from(WorldTemplate.overworld()).key(worldKey);
 
             final List<RegistryReference<Biome>> biomeList = getBiomes();
+            if (this == END) // customize end biomes
+            {
+                biomeList.clear();
+                biomeList.add(END_HIGHLANDS);
+            }
 
             final Random random = player.getWorld().getRandom();
 
@@ -246,7 +251,7 @@ public class TerraItems
             }
             else if (this == END)
             {
-                final StructureGenerationConfig endStructures = StructureGenerationConfig.builder().addStructure(Structures.END_CITY.get(), SeparatedStructureConfig.of(15, 10, random.nextInt())).build();
+                final StructureGenerationConfig endStructures = StructureGenerationConfig.builder().addStructure(Structures.END_CITY.get(), SeparatedStructureConfig.of(6, 4, random.nextInt())).build();
                 noiseGeneratorConfig = NoiseGeneratorConfig.builder().from(NoiseGeneratorConfig.floatingIslands())
                                                            .defaultBlock(BlockTypes.END_STONE.get().getDefaultState())
                                                            .structureConfig(endStructures)
