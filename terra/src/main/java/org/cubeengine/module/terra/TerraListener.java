@@ -499,7 +499,7 @@ public class TerraListener
                     final Optional<ServerWorld> world = Sponge.getServer().getWorldManager().world(entry.getKey());
                     if (world.isPresent())
                     {
-                        i18n.send(audience, MessageType.NEUTRAL, " - {name} is generating. {count}/441 chunks", entry.getKey().asString(), ((Collection<?>)world.get().getLoadedChunks()).size());
+                        i18n.send(audience, MessageType.NEUTRAL, " - {name} is generating. {amount}/441 chunks", entry.getKey().asString(), ((Collection<?>)world.get().getLoadedChunks()).size());
                     }
                     else
                     {
