@@ -39,7 +39,7 @@ public class ItemductAdvancements {
 
     public static void init(PluginContainer plugin)
     {
-        ROOT = Advancement.builder().root().background("textures/gui/advancements/backgrounds/stone.png")
+        ROOT = Advancement.builder().root().background(ResourceKey.minecraft("textures/gui/advancements/backgrounds/stone.png"))
                 .criterion(AdvancementCriterion.dummy())
                 .displayInfo(DisplayInfo.builder()
                         .icon(ItemTypes.HOPPER)
