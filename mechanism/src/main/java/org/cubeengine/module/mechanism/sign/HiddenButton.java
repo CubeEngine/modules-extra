@@ -72,11 +72,15 @@ public class HiddenButton extends PermissionContainer implements SignMechanism
     }
 
     @Override
-    public void interact(InteractBlockEvent event, ServerPlayer player, ServerLocation loc)
+    public boolean interact(InteractBlockEvent event, ServerPlayer player, ServerLocation loc, boolean hidden)
     {
+        if (!hidden)
+        {
+            return false;
+        }
         if (!this.hiddenButtonPerm.check(player))
         {
-            return;
+            return false;
         }
         boolean click = false;
         for (Direction dir : BlockUtil.BLOCK_FACES)
@@ -104,5 +108,6 @@ public class HiddenButton extends PermissionContainer implements SignMechanism
         {
             loc.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_NOTE_BLOCK_HAT, Source.BLOCK, 0.2f, 2), loc.getPosition());
         }
+        return true;
     }
 }

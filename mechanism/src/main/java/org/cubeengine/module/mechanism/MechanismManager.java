@@ -21,11 +21,12 @@ import java.util.HashMap;
 import java.util.Map;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.cubeengine.module.mechanism.sign.Gate;
 import org.cubeengine.module.mechanism.sign.HiddenButton;
 import org.cubeengine.module.mechanism.sign.HiddenLever;
 import org.cubeengine.module.mechanism.sign.SignMechanism;
+import org.spongepowered.api.block.entity.BlockEntity;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
-import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent.Secondary;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.world.server.ServerLocation;
@@ -38,6 +39,7 @@ public class MechanismManager
 {
     @Inject private HiddenButton hiddenButton;
     @Inject private HiddenLever hiddenLever;
+    @Inject private Gate gate;
 
     private Map<Class<? extends SignMechanism>, SignMechanism> signMechanisms = new HashMap<>();
     private Map<String, SignMechanism> signMechanismsByName = new HashMap<>();
@@ -47,8 +49,10 @@ public class MechanismManager
         this.signMechanisms.clear();
         this.signMechanisms.put(hiddenButton.getClass(), hiddenButton);
         this.signMechanisms.put(hiddenLever.getClass(), hiddenLever);
+        this.signMechanisms.put(gate.getClass(), gate);
         this.signMechanismsByName.put(hiddenLever.getName(), hiddenLever);
         this.signMechanismsByName.put(hiddenButton.getName(), hiddenButton);
+        this.signMechanismsByName.put(gate.getName(), gate);
     }
 
     public ItemStack makeSign(Class<? extends SignMechanism> clazz, ItemStack stack)
@@ -56,12 +60,23 @@ public class MechanismManager
         return this.signMechanisms.get(clazz).makeSign(stack);
     }
 
-    public void trigger(String mechanism, Secondary event, ServerPlayer player, ServerLocation loc)
+    public boolean trigger(String mechanism, Secondary event, ServerPlayer player, ServerLocation loc, boolean hidden)
     {
         final SignMechanism signMechanism = signMechanismsByName.get(mechanism);
         if (signMechanism != null)
         {
-            signMechanism.interact(event, player, loc);
+            return signMechanism.interact(event, player, loc, hidden);
         }
+        return false;
+    }
+
+    public void initializeSign(String mechanism, BlockEntity sign)
+    {
+        final SignMechanism signMechanism = signMechanismsByName.get(mechanism);
+        if (signMechanism != null)
+        {
+            signMechanism.initSign(sign);
+        }
+
     }
 }

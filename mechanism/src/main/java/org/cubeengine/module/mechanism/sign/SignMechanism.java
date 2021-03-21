@@ -17,16 +17,35 @@
  */
 package org.cubeengine.module.mechanism.sign;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.cubeengine.module.mechanism.MechanismData;
+import org.spongepowered.api.block.entity.BlockEntity;
+import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.world.server.ServerLocation;
+import java.util.List;
 
 public interface SignMechanism
 {
     ItemStack makeSign(ItemStack signStack);
 
-    void interact(InteractBlockEvent event, ServerPlayer player, ServerLocation loc);
+    boolean interact(InteractBlockEvent event, ServerPlayer player, ServerLocation loc, boolean hidden);
 
     String getName();
+
+    default void initSign(BlockEntity sign) {
+        sign.transform(Keys.SIGN_LINES, lines -> {
+            lines.set(0, Component.text("[Mechanism]", NamedTextColor.DARK_GRAY));
+            lines.set(1, Component.text(this.getName(), NamedTextColor.DARK_GRAY));
+            return this.initLines(lines);
+        });
+        sign.offer(MechanismData.MECHANISM, this.getName());
+    }
+
+    default List<Component> initLines(List<Component> lines) {
+        return lines;
+    }
 }

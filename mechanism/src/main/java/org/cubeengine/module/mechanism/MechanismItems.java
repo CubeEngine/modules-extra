@@ -17,6 +17,7 @@
  */
 package org.cubeengine.module.mechanism;
 
+import org.cubeengine.module.mechanism.sign.Gate;
 import org.cubeengine.module.mechanism.sign.HiddenButton;
 import org.cubeengine.module.mechanism.sign.HiddenLever;
 import org.spongepowered.api.ResourceKey;
@@ -66,6 +67,23 @@ public class MechanismItems
             .key(ResourceKey.of(PluginMechanism.MECHANISM_ID, "hidden-button"))
             .build();
         event.register(hiddenButton);
+
+        final ItemStack gateSign = manager.makeSign(HiddenButton.class, ItemStack.of(OAK_SIGN));
+
+        final RecipeRegistration gate = CraftingRecipe
+            .shapedBuilder().aisle("rbr", "bsb", "rbr")
+            .where('s', Ingredient.of(ItemTypes.ACACIA_SIGN, ItemTypes.BIRCH_SIGN, ItemTypes.DARK_OAK_SIGN, ItemTypes.JUNGLE_SIGN, ItemTypes.OAK_SIGN, ItemTypes.SPRUCE_SIGN))
+            .where('r', Ingredient.of(ItemTypes.REDSTONE))
+            .where('b', Ingredient.of(ItemTypes.IRON_BARS))
+            .result(grid -> {
+                final ItemStack newStack = grid.peekAt(4).get();
+                manager.makeSign(Gate.class, newStack);
+                newStack.setQuantity(1);
+                return newStack;
+            }, gateSign)
+            .key(ResourceKey.of(PluginMechanism.MECHANISM_ID, "gate"))
+            .build();
+        event.register(gate);
 
     }
 }

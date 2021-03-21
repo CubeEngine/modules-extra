@@ -19,10 +19,7 @@ package org.cubeengine.module.mechanism;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import net.kyori.adventure.text.Component;
-import org.cubeengine.module.mechanism.sign.SignMechanism;
 import org.cubeengine.processor.Module;
-import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.entity.BlockEntity;
 import org.spongepowered.api.block.transaction.Operations;
 import org.spongepowered.api.data.Keys;
@@ -39,9 +36,6 @@ import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent;
 import org.spongepowered.api.item.recipe.RecipeRegistration;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.server.ServerLocation;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * A module to edit signs and signed books
@@ -71,13 +65,19 @@ public class Mechanism
     {
         if (event.getContext().get(EventContextKeys.USED_HAND).map(hand -> hand.equals(HandTypes.MAIN_HAND.get())).orElse(false))
         {
-            final Direction oppositeDirection = event.getTargetSide().getOpposite();
-            final ServerLocation opposite = event.getBlock().getLocation().get().relativeTo(oppositeDirection);
-            opposite.getBlockEntity().filter(be -> be.supports(Keys.SIGN_LINES))
-                    .filter(be -> be.get(Keys.DIRECTION).map(facing -> facing.equals(oppositeDirection)).orElse(false))
-                    .flatMap(be -> be.get(MechanismData.MECHANISM)).ifPresent(mechanism -> {
-                manager.trigger(mechanism, event, player, opposite);
-            });
+            final ServerLocation thisLoc = event.getBlock().getLocation().get();
+            final boolean triggered = thisLoc.getBlockEntity().flatMap(be -> be.get(MechanismData.MECHANISM)).map(
+                mechanism -> manager.trigger(mechanism, event, player, thisLoc, false)).orElse(false);
+            if (!triggered)
+            {
+                final Direction oppositeDirection = event.getTargetSide().getOpposite();
+                final ServerLocation oppositeLoc = thisLoc.relativeTo(oppositeDirection);
+                oppositeLoc.getBlockEntity().filter(be -> be.supports(Keys.SIGN_LINES))
+                           .filter(be -> be.get(Keys.DIRECTION).map(facing -> facing.equals(oppositeDirection)).orElse(false))
+                           .flatMap(be -> be.get(MechanismData.MECHANISM)).ifPresent(mechanism -> {
+                    manager.trigger(mechanism, event, player, oppositeLoc, true);
+                });
+            }
         }
     }
 
@@ -87,8 +87,8 @@ public class Mechanism
         event.getContext().get(EventContextKeys.USED_ITEM).flatMap(item -> item.get(MechanismData.MECHANISM)).ifPresent(mechanism ->
             event.getTransactions(Operations.PLACE.get()).forEach(trans -> {
                 final BlockEntity sign = trans.getFinal().getLocation().get().getBlockEntity().get();
-                sign.offer(Keys.SIGN_LINES, Arrays.asList(Component.text("[Mechanism]"), Component.text(mechanism)));
-                sign.offer(MechanismData.MECHANISM, mechanism);
+                manager.initializeSign(mechanism, sign);
+
             }));
     }
 

@@ -22,6 +22,7 @@ import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.entity.Sign;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.data.Key;
+import org.spongepowered.api.data.persistence.DataStore;
 import org.spongepowered.api.data.value.Value;
 import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -33,9 +34,20 @@ public interface MechanismData
     Key<Value<String>> MECHANISM = Key.builder().key(ResourceKey.of(PluginMechanism.MECHANISM_ID, "mechanism"))
                                     .type(TypeTokens.STRING_VALUE_TOKEN).build();
 
+    Key<Value<Integer>> GATE_BLOCKS = Key.builder().key(ResourceKey.of(PluginMechanism.MECHANISM_ID, "gate-blocks"))
+                                      .type(TypeTokens.INTEGER_VALUE_TOKEN).build();
+
+    Key<Value<String>> GATE_BLOCK_TYPE = Key.builder().key(ResourceKey.of(PluginMechanism.MECHANISM_ID, "gate-block-type"))
+                                           .type(TypeTokens.STRING_VALUE_TOKEN).build();
+
     static void register(RegisterDataEvent event)
     {
         event.register(DataRegistration.of(MECHANISM, Sign.class, BlockSnapshot.class, ItemStack.class, ItemStackSnapshot.class));
+
+        final DataStore gateDataStore = DataStore.builder().pluginData(ResourceKey.of(PluginMechanism.MECHANISM_ID, "gate"))
+                                                 .holder(Sign.class, BlockSnapshot.class)
+                                                 .keys(GATE_BLOCK_TYPE, GATE_BLOCKS).build();
+        event.register(DataRegistration.builder().dataKey(GATE_BLOCKS, GATE_BLOCK_TYPE).store(gateDataStore).build());
     }
 
 }
