@@ -63,7 +63,7 @@ public class InventoryOpenReport extends InventoryReport<InteractContainerEvent.
     public Action observe(InteractContainerEvent.Open event)
     {
         Action action = newReport();
-        action.addData(CAUSE, Observe.causes(event.getCause()));
+        action.addData(CAUSE, Observe.causes(event.cause()));
         // TODO get TargetInventory
         return action;
     }

@@ -122,7 +122,7 @@ public class ItemductManager
                                 i18n.translate(player, "View ItemDuct Filters"));
         menu.registerClose((cause, container) -> onClose(inventory, networkFilter));
         menu.open(player);
-        player.getProgress(ItemductAdvancements.USE_FILTERS).grant();
+        player.progress(ItemductAdvancements.USE_FILTERS).grant();
     }
 
     private void onClose(ViewableInventory inventory, NetworkFilter networkFilter)
@@ -140,13 +140,13 @@ public class ItemductManager
 
     public void playNetworkEffects(ServerLocation loc)
     {
-        final Network network = discoverNetwork(loc.getWorld(), loc.getBlockPosition());
-        ItemductEffects.playNetworkSound(loc.getPosition(), network);
+        final Network network = discoverNetwork(loc.world(), loc.blockPosition());
+        ItemductEffects.playNetworkSound(loc.position(), network);
         ItemductEffects.playNetworkEffects(network);
     }
 
     public void activateNetwork(InteractBlockEvent.Secondary event, ServerPlayer player, ItemStack itemInHand, NetworkFilter networkFilter) {
-        if (networkFilter.filterLoc.getBlockType().isAnyOf(BlockTypes.OBSERVER))
+        if (networkFilter.filterLoc.blockType().isAnyOf(BlockTypes.OBSERVER))
         {
             if (!perms.ACTIVATE_OBSERVER.check(player)) {
                 event.setCancelled(true);
@@ -161,7 +161,7 @@ public class ItemductManager
         networkFilter.setFilterStacks(new ArrayList<>());
         ItemductEffects.playCreateEffect(networkFilter.filterLoc);
 
-        player.getProgress(ItemductAdvancements.ACTIVATE_NETWORK).grant();
+        player.progress(ItemductAdvancements.ACTIVATE_NETWORK).grant();
     }
 
     private final Map<ResourceKey, Map<Vector3i, Long>> triggers = new HashMap<>();
@@ -176,7 +176,7 @@ public class ItemductManager
                 boolean pull = false;
                 for (Direction dir : data.get().keySet())
                 {
-                    if (loc.relativeTo(dir).getBlockType().isAnyOf(OBSERVER))
+                    if (loc.relativeTo(dir).blockType().isAnyOf(OBSERVER))
                     {
                         pull = true;
                     }
@@ -186,7 +186,7 @@ public class ItemductManager
                     return;
                 }
             }
-            final Map<Vector3i, Long> activationMap = triggers.computeIfAbsent(loc.getWorldKey(), k -> new HashMap<>());
+            final Map<Vector3i, Long> activationMap = triggers.computeIfAbsent(loc.worldKey(), k -> new HashMap<>());
             if (activationMap.isEmpty())
             {
                 if (task != null)
@@ -194,13 +194,13 @@ public class ItemductManager
                     task.cancel();
                 }
                 final Task build = Task.builder().delay(Ticks.of(20)).interval(Ticks.of(20)).execute(this::trigger).plugin(plugin).build();
-                task = Sponge.getServer().getScheduler().submit(build);
+                task = Sponge.server().scheduler().submit(build);
             }
 
-            activationMap.computeIfAbsent(loc.getBlockPosition(), k -> System.currentTimeMillis());
+            activationMap.computeIfAbsent(loc.blockPosition(), k -> System.currentTimeMillis());
             if (player != null)
             {
-                player.getProgress(ItemductAdvancements.USE_NETWORK).get(ItemductAdvancements.USE_NETWORK_CRITERION).ifPresent(c -> c.add(1));
+                player.progress(ItemductAdvancements.USE_NETWORK).get(ItemductAdvancements.USE_NETWORK_CRITERION).ifPresent(c -> c.add(1));
             }
         }
     }
@@ -209,7 +209,7 @@ public class ItemductManager
     {
         List<Network> networks = new ArrayList<>();
         for (Map.Entry<ResourceKey, Map<Vector3i, Long>> entry : triggers.entrySet()) {
-            final ServerWorld world = Sponge.getServer().getWorldManager().world(entry.getKey()).orElse(null);
+            final ServerWorld world = Sponge.server().worldManager().world(entry.getKey()).orElse(null);
             final Map<Vector3i, Long> activatedPositions = entry.getValue();
             if (world == null) {
                 activatedPositions.clear();
@@ -218,7 +218,7 @@ public class ItemductManager
             for (Iterator<Vector3i> it = activatedPositions.keySet().iterator(); it.hasNext(); )
             {
                 final Vector3i pos = it.next();
-                ServerLocation loc = world.getLocation(pos);
+                ServerLocation loc = world.location(pos);
 
                 if (activatedPositions.get(pos) - 1000 > System.currentTimeMillis())
                 {
@@ -236,18 +236,18 @@ public class ItemductManager
                     {
                         if (dir.isCardinal() || dir.isUpright())
                         {
-                            BlockType type = loc.relativeTo(dir).getBlockType();
+                            BlockType type = loc.relativeTo(dir).blockType();
                             if (type.isAnyOf(STICKY_PISTON, OBSERVER))
                             {
                                 List<ItemStack> filters = data.get().get(dir);
                                 if (filters != null)
                                 {
-                                    Network network = discoverNetwork(loc.getWorld(), loc.getBlockPosition().add(dir.asBlockOffset()));
-                                    BlockEntity te = loc.getBlockEntity().get();
-                                    Inventory inventory = ((Carrier) te).getInventory();
+                                    Network network = discoverNetwork(loc.world(), loc.blockPosition().add(dir.asBlockOffset()));
+                                    BlockEntity te = loc.blockEntity().get();
+                                    Inventory inventory = ((Carrier) te).inventory();
                                     if (te instanceof Chest)
                                     {
-                                        inventory = ((Chest) te).getDoubleChestInventory().orElse(inventory);
+                                        inventory = ((Chest) te).doubleChestInventory().orElse(inventory);
                                     }
                                     network.trigger(inventory, filters);
                                     networks.add(network);
@@ -267,9 +267,9 @@ public class ItemductManager
             for (Vector3i exitLoc : network.exitPoints.keySet())
             {
 
-                Direction exitDir = network.world.get(exitLoc, Keys.DIRECTION).orElse(Direction.NONE).getOpposite();
-                exitLoc = exitLoc.add(exitDir.getOpposite().asBlockOffset());
-                promptActivation(network.world.getBlockEntity(exitLoc).filter(t -> t instanceof Carrier).map(Carrier.class::cast).orElse(null), true, null);
+                Direction exitDir = network.world.get(exitLoc, Keys.DIRECTION).orElse(Direction.NONE).opposite();
+                exitLoc = exitLoc.add(exitDir.opposite().asBlockOffset());
+                promptActivation(network.world.blockEntity(exitLoc).filter(t -> t instanceof Carrier).map(Carrier.class::cast).orElse(null), true, null);
             }
         }
 
@@ -286,12 +286,12 @@ public class ItemductManager
             return;
         }
         if (carrier instanceof MultiBlockCarrier) {
-            for (ServerLocation loc : ((MultiBlockCarrier) carrier).getLocations()) {
+            for (ServerLocation loc : ((MultiBlockCarrier) carrier).locations()) {
                 triggerAtLoc(push, player, loc);
             }
             return;
         }
-        ServerLocation loc = ((BlockCarrier) carrier).getServerLocation();
+        ServerLocation loc = ((BlockCarrier) carrier).serverLocation();
         triggerAtLoc(push, player, loc);
     }
 

@@ -41,10 +41,10 @@ public class CommandReport extends BaseReport<ExecuteCommandEvent> implements Re
     public Action observe(ExecuteCommandEvent event)
     {
         Action action = newReport();
-        action.addData(CAUSE, Observe.causes(event.getCause()));
-        action.addData(COMMAND, event.getCommand());
-        final ServerPlayer serverPlayer = event.getCause().first(ServerPlayer.class).get(); // event-filter ensures this is present
-        action.addData(LOCATION, Observe.location(serverPlayer.getServerLocation()));
+        action.addData(CAUSE, Observe.causes(event.cause()));
+        action.addData(COMMAND, event.command());
+        final ServerPlayer serverPlayer = event.cause().first(ServerPlayer.class).get(); // event-filter ensures this is present
+        action.addData(LOCATION, Observe.location(serverPlayer.serverLocation()));
         return action;
     }
 

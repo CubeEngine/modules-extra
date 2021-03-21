@@ -230,12 +230,12 @@ public class TerraItems
                 biomeList.add(END_HIGHLANDS);
             }
 
-            final Random random = player.getWorld().getRandom();
+            final Random random = player.world().random();
 
             final List<AttributedBiome> biomes = biomeList.stream().map(biome -> {
-                final Biome originalBiome = biome.get(player.getWorld().registries());
-                final BiomeAttributes biomeAttributes = BiomeAttributes.of((float) originalBiome.getTemperature(),
-                                                                           (float) originalBiome.getHumidity(),
+                final Biome originalBiome = biome.get(player.world().registries());
+                final BiomeAttributes biomeAttributes = BiomeAttributes.of((float) originalBiome.temperature(),
+                                                                           (float) originalBiome.humidity(),
                                                                            random.nextFloat() * 4 - 2,
                                                                            random.nextFloat() * 4 - 2,
                                                                            random.nextFloat() / 5);
@@ -253,7 +253,7 @@ public class TerraItems
             {
                 final StructureGenerationConfig endStructures = StructureGenerationConfig.builder().addStructure(Structures.END_CITY.get(), SeparatedStructureConfig.of(6, 4, random.nextInt())).build();
                 noiseGeneratorConfig = NoiseGeneratorConfig.builder().from(NoiseGeneratorConfig.floatingIslands())
-                                                           .defaultBlock(BlockTypes.END_STONE.get().getDefaultState())
+                                                           .defaultBlock(BlockTypes.END_STONE.get().defaultState())
                                                            .structureConfig(endStructures)
                                                            .build();
 
@@ -264,7 +264,7 @@ public class TerraItems
                 noiseGeneratorConfig = NoiseGeneratorConfig.overworld();
             }
             return templateBuilder.serializationBehavior(SerializationBehavior.NONE)
-                                                          .displayName(Component.text("Dream world by " + player.getName()))
+                                                          .displayName(Component.text("Dream world by " + player.name()))
                                                           .generator(ChunkGenerator.noise(BiomeProvider.multiNoise(multiNoiseBiomeConfig), random.nextLong(), noiseGeneratorConfig))
                                                           .difficulty(Difficulties.HARD)
                                                           .generationConfig(WorldGenerationConfig.Mutable.builder().seed(random.nextLong()).build())
@@ -277,11 +277,11 @@ public class TerraItems
 
     private static ItemStack getRandomCraftedEssence(ItemStack baseStack)
     {
-        final Optional<ServerPlayer> player = Sponge.getServer().getCauseStackManager().getCurrentCause().first(ServerPlayer.class);
+        final Optional<ServerPlayer> player = Sponge.server().causeStackManager().currentCause().first(ServerPlayer.class);
         final Essence essence = Essence.values()[random.nextInt(Essence.values().length)];
         final ItemStack craftedEssence = baseStack.copy();
         craftedEssence.offer(Keys.COLOR, essence.color);
-        craftedEssence.offer(Keys.CUSTOM_NAME, baseStack.get(Keys.CUSTOM_NAME).get().append(Component.space()).append(Component.text(essence.name, TextColor.color(essence.color.getRgb()))));
+        craftedEssence.offer(Keys.CUSTOM_NAME, baseStack.get(Keys.CUSTOM_NAME).get().append(Component.space()).append(Component.text(essence.name, TextColor.color(essence.color.rgb()))));
         craftedEssence.offer(Keys.LORE, Arrays.asList(terra.getListener().coldPotionLore(player.get()),
                                                       terra.getListener().hintPotionLore(player.get())));
         return craftedEssence;
@@ -291,7 +291,7 @@ public class TerraItems
     {
         final ItemStack newEssence = TerraItems.TERRA_ESSENCE.copy();
         newEssence.offer(Keys.COLOR, essence.color);
-        newEssence.offer(Keys.CUSTOM_NAME, newEssence.get(Keys.CUSTOM_NAME).get().append(Component.space()).append(Component.text(essence.name, TextColor.color(essence.color.getRgb()))));
+        newEssence.offer(Keys.CUSTOM_NAME, newEssence.get(Keys.CUSTOM_NAME).get().append(Component.space()).append(Component.text(essence.name, TextColor.color(essence.color.rgb()))));
         newEssence.offer(Keys.LORE, Arrays.asList(terra.getListener().coldPotionLore(audience),
                                                   terra.getListener().hintPotionLore(audience)));
         return newEssence;
@@ -300,21 +300,21 @@ public class TerraItems
     private static ItemStack getCraftedEssence()
     {
         final ItemStack craftedEssence = TerraItems.TERRA_ESSENCE.copy();
-        final Optional<ServerPlayer> player = Sponge.getServer().getCauseStackManager().getCurrentCause().first(ServerPlayer.class);
-        final Optional<Biome> biome = player.map(p -> p.getWorld().getBiome(p.getBlockPosition()));
+        final Optional<ServerPlayer> player = Sponge.server().causeStackManager().currentCause().first(ServerPlayer.class);
+        final Optional<Biome> biome = player.map(p -> p.world().biome(p.blockPosition()));
         if (biome.isPresent())
         {
             Essence essence = Essence.GREEN_LANDSCAPE;
             for (Essence value : Essence.values())
             {
-                if (value.hasBiome(biome.get(), player.get().getWorld()))
+                if (value.hasBiome(biome.get(), player.get().world()))
                 {
                     essence = value;
                     break;
                 }
             }
             craftedEssence.offer(Keys.COLOR, essence.color);
-            craftedEssence.offer(Keys.CUSTOM_NAME, craftedEssence.get(Keys.CUSTOM_NAME).get().append(Component.space()).append(Component.text(essence.name, TextColor.color(essence.color.getRgb()))));
+            craftedEssence.offer(Keys.CUSTOM_NAME, craftedEssence.get(Keys.CUSTOM_NAME).get().append(Component.space()).append(Component.text(essence.name, TextColor.color(essence.color.rgb()))));
             craftedEssence.offer(Keys.LORE, Arrays.asList(terra.getListener().coldPotionLore(player.get()),
                                                           terra.getListener().hintPotionLore(player.get())));
 
@@ -324,7 +324,7 @@ public class TerraItems
 
     public static boolean isTerraEssence(ItemStackSnapshot stack)
     {
-        if (!stack.getType().isAnyOf(ItemTypes.POTION))
+        if (!stack.type().isAnyOf(ItemTypes.POTION))
         {
             return false;
         }

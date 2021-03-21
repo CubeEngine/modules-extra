@@ -142,8 +142,8 @@ public class Recall
         }
 
         // Notifier
-        if (context != null && context.containsKey(EventContextKeys.NOTIFIER.getKey().asString())) {
-            final Map<String, Object> notifierContext = (Map<String, Object>)context.get(EventContextKeys.NOTIFIER.getKey().asString());
+        if (context != null && context.containsKey(EventContextKeys.NOTIFIER.key().asString())) {
+            final Map<String, Object> notifierContext = (Map<String, Object>)context.get(EventContextKeys.NOTIFIER.key().asString());
             if (!notifierContext.get("UUID").equals(firstCause.get("UUID")))
             {
                 final TextComponent notifier = Component.text("!←", NamedTextColor.GRAY);
@@ -241,10 +241,10 @@ public class Recall
     public static ServerLocation location(Action action)
     {
         final Map<String, Object> data = action.getData(LOCATION);
-        final ServerWorld world = Sponge.getServer().getWorldManager().world(ResourceKey.resolve(data.get(WORLD.toString()).toString())).get();
+        final ServerWorld world = Sponge.server().worldManager().world(ResourceKey.resolve(data.get(WORLD.toString()).toString())).get();
         final Integer x = (Integer)data.get(X.asString("_"));
         final Integer y = (Integer)data.get(Y.asString("_"));
         final Integer z = (Integer)data.get(Z.asString("_"));
-        return world.getLocation(x, y, z);
+        return world.location(x, y, z);
     }
 }

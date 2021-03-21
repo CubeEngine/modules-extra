@@ -83,12 +83,12 @@ public class Observe
         HashMap<Object, Object> context = new HashMap<>();
         data.put(Report.CAUSECONTEXT, context);
 
-        for (EventContextKey<?> key : causes.getContext().keySet())
+        for (EventContextKey<?> key : causes.context().keySet())
         {
-            final Map<String, Object> cause = cause(causes.getContext().get(key).get(), new HashSet<>());
+            final Map<String, Object> cause = cause(causes.context().get(key).get(), new HashSet<>());
             if (cause != null)
             {
-                context.put(key.getKey().asString(), cause);
+                context.put(key.key().asString(), cause);
             }
         }
 
@@ -108,11 +108,11 @@ public class Observe
         }
         if (cause instanceof EntityDamageSource)
         {
-            Entity source = ((EntityDamageSource)cause).getSource();
+            Entity source = ((EntityDamageSource)cause).source();
             Map<String, Object> sourceCause = Observe.cause(source, set);
             if (cause instanceof IndirectEntityDamageSource)
             {
-                Map<String, Object> indirectCause = Observe.cause(((IndirectEntityDamageSource)cause).getIndirectSource(), set);
+                Map<String, Object> indirectCause = Observe.cause(((IndirectEntityDamageSource)cause).indirectSource(), set);
                 if (sourceCause == null)
                 {
                     return indirectCause;
@@ -125,7 +125,7 @@ public class Observe
         }
         else if (cause instanceof BlockDamageSource)
         {
-            return Observe.cause(((BlockDamageSource)cause).getBlockSnapshot(), set);
+            return Observe.cause(((BlockDamageSource)cause).blockSnapshot(), set);
         }
         else if (cause instanceof DamageSource)
         {
@@ -141,11 +141,11 @@ public class Observe
         }
         else if (cause instanceof LocatableBlock)
         {
-            return blockCause(((LocatableBlock) cause).getBlockState());
+            return blockCause(((LocatableBlock) cause).blockState());
         }
         else if (cause instanceof BlockSnapshot)
         {
-            return blockCause(((BlockSnapshot) cause).getState());
+            return blockCause(((BlockSnapshot) cause).state());
         }
         else if (cause instanceof PrimedTNT)
         {
@@ -163,7 +163,7 @@ public class Observe
     {
         Map<String, Object> data = new HashMap<>();
         data.put(CAUSE_TYPE, CAUSE_DAMAGE.toString());
-        data.put(CAUSE_NAME, cause.getType().key(RegistryTypes.DAMAGE_TYPE).asString());
+        data.put(CAUSE_NAME, cause.type().key(RegistryTypes.DAMAGE_TYPE).asString());
         return data;
     }
 
@@ -173,12 +173,12 @@ public class Observe
         cause.get(Keys.DETONATOR).ifPresent(detonator -> {
             if (detonator instanceof Player)
             {
-                data.put(CAUSE_NAME, ((Player)detonator).getName());
-                data.put(CAUSE_PLAYER_UUID, detonator.getUniqueId());
+                data.put(CAUSE_NAME, ((Player)detonator).name());
+                data.put(CAUSE_PLAYER_UUID, detonator.uniqueId());
             }
             else
             {
-                data.put(CAUSE_NAME, detonator.getType().key(RegistryTypes.ENTITY_TYPE).asString());
+                data.put(CAUSE_NAME, detonator.type().key(RegistryTypes.ENTITY_TYPE).asString());
             }
         });
         data.put(CAUSE_TYPE, CAUSE_TNT.toString());
@@ -189,7 +189,7 @@ public class Observe
     {
         Map<String, Object> data = new HashMap<>();
         data.put(CAUSE_TYPE, CAUSE_ENTITY.toString());
-        data.put(CAUSE_NAME, cause.getType().key(RegistryTypes.ENTITY_TYPE).asString());
+        data.put(CAUSE_NAME, cause.type().key(RegistryTypes.ENTITY_TYPE).asString());
 
         if (doRecursion && cause instanceof Agent)
         {
@@ -200,7 +200,7 @@ public class Observe
 
     public static Map<String, Object> blockCause(BlockState block)
     {
-        BlockType type = block.getType();
+        BlockType type = block.type();
         Map<String, Object> data = new HashMap<>();
         data.put(CAUSE_TYPE, CAUSE_BLOCK.toString());
         data.put(CAUSE_NAME, type.key(RegistryTypes.BLOCK_TYPE).asString());
@@ -212,8 +212,8 @@ public class Observe
         Map<String, Object> data = new HashMap<>();
         data.put(CAUSE_TYPE, CAUSE_PLAYER.toString());
 
-        data.put(CAUSE_PLAYER_UUID, player.getUniqueId());
-        data.put(CAUSE_NAME, player.getName());
+        data.put(CAUSE_PLAYER_UUID, player.uniqueId());
+        data.put(CAUSE_NAME, player.name());
         // TODO configurable data.put("ip", player.getConnection().getAddress().getAddress().getHostAddress());
         return data;
     }
@@ -223,8 +223,8 @@ public class Observe
         Map<String, Object> data = new HashMap<>();
         data.put(CAUSE_TYPE, CAUSE_PLAYER.toString());
 
-        data.put(CAUSE_PLAYER_UUID, player.getUniqueId());
-        data.put(CAUSE_NAME, player.getName());
+        data.put(CAUSE_PLAYER_UUID, player.uniqueId());
+        data.put(CAUSE_NAME, player.name());
         // TODO configurable data.put("ip", player.getConnection().getAddress().getAddress().getHostAddress());
         return data;
     }
@@ -243,11 +243,11 @@ public class Observe
 
         Map<String, Object> info = new HashMap<>();
 
-        info.put(WORLD.asString("_"), location.getWorld().getKey().toString());
+        info.put(WORLD.asString("_"), location.world().key().toString());
         // TODO worldname also recall it
-        info.put(X.asString("_"), location.getBlockX());
-        info.put(Y.asString("_"), location.getBlockY());
-        info.put(Z.asString("_"), location.getBlockZ());
+        info.put(X.asString("_"), location.blockX());
+        info.put(Y.asString("_"), location.blockY());
+        info.put(Z.asString("_"), location.blockZ());
 
         return info;
     }
@@ -257,7 +257,7 @@ public class Observe
     {
         Map<String, Object> info = new HashMap<>();
 
-        info.put(BLOCK_STATE.asString("_"), toRawData(block.getState().toContainer()));
+        info.put(BLOCK_STATE.asString("_"), toRawData(block.state().toContainer()));
 
         DataContainer blockContainer = block.toContainer();
         Optional<List<DataView>> data = blockContainer.getViewList(BLOCK_DATA);
@@ -282,7 +282,7 @@ public class Observe
         }
         if (data instanceof DataView)
         {
-            return ((DataView)data).getValues(false).entrySet().stream()
+            return ((DataView)data).values(false).entrySet().stream()
                                    .collect(Collectors.toMap(e -> toRawData(e.getKey()),
                                                              e -> toRawData(e.getValue())));
         }
@@ -317,13 +317,13 @@ public class Observe
     public static Map<String, Object> transactions(Transaction<BlockSnapshot> transaction)
     {
         Map<String, Object> data = new HashMap<>();
-        BlockSnapshot original = transaction.getOriginal();
-        if (original.getLocation().isPresent())
+        BlockSnapshot original = transaction.original();
+        if (original.location().isPresent())
         {
             //System.out.print(transaction.getFinal().getLocation().get().getPosition() +  " " + transaction.getFinal().getState().getType() + "\n");
             //data.put(LOCATION, location(transaction.getFinal().getLocation().get()));
             ORIGINAL.put(data, blockSnapshot(original));
-            REPLACEMENT.put(data, blockSnapshot(transaction.getFinal()));
+            REPLACEMENT.put(data, blockSnapshot(transaction.finalReplacement()));
         }
         return data;
     }
@@ -337,13 +337,13 @@ public class Observe
     public static Map<String, Object> transactions(BlockTransactionReceipt transaction)
     {
         Map<String, Object> data = new HashMap<>();
-        BlockSnapshot original = transaction.getOriginal();
-        if (original.getLocation().isPresent())
+        BlockSnapshot original = transaction.originalBlock();
+        if (original.location().isPresent())
         {
             //System.out.print(transaction.getFinal().getLocation().get().getPosition() +  " " + transaction.getFinal().getState().getType() + "\n");
             //data.put(LOCATION, location(transaction.getFinal().getLocation().get()));
             ORIGINAL.put(data, blockSnapshot(original));
-            REPLACEMENT.put(data, blockSnapshot(transaction.getFinal()));
+            REPLACEMENT.put(data, blockSnapshot(transaction.finalBlock()));
         }
         return data;
     }
@@ -360,11 +360,11 @@ public class Observe
         for (SlotTransaction transaction : transactions)
         {
             Map<String, Object> data = new HashMap<>();
-            ItemStackSnapshot originalStack = transaction.getOriginal();
-            ItemStackSnapshot finalStack = transaction.getFinal();
+            ItemStackSnapshot originalStack = transaction.original();
+            ItemStackSnapshot finalStack = transaction.finalReplacement();
             data.put(ChangeInventoryReport.ORIGINAL, toRawData(originalStack.toContainer()));
             data.put(ChangeInventoryReport.REPLACEMENT, toRawData(finalStack.toContainer()));
-            data.put(ChangeInventoryReport.SLOT_INDEX, transaction.getSlot().get(Keys.SLOT_INDEX).orElse(-1));
+            data.put(ChangeInventoryReport.SLOT_INDEX, transaction.slot().get(Keys.SLOT_INDEX).orElse(-1));
             list.add(data);
         }
         return list;

@@ -63,16 +63,16 @@ public class Mechanism
     @Listener
     public void onRightClickBlock(InteractBlockEvent.Secondary event, @First ServerPlayer player)
     {
-        if (event.getContext().get(EventContextKeys.USED_HAND).map(hand -> hand.equals(HandTypes.MAIN_HAND.get())).orElse(false))
+        if (event.context().get(EventContextKeys.USED_HAND).map(hand -> hand.equals(HandTypes.MAIN_HAND.get())).orElse(false))
         {
-            final ServerLocation thisLoc = event.getBlock().getLocation().get();
-            final boolean triggered = thisLoc.getBlockEntity().flatMap(be -> be.get(MechanismData.MECHANISM)).map(
+            final ServerLocation thisLoc = event.block().location().get();
+            final boolean triggered = thisLoc.blockEntity().flatMap(be -> be.get(MechanismData.MECHANISM)).map(
                 mechanism -> manager.trigger(mechanism, event, player, thisLoc, false)).orElse(false);
             if (!triggered)
             {
-                final Direction oppositeDirection = event.getTargetSide().getOpposite();
+                final Direction oppositeDirection = event.targetSide().opposite();
                 final ServerLocation oppositeLoc = thisLoc.relativeTo(oppositeDirection);
-                oppositeLoc.getBlockEntity().filter(be -> be.supports(Keys.SIGN_LINES))
+                oppositeLoc.blockEntity().filter(be -> be.supports(Keys.SIGN_LINES))
                            .filter(be -> be.get(Keys.DIRECTION).map(facing -> facing.equals(oppositeDirection)).orElse(false))
                            .flatMap(be -> be.get(MechanismData.MECHANISM)).ifPresent(mechanism -> {
                     manager.trigger(mechanism, event, player, oppositeLoc, true);
@@ -84,9 +84,9 @@ public class Mechanism
     @Listener
     public void onPlaceBlock(ChangeBlockEvent.All event, @First ServerPlayer player)
     {
-        event.getContext().get(EventContextKeys.USED_ITEM).flatMap(item -> item.get(MechanismData.MECHANISM)).ifPresent(mechanism ->
-            event.getTransactions(Operations.PLACE.get()).forEach(trans -> {
-                final BlockEntity sign = trans.getFinal().getLocation().get().getBlockEntity().get();
+        event.context().get(EventContextKeys.USED_ITEM).flatMap(item -> item.get(MechanismData.MECHANISM)).ifPresent(mechanism ->
+            event.transactions(Operations.PLACE.get()).forEach(trans -> {
+                final BlockEntity sign = trans.finalReplacement().location().get().blockEntity().get();
                 manager.initializeSign(mechanism, sign);
 
             }));
@@ -95,7 +95,7 @@ public class Mechanism
     @Listener
     public void onChangeSign(ChangeSignEvent event)
     {
-        if (event.getSign().get(MechanismData.MECHANISM).isPresent())
+        if (event.sign().get(MechanismData.MECHANISM).isPresent())
         {
             event.setCancelled(true);
         }

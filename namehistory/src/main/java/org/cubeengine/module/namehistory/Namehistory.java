@@ -44,7 +44,7 @@ public class Namehistory
     public void onJoin(ServerSideConnectionEvent.Join event, @First Player player)
     {
         long days = 5;
-        HistoryFetcher.get(player.getUniqueId()).thenAccept(historyData -> {
+        HistoryFetcher.get(player.uniqueId()).thenAccept(historyData -> {
             if (historyData.isPresent())
             {
                 List<NameChange> list = historyData.get().names;

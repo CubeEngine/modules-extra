@@ -93,7 +93,7 @@ public class QueryManager
     {
         if (this.queryShowExecutor == null)
         {
-            this.queryShowExecutor = Sponge.getServer().getScheduler().createExecutor(plugin);
+            this.queryShowExecutor = Sponge.server().scheduler().createExecutor(plugin);
         }
     }
 
@@ -194,10 +194,10 @@ public class QueryManager
     public void queryAndShow(Lookup lookup, Player player) // TODO lookup object
     {
         this.initQueryShowExecutor();
-        this.lastLookups.put(player.getUniqueId(), lookup);
+        this.lastLookups.put(player.uniqueId(), lookup);
 
         // TODO lookup cancel previous?
-        CompletableFuture<Void> future = queryFuture.get(player.getUniqueId());
+        CompletableFuture<Void> future = queryFuture.get(player.uniqueId());
         if (future != null && !future.isDone())
         {
             i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "There is another lookup active!");
@@ -212,7 +212,7 @@ public class QueryManager
                 plugin.getLogger().error("Error showing reports", t);
                 return null;
             });
-        queryFuture.put(player.getUniqueId(), future);
+        queryFuture.put(player.uniqueId(), future);
     }
 
     private List<Action> lookup(Lookup lookup, Query query)
@@ -297,7 +297,7 @@ public class QueryManager
 
     public Optional<Lookup> getLast(Player player)
     {
-        return Optional.ofNullable(this.lastLookups.get(player.getUniqueId()));
+        return Optional.ofNullable(this.lastLookups.get(player.uniqueId()));
     }
 
     public void shutdown()

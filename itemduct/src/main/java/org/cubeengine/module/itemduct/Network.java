@@ -75,12 +75,12 @@ public class Network
     public Network discover(Vector3i start) {
         this.start = start;
         Direction dir = world.get(start, Keys.DIRECTION).orElse(Direction.NONE);
-        if (!world.getBlock(start).getType().isAnyOf(DROPPER))
+        if (!world.block(start).type().isAnyOf(DROPPER))
         {
-            dir = dir.getOpposite();
+            dir = dir.opposite();
         }
         final Vector3i rel = start.add(dir.asBlockOffset());
-        final BlockType relType = world.getBlock(rel).getType();
+        final BlockType relType = world.block(rel).type();
         if (blocks.isPipe(relType))
         {
             this.discover(rel, dir);
@@ -107,10 +107,10 @@ public class Network
         {
             Set<Direction> dirs = directions;
             Set<Direction> connected = new HashSet<>();
-            connected.add(last.from.getOpposite());
+            connected.add(last.from.opposite());
             for (Direction dir : dirs)
             {
-                if (!dir.equals(last.from.getOpposite()))
+                if (!dir.equals(last.from.opposite()))
                 {
                     if (last.cross && last.color == null && !dir.equals(last.from)) {
                         continue;
@@ -134,18 +134,18 @@ public class Network
                     // ExitPiston?
                     if (this.world.get(rel, Keys.DIRECTION).orElse(Direction.NONE).equals(dir))
                     {
-                        if (this.world.getBlock(rel).getType().isAnyOf(PISTON))
+                        if (this.world.block(rel).type().isAnyOf(PISTON))
                         {
 
                             final Vector3i relLoc = rel.add(dir.asBlockOffset());
 
-                            if (this.world.get(relLoc, ItemductData.FILTERS).map(d -> d.get(dir.getOpposite()) != null).orElse(false))
+                            if (this.world.get(relLoc, ItemductData.FILTERS).map(d -> d.get(dir.opposite()) != null).orElse(false))
                             {
                                 this.exitPoints.put(rel, this.world.get(relLoc, ItemductData.FILTERS).get());
                                 connected.add(dir);
                             }
                         }
-                        else if (this.world.getBlock(rel).getType().isAnyOf(STICKY_PISTON))
+                        else if (this.world.block(rel).type().isAnyOf(STICKY_PISTON))
                         {
                             connected.add(dir);
                         }
@@ -154,7 +154,7 @@ public class Network
                     // Storage Chest
                     if (last.storage)
                     {
-                        this.world.getBlockEntity(rel).ifPresent(te -> {
+                        this.world.blockEntity(rel).ifPresent(te -> {
                             if (te instanceof Carrier) {
                                 this.storage.add(rel);
                             }
@@ -166,7 +166,7 @@ public class Network
 
             if (last.cross && last.color != null)
             {
-                final BlockState state = world.getBlock(last.pos).with(Keys.CONNECTED_DIRECTIONS, connected).get();
+                final BlockState state = world.block(last.pos).with(Keys.CONNECTED_DIRECTIONS, connected).get();
                 world.setBlock(last.pos, state);
             }
 
@@ -205,10 +205,10 @@ public class Network
             Inventory pollFrom = inventory;
             Vector3i loc = entry.getKey();
             Map<Direction, List<ItemStack>> data = entry.getValue();
-            Direction dir = world.get(loc, Keys.DIRECTION).orElse(Direction.NONE).getOpposite();
-            final Vector3i targetLoc = loc.add(dir.getOpposite().asBlockOffset());
-            BlockEntity te = world.getBlockEntity(targetLoc).get();
-            Inventory target = ((Carrier) te).getInventory();
+            Direction dir = world.get(loc, Keys.DIRECTION).orElse(Direction.NONE).opposite();
+            final Vector3i targetLoc = loc.add(dir.opposite().asBlockOffset());
+            BlockEntity te = world.blockEntity(targetLoc).get();
+            Inventory target = ((Carrier) te).inventory();
             if (te instanceof Dropper)
             {
                 Network nw = new Network(this.blocks, this.world, this.maxDepth).discover(targetLoc);
@@ -217,7 +217,7 @@ public class Network
             }
             if (te instanceof Chest)
             {
-                target = ((Chest) te).getDoubleChestInventory().orElse(target);
+                target = ((Chest) te).doubleChestInventory().orElse(target);
             }
             List<ItemStack> targetFilter = data.get(dir);
             if (targetFilter != null)
@@ -246,11 +246,11 @@ public class Network
         }
         for (Vector3i targetLoc : storage)
         {
-            BlockEntity te = world.getBlockEntity(targetLoc).get();
-            Inventory target =  ((Carrier) te).getInventory();
+            BlockEntity te = world.blockEntity(targetLoc).get();
+            Inventory target =  ((Carrier) te).inventory();
             if (te instanceof Chest)
             {
-                target = ((Chest) te).getDoubleChestInventory().orElse(target);
+                target = ((Chest) te).doubleChestInventory().orElse(target);
             }
             doTransfer(inventory, target);
         }
@@ -269,11 +269,11 @@ public class Network
     {
         for (Vector3i targetLoc : storage)
         {
-            BlockEntity te = world.getBlockEntity(targetLoc).get();
-            Inventory pollFrom =  ((Carrier) te).getInventory();
+            BlockEntity te = world.blockEntity(targetLoc).get();
+            Inventory pollFrom =  ((Carrier) te).inventory();
             if (te instanceof Chest)
             {
-                pollFrom = ((Chest) te).getDoubleChestInventory().orElse(pollFrom);
+                pollFrom = ((Chest) te).doubleChestInventory().orElse(pollFrom);
             }
             if (!filters.isEmpty()) // Only allow to extract items in the filter
             {
@@ -299,7 +299,7 @@ public class Network
             }
             else
             {
-                slot.poll(peek.getQuantity() - itemStack.getQuantity());
+                slot.poll(peek.quantity() - itemStack.quantity());
             }
         }
     }
@@ -312,7 +312,7 @@ public class Network
 
     @Override
     public String toString() {
-        return "Network in " + world.getKey() + " with " + exitPoints.size() + " exit-points and " + pipes.size() + " pipes and " + storage.size() + " storage";
+        return "Network in " + world.key() + " with " + exitPoints.size() + " exit-points and " + pipes.size() + " pipes and " + storage.size() + " storage";
     }
 
     class LastDuct
@@ -334,14 +334,14 @@ public class Network
             this.from = from;
             this.pos = loc;
             this.color = world.get(loc, Keys.DYE_COLOR).orElse(null);
-            final BlockType blockType = world.getBlock(loc).getType();
+            final BlockType blockType = world.block(loc).type();
             this.cross = blocks.isDirectionalPipe(blockType);
             this.storage = blocks.isStoragePipe(blockType);
         }
 
         public boolean isCompatible(Vector3i rel)
         {
-            final BlockType relType = world.getBlock(rel).getType();
+            final BlockType relType = world.block(rel).type();
             final boolean relIsStorage = blocks.isStoragePipe(relType);
             if (!blocks.isNormalPipe(relType) && !relIsStorage)
             {

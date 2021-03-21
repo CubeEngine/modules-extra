@@ -148,8 +148,8 @@ public class Spawner
 
     private void initPerm(EntityType<?> type)
     {
-        final ResourceKey resourceKey = Sponge.getGame().registries().registry(RegistryTypes.ENTITY_TYPE).valueKey(type);
-        this.perms.put(type, pm.register(Spawner.class, resourceKey.getValue(), "Allows creating " + PlainComponentSerializer.plain().serialize(type.asComponent()) + " spawners", eggPerms));
+        final ResourceKey resourceKey = Sponge.game().registries().registry(RegistryTypes.ENTITY_TYPE).valueKey(type);
+        this.perms.put(type, pm.register(Spawner.class, resourceKey.value(), "Allows creating " + PlainComponentSerializer.plain().serialize(type.asComponent()) + " spawners", eggPerms));
     }
 
     private static boolean hasEnchantment(ItemStackSnapshot item, EnchantmentType ench)
@@ -159,7 +159,7 @@ public class Spawner
         {
             for (Enchantment e : enchs.get())
             {
-                if (e.getType().equals(ench))
+                if (e.type().equals(ench))
                 {
                     return true;
                 }
@@ -180,18 +180,18 @@ public class Spawner
 
     private static boolean has(ChangeBlockEvent.All event, BlockType type)
     {
-        for (BlockTransaction trans : event.getTransactions())
+        for (BlockTransaction trans : event.transactions())
         {
-            if (trans.getOperation().equals(Operations.BREAK.get()))
+            if (trans.operation().equals(Operations.BREAK.get()))
             {
-                if (trans.getOriginal().getState().getType().equals(type))
+                if (trans.original().state().type().equals(type))
                 {
                     return true;
                 }
             }
-            else if (trans.getOperation().equals(Operations.PLACE.get()))
+            else if (trans.operation().equals(Operations.PLACE.get()))
             {
-                if (trans.getFinal().getState().getType().equals(type))
+                if (trans.finalReplacement().state().type().equals(type))
                 {
                     return true;
                 }
@@ -204,19 +204,19 @@ public class Spawner
     @IsCancelled(Tristate.UNDEFINED)
     public void onBlockBreak(ChangeBlockEvent.All event, @First ServerPlayer player)
     {
-        if (event.getTransactions().size() != 1 && event.getTransactions(Operations.BREAK.get()).count() != 1)
+        if (event.transactions().size() != 1 && event.transactions(Operations.BREAK.get()).count() != 1)
         {
             return;
         }
 
-        Optional<ItemStackSnapshot> inHand = event.getContext().get(EventContextKeys.USED_ITEM);
+        Optional<ItemStackSnapshot> inHand = event.context().get(EventContextKeys.USED_ITEM);
         if (inHand.isPresent() && hasEnchantment(inHand.get(), SILK_TOUCH.get()) && breaks(event, BlockTypes.SPAWNER.get()) && this.breakPerm.check(player))
         {
-            Transaction<BlockSnapshot> trans = event.getTransactions().get(0);
-            ServerLocation loc = trans.getFinal().getLocation().get();
-            trans.getOriginal().restore(true, BlockChangeFlags.NONE);
-            EntityType<?> type = loc.getBlockEntity().flatMap(spawner -> spawner.get(Keys.NEXT_ENTITY_TO_SPAWN)).map(a -> a.get().getType()).orElse(null);
-            trans.getDefault().restore(true, BlockChangeFlags.NONE);
+            Transaction<BlockSnapshot> trans = event.transactions().get(0);
+            ServerLocation loc = trans.finalReplacement().location().get();
+            trans.original().restore(true, BlockChangeFlags.NONE);
+            EntityType<?> type = loc.blockEntity().flatMap(spawner -> spawner.get(Keys.NEXT_ENTITY_TO_SPAWN)).map(a -> a.get().type()).orElse(null);
+            trans.defaultReplacement().restore(true, BlockChangeFlags.NONE);
 
             if (type == null || event.isCancelled())
             {
@@ -228,19 +228,19 @@ public class Spawner
             spawnerItem.offer(Keys.HIDE_ENCHANTMENTS, true);
             spawnerItem.offer(Keys.CUSTOM_NAME, i18n.translate(player, "Inactive monster spawner"));
 
-            brokenSpawners.computeIfAbsent(loc.getWorldKey(), k -> new HashSet<>()).add(loc.getBlockPosition());
+            brokenSpawners.computeIfAbsent(loc.worldKey(), k -> new HashSet<>()).add(loc.blockPosition());
 
-            Entity item = player.getWorld().createEntity(ITEM.get(), player.getLocation().getPosition());
+            Entity item = player.world().createEntity(ITEM.get(), player.location().position());
             item.offer(Keys.ITEM_STACK_SNAPSHOT, spawnerItem.createSnapshot());
-            Sponge.getServer().getCauseStackManager().pushCause(player);
-            player.getWorld().spawnEntity(item);
+            Sponge.server().causeStackManager().pushCause(player);
+            player.world().spawnEntity(item);
 
             if (this.dropEggPerm.check(player))
             {
                 ItemStack eggItem = ItemStack.of(this.eggs.get(type));
-                Entity eggEntity = player.getWorld().createEntity(ITEM.get(), player.getLocation().getPosition());
+                Entity eggEntity = player.world().createEntity(ITEM.get(), player.location().position());
                 eggEntity.offer(Keys.ITEM_STACK_SNAPSHOT, eggItem.createSnapshot());
-                player.getWorld().spawnEntity(eggEntity);
+                player.world().spawnEntity(eggEntity);
             }
             i18n.send(ACTION_BAR, player, POSITIVE, "Dropped inactive monster spawner!");
         }
@@ -253,9 +253,9 @@ public class Spawner
         {
             return;
         }
-        if (snap.getLocation().isPresent())
+        if (snap.location().isPresent())
         {
-            if (brokenSpawners.getOrDefault(snap.getWorld(), Collections.emptySet()).remove(snap.getPosition()))
+            if (brokenSpawners.getOrDefault(snap.world(), Collections.emptySet()).remove(snap.position()))
             {
                 event.setCancelled(true);
             }
@@ -265,21 +265,21 @@ public class Spawner
     @Listener(order = POST)
     public void onBlockPlace(ChangeBlockEvent.All event, @First Player player)
     {
-        Optional<ItemStackSnapshot> inHand = event.getContext().get(EventContextKeys.USED_ITEM);
+        Optional<ItemStackSnapshot> inHand = event.context().get(EventContextKeys.USED_ITEM);
         if (inHand.isPresent() &&
-            event.getTransactions().size() == 1 && event.getTransactions(Operations.PLACE.get()).count() == 1 &&
+            event.transactions().size() == 1 && event.transactions(Operations.PLACE.get()).count() == 1 &&
             places(event, BlockTypes.SPAWNER.get()) &&
             hasEnchantment(inHand.get(), LURE.get()))
         {
             EntityArchetype hidden = EntityArchetype.builder().type(SNOWBALL).add(Keys.IS_INVISIBLE, true)
                                                     .build();
-            for (Transaction<BlockSnapshot> trans : event.getTransactions())
+            for (Transaction<BlockSnapshot> trans : event.transactions())
             {
-                if (trans.getFinal().getState().getType().isAnyOf(BlockTypes.SPAWNER))
+                if (trans.finalReplacement().state().type().isAnyOf(BlockTypes.SPAWNER))
                 {
-                    BlockSnapshot snap = trans.getFinal();
-                    ServerLocation loc = snap.getLocation().get();
-                    final BlockEntity spawner = loc.getBlockEntity().get();
+                    BlockSnapshot snap = trans.finalReplacement();
+                    ServerLocation loc = snap.location().get();
+                    final BlockEntity spawner = loc.blockEntity().get();
                     spawner.offer(Keys.SPAWNABLE_ENTITIES, new WeightedTable<>());
                     spawner.offer(Keys.NEXT_ENTITY_TO_SPAWN, new WeightedSerializableObject<>(hidden, 1));
                     i18n.send(ACTION_BAR, player, POSITIVE, "Inactive monster spawner placed!");
@@ -292,16 +292,16 @@ public class Spawner
     @Listener(order = POST)
     public void onInteract(InteractBlockEvent.Secondary event, @First ServerPlayer player)
     {
-        final ServerLocation block = event.getBlock().getLocation().get();
-        if (block.getBlockType().isAnyOf(BlockTypes.SPAWNER)
-         && player.getItemInHand(MAIN_HAND).getType().isAnyOf(ItemTypes.BAT_SPAWN_EGG))
+        final ServerLocation block = event.block().location().get();
+        if (block.blockType().isAnyOf(BlockTypes.SPAWNER)
+         && player.itemInHand(MAIN_HAND).type().isAnyOf(ItemTypes.BAT_SPAWN_EGG))
         {
             event.setCancelled(true);
 
             if (block.get(Keys.SPAWNABLE_ENTITIES).map(RandomObjectTable::isEmpty).orElse(false))
             {
-                ItemStack itemInHand = player.getItemInHand(MAIN_HAND);
-                final EntityType<?> type = this.entities.get(itemInHand.getType());
+                ItemStack itemInHand = player.itemInHand(MAIN_HAND);
+                final EntityType<?> type = this.entities.get(itemInHand.type());
 
                 Permission perm = this.perms.get(type);
                 if (perm == null)
@@ -329,7 +329,7 @@ public class Spawner
 
                 if (!player.gameMode().get().equals(CREATIVE))
                 {
-                    itemInHand.setQuantity(itemInHand.getQuantity() - 1);
+                    itemInHand.setQuantity(itemInHand.quantity() - 1);
                     player.setItemInHand(MAIN_HAND, itemInHand);
                 }
 

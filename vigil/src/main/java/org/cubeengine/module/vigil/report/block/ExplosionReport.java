@@ -73,10 +73,10 @@ public class ExplosionReport extends BaseBlockReport<ExplosionEvent.Post> implem
 
     protected void report(ExplosionEvent.Post event)
     {
-        for (BlockTransactionReceipt receipt : event.getReceipts())
+        for (BlockTransactionReceipt receipt : event.receipts())
         {
-            final ServerLocation loc = receipt.getOriginal().getLocation().get();
-            if (!isActive(loc.getWorld()))
+            final ServerLocation loc = receipt.originalBlock().location().get();
+            if (!isActive(loc.world()))
             {
                 continue;
             }
@@ -84,7 +84,7 @@ public class ExplosionReport extends BaseBlockReport<ExplosionEvent.Post> implem
             final Action action = observe(event);
             action.addData(BLOCK_CHANGES, Observe.transactions(receipt));
             action.addData(LOCATION, Observe.location(loc));
-            action.addData(OPERATION, receipt.getOperation().key(RegistryTypes.OPERATION).asString());
+            action.addData(OPERATION, receipt.operation().key(RegistryTypes.OPERATION).asString());
 
             report(action);
         }

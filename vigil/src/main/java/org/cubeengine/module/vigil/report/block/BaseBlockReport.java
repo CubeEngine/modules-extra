@@ -60,7 +60,7 @@ public abstract class BaseBlockReport<T extends Event> extends BaseReport<T>
     protected Action observe(T event)
     {
         Action action = newReport();
-        action.addData(CAUSE, Observe.causes(event.getCause()));
+        action.addData(CAUSE, Observe.causes(event.cause()));
         return action;
     }
 }

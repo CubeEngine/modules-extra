@@ -124,16 +124,16 @@ public class VigilCommands extends DispatcherCommand
 
         ItemStack itemStack = ItemStack.of(ItemTypes.BOOK);
         itemStack.offer(Keys.CUSTOM_NAME, toolName);
-        itemStack.offer(Keys.LORE, asList(i18n.translate(player, "created by {name}", player.getName())));
+        itemStack.offer(Keys.LORE, asList(i18n.translate(player, "created by {name}", player.name())));
         itemStack.offer(Keys.APPLIED_ENCHANTMENTS, Collections.emptyList());
         VigilData.syncToStack(itemStack, data);
-        ItemStack inHand = player.getItemInHand(HandTypes.MAIN_HAND);
+        ItemStack inHand = player.itemInHand(HandTypes.MAIN_HAND);
         player.setItemInHand(HandTypes.MAIN_HAND, itemStack);
         if (!inHand.isEmpty())
         {
-            if (player.getInventory().offer(inHand).getType() != InventoryTransactionResult.Type.SUCCESS)
+            if (player.inventory().offer(inHand).type() != InventoryTransactionResult.Type.SUCCESS)
             {
-                SpawnUtil.spawnItem(inHand, player.getServerLocation());
+                SpawnUtil.spawnItem(inHand, player.serverLocation());
             }
         }
         i18n.send(player, POSITIVE, "Received a new Log-Tool!");

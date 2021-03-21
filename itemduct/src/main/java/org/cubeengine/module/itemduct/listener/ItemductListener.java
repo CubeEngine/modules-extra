@@ -57,13 +57,13 @@ public class ItemductListener
     @Listener
     public void onInteractPiston(InteractBlockEvent.Secondary event, @Root ServerPlayer player)
     {
-        if (event.getContext().get(EventContextKeys.USED_HAND).map(hand -> hand != HandTypes.MAIN_HAND.get()).orElse(true)) {
+        if (event.context().get(EventContextKeys.USED_HAND).map(hand -> hand != HandTypes.MAIN_HAND.get()).orElse(true)) {
             return;
         }
-        final Vector3i pos = event.getBlock().getPosition();
-        final ItemStack itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
+        final Vector3i pos = event.block().position();
+        final ItemStack itemInHand = player.itemInHand(HandTypes.MAIN_HAND);
         if (itemInHand.isEmpty() || ItemductItems.isActivator(itemInHand)) {
-            final NetworkFilter networkFilter = new NetworkFilter(player.getWorld(), pos.toInt());
+            final NetworkFilter networkFilter = new NetworkFilter(player.world(), pos.toInt());
             if (!itemInHand.isEmpty()) {
                 event.setCancelled(true); // Activator in hand - we do not want to ever place it as a normal block
                 if (networkFilter.isValid() && !networkFilter.isActive()) {
@@ -82,15 +82,15 @@ public class ItemductListener
     @Listener
     public void onBreak(ChangeBlockEvent.All event)
     {
-        event.getTransactions(Operations.BREAK.get()).filter(trans -> trans.getOriginal().getLocation().isPresent()).forEach(trans -> {
-            BlockType type = trans.getOriginal().getState().getType();
-            ServerLocation loc = trans.getOriginal().getLocation().get();
+        event.transactions(Operations.BREAK.get()).filter(trans -> trans.original().location().isPresent()).forEach(trans -> {
+            BlockType type = trans.original().state().type();
+            ServerLocation loc = trans.original().location().get();
             if (ItemductBlocks.isEndPointType(type)) {
-                final NetworkFilter networkFilter = new NetworkFilter(loc.getWorld(), loc.getBlockPosition());
+                final NetworkFilter networkFilter = new NetworkFilter(loc.world(), loc.blockPosition());
                 if (networkFilter.isValid()) {
                     final List<ItemStack> stacks = networkFilter.removeFilterStacks();
-                    event.getCause().first(Player.class)
-                            .filter(p -> p.get(Keys.GAME_MODE).map(mode -> mode != GameModes.CREATIVE).orElse(false))
+                    event.cause().first(Player.class)
+                            .filter(p -> p.get(Keys.GAME_MODE).map(mode -> mode != GameModes.CREATIVE.get()).orElse(false))
                             .ifPresent(p -> {
                                 ItemUtil.spawnItem(loc, ItemductItems.singleActivatorItem);
                                 stacks.forEach(stack -> ItemUtil.spawnItem(loc, stack));
@@ -106,22 +106,22 @@ public class ItemductListener
     }
 
     @Listener
-    public void onCloseInventory(InteractContainerEvent.Close event, @Root ServerPlayer player, @Getter("getContainer") Container inventory)
+    public void onCloseInventory(InteractContainerEvent.Close event, @Root ServerPlayer player, @Getter("container") Container inventory)
     {
         // When closing update filters and prompt activation
         if (inventory instanceof CarriedInventory && inventory.totalQuantity() > 0)
         {
-            ((CarriedInventory<?>) inventory).getCarrier().ifPresent(carrier -> this.manager.promptActivation(carrier, true, player));
+            ((CarriedInventory<?>) inventory).carrier().ifPresent(carrier -> this.manager.promptActivation(carrier, true, player));
         }
     }
 
     @Listener
-    public void onOpenInventory(InteractContainerEvent.Open event, @Root ServerPlayer player, @Getter("getContainer") Container inventory)
+    public void onOpenInventory(InteractContainerEvent.Open event, @Root ServerPlayer player, @Getter("container") Container inventory)
     {
         // When opening prompt activation
         if (inventory instanceof CarriedInventory && inventory.totalQuantity() > 0)
         {
-            ((CarriedInventory<?>) inventory).getCarrier().ifPresent(carrier -> this.manager.promptActivation(carrier, false, player));
+            ((CarriedInventory<?>) inventory).carrier().ifPresent(carrier -> this.manager.promptActivation(carrier, false, player));
         }
     }
 
@@ -129,9 +129,9 @@ public class ItemductListener
     public void onTransferInventory(TransferInventoryEvent.Pre event)
     {
         // When getting items transferred prompt activation
-        if (event.getTargetInventory() instanceof CarriedInventory)
+        if (event.targetInventory() instanceof CarriedInventory)
         {
-            ((CarriedInventory<?>) event.getTargetInventory()).getCarrier().ifPresent(c -> this.manager.promptActivation(c, true, null));
+            ((CarriedInventory<?>) event.targetInventory()).carrier().ifPresent(c -> this.manager.promptActivation(c, true, null));
         }
     }
 

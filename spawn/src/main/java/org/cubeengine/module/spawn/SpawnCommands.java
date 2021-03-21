@@ -69,24 +69,24 @@ public class SpawnCommands
     @Command(desc = "Changes the respawnpoint")
     public void setRoleSpawn(ServerPlayer player, @Parser(parser = SubjectParser.class) Subject role, @Default Context context)
     {
-        setRoleSpawn(context, player.getWorld(), player.getTransform(), role);
+        setRoleSpawn(context, player.world(), player.transform(), role);
         i18n.send(player, POSITIVE, "The spawn in {world} for the role {name#role} is now set to {vector}",
-                            context, role.getIdentifier(),
-                            player.getLocation().getPosition());
+                            context, role.identifier(),
+                            player.location().position());
     }
 
     private void setRoleSpawn(Context context, ServerWorld world, Transform transform, Subject role)
     {
         String[] posStrings = new String[3];
-        posStrings[0] = String.valueOf(transform.getPosition().getFloorX());
-        posStrings[1] = String.valueOf(transform.getPosition().getFloorY());
-        posStrings[2] = String.valueOf(transform.getPosition().getFloorZ());
+        posStrings[0] = String.valueOf(transform.position().getFloorX());
+        posStrings[1] = String.valueOf(transform.position().getFloorY());
+        posStrings[2] = String.valueOf(transform.position().getFloorZ());
         String[] rotStrings = new String[3];
-        rotStrings[0] = String.valueOf(transform.getYaw());
-        rotStrings[1] = String.valueOf(transform.getPitch());
-        role.getSubjectData().setOption(toSet(context), ROLESPAWN_WORLD, world.getKey().toString());
-        role.getSubjectData().setOption(toSet(context), ROLESPAWN_POSITION, StringUtils.implode(":", posStrings));
-        role.getSubjectData().setOption(toSet(context), ROLESPAWN_ROTATION, StringUtils.implode(":", rotStrings));
+        rotStrings[0] = String.valueOf(transform.yaw());
+        rotStrings[1] = String.valueOf(transform.pitch());
+        role.subjectData().setOption(toSet(context), ROLESPAWN_WORLD, world.key().toString());
+        role.subjectData().setOption(toSet(context), ROLESPAWN_POSITION, StringUtils.implode(":", posStrings));
+        role.subjectData().setOption(toSet(context), ROLESPAWN_ROTATION, StringUtils.implode(":", rotStrings));
     }
 
     // TODO teleport all players to spawn
@@ -96,13 +96,13 @@ public class SpawnCommands
                           @Named({"role", "r"}) @Default(SubjectParser.class) @Parser(parser = SubjectParser.class) Subject role,
                           @ParameterPermission @Flag boolean force)
     {
-        String name = role.getIdentifier();
-        if (module.getPermissionService().getUserSubjects() == role.getContainingCollection())
+        String name = role.identifier();
+        if (module.getPermissionService().userSubjects() == role.containingCollection())
         {
-            name = Sponge.getServer().getUserManager().get(UUID.fromString(name)).get().getName();
+            name = Sponge.server().userManager().find(UUID.fromString(name)).get().name();
         }
 
-        final Audience ctxAudience = cause.getAudience();
+        final Audience ctxAudience = cause.audience();
 
         final Optional<Vector3d> pos = getSubjectSpawnPos(role);
         final Optional<Vector3d> rot = getSubjectSpawnRotation(role);
@@ -122,7 +122,7 @@ public class SpawnCommands
         {
             i18n.send(ctxAudience, POSITIVE, "Teleported {user} to the spawn of the role {name#role} in {context}", player, name, context);
         }
-        else if (module.getPermissionService().getGroupSubjects() == role.getContainingCollection())
+        else if (module.getPermissionService().groupSubjects() == role.containingCollection())
         {
             i18n.send(ctxAudience, POSITIVE, "You are now standing at your role's spawn in {context}!", context);
         }
@@ -134,24 +134,24 @@ public class SpawnCommands
 
     public static ServerWorld getSpawnWorld(ServerPlayer player)
     {
-        return getSubjectSpawnWorld(player).orElse(player.getWorld());
+        return getSubjectSpawnWorld(player).orElse(player.world());
     }
 
     public static Optional<ServerWorld> getSubjectSpawnWorld(Subject subject)
     {
-        return subject.getOption(ROLESPAWN_WORLD)
+        return subject.option(ROLESPAWN_WORLD)
                       .map(ResourceKey::resolve)
-                      .flatMap(k -> Sponge.getServer().getWorldManager().world(k));
+                      .flatMap(k -> Sponge.server().worldManager().world(k));
     }
 
     public static Vector3d spawnPosition(ServerPlayer player)
     {
-        return getSubjectSpawnPos(player).orElse(player.getPosition());
+        return getSubjectSpawnPos(player).orElse(player.position());
     }
 
     public static Optional<Vector3d> getSubjectSpawnPos(Subject player)
     {
-        return player.getOption(ROLESPAWN_POSITION).map(s -> {
+        return player.option(ROLESPAWN_POSITION).map(s -> {
             String[] spawnStrings = StringUtils.explode(":", s);
             int x = Integer.valueOf(spawnStrings[0]);
             int y = Integer.valueOf(spawnStrings[1]);
@@ -162,12 +162,12 @@ public class SpawnCommands
 
     public static Vector3d getSpawnRotation(ServerPlayer player)
     {
-        return getSubjectSpawnRotation(player).orElse(player.getRotation());
+        return getSubjectSpawnRotation(player).orElse(player.rotation());
     }
 
     public static Optional<Vector3d> getSubjectSpawnRotation(Subject subject)
     {
-        return subject.getOption(ROLESPAWN_ROTATION).map(s -> {
+        return subject.option(ROLESPAWN_ROTATION).map(s -> {
             String[] spawnStrings = StringUtils.explode(":", s);
             float yaw = Float.valueOf(spawnStrings[0]);
             float pitch = Float.valueOf(spawnStrings[1]);
@@ -179,15 +179,15 @@ public class SpawnCommands
     {
         if (force)
         {
-            player.setLocation(world.getLocation(transform.getPosition()));
-            player.setRotation(transform.getRotation());
+            player.setLocation(world.location(transform.position()));
+            player.setRotation(transform.rotation());
             return true;
         }
-        final Optional<ServerLocation> safeLoc = Sponge.getServer().getTeleportHelper().getSafeLocation(world.getLocation(transform.getPosition()));
+        final Optional<ServerLocation> safeLoc = Sponge.server().teleportHelper().findSafeLocation(world.location(transform.position()));
         if (safeLoc.isPresent())
         {
             player.setLocation(safeLoc.get());
-            player.setRotation(transform.getRotation());
+            player.setRotation(transform.rotation());
             return true;
         }
         return false;

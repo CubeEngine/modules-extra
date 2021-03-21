@@ -42,7 +42,7 @@ public class ReportUtil
 {
     public static Component name(BlockSnapshot snapshot, Receiver receiver)
     {
-        BlockType type = snapshot.getState().getType();
+        BlockType type = snapshot.state().type();
         final Builder builder = Component.text();
         builder.append(type.asComponent().color(NamedTextColor.GOLD).hoverEvent(HoverEvent.showText(Component.text(type.key(RegistryTypes.BLOCK_TYPE).asString()))));
         Optional<List<DataView>> items = snapshot.toContainer().getViewList(BlockReport.BLOCK_ITEMS);
@@ -72,7 +72,7 @@ public class ReportUtil
                     Optional<DataView> tag = dataView.getView(DataQuery.of("tag"));
                     if (tag.isPresent())
                     {
-                        itemData.set(DataQuery.of("UnsafeData"), tag.get().getValues(false));
+                        itemData.set(DataQuery.of("UnsafeData"), tag.get().values(false));
                     }
 
 //                    itemData.set(DataQuery.of("UnsafeDamage"), dataView.get(DataQuery.of("Damage")).get());
@@ -102,7 +102,7 @@ public class ReportUtil
 
     public static Component name(EntitySnapshot entity)
     {
-        return entity.getType().asComponent().hoverEvent(HoverEvent.showText(Component.text(entity.getType().key(RegistryTypes.ENTITY_TYPE).asString())));
+        return entity.type().asComponent().hoverEvent(HoverEvent.showText(Component.text(entity.type().key(RegistryTypes.ENTITY_TYPE).asString())));
     }
 
     public static <LT, T> boolean containsSingle(List<LT> list, Function<LT, T> func)
@@ -126,7 +126,7 @@ public class ReportUtil
 
     public static Component name(ItemStackSnapshot itemStackSnapshot)
     {
-        return itemStackSnapshot.get(Keys.DISPLAY_NAME).get().append(Component.text(" x", NamedTextColor.YELLOW)).append(Component.text(itemStackSnapshot.getQuantity(), NamedTextColor.GRAY))
-               .hoverEvent(HoverEvent.showText(Component.text(itemStackSnapshot.getType().key(RegistryTypes.ITEM_TYPE).asString())));
+        return itemStackSnapshot.get(Keys.DISPLAY_NAME).get().append(Component.text(" x", NamedTextColor.YELLOW)).append(Component.text(itemStackSnapshot.quantity(), NamedTextColor.GRAY))
+               .hoverEvent(HoverEvent.showText(Component.text(itemStackSnapshot.type().key(RegistryTypes.ITEM_TYPE).asString())));
     }
 }

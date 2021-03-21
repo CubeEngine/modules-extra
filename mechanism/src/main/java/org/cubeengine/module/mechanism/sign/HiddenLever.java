@@ -83,18 +83,18 @@ public class HiddenLever extends PermissionContainer implements SignMechanism
         for (Direction dir : BlockUtil.BLOCK_FACES)
         {
             final ServerLocation relative = loc.relativeTo(dir);
-            if (relative.getBlockType().isAnyOf(BlockTypes.LEVER))
+            if (relative.blockType().isAnyOf(BlockTypes.LEVER))
             {
-                final BlockState state = relative.getBlock();
+                final BlockState state = relative.block();
                 final boolean newPower = !state.get(Keys.IS_POWERED).orElse(false);
                 relative.setBlock(state.with(Keys.IS_POWERED, newPower).get());
-                loc.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_LEVER_CLICK, Source.BLOCK, 0.1f, newPower ? 0.9f : 0.7f), loc.getPosition());
+                loc.world().playSound(Sound.sound(SoundTypes.BLOCK_LEVER_CLICK, Source.BLOCK, 0.1f, newPower ? 0.9f : 0.7f), loc.position());
                 click = true;
             }
         }
         if (!click)
         {
-            loc.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_NOTE_BLOCK_HAT, Source.BLOCK, 0.2f, 2), loc.getPosition());
+            loc.world().playSound(Sound.sound(SoundTypes.BLOCK_NOTE_BLOCK_HAT, Source.BLOCK, 0.2f, 2), loc.position());
         }
         return true;
     }

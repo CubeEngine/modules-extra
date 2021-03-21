@@ -41,14 +41,14 @@ public class NetworkFilter {
     public final boolean validType;
 
     public NetworkFilter(ServerWorld world, Vector3i pos) {
-        this.filterLoc = world.getLocation(pos);
+        this.filterLoc = world.location(pos);
         final Direction dir = this.filterLoc.get(Keys.DIRECTION).orElse(Direction.NONE);
-        this.filterDir = dir.getOpposite();
+        this.filterDir = dir.opposite();
         this.inventoryLoc = this.filterLoc.relativeTo(dir);
         this.filters = this.inventoryLoc.get(ItemductData.FILTERS).orElse(null);
         this.validType = dir != Direction.NONE
-                && ItemductBlocks.isEndPointType(this.filterLoc.getBlockType())
-                && this.inventoryLoc.getBlockEntity().map(be -> be instanceof Carrier).orElse(false);
+                && ItemductBlocks.isEndPointType(this.filterLoc.blockType())
+                && this.inventoryLoc.blockEntity().map(be -> be instanceof Carrier).orElse(false);
     }
 
     public boolean isValid() {

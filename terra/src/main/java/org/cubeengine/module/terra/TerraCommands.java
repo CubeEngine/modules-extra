@@ -44,13 +44,13 @@ public class TerraCommands extends DispatcherCommand
     @Command(desc = "Shows Terra status")
     public void status(CommandCause cause)
     {
-        this.listener.printStatus(cause.getAudience());
+        this.listener.printStatus(cause.audience());
     }
 
     @Command(desc = "Cancels all current waiting worlds")
     public void cancel(CommandCause cause)
     {
-        this.listener.cancelAll(cause.getAudience());
+        this.listener.cancelAll(cause.audience());
     }
 
     @Command(desc = "Provides all basic essences")

@@ -35,8 +35,8 @@ public class QuitReport extends BaseReport<ServerSideConnectionEvent.Disconnect>
     protected Action observe(ServerSideConnectionEvent.Disconnect event)
     {
         Action action = newReport();
-        action.addData(CAUSE, Observe.causes(Cause.of(EventContext.empty(), event.getPlayer())));
-        action.addData(LOCATION, Observe.location(event.getPlayer().getServerLocation()));
+        action.addData(CAUSE, Observe.causes(Cause.of(EventContext.empty(), event.player())));
+        action.addData(LOCATION, Observe.location(event.player().serverLocation()));
         return action;
     }
 

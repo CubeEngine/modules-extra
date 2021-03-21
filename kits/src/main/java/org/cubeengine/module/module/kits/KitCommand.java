@@ -74,7 +74,7 @@ public class KitCommand extends DispatcherCommand
     public void delete(CommandCause context, Kit kit)
     {
         manager.deleteKit(kit);
-        i18n.send(context.getAudience(), POSITIVE, "Kit deleted.");
+        i18n.send(context.audience(), POSITIVE, "Kit deleted.");
     }
 
     @Command(alias = "open", desc = "Opens the configured kit if the kit does not exists a new is created")
@@ -125,7 +125,7 @@ public class KitCommand extends DispatcherCommand
             i18n.send(player, POSITIVE, "Created the {name#kit} kit!", kit.getKitName());
         });
 
-        menu.setTitle(i18n.translate(player.getLocale(), Style.empty(), "Kit Contents: {name}", kit.getKitName()));
+        menu.setTitle(i18n.translate(player, Style.empty(), "Kit Contents: {name}", kit.getKitName()));
         menu.open(player);
     }
 
@@ -137,10 +137,10 @@ public class KitCommand extends DispatcherCommand
         final Set<String> kitsNames = manager.getKitsNames();
         if (kitsNames.isEmpty())
         {
-            i18n.send(context.getAudience(), NEUTRAL, "No kits created yet.");
+            i18n.send(context, NEUTRAL, "No kits created yet.");
             return;
         }
-        i18n.send(context.getAudience(), POSITIVE, "The following kits are available:");
+        i18n.send(context, POSITIVE, "The following kits are available:");
         for (String kitName : kitsNames)
         {
             context.sendMessage(Identity.nil(), Component.text().append(Component.text(" - ", NamedTextColor.WHITE)).append(Component.text(kitName, NamedTextColor.YELLOW)).build());
@@ -152,7 +152,7 @@ public class KitCommand extends DispatcherCommand
     {
         boolean gaveKit = false;
         int kitNotReceived = 0;
-        for (ServerPlayer receiver : Sponge.getServer().getOnlinePlayers())
+        for (ServerPlayer receiver : Sponge.server().onlinePlayers())
         {
             try
             {
@@ -167,13 +167,13 @@ public class KitCommand extends DispatcherCommand
 
                 if (kit.give(context, receiver, force))
                 {
-                    if (receiver.equals(context.getAudience()))
+                    if (receiver.equals(context.audience()))
                     {
-                        i18n.send(context.getAudience(), POSITIVE, "Received the {name#kit} kit!", kit.getKitName());
+                        i18n.send(context, POSITIVE, "Received the {name#kit} kit!", kit.getKitName());
                     }
                     else
                     {
-                        i18n.send(context.getAudience(), POSITIVE, "You gave {user} the {name#kit} kit!", receiver, kit.getKitName());
+                        i18n.send(context, POSITIVE, "You gave {user} the {name#kit} kit!", receiver, kit.getKitName());
                         i18n.send(receiver, POSITIVE, "Received the {name#kit} kit. Enjoy.", kit.getKitName());
                     }
                     gaveKit = true;
@@ -186,11 +186,11 @@ public class KitCommand extends DispatcherCommand
         }
         if (!gaveKit)
         {
-            i18n.send(context.getAudience(), NEGATIVE, "No one received the kit!");
+            i18n.send(context, NEGATIVE, "No one received the kit!");
         }
         else if (kitNotReceived > 0)
         {
-            i18n.sendN(context.getAudience(), NEGATIVE, kitNotReceived,
+            i18n.sendN(context, NEGATIVE, kitNotReceived,
                     "{amount} players did not receive a kit!",
                     "One player did not receive a kit!",
                     kitNotReceived);
@@ -200,10 +200,10 @@ public class KitCommand extends DispatcherCommand
     @Command(desc = "Gives a set of items.")
     public void give(CommandCause context, Kit kit, @Default ServerPlayer player, @ParameterPermission @Flag boolean force)
     {
-        boolean other = !context.getIdentifier().equals(player.getIdentifier());
+        boolean other = !context.identifier().equals(player.identifier());
         if (other && !context.hasPermission(module.perms().GIVE_OTHER.getId()))
         {
-            i18n.send(context.getAudience(), NEGATIVE, "You are not allowed to give kits to other players!");
+            i18n.send(context, NEGATIVE, "You are not allowed to give kits to other players!");
             return;
         }
 
@@ -220,7 +220,7 @@ public class KitCommand extends DispatcherCommand
         {
             if (other)
             {
-                i18n.send(context.getAudience(), POSITIVE, "You gave {user} the {name#kit} kit!", player, kit.getKitName());
+                i18n.send(context, POSITIVE, "You gave {user} the {name#kit} kit!", player, kit.getKitName());
                 if (kit.getCustomMessage().isEmpty())
                 {
                     i18n.send(player, POSITIVE, "Received the {name#kit} kit. Enjoy.", kit.getKitName());
@@ -232,7 +232,7 @@ public class KitCommand extends DispatcherCommand
             }
             if (kit.getCustomMessage() == null || kit.getCustomMessage().isEmpty())
             {
-                i18n.send(context.getAudience(), POSITIVE, "Received the {name#kit} kit. Enjoy.", kit.getKitName());
+                i18n.send(context, POSITIVE, "Received the {name#kit} kit. Enjoy.", kit.getKitName());
                 return;
             }
             player.sendMessage(Identity.nil(), ChatFormat.fromLegacy(kit.getCustomMessage(), '&'));
@@ -240,10 +240,10 @@ public class KitCommand extends DispatcherCommand
         }
         if (other)
         {
-            i18n.send(context.getAudience(), NEUTRAL, "{user} has not enough space in your inventory for this kit!",
+            i18n.send(context, NEUTRAL, "{user} has not enough space in your inventory for this kit!",
                                 player);
             return;
         }
-        i18n.send(context.getAudience(), NEUTRAL, "You don't have enough space in your inventory for this kit!");
+        i18n.send(context, NEUTRAL, "You don't have enough space in your inventory for this kit!");
     }
 }

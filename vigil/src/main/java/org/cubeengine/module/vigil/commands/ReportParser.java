@@ -67,7 +67,7 @@ public class ReportParser implements ValueParser<Report>, ValueCompleter
     }
 
     @Override
-    public Optional<? extends Report> getValue(Key<? super Report> parameterKey, Mutable reader, Builder context) throws ArgumentParseException
+    public Optional<? extends Report> parseValue(Key<? super Report> parameterKey, Mutable reader, Builder context) throws ArgumentParseException
     {
         final String token = reader.parseString();
         Optional<? extends Class<? extends Report>> reportClass = Report.getReport(token);

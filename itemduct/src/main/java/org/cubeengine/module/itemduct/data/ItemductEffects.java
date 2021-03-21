@@ -80,8 +80,8 @@ public class ItemductEffects {
 
     public static void playCreateEffect(ServerLocation loc)
     {
-        playParticlesAroundBlock(loc.getWorld(), loc.getPosition(), buildCloud);
-        loc.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_ANVIL_USE, Sound.Source.NEUTRAL, 1, 0), loc.getPosition());
+        playParticlesAroundBlock(loc.world(), loc.position(), buildCloud);
+        loc.world().playSound(Sound.sound(SoundTypes.BLOCK_ANVIL_USE, Sound.Source.NEUTRAL, 1, 0), loc.position());
     }
 
     private static void playParticlesAroundBlock(ServerWorld world, Vector3d pos, ParticleEffect effect) {

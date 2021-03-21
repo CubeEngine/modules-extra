@@ -74,7 +74,7 @@ public class Kit
 
     public boolean give(CommandCause sender, ServerPlayer player, boolean force)
     {
-        items.forEach(i -> player.getInventory().offer(i.copy())); // TODO what if not enough place
+        items.forEach(i -> player.inventory().offer(i.copy())); // TODO what if not enough place
         final Map<String, Long> timeData = player.get(KitData.TIME).orElse(new HashMap<>());
         final Map<String, Integer> timesData = player.get(KitData.TIMES).orElse(new HashMap<>());
         timeData.put(name, System.currentTimeMillis());
@@ -94,7 +94,7 @@ public class Kit
                 boolean reached = limitUsagePerPlayer <= player.get(KitData.TIMES).map(m -> m.get(this.name)).orElse(0);
                 if (reached)
                 {
-                    module.getI18n().send(sender.getAudience(), MessageType.NEGATIVE, "Kit limit reached.");
+                    module.getI18n().send(sender, MessageType.NEGATIVE, "Kit limit reached.");
                     return true;
                 }
             }
@@ -103,7 +103,7 @@ public class Kit
                 boolean inDelay = limitUsageDelay >= System.currentTimeMillis() - player.get(KitData.TIME).map(m -> m.get(this.name)).orElse(0L);
                 if (inDelay)
                 {
-                    module.getI18n().send(sender.getAudience(), MessageType.NEGATIVE, "This kit isn't available at the moment. Try again later!");
+                    module.getI18n().send(sender, MessageType.NEGATIVE, "This kit isn't available at the moment. Try again later!");
                     return true;
                 }
             }
@@ -117,7 +117,7 @@ public class Kit
         {
             if (!sender.hasPermission(getPermission().getId()))
             {
-                module.getI18n().send(sender.getAudience(), MessageType.NEGATIVE, "You do not have the permission {name} to grant this kit.", getPermission().getId());
+                module.getI18n().send(sender, MessageType.NEGATIVE, "You do not have the permission {name} to grant this kit.", getPermission().getId());
                 return true;
             }
         }
@@ -140,10 +140,10 @@ public class Kit
         {
             for (String cmd : commands)
             {
-                cmd = cmd.replace("{PLAYER}", player.getName());
+                cmd = cmd.replace("{PLAYER}", player.name());
                 try
                 {
-                    Sponge.getServer().getCommandManager().process(player, cmd);
+                    Sponge.server().commandManager().process(player, cmd);
                 }
                 catch (CommandException e)
                 {

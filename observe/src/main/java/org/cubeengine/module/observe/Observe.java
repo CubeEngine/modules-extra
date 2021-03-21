@@ -108,8 +108,8 @@ public class Observe
     }
 
     private MetricsService provideMetrics() {
-        final TaskExecutorService syncExecutor = Sponge.getServer().getScheduler().createExecutor(plugin);
-        final TaskExecutorService asyncExecutor = Sponge.getAsyncScheduler().createExecutor(plugin);
+        final TaskExecutorService syncExecutor = Sponge.server().scheduler().createExecutor(plugin);
+        final TaskExecutorService asyncExecutor = Sponge.asyncScheduler().createExecutor(plugin);
 
         final PrometheusMetricsService service = new PrometheusMetricsService(syncExecutor, asyncExecutor, logger);
 
@@ -123,7 +123,7 @@ public class Observe
         service.addCollectorRegistry(plugin, asyncRegistry, true);
 
         final CollectorRegistry syncRegistry = new CollectorRegistry();
-        final Server server = Sponge.getServer();
+        final Server server = Sponge.server();
         syncRegistry.register(new SpongeCollector(server, plugin));
         syncRegistry.register(new TickTimeCollector(server, tm, plugin));
         service.addCollectorRegistry(plugin, syncRegistry, false);
@@ -133,7 +133,7 @@ public class Observe
     }
 
     private HealthCheckService provideHealth() {
-        final Scheduler scheduler = Sponge.getServer().getScheduler();
+        final Scheduler scheduler = Sponge.server().scheduler();
         final TaskExecutorService executor = scheduler.createExecutor(plugin);
         final SimpleHealthCheckService service = new SimpleHealthCheckService(executor);
 

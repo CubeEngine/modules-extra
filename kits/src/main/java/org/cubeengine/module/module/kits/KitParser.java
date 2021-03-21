@@ -55,14 +55,14 @@ public class KitParser implements ValueParser<Kit>, ValueCompleter
     }
 
     @Override
-    public Optional<? extends Kit> getValue(Key<? super Kit> parameterKey, Mutable reader, Builder context) throws ArgumentParseException
+    public Optional<? extends Kit> parseValue(Key<? super Kit> parameterKey, Mutable reader, Builder context) throws ArgumentParseException
     {
         final String consumed = reader.parseString();
         Kit kit = manager.getKit(consumed);
 
         if (kit == null)
         {
-            throw reader.createException(i18n.translate(context.getCause().getAudience(), "Kit {} not found!", consumed));
+            throw reader.createException(i18n.translate(context.cause(), "Kit {} not found!", consumed));
         }
         return Optional.of(kit);
     }

@@ -79,7 +79,7 @@ public class ChatCommands
     public void nick(CommandCause context, @Label("<name>|-reset") String name, @Option ServerPlayer player)
     {
         // TODO this only works when ChatFormat uses {DISPLAYNAME}
-        final Audience ctxAudience = context.getAudience();
+        final Audience ctxAudience = context.audience();
         if (player == null)
         {
             if (!(ctxAudience instanceof ServerPlayer))
@@ -87,7 +87,7 @@ public class ChatCommands
                 i18n.send(ctxAudience, NEGATIVE, "You cannot change the consoles display name"); // console has no data / displayname
                 return;
             }
-            player = ((ServerPlayer)context.getAudience());
+            player = ((ServerPlayer)context.audience());
         }
 
         if (!ctxAudience.equals(player) && !context.hasPermission(perms.COMMAND_NICK_OTHER.getId()))
@@ -104,7 +104,7 @@ public class ChatCommands
         }
 
         if (name.length() >= 3 && name.length() <= 16
-                && Sponge.getServer().getUserManager().get(name).isPresent()
+                && Sponge.server().userManager().find(name).isPresent()
                 && !context.hasPermission(perms.COMMAND_NICK_OFOTHER.getId()))
         {
             i18n.send(ctxAudience, NEGATIVE, "This name has been taken by another player!");
@@ -119,7 +119,7 @@ public class ChatCommands
     {
         if (!this.sendWhisperTo(player, message, context))
         {
-            i18n.send(context.getAudience(), NEGATIVE, "Could not find the player {user} to send the message to. Is the player offline?", player);
+            i18n.send(context.audience(), NEGATIVE, "Could not find the player {user} to send the message to. Is the player offline?", player);
         }
     }
 
@@ -127,9 +127,9 @@ public class ChatCommands
     public void reply(CommandCause context, @Greedy String message)
     {
         UUID lastWhisper;
-        if (context.getAudience() instanceof ServerPlayer)
+        if (context.audience() instanceof ServerPlayer)
         {
-            lastWhisper = lastWhispers.get(((ServerPlayer)context.getAudience()).getUniqueId());
+            lastWhisper = lastWhispers.get(((ServerPlayer)context.audience()).uniqueId());
         }
         else
         {
@@ -137,21 +137,21 @@ public class ChatCommands
         }
         if (lastWhisper == null)
         {
-            i18n.send(context.getAudience(), NEUTRAL, "No one has sent you a message that you could reply to!");
+            i18n.send(context.audience(), NEUTRAL, "No one has sent you a message that you could reply to!");
             return;
         }
         Audience target;
         if (lastWhisper.equals(consoleUUID))
         {
-            target = Sponge.getGame().getSystemSubject();
+            target = Sponge.game().systemSubject();
         }
         else
         {
-            target = Sponge.getServer().getPlayer(lastWhisper).orElse(null);
+            target = Sponge.server().player(lastWhisper).orElse(null);
         }
         if (!this.sendWhisperTo(target, message, context))
         {
-            i18n.send(context.getAudience(), NEGATIVE, "Could not find the player to reply to. Is the player offline?");
+            i18n.send(context.audience(), NEGATIVE, "Could not find the player to reply to. Is the player offline?");
         }
     }
 
@@ -161,7 +161,7 @@ public class ChatCommands
         {
             return false;
         }
-        final Audience ctxAudience = context.getAudience();
+        final Audience ctxAudience = context.audience();
         if (whisperTarget instanceof SystemSubject)
         {
             if (ctxAudience instanceof SystemSubject)
@@ -173,8 +173,8 @@ public class ChatCommands
             {
                 i18n.send(whisperTarget, NEUTRAL, "{sender} -> {text:You}: {message:color=WHITE}", ctxAudience, message);
                 i18n.send(ctxAudience, NEUTRAL, "{text:You} -> {user}: {message:color=WHITE}", whisperTarget, message);
-                lastWhispers.put(consoleUUID, ((Player)ctxAudience).getUniqueId());
-                lastWhispers.put(((Player)ctxAudience).getUniqueId(), consoleUUID);
+                lastWhispers.put(consoleUUID, ((Player)ctxAudience).uniqueId());
+                lastWhispers.put(((Player)ctxAudience).uniqueId(), consoleUUID);
                 return true;
             }
             i18n.send(ctxAudience, Style.empty(), "Who are you!?");
@@ -196,13 +196,13 @@ public class ChatCommands
             i18n.send(ctxAudience, NEUTRAL, "{text:You} -> {user}: {message:color=WHITE}", whisperTarget, message);
             if (ctxAudience instanceof Player)
             {
-                lastWhispers.put(((Player)ctxAudience).getUniqueId(), ((Player)whisperTarget).getUniqueId());
-                lastWhispers.put(((Player)whisperTarget).getUniqueId(), ((Player)ctxAudience).getUniqueId());
+                lastWhispers.put(((Player)ctxAudience).uniqueId(), ((Player)whisperTarget).uniqueId());
+                lastWhispers.put(((Player)whisperTarget).uniqueId(), ((Player)ctxAudience).uniqueId());
             }
             else
             {
-                lastWhispers.put(consoleUUID, ((Player)whisperTarget).getUniqueId());
-                lastWhispers.put(((Player)whisperTarget).getUniqueId(), consoleUUID);
+                lastWhispers.put(consoleUUID, ((Player)whisperTarget).uniqueId());
+                lastWhispers.put(((Player)whisperTarget).uniqueId(), consoleUUID);
             }
             return true;
         }
@@ -218,13 +218,13 @@ public class ChatCommands
     @Command(desc = "Displays the colors")
     public void chatcolors(CommandCause context)
     {
-        i18n.send(context.getAudience(), POSITIVE, "The following chat codes are available:");
+        i18n.send(context.audience(), POSITIVE, "The following chat codes are available:");
         Builder builder = Component.text();
         int i = 0;
-        final OfType<NamedTextColor> namedColors = Sponge.getGame().getRegistry().getAdventureRegistry().getNamedColors();
+        final OfType<NamedTextColor> namedColors = Sponge.game().registry().adventureRegistry().namedColors();
         for (String key : namedColors.keys())
         {
-            final NamedTextColor namedTextColor = namedColors.getValue(key).get();
+            final NamedTextColor namedTextColor = namedColors.value(key).get();
 
         }
 
@@ -262,7 +262,7 @@ public class ChatCommands
         }
         if (!dice.toLowerCase().startsWith("d"))
         {
-            this.i18n.send(context.getAudience(), NEGATIVE, "Invalid dice. Try something like d20.");
+            this.i18n.send(context.audience(), NEGATIVE, "Invalid dice. Try something like d20.");
             return;
         }
         dice = dice.substring(1);
@@ -278,7 +278,7 @@ public class ChatCommands
         catch (NumberFormatException ignored)
         {
         }
-        this.i18n.send(context.getAudience(), NEGATIVE, "Invalid dice. Try something like d20.");
+        this.i18n.send(context.audience(), NEGATIVE, "Invalid dice. Try something like d20.");
     }
 
 }

@@ -60,7 +60,7 @@ public class VigilLookupCommands
             lookup = this.qm.getLast(context).orElse(lookup);
         }
 
-        lookup = lookup.with(context.getServerLocation()).withRadius(radius)
+        lookup = lookup.with(context.serverLocation()).withRadius(radius)
             .withReport(report);
 
         System.out.print(report + "\n");

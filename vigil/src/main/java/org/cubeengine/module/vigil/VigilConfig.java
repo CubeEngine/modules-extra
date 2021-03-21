@@ -46,16 +46,16 @@ public class VigilConfig extends ReflectedYaml
 
     public void markDirty(ServerWorld world)
     {
-        disabledReportsMap.remove(world.getKey());
+        disabledReportsMap.remove(world.key());
     }
 
     public List<Class<? extends Report>> getDisabledReports(ServerWorld world)
     {
-        List<Class<? extends Report>> reports = disabledReportsMap.get(world.getKey());
+        List<Class<? extends Report>> reports = disabledReportsMap.get(world.key());
         if (reports == null)
         {
             reports = new ArrayList<>();
-            disabledReportsMap.put(world.getKey(), reports);
+            disabledReportsMap.put(world.key(), reports);
             ConfigWorld cWorld = new ConfigWorld(world);
             for (String name : disabledReports.getOrDefault(cWorld, Collections.emptyList()))
             {

@@ -60,8 +60,8 @@ public class Lookup
 
     public Lookup with(ServerLocation loc)
     {
-        this.world = loc.getWorld().getKey();
-        this.position = loc.getBlockPosition();
+        this.world = loc.world().key();
+        this.position = loc.blockPosition();
         return this;
     }
 

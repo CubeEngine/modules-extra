@@ -62,7 +62,7 @@ public class LookupDataParser implements ValueParser<LookupData>, ValueCompleter
     @Override
     public LookupData apply(CommandCause cause)
     {
-        return defaultType.copy().setCreator(((ServerPlayer) cause.getSubject()).getUniqueId());
+        return defaultType.copy().setCreator(((ServerPlayer) cause.subject()).uniqueId());
     }
 
     @Override
@@ -72,7 +72,7 @@ public class LookupDataParser implements ValueParser<LookupData>, ValueCompleter
     }
 
     @Override
-    public Optional<? extends LookupData> getValue(Key<? super LookupData> parameterKey, Mutable reader, Builder context) throws ArgumentParseException
+    public Optional<? extends LookupData> parseValue(Key<? super LookupData> parameterKey, Mutable reader, Builder context) throws ArgumentParseException
     {
         String token = reader.parseString();
         if (!types.containsKey(token.toLowerCase()))
@@ -81,7 +81,7 @@ public class LookupDataParser implements ValueParser<LookupData>, ValueCompleter
             // TODO error msg throw new TranslatedParserException(i18n.translate(ci.getContext(Locale.class), NEGATIVE, "{input} is not a valid log-type. Use chest, container, player, block or kills instead!", token));
         }
         LookupData data = types.get(token.toLowerCase()).copy();
-        return Optional.of(data.setCreator(((ServerPlayer) context.getSubject()).getUniqueId()));
+        return Optional.of(data.setCreator(((ServerPlayer) context.subject()).uniqueId()));
     }
 
 }

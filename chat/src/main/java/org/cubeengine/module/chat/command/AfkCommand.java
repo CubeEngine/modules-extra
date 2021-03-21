@@ -84,14 +84,14 @@ public class AfkCommand
     @Command(desc = "Displays that you are afk")
     public void afk(CommandCause context, @Default ServerPlayer player)
     {
-        if (!context.getAudience().equals(player))
+        if (!context.audience().equals(player))
         {
-            if (!perms.COMMAND_AFK_OTHER.check(context.getSubject(), context.getAudience(), i18n))
+            if (!perms.COMMAND_AFK_OTHER.check(context.subject(), context.audience(), i18n))
             {
                 return;
             }
         }
-        if (afks.getOrDefault(player.getUniqueId(), false))
+        if (afks.getOrDefault(player.uniqueId(), false))
         {
             updateLastAction(player);
             checkAfk();
@@ -105,34 +105,34 @@ public class AfkCommand
 
     public boolean isAfk(Player player)
     {
-        return afks.getOrDefault(player.getUniqueId(), false);
+        return afks.getOrDefault(player.uniqueId(), false);
     }
 
     public void setAfk(Player player, boolean afk)
     {
-        afks.put(player.getUniqueId(), afk);
+        afks.put(player.uniqueId(), afk);
     }
 
     public long getLastAction(Player player)
     {
-        return actions.getOrDefault(player.getUniqueId(), 0L);
+        return actions.getOrDefault(player.uniqueId(), 0L);
     }
 
     public long updateLastAction(Player player)
     {
-        actions.put(player.getUniqueId(), System.currentTimeMillis());
+        actions.put(player.uniqueId(), System.currentTimeMillis());
         return getLastAction(player);
     }
 
     public void resetLastAction(Player player)
     {
-        actions.remove(player.getUniqueId());
+        actions.remove(player.uniqueId());
     }
 
     public void checkAfk()
     {
         afks.entrySet().stream().filter(Entry::getValue)
-            .map(Entry::getKey).map(uuid -> Sponge.getServer().getUserManager().get(uuid))
+            .map(Entry::getKey).map(uuid -> Sponge.server().userManager().find(uuid))
             .filter(Optional::isPresent)
             .map(Optional::get)
             .forEach(this::updateAfk);
@@ -140,9 +140,9 @@ public class AfkCommand
 
     private void updateAfk(User user)
     {
-        if (user.getPlayer().isPresent())
+        if (user.player().isPresent())
         {
-            ServerPlayer player = user.getPlayer().get();
+            ServerPlayer player = user.player().get();
             long lastAction = getLastAction(player);
             if (lastAction == 0)
             {
@@ -167,7 +167,7 @@ public class AfkCommand
             }
             return;
         }
-        afks.remove(user.getUniqueId());
-        actions.remove(user.getUniqueId());
+        afks.remove(user.uniqueId());
+        actions.remove(user.uniqueId());
     }
 }

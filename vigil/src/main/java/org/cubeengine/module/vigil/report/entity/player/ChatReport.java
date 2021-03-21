@@ -52,10 +52,10 @@ public class ChatReport extends BaseReport<PlayerChatEvent> implements Readonly,
     public Action observe(PlayerChatEvent event)
     {
         Action action = newReport();
-        action.addData(CAUSE, Observe.causes(event.getCause()));
-        action.addData(CHAT, PlainComponentSerializer.plain().serialize(event.getOriginalMessage()));
-        final ServerPlayer serverPlayer = event.getCause().first(ServerPlayer.class).get(); // event-filter ensures this is present
-        action.addData(LOCATION, Observe.location(serverPlayer.getServerLocation()));
+        action.addData(CAUSE, Observe.causes(event.cause()));
+        action.addData(CHAT, PlainComponentSerializer.plain().serialize(event.originalMessage()));
+        final ServerPlayer serverPlayer = event.cause().first(ServerPlayer.class).get(); // event-filter ensures this is present
+        action.addData(LOCATION, Observe.location(serverPlayer.serverLocation()));
         return action;
     }
 

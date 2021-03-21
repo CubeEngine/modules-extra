@@ -138,11 +138,11 @@ public class Receiver
         if (singleAction || singleLocation)
         {
             ServerLocation location = Recall.location(firstAction);
-            final Component worldName = location.getWorld().getProperties().displayName().orElse(Component.text(location.getWorldKey().asString()));
-            final TextComponent text = Component.join(Component.text(":", NamedTextColor.WHITE), Component.text(location.getBlockX()),
-                                                               Component.text(location.getBlockY()), Component.text(location.getBlockZ())).hoverEvent(
-                HoverEvent.showText(i18n.translate(cmdSource, NEUTRAL, "Click to teleport to the location in {txt#world}", worldName))).clickEvent(
-                SpongeComponents.executeCallback(c -> showTeleport(location)));
+            final Component worldName = location.world().properties().displayName().orElse(Component.text(location.worldKey().asString()));
+            final TextComponent text = Component.join(Component.text(":", NamedTextColor.WHITE),
+                                                      Component.text(location.blockX()), Component.text(location.blockY()), Component.text(location.blockZ()))
+                                                .hoverEvent(HoverEvent.showText(i18n.translate(cmdSource, NEUTRAL, "Click to teleport to the location in {txt#world}", worldName)))
+                                                .clickEvent(SpongeComponents.executeCallback(c -> showTeleport(location)));
             if (lookup.getSettings().isFullLocation())
             {
                 return Component.space().append(i18n.translate(cmdSource, "in")).append(Component.space()).append(worldName.color(NamedTextColor.GRAY));
@@ -242,7 +242,7 @@ public class Receiver
         {
             reportAction.showReport(this);
         }
-        final Builder builder = Sponge.getGame().getServiceProvider().paginationService().builder();
+        final Builder builder = Sponge.game().serviceProvider().paginationService().builder();
         Component titleLineAmount = i18n.translate(cmdSource, POSITIVE, "Showing {amount} Logs", lines.size());
         String titleLineSort = i18n.getTranslation(cmdSource, "(newest first)");
         Component titleTimings = i18n.translate(cmdSource, NEUTRAL, "Query: {input#time} Report: {input#time}",
@@ -259,7 +259,7 @@ public class Receiver
     {
         if (cmdSource instanceof LocaleSource)
         {
-            return ((LocaleSource)cmdSource).getLocale();
+            return ((LocaleSource)cmdSource).locale();
         }
         return Locale.getDefault();
     }

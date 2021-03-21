@@ -92,13 +92,13 @@ public class ItemductItems
     }
 
     public static boolean matchesRecipe(CraftingRecipe craftingRecipe) {
-        return recipe.getKey().equals(craftingRecipe.getKey()) || superRecipe.getKey().equals(craftingRecipe.getKey());
+        return recipe.key().equals(craftingRecipe.key()) || superRecipe.key().equals(craftingRecipe.key());
     }
 
     @SuppressWarnings("unchecked")
     public static boolean isActivator(ItemStack item)
     {
-        if (item.getType().isAnyOf(ItemTypes.HOPPER))
+        if (item.type().isAnyOf(ItemTypes.HOPPER))
         {
             Enchantment ench = Enchantment.builder().type(EnchantmentTypes.LOOTING).level(1).build();
             return item.get(Keys.APPLIED_ENCHANTMENTS).orElse(Collections.emptyList()).contains(ench);
@@ -124,20 +124,20 @@ public class ItemductItems
                 }
                 else
                 {
-                    newStack.setQuantity(itemInHand.getQuantity() - 1);
+                    newStack.setQuantity(itemInHand.quantity() - 1);
                 }
                 sepStack.setQuantity(0);
             }
             else
             {
-                sepStack.setQuantity(newStack.getQuantity() - 1);
+                sepStack.setQuantity(newStack.quantity() - 1);
                 newStack.setQuantity(1);
             }
             newStack.offer(ItemductData.USES, uses);
             ItemductManager.updateUses(newStack);
 
             player.setItemInHand(HandTypes.MAIN_HAND, newStack);
-            player.getInventory().offer(sepStack);
+            player.inventory().offer(sepStack);
         }
     }
 }

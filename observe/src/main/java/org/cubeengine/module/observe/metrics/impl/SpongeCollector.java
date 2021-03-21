@@ -48,20 +48,20 @@ import static org.cubeengine.module.observe.metrics.pullgauge.PullGauge.LabeledV
 
 public class SpongeCollector extends SyncCollector {
     private final PullGaugeCollector<Server> collector;
-    private static final PullGauge<Server> PLAYERS = PullGauge.build("sponge_server_online_player_count", (Server s) -> s.getOnlinePlayers().size())
+    private static final PullGauge<Server> PLAYERS = PullGauge.build("sponge_server_online_player_count", (Server s) -> s.onlinePlayers().size())
             .help("Total online players")
             .build();
 
-    private static final PullGauge<Server> MAX_PLAYERS = PullGauge.build("sponge_server_max_player_count", Server::getMaxPlayers)
+    private static final PullGauge<Server> MAX_PLAYERS = PullGauge.build("sponge_server_max_player_count", Server::maxPlayers)
             .help("Maximum online players")
             .build();
 
-    private static final PullGauge<Server> TPS = PullGauge.build("sponge_server_tps", Server::getTicksPerSecond)
+    private static final PullGauge<Server> TPS = PullGauge.build("sponge_server_tps", Server::ticksPerSecond)
             .unit("tps")
             .help("Server tick rate")
             .build();
 
-    private static final PullGauge<Server> AVERAGE_TICK_TIME = PullGauge.build("sponge_server_avg_tick_time_millis", Server::getAverageTickTime)
+    private static final PullGauge<Server> AVERAGE_TICK_TIME = PullGauge.build("sponge_server_avg_tick_time_millis", Server::averageTickTime)
             .unit("millis")
             .help("Tick time averaged over the last 100 ticks")
             .build();
@@ -99,23 +99,23 @@ public class SpongeCollector extends SyncCollector {
     }
 
     private static Iterable<ServerWorld> worlds(Server server) {
-        return server.getWorldManager().worlds();
+        return server.worldManager().worlds();
     }
 
     private static LabeledValue loadedChunkCount(ServerWorld world) {
-        return value(Iterables.size(world.getLoadedChunks()), worldLabels(world));
+        return value(Iterables.size(world.loadedChunks()), worldLabels(world));
     }
 
     private static LabeledValue playerCount(ServerWorld world) {
-        return value(world.getPlayers().size(), worldLabels(world));
+        return value(world.players().size(), worldLabels(world));
     }
 
     private static List<LabeledValue> blockEntityCount(ServerWorld world) {
-        return countByType(world, world.getBlockEntities().stream(), BlockEntity::getType, RegistryTypes.BLOCK_ENTITY_TYPE);
+        return countByType(world, world.blockEntities().stream(), BlockEntity::type, RegistryTypes.BLOCK_ENTITY_TYPE);
     }
 
     private static List<LabeledValue> entityCount(ServerWorld world) {
-        return countByType(world, world.getEntities().stream(), Entity::getType, RegistryTypes.ENTITY_TYPE);
+        return countByType(world, world.entities().stream(), Entity::type, RegistryTypes.ENTITY_TYPE);
     }
 
     private static <T> List<LabeledValue> countByType(ServerWorld world, Stream<T> objects, Function<T, DefaultedRegistryValue> getType, DefaultedRegistryType<?> registryType) {
@@ -133,7 +133,7 @@ public class SpongeCollector extends SyncCollector {
     }
 
     private static Label worldLabel(ServerWorld world) {
-        return label("key", world.getProperties().getKey().asString());
+        return label("key", world.properties().key().asString());
     }
 
     @Override

@@ -51,8 +51,8 @@ public class Fly
     @Listener
     public void playerInteract(final InteractBlockEvent.Secondary event, @First ServerPlayer player)
     {
-        final ItemStack itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
-        if (!itemInHand.getType().isAnyOf(ItemTypes.FEATHER))
+        final ItemStack itemInHand = player.itemInHand(HandTypes.MAIN_HAND);
+        if (!itemInHand.type().isAnyOf(ItemTypes.FEATHER))
         {
             return;
         }
@@ -74,9 +74,9 @@ public class Fly
             return;
         }
         final ItemStack feather = ItemStack.of(ItemTypes.FEATHER, 1);
-        player.getInventory().query(QueryTypes.ITEM_STACK_IGNORE_QUANTITY, feather).poll(1);
+        player.inventory().query(QueryTypes.ITEM_STACK_IGNORE_QUANTITY, feather).poll(1);
         player.transform(Keys.VELOCITY, v -> v.add(0, 1, 0));
-        player.setPosition(player.getPosition().add(0, 0.05, 0)); //make sure the player stays flying
+        player.setPosition(player.position().add(0, 0.05, 0)); //make sure the player stays flying
         player.offer(Keys.IS_FLYING, true);
         i18n.send(player, POSITIVE, "You can now fly!");
         long feathersPerMinute = 2;
@@ -88,9 +88,9 @@ public class Fly
                 task.cancel();
                 return;
             }
-            if (player.getInventory().contains(ItemTypes.FEATHER.get()))
+            if (player.inventory().contains(ItemTypes.FEATHER.get()))
             {
-                player.getInventory().query(QueryTypes.ITEM_STACK_IGNORE_QUANTITY, feather).poll(1);
+                player.inventory().query(QueryTypes.ITEM_STACK_IGNORE_QUANTITY, feather).poll(1);
             }
             else
             {

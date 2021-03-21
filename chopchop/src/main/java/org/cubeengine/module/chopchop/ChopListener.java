@@ -65,15 +65,15 @@ public class ChopListener
 
     private boolean isLeaf(ServerWorld world, Vector3i pos, Tree species)
     {
-        final BlockState state = world.getBlock(pos);
-        final BlockType type = state.getType();
+        final BlockState state = world.block(pos);
+        final BlockType type = state.type();
         return species.leafType == type;
     }
 
     private boolean isLog(ServerWorld world, Vector3i pos, Tree species)
     {
-        final BlockState state = world.getBlock(pos);
-        final BlockType type = state.getType();
+        final BlockState state = world.block(pos);
+        final BlockType type = state.type();
         return species.logType == type;
     }
 
@@ -85,14 +85,14 @@ public class ChopListener
     public void onChop(final ChangeBlockEvent.All event, @First ServerPlayer player)
     {
 
-        if (event.getTransactions(Operations.BREAK.get()).count() != 1 ||
-            player.getItemInHand(HandTypes.MAIN_HAND).isEmpty() ||
-            event.getCause().getContext().containsKey(EventContextKeys.SIMULATED_PLAYER))
+        if (event.transactions(Operations.BREAK.get()).count() != 1 ||
+            player.itemInHand(HandTypes.MAIN_HAND).isEmpty() ||
+            event.cause().context().containsKey(EventContextKeys.SIMULATED_PLAYER))
         {
             return;
         }
-        ItemStack axe = player.getItemInHand(HandTypes.MAIN_HAND);
-        if (axe == null || !axe.getType().isAnyOf(DIAMOND_AXE) || axe.get(Keys.ITEM_DURABILITY).orElse(0) <= 0 ||
+        ItemStack axe = player.itemInHand(HandTypes.MAIN_HAND);
+        if (axe == null || !axe.type().isAnyOf(DIAMOND_AXE) || axe.get(Keys.ITEM_DURABILITY).orElse(0) <= 0 ||
            !axe.get(Keys.APPLIED_ENCHANTMENTS).orElse(emptyList()).contains(Enchantment.builder().type(EnchantmentTypes.PUNCH).level(5).build()))
         {
             return;
@@ -101,20 +101,20 @@ public class ChopListener
         {
             return;
         }
-        Sponge.getServer().getCauseStackManager().addContext(EventContextKeys.SIMULATED_PLAYER, player.getProfile());
+        Sponge.server().causeStackManager().addContext(EventContextKeys.SIMULATED_PLAYER, player.profile());
         int leafSounds = 0;
         int logSounds = 0;
 
-        for (Transaction<BlockSnapshot> transaction : event.getTransactions())
+        for (Transaction<BlockSnapshot> transaction : event.transactions())
         {
-            BlockType type = transaction.getOriginal().getState().getType();
-            ServerLocation orig = transaction.getOriginal().getLocation().get();
-            ServerWorld world = orig.getWorld();
-            BlockType belowType = orig.relativeTo(DOWN).getBlockType();
+            BlockType type = transaction.original().state().type();
+            ServerLocation orig = transaction.original().location().get();
+            ServerWorld world = orig.world();
+            BlockType belowType = orig.relativeTo(DOWN).blockType();
             if (isLog(type) && isSoil(belowType))
             {
                 final Tree treeType = getTreeType(type);
-                Set<Vector3i> treeBlocks = findTreeBlocks(world, orig.getBlockPosition(), treeType);
+                Set<Vector3i> treeBlocks = findTreeBlocks(world, orig.blockPosition(), treeType);
                 if (treeBlocks.isEmpty())
                 {
                     return;
@@ -125,9 +125,9 @@ public class ChopListener
                 Set<Vector3i> saplings = new HashSet<>();
                 for (Vector3i pos : treeBlocks)
                 {
-                    if (isLog(world.getBlock(pos).getType()))
+                    if (isLog(world.block(pos).type()))
                     {
-                        if (!pos.equals(orig.getBlockPosition()))
+                        if (!pos.equals(orig.blockPosition()))
                         {
                             logSounds++;
                             if (logSounds > 5) {
@@ -136,7 +136,7 @@ public class ChopListener
                         }
                         logs++;
                         world.removeBlock(pos);
-                        BlockType belowTyp = world.getBlock(pos.add(DOWN.asBlockOffset())).getType();
+                        BlockType belowTyp = world.block(pos.add(DOWN.asBlockOffset())).type();
                         if (isSoil(belowTyp))
                         {
                             saplings.add(pos);
@@ -153,7 +153,7 @@ public class ChopListener
                     }
                 }
 
-                ItemStack log = ItemStack.builder().itemType(type.getItem().get()).quantity(logs).build();
+                ItemStack log = ItemStack.builder().itemType(type.item().get()).quantity(logs).build();
 
                 int apples = 0;
                 if (treeType.leafType == BlockTypes.JUNGLE_LEAVES.get())
@@ -176,12 +176,12 @@ public class ChopListener
                 final BlockType saplingType = treeType.saplingType;
                 if (saplingType != null)
                 {
-                    final BlockState sapState = saplingType.getDefaultState();
+                    final BlockState sapState = saplingType.defaultState();
                     if (this.module.autoplantPerm.check(player))
                     {
                         leaves -= saplings.size();
                         leaves = Math.max(0, leaves);
-                        transaction.setCustom(sapState.snapshotFor(transaction.getOriginal().getLocation().get()));
+                        transaction.setCustom(sapState.snapshotFor(transaction.original().location().get()));
                         saplings.forEach(p -> world.setBlock(p, sapState));
                     }
                 }
@@ -190,8 +190,8 @@ public class ChopListener
                 axe.offer(Keys.ITEM_DURABILITY, uses);
                 player.setItemInHand(HandTypes.MAIN_HAND, axe);
 
-                Sponge.getServer().getCauseStackManager().removeContext(EventContextKeys.SIMULATED_PLAYER);
-                Sponge.getServer().getCauseStackManager().pushCause(player);
+                Sponge.server().causeStackManager().removeContext(EventContextKeys.SIMULATED_PLAYER);
+                Sponge.server().causeStackManager().pushCause(player);
                 if (apples > 0)
                 {
                     ItemStack apple = ItemStack.builder().itemType(APPLE).quantity(apples).build();
@@ -200,8 +200,8 @@ public class ChopListener
 
                 if (leaves > 0)
                 {
-                    if (saplingType != null && saplingType.getItem().isPresent()) {
-                        ItemUtil.spawnItem(orig, ItemStack.of(saplingType.getItem().get(), leaves));
+                    if (saplingType != null && saplingType.item().isPresent()) {
+                        ItemUtil.spawnItem(orig, ItemStack.of(saplingType.item().get(), leaves));
                     }
                 }
 

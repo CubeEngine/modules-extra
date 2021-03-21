@@ -36,24 +36,24 @@ public class Tablist
     @Listener
     public void onJoin(ServerSideConnectionEvent.Join event)
     {
-        ServerPlayer player = event.getPlayer();
-        String prefix = player.getOption("tablist-prefix").orElse("");
+        ServerPlayer player = event.player();
+        String prefix = player.option("tablist-prefix").orElse("");
 
         if (this.config.header != null && !this.config.header.isEmpty())
         {
-            player.getTabList().setHeader(ChatFormat.fromLegacy(this.config.header, '&'));
+            player.tabList().setHeader(ChatFormat.fromLegacy(this.config.header, '&'));
         }
 
-        for (ServerPlayer p : Sponge.getServer().getOnlinePlayers())
+        for (ServerPlayer p : Sponge.server().onlinePlayers())
         {
-            final TabListEntry entry = p.getTabList().getEntry(player.getUniqueId()).orElse(
-                TabListEntry.builder().list(p.getTabList()).profile(player.getProfile()).displayName(player.displayName().get()).gameMode(player.gameMode().get()).build());
-            entry.setDisplayName(ChatFormat.fromLegacy(prefix + player.getName(), '&'));
+            final TabListEntry entry = p.tabList().entry(player.uniqueId()).orElse(
+                TabListEntry.builder().list(p.tabList()).profile(player.profile()).displayName(player.displayName().get()).gameMode(player.gameMode().get()).build());
+            entry.setDisplayName(ChatFormat.fromLegacy(prefix + player.name(), '&'));
 
-            String pPrefix = p.getOption("tablist-prefix").orElse("");
-            TabListEntry pEntry = player.getTabList().getEntry(p.getUniqueId()).orElse(
-                TabListEntry.builder().list(player.getTabList()).profile(p.getProfile()).displayName(p.displayName().get()).gameMode(p.gameMode().get()).build());
-            pEntry.setDisplayName(ChatFormat.fromLegacy(pPrefix + p.getName(), '&'));
+            String pPrefix = p.option("tablist-prefix").orElse("");
+            TabListEntry pEntry = player.tabList().entry(p.uniqueId()).orElse(
+                TabListEntry.builder().list(player.tabList()).profile(p.profile()).displayName(p.displayName().get()).gameMode(p.gameMode().get()).build());
+            pEntry.setDisplayName(ChatFormat.fromLegacy(pPrefix + p.name(), '&'));
         }
     }
 }

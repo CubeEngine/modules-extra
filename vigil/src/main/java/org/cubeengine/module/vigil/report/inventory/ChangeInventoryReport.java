@@ -81,17 +81,17 @@ public class ChangeInventoryReport extends InventoryReport<ChangeInventoryEvent>
 
                 if (COMPARATOR.compare(originStack, finalStack) == 0)
                 {
-                    if (originStack.getQuantity() > finalStack.getQuantity())
+                    if (originStack.quantity() > finalStack.quantity())
                     {
                         ItemStack stack = originStack;
-                        stack.setQuantity(originStack.getQuantity() - finalStack.getQuantity());
+                        stack.setQuantity(originStack.quantity() - finalStack.quantity());
                         originStack = stack;
                         finalStack = ItemStack.empty();
                     }
                     else
                     {
                         ItemStack stack = finalStack;
-                        stack.setQuantity(finalStack.getQuantity() - originStack.getQuantity());
+                        stack.setQuantity(finalStack.quantity() - originStack.quantity());
                         finalStack = stack;
                         originStack = ItemStack.empty();
                     }
@@ -102,38 +102,38 @@ public class ChangeInventoryReport extends InventoryReport<ChangeInventoryEvent>
                 {
                     if (originStack.isEmpty())
                     {
-                        if (COMPARATOR.compare(trans.getFinal(), finalStack) == 0 && trans.getOriginal().isEmpty())
+                        if (COMPARATOR.compare(trans.finalReplacement(), finalStack) == 0 && trans.original().isEmpty())
                         {
-                            trans.getFinal().setQuantity(trans.getFinal().getQuantity() + finalStack.getQuantity());
+                            trans.finalReplacement().setQuantity(trans.finalReplacement().quantity() + finalStack.quantity());
                             added = true;
                             break;
                         }
-                        else if (trans.getFinal().isEmpty() && COMPARATOR.compare(trans.getOriginal(), finalStack) == 0)
+                        else if (trans.finalReplacement().isEmpty() && COMPARATOR.compare(trans.original(), finalStack) == 0)
                         {
-                            trans.getOriginal().setQuantity(trans.getOriginal().getQuantity() - finalStack.getQuantity());
+                            trans.original().setQuantity(trans.original().quantity() - finalStack.quantity());
                             added = true;
                             break;
                         }
-                        else if (COMPARATOR.compare(trans.getOriginal(), finalStack) == 0)
+                        else if (COMPARATOR.compare(trans.original(), finalStack) == 0)
                         {
                             break;
                         }
                     }
                     if (finalStack.isEmpty())
                     {
-                        if (COMPARATOR.compare(trans.getOriginal(), originStack) == 0)
+                        if (COMPARATOR.compare(trans.original(), originStack) == 0)
                         {
-                            trans.getOriginal().setQuantity(trans.getOriginal().getQuantity() + originStack.getQuantity());
+                            trans.original().setQuantity(trans.original().quantity() + originStack.quantity());
                             added = true;
                             break;
                         }
-                        else if (trans.getOriginal().isEmpty() && COMPARATOR.compare(trans.getFinal(), originStack) == 0)
+                        else if (trans.original().isEmpty() && COMPARATOR.compare(trans.finalReplacement(), originStack) == 0)
                         {
-                            trans.getFinal().setQuantity(trans.getFinal().getQuantity() - originStack.getQuantity());
+                            trans.finalReplacement().setQuantity(trans.finalReplacement().quantity() - originStack.quantity());
                             added = true;
                             break;
                         }
-                        else if (COMPARATOR.compare(trans.getFinal(), originStack) == 0)
+                        else if (COMPARATOR.compare(trans.finalReplacement(), originStack) == 0)
                         {
                             break;
                         }
@@ -151,17 +151,17 @@ public class ChangeInventoryReport extends InventoryReport<ChangeInventoryEvent>
 
         for (Transaction<ItemStack> trans : transactions)
         {
-            ItemStack stack1 = trans.getOriginal();
-            ItemStack stack2 = trans.getFinal();
+            ItemStack stack1 = trans.original();
+            ItemStack stack2 = trans.finalReplacement();
             if (stack1.isEmpty() && stack2.isEmpty())
             {
                 continue;
             }
-            if (stack1.getType().isAnyOf(ItemTypes.AIR))
+            if (stack1.type().isAnyOf(ItemTypes.AIR))
             {
                 receiver.sendReport(this, actions, "{txt} inserted {txt}", cause, ReportUtil.name(stack2.createSnapshot()));
             }
-            else if (stack2.getType().isAnyOf(ItemTypes.AIR))
+            else if (stack2.type().isAnyOf(ItemTypes.AIR))
             {
                 receiver.sendReport(this, actions, "{txt} took {txt}", cause, ReportUtil.name(stack1.createSnapshot()));
             }
@@ -198,10 +198,10 @@ public class ChangeInventoryReport extends InventoryReport<ChangeInventoryEvent>
     public void listen(ClickContainerEvent event)
     {
         List<SlotTransaction> upperTransactions = new ArrayList<>();
-        int upperSize = event.getInventory().getViewed().get(0).capacity();
-        for (SlotTransaction transaction : event.getTransactions())
+        int upperSize = event.inventory().viewed().get(0).capacity();
+        for (SlotTransaction transaction : event.transactions())
         {
-            Integer affectedSlot = transaction.getSlot().get(Keys.SLOT_INDEX).orElse(-1);
+            Integer affectedSlot = transaction.slot().get(Keys.SLOT_INDEX).orElse(-1);
             boolean upper = affectedSlot != -1 && affectedSlot < upperSize;
             if (upper)
             {
@@ -209,13 +209,13 @@ public class ChangeInventoryReport extends InventoryReport<ChangeInventoryEvent>
             }
         }
 
-        final Container inventory = event.getInventory();
-        ((CarriedInventory)inventory).getCarrier().ifPresent(carrier -> {
+        final Container inventory = event.inventory();
+        ((CarriedInventory)inventory).carrier().ifPresent(carrier -> {
             if (carrier instanceof BlockCarrier)
             {
                 Action action = this.observe(event);
                 action.addData(INVENTORY_CHANGES, Observe.transactions(upperTransactions));
-                action.addData(Report.LOCATION, Observe.location(((BlockCarrier) carrier).getServerLocation()));
+                action.addData(Report.LOCATION, Observe.location(((BlockCarrier) carrier).serverLocation()));
                 this.report(action);
             }
         });
@@ -225,7 +225,7 @@ public class ChangeInventoryReport extends InventoryReport<ChangeInventoryEvent>
     public Action observe(ChangeInventoryEvent event)
     {
         Action action = newReport();
-        action.addData(CAUSE, Observe.causes(event.getCause()));
+        action.addData(CAUSE, Observe.causes(event.cause()));
         return action;
     }
 }

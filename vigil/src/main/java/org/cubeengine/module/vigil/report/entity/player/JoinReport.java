@@ -39,8 +39,8 @@ public class JoinReport extends BaseReport<ServerSideConnectionEvent.Join> imple
     protected Action observe(ServerSideConnectionEvent.Join event)
     {
         Action action = newReport();
-        action.addData(CAUSE, Observe.causes(Cause.of(EventContext.empty(), event.getPlayer())));
-        action.addData(LOCATION, Observe.location(event.getPlayer().getServerLocation()));
+        action.addData(CAUSE, Observe.causes(Cause.of(EventContext.empty(), event.player())));
+        action.addData(LOCATION, Observe.location(event.player().serverLocation()));
         return action;
     }
 

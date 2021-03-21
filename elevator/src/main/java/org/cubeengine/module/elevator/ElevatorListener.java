@@ -81,21 +81,21 @@ public class ElevatorListener
                 return;
             }
         }
-        if (!event.getContext().get(EventContextKeys.USED_HAND).map(h -> h == HandTypes.MAIN_HAND.get()).orElse(false))
+        if (!event.context().get(EventContextKeys.USED_HAND).map(h -> h == HandTypes.MAIN_HAND.get()).orElse(false))
         {
             return;
         }
 
-        if (!event.getBlock().getLocation().flatMap(Location::getBlockEntity).map(l -> l.supports(Keys.SIGN_LINES)).orElse(false))
+        if (!event.block().location().flatMap(Location::blockEntity).map(l -> l.supports(Keys.SIGN_LINES)).orElse(false))
         {
             return;
         }
 
-        final ServerLocation loc = event.getBlock().getLocation().get();
+        final ServerLocation loc = event.block().location().get();
 
         final Optional<Vector3i> target = loc.get(ElevatorData.TARGET);
         final Optional<UUID> owner = loc.get(ElevatorData.OWNER);
-        final ItemStack itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
+        final ItemStack itemInHand = player.itemInHand(HandTypes.MAIN_HAND);
 
         Boolean sneak = player.get(Keys.IS_SNEAKING).orElse(false);
         if (sneak)
@@ -109,12 +109,12 @@ public class ElevatorListener
 
                 if (!itemInHand.isEmpty())
                 {
-                    if (player.hasPermission(module.getPerm().CREATE.getId()) && itemInHand.getType().equals(module.getConfig().creationItem))
+                    if (player.hasPermission(module.getPerm().CREATE.getId()) && itemInHand.type().equals(module.getConfig().creationItem))
                     {
-                        loc.offer(ElevatorData.OWNER, player.getUniqueId());
+                        loc.offer(ElevatorData.OWNER, player.uniqueId());
                         if (!player.get(Keys.GAME_MODE).map(mode -> mode.equals(GameModes.CREATIVE.get())).orElse(false))
                         {
-                            itemInHand.setQuantity(itemInHand.getQuantity() - 1);
+                            itemInHand.setQuantity(itemInHand.quantity() - 1);
                         }
                         player.setItemInHand(HandTypes.MAIN_HAND, itemInHand);
 
@@ -126,7 +126,7 @@ public class ElevatorListener
                         i18n.send(ChatType.ACTION_BAR, player, POSITIVE, "Elevator created!");
                         updateSign(loc, null);
 
-                        player.getWorld().playSound(Sound.sound(SoundTypes.ENTITY_ENDER_EYE_DEATH, Source.PLAYER, 5f, 1), loc.getPosition());
+                        player.world().playSound(Sound.sound(SoundTypes.ENTITY_ENDER_EYE_DEATH, Source.PLAYER, 5f, 1), loc.position());
                         if (event instanceof Cancellable)
                         {
                             ((Cancellable)event).setCancelled(true);
@@ -139,14 +139,14 @@ public class ElevatorListener
                 if (player.hasPermission(module.getPerm().ADJUST.getId()))
                 {
                     // Search order dependent on click
-                    final Vector3i newTarget = findNextSign(loc, target.orElse(null), loc.getBlockPosition(), event instanceof InteractBlockEvent.Primary);
+                    final Vector3i newTarget = findNextSign(loc, target.orElse(null), loc.blockPosition(), event instanceof InteractBlockEvent.Primary);
                     if (newTarget == null)
                     {
-                        player.getWorld().playSound(Sound.sound(SoundTypes.ENTITY_ENDERMAN_AMBIENT, Source.PLAYER, 5f, 10), loc.getPosition());
+                        player.world().playSound(Sound.sound(SoundTypes.ENTITY_ENDERMAN_AMBIENT, Source.PLAYER, 5f, 10), loc.position());
                     }
                     else
                     {
-                        player.getWorld().playSound(Sound.sound(SoundTypes.ENTITY_ENDER_EYE_DEATH, Source.PLAYER, 5f, 1), loc.getPosition());
+                        player.world().playSound(Sound.sound(SoundTypes.ENTITY_ENDER_EYE_DEATH, Source.PLAYER, 5f, 1), loc.position());
                     }
                     updateSign(loc, newTarget);
                     if (event instanceof Cancellable)
@@ -155,7 +155,7 @@ public class ElevatorListener
                     }
                 }
             }
-            else if (itemInHand.getType().isAnyOf(ItemTypes.PAPER) && event instanceof InteractBlockEvent.Primary)
+            else if (itemInHand.type().isAnyOf(ItemTypes.PAPER) && event instanceof InteractBlockEvent.Primary)
             {
                 if (player.hasPermission(module.getPerm().RENAME.getId()))
                 {
@@ -164,11 +164,11 @@ public class ElevatorListener
                     list.set(0, itemInHand.get(Keys.CUSTOM_NAME).orElse(list.get(0)));
                     loc.offer(Keys.SIGN_LINES, list);
                     i18n.send(ChatType.ACTION_BAR, player, POSITIVE, "Elevator name changed!");
-                    player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_WOOL_BREAK, Source.PLAYER, 5f, 10), loc.getPosition());
-                    Sponge.getServer().getScheduler().submit(Task.builder().plugin(plugin).execute(() ->
-                        player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_WOOL_BREAK, Source.PLAYER, 5f, 10), loc.getPosition())).delay(Ticks.of(2)).build());
-                    Sponge.getServer().getScheduler().submit(Task.builder().plugin(plugin).execute(() ->
-                       player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_WOOL_BREAK, Source.PLAYER, 2f, 1), loc.getPosition())).delay(Ticks.of(4)).build());
+                    player.world().playSound(Sound.sound(SoundTypes.BLOCK_WOOL_BREAK, Source.PLAYER, 5f, 10), loc.position());
+                    Sponge.server().scheduler().submit(Task.builder().plugin(plugin).execute(() ->
+                        player.world().playSound(Sound.sound(SoundTypes.BLOCK_WOOL_BREAK, Source.PLAYER, 5f, 10), loc.position())).delay(Ticks.of(2)).build());
+                    Sponge.server().scheduler().submit(Task.builder().plugin(plugin).execute(() ->
+                       player.world().playSound(Sound.sound(SoundTypes.BLOCK_WOOL_BREAK, Source.PLAYER, 2f, 1), loc.position())).delay(Ticks.of(4)).build());
                     if (event instanceof Cancellable)
                     {
                         ((Cancellable)event).setCancelled(true);
@@ -184,22 +184,22 @@ public class ElevatorListener
             if (target.isPresent())
             {
                 Vector3i sign = target.get();
-                Vector3d pPos = player.getLocation().getPosition();
-                if (!player.getWorld().get(target.get(), ElevatorData.OWNER).isPresent())
+                Vector3d pPos = player.location().position();
+                if (!player.world().get(target.get(), ElevatorData.OWNER).isPresent())
                 {
                     updateSign(loc, null);
                     ((Secondary)event).setCancelled(true);
                     return;
                 }
-                ServerLocation targetLoc = ServerLocation.of(player.getWorld(), pPos.getX(), sign.getY() -1, pPos.getZ());
-                final Optional<ServerLocation> safeLoc = Sponge.getServer().getTeleportHelper().getSafeLocation(targetLoc);
+                ServerLocation targetLoc = ServerLocation.of(player.world(), pPos.getX(), sign.getY() -1, pPos.getZ());
+                final Optional<ServerLocation> safeLoc = Sponge.server().teleportHelper().findSafeLocation(targetLoc);
                 if (safeLoc.isPresent())
                 {
                     player.setLocation(safeLoc.get());
-                    player.getWorld().playSound(Sound.sound(SoundTypes.ITEM_CHORUS_FRUIT_TELEPORT, Source.PLAYER, 5f, 10f), safeLoc.get().getPosition());
+                    player.world().playSound(Sound.sound(SoundTypes.ITEM_CHORUS_FRUIT_TELEPORT, Source.PLAYER, 5f, 10f), safeLoc.get().position());
                     final ParticleEffect particle = ParticleEffect.builder().type(ParticleTypes.PORTAL).quantity(50).offset(Vector3d.from(0.2, 0.5, 0.2)).build();
-                    player.getWorld().spawnParticles(particle, safeLoc.get().getPosition().add(0, 1, 0));
-                    player.getWorld().spawnParticles(particle, pPos.add(0,1,0));
+                    player.world().spawnParticles(particle, safeLoc.get().position().add(0, 1, 0));
+                    player.world().spawnParticles(particle, pPos.add(0,1,0));
                 }
                 else
                 {
@@ -209,14 +209,14 @@ public class ElevatorListener
             }
             else if (owner.isPresent())
             {
-                player.getWorld().playSound(Sound.sound(SoundTypes.ENTITY_ENDERMAN_AMBIENT, Source.PLAYER, 5f, 10), loc.getPosition());
+                player.world().playSound(Sound.sound(SoundTypes.ENTITY_ENDERMAN_AMBIENT, Source.PLAYER, 5f, 10), loc.position());
                 updateSign(loc, null);
             }
         }
 
         if (event instanceof InteractBlockEvent.Secondary && !itemInHand.isEmpty())
         {
-            if (player.hasPermission(module.getPerm().CREATE.getId()) && itemInHand.getType().isAnyOf(module.getConfig().creationItem))
+            if (player.hasPermission(module.getPerm().CREATE.getId()) && itemInHand.type().isAnyOf(module.getConfig().creationItem))
             {
                 ((Secondary)event).setCancelled(true);
             }
@@ -230,9 +230,9 @@ public class ElevatorListener
         Component directionLine = Component.text(module.getConfig().upDecor + " SNEAK " + module.getConfig().downDecor);
         if (target != null)
         {
-            final Optional<List<Component>> lines = loc.getWorld().get(target, Keys.SIGN_LINES);
+            final Optional<List<Component>> lines = loc.world().get(target, Keys.SIGN_LINES);
             targetLine = lines.map(l -> l.get(0)).orElse(targetLine);
-            int blocks = loc.getBlockY() - target.getY();
+            int blocks = loc.blockY() - target.getY();
             String decor = blocks < 0 ? module.getConfig().upDecor : module.getConfig().downDecor;
             directionLine = Component.text(decor + " " + Math.abs(blocks) + " " + decor);
             loc.offer(ElevatorData.TARGET, target);
@@ -254,11 +254,11 @@ public class ElevatorListener
         startPos = previous == null ? startPos : previous;
         // Search for next Elevator sign
 
-        final int max = loc.getWorld().getBlockMax().getY();
-        final int min = loc.getWorld().getBlockMin().getY();
-        final int blockX = loc.getBlockX();
-        final int blockZ = loc.getBlockZ();
-        final ServerWorld world = loc.getWorld();
+        final int max = loc.world().blockMax().getY();
+        final int min = loc.world().blockMin().getY();
+        final int blockX = loc.blockX();
+        final int blockZ = loc.blockZ();
+        final ServerWorld world = loc.world();
 
         int blockY = startPos.getY();
         while (blockY <= max && blockY >= min)
@@ -271,7 +271,7 @@ public class ElevatorListener
             {
                 blockY--;
             }
-            if (blockY == loc.getBlockY())
+            if (blockY == loc.blockY())
             {
                 continue;
             }

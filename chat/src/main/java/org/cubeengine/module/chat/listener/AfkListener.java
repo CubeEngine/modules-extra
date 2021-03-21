@@ -45,10 +45,10 @@ public class AfkListener
     }
 
     @Listener(order = POST)
-    public void onMove(MoveEntityEvent event, @Getter("getEntity") ServerPlayer player)
+    public void onMove(MoveEntityEvent event, @Getter("entity") ServerPlayer player)
     {
-        if (event.getOriginalPosition().getFloorX() == event.getDestinationPosition().getFloorX()
-            && event.getOriginalPosition().getFloorZ() == event.getDestinationPosition().getFloorZ())
+        if (event.originalPosition().getFloorX() == event.destinationPosition().getFloorX()
+            && event.originalPosition().getFloorZ() == event.destinationPosition().getFloorZ())
         {
             return;
         }

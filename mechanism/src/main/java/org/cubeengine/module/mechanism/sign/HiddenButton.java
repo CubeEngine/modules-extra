@@ -86,18 +86,18 @@ public class HiddenButton extends PermissionContainer implements SignMechanism
         for (Direction dir : BlockUtil.BLOCK_FACES)
         {
             final ServerLocation relative = loc.relativeTo(dir);
-            if (relative.getBlockType().isAnyOf(BlockTypes.STONE_BUTTON))
+            if (relative.blockType().isAnyOf(BlockTypes.STONE_BUTTON))
             {
-                final BlockState state = relative.getBlock();
+                final BlockState state = relative.block();
                 if (!state.get(Keys.IS_POWERED).orElse(false))
                 {
                     relative.setBlock(state.with(Keys.IS_POWERED, true).get());
-                    loc.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_STONE_BUTTON_CLICK_ON, Source.BLOCK, 0.1f, 0.8f), loc.getPosition());
+                    loc.world().playSound(Sound.sound(SoundTypes.BLOCK_STONE_BUTTON_CLICK_ON, Source.BLOCK, 0.1f, 0.8f), loc.position());
                     taskManager.runTaskDelayed(() -> {
-                        if (relative.getBlockType().isAnyOf(BlockTypes.STONE_BUTTON))
+                        if (relative.blockType().isAnyOf(BlockTypes.STONE_BUTTON))
                         {
                             relative.setBlock(state.with(Keys.IS_POWERED, false).get());
-                            loc.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_STONE_BUTTON_CLICK_ON, Source.BLOCK, 0.1f, 0.7f), loc.getPosition());
+                            loc.world().playSound(Sound.sound(SoundTypes.BLOCK_STONE_BUTTON_CLICK_ON, Source.BLOCK, 0.1f, 0.7f), loc.position());
                         }
                     }, Ticks.of(20));
                 }
@@ -106,7 +106,7 @@ public class HiddenButton extends PermissionContainer implements SignMechanism
         }
         if (!click)
         {
-            loc.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_NOTE_BLOCK_HAT, Source.BLOCK, 0.2f, 2), loc.getPosition());
+            loc.world().playSound(Sound.sound(SoundTypes.BLOCK_NOTE_BLOCK_HAT, Source.BLOCK, 0.2f, 2), loc.position());
         }
         return true;
     }

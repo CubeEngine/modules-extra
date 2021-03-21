@@ -59,7 +59,7 @@ public class KitManager
     @Listener
     public void onJoin(ServerSideConnectionEvent.Join event)
     {
-        ServerPlayer player = event.getPlayer();
+        ServerPlayer player = event.player();
         if (player.get(Keys.FIRST_DATE_JOINED).orElse(Instant.now()).equals(player.get(Keys.LAST_DATE_PLAYED).orElse(Instant.now())))
         {
             kitMap.values().stream().filter(Kit::isGiveKitOnFirstJoin).forEach(kit -> kit.give(player));

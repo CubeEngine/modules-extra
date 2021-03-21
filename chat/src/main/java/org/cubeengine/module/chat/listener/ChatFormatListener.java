@@ -75,20 +75,20 @@ public class ChatFormatListener
     {
         // TODO format on the messagechannel instead
         final PlainComponentSerializer plainSerializer = PlainComponentSerializer.plain();
-        String msg = plainSerializer.serialize(event.getOriginalMessage());
+        String msg = plainSerializer.serialize(event.originalMessage());
 
         if (!msg.equals("+") && msg.endsWith("+") && perms.LONGER.check(player))
         {
-            msg = accumulated.getOrDefault(player.getUniqueId(), "") + msg.substring(0, msg.length() - 1);
+            msg = accumulated.getOrDefault(player.uniqueId(), "") + msg.substring(0, msg.length() - 1);
             msg = msg.substring(0, Math.min(msg.length(), 50 * 20));
             i18n.send(ChatType.ACTION_BAR, player, NEUTRAL, "{amount} characters in buffer.", msg.length());
-            accumulated.put(player.getUniqueId(), msg);
+            accumulated.put(player.uniqueId(), msg);
             event.setCancelled(true);
             return;
         }
 
-        msg = accumulated.getOrDefault(player.getUniqueId(), "") + msg;
-        accumulated.remove(player.getUniqueId());
+        msg = accumulated.getOrDefault(player.uniqueId(), "") + msg;
+        accumulated.remove(player.uniqueId());
         msg = msg.substring(0, Math.min(msg.length(), 50 * 20));
 
         if (this.allowColors)
@@ -106,10 +106,10 @@ public class ChatFormatListener
 
         try
         {
-            Subject subject = module.getPermissionService().getUserSubjects().loadSubject(player.getUniqueId().toString()).get();
+            Subject subject = module.getPermissionService().userSubjects().loadSubject(player.uniqueId().toString()).get();
 
             Map<String, Component> replacements = new HashMap<>();
-            String name = player.getName();
+            String name = player.name();
             replacements.put("{NAME}", Component.text(name));
             Component displayName = player.get(Keys.CUSTOM_NAME).orElse(Component.text(name));
             if (!plainSerializer.serialize(displayName).equals(name))
@@ -118,13 +118,13 @@ public class ChatFormatListener
                 displayName = Component.text().append(displayName).hoverEvent(hoverEvent).build();
             }
             replacements.put("{DISPLAY_NAME}", displayName);
-            replacements.put("{WORLD}", Component.text(player.getWorld().getProperties().getKey().toString()));
+            replacements.put("{WORLD}", Component.text(player.world().properties().key().toString()));
             replacements.put("{MESSAGE}", fromLegacy(msg, '&'));
-            replacements.put("{PREFIX}", fromLegacy(subject.getOption("chat-prefix").orElse(""), '&'));
-            replacements.put("{SUFFIX}", fromLegacy(subject.getOption("chat-suffix").orElse(""), '&'));
+            replacements.put("{PREFIX}", fromLegacy(subject.option("chat-prefix").orElse(""), '&'));
+            replacements.put("{SUFFIX}", fromLegacy(subject.option("chat-suffix").orElse(""), '&'));
 
             event.setMessage(fromLegacy(this.getFormat(subject), replacements, '&'));
-            event.setChatRouter((p, message) -> Sponge.getServer().sendMessage(p, message));
+            event.setChatRouter((p, message) -> Sponge.server().sendMessage(p, message));
         }
         catch (ExecutionException | InterruptedException e)
         {
@@ -134,6 +134,6 @@ public class ChatFormatListener
 
     protected String getFormat(Subject subject)
     {
-        return subject.getOption("chat-format").orElse(this.format);
+        return subject.option("chat-format").orElse(this.format);
     }
 }

@@ -43,17 +43,17 @@ public class SpawnListener
     @Listener
     public void onJoin(ServerSideConnectionEvent.Login event)
     {
-        if (event.getUser().get(Keys.LAST_DATE_PLAYED).isPresent())
+        if (event.user().get(Keys.LAST_DATE_PLAYED).isPresent())
         {
             return;
         }
 
-        final Optional<Vector3d> pos = SpawnCommands.getSubjectSpawnPos(event.getUser());
-        final Optional<Vector3d> rot = SpawnCommands.getSubjectSpawnRotation(event.getUser());
-        final Optional<ServerWorld> world = SpawnCommands.getSubjectSpawnWorld(event.getUser());
+        final Optional<Vector3d> pos = SpawnCommands.getSubjectSpawnPos(event.user());
+        final Optional<Vector3d> rot = SpawnCommands.getSubjectSpawnRotation(event.user());
+        final Optional<ServerWorld> world = SpawnCommands.getSubjectSpawnWorld(event.user());
         if (pos.isPresent() && rot.isPresent() && world.isPresent())
         {
-            event.setToLocation(world.get().getLocation(pos.get()));
+            event.setToLocation(world.get().location(pos.get()));
             event.setToRotation(rot.get());
         }
     }
@@ -63,13 +63,13 @@ public class SpawnListener
     {
         if (!event.isBedSpawn())
         {
-            final Optional<Vector3d> pos = SpawnCommands.getSubjectSpawnPos(event.getEntity());
-            final Optional<Vector3d> rot = SpawnCommands.getSubjectSpawnRotation(event.getEntity());
-            final Optional<ServerWorld> world = SpawnCommands.getSubjectSpawnWorld(event.getEntity());
+            final Optional<Vector3d> pos = SpawnCommands.getSubjectSpawnPos(event.entity());
+            final Optional<Vector3d> rot = SpawnCommands.getSubjectSpawnRotation(event.entity());
+            final Optional<ServerWorld> world = SpawnCommands.getSubjectSpawnWorld(event.entity());
             if (pos.isPresent() && rot.isPresent() && world.isPresent())
             {
                 event.setDestinationPosition(pos.get());
-                event.getRecreatedPlayer().setRotation(rot.get());
+                event.recreatedPlayer().setRotation(rot.get());
             }
         }
     }

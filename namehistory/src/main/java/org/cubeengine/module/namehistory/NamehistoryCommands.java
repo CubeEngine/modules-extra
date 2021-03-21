@@ -46,19 +46,19 @@ public class NamehistoryCommands
     @Command(desc = "Shows the namehistory of a player")
     public void namehistory(CommandCause context, @Default User player)
     {
-        HistoryFetcher.get(player.getUniqueId()).thenAccept(historyData -> {
+        HistoryFetcher.get(player.uniqueId()).thenAccept(historyData -> {
             if (!historyData.isPresent() || historyData.get().names.size() <= 1)
             {
-                i18n.send(context.getAudience(), NEGATIVE, "No namehistory available for {user}", player);
+                i18n.send(context, NEGATIVE, "No namehistory available for {user}", player);
                 return;
             }
-            i18n.send(context.getAudience(), POSITIVE, "The following names were known for {user}", player);
+            i18n.send(context, POSITIVE, "The following names were known for {user}", player);
             for (NameChange names : historyData.get().names)
             {
                 final String accountCreation = names.changedToAt.isPresent() ?
                                                sdf.format(names.changedToAt.get().getTime()) :
-                                               i18n.getTranslation(context.getAudience(), "account creation");
-                i18n.send(context.getAudience(), NEUTRAL, " - {user} since {input}", names.name, accountCreation);
+                                               i18n.getTranslation(context, "account creation");
+                i18n.send(context, NEUTRAL, " - {user} since {input}", names.name, accountCreation);
             }
         });
     }

@@ -97,7 +97,7 @@ public class PowertoolCommand extends DispatcherCommand
     {
         if (all)
         {
-            for (Inventory slot : context.getInventory().slots())
+            for (Inventory slot : context.inventory().slots())
             {
                 if (!slot.peek().isEmpty())
                 {
@@ -107,7 +107,7 @@ public class PowertoolCommand extends DispatcherCommand
             i18n.send(context, POSITIVE, "Removed all commands bound to items in your inventory!");
             return;
         }
-        final ItemStack itemInHand = context.getItemInHand(HandTypes.MAIN_HAND);
+        final ItemStack itemInHand = context.itemInHand(HandTypes.MAIN_HAND);
         if (itemInHand.isEmpty())
         {
             i18n.send(context, NEUTRAL, "You are not holding any item in your hand.");
@@ -122,7 +122,7 @@ public class PowertoolCommand extends DispatcherCommand
     @Restricted(value = Player.class, msg = "No more power for you!")
     public void remove(ServerPlayer context, @Option @Greedy String command)
     {
-        final ItemStack itemInHand = context.getItemInHand(HandTypes.MAIN_HAND);
+        final ItemStack itemInHand = context.itemInHand(HandTypes.MAIN_HAND);
         if (itemInHand.isEmpty())
         {
             i18n.send(context, NEUTRAL, "You are not holding any item in your hand.");
@@ -171,7 +171,7 @@ public class PowertoolCommand extends DispatcherCommand
     @Restricted(value = Player.class, msg = "You already have enough power!")
     public void add(ServerPlayer context, @Greedy String commandString, @Flag boolean replace)
     {
-        final ItemStack itemInHand = context.getItemInHand(HandTypes.MAIN_HAND);
+        final ItemStack itemInHand = context.itemInHand(HandTypes.MAIN_HAND);
         if (itemInHand.isEmpty())
         {
             i18n.send(context, NEUTRAL, "You do not have an item in your hand to bind the command to!");
@@ -197,26 +197,26 @@ public class PowertoolCommand extends DispatcherCommand
     {
         if (all)
         {
-            for (Inventory slot : context.getInventory().slots())
+            for (Inventory slot : context.inventory().slots())
             {
                 if (!slot.peek().isEmpty())
                 {
                     ItemStack item = slot.peek();
                     item.get(PowertoolData.POWERS).ifPresent(list -> {
-                        context.sendMessage(Identity.nil(), item.get(Keys.CUSTOM_NAME).orElse(item.getType().asComponent()).color(NamedTextColor.GOLD).append(Component.text(":")));
+                        context.sendMessage(Identity.nil(), item.get(Keys.CUSTOM_NAME).orElse(item.type().asComponent()).color(NamedTextColor.GOLD).append(Component.text(":")));
                         showPowerToolList(context, list, false, false);
                     });
                 }
             }
             return;
         }
-        if (context.getItemInHand(HandTypes.MAIN_HAND).isEmpty())
+        if (context.itemInHand(HandTypes.MAIN_HAND).isEmpty())
         {
             i18n.send(context, NEUTRAL, "You do not have an item in your hand.");
         }
         else
         {
-            this.showPowerToolList(context, this.getPowerTools(context.getItemInHand(HandTypes.MAIN_HAND)), false, true);
+            this.showPowerToolList(context, this.getPowerTools(context.itemInHand(HandTypes.MAIN_HAND)), false, true);
         }
     }
 
@@ -317,7 +317,7 @@ public class PowertoolCommand extends DispatcherCommand
 
     private void onLeftClick0(Event event, ServerPlayer player)
     {
-        final ItemStack itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
+        final ItemStack itemInHand = player.itemInHand(HandTypes.MAIN_HAND);
         if (!itemInHand.isEmpty() && player.hasPermission(module.perms().POWERTOOL_USE.getId()))
         {
             List<String> powers = this.getPowerTools(itemInHand);
@@ -327,7 +327,7 @@ public class PowertoolCommand extends DispatcherCommand
                 {
                     try
                     {
-                        Sponge.getServer().getCommandManager().process(player, power.substring(1));
+                        Sponge.server().commandManager().process(player, power.substring(1));
                     }
                     catch (CommandException e)
                     {

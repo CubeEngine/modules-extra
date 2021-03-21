@@ -65,19 +65,19 @@ public class DestructReport extends EntityReport<DestructEntityEvent>
         Component cause = Recall.cause(action);
         EntitySnapshot entity = Recall.entity(action);
         Boolean isLiving = action.< Document>getData(EntityReport.ENTITY).getBoolean(EntityReport.LIVING);
-        if (entity.getType() == EntityTypes.ITEM.get())
+        if (entity.type() == EntityTypes.ITEM.get())
         {
             Component name = ReportUtil.name(entity);
             ItemStack i = entity.get(Keys.ITEM_STACK_SNAPSHOT).map(ItemStackSnapshot::createStack).orElse(null);
             Component item = Component.text("?");
             if (i != null)
             {
-                item = i.get(Keys.DISPLAY_NAME).get().hoverEvent(HoverEvent.showText(Component.text(i.getType().key(RegistryTypes.ITEM_TYPE).asString())));
+                item = i.get(Keys.DISPLAY_NAME).get().hoverEvent(HoverEvent.showText(Component.text(i.type().key(RegistryTypes.ITEM_TYPE).asString())));
             }
             int count = 0;
             for (Action a : actions)
             {
-                count += Recall.entity(a).get(Keys.ITEM_STACK_SNAPSHOT).map(ItemStackSnapshot::getQuantity).orElse(0);
+                count += Recall.entity(a).get(Keys.ITEM_STACK_SNAPSHOT).map(ItemStackSnapshot::quantity).orElse(0);
             }
             if (count == 0)
             {
@@ -96,7 +96,7 @@ public class DestructReport extends EntityReport<DestructEntityEvent>
                                 "{txt} killed {txt} x{}",
                                 cause, ReportUtil.name(entity), actions.size());
         }
-        else if (entity.getType().equals(EntityTypes.EXPERIENCE_ORB.get()))
+        else if (entity.type().equals(EntityTypes.EXPERIENCE_ORB.get()))
         {
             Integer exp = 0;
             for (Action a : actions)
@@ -135,12 +135,12 @@ public class DestructReport extends EntityReport<DestructEntityEvent>
 
         EntitySnapshot e1 = Recall.entity(action);
         EntitySnapshot e2 = Recall.entity(otherAction);
-        if (e1.getType() != e2.getType())
+        if (e1.type() != e2.type())
         {
             return false;
         }
 
-        if (e1.getType() == EntityTypes.ITEM.get())
+        if (e1.type() == EntityTypes.ITEM.get())
         {
             Optional<ItemStackSnapshot> i1 = Recall.entity(otherAction).get(Keys.ITEM_STACK_SNAPSHOT);
             Optional<ItemStackSnapshot> i2 = Recall.entity(action).get(Keys.ITEM_STACK_SNAPSHOT);
@@ -171,9 +171,9 @@ public class DestructReport extends EntityReport<DestructEntityEvent>
     public Action observe(DestructEntityEvent event)
     {
         Action action = newReport();
-        action.addData(ENTITY, Observe.entity(event.getEntity()));
-        action.addData(CAUSE, Observe.causes(event.getCause()));
-        action.addData(LOCATION, Observe.location(event.getEntity().getServerLocation()));
+        action.addData(ENTITY, Observe.entity(event.entity()));
+        action.addData(CAUSE, Observe.causes(event.cause()));
+        action.addData(LOCATION, Observe.location(event.entity().serverLocation()));
         return action;
     }
 
@@ -200,7 +200,7 @@ public class DestructReport extends EntityReport<DestructEntityEvent>
         }
         */
 
-        if (!isActive(event.getEntity().getServerLocation().getWorld()))
+        if (!isActive(event.entity().serverLocation().world()))
         {
             return;
         }

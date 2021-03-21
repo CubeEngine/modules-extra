@@ -125,10 +125,10 @@ public class BlockReport extends BaseBlockReport<ChangeBlockEvent.Post>
             Collections.reverse(replacements);
             final TextComponent separator = Component.text("↴", NamedTextColor.GRAY).append(Component.newline());
 
-            if (repl.isPresent() && !repl.get().getState().getType().isAnyOf(AIR))
+            if (repl.isPresent() && !repl.get().state().type().isAnyOf(AIR))
             {
                 Component replacementText = name(repl.get(), receiver).append(Component.text("...").hoverEvent(HoverEvent.showText(Component.join(separator, replacements))));
-                if (orig.isPresent() && !orig.get().getState().getType().equals(AIR.get()))
+                if (orig.isPresent() && !orig.get().state().type().equals(AIR.get()))
                 {
                     if (repl.get().equals(orig.get()))
                     {
@@ -159,9 +159,9 @@ public class BlockReport extends BaseBlockReport<ChangeBlockEvent.Post>
             return;
         }
 
-        if (repl.isPresent() && !repl.get().getState().getType().isAnyOf(AIR))
+        if (repl.isPresent() && !repl.get().state().type().isAnyOf(AIR))
         {
-            if (orig.isPresent() && orig.get().getState().getType() == repl.get().getState().getType())
+            if (orig.isPresent() && orig.get().state().type() == repl.get().state().type())
             {
                 showReportModify(actions, receiver, action, orig.get(), repl.get(), samelocGroup);
                 return;
@@ -209,7 +209,7 @@ public class BlockReport extends BaseBlockReport<ChangeBlockEvent.Post>
     private void showReportPlace(List<Action> actions, Receiver receiver, Action action, Optional<BlockSnapshot> orig, BlockSnapshot repl, boolean samelocGroup)
     {
         Component cause = Recall.cause(action);
-        if (orig.isPresent() && !orig.get().getState().getType().equals(AIR.get()))
+        if (orig.isPresent() && !orig.get().state().type().equals(AIR.get()))
         {
             receiver.sendReport(this, actions, actions.size(),
                                 "{txt} replaced {txt} with {txt}",
@@ -235,14 +235,14 @@ public class BlockReport extends BaseBlockReport<ChangeBlockEvent.Post>
 
     protected void report(ChangeBlockEvent.Post event)
     {
-        for (BlockTransactionReceipt receipt : event.getReceipts())
+        for (BlockTransactionReceipt receipt : event.receipts())
         {
-            final ServerLocation loc = receipt.getOriginal().getLocation().get();
-            if (!isActive(loc.getWorld()))
+            final ServerLocation loc = receipt.originalBlock().location().get();
+            if (!isActive(loc.world()))
             {
                 continue;
             }
-            if (isRedstoneChange(receipt.getOriginal().getState(), receipt.getFinal().getState()))
+            if (isRedstoneChange(receipt.originalBlock().state(), receipt.finalBlock().state()))
             {
                 continue;
             }
@@ -250,7 +250,7 @@ public class BlockReport extends BaseBlockReport<ChangeBlockEvent.Post>
             final Action action = observe(event);
             action.addData(BLOCK_CHANGES, Observe.transactions(receipt));
             action.addData(LOCATION, Observe.location(loc));
-            action.addData(OPERATION, receipt.getOperation().key(RegistryTypes.OPERATION).asString());
+            action.addData(OPERATION, receipt.operation().key(RegistryTypes.OPERATION).asString());
 
             report(action);
         }
@@ -258,11 +258,11 @@ public class BlockReport extends BaseBlockReport<ChangeBlockEvent.Post>
 
     private static boolean isRedstoneChange(BlockState origState, BlockState finalState)
     {
-        if (!origState.getType().equals(finalState.getType()))
+        if (!origState.type().equals(finalState.type()))
         {
             return false;
         }
-        return origState.getType().isAnyOf(BlockTypes.REDSTONE_WIRE, BlockTypes.REPEATER, BlockTypes.COMPARATOR,
+        return origState.type().isAnyOf(BlockTypes.REDSTONE_WIRE, BlockTypes.REPEATER, BlockTypes.COMPARATOR,
                                            BlockTypes.REDSTONE_TORCH, BlockTypes.REDSTONE_WALL_TORCH,
                                            BlockTypes.DROPPER, BlockTypes.DISPENSER, BlockTypes.HOPPER);
     }
@@ -277,11 +277,11 @@ public class BlockReport extends BaseBlockReport<ChangeBlockEvent.Post>
 
         if (repl1.isPresent() && repl2.isPresent())
         {
-            if (!repl1.get().getWorld().equals(repl2.get().getWorld()))
+            if (!repl1.get().world().equals(repl2.get().world()))
             {
                 return false;
             }
-            if (!repl1.get().getState().equals(repl2.get().getState()))
+            if (!repl1.get().state().equals(repl2.get().state()))
             {
                 return false;
             }

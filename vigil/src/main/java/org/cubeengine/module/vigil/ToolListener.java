@@ -63,24 +63,24 @@ public class ToolListener
 
     private void handleLRClicks(InteractBlockEvent event, ServerPlayer player)
     {
-        if (event.getContext().get(EventContextKeys.USED_HAND).map(h -> h.equals(HandTypes.MAIN_HAND.get())).orElse(false))
+        if (event.context().get(EventContextKeys.USED_HAND).map(h -> h.equals(HandTypes.MAIN_HAND.get())).orElse(false))
         {
-            ItemStack itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
+            ItemStack itemInHand = player.itemInHand(HandTypes.MAIN_HAND);
             itemInHand.get(VigilData.REPORTS).ifPresent(reports -> {
-                if (!toolPerm.check(player) || event.getBlock() == BlockSnapshot.NONE.get())
+                if (!toolPerm.check(player) || event.block() == BlockSnapshot.NONE.get())
                 {
                     return;
                 }
                 ServerLocation loc;
                 if (event instanceof InteractBlockEvent.Primary.Start)
                 {
-                    loc = event.getBlock().getLocation().get();
+                    loc = event.block().location().get();
 
                     ((Start)event).setCancelled(true);
                 }
                 else if (event instanceof InteractBlockEvent.Secondary)
                 {
-                    loc = event.getBlock().getLocation().get().relativeTo(event.getTargetSide());
+                    loc = event.block().location().get().relativeTo(event.targetSide());
                     ((Secondary)event).setCancelled(true);
                 }
                 else
@@ -96,6 +96,6 @@ public class ToolListener
     @Listener
     public void onDropTool(DropItemEvent.Pre event)
     {
-        event.getDroppedItems().removeIf(item -> item.get(VigilData.REPORTS).isPresent());
+        event.droppedItems().removeIf(item -> item.get(VigilData.REPORTS).isPresent());
     }
 }

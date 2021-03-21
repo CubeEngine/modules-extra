@@ -85,11 +85,11 @@ public class IgnoreCommands
         List<String> added = new ArrayList<>();
         for (User user : Arrays.asList(player))
         {
-            if (user.getUniqueId().equals(sender.getUniqueId()))
+            if (user.uniqueId().equals(sender.uniqueId()))
             {
                 i18n.send(sender, NEGATIVE, "If you do not feel like talking to yourself just don't talk.");
             }
-            else if (!this.addIgnore(sender, user.getUniqueId()))
+            else if (!this.addIgnore(sender, user.uniqueId()))
             {
                 if (user.hasPermission(perms.COMMAND_IGNORE_PREVENT.getId()))
                 {
@@ -100,7 +100,7 @@ public class IgnoreCommands
             }
             else
             {
-                added.add(user.getName());
+                added.add(user.name());
             }
         }
         if (added.isEmpty())
@@ -118,13 +118,13 @@ public class IgnoreCommands
         List<String> added = new ArrayList<>();
         for (User user : Arrays.asList(player))
         {
-            if (!this.removeIgnore(context, user.getUniqueId()))
+            if (!this.removeIgnore(context, user.uniqueId()))
             {
                 i18n.send(context, NEGATIVE, "You haven't ignored {user}!", user);
             }
             else
             {
-                added.add(user.getName());
+                added.add(user.name());
             }
         }
         if (added.isEmpty())

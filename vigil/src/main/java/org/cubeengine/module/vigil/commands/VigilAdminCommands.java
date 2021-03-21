@@ -59,7 +59,7 @@ public class VigilAdminCommands extends DispatcherCommand
     @Command(desc = "purges all logs")
     public void purge(CommandCause ctx)
     {
-        requestConfirmation(i18n, i18n.translate(ctx, NEUTRAL, "Do you really want do delete ALL logs?"), ctx.getAudience(), () -> runPurge(ctx.getAudience()));
+        requestConfirmation(i18n, i18n.translate(ctx, NEUTRAL, "Do you really want do delete ALL logs?"), ctx.audience(), () -> runPurge(ctx.audience()));
     }
 
     @Command(desc = "enables or disables reports in a world")

@@ -65,21 +65,21 @@ public class Writer
     @Listener
     public void onRightClickBlock(InteractBlockEvent.Secondary event, @First ServerPlayer player)
     {
-        if (event.getContext().get(EventContextKeys.USED_HAND).orElse(null) != HandTypes.MAIN_HAND.get()
-            || !event.getBlock().getLocation().flatMap(Location::getBlockEntity).map(l -> l.supports(Keys.SIGN_LINES)).orElse(false)
-            || !player.getItemInHand(HandTypes.MAIN_HAND).get(WriterData.WRITER).isPresent()
-            || !player.getItemInHand(HandTypes.MAIN_HAND).getType().isAnyOf(ItemTypes.WRITABLE_BOOK)
+        if (event.context().get(EventContextKeys.USED_HAND).orElse(null) != HandTypes.MAIN_HAND.get()
+            || !event.block().location().flatMap(Location::blockEntity).map(l -> l.supports(Keys.SIGN_LINES)).orElse(false)
+            || !player.itemInHand(HandTypes.MAIN_HAND).get(WriterData.WRITER).isPresent()
+            || !player.itemInHand(HandTypes.MAIN_HAND).type().isAnyOf(ItemTypes.WRITABLE_BOOK)
             || !perms.EDIT_SIGN.check(player))
         {
             return;
         }
-        List<String> pages = player.getItemInHand(HandTypes.MAIN_HAND).get(Keys.PLAIN_PAGES).orElse(Collections.emptyList());
+        List<String> pages = player.itemInHand(HandTypes.MAIN_HAND).get(Keys.PLAIN_PAGES).orElse(Collections.emptyList());
         final String firstPage = pages.get(0);
         final List<String> lines = Arrays.asList(firstPage.split("\n"));
         final List<Component> signLines = lines.subList(0, Math.min(4, lines.size())).stream()
                .map(line -> ChatFormat.fromLegacy(line, '&')).collect(Collectors.toList());
-        final Vector3i pos = event.getBlock().getPosition();
-        player.getWorld().offer(pos, Keys.SIGN_LINES, signLines);
+        final Vector3i pos = event.block().position();
+        player.world().offer(pos, Keys.SIGN_LINES, signLines);
 
     }
 

@@ -40,10 +40,10 @@ public class SubjectParser implements ValueParser<Subject>, DefaultParameterProv
     {
         try
         {
-            if (commandCause.getAudience() instanceof ServerPlayer)
+            if (commandCause.audience() instanceof ServerPlayer)
             {
-                final PermissionService pm = Sponge.getServer().getServiceProvider().permissionService();
-                return pm.getUserSubjects().loadSubject((((ServerPlayer)commandCause.getAudience())).getIdentifier()).get();
+                final PermissionService pm = Sponge.server().serviceProvider().permissionService();
+                return pm.userSubjects().loadSubject((((ServerPlayer)commandCause.audience())).identifier()).get();
             }
         }
         catch (ExecutionException | InterruptedException e)
@@ -55,16 +55,16 @@ public class SubjectParser implements ValueParser<Subject>, DefaultParameterProv
     }
 
     @Override
-    public Optional<? extends Subject> getValue(Key<? super Subject> parameterKey, Mutable reader, Builder context) throws ArgumentParseException
+    public Optional<? extends Subject> parseValue(Key<? super Subject> parameterKey, Mutable reader, Builder context) throws ArgumentParseException
     {
         try
         {
-            final PermissionService pm = Sponge.getServer().getServiceProvider().permissionService();
+            final PermissionService pm = Sponge.server().serviceProvider().permissionService();
 
             String token = reader.parseString();
-            if (pm.getGroupSubjects().hasSubject(token).get())
+            if (pm.groupSubjects().hasSubject(token).get())
             {
-                return Optional.of(pm.getGroupSubjects().loadSubject(token).join());
+                return Optional.of(pm.groupSubjects().loadSubject(token).join());
             }
         }
         catch (ExecutionException | InterruptedException e)

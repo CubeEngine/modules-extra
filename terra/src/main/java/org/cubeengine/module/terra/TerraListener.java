@@ -105,12 +105,12 @@ public class TerraListener
         private void generateWorld()
         {
             // Evacuate
-            final WorldManager wm = Sponge.getServer().getWorldManager();
+            final WorldManager wm = Sponge.server().worldManager();
 
             // Unload and delete
             CompletableFuture<Boolean> worldDeletedFuture = CompletableFuture.completedFuture(true);
             if (wm.world(worldKey).isPresent()) {
-                wm.world(worldKey).get().getProperties().setSerializationBehavior(SerializationBehavior.NONE);
+                wm.world(worldKey).get().properties().setSerializationBehavior(SerializationBehavior.NONE);
                 worldDeletedFuture = wm.unloadWorld(worldKey).thenCompose(b -> wm.deleteWorld(worldKey));
             }
 
@@ -163,25 +163,25 @@ public class TerraListener
     @Listener
     public void onUseItem(UseItemStackEvent.Finish event, @First ServerPlayer player)
     {
-        if (!event.getContext().get(EventContextKeys.USED_HAND).get().equals(HandTypes.MAIN_HAND.get()))
+        if (!event.context().get(EventContextKeys.USED_HAND).get().equals(HandTypes.MAIN_HAND.get()))
         {
             return;
         }
-        final ItemStackSnapshot terraPotion = event.getItemStackInUse();
+        final ItemStackSnapshot terraPotion = event.itemStackInUse();
         if (TerraItems.isTerraEssence(terraPotion))
         {
-            final Optional<UUID> uuid = event.getItemStackInUse().get(TerraData.WORLD_UUID);
+            final Optional<UUID> uuid = event.itemStackInUse().get(TerraData.WORLD_UUID);
             final Optional<ResourceKey> worldKey = terraPotion.get(TerraData.WORLD_KEY).map(ResourceKey::resolve);
             if (uuid.isPresent() && worldKey.isPresent())
             {
-                final Optional<ServerWorld> world = Sponge.getServer().getWorldManager().world(worldKey.get());
-                if (world.isPresent() && world.get().getUniqueId().equals(uuid.get()))
+                final Optional<ServerWorld> world = Sponge.server().worldManager().world(worldKey.get());
+                if (world.isPresent() && world.get().uniqueId().equals(uuid.get()))
                 {
                     this.tpPlayer(player, world.get());
                     return;
                 }
                 event.setCancelled(true);
-                player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_GLASS_BREAK, Source.PLAYER, 1, 1), player.getPosition());
+                player.world().playSound(Sound.sound(SoundTypes.BLOCK_GLASS_BREAK, Source.PLAYER, 1, 1), player.position());
                 player.setItemInHand(HandTypes.MAIN_HAND, ItemStack.empty());
                 i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "The potion broke. It must have been too old.");
                 return;
@@ -195,17 +195,18 @@ public class TerraListener
     public void checkForUnload(ScheduledTask task)
     {
         // TODO grace period
-        for (ServerWorld world : new ArrayList<>(Sponge.getServer().getWorldManager().worlds()))
+        final WorldManager wm = Sponge.server().worldManager();
+        for (ServerWorld world : new ArrayList<>(wm.worlds()))
         {
-            if (!futureWorlds.containsKey(world.getKey()) || futureWorlds.get(world.getKey()).isDone())
+            if (!futureWorlds.containsKey(world.key()) || futureWorlds.get(world.key()).isDone())
             {
-                if (world.getKey().getNamespace().equals(PluginTerra.TERRA_ID))
+                if (world.key().namespace().equals(PluginTerra.TERRA_ID))
                 {
-                    if (world.getPlayers().isEmpty())
+                    if (world.players().isEmpty())
                     {
-                        logger.info("Deleting empty Terra world: " + world.getKey());
-                        futureWorlds.remove(world.getKey());
-                        Sponge.getServer().getWorldManager().deleteWorld(world.getKey());
+                        logger.info("Deleting empty Terra world: " + world.key());
+                        futureWorlds.remove(world.key());
+                        wm.deleteWorld(world.key());
                     }
                 }
             }
@@ -215,11 +216,11 @@ public class TerraListener
     @Listener
     public void onCampfireTick(CookingEvent.Tick event)
     {
-        if (!(event.getBlockEntity() instanceof Campfire))
+        if (!(event.blockEntity() instanceof Campfire))
         {
             return;
         }
-        final ItemStackSnapshot original = event.getTransactions().get(0).getOriginal();
+        final ItemStackSnapshot original = event.transactions().get(0).original();
         if (TerraItems.isTerraEssence(original))
         {
             final Optional<String> worldKeyString = original.get(TerraData.WORLD_KEY);
@@ -238,34 +239,35 @@ public class TerraListener
     @Listener
     public void onCampfireTick(CookingEvent.Finish event)
     {
-        if (!(event.getBlockEntity() instanceof Campfire))
+        if (!(event.blockEntity() instanceof Campfire))
         {
             return;
         }
-        final ItemStackSnapshot result = event.getCookedItems().get(0);
+        final ItemStackSnapshot result = event.cookedItems().get(0);
         if (TerraItems.isTerraEssence(result))
         {
-            event.getBlockEntity().getWorld().playSound(Sound.sound(SoundTypes.ENTITY_GENERIC_EXTINGUISH_FIRE, Source.PLAYER, 5, 2f), event.getBlockEntity().getBlockPosition().toDouble());
+            event.blockEntity().world().playSound(Sound.sound(SoundTypes.ENTITY_GENERIC_EXTINGUISH_FIRE, Source.PLAYER, 5, 2f), event.blockEntity().blockPosition().toDouble());
         }
     }
 
     @Listener
     public void onUseItem(UseItemStackEvent.Tick event, @First ServerPlayer player)
     {
-        if (!event.getContext().get(EventContextKeys.USED_HAND).get().equals(HandTypes.MAIN_HAND.get()) || !TerraItems.isTerraEssence(event.getItemStackInUse()))
+        final ItemStackSnapshot itemStackInUse = event.itemStackInUse();
+        if (!event.context().get(EventContextKeys.USED_HAND).get().equals(HandTypes.MAIN_HAND.get()) || !TerraItems.isTerraEssence(itemStackInUse))
         {
             return;
         }
-        if (TerraItems.isTerraEssence(event.getItemStackInUse()))
+        if (TerraItems.isTerraEssence(itemStackInUse))
         {
-            final Optional<UUID> uuid = event.getItemStackInUse().get(TerraData.WORLD_UUID);
+            final Optional<UUID> uuid = itemStackInUse.get(TerraData.WORLD_UUID);
             if (!uuid.isPresent())
             {
-                if (event.getItemStackInUse().get(TerraData.POTION_UUID).isPresent())
+                if (itemStackInUse.get(TerraData.POTION_UUID).isPresent())
                 {
                     i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "Bad Potion");
                     player.setItemInHand(HandTypes.MAIN_HAND, ItemStack.empty());
-                    player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_GLASS_BREAK, Source.PLAYER, 1, 1), player.getPosition());
+                    player.world().playSound(Sound.sound(SoundTypes.BLOCK_GLASS_BREAK, Source.PLAYER, 1, 1), player.position());
                     event.setCancelled(true);
                     return;
                 }
@@ -275,7 +277,7 @@ public class TerraListener
                 return;
             }
 
-            if (event.getRemainingDuration() > 15)
+            if (event.remainingDuration() > 15)
             {
                 event.setRemainingDuration(15); // Gulp it down fast
                 final List<PotionEffect> potionEffects = player.get(Keys.POTION_EFFECTS).orElse(new ArrayList<>());
@@ -289,11 +291,11 @@ public class TerraListener
     @Listener
     public void onFatalDamage(DamageEntityEvent event, @Getter("getEntity") ServerPlayer player)
     {
-        if (event.getFinalDamage() > player.health().get() && player.getWorld().getKey().getNamespace().equals(PluginTerra.TERRA_ID))
+        if (event.finalDamage() > player.health().get() && player.world().key().namespace().equals(PluginTerra.TERRA_ID))
         {
             event.setCancelled(true);
             List<Entity> leashed = new ArrayList<>();
-            for (Entity nearbyEntity : player.getNearbyEntities(5))
+            for (Entity nearbyEntity : player.nearbyEntities(5))
             {
                 if (nearbyEntity.get(Keys.LEASH_HOLDER).map(holder -> holder.equals(player)).orElse(false))
                 {
@@ -308,13 +310,13 @@ public class TerraListener
             taskManager.runTask(() -> {
                 i18n.send(player, MessageType.NEUTRAL, "The world you were in disappeared as if it was a dream.");
 
-                final ServerWorld defaultWorld = Sponge.getServer().getWorldManager().defaultWorld();
-                player.setLocation(defaultWorld.getLocation(defaultWorld.getProperties().spawnPosition()));
+                final ServerWorld defaultWorld = Sponge.server().worldManager().defaultWorld();
+                player.setLocation(defaultWorld.location(defaultWorld.properties().spawnPosition()));
 
-                player.getWorld().playSound(Sound.sound(SoundTypes.ITEM_TOTEM_USE, Source.PLAYER, 1, 1), player.getPosition());
+                player.world().playSound(Sound.sound(SoundTypes.ITEM_TOTEM_USE, Source.PLAYER, 1, 1), player.position());
                 for (Entity leashedEntity : leashed)
                 {
-                    leashedEntity.setLocation(player.getServerLocation());
+                    leashedEntity.setLocation(player.serverLocation());
                 }
             });
         }
@@ -323,14 +325,14 @@ public class TerraListener
     @Listener
     public void onStartPotionHeatup(InteractBlockEvent.Secondary event, @First ServerPlayer player)
     {
-        if (event.getBlock().getState().getType().isAnyOf(BlockTypes.CAMPFIRE))
+        if (event.block().state().type().isAnyOf(BlockTypes.CAMPFIRE))
         {
-            final Campfire campfire = (Campfire) event.getBlock().getLocation().get().getBlockEntity().get();
-            if (campfire.getInventory().freeCapacity() <= 0)
+            final Campfire campfire = (Campfire) event.block().location().get().blockEntity().get();
+            if (campfire.inventory().freeCapacity() <= 0)
             {
                 return;
             }
-            final ItemStack itemInHand = player.getItemInHand(HandTypes.MAIN_HAND);
+            final ItemStack itemInHand = player.itemInHand(HandTypes.MAIN_HAND);
             if (TerraItems.isTerraEssence(itemInHand.createSnapshot()))
             {
                 if (itemInHand.get(TerraData.WORLD_UUID).isPresent())
@@ -343,23 +345,23 @@ public class TerraListener
                 {
                     i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "Bad Potion");
                     player.setItemInHand(HandTypes.MAIN_HAND, ItemStack.empty());
-                    player.getWorld().playSound(Sound.sound(SoundTypes.BLOCK_GLASS_BREAK, Source.PLAYER, 1, 1), player.getPosition());
+                    player.world().playSound(Sound.sound(SoundTypes.BLOCK_GLASS_BREAK, Source.PLAYER, 1, 1), player.position());
                     event.setCancelled(true);
                     return;
                 }
-                if (player.getWorld().getKey().getNamespace().equals(PluginTerra.TERRA_ID))
+                if (player.world().key().namespace().equals(PluginTerra.TERRA_ID))
                 {
                     i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "It feels wrong to do that here.");
                     return;
                 }
                 final Essence essence = TerraItems.getEssenceForItem(itemInHand.createSnapshot()).get();
-                final ResourceKey worldKey = ResourceKey.of(PluginTerra.TERRA_ID, player.getName().toLowerCase());
+                final ResourceKey worldKey = ResourceKey.of(PluginTerra.TERRA_ID, player.name().toLowerCase());
                 if (!futureWorlds.containsKey(worldKey) || futureWorlds.get(worldKey).isDone())
                 {
-                    itemInHand.offer(Keys.LORE, Arrays.asList(coldPotionLore(player), potionOwnerLore(player, worldKey.getValue())));
+                    itemInHand.offer(Keys.LORE, Arrays.asList(coldPotionLore(player), potionOwnerLore(player, worldKey.value())));
                     itemInHand.offer(TerraData.WORLD_KEY, worldKey.asString());
                     final UUID potionUuid = UUID.randomUUID();
-                    this.potions.put(player.getUniqueId(), potionUuid);
+                    this.potions.put(player.uniqueId(), potionUuid);
                     itemInHand.offer(TerraData.POTION_UUID, potionUuid);
 
                     final WorldTemplate template = essence.createWorldTemplate(player, worldKey);
@@ -374,7 +376,7 @@ public class TerraListener
                 }
                 else if (futureWorlds.get(worldKey) != null) // Currently generating
                 {
-                    final UUID curPotionUuid = this.potions.get(player.getUniqueId());
+                    final UUID curPotionUuid = this.potions.get(player.uniqueId());
                     if (curPotionUuid == null || !curPotionUuid.equals(itemInHand.get(TerraData.POTION_UUID).orElse(null)))
                     {
                         event.setCancelled(true); // Only allow the current potion
@@ -402,13 +404,14 @@ public class TerraListener
 
     private void evacuateWorld(ResourceKey worldKey)
     {
-        Sponge.getServer().getWorldManager().world(worldKey).ifPresent(w -> {
-            final ServerWorld defaultWorld = Sponge.getServer().getWorldManager().defaultWorld();
-            final Collection<ServerPlayer> players = new ArrayList<>(w.getPlayers());
+        final WorldManager wm = Sponge.server().worldManager();
+        final ServerWorld defaultWorld = wm.defaultWorld();
+        wm.world(worldKey).ifPresent(w -> {
+            final Collection<ServerPlayer> players = new ArrayList<>(w.players());
             for (ServerPlayer player : players)
             {
                 i18n.send(player, MessageType.NEUTRAL, "The world you were in disappeared as if it was a dream.");
-                player.setLocation(defaultWorld.getLocation(defaultWorld.getProperties().spawnPosition()));
+                player.setLocation(defaultWorld.location(defaultWorld.properties().spawnPosition()));
             }
         });
     }
@@ -434,22 +437,22 @@ public class TerraListener
     private void tpPlayer(ServerPlayer player, ServerWorld w)
     {
         setupWorld(w);
-        ServerLocation spawnLoc = w.getLocation(w.getProperties().spawnPosition());
-        if (spawnLoc.getPosition().getY() == 127)
+        ServerLocation spawnLoc = w.location(w.properties().spawnPosition());
+        if (spawnLoc.position().getY() == 127)
         {
-            spawnLoc = Sponge.getServer().getTeleportHelper().getSafeLocation(spawnLoc.add(Vector3i.UP.mul(-60)), 50, 10).orElse(spawnLoc);
+            spawnLoc = Sponge.server().teleportHelper().findSafeLocation(spawnLoc.add(Vector3i.UP.mul(-60)), 50, 10).orElse(spawnLoc);
         }
-        spawnLoc = Sponge.getServer().getTeleportHelper().getSafeLocation(spawnLoc, 50, 10).orElse(spawnLoc);
+        spawnLoc = Sponge.server().teleportHelper().findSafeLocation(spawnLoc, 50, 10).orElse(spawnLoc);
         player.setLocation(spawnLoc);
-        player.playSound(Sound.sound(SoundTypes.BLOCK_END_PORTAL_SPAWN, Source.PLAYER, 1, 0.5f), player.getPosition());
-        player.playSound(Sound.sound(SoundTypes.BLOCK_PORTAL_TRIGGER, Source.PLAYER, 1, 2f), player.getPosition());
+        player.playSound(Sound.sound(SoundTypes.BLOCK_END_PORTAL_SPAWN, Source.PLAYER, 1, 0.5f), player.position());
+        player.playSound(Sound.sound(SoundTypes.BLOCK_PORTAL_TRIGGER, Source.PLAYER, 1, 2f), player.position());
     }
 
     private void setupWorld(ServerWorld w)
     {
-        final Vector3i spawn = w.getProperties().spawnPosition();
-        w.getBorder().setCenter(spawn.getX(), spawn.getZ());
-        w.getBorder().setDiameter(16 * 17);
+        final Vector3i spawn = w.properties().spawnPosition();
+        w.border().setCenter(spawn.getX(), spawn.getZ());
+        w.border().setDiameter(16 * 17);
     }
 
     public ItemStack finalizePotion(ItemStack terraPotion)
@@ -458,14 +461,14 @@ public class TerraListener
         final WorldGeneration futureWorld = this.futureWorlds.get(worldKey);
         if (futureWorld != null && futureWorld.isReady())
         {
-            final Optional<ServerPlayer> optPlayer = Sponge.getServer().getPlayer(worldKey.getValue());
-            final Audience audience = optPlayer.map(Audience.class::cast).orElse(Sponge.getGame().getSystemSubject());
+            final Optional<ServerPlayer> optPlayer = Sponge.server().player(worldKey.value());
+            final Audience audience = optPlayer.map(Audience.class::cast).orElse(Sponge.game().systemSubject());
             final ArrayList<Component> lore = new ArrayList<>();
             lore.add(i18n.translate(audience, Style.style(NamedTextColor.GOLD), "The liquid feels warm and glows with excitement."));
             lore.add(i18n.translate(audience, Style.style(NamedTextColor.GRAY), "Drink it!"));
-            lore.add(potionOwnerLore(audience, worldKey.getValue()));
+            lore.add(potionOwnerLore(audience, worldKey.value()));
             terraPotion.offer(Keys.LORE, lore);
-            terraPotion.offer(TerraData.WORLD_UUID, futureWorld.getWorld().getUniqueId());
+            terraPotion.offer(TerraData.WORLD_UUID, futureWorld.getWorld().uniqueId());
             final UUID potionUuid = terraPotion.get(TerraData.POTION_UUID).get();
             this.potions.values().removeIf(uuid -> uuid.equals(potionUuid));
         }
@@ -496,10 +499,10 @@ public class TerraListener
                 final boolean current = currentGeneration == entry.getValue();
                 if (current)
                 {
-                    final Optional<ServerWorld> world = Sponge.getServer().getWorldManager().world(entry.getKey());
+                    final Optional<ServerWorld> world = Sponge.server().worldManager().world(entry.getKey());
                     if (world.isPresent())
                     {
-                        i18n.send(audience, MessageType.NEUTRAL, " - {name} is generating. {amount}/441 chunks", entry.getKey().asString(), ((Collection<?>)world.get().getLoadedChunks()).size());
+                        i18n.send(audience, MessageType.NEUTRAL, " - {name} is generating. {amount}/441 chunks", entry.getKey().asString(), ((Collection<?>)world.get().loadedChunks()).size());
                     }
                     else
                     {
