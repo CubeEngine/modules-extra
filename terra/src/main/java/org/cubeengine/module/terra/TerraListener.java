@@ -39,11 +39,11 @@ import net.kyori.adventure.sound.Sound.Source;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
+import org.apache.logging.log4j.Logger;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.i18n.I18nTranslate.ChatType;
 import org.cubeengine.libcube.service.i18n.formatter.MessageType;
 import org.cubeengine.libcube.service.task.TaskManager;
-import org.cubeengine.logscribe.Log;
 import org.cubeengine.module.terra.data.TerraData;
 import org.cubeengine.module.terra.data.TerraItems;
 import org.cubeengine.module.terra.data.TerraItems.Essence;
@@ -81,7 +81,7 @@ import org.spongepowered.math.vector.Vector3i;
 public class TerraListener
 {
     @Inject private I18n i18n;
-    @Inject private Log logger;
+    @Inject private Logger logger;
     @Inject private TaskManager taskManager;
 
     private Queue<WorldGeneration> worldGenerationQueue = new LinkedList<>();
@@ -123,7 +123,7 @@ public class TerraListener
             this.worldFuture.handle((w, t) -> {
                 if (t != null)
                 {
-                    logger.error(t, "Error while generating world {}", worldKey);
+                    logger.error("Error while generating world {}", worldKey, t);
                 }
                 return null;
             });

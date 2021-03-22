@@ -73,7 +73,7 @@ public class Itemduct
     @Listener
     public void onRegisterDatapacks(RegisterDataPackValueEvent<RecipeRegistration>event)
     {
-        this.config = this.fm.loadConfig(this, ItemductConfig.class);
+        this.config = this.fm.loadConfig(plugin, this, ItemductConfig.class);
         ItemductItems.registerRecipes(event, config); // TODO config is not loaded yet :(
     }
 

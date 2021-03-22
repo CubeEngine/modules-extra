@@ -28,11 +28,11 @@ import java.util.Map;
 import java.util.Set;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.apache.logging.log4j.Logger;
 import org.cubeengine.reflect.Reflector;
 import org.cubeengine.libcube.util.StringUtils;
 import org.cubeengine.libcube.service.matcher.StringMatcher;
 import org.spongepowered.api.data.Keys;
-import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.network.ServerSideConnectionEvent;
@@ -47,13 +47,15 @@ public class KitManager
     private final Map<Kit, KitConfiguration> kitConfigMap = new HashMap<>();
     private Reflector reflector;
     private StringMatcher sm;
+    private final Logger logger;
 
     @Inject
-    public KitManager(Kits module, Reflector reflector, StringMatcher sm)
+    public KitManager(Kits module, Reflector reflector, StringMatcher sm, Logger logger)
     {
         this.module = module;
         this.reflector = reflector;
         this.sm = sm;
+        this.logger = logger;
     }
 
     @Listener
@@ -124,7 +126,7 @@ public class KitManager
                     loadKit(file);
                 }
             }
-            module.getLogger().info("Loaded {} kits", this.kitMap.size());
+            logger.info("Loaded {} kits", this.kitMap.size());
         }
         catch (IOException ex)
         {
