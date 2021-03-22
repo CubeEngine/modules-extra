@@ -49,7 +49,6 @@ public class Bigdata
     {
         try
         {
-            lessSpamPls();
             getDatabase();
             releaseClient();
         }
@@ -57,20 +56,6 @@ public class Bigdata
         {
             throw new IllegalStateException("Failed to connect to the MongoDB instance!", e);
         }
-        lessSpamPls();
-
-    }
-
-    public void lessSpamPls()
-    {
-//        setLoggerLevel("org.mongodb.driver.connection", "WARN");
-//        setLoggerLevel("org.mongodb.driver.management", "WARN");
-//        setLoggerLevel("org.mongodb.driver.cluster", "WARN");
-//        setLoggerLevel("org.mongodb.driver.protocol.insert", "WARN");
-//        setLoggerLevel("org.mongodb.driver.protocol.query", "WARN");
-//        setLoggerLevel("org.mongodb.driver.protocol.update", "WARN");
-//        setLoggerLevel("org.mongodb.driver.protocol.command", "WARN");
-//        setLoggerLevel("org.mongodb.driver.management", "ERROR");
     }
 
     public void releaseClient()
