@@ -289,7 +289,7 @@ public class TerraListener
     }
 
     @Listener
-    public void onFatalDamage(DamageEntityEvent event, @Getter("getEntity") ServerPlayer player)
+    public void onFatalDamage(DamageEntityEvent event, @Getter("entity") ServerPlayer player)
     {
         if (event.finalDamage() > player.health().get() && player.world().key().namespace().equals(PluginTerra.TERRA_ID))
         {
