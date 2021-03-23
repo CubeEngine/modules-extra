@@ -34,7 +34,6 @@ import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
 import org.cubeengine.module.authorization.storage.Auth;
 import org.cubeengine.module.authorization.storage.TableAuth;
 import org.cubeengine.libcube.util.Triplet;
-import org.cubeengine.libcube.service.filesystem.FileManager;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.module.sql.database.Database;
 import org.cubeengine.module.sql.database.ModuleTables;
@@ -57,7 +56,6 @@ import static org.cubeengine.module.authorization.storage.TableAuth.TABLE_AUTH;
 @ModuleTables(TableAuth.class)
 public class Authorization extends CubeEngineModule
 {
-    @Inject private FileManager fm;
     @InjectService private PermissionService ps;
     @Inject private Database db;
     @Inject private AuthPerms perms;

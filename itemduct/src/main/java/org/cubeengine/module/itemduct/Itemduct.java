@@ -20,6 +20,7 @@ package org.cubeengine.module.itemduct;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.cubeengine.libcube.service.event.ModuleListener;
+import org.cubeengine.libcube.service.filesystem.ConfigLoader;
 import org.cubeengine.libcube.service.filesystem.FileManager;
 import org.cubeengine.module.itemduct.data.ItemductAdvancements;
 import org.cubeengine.module.itemduct.data.ItemductData;
@@ -54,7 +55,7 @@ public class Itemduct
     @Inject private ItemductManager manager;
     @ModuleListener private ItemductListener listenerActivator;
     @Inject private PluginContainer plugin;
-    @Inject private FileManager fm;
+    @Inject private ConfigLoader cl;
 
 
     @Listener
@@ -73,7 +74,7 @@ public class Itemduct
     @Listener
     public void onRegisterDatapacks(RegisterDataPackValueEvent<RecipeRegistration>event)
     {
-        this.config = this.fm.loadConfig(plugin, this, ItemductConfig.class);
+        this.config = cl.loadConfig(ItemductConfig.class);
         ItemductItems.registerRecipes(event, config); // TODO config is not loaded yet :(
     }
 

@@ -21,9 +21,9 @@ import java.nio.file.Path;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.apache.logging.log4j.Logger;
-import org.cubeengine.libcube.ModuleManager;
 import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
 import org.cubeengine.libcube.service.event.EventManager;
+import org.cubeengine.libcube.service.filesystem.FileManager;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.permission.PermissionManager;
 import org.cubeengine.module.module.kits.data.KitData;
@@ -42,7 +42,7 @@ public class Kits
     @Inject private EventManager em;
     @Inject private PermissionManager pm;
     private Path modulePath;
-    @Inject private ModuleManager mm;
+    @Inject private FileManager fm;
     @Inject private Logger logger;
 
     @ModuleCommand private KitCommand kitCommand;
@@ -52,7 +52,7 @@ public class Kits
     @Listener
     public void onEnable(StartedEngineEvent<Server> event)
     {
-        this.modulePath = mm.getPathFor(Kits.class);
+        this.modulePath = fm.getModulePath(Kits.class);
 
         em.registerListener(kitManager);
         this.kitManager.loadKits();

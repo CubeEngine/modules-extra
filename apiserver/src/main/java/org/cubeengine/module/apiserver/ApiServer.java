@@ -113,7 +113,7 @@ public class ApiServer extends CubeEngineModule
     @Inject private Authorization am;
 
     @Inject
-    public ApiServer(LogFactory logFactory, FileManager fm, ModuleManager mm)
+    public ApiServer(LogFactory logFactory, ModuleManager mm)
     {
         this.logger = mm.getLoggerFor(ApiServer.class);
         this.moduleFolder = mm.getPathFor(ApiServer.class);
