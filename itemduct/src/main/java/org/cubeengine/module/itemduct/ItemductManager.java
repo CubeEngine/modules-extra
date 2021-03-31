@@ -248,8 +248,11 @@ public class ItemductManager
                                     {
                                         inventory = ((Chest) te).doubleChestInventory().orElse(inventory);
                                     }
-                                    network.trigger(inventory, filters);
-                                    networks.add(network);
+                                    if (inventory.totalQuantity() > 0)
+                                    {
+                                        network.trigger(inventory, filters);
+                                        networks.add(network);
+                                    }
                                 }
                             }
                         }
@@ -257,9 +260,6 @@ public class ItemductManager
                 }
             }
         }
-
-
-
 
         for (Network network : networks)
         {
