@@ -40,13 +40,11 @@ import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.math.vector.Vector3i;
 
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 
@@ -55,7 +53,7 @@ public class Network
     private static Set<Direction> directions = EnumSet.of(Direction.DOWN, Direction.UP, Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
 
     private ItemductBlocks blocks;
-    private int maxDepth;
+    private int maxPipes;
 
     public Vector3i start;
     public Set<Vector3i> pipes = new HashSet<>();
@@ -64,15 +62,16 @@ public class Network
     public Set<Vector3i> errors = new HashSet<>();
     public final ServerWorld world;
 
-    public Network(ItemductBlocks blocks, ServerWorld world, int maxDepth)
+    public Network(ItemductBlocks blocks, ServerWorld world, int maxPipes)
     {
         this.blocks = blocks;
         this.world = world;
-        this.maxDepth = maxDepth;
+        this.maxPipes = maxPipes;
     }
 
     // Start with an exit/entry point
-    public Network discover(Vector3i start) {
+    public Network discover(Vector3i start)
+    {
         this.start = start;
         Direction dir = world.get(start, Keys.DIRECTION).orElse(Direction.NONE);
         if (!world.block(start).type().isAnyOf(DROPPER))
@@ -90,43 +89,34 @@ public class Network
 
     public void discover(Vector3i firstPipe, Direction dir) {
         pipes.add(firstPipe);
-        discover(new Network.LastDuct(firstPipe, dir), 0);
+        discover(new Network.LastDuct(firstPipe, dir));
     }
 
-    private void discover(Network.LastDuct last, int depth)
+    private void discover(Network.LastDuct first)
     {
-        if (depth > maxDepth)
+        Queue<Network.LastDuct> next = new LinkedList<>();
+        next.offer(first);
+
+        while (!next.isEmpty())
         {
-            this.errors.add(last.pos);
-            return;
-        }
-        Map<Direction, Vector3i> map = new HashMap<>();
-        Queue<Vector3i> next = new LinkedList<>();
-        next.offer(last.pos);
-        do
-        {
-            Set<Direction> dirs = directions;
             Set<Direction> connected = new HashSet<>();
+            final LastDuct last = next.poll();
             connected.add(last.from.opposite());
-            for (Direction dir : dirs)
+            for (Direction dir : directions)
             {
                 if (!dir.equals(last.from.opposite()))
                 {
-                    if (last.cross && last.color == null && !dir.equals(last.from)) {
+                    if (last.cross && last.color == null && !dir.equals(last.from))
+                    {
                         continue;
                     }
                     Vector3i rel = last.pos.add(dir.asBlockOffset());
                     if (last.isCompatible(rel))
                     {
-                        if (this.pipes.contains(rel)) // No loops allowed
-                        {
-                            this.errors.add(rel);
-                            this.errors.add(last.pos);
-                        }
-                        else
+                        if (!this.pipes.contains(rel))
                         {
                             this.pipes.add(rel);
-                            map.put(dir, rel);
+                            next.offer(new LastDuct(rel, dir));
                         }
                         connected.add(dir);
                     }
@@ -136,7 +126,6 @@ public class Network
                     {
                         if (this.world.block(rel).type().isAnyOf(PISTON))
                         {
-
                             final Vector3i relLoc = rel.add(dir.asBlockOffset());
 
                             if (this.world.get(relLoc, ItemductData.FILTERS).map(d -> d.get(dir.opposite()) != null).orElse(false))
@@ -149,8 +138,8 @@ public class Network
                         {
                             connected.add(dir);
                         }
-
                     }
+
                     // Storage Chest
                     if (last.storage)
                     {
@@ -160,8 +149,8 @@ public class Network
                             }
                         });
                     }
-                }
 
+                }
             }
 
             if (last.cross && last.color != null)
@@ -170,31 +159,21 @@ public class Network
                 world.setBlock(last.pos, state);
             }
 
-            if (map.size() > 1)
+            if (pipes.size() > this.maxPipes)
             {
-                for (Map.Entry<Direction, Vector3i> entry : map.entrySet())
-                {
-                    discover(new Network.LastDuct(entry.getValue(), entry.getKey()), depth +1);
-                }
+                errors.add(last.pos);
+                return;
             }
-            else if (map.size() == 1)
-            {
-                for (Map.Entry<Direction, Vector3i> entry : map.entrySet())
-                {
-                    last.update(entry.getValue(), entry.getKey());
-                }
-                next.offer(last.pos);
-            }
-            // else nothing found here
-            next.poll();
-            map.clear();
         }
-        while (!next.isEmpty());
 
     }
 
     public void trigger(Inventory inventory, List<ItemStack> filters)
     {
+        if (!errors.isEmpty())
+        {
+            return;
+        }
         if (isStorage())
         {
             pullFromStorage(inventory, filters);
@@ -211,7 +190,7 @@ public class Network
             Inventory target = ((Carrier) te).inventory();
             if (te instanceof Dropper)
             {
-                Network nw = new Network(this.blocks, this.world, this.maxDepth).discover(targetLoc);
+                Network nw = new Network(this.blocks, this.world, this.maxPipes).discover(targetLoc);
                 nw.transferToStorage(queryFiltered(filters, inventory), data.get(dir));
                 continue;
             }
@@ -240,6 +219,10 @@ public class Network
 
     private void transferToStorage(Inventory inventory, List<ItemStack> filters)
     {
+        if (!errors.isEmpty())
+        {
+            return;
+        }
         if (!filters.isEmpty()) // Only allow to extract items in the filter
         {
             inventory = queryFiltered(filters, inventory);

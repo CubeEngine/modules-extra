@@ -24,7 +24,6 @@ import static org.spongepowered.api.block.BlockTypes.STICKY_PISTON;
 
 import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.module.itemduct.data.ItemductAdvancements;
 import org.cubeengine.module.itemduct.data.ItemductBlocks;
@@ -74,7 +73,7 @@ public class ItemductManager
     @Inject private ItemductPerms perms;
     @Inject private PluginContainer plugin;
 
-    private int maxDepth = 10;
+    private int maxPipes = 1000;
 
     public void setup(ItemductConfig config)
     {
@@ -97,12 +96,12 @@ public class ItemductManager
 
     public void reload(ItemductConfig config)
     {
-        this.maxDepth = config.maxDepth;
+        this.maxPipes = config.maxPipes;
     }
 
     public Network discoverNetwork(ServerWorld world, Vector3i start)
     {
-        return new Network(blocks, world, maxDepth).discover(start);
+        return new Network(blocks, world, maxPipes).discover(start);
     }
 
     public void openFilter(ServerPlayer player, NetworkFilter networkFilter)
