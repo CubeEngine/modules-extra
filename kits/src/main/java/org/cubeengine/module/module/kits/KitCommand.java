@@ -58,15 +58,13 @@ public class KitCommand extends DispatcherCommand
     private final KitManager manager;
     private final Kits module;
     private I18n i18n;
-    private InventoryGuardFactory igf;
 
     @Inject
-    public KitCommand(Kits module, I18n i18n, InventoryGuardFactory igf, KitEditCommand editCommand)
+    public KitCommand(Kits module, I18n i18n, KitEditCommand editCommand)
     {
         super(Kits.class, editCommand);
         this.module = module;
         this.i18n = i18n;
-        this.igf = igf;
         this.manager = module.getKitManager();
     }
 
