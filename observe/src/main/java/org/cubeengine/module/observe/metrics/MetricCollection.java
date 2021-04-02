@@ -22,11 +22,20 @@ import org.cubeengine.module.observe.metrics.meter.Gauge;
 import org.cubeengine.module.observe.metrics.meter.Histogram;
 import org.cubeengine.module.observe.metrics.meter.Timer;
 
+import java.util.function.Function;
+
 public interface MetricCollection {
-    Counter newCounter(String[] name, String help, String... labelNames);
-    Gauge newGauge(String[] name, String help, String... labelNames);
-    Timer newTimer(String[] name, String help, String... labelNames);
-    Histogram newHistogram(String[] name, String help, double[] buckets, String... labelNames);
+    Counter newCounter(Metadata metadata);
+    Counter.Builder newCounter();
+
+    Gauge newGauge(Metadata metadata);
+    Gauge.Builder newGauge();
+
+    Timer newTimer(Metadata metadata);
+    Timer.Builder newTimer();
+
+    Histogram newHistogram(Metadata metadata, double[] buckets);
+    Histogram.Builder newHistogram();
 
     void subscribe(MetricSubscriber subscriber);
     void unsubscribe(MetricSubscriber subscriber);
@@ -44,7 +53,10 @@ public interface MetricCollection {
         private final String help;
         private final String[] labelNames;
 
-        Metadata(String[] name, String help, String[] labelNames) {
+        public Metadata(String[] name, String help, String[] labelNames) {
+            if (name.length == 0) {
+                throw new IllegalArgumentException("at least one name segment is required!");
+            }
             this.name = name;
             this.help = help;
             this.labelNames = labelNames;
@@ -60,6 +72,42 @@ public interface MetricCollection {
 
         public String[] getLabelNames() {
             return labelNames;
+        }
+    }
+
+    class Builder<T> {
+        private final String[] name;
+        private final Function<Metadata, T> constructor;
+
+        private String help;
+        private String[] labelNames;
+
+        public Builder(String[] name, Function<Metadata, T> constructor) {
+            this.name = name;
+            this.constructor = constructor;
+        }
+
+        public Builder<T> help(String help) {
+            this.help = help;
+            return this;
+        }
+
+
+        public Builder<T> labels(String... names) {
+            this.labelNames = names;
+            return this;
+        }
+
+        public T build() {
+            if (help == null) {
+                throw new IllegalStateException("help is required!");
+            }
+            if (labelNames == null) {
+                throw new IllegalStateException("labels are required!");
+            }
+
+            Metadata metadata = new Metadata(name, help, labelNames);
+            return constructor.apply(metadata);
         }
     }
 }

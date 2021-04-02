@@ -24,4 +24,7 @@ public interface Counter {
     default void inc(Object... labels) {
         inc(1.0, labels);
     }
+
+    abstract class Builder extends MeterBuilder<Counter, Builder> {
+    }
 }

@@ -20,4 +20,7 @@ package org.cubeengine.module.observe.metrics.meter;
 @FunctionalInterface
 public interface Gauge {
     void set(double value, Object... labels);
+
+    abstract class Builder extends MeterBuilder<Gauge, Builder> {
+    }
 }

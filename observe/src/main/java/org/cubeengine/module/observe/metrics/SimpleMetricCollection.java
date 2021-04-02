@@ -17,10 +17,13 @@
  */
 package org.cubeengine.module.observe.metrics;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.cubeengine.module.observe.metrics.meter.Counter;
 import org.cubeengine.module.observe.metrics.meter.Gauge;
 import org.cubeengine.module.observe.metrics.meter.Histogram;
+import org.cubeengine.module.observe.metrics.meter.MeterBuilder;
 import org.cubeengine.module.observe.metrics.meter.Timer;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -41,27 +44,63 @@ public class SimpleMetricCollection implements MetricCollection {
     }
 
     @Override
-    public Counter newCounter(String[] name, String help, String... labelNames) {
-        final Metadata metadata = new Metadata(name, help, labelNames);
+    public Counter newCounter(Metadata metadata) {
         return (by, labels) -> forAll(s -> s.onCounterIncrement(metadata, by, labels));
     }
 
     @Override
-    public Gauge newGauge(String[] name, String help, String... labelNames) {
-        final Metadata metadata = new Metadata(name, help, labelNames);
+    public Counter.Builder newCounter() {
+        return new Counter.Builder() {
+            @Override
+            protected @NonNull Counter build(Metadata metadata) {
+                return newCounter(metadata);
+            }
+        };
+    }
+
+    @Override
+    public Gauge newGauge(Metadata metadata) {
         return (value, labels) -> forAll(s -> s.onGaugeSet(metadata, value, labels));
     }
 
     @Override
-    public Timer newTimer(String[] name, String help, String... labelNames) {
-        final Metadata metadata = new Metadata(name, help, labelNames);
+    public Gauge.Builder newGauge() {
+        return new Gauge.Builder() {
+            @Override
+            protected @NonNull Gauge build(Metadata metadata) {
+                return newGauge(metadata);
+            }
+        };
+    }
+
+    @Override
+    public Timer newTimer(Metadata metadata) {
         return (seconds, labels) -> forAll(s -> s.onTimerObserved(metadata, seconds, labels));
     }
 
     @Override
-    public Histogram newHistogram(String[] name, String help, double[] buckets, String... labelNames) {
-        final Metadata metadata = new Metadata(name, help, labelNames);
+    public Timer.Builder newTimer() {
+        return new Timer.Builder() {
+            @Override
+            protected @NonNull Timer build(Metadata metadata) {
+                return newTimer(metadata);
+            }
+        };
+    }
+
+    @Override
+    public Histogram newHistogram(Metadata metadata, double[] buckets) {
         return (value, labels) -> forAll(s -> s.onHistogramObserved(metadata, buckets, value, labels));
+    }
+
+    @Override
+    public Histogram.Builder newHistogram() {
+        return new Histogram.Builder() {
+            @Override
+            protected Histogram build(Metadata metadata, double[] buckets) {
+                return newHistogram(metadata, buckets);
+            }
+        };
     }
 
     private void forAll(Consumer<MetricSubscriber> f) {

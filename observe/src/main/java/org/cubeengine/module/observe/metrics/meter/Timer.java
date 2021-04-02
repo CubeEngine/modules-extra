@@ -64,4 +64,7 @@ public interface Timer {
             stop();
         }
     }
+
+    abstract class Builder extends MeterBuilder<Timer, Builder> {
+    }
 }

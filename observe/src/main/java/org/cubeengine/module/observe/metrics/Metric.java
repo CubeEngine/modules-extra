@@ -10,20 +10,22 @@ public final class Metric {
     public static final SimpleMetricCollection DEFAULT = new SimpleMetricCollection();
 
     private Metric() {
-
     }
 
+    static Counter.Builder newCounter() {
+        return DEFAULT.newCounter();
+    }
 
-    Counter newCounter(String[] name, String help, String... labelNames) {
-        return DEFAULT.newCounter(name, help, labelNames);
+    static Gauge.Builder newGauge() {
+        return DEFAULT.newGauge();
     }
-    Gauge newGauge(String[] name, String help, String... labelNames) {
-        return DEFAULT.newGauge(name, help, labelNames);
+
+    static Timer.Builder newTimer() {
+        return DEFAULT.newTimer();
     }
-    Timer newTimer(String[] name, String help, String... labelNames) {
-        return DEFAULT.newTimer(name, help, labelNames);
+
+    static Histogram.Builder newHistogram() {
+        return DEFAULT.newHistogram();
     }
-    Histogram newHistogram(String[] name, String help, double[] buckets, String... labelNames) {
-        return DEFAULT.newHistogram(name, help, buckets, labelNames);
-    }
+
 }

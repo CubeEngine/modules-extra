@@ -17,7 +17,29 @@
  */
 package org.cubeengine.module.observe.metrics.meter;
 
+import org.cubeengine.module.observe.metrics.MetricCollection;
+import org.jetbrains.annotations.NotNull;
+
 @FunctionalInterface
 public interface Histogram {
     void observe(double seconds, Object... labels);
+
+    abstract class Builder extends MeterBuilder<Histogram, Builder> {
+        private double[] buckets;
+
+        public Builder buckets(double... buckets) {
+            this.buckets = buckets;
+            return this;
+        }
+
+        @Override
+        protected final @NotNull Histogram build(MetricCollection.Metadata metadata) {
+            if (buckets == null || buckets.length == 0) {
+                throw new IllegalStateException("buckets are required!");
+            }
+            return build(metadata, buckets);
+        }
+
+        protected abstract Histogram build(MetricCollection.Metadata metadata, double[] buckets);
+    }
 }
