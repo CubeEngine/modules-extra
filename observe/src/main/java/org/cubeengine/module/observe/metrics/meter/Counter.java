@@ -17,10 +17,11 @@
  */
 package org.cubeengine.module.observe.metrics.meter;
 
+@FunctionalInterface
 public interface Counter {
-    void inc(double by);
+    void inc(double by, Object... labels);
 
-    default void inc() {
-        inc(1.0);
+    default void inc(Object... labels) {
+        inc(1.0, labels);
     }
 }

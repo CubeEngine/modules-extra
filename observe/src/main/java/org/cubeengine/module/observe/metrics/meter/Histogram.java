@@ -17,6 +17,7 @@
  */
 package org.cubeengine.module.observe.metrics.meter;
 
+@FunctionalInterface
 public interface Histogram {
-    void observe(double seconds);
+    void observe(double seconds, Object... labels);
 }

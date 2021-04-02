@@ -27,6 +27,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 public class SimpleMetricCollection implements MetricCollection {
+
     private final List<MetricSubscriber> subscribers = new CopyOnWriteArrayList<>();
 
     @Override
@@ -39,26 +40,28 @@ public class SimpleMetricCollection implements MetricCollection {
         subscribers.remove(subscriber);
     }
 
-    // TODO metadata: label names, help, ???
-
     @Override
-    public Counter newCounter(String[] name) {
-        return by -> forAll(s -> s.onCounterIncrement(name, by));
+    public Counter newCounter(String[] name, String help, String... labelNames) {
+        final Metadata metadata = new Metadata(name, help, labelNames);
+        return (by, labels) -> forAll(s -> s.onCounterIncrement(metadata, by, labels));
     }
 
     @Override
-    public Gauge newGauge(String[] name) {
-        return value -> forAll(s -> s.onGaugeSet(name, value));
+    public Gauge newGauge(String[] name, String help, String... labelNames) {
+        final Metadata metadata = new Metadata(name, help, labelNames);
+        return (value, labels) -> forAll(s -> s.onGaugeSet(metadata, value, labels));
     }
 
     @Override
-    public Timer newTimer(String[] name) {
-        return seconds -> forAll(s -> s.onTimerObserved(name, seconds));
+    public Timer newTimer(String[] name, String help, String... labelNames) {
+        final Metadata metadata = new Metadata(name, help, labelNames);
+        return (seconds, labels) -> forAll(s -> s.onTimerObserved(metadata, seconds, labels));
     }
 
     @Override
-    public Histogram newHistogram(String[] name, double[] buckets) {
-        return value -> forAll(s -> s.onHistogramObserved(name, buckets, value));
+    public Histogram newHistogram(String[] name, String help, double[] buckets, String... labelNames) {
+        final Metadata metadata = new Metadata(name, help, labelNames);
+        return (value, labels) -> forAll(s -> s.onHistogramObserved(metadata, buckets, value, labels));
     }
 
     private void forAll(Consumer<MetricSubscriber> f) {

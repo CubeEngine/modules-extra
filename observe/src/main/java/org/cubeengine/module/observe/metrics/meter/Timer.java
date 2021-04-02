@@ -20,8 +20,9 @@ package org.cubeengine.module.observe.metrics.meter;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
+@FunctionalInterface
 public interface Timer {
-    void observe(double seconds);
+    void observe(double seconds, Object... labels);
 
     default RunningTimer start() {
         final long startTime = System.nanoTime();

@@ -17,6 +17,7 @@
  */
 package org.cubeengine.module.observe.metrics.meter;
 
+@FunctionalInterface
 public interface Gauge {
-    void set(double value);
+    void set(double value, Object... labels);
 }

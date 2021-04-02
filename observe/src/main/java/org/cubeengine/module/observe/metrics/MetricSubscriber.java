@@ -18,8 +18,8 @@
 package org.cubeengine.module.observe.metrics;
 
 public interface MetricSubscriber {
-    void onCounterIncrement(String[] name, double incrementedBy);
-    void onGaugeSet(String[] name, double value);
-    void onTimerObserved(String[] name, double seconds);
-    void onHistogramObserved(String[] name, double[] buckets, double value);
+    void onCounterIncrement(MetricCollection.Metadata metadata, double incrementedBy, Object[] labelValues);
+    void onGaugeSet(MetricCollection.Metadata metadata, double value, Object[] labelValues);
+    void onTimerObserved(MetricCollection.Metadata metadata, double seconds, Object[] labelValues);
+    void onHistogramObserved(MetricCollection.Metadata metadata, double[] buckets, double value, Object[] labelValues);
 }

@@ -33,7 +33,9 @@ import org.cubeengine.module.observe.health.HealthCheckService;
 import org.cubeengine.module.observe.health.impl.LastTickHealth;
 import org.cubeengine.module.observe.health.impl.SimpleHealthCheckService;
 import org.cubeengine.module.observe.health.impl.TickTimeCollector;
+import org.cubeengine.module.observe.metrics.Metric;
 import org.cubeengine.module.observe.metrics.MetricsService;
+import org.cubeengine.module.observe.metrics.impl.PrometheusMetricSubscriber;
 import org.cubeengine.module.observe.metrics.impl.PrometheusMetricsService;
 import org.cubeengine.module.observe.metrics.impl.SpongeCollector;
 import org.cubeengine.module.observe.tracing.impl.JaegerTracingService;
@@ -60,11 +62,13 @@ public class Observe
 {
     @ModuleConfig private ObserveConfig config;
     private final PluginContainer plugin;
-    private WebServer webServer;
     private final Logger logger;
     private final ThreadFactory tf;
     private final TaskManager tm;
     private final CollectorRegistry asyncCollectorRegistry = new CollectorRegistry();
+
+    private WebServer webServer;
+    private PrometheusMetricSubscriber prometheusSubscriber;
 
     @Inject
     public Observe(PluginContainer plugin, Logger logger, ThreadFactory tf, TaskManager tm) {
@@ -122,6 +126,9 @@ public class Observe
         asyncRegistry.register(new VersionInfoExports());
         service.addCollectorRegistry(plugin, asyncRegistry, true);
 
+        prometheusSubscriber = new PrometheusMetricSubscriber(asyncRegistry);
+        Metric.DEFAULT.subscribe(prometheusSubscriber);
+
         final CollectorRegistry syncRegistry = new CollectorRegistry();
         final Server server = Sponge.server();
         syncRegistry.register(new SpongeCollector(server, plugin));
@@ -151,8 +158,12 @@ public class Observe
     @Listener
     public void onStop(StoppingEngineEvent<Server> e)
     {
+        Metric.DEFAULT.unsubscribe(prometheusSubscriber);
+        prometheusSubscriber = null;
+
         if (webServer != null) {
             webServer.stop();
+            webServer = null;
         }
     }
 }

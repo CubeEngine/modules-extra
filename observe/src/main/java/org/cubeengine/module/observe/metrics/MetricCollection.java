@@ -23,11 +23,10 @@ import org.cubeengine.module.observe.metrics.meter.Histogram;
 import org.cubeengine.module.observe.metrics.meter.Timer;
 
 public interface MetricCollection {
-
-    Counter newCounter(String[] name);
-    Gauge newGauge(String[] name);
-    Timer newTimer(String[] name);
-    Histogram newHistogram(String[] name, double[] buckets);
+    Counter newCounter(String[] name, String help, String... labelNames);
+    Gauge newGauge(String[] name, String help, String... labelNames);
+    Timer newTimer(String[] name, String help, String... labelNames);
+    Histogram newHistogram(String[] name, String help, double[] buckets, String... labelNames);
 
     void subscribe(MetricSubscriber subscriber);
     void unsubscribe(MetricSubscriber subscriber);
@@ -38,5 +37,29 @@ public interface MetricCollection {
 
     static MetricCollection newCollection() {
         return new SimpleMetricCollection();
+    }
+
+    class Metadata {
+        private final String[] name;
+        private final String help;
+        private final String[] labelNames;
+
+        Metadata(String[] name, String help, String[] labelNames) {
+            this.name = name;
+            this.help = help;
+            this.labelNames = labelNames;
+        }
+
+        public String[] getName() {
+            return name;
+        }
+
+        public String getHelp() {
+            return help;
+        }
+
+        public String[] getLabelNames() {
+            return labelNames;
+        }
     }
 }
