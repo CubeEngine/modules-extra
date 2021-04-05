@@ -17,116 +17,101 @@
  */
 package org.cubeengine.module.vote;
 
-import static java.lang.Math.pow;
-import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NONE;
-import static org.cubeengine.module.sql.PluginSql.SQL_ID;
-import static org.cubeengine.module.sql.PluginSql.SQL_VERSION;
-import static org.cubeengine.module.vote.storage.TableVote.TABLE_VOTE;
-
-import com.vexsoftware.votifier.sponge.event.VotifierEvent;
-import org.cubeengine.logscribe.Log;
-import org.cubeengine.libcube.CubeEngineModule;
-import org.cubeengine.libcube.InjectService;
-import org.cubeengine.libcube.ModuleManager;
-import org.cubeengine.libcube.service.Broadcaster;
-import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
-import org.cubeengine.module.sql.database.Database;
-import org.cubeengine.module.sql.database.ModuleTables;
-import org.cubeengine.libcube.service.filesystem.ModuleConfig;
-import org.cubeengine.libcube.util.ChatFormat;
-import org.cubeengine.module.vote.storage.TableVote;
-import org.cubeengine.processor.Dependency;
-import org.cubeengine.processor.Module;
-import org.jooq.DSLContext;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.entity.living.player.User;
-import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.EventContext;
-import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
-import org.spongepowered.api.service.economy.EconomyService;
-import org.spongepowered.api.service.economy.account.UniqueAccount;
-import org.spongepowered.api.service.user.UserStorageService;
-import org.spongepowered.api.text.Text;
-
-import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import com.vexsoftware.votifier.sponge.event.VotifierEvent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.apache.logging.log4j.Logger;
+import org.cubeengine.libcube.service.Broadcaster;
+import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
+import org.cubeengine.libcube.service.filesystem.ModuleConfig;
+import org.cubeengine.processor.Dependency;
+import org.cubeengine.processor.Module;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.adventure.SpongeComponents;
+import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.Keys;
+import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
+import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.item.inventory.ItemStack;
 
 /**
  * A module to handle Votes coming from a {@link VotifierEvent}
  */
 @Singleton
-@Module(dependencies = {@Dependency("nuvotifier"), @Dependency(value = SQL_ID, version = SQL_VERSION)})
-@ModuleTables(TableVote.class)
-public class Vote extends CubeEngineModule
+@Module(dependencies = @Dependency("nuvotifier"))
+public class Vote
 {
-    @Inject private Database db;
     @Inject private Broadcaster bc;
-    @Inject private ModuleManager mm;
-    private Log logger;
+    @Inject private Logger logger;
 
     @ModuleConfig private VoteConfiguration config;
     @ModuleCommand private VoteCommands commands;
-    @InjectService private EconomyService economy;
-
-    @Listener
-    public void onPreInit(GamePostInitializationEvent event)
-    {
-        this.logger = mm.getLoggerFor(Vote.class);
-    }
 
     @Listener
     public void onVote(VotifierEvent event) throws ExecutionException, InterruptedException
     {
         final com.vexsoftware.votifier.model.Vote vote = event.getVote();
-        UserStorageService uss = Sponge.getServiceManager().provideUnchecked(UserStorageService.class);
-        Optional<User> user = uss.get(vote.getUsername());
-        if (!user.isPresent())
+        final String username = event.getVote().getUsername();
+        final Optional<ServerPlayer> player = Sponge.server().player(username);
+        final User user = Sponge.server().userManager().find(username).orElse(null);
+        final DataHolder.Mutable dh = player.map(DataHolder.Mutable.class::cast).orElse(user);
+        if (dh == null)
         {
-            if (vote.getUsername() == null || vote.getUsername().trim().isEmpty())
-            {
-                logger.info("{} voted but is not known to the server!", vote.getUsername());
-            }
+            logger.info("{} voted but is not known to the server!", username);
             return;
         }
-        final DSLContext dsl = db.getDSL();
-        db.queryOne(dsl.selectFrom(TABLE_VOTE).where(TABLE_VOTE.ID.eq(user.get().getUniqueId()))).thenAcceptAsync((voteModel) -> {
-            if (voteModel != null)
+
+        final int count = dh.get(VoteData.COUNT).orElse(0) + 1;
+        final long lastVote = dh.get(VoteData.LAST_VOTE).orElse(System.currentTimeMillis());
+
+        boolean isStreak = System.currentTimeMillis() - lastVote > config.voteMaxBonusTime.toMillis() && System.currentTimeMillis() - lastVote < config.voteMinBonusTime.toMillis();
+        final int streak = isStreak ? dh.get(VoteData.STREAK).orElse(0) + 1 : 0;
+
+        dh.offer(VoteData.COUNT, count);
+        dh.offer(VoteData.STREAK, streak);
+        dh.offer(VoteData.LAST_VOTE, System.currentTimeMillis());
+
+        final int countToStreakReward = this.config.streak - streak % this.config.streak;
+
+        Sponge.server().sendMessage(voteMessage(this.config.voteBroadcast, username, count, this.config.voteUrl, countToStreakReward));
+
+        player.ifPresent(p -> {
+            p.sendMessage(voteMessage(this.config.voteMessage, username, count, this.config.voteUrl, countToStreakReward));
+        });
+
+        if (isStreak && streak % this.config.streak == 0)
+        {
+            final ItemStack streakReward = ItemStack.of(this.config.streakReward);
+            if (player.isPresent())
             {
-                if (voteModel.timePassed(config.voteBonusTime.toMillis()))
-                {
-                    voteModel.setVotes(1);
-                }
-                else
-                {
-                    voteModel.addVote();
-                }
-                voteModel.update();
+                player.get().inventory().offer(streakReward);
             }
             else
             {
-                voteModel = dsl.newRecord(TABLE_VOTE).newVote(user.get());
-                voteModel.insert();
+                user.inventory().offer(streakReward);
             }
-            UniqueAccount acc = economy.getOrCreateAccount(user.get().getUniqueId()).get();
-            final int voteAmount = voteModel.getVotes();
-            double money = this.config.voteReward * pow(1 + 1.5 / voteAmount, voteAmount - 1);
-            acc.deposit(economy.getDefaultCurrency(), new BigDecimal(money), Cause.of(EventContext.empty(), event.getVote()));
-            Text moneyFormat = economy.getDefaultCurrency().format(new BigDecimal(money));
-            bc.broadcastMessage(NONE, ChatFormat.parseFormats(this.config.voteBroadcast)
-                    .replace("{PLAYER}", vote.getUsername())
-                    .replace("{MONEY}", moneyFormat.toPlain()).replace("{AMOUNT}", String.valueOf(voteAmount))
-                    .replace("{VOTEURL}", this.config.voteUrl));
-            user.get().getPlayer().ifPresent(p -> p.sendMessage(Text.of(ChatFormat.parseFormats(this.config.voteMessage
-                                                         .replace("{PLAYER}", vote.getUsername())
-                                                         .replace("{MONEY}", moneyFormat.toPlain())
-                                                         .replace("{AMOUNT}", String.valueOf(voteAmount))
-                                                         .replace("{VOTEURL}", this.config.voteUrl)))));
-        });
+        }
+        else
+        {
+            final ItemStack onlineReward = ItemStack.of(this.config.onlineReward);
+            onlineReward.offer(Keys.CUSTOM_NAME, Component.text("Vote-Cookie", NamedTextColor.GOLD));
+            player.ifPresent(serverPlayer -> serverPlayer.inventory().offer(onlineReward));
+        }
+    }
+
+    public static Component voteMessage(String raw, String username, int count, String voteurl, int toStreak)
+    {
+        final String replaced = raw.replace("{PLAYER}", username)
+                                   .replace("{COUNT}", String.valueOf(count))
+                                   .replace("{VOTEURL}", voteurl)
+                                   .replace("{TOSTREAK}", String.valueOf(toStreak))
+                ;
+        return SpongeComponents.legacyAmpersandSerializer().deserialize(replaced);
     }
 
     public VoteConfiguration getConfig()

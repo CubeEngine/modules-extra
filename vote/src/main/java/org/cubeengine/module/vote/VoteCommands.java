@@ -18,67 +18,67 @@
 package org.cubeengine.module.vote;
 
 import java.util.Date;
-import org.cubeengine.butler.parametric.Command;
+import com.google.inject.Inject;
+import org.cubeengine.libcube.service.command.DispatcherCommand;
+import org.cubeengine.libcube.service.command.annotation.Command;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.util.TimeUtil;
-import org.cubeengine.module.sql.database.Database;
-import org.cubeengine.module.vote.storage.VoteModel;
-import org.spongepowered.api.command.CommandSource;
-import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 
+import static java.util.concurrent.TimeUnit.DAYS;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
-import static org.cubeengine.module.vote.storage.TableVote.TABLE_VOTE;
-import static java.util.concurrent.TimeUnit.DAYS;
 
-import javax.inject.Inject;
-
-public class VoteCommands
+@Command(name = "vote", desc = "CubeEngine Vote Listener")
+public class VoteCommands extends DispatcherCommand
 {
     private final Vote module;
-    private Database db;
     private I18n i18n;
 
     @Inject
-    public VoteCommands(Vote module, Database db, I18n i18n)
+    public VoteCommands(Vote module, I18n i18n)
     {
+        super();
         this.module = module;
-        this.db = db;
         this.i18n = i18n;
     }
 
     @Command(desc = "Shows your current vote situation")
-    public void vote(CommandSource context)
+    public void info(ServerPlayer context)
     {
-        if (!(context instanceof Player))
-        {
-            i18n.send(context, NEUTRAL, "Well you wont get any rewards.");
-            if (!module.getConfig().voteUrl.isEmpty())
-            {
-                i18n.send(context, NEUTRAL, "But here go vote anyways: {name#voteurl}", module.getConfig().voteUrl);
-            }
-            return;
-        }
-        VoteModel voteModel = db.getDSL().selectFrom(TABLE_VOTE).where(TABLE_VOTE.ID.eq(((Player)context).getUniqueId())).fetchOne();
-        if (voteModel == null)
+//        if (!(context instanceof Player))
+//        {
+//            i18n.send(context, NEUTRAL, "Well you wont get any rewards.");
+//            if (!module.getConfig().voteUrl.isEmpty())
+//            {
+//                i18n.send(context, NEUTRAL, "But here go vote anyways: {name#voteurl}", module.getConfig().voteUrl);
+//            }
+//            return;
+//        }
+        final Long lastVote = context.get(VoteData.LAST_VOTE).orElse(null);
+        final int count = context.get(VoteData.COUNT).orElse(0);
+        final int streak = context.get(VoteData.STREAK).orElse(0);
+
+        if (lastVote == null)
         {
             i18n.send(context, NEUTRAL, "Sorry but you do not have any registered votes on this server!");
             return;
         }
-        i18n.send(context, POSITIVE, "You current vote-count is {amount}", voteModel.getVotes());
-        if (voteModel.timePassed(module.getConfig().voteBonusTime.toMillis()))
+        i18n.send(context, POSITIVE, "You current vote-count is {amount} with a streak of {amount} votes", count, streak);
+        final long voteDelta = System.currentTimeMillis() - lastVote;
+        if (voteDelta > module.getConfig().voteMaxBonusTime.toMillis())
         {
             i18n.send(context, NEUTRAL, "Sadly you did not vote in the last {input#time} so your vote-count will be reset to 1",
-                                   TimeUtil.format(context.getLocale(), module.getConfig().voteBonusTime.toMillis()));
+                                   TimeUtil.format(context.locale(), module.getConfig().voteMaxBonusTime.toMillis()));
         }
-        else if (voteModel.timePassed(DAYS.toMillis(1)))
+        else if (voteDelta <= DAYS.toMillis(1))
         {
-            i18n.send(context, NEUTRAL, "Voting now will increase your consecutive votes and result in higher reward!");
+            i18n.send(context, NEUTRAL, "Voting now will increase your vote streak and result in higher rewards!");
         }
         else
         {
             i18n.send(context, POSITIVE, "You voted {input#time} so you will probably not be able to vote again already!",
-                                   TimeUtil.format(context.getLocale(), new Date(voteModel.getLastVote())));
+                                   TimeUtil.format(context.locale(), new Date(lastVote)));
         }
         if (!module.getConfig().voteUrl.isEmpty())
         {

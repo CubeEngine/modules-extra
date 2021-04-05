@@ -20,22 +20,31 @@ package org.cubeengine.module.vote;
 import java.time.Duration;
 import org.cubeengine.reflect.annotations.Comment;
 import org.cubeengine.reflect.codec.yaml.ReflectedYaml;
+import org.spongepowered.api.item.ItemType;
+import org.spongepowered.api.item.ItemTypes;
 
 @SuppressWarnings("all")
 public class VoteConfiguration extends ReflectedYaml
 {
-    public double voteReward = 100.0;
 
     @Comment({"{PLAYER} will be replaced with the player-name",
-             "{MONEY} will be replaced with the money the player receives",
              "{AMOUNT} will be replaced with the amount of times that player voted",
-             "{VOTEURL} will be replaced with the configured vote-url"})
+             "{VOTEURL} will be replaced with the configured vote-url",
+             "{TOSTREAK} will be replaced with amount of votes needed for a streak reward",
+    })
     public String voteBroadcast = "&6{PLAYER} voted!";
 
     public String voteMessage = "&aYou received {MONEY} for voting {AMOUNT} times!";
 
     @Comment("Players will receive a bonus if they vote multiple times in given time-frame")
-    public Duration voteBonusTime = Duration.ofHours(36);
+    public Duration voteMaxBonusTime = Duration.ofHours(36);
+
+    @Comment("Players will receive a bonus if they vote multiple times in given time-frame")
+    public Duration voteMinBonusTime = Duration.ofHours(12);
+
+    public ItemType streakReward = ItemTypes.NETHERITE_SCRAP.get();
+    public ItemType onlineReward = ItemTypes.COOKIE.get();
+    public int streak = 7;
 
     public String voteUrl = "";
 }

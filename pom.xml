@@ -59,7 +59,7 @@
 <!--        <module>shout</module>-->
         <module>chat</module>
 <!--        <module>signmarket</module>-->
-<!--        <module>vote</module>-->
+        <module>vote</module>
         <module>spawn</module>
 <!--        <module>hide</module>-->
 <!--        <module>backpack</module>-->
