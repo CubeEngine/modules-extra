@@ -18,6 +18,7 @@
 package org.cubeengine.module.vote;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -148,7 +149,8 @@ public class Vote
             out.add(legacyMessageToComponent(buffer.toString()));
         }
 
-        return Component.join(Component.empty(), out);
+        Collections.reverse(out);
+        return out.stream().reduce(Component.empty(), (a, b) -> b.children(Collections.singletonList(a)));
     }
 
     public static Component voteMessage(String raw, String username, int count, String voteUrl, int toStreak, ItemStack reward)
