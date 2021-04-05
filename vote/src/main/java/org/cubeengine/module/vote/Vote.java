@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -36,6 +35,7 @@ import org.apache.logging.log4j.Logger;
 import org.cubeengine.libcube.service.Broadcaster;
 import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
+import org.cubeengine.libcube.util.Pair;
 import org.cubeengine.processor.Dependency;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.Sponge;
@@ -47,8 +47,7 @@ import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.item.inventory.ItemStack;
 
-import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
+import static java.util.Collections.singletonList;
 
 /**
  * A module to handle Votes coming from a {@link VotifierEvent}
@@ -130,13 +129,22 @@ public class Vote
         return SpongeComponents.legacyAmpersandSerializer().deserialize(message);
     }
 
-    private static Stream<Component> flatten(Component component) {
-        return Stream.concat(Stream.of(component.children(emptyList())), component.children().stream().flatMap(Vote::flatten));
+    private static Component deepAppend(Component target, Component component) {
+        final List<Component> children = target.children();
+        if (children.isEmpty()) {
+            return target.children(singletonList(component));
+        }
+
+        List<Component> newChildren = new ArrayList<>(children);
+        Component newLastChild = deepAppend(newChildren.get(children.size() - 1), component);
+        newChildren.set(children.size() - 1, newLastChild);
+        return component.children(newChildren);
     }
 
     private static Component messageTemplateToComponent(String template, Map<String, Component> replacements) {
+
         final Matcher matcher = TEMPLATE_TOKENS.matcher(template);
-        List<Component> out = new ArrayList<>();
+        List<Pair<Component, Boolean>> out = new ArrayList<>();
         StringBuilder buffer = new StringBuilder();
         while (matcher.find()) {
             String token = matcher.group(0);
@@ -144,9 +152,9 @@ public class Vote
                 String varName = token.substring(1, token.length() - 1);
                 Component replacement = replacements.get(varName);
                 if (replacement != null) {
-                    out.addAll(flatten(legacyMessageToComponent(buffer.toString())).collect(toList()));
+                    out.add(new Pair<>(legacyMessageToComponent(buffer.toString()), true));
                     buffer.setLength(0);
-                    out.add(replacement);
+                    out.add(new Pair<>(replacement, false));
                     continue;
                 }
             }
@@ -154,11 +162,17 @@ public class Vote
         }
 
         if (buffer.length() != 0) {
-            out.addAll(flatten(legacyMessageToComponent(buffer.toString())).collect(toList()));
+            out.add(new Pair<>(legacyMessageToComponent(buffer.toString()), true));
         }
 
         Collections.reverse(out);
-        return out.stream().reduce(Component.empty(), (a, b) -> b.children(Collections.singletonList(a)));
+        return out.stream().reduce(new Pair<>(Component.empty(), false), (next, previous) -> {
+            if (previous.getRight()) {
+                return new Pair<>(deepAppend(previous.getLeft(), next.getLeft()), false);
+            } else {
+                return new Pair<>(previous.getLeft().append(next.getLeft()), false);
+            }
+        }).getLeft();
     }
 
     public static Component voteMessage(String raw, String username, int count, String voteUrl, int toStreak, ItemStack reward)
