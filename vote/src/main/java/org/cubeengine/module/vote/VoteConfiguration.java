@@ -34,7 +34,7 @@ public class VoteConfiguration extends ReflectedYaml
             "{TOSTREAK} will be replaced with amount of votes needed for a streak reward",
             "{REWARD} will be replaced with the reward item",
     })
-    public String voteBroadcast = "&6{PLAYER} voted!";
+    public String voteBroadcast = "&6{PLAYER} voted on {VOTEURL}!";
 
     public String singleVoteMessage = "&aYou received a {REWARD} for voting!";
 
@@ -53,5 +53,9 @@ public class VoteConfiguration extends ReflectedYaml
     public ItemType streakVoteReward = ItemTypes.NETHERITE_SCRAP.get();
     public String streakVoteRewardName = "&6Streak Reward";
 
-    public String voteUrl = "";
+    @Comment("This URL can be displayed to your users as part of the announcements.")
+    public String voteUrl = "http://example.org";
+
+    @Comment("This label is used, when the URL is displayed in an announcement")
+    public String voteUrlLabel = "Voting Website";
 }

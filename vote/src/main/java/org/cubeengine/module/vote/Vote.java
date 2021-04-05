@@ -35,6 +35,7 @@ import org.apache.logging.log4j.Logger;
 import org.cubeengine.libcube.service.Broadcaster;
 import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
+import org.cubeengine.libcube.util.ComponentUtil;
 import org.cubeengine.libcube.util.Pair;
 import org.cubeengine.processor.Dependency;
 import org.cubeengine.processor.Module;
@@ -49,6 +50,8 @@ import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 
 import static java.util.Collections.singletonList;
+import static org.cubeengine.libcube.util.ComponentUtil.clickableLink;
+import static org.cubeengine.libcube.util.ComponentUtil.legacyMessageTemplateToComponent;
 
 /**
  * A module to handle Votes coming from a {@link VotifierEvent}
@@ -116,9 +119,9 @@ public class Vote
             renameItemStack(reward, this.config.singleVoteRewardName);
         }
 
-        Sponge.server().sendMessage(voteMessage(this.config.voteBroadcast, username, count, streak, this.config.voteUrl, countToStreakReward, reward));
+        Sponge.server().sendMessage(voteMessage(this.config.voteBroadcast, username, count, streak, countToStreakReward, reward));
         player.ifPresent(p -> {
-            p.sendMessage(voteMessage(this.config.singleVoteMessage, username, count, streak, this.config.voteUrl, countToStreakReward, reward));
+            p.sendMessage(voteMessage(this.config.singleVoteMessage, username, count, streak, countToStreakReward, reward));
         });
 
         if (player.isPresent())
@@ -137,69 +140,17 @@ public class Vote
         }
     }
 
-    private static final Pattern TEMPLATE_TOKENS = Pattern.compile("(\\{[^}]+}|[^{]+)");
-
-    private static Component legacyMessageToComponent(String message) {
-        return SpongeComponents.legacyAmpersandSerializer().deserialize(message);
-    }
-
-    private static Component deepAppend(Component target, Component component) {
-        final List<Component> children = target.children();
-        if (children.isEmpty()) {
-            return target.children(singletonList(component));
-        }
-
-        List<Component> newChildren = new ArrayList<>(children);
-        Component newLastChild = deepAppend(newChildren.get(children.size() - 1), component);
-        newChildren.set(children.size() - 1, newLastChild);
-        return target.children(newChildren);
-    }
-
-    private static Component messageTemplateToComponent(String template, Map<String, Component> replacements) {
-
-        final Matcher matcher = TEMPLATE_TOKENS.matcher(template);
-        List<Pair<Component, Boolean>> out = new ArrayList<>();
-        StringBuilder buffer = new StringBuilder();
-        while (matcher.find()) {
-            String token = matcher.group(0);
-            if (token.startsWith("{")) {
-                String varName = token.substring(1, token.length() - 1);
-                Component replacement = replacements.get(varName);
-                if (replacement != null) {
-                    out.add(new Pair<>(legacyMessageToComponent(buffer.toString()), true));
-                    buffer.setLength(0);
-                    out.add(new Pair<>(replacement, false));
-                    continue;
-                }
-            }
-            buffer.append(token);
-        }
-
-        if (buffer.length() != 0) {
-            out.add(new Pair<>(legacyMessageToComponent(buffer.toString()), true));
-        }
-
-        Collections.reverse(out);
-        return out.stream().reduce((next, previous) -> {
-            if (previous.getRight()) {
-                return new Pair<>(deepAppend(previous.getLeft(), next.getLeft()), false);
-            } else {
-                return new Pair<>(Component.text().append(previous.getLeft()).append(next.getLeft()).build(), false);
-            }
-        }).map(Pair::getLeft).orElse(Component.empty());
-    }
-
-    public static Component voteMessage(String raw, String username, int count, int streak, String voteUrl, int toStreak, ItemStack reward)
+    public Component voteMessage(String template, String username, int count, int streak, int toStreak, ItemStack reward)
     {
         Map<String, Component> replacements = new HashMap<>();
         replacements.put("PLAYER", Component.text(username));
         replacements.put("COUNT", Component.text(String.valueOf(count)));
         replacements.put("STREAK", Component.text(String.valueOf(streak)));
-        replacements.put("VOTEURL", Component.text(voteUrl).clickEvent(ClickEvent.openUrl(voteUrl)));
+        replacements.put("VOTEURL", clickableLink(this.config.voteUrlLabel, this.config.voteUrl));
         replacements.put("TOSTREAK", Component.text(String.valueOf(toStreak)));
         replacements.put("REWARD", reward.get(Keys.DISPLAY_NAME).orElseThrow(() -> new IllegalArgumentException("ItemStack should always have a display name!")));
 
-        return messageTemplateToComponent(raw, replacements);
+        return legacyMessageTemplateToComponent(template, replacements);
     }
 
     public VoteConfiguration getConfig()
