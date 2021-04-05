@@ -41,10 +41,10 @@ public class VoteConfiguration extends ReflectedYaml
     public String streakMessage = "&aYou are on a streak! Take this {REWARD} for voting {AMOUNT} times in a row!";
 
     @Comment("Players will receive a bonus if they vote multiple times in given time-frame")
-    public Duration voteMaxBonusTime = Duration.ofHours(36);
+    public Duration streakTimeout = Duration.ofHours(36);
 
-    @Comment("Players will receive a bonus if they vote multiple times in given time-frame")
-    public Duration voteMinBonusTime = Duration.ofHours(12);
+    @Comment("If a player votes within this time frame, the vote will be ignored")
+    public Duration voteCooldownTime = Duration.ofHours(12);
 
     public ItemType singleVoteReward = ItemTypes.COOKIE.get();
     public String singleVoteRewardName = "&6Vote Reward";

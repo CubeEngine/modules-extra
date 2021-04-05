@@ -66,10 +66,10 @@ public class VoteCommands extends DispatcherCommand
         }
         i18n.send(context, POSITIVE, "You current vote-count is {amount} with a streak of {amount} votes", count, streak);
         final long voteDelta = System.currentTimeMillis() - lastVote;
-        if (voteDelta > module.getConfig().voteMaxBonusTime.toMillis())
+        if (voteDelta > module.getConfig().streakTimeout.toMillis())
         {
             i18n.send(context, NEUTRAL, "Sadly you did not vote in the last {input#time} so your vote-count will be reset to 1",
-                                   TimeUtil.format(context.locale(), module.getConfig().voteMaxBonusTime.toMillis()));
+                                   TimeUtil.format(context.locale(), module.getConfig().streakTimeout.toMillis()));
         }
         else if (voteDelta <= DAYS.toMillis(1))
         {

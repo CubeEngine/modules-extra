@@ -76,19 +76,27 @@ public class Vote
             return;
         }
 
+        final long lastVote = dh.get(VoteData.LAST_VOTE).orElse(0L);
+        final long millisSinceLastVote = System.currentTimeMillis() - lastVote;
+        if (millisSinceLastVote < config.voteCooldownTime.toMillis()) {
+            return;
+        }
+
+
         final int count = dh.get(VoteData.COUNT).orElse(0) + 1;
-        final long lastVote = dh.get(VoteData.LAST_VOTE).orElse(System.currentTimeMillis());
-
-        boolean isStreak = System.currentTimeMillis() - lastVote > config.voteMaxBonusTime.toMillis() && System.currentTimeMillis() - lastVote < config.voteMinBonusTime.toMillis();
-        final int streak = isStreak ? dh.get(VoteData.STREAK).orElse(0) + 1 : 0;
-
         dh.offer(VoteData.COUNT, count);
-        dh.offer(VoteData.STREAK, streak);
         dh.offer(VoteData.LAST_VOTE, System.currentTimeMillis());
 
+        boolean isStreak = millisSinceLastVote < config.streakTimeout.toMillis() && millisSinceLastVote > config.voteCooldownTime.toMillis();
+        final int streak;
+        if (millisSinceLastVote < config.streakTimeout.toMillis()) {
+            streak = dh.get(VoteData.STREAK).orElse(0) + 1;
+        } else {
+            streak = 1;
+        }
+        dh.offer(VoteData.STREAK, 1);
+
         final int countToStreakReward = this.config.streak - streak % this.config.streak;
-
-
 
         final ItemStack reward;
         if (isStreak && streak % this.config.streak == 0)
