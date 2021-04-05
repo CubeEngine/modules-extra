@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -45,6 +46,9 @@ import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.item.inventory.ItemStack;
+
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 
 /**
  * A module to handle Votes coming from a {@link VotifierEvent}
@@ -126,6 +130,10 @@ public class Vote
         return SpongeComponents.legacyAmpersandSerializer().deserialize(message);
     }
 
+    private static Stream<Component> flatten(Component component) {
+        return Stream.concat(Stream.of(component.children(emptyList())), component.children().stream().flatMap(Vote::flatten));
+    }
+
     private static Component messageTemplateToComponent(String template, Map<String, Component> replacements) {
         final Matcher matcher = TEMPLATE_TOKENS.matcher(template);
         List<Component> out = new ArrayList<>();
@@ -136,7 +144,7 @@ public class Vote
                 String varName = token.substring(1, token.length() - 1);
                 Component replacement = replacements.get(varName);
                 if (replacement != null) {
-                    out.add(legacyMessageToComponent(buffer.toString()));
+                    out.addAll(flatten(legacyMessageToComponent(buffer.toString())).collect(toList()));
                     buffer.setLength(0);
                     out.add(replacement);
                     continue;
@@ -146,7 +154,7 @@ public class Vote
         }
 
         if (buffer.length() != 0) {
-            out.add(legacyMessageToComponent(buffer.toString()));
+            out.addAll(flatten(legacyMessageToComponent(buffer.toString())).collect(toList()));
         }
 
         Collections.reverse(out);
