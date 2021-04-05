@@ -21,10 +21,9 @@ import java.util.Date;
 import com.google.inject.Inject;
 import org.cubeengine.libcube.service.command.DispatcherCommand;
 import org.cubeengine.libcube.service.command.annotation.Command;
-import org.cubeengine.libcube.service.command.annotation.Option;
-import org.cubeengine.libcube.service.command.annotation.Parser;
 import org.cubeengine.libcube.service.command.annotation.Restricted;
 import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.i18n.formatter.UrlFormatter.LabeledUrl;
 import org.cubeengine.libcube.util.TimeUtil;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 
@@ -56,15 +55,6 @@ public class VoteCommands extends DispatcherCommand
     @Command(desc = "Shows your current vote situation")
     public void info(ServerPlayer context)
     {
-//        if (!(context instanceof Player))
-//        {
-//            i18n.send(context, NEUTRAL, "Well you wont get any rewards.");
-//            if (!module.getConfig().voteUrl.isEmpty())
-//            {
-//                i18n.send(context, NEUTRAL, "But here go vote anyways: {name#voteurl}", module.getConfig().voteUrl);
-//            }
-//            return;
-//        }
         final Long lastVote = context.get(VoteData.LAST_VOTE).orElse(null);
         final int count = context.get(VoteData.COUNT).orElse(0);
         final int streak = context.get(VoteData.STREAK).orElse(0);
@@ -96,9 +86,10 @@ public class VoteCommands extends DispatcherCommand
 
     private void showVoteUrl(ServerPlayer context)
     {
-        if (!module.getConfig().voteUrl.isEmpty())
+        LabeledUrl voteUrl = new LabeledUrl(module.getConfig().voteUrl, module.getConfig().voteUrlLabel);
+        if (!voteUrl.getUrl().isEmpty())
         {
-            i18n.send(context, POSITIVE, "You can vote here now: {name#voteurl}", module.getConfig().voteUrl);
+            i18n.send(context, POSITIVE, "You can vote here now: {url}", voteUrl);
         }
     }
 }
