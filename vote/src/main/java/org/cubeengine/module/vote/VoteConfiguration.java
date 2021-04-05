@@ -27,17 +27,18 @@ import org.spongepowered.api.item.ItemTypes;
 public class VoteConfiguration extends ReflectedYaml
 {
 
-    @Comment({"{PLAYER} will be replaced with the player-name",
-             "{AMOUNT} will be replaced with the amount of times that player voted",
-             "{VOTEURL} will be replaced with the configured vote-url",
-             "{TOSTREAK} will be replaced with amount of votes needed for a streak reward",
-             "{REWARD} will be replaced with the reward item",
+    @Comment({
+            "{PLAYER} will be replaced with the player-name",
+            "{AMOUNT} will be replaced with the amount of times that player voted",
+            "{VOTEURL} will be replaced with the configured vote-url",
+            "{TOSTREAK} will be replaced with amount of votes needed for a streak reward",
+            "{REWARD} will be replaced with the reward item",
     })
     public String voteBroadcast = "&6{PLAYER} voted!";
 
-    public String singleVoteMessage = "&aYou received a {SINGLE_VOTE_REWARD} for voting!";
+    public String singleVoteMessage = "&aYou received a {REWARD} for voting!";
 
-    public String streakMessage = "&aYou are on a streak! Take this {STREAK_REWARD} for voting {AMOUNT} times in a row!";
+    public String streakMessage = "&aYou are on a streak! Take this {REWARD} for voting {AMOUNT} times in a row!";
 
     @Comment("Players will receive a bonus if they vote multiple times in given time-frame")
     public Duration voteMaxBonusTime = Duration.ofHours(36);
