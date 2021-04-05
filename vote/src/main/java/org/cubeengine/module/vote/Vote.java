@@ -138,7 +138,7 @@ public class Vote
         List<Component> newChildren = new ArrayList<>(children);
         Component newLastChild = deepAppend(newChildren.get(children.size() - 1), component);
         newChildren.set(children.size() - 1, newLastChild);
-        return component.children(newChildren);
+        return target.children(newChildren);
     }
 
     private static Component messageTemplateToComponent(String template, Map<String, Component> replacements) {
@@ -170,7 +170,7 @@ public class Vote
             if (previous.getRight()) {
                 return new Pair<>(deepAppend(previous.getLeft(), next.getLeft()), false);
             } else {
-                return new Pair<>(previous.getLeft().append(next.getLeft()), false);
+                return new Pair<>(Component.text().append(previous.getLeft()).append(next.getLeft()).build(), false);
             }
         }).map(Pair::getLeft).orElse(Component.empty());
     }
