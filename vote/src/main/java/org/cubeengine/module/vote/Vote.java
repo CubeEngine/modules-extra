@@ -166,13 +166,13 @@ public class Vote
         }
 
         Collections.reverse(out);
-        return out.stream().reduce(new Pair<>(Component.empty(), false), (next, previous) -> {
+        return out.stream().reduce((next, previous) -> {
             if (previous.getRight()) {
                 return new Pair<>(deepAppend(previous.getLeft(), next.getLeft()), false);
             } else {
                 return new Pair<>(previous.getLeft().append(next.getLeft()), false);
             }
-        }).getLeft();
+        }).map(Pair::getLeft).orElse(Component.empty());
     }
 
     public static Component voteMessage(String raw, String username, int count, String voteUrl, int toStreak, ItemStack reward)
