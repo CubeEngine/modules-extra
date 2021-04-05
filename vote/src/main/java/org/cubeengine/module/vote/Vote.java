@@ -116,9 +116,9 @@ public class Vote
             renameItemStack(reward, this.config.singleVoteRewardName);
         }
 
-        Sponge.server().sendMessage(voteMessage(this.config.voteBroadcast, username, count, this.config.voteUrl, countToStreakReward, reward));
+        Sponge.server().sendMessage(voteMessage(this.config.voteBroadcast, username, count, streak, this.config.voteUrl, countToStreakReward, reward));
         player.ifPresent(p -> {
-            p.sendMessage(voteMessage(this.config.singleVoteMessage, username, count, this.config.voteUrl, countToStreakReward, reward));
+            p.sendMessage(voteMessage(this.config.singleVoteMessage, username, count, streak, this.config.voteUrl, countToStreakReward, reward));
         });
 
         if (player.isPresent())
@@ -189,12 +189,12 @@ public class Vote
         }).map(Pair::getLeft).orElse(Component.empty());
     }
 
-    public static Component voteMessage(String raw, String username, int count, String voteUrl, int toStreak, ItemStack reward)
+    public static Component voteMessage(String raw, String username, int count, int streak, String voteUrl, int toStreak, ItemStack reward)
     {
         Map<String, Component> replacements = new HashMap<>();
         replacements.put("PLAYER", Component.text(username));
         replacements.put("COUNT", Component.text(String.valueOf(count)));
-        // TODO replacements.put("STREAK", Component.text(String.valueOf(count)));
+        replacements.put("STREAK", Component.text(String.valueOf(streak)));
         replacements.put("VOTEURL", Component.text(voteUrl).clickEvent(ClickEvent.openUrl(voteUrl)));
         replacements.put("TOSTREAK", Component.text(String.valueOf(toStreak)));
         replacements.put("REWARD", reward.get(Keys.DISPLAY_NAME).orElseThrow(() -> new IllegalArgumentException("ItemStack should always have a display name!")));
