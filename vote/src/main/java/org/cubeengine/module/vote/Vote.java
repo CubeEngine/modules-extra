@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import com.vexsoftware.votifier.sponge.event.VotifierEvent;
+import com.vexsoftware.votifier.sponge8.event.VotifierEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.apache.logging.log4j.Logger;

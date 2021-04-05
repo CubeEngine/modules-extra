@@ -21,9 +21,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.cubeengine.module.observe.metrics.meter.Counter;
 import org.cubeengine.module.observe.metrics.meter.Gauge;
 import org.cubeengine.module.observe.metrics.meter.Histogram;
-import org.cubeengine.module.observe.metrics.meter.MeterBuilder;
 import org.cubeengine.module.observe.metrics.meter.Timer;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;

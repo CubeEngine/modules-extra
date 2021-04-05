@@ -63,7 +63,6 @@ public class PrometheusMetricSubscriber implements MetricSubscriber {
             customizer.accept(instance);
             return instance.register(registry);
         });
-        System.out.println("You got foobared");
 
         String[] labelValueStrings = new String[labelValues.length];
         for (int i = 0; i < labelValues.length; i++) {
