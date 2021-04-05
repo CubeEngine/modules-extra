@@ -21,6 +21,9 @@ import java.util.Date;
 import com.google.inject.Inject;
 import org.cubeengine.libcube.service.command.DispatcherCommand;
 import org.cubeengine.libcube.service.command.annotation.Command;
+import org.cubeengine.libcube.service.command.annotation.Option;
+import org.cubeengine.libcube.service.command.annotation.Parser;
+import org.cubeengine.libcube.service.command.annotation.Restricted;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.util.TimeUtil;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
@@ -43,6 +46,13 @@ public class VoteCommands extends DispatcherCommand
         this.i18n = i18n;
     }
 
+    @Restricted
+    @Command(desc = "Shows your current vote situation", dispatcher = true)
+    public void dispatcher(ServerPlayer sender)
+    {
+        this.info(sender);
+    }
+
     @Command(desc = "Shows your current vote situation")
     public void info(ServerPlayer context)
     {
@@ -62,6 +72,7 @@ public class VoteCommands extends DispatcherCommand
         if (lastVote == null)
         {
             i18n.send(context, NEUTRAL, "Sorry but you do not have any registered votes on this server!");
+            this.showVoteUrl(context);
             return;
         }
         i18n.send(context, POSITIVE, "You current vote-count is {amount} with a streak of {amount} votes", count, streak);
@@ -80,6 +91,11 @@ public class VoteCommands extends DispatcherCommand
             i18n.send(context, POSITIVE, "You voted {input#time} so you will probably not be able to vote again already!",
                                    TimeUtil.format(context.locale(), new Date(lastVote)));
         }
+        this.showVoteUrl(context);
+    }
+
+    private void showVoteUrl(ServerPlayer context)
+    {
         if (!module.getConfig().voteUrl.isEmpty())
         {
             i18n.send(context, POSITIVE, "You can vote here now: {name#voteurl}", module.getConfig().voteUrl);
