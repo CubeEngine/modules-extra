@@ -45,6 +45,7 @@ import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 
 import static java.util.Collections.singletonList;
@@ -61,6 +62,11 @@ public class Vote
 
     @ModuleConfig private VoteConfiguration config;
     @ModuleCommand private VoteCommands commands;
+
+    @Listener
+    public void onEnable(RegisterDataEvent event) {
+        VoteData.register(event);
+    }
 
     @Listener
     public void onVote(VotifierEvent event)
@@ -87,19 +93,19 @@ public class Vote
         dh.offer(VoteData.COUNT, count);
         dh.offer(VoteData.LAST_VOTE, System.currentTimeMillis());
 
-        boolean isStreak = millisSinceLastVote < config.streakTimeout.toMillis() && millisSinceLastVote > config.voteCooldownTime.toMillis();
         final int streak;
-        if (millisSinceLastVote < config.streakTimeout.toMillis()) {
+        final boolean isStreakVote = millisSinceLastVote < config.streakTimeout.toMillis();
+        if (isStreakVote) {
             streak = dh.get(VoteData.STREAK).orElse(0) + 1;
         } else {
             streak = 1;
         }
-        dh.offer(VoteData.STREAK, 1);
+        dh.offer(VoteData.STREAK, streak);
 
-        final int countToStreakReward = this.config.streak - streak % this.config.streak;
+        final int countToStreakReward = (this.config.streak - streak) % this.config.streak;
 
         final ItemStack reward;
-        if (isStreak && streak % this.config.streak == 0)
+        if (isStreakVote && streak % this.config.streak == 0)
         {
             reward = ItemStack.of(this.config.streakVoteReward);
             renameItemStack(reward, this.config.streakVoteRewardName);
@@ -188,6 +194,7 @@ public class Vote
         Map<String, Component> replacements = new HashMap<>();
         replacements.put("PLAYER", Component.text(username));
         replacements.put("COUNT", Component.text(String.valueOf(count)));
+        // TODO replacements.put("STREAK", Component.text(String.valueOf(count)));
         replacements.put("VOTEURL", Component.text(voteUrl).clickEvent(ClickEvent.openUrl(voteUrl)));
         replacements.put("TOSTREAK", Component.text(String.valueOf(toStreak)));
         replacements.put("REWARD", reward.get(Keys.DISPLAY_NAME).orElseThrow(() -> new IllegalArgumentException("ItemStack should always have a display name!")));
