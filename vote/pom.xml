@@ -58,10 +58,6 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-        <repository>
-            <id>bintray-repo</id>
-            <url>https://dl.bintray.com/ichbinjoe/public/</url>
-        </repository>
     </repositories>
 
 </project>

@@ -17,13 +17,19 @@
  */
 package org.cubeengine.module.vote;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.vexsoftware.votifier.sponge8.event.VotifierEvent;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.event.ClickEvent;
 import org.apache.logging.log4j.Logger;
 import org.cubeengine.libcube.service.Broadcaster;
 import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
@@ -53,7 +59,7 @@ public class Vote
     @ModuleCommand private VoteCommands commands;
 
     @Listener
-    public void onVote(VotifierEvent event) throws ExecutionException, InterruptedException
+    public void onVote(VotifierEvent event)
     {
         final com.vexsoftware.votifier.model.Vote vote = event.getVote();
         final String username = event.getVote().getUsername();
@@ -78,40 +84,87 @@ public class Vote
 
         final int countToStreakReward = this.config.streak - streak % this.config.streak;
 
-        Sponge.server().sendMessage(voteMessage(this.config.voteBroadcast, username, count, this.config.voteUrl, countToStreakReward));
 
-        player.ifPresent(p -> {
-            p.sendMessage(voteMessage(this.config.voteMessage, username, count, this.config.voteUrl, countToStreakReward));
-        });
 
+        final ItemStack reward;
         if (isStreak && streak % this.config.streak == 0)
         {
-            final ItemStack streakReward = ItemStack.of(this.config.streakReward);
-            if (player.isPresent())
-            {
-                player.get().inventory().offer(streakReward);
-            }
-            else
-            {
-                user.inventory().offer(streakReward);
-            }
+            reward = ItemStack.of(this.config.streakVoteReward);
+            renameItemStack(reward, this.config.streakVoteRewardName);
         }
         else
         {
-            final ItemStack onlineReward = ItemStack.of(this.config.onlineReward);
-            onlineReward.offer(Keys.CUSTOM_NAME, Component.text("Vote-Cookie", NamedTextColor.GOLD));
-            player.ifPresent(serverPlayer -> serverPlayer.inventory().offer(onlineReward));
+            reward = ItemStack.of(this.config.singleVoteReward);
+            renameItemStack(reward, this.config.singleVoteRewardName);
+        }
+
+        Sponge.server().sendMessage(voteMessage(this.config.voteBroadcast, username, count, this.config.voteUrl, countToStreakReward, reward));
+        player.ifPresent(p -> {
+            p.sendMessage(voteMessage(this.config.singleVoteMessage, username, count, this.config.voteUrl, countToStreakReward, reward));
+        });
+
+        if (player.isPresent())
+        {
+            player.get().inventory().offer(reward);
+        }
+        else
+        {
+            user.inventory().offer(reward);
         }
     }
 
-    public static Component voteMessage(String raw, String username, int count, String voteurl, int toStreak)
+    public static void renameItemStack(ItemStack stack, String name) {
+        if (name != null) {
+            stack.offer(Keys.CUSTOM_NAME, SpongeComponents.legacyAmpersandSerializer().deserialize(name));
+        }
+    }
+
+    private static final Pattern TEMPLATE_TOKENS = Pattern.compile("(\\{[^}]+}|[^{]+)");
+
+    private static Component legacyMessageToComponent(String message) {
+        return SpongeComponents.legacyAmpersandSerializer().deserialize(message);
+    }
+
+    private static Component messageTemplateToComponent(String template, Map<String, Component> replacements) {
+        final Matcher matcher = TEMPLATE_TOKENS.matcher(template);
+        final List<String> tokens = new ArrayList<>();
+        while (matcher.find()) {
+            tokens.add(matcher.group(0));
+        }
+
+        List<Component> out = new ArrayList<>();
+        StringBuilder buffer = new StringBuilder();
+        for (String token : tokens) {
+            if (token.startsWith("{")) {
+                String varName = token.substring(1, token.length() - 1);
+                Component replacement = replacements.get(varName);
+                if (replacement != null) {
+                    out.add(legacyMessageToComponent(buffer.toString()));
+                    buffer.setLength(0);
+                    out.add(replacement);
+                    continue;
+                }
+            }
+            buffer.append(token);
+        }
+
+        if (buffer.length() != 0) {
+            out.add(legacyMessageToComponent(buffer.toString()));
+        }
+
+        return Component.join(Component.empty(), out);
+    }
+
+    public static Component voteMessage(String raw, String username, int count, String voteUrl, int toStreak, ItemStack reward)
     {
-        final String replaced = raw.replace("{PLAYER}", username)
-                                   .replace("{COUNT}", String.valueOf(count))
-                                   .replace("{VOTEURL}", voteurl)
-                                   .replace("{TOSTREAK}", String.valueOf(toStreak))
-                ;
-        return SpongeComponents.legacyAmpersandSerializer().deserialize(replaced);
+        Map<String, Component> replacements = new HashMap<>();
+        replacements.put("PLAYER", Component.text(username));
+        replacements.put("COUNT", Component.text(String.valueOf(count)));
+        replacements.put("VOTEURL", Component.text(voteUrl).clickEvent(ClickEvent.openUrl(voteUrl)));
+        replacements.put("TOSTREAK", Component.text(String.valueOf(toStreak)));
+        replacements.put("REWARD", reward.get(Keys.DISPLAY_NAME).orElseThrow(() -> new IllegalArgumentException("ItemStack should always have a display name!")));
+
+        return messageTemplateToComponent(raw, replacements);
     }
 
     public VoteConfiguration getConfig()

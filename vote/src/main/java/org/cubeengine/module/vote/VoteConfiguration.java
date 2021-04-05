@@ -31,10 +31,13 @@ public class VoteConfiguration extends ReflectedYaml
              "{AMOUNT} will be replaced with the amount of times that player voted",
              "{VOTEURL} will be replaced with the configured vote-url",
              "{TOSTREAK} will be replaced with amount of votes needed for a streak reward",
+             "{REWARD} will be replaced with the reward item",
     })
     public String voteBroadcast = "&6{PLAYER} voted!";
 
-    public String voteMessage = "&aYou received {MONEY} for voting {AMOUNT} times!";
+    public String singleVoteMessage = "&aYou received a {SINGLE_VOTE_REWARD} for voting!";
+
+    public String streakMessage = "&aYou are on a streak! Take this {STREAK_REWARD} for voting {AMOUNT} times in a row!";
 
     @Comment("Players will receive a bonus if they vote multiple times in given time-frame")
     public Duration voteMaxBonusTime = Duration.ofHours(36);
@@ -42,9 +45,12 @@ public class VoteConfiguration extends ReflectedYaml
     @Comment("Players will receive a bonus if they vote multiple times in given time-frame")
     public Duration voteMinBonusTime = Duration.ofHours(12);
 
-    public ItemType streakReward = ItemTypes.NETHERITE_SCRAP.get();
-    public ItemType onlineReward = ItemTypes.COOKIE.get();
+    public ItemType singleVoteReward = ItemTypes.COOKIE.get();
+    public String singleVoteRewardName = "&6Vote Reward";
+
     public int streak = 7;
+    public ItemType streakVoteReward = ItemTypes.NETHERITE_SCRAP.get();
+    public String streakVoteRewardName = "&6Streak Reward";
 
     public String voteUrl = "";
 }
