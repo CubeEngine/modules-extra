@@ -127,14 +127,10 @@ public class Vote
 
     private static Component messageTemplateToComponent(String template, Map<String, Component> replacements) {
         final Matcher matcher = TEMPLATE_TOKENS.matcher(template);
-        final List<String> tokens = new ArrayList<>();
-        while (matcher.find()) {
-            tokens.add(matcher.group(0));
-        }
-
         List<Component> out = new ArrayList<>();
         StringBuilder buffer = new StringBuilder();
-        for (String token : tokens) {
+        while (matcher.find()) {
+            String token = matcher.group(0);
             if (token.startsWith("{")) {
                 String varName = token.substring(1, token.length() - 1);
                 Component replacement = replacements.get(varName);
