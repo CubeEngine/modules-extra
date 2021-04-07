@@ -19,6 +19,7 @@ package org.cubeengine.module.mechanism;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.cubeengine.libcube.util.EventUtil;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.block.entity.BlockEntity;
 import org.spongepowered.api.block.transaction.Operations;
@@ -63,21 +64,22 @@ public class Mechanism
     @Listener
     public void onRightClickBlock(InteractBlockEvent.Secondary event, @First ServerPlayer player)
     {
-        if (event.context().get(EventContextKeys.USED_HAND).map(hand -> hand.equals(HandTypes.MAIN_HAND.get())).orElse(false))
+        if (!EventUtil.isMainHand(event.context()))
         {
-            final ServerLocation thisLoc = event.block().location().get();
-            final boolean triggered = thisLoc.blockEntity().flatMap(be -> be.get(MechanismData.MECHANISM)).map(
-                mechanism -> manager.trigger(mechanism, event, player, thisLoc, false)).orElse(false);
-            if (!triggered)
-            {
-                final Direction oppositeDirection = event.targetSide().opposite();
-                final ServerLocation oppositeLoc = thisLoc.relativeTo(oppositeDirection);
-                oppositeLoc.blockEntity().filter(be -> be.supports(Keys.SIGN_LINES))
-                           .filter(be -> be.get(Keys.DIRECTION).map(facing -> facing.equals(oppositeDirection)).orElse(false))
-                           .flatMap(be -> be.get(MechanismData.MECHANISM)).ifPresent(mechanism -> {
-                    manager.trigger(mechanism, event, player, oppositeLoc, true);
-                });
-            }
+            return;
+        }
+        final ServerLocation thisLoc = event.block().location().get();
+        final boolean triggered = thisLoc.blockEntity().flatMap(be -> be.get(MechanismData.MECHANISM)).map(
+            mechanism -> manager.trigger(mechanism, event, player, thisLoc, false)).orElse(false);
+        if (!triggered)
+        {
+            final Direction oppositeDirection = event.targetSide().opposite();
+            final ServerLocation oppositeLoc = thisLoc.relativeTo(oppositeDirection);
+            oppositeLoc.blockEntity().filter(be -> be.supports(Keys.SIGN_LINES))
+                       .filter(be -> be.get(Keys.DIRECTION).map(facing -> facing.equals(oppositeDirection)).orElse(false))
+                       .flatMap(be -> be.get(MechanismData.MECHANISM)).ifPresent(mechanism -> {
+                manager.trigger(mechanism, event, player, oppositeLoc, true);
+            });
         }
     }
 

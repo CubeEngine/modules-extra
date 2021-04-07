@@ -25,6 +25,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import net.kyori.adventure.text.Component;
 import org.cubeengine.libcube.util.ChatFormat;
+import org.cubeengine.libcube.util.EventUtil;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.data.Keys;
@@ -65,7 +66,8 @@ public class Writer
     @Listener
     public void onRightClickBlock(InteractBlockEvent.Secondary event, @First ServerPlayer player)
     {
-        if (event.context().get(EventContextKeys.USED_HAND).orElse(null) != HandTypes.MAIN_HAND.get()
+
+        if (!EventUtil.isMainHand(event.context())
             || !event.block().location().flatMap(Location::blockEntity).map(l -> l.supports(Keys.SIGN_LINES)).orElse(false)
             || !player.itemInHand(HandTypes.MAIN_HAND).get(WriterData.WRITER).isPresent()
             || !player.itemInHand(HandTypes.MAIN_HAND).type().isAnyOf(ItemTypes.WRITABLE_BOOK)

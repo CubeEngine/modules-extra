@@ -27,6 +27,7 @@ import net.kyori.adventure.sound.Sound.Source;
 import net.kyori.adventure.text.Component;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.i18n.I18nTranslate.ChatType;
+import org.cubeengine.libcube.util.EventUtil;
 import org.cubeengine.module.elevator.data.ElevatorData;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.Keys;
@@ -81,7 +82,7 @@ public class ElevatorListener
                 return;
             }
         }
-        if (!event.context().get(EventContextKeys.USED_HAND).map(h -> h == HandTypes.MAIN_HAND.get()).orElse(false))
+        if (!EventUtil.isMainHand(event.context()))
         {
             return;
         }

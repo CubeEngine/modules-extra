@@ -21,6 +21,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionManager;
+import org.cubeengine.libcube.util.EventUtil;
 import org.cubeengine.module.vigil.data.VigilData;
 import org.cubeengine.module.vigil.storage.QueryManager;
 import org.spongepowered.api.block.BlockSnapshot;
@@ -63,34 +64,35 @@ public class ToolListener
 
     private void handleLRClicks(InteractBlockEvent event, ServerPlayer player)
     {
-        if (event.context().get(EventContextKeys.USED_HAND).map(h -> h.equals(HandTypes.MAIN_HAND.get())).orElse(false))
+        if (!EventUtil.isMainHand(event.context()))
         {
-            ItemStack itemInHand = player.itemInHand(HandTypes.MAIN_HAND);
-            itemInHand.get(VigilData.REPORTS).ifPresent(reports -> {
-                if (!toolPerm.check(player) || event.block() == BlockSnapshot.NONE.get())
-                {
-                    return;
-                }
-                ServerLocation loc;
-                if (event instanceof InteractBlockEvent.Primary.Start)
-                {
-                    loc = event.block().location().get();
-
-                    ((Start)event).setCancelled(true);
-                }
-                else if (event instanceof InteractBlockEvent.Secondary)
-                {
-                    loc = event.block().location().get().relativeTo(event.targetSide());
-                    ((Secondary)event).setCancelled(true);
-                }
-                else
-                {
-                    throw new IllegalStateException("impossible");
-                }
-                qm.queryAndShow(new Lookup(itemInHand).with(loc), player);
-
-            });
+            return;
         }
+        ItemStack itemInHand = player.itemInHand(HandTypes.MAIN_HAND);
+        itemInHand.get(VigilData.REPORTS).ifPresent(reports -> {
+            if (!toolPerm.check(player) || event.block() == BlockSnapshot.NONE.get())
+            {
+                return;
+            }
+            ServerLocation loc;
+            if (event instanceof InteractBlockEvent.Primary.Start)
+            {
+                loc = event.block().location().get();
+
+                ((Start)event).setCancelled(true);
+            }
+            else if (event instanceof InteractBlockEvent.Secondary)
+            {
+                loc = event.block().location().get().relativeTo(event.targetSide());
+                ((Secondary)event).setCancelled(true);
+            }
+            else
+            {
+                throw new IllegalStateException("impossible");
+            }
+            qm.queryAndShow(new Lookup(itemInHand).with(loc), player);
+
+        });
     }
 
     @Listener

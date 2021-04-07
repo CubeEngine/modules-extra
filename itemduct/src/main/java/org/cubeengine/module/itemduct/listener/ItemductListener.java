@@ -18,6 +18,7 @@
 package org.cubeengine.module.itemduct.listener;
 
 import com.google.inject.Inject;
+import org.cubeengine.libcube.util.EventUtil;
 import org.cubeengine.module.itemduct.ItemductManager;
 import org.cubeengine.module.itemduct.NetworkFilter;
 import org.cubeengine.module.itemduct.data.ItemductBlocks;
@@ -31,7 +32,6 @@ import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
-import org.spongepowered.api.event.EventContextKeys;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.InteractBlockEvent;
@@ -57,22 +57,31 @@ public class ItemductListener
     @Listener
     public void onInteractPiston(InteractBlockEvent.Secondary event, @Root ServerPlayer player)
     {
-        if (event.context().get(EventContextKeys.USED_HAND).map(hand -> hand != HandTypes.MAIN_HAND.get()).orElse(true)) {
+        if (!EventUtil.isMainHand(event.context()))
+        {
             return;
         }
         final Vector3i pos = event.block().position();
         final ItemStack itemInHand = player.itemInHand(HandTypes.MAIN_HAND);
-        if (itemInHand.isEmpty() || ItemductItems.isActivator(itemInHand)) {
+        if (itemInHand.isEmpty() || ItemductItems.isActivator(itemInHand))
+        {
             final NetworkFilter networkFilter = new NetworkFilter(player.world(), pos.toInt());
-            if (!itemInHand.isEmpty()) {
+            if (!itemInHand.isEmpty())
+            {
                 event.setCancelled(true); // Activator in hand - we do not want to ever place it as a normal block
-                if (networkFilter.isValid() && !networkFilter.isActive()) {
+                if (networkFilter.isValid() && !networkFilter.isActive())
+                {
                     manager.activateNetwork(event, player, itemInHand, networkFilter);
                 }
-            } else if (networkFilter.isActive()) {
-                if (player.get(Keys.IS_SNEAKING).orElse(false)) {
+            }
+            else if (networkFilter.isActive())
+            {
+                if (player.get(Keys.IS_SNEAKING).orElse(false))
+                {
                     manager.openFilter(player, networkFilter);
-                } else {
+                }
+                else
+                {
                     manager.playNetworkEffects(networkFilter.filterLoc);
                 }
             }
@@ -83,11 +92,13 @@ public class ItemductListener
     public void onBreak(ChangeBlockEvent.All event)
     {
         event.transactions(Operations.BREAK.get()).filter(trans -> trans.original().location().isPresent()).forEach(trans -> {
-            BlockType type = trans.original().state().type();
-            ServerLocation loc = trans.original().location().get();
-            if (ItemductBlocks.isEndPointType(type)) {
+            final BlockType type = trans.original().state().type();
+            final ServerLocation loc = trans.original().location().get();
+            if (ItemductBlocks.isEndPointType(type))
+            {
                 final NetworkFilter networkFilter = new NetworkFilter(loc.world(), loc.blockPosition());
-                if (networkFilter.isValid()) {
+                if (networkFilter.isValid())
+                {
                     final List<ItemStack> stacks = networkFilter.removeFilterStacks();
                     event.cause().first(Player.class)
                             .filter(p -> p.get(Keys.GAME_MODE).map(mode -> mode != GameModes.CREATIVE.get()).orElse(false))
@@ -96,7 +107,9 @@ public class ItemductListener
                                 stacks.forEach(stack -> ItemUtil.spawnItem(loc, stack));
                             });
                 }
-            } else {
+            }
+            else
+                {
                 loc.get(ItemductData.FILTERS).ifPresent(filters -> {
                     filters.values().forEach(stacks -> stacks.forEach(stack -> ItemUtil.spawnItem(loc, stack)));
                 });

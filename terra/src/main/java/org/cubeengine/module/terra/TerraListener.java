@@ -44,6 +44,7 @@ import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.i18n.I18nTranslate.ChatType;
 import org.cubeengine.libcube.service.i18n.formatter.MessageType;
 import org.cubeengine.libcube.service.task.TaskManager;
+import org.cubeengine.libcube.util.EventUtil;
 import org.cubeengine.module.terra.data.TerraData;
 import org.cubeengine.module.terra.data.TerraItems;
 import org.cubeengine.module.terra.data.TerraItems.Essence;
@@ -163,7 +164,7 @@ public class TerraListener
     @Listener
     public void onUseItem(UseItemStackEvent.Finish event, @First ServerPlayer player)
     {
-        if (!event.context().get(EventContextKeys.USED_HAND).get().equals(HandTypes.MAIN_HAND.get()))
+        if (!EventUtil.isMainHand(event.context()))
         {
             return;
         }
@@ -254,7 +255,7 @@ public class TerraListener
     public void onUseItem(UseItemStackEvent.Tick event, @First ServerPlayer player)
     {
         final ItemStackSnapshot itemStackInUse = event.itemStackInUse();
-        if (!event.context().get(EventContextKeys.USED_HAND).get().equals(HandTypes.MAIN_HAND.get()) || !TerraItems.isTerraEssence(itemStackInUse))
+        if (!EventUtil.isMainHand(event.context()) || !TerraItems.isTerraEssence(itemStackInUse))
         {
             return;
         }
