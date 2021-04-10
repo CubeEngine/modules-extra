@@ -17,6 +17,7 @@
  */
 package org.cubeengine.module.discord;
 
+import org.cubeengine.reflect.Section;
 import org.cubeengine.reflect.codec.yaml.ReflectedYaml;
 
 public class DiscordConfig extends ReflectedYaml {
@@ -25,7 +26,7 @@ public class DiscordConfig extends ReflectedYaml {
     public String channel = "minecraft";
     public WebhookConfig webhook = new WebhookConfig();
 
-    public static class WebhookConfig {
+    public static class WebhookConfig implements Section {
         public String id;
         public String token;
     }

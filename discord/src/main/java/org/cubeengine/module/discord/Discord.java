@@ -23,6 +23,7 @@ import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.Webhook;
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.object.presence.ClientActivity;
@@ -31,9 +32,11 @@ import discord4j.core.shard.MemberRequestFilter;
 import discord4j.gateway.intent.Intent;
 import discord4j.gateway.intent.IntentSet;
 import net.kyori.adventure.text.Component;
+import org.cubeengine.libcube.InjectService;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.Server;
+import org.spongepowered.api.adventure.SpongeComponents;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
@@ -42,6 +45,7 @@ import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 import org.spongepowered.api.event.message.PlayerChatEvent;
 import org.spongepowered.api.scheduler.Task;
+import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.plugin.PluginContainer;
 import reactor.core.publisher.Mono;
 
@@ -53,15 +57,15 @@ public class Discord {
     private final AtomicReference<GatewayDiscordClient> client = new AtomicReference<>(null);
     private final AtomicReference<Webhook> webhook = new AtomicReference<>(null);
     private final AtomicReference<Server> server = new AtomicReference<>(null);
-    private final PluginContainer pluginContainer;
+
+    @InjectService
+    private PermissionService ps;
 
     @ModuleConfig
-    DiscordConfig config;
+    private DiscordConfig config;
 
     @Inject
-    public Discord(PluginContainer pluginContainer) {
-        this.pluginContainer = pluginContainer;
-    }
+    private PluginContainer pluginContainer;
 
     @Listener
     public void onServerStart(StartedEngineEvent<Server> event) {
@@ -80,6 +84,10 @@ public class Discord {
                         .login()
                 )
                 .subscribe(this::clientConnected);
+    }
+
+    private static String toPlainString(Component component) {
+        return SpongeComponents.plainSerializer().serialize(component);
     }
 
     private void clientConnected(GatewayDiscordClient client) {
@@ -110,19 +118,23 @@ public class Discord {
     public void onMinecraftChat(PlayerChatEvent event, @Root ServerPlayer player) {
         final Webhook w = webhook.get();
         if (w != null) {
-            w.execute(spec -> spec.setContent(event.message().toString()).setUsername(player.displayName().get().examinableName()));
+            w.execute(spec -> spec.setContent(toPlainString(event.message())).setUsername(toPlainString(player.displayName().get())));
         }
     }
 
     private void onDiscordChat(MessageCreateEvent event) {
-        Server s = server.get();
-        if (s != null) {
-            final Task task = Task.builder()
-                    .execute(() -> s.sendMessage(Component.text(event.getMessage().getContent())))
-                    .plugin(pluginContainer)
-                    .build();
-            s.scheduler().submit(task);
-        }
+        final Message message = event.getMessage();
+        message.getAuthor().ifPresent(author -> {
+            author.getId().asString();
+            Server s = server.get();
+            if (s != null) {
+                final Task task = Task.builder()
+                        .execute(() -> s.sendMessage(Component.text(message.getContent())))
+                        .plugin(pluginContainer)
+                        .build();
+                s.scheduler().submit(task);
+            }
+        });
     }
 
 }
