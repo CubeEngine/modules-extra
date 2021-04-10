@@ -80,6 +80,7 @@
         <module>observe</module>
         <module>terra</module>
         <module>mechanism</module>
+        <module>discord</module>
     </modules>
 
     <build>
