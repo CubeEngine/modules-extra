@@ -141,9 +141,11 @@ public class Discord {
                     if (server != null) {
                         String userName = member.getDisplayName();
 
-                        String format = ps.groupSubjects().subject("foobar")
-                                .flatMap(subject -> subject.option("discord-format"))
-                                .orElse(Optional.ofNullable(config.defaultChatFormat).orElse(DEFAULT_CHAT_FORMAT));
+                        //String format = ps.groupSubjects().subject("foobar")
+                        //        .flatMap(subject -> subject.option("discord-format"))
+                        //        .orElse(Optional.ofNullable(config.defaultChatFormat).orElse(DEFAULT_CHAT_FORMAT));
+
+                        String format = Optional.ofNullable(config.defaultChatFormat).orElse(DEFAULT_CHAT_FORMAT);
 
                         Map<String, Component> map = new HashMap<>();
                         map.put("NAME", Component.text(userName, TextColor.color(color.getRGB(), color.getGreen(), color.getBlue())));
