@@ -17,7 +17,10 @@
  */
 package org.cubeengine.module.headvillager;
 
+import java.util.Arrays;
 import java.util.UUID;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.event.lifecycle.RegisterDataPackValueEvent;
@@ -50,6 +53,8 @@ public interface HeadVillagerItems {
         final GameProfile profile = GameProfile.of(UUID.fromString("01bf9227-95fd-413f-af29-4ace675801bc")).withProperty(ProfileProperty.of(ProfileProperty.TEXTURES,
     "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODZhZGRiZDVkZWRhZDQwOTk5NDczYmU0YTdmNDhmNjIzNmE3OWEwZGNlOTcxYjVkYmQ3MzcyMDE0YWUzOTRkIn19fQ=="));
         head.offer(Keys.GAME_PROFILE, profile);
+        head.offer(Keys.CUSTOM_NAME, Component.text("Master Headsman's Pendant", NamedTextColor.GOLD));
+        head.offer(Keys.LORE, Arrays.asList(Component.text("Use on a Villager to convert his Job", NamedTextColor.GRAY)));
         return head;
     }
 }

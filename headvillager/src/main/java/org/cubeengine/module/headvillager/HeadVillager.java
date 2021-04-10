@@ -21,13 +21,18 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import com.google.gson.Gson;
 import com.google.inject.Singleton;
+import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.sound.Sound.Source;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.cubeengine.libcube.util.EventUtil;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.Server;
@@ -35,6 +40,14 @@ import org.spongepowered.api.adventure.SpongeComponents;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.data.type.ProfessionTypes;
+import org.spongepowered.api.data.type.VillagerType;
+import org.spongepowered.api.data.type.VillagerTypes;
+import org.spongepowered.api.effect.particle.ParticleEffect;
+import org.spongepowered.api.effect.particle.ParticleOption;
+import org.spongepowered.api.effect.particle.ParticleOptions;
+import org.spongepowered.api.effect.particle.ParticleType;
+import org.spongepowered.api.effect.particle.ParticleTypes;
+import org.spongepowered.api.effect.sound.SoundTypes;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
@@ -49,6 +62,9 @@ import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.merchant.TradeOffer;
 import org.spongepowered.api.item.recipe.RecipeRegistration;
+import org.spongepowered.api.registry.RegistryTypes;
+import org.spongepowered.api.util.Color;
+import org.spongepowered.math.vector.Vector3d;
 
 /**
  * A module to buy heads
@@ -112,57 +128,74 @@ public class HeadVillager
                     player.setItemInHand(HandTypes.MAIN_HAND, itemInHand);
                 }
                 villager.offer(HeadVillagerData.VILLAGER, "bob");
-                // TODO fancy effects
-
+                villager.world().playSound(Sound.sound(SoundTypes.ENTITY_VILLAGER_WORK_CLERIC, Source.NEUTRAL, 3, 2f), villager.position());
+                final ParticleEffect effect = ParticleEffect.builder().type(ParticleTypes.SMOKE).offset(new Vector3d(0.2, 1, 0.2)).quantity(50).build();
+                villager.world().spawnParticles(effect, villager.position());
+                villager.offer(Keys.PROFESSION_TYPE, ProfessionTypes.NITWIT.get());
+                villager.offer(Keys.VILLAGER_TYPE, VillagerTypes.SNOW.get());
+                villager.offer(Keys.PROFESSION_LEVEL, 6);
+                final List<String> names = Arrays.asList("Bob", "Steve", "Jeff", "Phil", "Pete", "Kevin", "Tim", "Bill", "Manfred", "Todd", "Laurel", "Karen", "Bertha");
+                final String name = names.get(villager.world().random().nextInt(names.size()));
+                villager.offer(Keys.CUSTOM_NAME, Component.text(name + " - Master Headsman", NamedTextColor.DARK_RED));
+                villager.offer(Keys.MAX_HEALTH, 100d);
+                villager.offer(Keys.HEALTH, 100d);
                 event.setCancelled(true);
             }
             return;
         }
 
-
-        String name = itemInHand.get(Keys.CUSTOM_NAME).map(SpongeComponents.plainSerializer()::serialize).orElse(null);
-        if (name == null)
+        if (itemInHand.type().isAnyOf(ItemTypes.PLAYER_HEAD))
         {
-            final Component component = itemInHand.get(Keys.DISPLAY_NAME).orElse(null);
-            if (component instanceof TranslatableComponent)
-            {
-                final Component actualComponent = ((TranslatableComponent)component).args().get(0).children().get(0);
-                name = SpongeComponents.plainSerializer().serialize(actualComponent);
-            }
-            else
-            {
-                name = "???";
-            }
+            final List<TradeOffer> tradeOffers = Arrays.asList(TradeOffer.builder().canGrantExperience(false).maxUses(2)
+                                                                  .firstBuyingItem(ItemStack.of(ItemTypes.EMERALD_BLOCK))
+                                                                  .sellingItem(itemInHand).build());
+            villager.offer(Keys.TRADE_OFFERS, tradeOffers);
+            return;
         }
-        final List<ItemStack> headStacks = new ArrayList<>();
+        if (!itemInHand.type().isAnyOf(ItemTypes.WRITABLE_BOOK))
+        {
+            return;
+        }
+        final List<String> list = itemInHand.get(Keys.PLAIN_PAGES).get();
+        final String firstPage = list.get(0);
+        final String[] wishList = firstPage.split("\n");
+        final List<Head> headStacks = new ArrayList<>();
         for (Category category : Category.values())
         {
             for (String headName : category.heads.keySet())
             {
-                if (headName.toLowerCase().contains(name.toLowerCase()))
+                for (Head head : category.heads.get(headName))
                 {
-                    category.heads.get(headName).forEach(head -> headStacks.add(head.stack));
-                }
-                else
-                {
-                    for (Head head : category.heads.get(headName))
+                    boolean match = true;
+                    for (String wishListItem : wishList)
                     {
-                        if (head.tags != null && head.tags.toLowerCase().contains(name))
+                        if (!(headName.toLowerCase().contains(wishListItem.toLowerCase()) || (head.tags != null && head.tags.toLowerCase().contains(wishListItem.toLowerCase()))))
                         {
-                            headStacks.add(head.stack);
+                            match = false;
+                            break;
                         }
+                    }
+                    if (match)
+                    {
+                        headStacks.add(head);
                     }
                 }
             }
         }
         Collections.shuffle(headStacks);
-        final List<TradeOffer> tradeOffers = headStacks.subList(0, Math.min(headStacks.size(), 20)).stream().map(stack -> TradeOffer.builder().canGrantExperience(false).maxUses(2)
-            .firstBuyingItem(ItemStack.of(ItemTypes.EMERALD_BLOCK))
-            .sellingItem(stack).build()).collect(Collectors.toList());
-        villager.offer(Keys.PROFESSION_TYPE, ProfessionTypes.NITWIT.get());
-        villager.offer(Keys.PROFESSION_LEVEL, 6);
+        final List<TradeOffer> tradeOffers = headStacks.subList(0, Math.min(headStacks.size(), 20)).stream().sorted(
+            Comparator.comparing(h -> h.name)).map(head -> TradeOffer.builder().canGrantExperience(false).maxUses(2)
+                                                          .firstBuyingItem(ItemStack.of(ItemTypes.EMERALD_BLOCK))
+                                                          .sellingItem(head.stack).build()).collect(Collectors.toList());
+        if (wishList[0].equals(player.name()))
+        {
+            final ItemStack selfHead = ItemStack.of(ItemTypes.PLAYER_HEAD);
+            selfHead.offer(Keys.GAME_PROFILE, player.profile());
+            tradeOffers.add(TradeOffer.builder().canGrantExperience(false).maxUses(2)
+                      .firstBuyingItem(ItemStack.of(ItemTypes.EMERALD_BLOCK))
+                      .sellingItem(selfHead).build());
+        }
         villager.offer(Keys.TRADE_OFFERS, tradeOffers);
-        villager.offer(Keys.CUSTOM_NAME, Component.text("Bob - Master Headsman"));
     }
 
 }
