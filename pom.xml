@@ -81,6 +81,7 @@
         <module>terra</module>
         <module>mechanism</module>
         <module>discord</module>
+        <module>headvillager</module>
     </modules>
 
     <build>
