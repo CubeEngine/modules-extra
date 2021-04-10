@@ -43,6 +43,7 @@ import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 import org.spongepowered.api.event.message.PlayerChatEvent;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.plugin.PluginContainer;
+import reactor.core.publisher.Mono;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -65,24 +66,30 @@ public class Discord {
     @Listener
     public void onServerStart(StartedEngineEvent<Server> event) {
         server.set(event.engine());
-        DiscordClient.create(config.botToken)
-                .gateway()
-                .setEnabledIntents(IntentSet.of(Intent.GUILDS,
-                        Intent.GUILD_MEMBERS,
-                        Intent.GUILD_VOICE_STATES,
-                        Intent.GUILD_MESSAGES,
-                        Intent.GUILD_MESSAGE_REACTIONS,
-                        Intent.DIRECT_MESSAGES))
-                .setInitialPresence(info -> ClientPresence.online(ClientActivity.watching("You")))
-                .setMemberRequestFilter(MemberRequestFilter.none())
-                .login()
+        Mono.justOrEmpty(config.botToken)
+                .flatMap(token ->DiscordClient.create(token)
+                        .gateway()
+                        .setEnabledIntents(IntentSet.of(Intent.GUILDS,
+                                Intent.GUILD_MEMBERS,
+                                Intent.GUILD_VOICE_STATES,
+                                Intent.GUILD_MESSAGES,
+                                Intent.GUILD_MESSAGE_REACTIONS,
+                                Intent.DIRECT_MESSAGES))
+                        .setInitialPresence(info -> ClientPresence.online(ClientActivity.watching("You")))
+                        .setMemberRequestFilter(MemberRequestFilter.none())
+                        .login()
+                )
                 .subscribe(this::clientConnected);
     }
 
     private void clientConnected(GatewayDiscordClient client) {
         this.client.set(client);
 
-        client.getWebhookByIdWithToken(Snowflake.of(config.webhook.id), config.webhook.token).subscribe(this.webhook::set);
+        Mono.justOrEmpty(config.webhook)
+                .flatMap(webhook -> Mono.justOrEmpty(webhook.id).flatMap(id -> Mono.justOrEmpty(webhook.token).flatMap(token ->
+                    client.getWebhookByIdWithToken(Snowflake.of(id), token)
+                ))).subscribe(this.webhook::set);
+
         client.getUsers()
                 .flatMap(user -> client.on(MessageCreateEvent.class).filter(m -> m.getMessage().getAuthor().map(u -> !u.getId().equals(user.getId())).orElse(true)))
                 .filter(m -> m.getMessage().getAuthor().map(u -> !u.isBot()).orElse(true))

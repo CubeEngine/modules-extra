@@ -23,7 +23,7 @@ public class DiscordConfig extends ReflectedYaml {
 
     public String botToken;
     public String channel = "minecraft";
-    public WebhookConfig webhook;
+    public WebhookConfig webhook = new WebhookConfig();
 
     public static class WebhookConfig {
         public String id;
