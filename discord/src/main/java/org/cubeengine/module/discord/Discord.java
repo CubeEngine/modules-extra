@@ -118,7 +118,7 @@ public class Discord {
     public void onMinecraftChat(PlayerChatEvent event, @Root ServerPlayer player) {
         final Webhook w = webhook.get();
         if (w != null) {
-            w.execute(spec -> spec.setContent(toPlainString(event.message())).setUsername(toPlainString(player.displayName().get())));
+            w.execute(spec -> spec.setContent(toPlainString(event.message())).setUsername(toPlainString(player.displayName().get()))).subscribe();
         }
     }
 
