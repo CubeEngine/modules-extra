@@ -32,8 +32,10 @@ import discord4j.core.shard.MemberRequestFilter;
 import discord4j.gateway.intent.Intent;
 import discord4j.gateway.intent.IntentSet;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import org.cubeengine.libcube.InjectService;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
+import org.cubeengine.libcube.util.ComponentUtil;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.adventure.SpongeComponents;
@@ -49,11 +51,15 @@ import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.plugin.PluginContainer;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Singleton
 @Module
 public class Discord {
+    public static final String DEFAULT_CHAT_FORMAT = "{NAME}: {MESSAGE}";
     private final AtomicReference<GatewayDiscordClient> client = new AtomicReference<>(null);
     private final AtomicReference<Webhook> webhook = new AtomicReference<>(null);
     private final AtomicReference<Server> server = new AtomicReference<>(null);
@@ -118,22 +124,40 @@ public class Discord {
     public void onMinecraftChat(PlayerChatEvent event, @Root ServerPlayer player) {
         final Webhook w = webhook.get();
         if (w != null) {
-            w.execute(spec -> spec.setContent(toPlainString(event.message())).setUsername(toPlainString(player.displayName().get()))).subscribe();
+            w.execute(spec -> spec
+                    .setContent(toPlainString(event.message()))
+                    .setUsername(toPlainString(player.displayName().get()))
+                    .setAvatarUrl("https://crafatar.com/avatars/" + player.uniqueId().toString())
+            ).subscribe();
         }
     }
 
     private void onDiscordChat(MessageCreateEvent event) {
         final Message message = event.getMessage();
         message.getAuthor().ifPresent(author -> {
-            author.getId().asString();
-            Server s = server.get();
-            if (s != null) {
-                final Task task = Task.builder()
-                        .execute(() -> s.sendMessage(Component.text(message.getContent())))
-                        .plugin(pluginContainer)
-                        .build();
-                s.scheduler().submit(task);
-            }
+            Mono.justOrEmpty(event.getGuildId()).flatMap(author::asMember).subscribe(member -> {
+                member.getColor().subscribe(color -> {
+                    final Server server = this.server.get();
+                    if (server != null) {
+                        String userName = member.getDisplayName();
+
+                        String format = ps.groupSubjects().subject("foobar")
+                                .flatMap(subject -> subject.option("discord-format"))
+                                .orElse(Optional.ofNullable(config.defaultChatFormat).orElse(DEFAULT_CHAT_FORMAT));
+
+                        Map<String, Component> map = new HashMap<>();
+                        map.put("NAME", Component.text(userName, TextColor.color(color.getRGB(), color.getGreen(), color.getBlue())));
+                        map.put("MESSAGE", Component.text(message.getContent()));
+                        final Component formattedMessage = ComponentUtil.legacyMessageTemplateToComponent(format, map);
+
+                        final Task task = Task.builder()
+                                .execute(() -> server.sendMessage(formattedMessage))
+                                .plugin(pluginContainer)
+                                .build();
+                        server.scheduler().submit(task);
+                    }
+                });
+            });
         });
     }
 
