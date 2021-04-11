@@ -172,7 +172,14 @@ public class Discord {
         }
         // stripLegacy() should be done by a chat plugin, not by us: https://github.com/SpongePowered/SpongeAPI/issues/2259
         final String strippedMessage = stripLegacy(toPlainString(event.originalMessage()));
-        if (strippedMessage.isEmpty()) {
+
+        final String finalMessage;
+        if (config.replaceEmojiFromMinecraft) {
+            finalMessage = replace(strippedMessage, config.reverseEmojiReplacePattern, config.reverseEmojiMapping);
+        } else {
+            finalMessage = strippedMessage;
+        }
+        if (finalMessage.isEmpty()) {
             return;
         }
 
@@ -183,7 +190,7 @@ public class Discord {
                     w.getGuild().flatMapMany(Guild::getEmojis).collectList().flatMap(emojis -> {
                         final Map<String, String> emojiLookup = emojis.stream().collect(Collectors.toMap(GuildEmoji::getName, e -> e.getId().asString()));
 
-                        String content = replaceWithCallback(EMOJI_FROM_MINECRAFT, strippedMessage, match -> {
+                        String content = replaceWithCallback(EMOJI_FROM_MINECRAFT, finalMessage, match -> {
                             final String emojiId = emojiLookup.get(match.group(1));
                             if (emojiId != null) {
                                 return "<" + match.group() + emojiId + ">";
@@ -215,6 +222,8 @@ public class Discord {
             return;
         }
 
+        final String content = replace(message.getContent(), config.forwardEmojiReplacePattern, config.emojiMapping);
+
         displayNameForMember(author).subscribe(userName -> {
             final Server server = this.server.get();
             if (server != null) {
@@ -234,8 +243,7 @@ public class Discord {
                         .flatMap(member -> displayNameForMember(member).map(name -> new Pair<>(member.getId().asString(), (Component) Component.text("@", NamedTextColor.BLUE).append(name))))
                         .collectMap(Pair::getLeft, Pair::getRight)
                         .subscribe(mentions -> {
-                            String plainContent = message.getContent();
-                            String contentWithEmoji = EMOJI_FROM_DISCORD.matcher(plainContent).replaceAll("$1");
+                            String contentWithEmoji = EMOJI_FROM_DISCORD.matcher(content).replaceAll("$1");
                             Component contentWithMentions = replaceMentions(contentWithEmoji, mentions);
 
                             final Task task = Task.builder()
@@ -297,5 +305,16 @@ public class Discord {
                 onlinePlayer.sendMessage(ComponentUtil.legacyMessageTemplateToComponent(template, replacements));
             }
         }
+    }
+
+    private static String replace(String input, Pattern pattern, Map<String, String> replacements) {
+        return replaceWithCallback(pattern, input, match -> {
+            final String s = match.group();
+            String replacement = replacements.get(s);
+            if (replacement != null) {
+                return replacement;
+            }
+            return s;
+        });
     }
 }
