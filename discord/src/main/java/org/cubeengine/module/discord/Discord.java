@@ -26,6 +26,7 @@ import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.GuildEmoji;
 import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.Role;
 import discord4j.core.object.entity.Webhook;
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.object.presence.ClientActivity;
@@ -162,6 +163,11 @@ public class Discord {
         if (player.get(DiscordData.MUTED).orElse(false)) {
             return;
         }
+        // stripLegacy() should be done by a chat plugin, not by us: https://github.com/SpongePowered/SpongeAPI/issues/2259
+        final String strippedMessage = stripLegacy(toPlainString(event.originalMessage()));
+        if (strippedMessage.isEmpty()) {
+            return;
+        }
 
         Task task = Task.builder()
                 .plugin(this.pluginContainer)
@@ -170,8 +176,7 @@ public class Discord {
                     w.getGuild().flatMapMany(Guild::getEmojis).collectList().flatMap(emojis -> {
                         final Map<String, String> emojiLookup = emojis.stream().collect(Collectors.toMap(GuildEmoji::getName, e -> e.getId().asString()));
 
-                        // stripLegacy() should be done by a chat plugin, not by us: https://github.com/SpongePowered/SpongeAPI/issues/2259
-                        String content = StringUtils.replaceWithCallback(EMOJI_FROM_MINECRAFT, stripLegacy(toPlainString(event.originalMessage())), match -> {
+                        String content = StringUtils.replaceWithCallback(EMOJI_FROM_MINECRAFT, strippedMessage, match -> {
                             final String emojiId = emojiLookup.get(match.group(1));
                             if (emojiId != null) {
                                 return "<" + match.group() + emojiId + ">";
@@ -199,7 +204,13 @@ public class Discord {
                 member.getColor().subscribe(color -> {
                     final Server server = this.server.get();
                     if (server != null) {
-                        final Component userName = Component.text(member.getDisplayName(), TextColor.color(color.getRed(), color.getGreen(), color.getBlue()));
+                        final TextColor nameColor;
+                        if (color == Role.DEFAULT_COLOR) {
+                            nameColor = NamedTextColor.GRAY;
+                        } else {
+                            nameColor = TextColor.color(color.getRed(), color.getGreen(), color.getBlue());
+                        }
+                        final Component userName = Component.text(member.getDisplayName(), nameColor);
                         final Component attachmentStrings = message.getAttachments().stream().reduce((Component) Component.empty(), (component, attachment) ->
                                 Component.empty()
                                         .append(Component.text("[")
@@ -229,7 +240,7 @@ public class Discord {
 
                 Map<String, Component> replacements = new HashMap<>();
                 replacements.put("NAME", name);
-                replacements.put("MESSAGE", autoLink(message, content));
+                replacements.put("MESSAGE", content);
 
                 onlinePlayer.sendMessage(ComponentUtil.legacyMessageTemplateToComponent(template, replacements));
             }
