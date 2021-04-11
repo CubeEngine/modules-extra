@@ -25,7 +25,7 @@ public class DiscordConfig extends ReflectedYaml {
     public String applicationId;
     public String botToken;
     public String channel = "minecraft";
-    public String defaultChatFormat = "{NAME} from Discord: {MESSAGE}";
+    public String defaultChatFormat = "{NAME} from &5Discord&r: {MESSAGE}";
     public WebhookConfig webhook = new WebhookConfig();
 
     public static class WebhookConfig implements Section {
