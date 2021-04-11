@@ -24,7 +24,9 @@ import discord4j.core.DiscordClient;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.User;
 import discord4j.core.object.entity.Webhook;
+import discord4j.core.object.entity.channel.GuildMessageChannel;
 import discord4j.core.object.entity.channel.TextChannel;
 import discord4j.core.object.presence.ClientActivity;
 import discord4j.core.object.presence.ClientPresence;
@@ -129,12 +131,14 @@ public class Discord {
     public void onMinecraftChat(PlayerChatEvent event, @Root ServerPlayer player) {
         final Webhook w = webhook.get();
         if (w != null) {
-            w.execute(spec -> spec
-                    .setContent(toPlainString(event.message()))
-                    .setUsername(toPlainString(player.displayName().get()))
-                    .setAvatarUrl("https://crafatar.com/avatars/" + player.uniqueId().toString())
-                    .setAllowedMentions(AllowedMentions.builder()/*.parseType(USER)*/.build())
-            ).subscribe();
+            w.getChannel().flatMapMany(GuildMessageChannel::getMembers).map(User::getId).collectList().subscribe(userIds -> {
+                w.execute(spec -> spec
+                        .setContent(toPlainString(event.message()))
+                        .setUsername(toPlainString(player.displayName().get()))
+                        .setAvatarUrl("https://crafatar.com/avatars/" + player.uniqueId().toString())
+                        .setAllowedMentions(AllowedMentions.builder().parseType(USER).allowUser(userIds.toArray(new Snowflake[0])).build())
+                ).subscribe();
+            });
         }
     }
 
