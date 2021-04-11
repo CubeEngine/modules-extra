@@ -141,12 +141,15 @@ public class Discord {
 
     @Listener(order = Order.LAST)
     public void onMinecraftChat(PlayerChatEvent event, @Root ServerPlayer player) {
+        if (player.get(DiscordData.MUTED).orElse(false)) {
+            return;
+        }
         final Webhook w = webhook.get();
         if (w != null) {
             w.executeAndWait(spec -> spec
                     .setContent(toPlainString(event.message()))
                     .setUsername(toPlainString(player.displayName().get()))
-                    .setAvatarUrl("https://crafatar.com/avatars/" + player.uniqueId().toString())
+                    .setAvatarUrl("https://crafatar.com/avatars/" + player.uniqueId().toString() + "?overlay")
                     .setAllowedMentions(AllowedMentions.builder().parseType(USER).build())
             ).subscribe();
         }

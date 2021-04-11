@@ -62,11 +62,11 @@ public class DiscordCommands extends DispatcherCommand
     {
         final boolean isMuted = player.get(DiscordData.MUTED).orElse(false);
         if (isMuted) {
-            player.offer(DiscordData.MUTED, true);
-            i18n.send(context, POSITIVE, "You will no longer see any Discord messages until you run this command again.");
-        } else {
             player.offer(DiscordData.MUTED, false);
             i18n.send(context, POSITIVE, "You will now see messages from Discord again!");
+        } else {
+            player.offer(DiscordData.MUTED, true);
+            i18n.send(context, POSITIVE, "You will no longer see any Discord messages until you run this command again.");
         }
     }
 }
