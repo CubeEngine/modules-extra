@@ -172,14 +172,7 @@ public class Discord {
         }
         // stripLegacy() should be done by a chat plugin, not by us: https://github.com/SpongePowered/SpongeAPI/issues/2259
         final String strippedMessage = stripLegacy(toPlainString(event.originalMessage()));
-
-        final String finalMessage;
-        if (config.replaceEmojiFromMinecraft) {
-            finalMessage = replace(strippedMessage, config.reverseEmojiReplacePattern, config.reverseEmojiMapping);
-        } else {
-            finalMessage = strippedMessage;
-        }
-        if (finalMessage.isEmpty()) {
+        if (strippedMessage.isEmpty()) {
             return;
         }
 
@@ -190,7 +183,7 @@ public class Discord {
                     w.getGuild().flatMapMany(Guild::getEmojis).collectList().flatMap(emojis -> {
                         final Map<String, String> emojiLookup = emojis.stream().collect(Collectors.toMap(GuildEmoji::getName, e -> e.getId().asString()));
 
-                        String content = replaceWithCallback(EMOJI_FROM_MINECRAFT, finalMessage, match -> {
+                        String content = replaceWithCallback(EMOJI_FROM_MINECRAFT, strippedMessage, match -> {
                             final String emojiId = emojiLookup.get(match.group(1));
                             if (emojiId != null) {
                                 return "<" + match.group() + emojiId + ">";
@@ -222,7 +215,12 @@ public class Discord {
             return;
         }
 
-        final String content = replace(message.getContent(), config.forwardEmojiReplacePattern, config.emojiMapping);
+        final String content;
+        if (config.replaceEmoji) {
+            content = replace(message.getContent(), config.forwardEmojiReplacePattern, config.emojiMapping);
+        } else {
+            content = message.getContent();
+        }
 
         displayNameForMember(author).subscribe(userName -> {
             final Server server = this.server.get();
