@@ -19,16 +19,18 @@ package org.cubeengine.module.discord;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.cubeengine.libcube.service.command.DispatcherCommand;
 import org.cubeengine.libcube.service.command.annotation.Command;
 import org.cubeengine.libcube.service.command.annotation.Default;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.spongepowered.api.command.CommandCause;
-import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
 
+@Command(name = "discord", desc = "Interact with the Discord bridge")
 @Singleton
-public class DiscordCommands
+public class DiscordCommands extends DispatcherCommand
 {
     private final Discord module;
     private I18n i18n;
@@ -56,8 +58,15 @@ public class DiscordCommands
 
 
     @Command(desc = "Mutes the Discord chat for you")
-    public void mute(CommandCause context, @Default User player)
+    public void mute(CommandCause context, @Default ServerPlayer player)
     {
-        // TODO implement me
+        final boolean isMuted = player.get(DiscordData.MUTED).orElse(false);
+        if (isMuted) {
+            player.offer(DiscordData.MUTED, true);
+            i18n.send(context, POSITIVE, "You will no longer see any Discord messages until you run this command again.");
+        } else {
+            player.offer(DiscordData.MUTED, false);
+            i18n.send(context, POSITIVE, "You will now see messages from Discord again!");
+        }
     }
 }

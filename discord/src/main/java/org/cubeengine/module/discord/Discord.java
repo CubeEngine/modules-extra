@@ -46,6 +46,7 @@ import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.filter.cause.Root;
+import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 import org.spongepowered.api.event.message.PlayerChatEvent;
@@ -81,7 +82,6 @@ public class Discord {
 
     @Inject
     private PluginContainer pluginContainer;
-
 
     @Listener
     public void onServerStart(StartedEngineEvent<Server> event) {
@@ -123,6 +123,11 @@ public class Discord {
                 .filter(m -> m.getMessage().getAuthor().map(u -> !u.isBot()).orElse(true))
                 .flatMap(m -> m.getMessage().getChannel().ofType(TextChannel.class).filter(c -> c.getName().equals(config.channel)).map(c -> m))
                 .subscribe(this::onDiscordChat);
+    }
+
+    @Listener
+    public void onRegisterData(RegisterDataEvent event) {
+        DiscordData.register(event);
     }
 
     @Listener
@@ -179,7 +184,7 @@ public class Discord {
                         final Component formattedMessage = ComponentUtil.legacyMessageTemplateToComponent(format, map);
 
                         final Task task = Task.builder()
-                                .execute(() -> server.sendMessage(formattedMessage))
+                                .execute(() -> broadcastMessage(server, formattedMessage))
                                 .plugin(pluginContainer)
                                 .build();
                         server.scheduler().submit(task);
@@ -189,4 +194,11 @@ public class Discord {
         });
     }
 
+    private static void broadcastMessage(Server server, Component message) {
+        for (ServerPlayer onlinePlayer : server.onlinePlayers()) {
+            if (!onlinePlayer.get(DiscordData.MUTED).orElse(false)) {
+                onlinePlayer.sendMessage(message);
+            }
+        }
+    }
 }
