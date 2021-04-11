@@ -36,6 +36,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.cubeengine.libcube.InjectService;
+import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.libcube.util.ComponentUtil;
 import org.cubeengine.processor.Module;
@@ -75,8 +76,12 @@ public class Discord {
     @ModuleConfig
     private DiscordConfig config;
 
+    @ModuleCommand
+    private DiscordCommands commands;
+
     @Inject
     private PluginContainer pluginContainer;
+
 
     @Listener
     public void onServerStart(StartedEngineEvent<Server> event) {
@@ -95,6 +100,10 @@ public class Discord {
                         .login()
                 )
                 .subscribe(this::clientConnected);
+    }
+
+    public DiscordConfig getConfig() {
+        return config;
     }
 
     private static String toPlainString(Component component) {

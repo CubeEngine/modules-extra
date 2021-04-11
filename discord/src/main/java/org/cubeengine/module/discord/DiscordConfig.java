@@ -22,6 +22,7 @@ import org.cubeengine.reflect.codec.yaml.ReflectedYaml;
 
 public class DiscordConfig extends ReflectedYaml {
 
+    public String applicationId;
     public String botToken;
     public String channel = "minecraft";
     public String defaultChatFormat = "{NAME} from Discord: {MESSAGE}";
