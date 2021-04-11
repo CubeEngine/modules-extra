@@ -25,6 +25,7 @@ import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.GuildEmoji;
+import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.Role;
 import discord4j.core.object.entity.Webhook;
@@ -43,7 +44,7 @@ import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.util.ComponentUtil;
-import org.cubeengine.libcube.util.StringUtils;
+import org.cubeengine.libcube.util.Pair;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.Server;
@@ -59,12 +60,16 @@ import org.spongepowered.api.event.message.PlayerChatEvent;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.plugin.PluginContainer;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -72,6 +77,7 @@ import static discord4j.rest.util.AllowedMentions.Type.USER;
 import static net.kyori.adventure.text.event.ClickEvent.openUrl;
 import static org.cubeengine.libcube.util.ComponentUtil.autoLink;
 import static org.cubeengine.libcube.util.ComponentUtil.stripLegacy;
+import static org.cubeengine.libcube.util.StringUtils.replaceWithCallback;
 
 @Singleton
 @Module
@@ -83,6 +89,7 @@ public class Discord {
 
     private static final Pattern EMOJI_FROM_DISCORD = Pattern.compile("<(:[^: ]+:)\\d+>");
     private static final Pattern EMOJI_FROM_MINECRAFT = Pattern.compile(":([^: ]+):");
+    private static final Pattern MENTION_PATTERN = Pattern.compile("<@!(\\d+)>");
 
     @InjectService
     private PermissionService ps;
@@ -176,7 +183,7 @@ public class Discord {
                     w.getGuild().flatMapMany(Guild::getEmojis).collectList().flatMap(emojis -> {
                         final Map<String, String> emojiLookup = emojis.stream().collect(Collectors.toMap(GuildEmoji::getName, e -> e.getId().asString()));
 
-                        String content = StringUtils.replaceWithCallback(EMOJI_FROM_MINECRAFT, strippedMessage, match -> {
+                        String content = replaceWithCallback(EMOJI_FROM_MINECRAFT, strippedMessage, match -> {
                             final String emojiId = emojiLookup.get(match.group(1));
                             if (emojiId != null) {
                                 return "<" + match.group() + emojiId + ">";
@@ -199,19 +206,19 @@ public class Discord {
 
     private void onDiscordChat(MessageCreateEvent event) {
         final Message message = event.getMessage();
-        message.getAuthor().ifPresent(author -> {
-            Mono.justOrEmpty(event.getGuildId()).flatMap(author::asMember).subscribe(member -> {
-                member.getColor().subscribe(color -> {
-                    final Server server = this.server.get();
-                    if (server != null) {
-                        final TextColor nameColor;
-                        if (color == Role.DEFAULT_COLOR) {
-                            nameColor = NamedTextColor.GRAY;
-                        } else {
-                            nameColor = TextColor.color(color.getRed(), color.getGreen(), color.getBlue());
-                        }
-                        final Component userName = Component.text(member.getDisplayName(), nameColor);
-                        final Component attachmentStrings = message.getAttachments().stream().reduce((Component) Component.empty(), (component, attachment) ->
+        final Snowflake guildId = event.getGuildId().orElse(null);
+        if (guildId == null) {
+            return;
+        }
+        final Member author = event.getMember().orElse(null);
+        if (author == null) {
+            return;
+        }
+
+        displayNameForMember(author).subscribe(userName -> {
+            final Server server = this.server.get();
+            if (server != null) {
+                final Component attachmentStrings = message.getAttachments().stream().reduce((Component) Component.empty(), (component, attachment) ->
                                 Component.empty()
                                         .append(Component.text("[")
                                                 .append(Component.text(attachment.getFilename(), NamedTextColor.DARK_RED))
@@ -219,21 +226,66 @@ public class Discord {
                                                 .clickEvent(openUrl(attachment.getUrl()))
                                                 .hoverEvent(Component.text("Open Attachment").asHoverEvent()))
                                         .append(Component.space()),
-                                Component::append);
-                        final String format = Optional.ofNullable(config.defaultChatFormat).orElse(DEFAULT_CHAT_FORMAT);
+                        Component::append);
+                final String format = Optional.ofNullable(config.defaultChatFormat).orElse(DEFAULT_CHAT_FORMAT);
 
-                        final Task task = Task.builder()
-                                .execute(() -> broadcastMessage(server, format, userName, EMOJI_FROM_DISCORD.matcher(message.getContent()).replaceAll("$1"), attachmentStrings))
-                                .plugin(pluginContainer)
-                                .build();
-                        server.scheduler().submit(task);
-                    }
-                });
-            });
+                Flux.fromIterable(event.getMessage().getUserMentions())
+                        .flatMap(user -> user.asMember(guildId))
+                        .flatMap(member -> displayNameForMember(member).map(name -> new Pair<>(member.getId().asString(), (Component) Component.text("@", NamedTextColor.BLUE).append(name))))
+                        .collectMap(Pair::getLeft, Pair::getRight)
+                        .subscribe(mentions -> {
+                            String plainContent = message.getContent();
+                            String contentWithEmoji = EMOJI_FROM_DISCORD.matcher(plainContent).replaceAll("$1");
+                            Component contentWithMentions = replaceMentions(contentWithEmoji, mentions);
+
+                            final Task task = Task.builder()
+                                    .execute(() -> broadcastMessage(server, format, userName, contentWithMentions, attachmentStrings))
+                                    .plugin(pluginContainer)
+                                    .build();
+                            server.scheduler().submit(task);
+                        });
+            }
         });
     }
 
-    private void broadcastMessage(Server server, String template, Component name, String message, Component attachments) {
+    private Component replaceMentions(String input, Map<String, Component> replacements) {
+        final Matcher matcher = MENTION_PATTERN.matcher(input);
+        int offset = 0;
+        List<Component> parts = new ArrayList<>();
+        while (matcher.find()) {
+            int start = matcher.start();
+            if (offset != start) {
+                parts.add(Component.text(input.substring(offset, start)));
+            }
+            final Component mention = replacements.get(matcher.group(1));
+            if (mention != null) {
+                parts.add(mention);
+            } else {
+                parts.add(Component.text(matcher.group()));
+            }
+            offset = matcher.end();
+        }
+        if (offset < input.length()) {
+            parts.add(Component.text(input.substring(offset)));
+        }
+        return Component.join(Component.empty(), parts);
+    }
+
+    private Mono<Component> displayNameForMember(Member member) {
+        return colorFromMember(member).map(color -> Component.text(member.getDisplayName(), color));
+    }
+
+    private Mono<TextColor> colorFromMember(Member member) {
+        return member.getColor().map(color -> {
+            if (color == Role.DEFAULT_COLOR) {
+                return NamedTextColor.GRAY;
+            } else {
+                return TextColor.color(color.getRed(), color.getGreen(), color.getBlue());
+            }
+        });
+    }
+
+    private void broadcastMessage(Server server, String template, Component name, Component message, Component attachments) {
         for (ServerPlayer onlinePlayer : server.onlinePlayers()) {
             if (!onlinePlayer.get(DiscordData.MUTED).orElse(false)) {
                 Component content = attachments.append(autoLink(message, i18n.translate(onlinePlayer, "Open Link")));
