@@ -70,6 +70,7 @@ import java.util.stream.Collectors;
 import static discord4j.rest.util.AllowedMentions.Type.USER;
 import static net.kyori.adventure.text.event.ClickEvent.openUrl;
 import static org.cubeengine.libcube.util.ComponentUtil.autoLink;
+import static org.cubeengine.libcube.util.ComponentUtil.stripLegacy;
 
 @Singleton
 @Module
@@ -169,7 +170,8 @@ public class Discord {
                     w.getGuild().flatMapMany(Guild::getEmojis).collectList().flatMap(emojis -> {
                         final Map<String, String> emojiLookup = emojis.stream().collect(Collectors.toMap(GuildEmoji::getName, e -> e.getId().asString()));
 
-                        String content = StringUtils.replaceWithCallback(EMOJI_FROM_MINECRAFT, toPlainString(event.message()), match -> {
+                        // stripLegacy() should be done by a chat plugin, not by us: https://github.com/SpongePowered/SpongeAPI/issues/2259
+                        String content = StringUtils.replaceWithCallback(EMOJI_FROM_MINECRAFT, stripLegacy(toPlainString(event.originalMessage())), match -> {
                             final String emojiId = emojiLookup.get(match.group(1));
                             if (emojiId != null) {
                                 return "<" + match.group() + emojiId + ">";
