@@ -133,7 +133,7 @@ public class Discord {
                     .setContent(toPlainString(event.message()))
                     .setUsername(toPlainString(player.displayName().get()))
                     .setAvatarUrl("https://crafatar.com/avatars/" + player.uniqueId().toString())
-                    .setAllowedMentions(AllowedMentions.builder().parseType(USER).build())
+                    .setAllowedMentions(AllowedMentions.builder()/*.parseType(USER)*/.build())
             ).subscribe();
         }
     }
@@ -152,22 +152,17 @@ public class Discord {
                         //        .orElse(Optional.ofNullable(config.defaultChatFormat).orElse(DEFAULT_CHAT_FORMAT));
 
                         Component attachmentStrings = message.getAttachments().stream().reduce((Component) Component.empty(), (component, attachment) ->
-                                Component.text("[")
-                                        .append(Component.text(attachment.getFilename(), NamedTextColor.DARK_RED))
-                                        .append(Component.text("]"))
-                                        .clickEvent(openUrl(attachment.getUrl()))
-                                        .hoverEvent(Component.text("Open Link").asHoverEvent())
+                                Component.empty()
+                                        .append(Component.text("[")
+                                                .append(Component.text(attachment.getFilename(), NamedTextColor.DARK_RED))
+                                                .append(Component.text("]"))
+                                                .clickEvent(openUrl(attachment.getUrl()))
+                                                .hoverEvent(Component.text("Open Attachment").asHoverEvent()))
                                         .append(Component.space()),
                                 Component::append);
                         String format = Optional.ofNullable(config.defaultChatFormat).orElse(DEFAULT_CHAT_FORMAT);
 
-                        Component chatMessage = message.getEmbeds().stream().reduce(attachmentStrings.append(Component.text(message.getContent())), (component, embed) -> {
-                            final Optional<String> url = embed.getUrl();
-                            if (url.isPresent()) {
-                                return component.append(Component.space()).append(ComponentUtil.clickableLink(url.get(), url.get()));
-                            }
-                            return component;
-                        }, Component::append);
+                        Component chatMessage = attachmentStrings.append(Component.text(message.getContent()));
 
                         Map<String, Component> map = new HashMap<>();
                         map.put("NAME", Component.text(userName, TextColor.color(color.getRed(), color.getGreen(), color.getBlue())));
