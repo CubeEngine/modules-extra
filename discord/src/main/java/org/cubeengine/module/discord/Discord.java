@@ -33,6 +33,8 @@ import discord4j.gateway.intent.Intent;
 import discord4j.gateway.intent.IntentSet;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ScopedComponent;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.cubeengine.libcube.InjectService;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
@@ -56,6 +58,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static net.kyori.adventure.text.event.ClickEvent.openUrl;
 
 @Singleton
 @Module
@@ -146,15 +150,22 @@ public class Discord {
                         //        .flatMap(subject -> subject.option("discord-format"))
                         //        .orElse(Optional.ofNullable(config.defaultChatFormat).orElse(DEFAULT_CHAT_FORMAT));
 
+                        Component attachmentStrings = message.getAttachments().stream().reduce((Component) Component.empty(), (component, attachment) ->
+                                Component.text("[")
+                                        .append(Component.text(attachment.getFilename(), NamedTextColor.DARK_RED))
+                                        .append(Component.text("]"))
+                                        .clickEvent(openUrl(attachment.getUrl()))
+                                        .append(Component.space()),
+                                Component::append);
                         String format = Optional.ofNullable(config.defaultChatFormat).orElse(DEFAULT_CHAT_FORMAT);
 
-                        Component chatMessage = message.getEmbeds().stream().reduce(Component.text(message.getContent()), (component, embed) -> {
+                        Component chatMessage = message.getEmbeds().stream().reduce(attachmentStrings.append(Component.text(message.getContent())), (component, embed) -> {
                             final Optional<String> url = embed.getUrl();
                             if (url.isPresent()) {
                                 return component.append(Component.space()).append(ComponentUtil.clickableLink(url.get(), url.get()));
                             }
                             return component;
-                        }, ScopedComponent::append);
+                        }, Component::append);
 
                         Map<String, Component> map = new HashMap<>();
                         map.put("NAME", Component.text(userName, TextColor.color(color.getRed(), color.getGreen(), color.getBlue())));
