@@ -23,6 +23,8 @@ import discord4j.common.util.Snowflake;
 import discord4j.core.DiscordClient;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.object.entity.Guild;
+import discord4j.core.object.entity.GuildEmoji;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.Webhook;
 import discord4j.core.object.entity.channel.TextChannel;
@@ -39,7 +41,9 @@ import org.cubeengine.libcube.InjectService;
 import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.libcube.util.ComponentUtil;
+import org.cubeengine.libcube.util.StringUtils;
 import org.cubeengine.processor.Module;
+import org.spongepowered.api.Game;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.adventure.SpongeComponents;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
@@ -59,6 +63,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static discord4j.rest.util.AllowedMentions.Type.USER;
 import static net.kyori.adventure.text.event.ClickEvent.openUrl;
@@ -71,6 +77,9 @@ public class Discord {
     private final AtomicReference<Webhook> webhook = new AtomicReference<>(null);
     private final AtomicReference<Server> server = new AtomicReference<>(null);
 
+    private static final Pattern EMOJI_FROM_DISCORD = Pattern.compile("<(:[^: ]+:)\\d+>");
+    private static final Pattern EMOJI_FROM_MINECRAFT = Pattern.compile(":([^: ]+):");
+
     @InjectService
     private PermissionService ps;
 
@@ -82,6 +91,9 @@ public class Discord {
 
     @Inject
     private PluginContainer pluginContainer;
+
+    @Inject
+    private Game game;
 
     @Listener
     public void onServerStart(StartedEngineEvent<Server> event) {
@@ -144,15 +156,33 @@ public class Discord {
         if (player.get(DiscordData.MUTED).orElse(false)) {
             return;
         }
-        final Webhook w = webhook.get();
-        if (w != null) {
-            w.executeAndWait(spec -> spec
-                    .setContent(toPlainString(event.message()))
-                    .setUsername(toPlainString(player.displayName().get()))
-                    .setAvatarUrl("https://crafatar.com/avatars/" + player.uniqueId().toString() + "?overlay")
-                    .setAllowedMentions(AllowedMentions.builder().parseType(USER).build())
-            ).subscribe();
-        }
+
+        Task task = Task.builder()
+                .plugin(this.pluginContainer)
+                .execute(() -> {
+                    final Webhook w = webhook.get();
+                    w.getGuild().flatMapMany(Guild::getEmojis).collectList().flatMap(emojis -> {
+                        final Map<String, String> emojiLookup = emojis.stream().collect(Collectors.toMap(GuildEmoji::getName, e -> e.getId().asString()));
+
+                        String content = StringUtils.replaceWithCallback(EMOJI_FROM_MINECRAFT, toPlainString(event.message()), match -> {
+                            final String emojiId = emojiLookup.get(match.group(1));
+                            if (emojiId != null) {
+                                return "<" + match.group() + emojiId + ">";
+                            }
+                            return match.group();
+                        });
+
+                        return w.executeAndWait(spec -> spec
+                                .setContent(content)
+                                .setUsername(toPlainString(player.displayName().get()))
+                                .setAvatarUrl("https://crafatar.com/avatars/" + player.uniqueId().toString() + "?overlay")
+                                .setAllowedMentions(AllowedMentions.builder().parseType(USER).build())
+                        );
+                    }).subscribe();
+                })
+                .build();
+
+        game.asyncScheduler().submit(task);
     }
 
     private void onDiscordChat(MessageCreateEvent event) {
@@ -163,10 +193,6 @@ public class Discord {
                     final Server server = this.server.get();
                     if (server != null) {
                         String userName = member.getDisplayName();
-
-                        //String format = ps.groupSubjects().subject("foobar")
-                        //        .flatMap(subject -> subject.option("discord-format"))
-                        //        .orElse(Optional.ofNullable(config.defaultChatFormat).orElse(DEFAULT_CHAT_FORMAT));
 
                         Component attachmentStrings = message.getAttachments().stream().reduce((Component) Component.empty(), (component, attachment) ->
                                 Component.empty()
@@ -179,7 +205,9 @@ public class Discord {
                                 Component::append);
                         String format = Optional.ofNullable(config.defaultChatFormat).orElse(DEFAULT_CHAT_FORMAT);
 
-                        Component chatMessage = attachmentStrings.append(Component.text(message.getContent()));
+                        String content = EMOJI_FROM_DISCORD.matcher(message.getContent()).replaceAll("$1");
+
+                        Component chatMessage = attachmentStrings.append(Component.text(content));
 
                         Map<String, Component> map = new HashMap<>();
                         map.put("NAME", Component.text(userName, TextColor.color(color.getRed(), color.getGreen(), color.getBlue())));
