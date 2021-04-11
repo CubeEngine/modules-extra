@@ -31,9 +31,8 @@ import discord4j.core.object.presence.ClientPresence;
 import discord4j.core.shard.MemberRequestFilter;
 import discord4j.gateway.intent.Intent;
 import discord4j.gateway.intent.IntentSet;
+import discord4j.rest.util.AllowedMentions;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.ScopedComponent;
-import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.cubeengine.libcube.InjectService;
@@ -59,6 +58,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static discord4j.rest.util.AllowedMentions.Type.USER;
 import static net.kyori.adventure.text.event.ClickEvent.openUrl;
 
 @Singleton
@@ -133,6 +133,7 @@ public class Discord {
                     .setContent(toPlainString(event.message()))
                     .setUsername(toPlainString(player.displayName().get()))
                     .setAvatarUrl("https://crafatar.com/avatars/" + player.uniqueId().toString())
+                    .setAllowedMentions(AllowedMentions.builder().parseType(USER).build())
             ).subscribe();
         }
     }
@@ -155,6 +156,7 @@ public class Discord {
                                         .append(Component.text(attachment.getFilename(), NamedTextColor.DARK_RED))
                                         .append(Component.text("]"))
                                         .clickEvent(openUrl(attachment.getUrl()))
+                                        .hoverEvent(Component.text("Open Link").asHoverEvent())
                                         .append(Component.space()),
                                 Component::append);
                         String format = Optional.ofNullable(config.defaultChatFormat).orElse(DEFAULT_CHAT_FORMAT);
