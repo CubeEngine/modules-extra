@@ -136,7 +136,7 @@ public class Discord {
                         .setContent(toPlainString(event.message()))
                         .setUsername(toPlainString(player.displayName().get()))
                         .setAvatarUrl("https://crafatar.com/avatars/" + player.uniqueId().toString())
-                        .setAllowedMentions(AllowedMentions.builder().parseType(USER).allowUser(userIds.toArray(new Snowflake[0])).build())
+                        .setAllowedMentions(AllowedMentions.builder().allowUser(userIds.toArray(new Snowflake[0])).build())
                 ).subscribe();
             });
         }
