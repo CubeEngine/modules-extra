@@ -269,17 +269,21 @@ public class ChatCommands
             final List<Component> components = lines.next().stream()
                     .map(render)
                     .collect(toList());
-            builder.append(Component.join(Component.space(), components));
+            builder.append(Component.join(Component.text("   "), components));
             builder.append(Component.newline());
         }
     }
 
     private static Component presentFormat(Component label, Function<Component, Component> present, String legacySymbol) {
+        Component example = present.apply(Component.text("■"));
         return Component.empty()
-                .append(label)
+                .append(example)
                 .append(Component.space())
-                .append(present.apply(Component.text("■")))
-                .append(Component.text(" (&" + legacySymbol + ")"));
+                .append(label)
+                .append(Component.text(" ("))
+                .append(Component.text("&" + legacySymbol, NamedTextColor.GRAY))
+                .append(Component.text(") "))
+                .append(example);
 
     }
 
