@@ -40,6 +40,7 @@ import net.kyori.adventure.text.format.TextColor;
 import org.cubeengine.libcube.InjectService;
 import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
+import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.util.ComponentUtil;
 import org.cubeengine.libcube.util.StringUtils;
 import org.cubeengine.processor.Module;
@@ -68,6 +69,7 @@ import java.util.stream.Collectors;
 
 import static discord4j.rest.util.AllowedMentions.Type.USER;
 import static net.kyori.adventure.text.event.ClickEvent.openUrl;
+import static org.cubeengine.libcube.util.ComponentUtil.autoLink;
 
 @Singleton
 @Module
@@ -94,6 +96,9 @@ public class Discord {
 
     @Inject
     private Game game;
+
+    @Inject
+    private I18n i18n;
 
     @Listener
     public void onServerStart(StartedEngineEvent<Server> event) {
@@ -192,9 +197,8 @@ public class Discord {
                 member.getColor().subscribe(color -> {
                     final Server server = this.server.get();
                     if (server != null) {
-                        String userName = member.getDisplayName();
-
-                        Component attachmentStrings = message.getAttachments().stream().reduce((Component) Component.empty(), (component, attachment) ->
+                        final Component userName = Component.text(member.getDisplayName(), TextColor.color(color.getRed(), color.getGreen(), color.getBlue()));
+                        final Component attachmentStrings = message.getAttachments().stream().reduce((Component) Component.empty(), (component, attachment) ->
                                 Component.empty()
                                         .append(Component.text("[")
                                                 .append(Component.text(attachment.getFilename(), NamedTextColor.DARK_RED))
@@ -203,19 +207,10 @@ public class Discord {
                                                 .hoverEvent(Component.text("Open Attachment").asHoverEvent()))
                                         .append(Component.space()),
                                 Component::append);
-                        String format = Optional.ofNullable(config.defaultChatFormat).orElse(DEFAULT_CHAT_FORMAT);
-
-                        String content = EMOJI_FROM_DISCORD.matcher(message.getContent()).replaceAll("$1");
-
-                        Component chatMessage = attachmentStrings.append(Component.text(content));
-
-                        Map<String, Component> map = new HashMap<>();
-                        map.put("NAME", Component.text(userName, TextColor.color(color.getRed(), color.getGreen(), color.getBlue())));
-                        map.put("MESSAGE", chatMessage);
-                        final Component formattedMessage = ComponentUtil.legacyMessageTemplateToComponent(format, map);
+                        final String format = Optional.ofNullable(config.defaultChatFormat).orElse(DEFAULT_CHAT_FORMAT);
 
                         final Task task = Task.builder()
-                                .execute(() -> broadcastMessage(server, formattedMessage))
+                                .execute(() -> broadcastMessage(server, format, userName, EMOJI_FROM_DISCORD.matcher(message.getContent()).replaceAll("$1"), attachmentStrings))
                                 .plugin(pluginContainer)
                                 .build();
                         server.scheduler().submit(task);
@@ -225,10 +220,16 @@ public class Discord {
         });
     }
 
-    private static void broadcastMessage(Server server, Component message) {
+    private void broadcastMessage(Server server, String template, Component name, String message, Component attachments) {
         for (ServerPlayer onlinePlayer : server.onlinePlayers()) {
             if (!onlinePlayer.get(DiscordData.MUTED).orElse(false)) {
-                onlinePlayer.sendMessage(message);
+                Component content = attachments.append(autoLink(message, i18n.translate(onlinePlayer, "Open Link")));
+
+                Map<String, Component> replacements = new HashMap<>();
+                replacements.put("NAME", name);
+                replacements.put("MESSAGE", autoLink(message, content));
+
+                onlinePlayer.sendMessage(ComponentUtil.legacyMessageTemplateToComponent(template, replacements));
             }
         }
     }
