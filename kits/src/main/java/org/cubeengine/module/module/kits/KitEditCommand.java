@@ -18,7 +18,6 @@
 package org.cubeengine.module.module.kits;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -28,10 +27,10 @@ import org.cubeengine.libcube.service.command.annotation.Flag;
 import org.cubeengine.libcube.service.command.annotation.Greedy;
 import org.cubeengine.libcube.service.command.annotation.Option;
 import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.libcube.util.ChatFormat;
 import org.spongepowered.api.command.CommandCause;
 
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.POSITIVE;
+import static org.cubeengine.libcube.util.ComponentUtil.fromLegacy;
 
 @Singleton
 @Command(name = "edit", desc = "Edit kits")
@@ -70,7 +69,7 @@ public class KitEditCommand extends DispatcherCommand
         if (value != null)
         {
 
-            i18n.send(context, POSITIVE, "The custom message for {name} is now {txt}.", kit.getKitName(), ChatFormat.fromLegacy(value, '&'));
+            i18n.send(context, POSITIVE, "The custom message for {name} is now {txt}.", kit.getKitName(), fromLegacy(value));
             return;
         }
 

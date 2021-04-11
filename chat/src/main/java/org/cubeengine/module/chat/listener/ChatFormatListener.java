@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-import java.util.regex.Pattern;
 import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -43,14 +42,13 @@ import org.spongepowered.api.event.message.PlayerChatEvent;
 import org.spongepowered.api.service.permission.Subject;
 
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEUTRAL;
-import static org.cubeengine.libcube.util.ChatFormat.fromLegacy;
+import static org.cubeengine.libcube.util.ComponentUtil.*;
 
 public class ChatFormatListener
 {
     private final Chat module;
     private I18n i18n;
     private ChatPerm perms;
-    private static final Pattern chatColors = Pattern.compile("&[0123456789aAbBcCdDeEfFgkKlLmMnNoOrR]");
 
     private Map<UUID, String> accumulated = new HashMap<>();
     private String format;
@@ -95,7 +93,7 @@ public class ChatFormatListener
         {
             if (!player.hasPermission(perms.COLOR.getId()))
             {
-                msg = chatColors.matcher(msg).replaceAll("");
+                msg = stripLegacy(msg);
             }
         }
 
@@ -108,22 +106,22 @@ public class ChatFormatListener
         {
             Subject subject = module.getPermissionService().userSubjects().loadSubject(player.uniqueId().toString()).get();
 
-            Map<String, Component> replacements = new HashMap<>();
             String name = player.name();
-            replacements.put("{NAME}", Component.text(name));
+            Map<String, Component> replacements = new HashMap<>();
+            replacements.put("NAME", Component.text(name));
             Component displayName = player.get(Keys.CUSTOM_NAME).orElse(Component.text(name));
             if (!plainSerializer.serialize(displayName).equals(name))
             {
                 final HoverEvent<Component> hoverEvent = HoverEvent.hoverEvent(Action.SHOW_TEXT, Component.text(name).color(NamedTextColor.DARK_GREEN));
                 displayName = Component.text().append(displayName).hoverEvent(hoverEvent).build();
             }
-            replacements.put("{DISPLAY_NAME}", displayName);
-            replacements.put("{WORLD}", Component.text(player.world().properties().key().toString()));
-            replacements.put("{MESSAGE}", fromLegacy(msg, '&'));
-            replacements.put("{PREFIX}", fromLegacy(subject.option("chat-prefix").orElse(""), '&'));
-            replacements.put("{SUFFIX}", fromLegacy(subject.option("chat-suffix").orElse(""), '&'));
+            replacements.put("DISPLAY_NAME", displayName);
+            replacements.put("WORLD", Component.text(player.world().properties().key().toString()));
+            replacements.put("MESSAGE", fromLegacy(msg));
+            replacements.put("PREFIX", fromLegacy(subject.option("chat-prefix").orElse("")));
+            replacements.put("SUFFIX", fromLegacy(subject.option("chat-suffix").orElse("")));
 
-            event.setMessage(fromLegacy(this.getFormat(subject), replacements, '&'));
+            event.setMessage(legacyMessageTemplateToComponent(this.getFormat(subject), replacements));
             event.setChatRouter((p, message) -> Sponge.server().sendMessage(p, message));
         }
         catch (ExecutionException | InterruptedException e)

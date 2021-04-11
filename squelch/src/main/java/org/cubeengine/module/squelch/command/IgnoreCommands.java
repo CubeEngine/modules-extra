@@ -26,8 +26,7 @@ import com.google.inject.Singleton;
 import org.cubeengine.libcube.service.command.annotation.Command;
 import org.cubeengine.libcube.service.command.annotation.Restricted;
 import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.libcube.util.ChatFormat;
-import org.cubeengine.libcube.util.StringUtils;
+import org.cubeengine.libcube.service.i18n.formatter.CommandSourceFormatter;
 import org.cubeengine.module.squelch.SquelchPerm;
 import org.cubeengine.module.squelch.data.SquelchData;
 import org.spongepowered.api.entity.living.player.Player;
@@ -107,8 +106,7 @@ public class IgnoreCommands
         {
             return;
         }
-        i18n.send(sender, POSITIVE, "You added {user#list} to your ignore list!",
-                  StringUtils.implode(ChatFormat.WHITE + ", " + ChatFormat.DARK_GREEN, added));
+        i18n.send(sender, POSITIVE, "You added {user#list} to your ignore list!", new CommandSourceFormatter.ListOfNames(added));
     }
 
     @Command(desc = "Stops ignoring all messages from a player")
@@ -131,7 +129,6 @@ public class IgnoreCommands
         {
             return;
         }
-        i18n.send(context, POSITIVE, "You removed {user#list} from your ignore list!",
-                  StringUtils.implode(ChatFormat.WHITE + ", " + ChatFormat.DARK_GREEN, added));
+        i18n.send(context, POSITIVE, "You removed {user#list} from your ignore list!", new CommandSourceFormatter.ListOfNames(added));
     }
 }

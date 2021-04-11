@@ -19,13 +19,14 @@ package org.cubeengine.module.tablist;
 
 import com.google.inject.Singleton;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
-import org.cubeengine.libcube.util.ChatFormat;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.entity.living.player.tab.TabListEntry;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.network.ServerSideConnectionEvent;
+
+import static org.cubeengine.libcube.util.ComponentUtil.fromLegacy;
 
 @Singleton
 @Module
@@ -41,19 +42,19 @@ public class Tablist
 
         if (this.config.header != null && !this.config.header.isEmpty())
         {
-            player.tabList().setHeader(ChatFormat.fromLegacy(this.config.header, '&'));
+            player.tabList().setHeader(fromLegacy(this.config.header));
         }
 
         for (ServerPlayer p : Sponge.server().onlinePlayers())
         {
             final TabListEntry entry = p.tabList().entry(player.uniqueId()).orElse(
                 TabListEntry.builder().list(p.tabList()).profile(player.profile()).displayName(player.displayName().get()).gameMode(player.gameMode().get()).build());
-            entry.setDisplayName(ChatFormat.fromLegacy(prefix + player.name(), '&'));
+            entry.setDisplayName(fromLegacy(prefix + player.name()));
 
             String pPrefix = p.option("tablist-prefix").orElse("");
             TabListEntry pEntry = player.tabList().entry(p.uniqueId()).orElse(
                 TabListEntry.builder().list(player.tabList()).profile(p.profile()).displayName(p.displayName().get()).gameMode(p.gameMode().get()).build());
-            pEntry.setDisplayName(ChatFormat.fromLegacy(pPrefix + p.name(), '&'));
+            pEntry.setDisplayName(fromLegacy(pPrefix + p.name()));
         }
     }
 }

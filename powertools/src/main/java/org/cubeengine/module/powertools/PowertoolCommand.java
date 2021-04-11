@@ -23,6 +23,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
@@ -34,7 +35,6 @@ import org.cubeengine.libcube.service.command.annotation.Greedy;
 import org.cubeengine.libcube.service.command.annotation.Option;
 import org.cubeengine.libcube.service.command.annotation.Restricted;
 import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.libcube.util.ChatFormat;
 import org.cubeengine.module.powertools.data.PowertoolData;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.exception.CommandException;
@@ -230,11 +230,11 @@ public class PowertoolCommand extends DispatcherCommand
             }
             return;
         }
-        StringBuilder sb = new StringBuilder();
+        TextComponent.Builder sb = Component.text();
         int i = 0;
         for (; i < powertools.size() - 1; i++)
         {
-            sb.append("\n").append(ChatFormat.WHITE).append(powertools.get(i));
+            sb.append(Component.newline()).append(Component.text(powertools.get(i)).color(NamedTextColor.WHITE));
         }
         if (lastAsNew)
         {

@@ -17,11 +17,16 @@
  */
 package org.cubeengine.module.chat.command;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Random;
 import java.util.UUID;
+import java.util.function.Function;
+
+import com.google.common.collect.Iterators;
+import com.google.common.collect.UnmodifiableIterator;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import net.kyori.adventure.audience.Audience;
@@ -37,17 +42,18 @@ import org.cubeengine.libcube.service.command.annotation.Greedy;
 import org.cubeengine.libcube.service.command.annotation.Label;
 import org.cubeengine.libcube.service.command.annotation.Option;
 import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.libcube.util.ChatFormat;
+import org.cubeengine.libcube.util.Triplet;
 import org.cubeengine.module.chat.ChatPerm;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.SystemSubject;
-import org.spongepowered.api.adventure.AdventureRegistry.OfType;
 import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 
+import static java.util.stream.Collectors.toList;
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
+import static org.cubeengine.libcube.util.ComponentUtil.fromLegacy;
 
 @Singleton
 public class ChatCommands
@@ -111,7 +117,7 @@ public class ChatCommands
             return;
         }
         i18n.send(ctxAudience, POSITIVE, "Display name changed from {user} to {user}", ctxAudience, name);
-        player.offer(Keys.CUSTOM_NAME, ChatFormat.fromLegacy(name, '&'));
+        player.offer(Keys.CUSTOM_NAME, fromLegacy(name));
     }
 
     @Command(desc = "Sends a private message to someone", alias = {"tell", "message", "pm", "m", "t", "whisper", "w"})
@@ -220,36 +226,61 @@ public class ChatCommands
     {
         i18n.send(context.audience(), POSITIVE, "The following chat codes are available:");
         Builder builder = Component.text();
-        int i = 0;
-        final OfType<NamedTextColor> namedColors = Sponge.game().registry().adventureRegistry().namedColors();
-        for (String key : namedColors.keys())
-        {
-            final NamedTextColor namedTextColor = namedColors.value(key).get();
 
-        }
+        List<Triplet<NamedTextColor, Component, String>> namedColors = Arrays.asList(
+                new Triplet<>(NamedTextColor.BLACK, i18n.translate(context, "Black"), "0"),
+                new Triplet<>(NamedTextColor.DARK_BLUE, i18n.translate(context, "Dark Blue"), "1"),
+                new Triplet<>(NamedTextColor.DARK_GREEN, i18n.translate(context, "Dark Green"), "2"),
+                new Triplet<>(NamedTextColor.DARK_AQUA, i18n.translate(context, "Dark Aqua"), "3"),
+                new Triplet<>(NamedTextColor.DARK_RED, i18n.translate(context, "Dark Red"), "4"),
+                new Triplet<>(NamedTextColor.DARK_PURPLE, i18n.translate(context, "Dark Purple"), "5"),
+                new Triplet<>(NamedTextColor.GOLD, i18n.translate(context, "Gold"), "6"),
+                new Triplet<>(NamedTextColor.GRAY, i18n.translate(context, "Gray"), "7"),
+                new Triplet<>(NamedTextColor.DARK_GRAY, i18n.translate(context, "Dark Gray"), "8"),
+                new Triplet<>(NamedTextColor.BLUE, i18n.translate(context, "Blue"), "9"),
+                new Triplet<>(NamedTextColor.GREEN, i18n.translate(context, "Green"), "a"),
+                new Triplet<>(NamedTextColor.AQUA, i18n.translate(context, "Aqua"), "b"),
+                new Triplet<>(NamedTextColor.RED, i18n.translate(context, "Red"), "c"),
+                new Triplet<>(NamedTextColor.LIGHT_PURPLE, i18n.translate(context, "Light Purple"), "d"),
+                new Triplet<>(NamedTextColor.YELLOW, i18n.translate(context, "Yellow"), "e"),
+                new Triplet<>(NamedTextColor.WHITE, i18n.translate(context, "White"), "f")
+        );
 
-        for (Entry<Character, NamedTextColor> color : ChatFormat.namedColors.entrySet())
-        {
-            builder.append(Component.space())
-                   .append(Component.text(color.getValue().toString()).color(color.getValue()))
-                   .append(Component.text(" (" + color.getKey() + ")"));
-            if (i++ % 3 == 0)
-            {
-                builder.append(Component.newline());
-            }
-        }
+        final int entriesPerLine = 3;
+        renderLines(namedColors, entriesPerLine, builder, color -> presentFormat(color.getSecond(), c -> c.color(color.getFirst()), color.getThird()));
+
+        List<Triplet<TextDecoration, Component, String>> namedDecorations = Arrays.asList(
+                new Triplet<>(TextDecoration.OBFUSCATED, i18n.translate(context, "Obfuscated"), "k"),
+                new Triplet<>(TextDecoration.BOLD, i18n.translate(context, "Bold"), "l"),
+                new Triplet<>(TextDecoration.STRIKETHROUGH, i18n.translate(context, "Strikethrough"), "m"),
+                new Triplet<>(TextDecoration.UNDERLINED, i18n.translate(context, "Underlined"), "n"),
+                new Triplet<>(TextDecoration.ITALIC, i18n.translate(context, "Italic"), "o")
+        );
+
         builder.append(Component.newline());
-        for (Entry<Character, TextDecoration> decoration : ChatFormat.textDecorations.entrySet())
-        {
-            builder.append(Component.space())
-                   .append(Component.text(decoration.getValue().toString()).decorate(decoration.getValue()))
-                   .append(Component.text(" (" + decoration.getKey() + ")"));
-            if (i++ % 3 == 0)
-            {
-                builder.append(Component.newline());
-            }
-        }
+        renderLines(namedDecorations, entriesPerLine, builder, decoration -> presentFormat(decoration.getSecond(), c -> c.decorate(decoration.getFirst()), decoration.getThird()));
+
         context.sendMessage(Identity.nil(), builder.build());
+    }
+
+    private static <T> void renderLines(List<T> entries, int entriesPerLine, Builder builder, Function<T, Component> render) {
+        final UnmodifiableIterator<List<T>> lines = Iterators.partition(entries.iterator(), entriesPerLine);
+        while (lines.hasNext()) {
+            final List<Component> components = lines.next().stream()
+                    .map(render)
+                    .collect(toList());
+            builder.append(Component.join(Component.space(), components));
+            builder.append(Component.newline());
+        }
+    }
+
+    private static Component presentFormat(Component label, Function<Component, Component> present, String legacySymbol) {
+        return Component.empty()
+                .append(label)
+                .append(Component.space())
+                .append(present.apply(Component.text("■")))
+                .append(Component.text(" (&" + legacySymbol + ")"));
+
     }
 
 

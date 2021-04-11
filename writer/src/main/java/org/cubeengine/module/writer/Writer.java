@@ -24,14 +24,12 @@ import java.util.stream.Collectors;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import net.kyori.adventure.text.Component;
-import org.cubeengine.libcube.util.ChatFormat;
+import org.cubeengine.libcube.util.ComponentUtil;
 import org.cubeengine.libcube.util.EventUtil;
 import org.cubeengine.processor.Module;
-import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
-import org.spongepowered.api.event.EventContextKeys;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.filter.cause.First;
@@ -79,7 +77,7 @@ public class Writer
         final String firstPage = pages.get(0);
         final List<String> lines = Arrays.asList(firstPage.split("\n"));
         final List<Component> signLines = lines.subList(0, Math.min(4, lines.size())).stream()
-               .map(line -> ChatFormat.fromLegacy(line, '&')).collect(Collectors.toList());
+               .map(ComponentUtil::fromLegacy).collect(Collectors.toList());
         final Vector3i pos = event.block().position();
         player.world().offer(pos, Keys.SIGN_LINES, signLines);
 

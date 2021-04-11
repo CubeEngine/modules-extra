@@ -36,8 +36,6 @@ import org.cubeengine.libcube.service.command.annotation.ParameterPermission;
 import org.cubeengine.libcube.service.command.annotation.Restricted;
 import org.cubeengine.libcube.service.command.annotation.Using;
 import org.cubeengine.libcube.service.i18n.I18n;
-import org.cubeengine.libcube.service.inventoryguard.InventoryGuardFactory;
-import org.cubeengine.libcube.util.ChatFormat;
 import org.cubeengine.libcube.util.FileUtil;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandCause;
@@ -48,6 +46,7 @@ import org.spongepowered.api.item.inventory.menu.InventoryMenu;
 import org.spongepowered.api.item.inventory.type.ViewableInventory;
 
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
+import static org.cubeengine.libcube.util.ComponentUtil.fromLegacy;
 
 @Singleton
 @Delegate("give")
@@ -225,7 +224,7 @@ public class KitCommand extends DispatcherCommand
                     return;
                 }
 
-                player.sendMessage(Identity.nil(), ChatFormat.fromLegacy(kit.getCustomMessage(), '&'));
+                player.sendMessage(Identity.nil(), fromLegacy(kit.getCustomMessage()));
                 return;
             }
             if (kit.getCustomMessage() == null || kit.getCustomMessage().isEmpty())
@@ -233,7 +232,7 @@ public class KitCommand extends DispatcherCommand
                 i18n.send(context, POSITIVE, "Received the {name#kit} kit. Enjoy.", kit.getKitName());
                 return;
             }
-            player.sendMessage(Identity.nil(), ChatFormat.fromLegacy(kit.getCustomMessage(), '&'));
+            player.sendMessage(Identity.nil(), fromLegacy(kit.getCustomMessage()));
             return;
         }
         if (other)
