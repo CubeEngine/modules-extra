@@ -43,10 +43,10 @@ import org.cubeengine.libcube.InjectService;
 import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.libcube.service.i18n.I18n;
+import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.libcube.util.ComponentUtil;
 import org.cubeengine.libcube.util.Pair;
 import org.cubeengine.processor.Module;
-import org.spongepowered.api.Game;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.adventure.SpongeComponents;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
@@ -57,7 +57,6 @@ import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 import org.spongepowered.api.event.message.PlayerChatEvent;
-import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.plugin.PluginContainer;
 import reactor.core.publisher.Flux;
@@ -104,10 +103,10 @@ public class Discord {
     private PluginContainer pluginContainer;
 
     @Inject
-    private Game game;
+    private I18n i18n;
 
     @Inject
-    private I18n i18n;
+    private TaskManager taskManager;
 
     @Listener
     public void onServerStart(StartedEngineEvent<Server> event) {
@@ -176,32 +175,27 @@ public class Discord {
             return;
         }
 
-        Task task = Task.builder()
-                .plugin(this.pluginContainer)
-                .execute(() -> {
-                    final Webhook w = webhook.get();
-                    w.getGuild().flatMapMany(Guild::getEmojis).collectList().flatMap(emojis -> {
-                        final Map<String, String> emojiLookup = emojis.stream().collect(Collectors.toMap(GuildEmoji::getName, e -> e.getId().asString()));
+        taskManager.runTaskAsync(() -> {
+            final Webhook w = webhook.get();
+            w.getGuild().flatMapMany(Guild::getEmojis).collectList().flatMap(emojis -> {
+                final Map<String, String> emojiLookup = emojis.stream().collect(Collectors.toMap(GuildEmoji::getName, e -> e.getId().asString()));
 
-                        String content = replaceWithCallback(EMOJI_FROM_MINECRAFT, strippedMessage, match -> {
-                            final String emojiId = emojiLookup.get(match.group(1));
-                            if (emojiId != null) {
-                                return "<" + match.group() + emojiId + ">";
-                            }
-                            return match.group();
-                        });
+                String content = replaceWithCallback(EMOJI_FROM_MINECRAFT, strippedMessage, match -> {
+                    final String emojiId = emojiLookup.get(match.group(1));
+                    if (emojiId != null) {
+                        return "<" + match.group() + emojiId + ">";
+                    }
+                    return match.group();
+                });
 
-                        return w.executeAndWait(spec -> spec
-                                .setContent(content)
-                                .setUsername(toPlainString(player.displayName().get()))
-                                .setAvatarUrl("https://crafatar.com/avatars/" + player.uniqueId().toString() + "?overlay")
-                                .setAllowedMentions(AllowedMentions.builder().parseType(USER).build())
-                        );
-                    }).subscribe();
-                })
-                .build();
-
-        game.asyncScheduler().submit(task);
+                return w.executeAndWait(spec -> spec
+                        .setContent(content)
+                        .setUsername(toPlainString(player.displayName().get()))
+                        .setAvatarUrl("https://crafatar.com/avatars/" + player.uniqueId().toString() + "?overlay")
+                        .setAllowedMentions(AllowedMentions.builder().parseType(USER).build())
+                );
+            }).subscribe();
+        });
     }
 
     private void onDiscordChat(MessageCreateEvent event) {
@@ -244,11 +238,7 @@ public class Discord {
                             String contentWithEmoji = EMOJI_FROM_DISCORD.matcher(content).replaceAll("$1");
                             Component contentWithMentions = replaceMentions(contentWithEmoji, mentions);
 
-                            final Task task = Task.builder()
-                                    .execute(() -> broadcastMessage(server, format, userName, contentWithMentions, attachmentStrings))
-                                    .plugin(pluginContainer)
-                                    .build();
-                            server.scheduler().submit(task);
+                            taskManager.runTask(() -> broadcastMessage(server, format, userName, contentWithMentions, attachmentStrings));
                         });
             }
         });
