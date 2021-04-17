@@ -19,6 +19,7 @@ package org.cubeengine.module.chat.listener;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import com.google.inject.Inject;
@@ -32,7 +33,8 @@ import org.cubeengine.libcube.service.i18n.I18nTranslate.ChatType;
 import org.cubeengine.module.chat.Chat;
 import org.cubeengine.module.chat.ChatConfig;
 import org.cubeengine.module.chat.ChatPerm;
-import org.spongepowered.api.Sponge;
+import org.jetbrains.annotations.NotNull;
+import org.spongepowered.api.adventure.SpongeComponents;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
@@ -71,8 +73,7 @@ public class ChatFormatListener
     @Listener(order = Order.EARLY)
     public void onPlayerChat(PlayerChatEvent event, @Root ServerPlayer player)
     {
-        // TODO format on the messagechannel instead
-        final PlainComponentSerializer plainSerializer = PlainComponentSerializer.plain();
+        final PlainComponentSerializer plainSerializer = SpongeComponents.plainSerializer();
         String msg = plainSerializer.serialize(event.originalMessage());
 
         if (!msg.equals("+") && msg.endsWith("+") && perms.LONGER.check(player))
@@ -105,29 +106,35 @@ public class ChatFormatListener
         try
         {
             Subject subject = module.getPermissionService().userSubjects().loadSubject(player.uniqueId().toString()).get();
-
-            String name = player.name();
-            Map<String, Component> replacements = new HashMap<>();
-            replacements.put("NAME", Component.text(name));
-            Component displayName = player.get(Keys.CUSTOM_NAME).orElse(Component.text(name));
-            if (!plainSerializer.serialize(displayName).equals(name))
-            {
-                final HoverEvent<Component> hoverEvent = HoverEvent.hoverEvent(Action.SHOW_TEXT, Component.text(name).color(NamedTextColor.DARK_GREEN));
-                displayName = Component.text().append(displayName).hoverEvent(hoverEvent).build();
-            }
-            replacements.put("DISPLAY_NAME", displayName);
-            replacements.put("WORLD", Component.text(player.world().properties().key().toString()));
-            replacements.put("MESSAGE", fromLegacy(msg));
-            replacements.put("PREFIX", fromLegacy(subject.option("chat-prefix").orElse("")));
-            replacements.put("SUFFIX", fromLegacy(subject.option("chat-suffix").orElse("")));
-
-            event.setMessage(legacyMessageTemplateToComponent(this.getFormat(subject), replacements));
-            event.setChatRouter((p, message) -> Sponge.server().sendMessage(p, message));
+            event.setMessage(fromLegacy(msg));
+            event.setChatFormatter((p, audience, message, originalMessage) ->
+                   Optional.of(legacyMessageTemplateToComponent(this.getFormat(subject), getReplacements(player, message, subject))));
         }
         catch (ExecutionException | InterruptedException e)
         {
             throw new IllegalStateException(e);
         }
+    }
+
+    @NotNull
+    private Map<String, Component> getReplacements(ServerPlayer player, Component message, Subject subject)
+    {
+        String name = player.name();
+        final PlainComponentSerializer plainSerializer = SpongeComponents.plainSerializer();
+        Map<String, Component> replacements = new HashMap<>();
+        replacements.put("NAME", Component.text(name));
+        Component displayName = player.get(Keys.CUSTOM_NAME).orElse(Component.text(name));
+        if (!plainSerializer.serialize(displayName).equals(name))
+        {
+            final HoverEvent<Component> hoverEvent = HoverEvent.hoverEvent(Action.SHOW_TEXT, Component.text(name).color(NamedTextColor.DARK_GREEN));
+            displayName = Component.text().append(displayName).hoverEvent(hoverEvent).build();
+        }
+        replacements.put("DISPLAY_NAME", displayName);
+        replacements.put("MESSAGE", message);
+        replacements.put("WORLD", Component.text(player.world().properties().key().toString()));
+        replacements.put("PREFIX", fromLegacy(subject.option("chat-prefix").orElse("")));
+        replacements.put("SUFFIX", fromLegacy(subject.option("chat-suffix").orElse("")));
+        return replacements;
     }
 
     protected String getFormat(Subject subject)

@@ -18,16 +18,26 @@
 package org.cubeengine.module.squelch;
 
 import java.sql.Date;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import com.google.common.collect.Streams;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.audience.ForwardingAudience;
+import net.kyori.adventure.text.Component;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.module.squelch.command.IgnoreCommands;
 import org.cubeengine.module.squelch.command.MuteCommands;
-import org.spongepowered.api.entity.living.player.PlayerChatRouter;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.message.PlayerChatEvent;
+import org.spongepowered.api.placeholder.PlaceholderComponent;
+import org.spongepowered.api.placeholder.PlaceholderContext;
+import org.spongepowered.api.placeholder.PlaceholderParser;
+import org.spongepowered.api.placeholder.PlaceholderParsers;
 
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.NEGATIVE;
 
@@ -58,12 +68,12 @@ public class MuteListener
             return;
         }
 
-        final PlayerChatRouter originalChatRouter = event.chatRouter().orElse(event.originalChatRouter());
-        event.setChatRouter((player, message) -> {
-            if (!this.ignoreCmd.checkIgnored(player, source.uniqueId())) // ignored?
-            {
-                originalChatRouter.chat(player, message);
-            }
-        });
+        final List<? extends Audience> audiences = event.audience().filter(ForwardingAudience.class::isInstance)
+                                                        .map(audience -> Streams.stream(((ForwardingAudience)audience).audiences())
+                                                                                .filter(a -> !this.ignoreCmd.checkIgnored(a, source.uniqueId())).collect(Collectors.toList()))
+                                                        .orElse(Collections.emptyList());
+        final ForwardingAudience newAudience = Audience.audience(audiences);
+
+        event.setAudience(newAudience);
     }
 }

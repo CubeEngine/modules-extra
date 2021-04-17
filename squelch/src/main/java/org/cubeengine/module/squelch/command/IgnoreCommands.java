@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.UUID;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import net.kyori.adventure.audience.Audience;
 import org.cubeengine.libcube.service.command.annotation.Command;
 import org.cubeengine.libcube.service.command.annotation.Restricted;
 import org.cubeengine.libcube.service.i18n.I18n;
@@ -73,9 +74,13 @@ public class IgnoreCommands
         return removed;
     }
 
-    public boolean checkIgnored(Player player, UUID check)
+    public boolean checkIgnored(Audience player, UUID check)
     {
-        return player.get(SquelchData.IGNORED).map(list -> list.contains(check)).orElse(false);
+        if (player instanceof ServerPlayer)
+        {
+            return ((ServerPlayer)player).get(SquelchData.IGNORED).map(list -> list.contains(check)).orElse(false);
+        }
+        return false;
     }
 
     @Command(desc = "Ignores all messages from players")
