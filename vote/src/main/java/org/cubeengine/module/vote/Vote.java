@@ -105,7 +105,7 @@ public class Vote
         }
         dh.offer(VoteData.STREAK, streak);
 
-        final int countToStreakReward = (this.config.streak - streak) % this.config.streak;
+        final int countToStreakReward = this.config.streak - (streak % this.config.streak);
 
         final ItemStack reward;
         if (isStreakVote && streak % this.config.streak == 0)

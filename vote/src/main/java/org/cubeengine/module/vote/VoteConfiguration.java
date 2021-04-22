@@ -29,7 +29,7 @@ public class VoteConfiguration extends ReflectedYaml
 
     @Comment({
             "{PLAYER} will be replaced with the player-name",
-            "{AMOUNT} will be replaced with the amount of times that player voted",
+            "{COUNT} will be replaced with the amount of times that player voted",
             "{VOTEURL} will be replaced with the configured vote-url",
             "{TOSTREAK} will be replaced with amount of votes needed for a streak reward",
             "{REWARD} will be replaced with the reward item",
@@ -38,7 +38,7 @@ public class VoteConfiguration extends ReflectedYaml
 
     public String singleVoteMessage = "&aYou received a {REWARD} for voting!";
 
-    public String streakMessage = "&aYou are on a streak! Take this {REWARD} for voting {AMOUNT} times in a row!";
+    public String streakMessage = "&aYou are on a streak! Take this {REWARD} for voting {COUNT} times in a row!";
 
     @Comment("Players will receive a bonus if they vote multiple times in given time-frame")
     public Duration streakTimeout = Duration.ofHours(36);
