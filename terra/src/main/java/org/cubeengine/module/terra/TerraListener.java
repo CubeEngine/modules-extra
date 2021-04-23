@@ -229,7 +229,7 @@ public class TerraListener
             {
                 final ResourceKey worldKey = ResourceKey.resolve(worldKeyString.get());
                 final WorldGeneration futureWorld = this.futureWorlds.get(worldKey);
-                if (futureWorld == null || !futureWorld.isDone())
+                if (futureWorld != null && !futureWorld.isDone())
                 {
                     event.setCancelled(true);
                 }
