@@ -51,9 +51,9 @@ public class Query
 
     public Query position(Vector3i pos)
     {
-        final Bson blockX = Filters.eq(String.join(".", DATA.name, LOCATION, X.asString("_")), pos.getX());
-        final Bson blockY = Filters.eq(String.join(".", DATA.name, LOCATION, Y.asString("_")), pos.getY());
-        final Bson blockZ = Filters.eq(String.join(".", DATA.name, LOCATION, Z.asString("_")), pos.getZ());
+        final Bson blockX = Filters.eq(String.join(".", DATA.name, LOCATION, X.asString("_")), pos.x());
+        final Bson blockY = Filters.eq(String.join(".", DATA.name, LOCATION, Y.asString("_")), pos.y());
+        final Bson blockZ = Filters.eq(String.join(".", DATA.name, LOCATION, Z.asString("_")), pos.z());
 
         andFilters.add(Filters.and(blockX, blockY, blockZ));
         return this;
@@ -62,12 +62,12 @@ public class Query
     public Query radius(Vector3i pos, int radius)
     {
         final String xLoc = String.join(".", DATA.name, LOCATION, X.asString("_"));
-        final Bson gtX = Filters.gt(xLoc, pos.getX() - radius);
-        final Bson ltX = Filters.lt(xLoc, pos.getX() + radius);
+        final Bson gtX = Filters.gt(xLoc, pos.x() - radius);
+        final Bson ltX = Filters.lt(xLoc, pos.x() + radius);
 
         final String zLoc = String.join(".", DATA.name, LOCATION, Z.asString("_"));
-        final Bson gtZ = Filters.gt(zLoc, pos.getZ() - radius);
-        final Bson ltZ = Filters.lt(zLoc, pos.getZ() + radius);
+        final Bson gtZ = Filters.gt(zLoc, pos.z() - radius);
+        final Bson ltZ = Filters.lt(zLoc, pos.z() + radius);
 
         andFilters.add(Filters.and(gtX, ltX, gtZ, ltZ));
         return this;

@@ -78,9 +78,9 @@ public class SpawnCommands
     private void setRoleSpawn(Context context, ServerWorld world, Transform transform, Subject role)
     {
         String[] posStrings = new String[3];
-        posStrings[0] = String.valueOf(transform.position().getFloorX());
-        posStrings[1] = String.valueOf(transform.position().getFloorY());
-        posStrings[2] = String.valueOf(transform.position().getFloorZ());
+        posStrings[0] = String.valueOf(transform.position().floorX());
+        posStrings[1] = String.valueOf(transform.position().floorY());
+        posStrings[2] = String.valueOf(transform.position().floorZ());
         String[] rotStrings = new String[3];
         rotStrings[0] = String.valueOf(transform.yaw());
         rotStrings[1] = String.valueOf(transform.pitch());

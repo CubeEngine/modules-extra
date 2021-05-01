@@ -192,7 +192,7 @@ public class ElevatorListener
                     ((Secondary)event).setCancelled(true);
                     return;
                 }
-                ServerLocation targetLoc = ServerLocation.of(player.world(), pPos.getX(), sign.getY() -1, pPos.getZ());
+                ServerLocation targetLoc = ServerLocation.of(player.world(), pPos.x(), sign.y() -1, pPos.z());
                 final Optional<ServerLocation> safeLoc = Sponge.server().teleportHelper().findSafeLocation(targetLoc);
                 if (safeLoc.isPresent())
                 {
@@ -233,7 +233,7 @@ public class ElevatorListener
         {
             final Optional<List<Component>> lines = loc.world().get(target, Keys.SIGN_LINES);
             targetLine = lines.map(l -> l.get(0)).orElse(targetLine);
-            int blocks = loc.blockY() - target.getY();
+            int blocks = loc.blockY() - target.y();
             String decor = blocks < 0 ? module.getConfig().upDecor : module.getConfig().downDecor;
             directionLine = Component.text(decor + " " + Math.abs(blocks) + " " + decor);
             loc.offer(ElevatorData.TARGET, target);
@@ -255,13 +255,13 @@ public class ElevatorListener
         startPos = previous == null ? startPos : previous;
         // Search for next Elevator sign
 
-        final int max = loc.world().blockMax().getY();
-        final int min = loc.world().blockMin().getY();
+        final int max = loc.world().blockMax().y();
+        final int min = loc.world().blockMin().y();
         final int blockX = loc.blockX();
         final int blockZ = loc.blockZ();
         final ServerWorld world = loc.world();
 
-        int blockY = startPos.getY();
+        int blockY = startPos.y();
         while (blockY <= max && blockY >= min)
         {
             if (up)
@@ -282,7 +282,7 @@ public class ElevatorListener
             }
         }
         // nothing found? Return same location as before when it is valid
-        if (previous != null && world.get(blockX, previous.getY(), blockZ, ElevatorData.OWNER).isPresent())
+        if (previous != null && world.get(blockX, previous.y(), blockZ, ElevatorData.OWNER).isPresent())
         {
             return previous;
         }

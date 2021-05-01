@@ -76,6 +76,7 @@ import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.api.world.server.WorldManager;
 import org.spongepowered.api.world.server.WorldTemplate;
+import org.spongepowered.math.matrix.Matrix3d;
 import org.spongepowered.math.vector.Vector3i;
 
 @Singleton
@@ -439,7 +440,7 @@ public class TerraListener
     {
         setupWorld(w);
         ServerLocation spawnLoc = w.location(w.properties().spawnPosition());
-        if (spawnLoc.position().getY() == 127)
+        if (spawnLoc.position().y() == 127)
         {
             spawnLoc = Sponge.server().teleportHelper().findSafeLocation(spawnLoc.add(Vector3i.UP.mul(-60)), 50, 10).orElse(spawnLoc);
         }
@@ -452,7 +453,7 @@ public class TerraListener
     private void setupWorld(ServerWorld w)
     {
         final Vector3i spawn = w.properties().spawnPosition();
-        w.border().setCenter(spawn.getX(), spawn.getZ());
+        w.border().setCenter(spawn.x(), spawn.z());
         w.border().setDiameter(16 * 17);
     }
 

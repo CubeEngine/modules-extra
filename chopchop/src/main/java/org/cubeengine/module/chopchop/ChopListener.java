@@ -275,8 +275,8 @@ public class ChopListener
                 for (Vector3i leaf : leaves)
                 {
                     Vector3i diff = layer.sub(leaf).abs();
-                    if (diff.getX() + diff.getY() + diff.getZ() == 1 // cardinal or upright
-                    || (diff.getX() + diff.getY() == 2 && diff.getX() == diff.getY())) // ordinal
+                    if (diff.x() + diff.y() + diff.z() == 1 // cardinal or upright
+                    || (diff.x() + diff.y() == 2 && diff.x() == diff.y())) // ordinal
                     {
                         lastLayer.add(leaf);
                     }
