@@ -209,7 +209,7 @@ public class QueryManager
                                                                                .thenApply(result -> this.prepareReports(lookup, player, result)) // Still Async Prepare Reports
                                                                                .thenAcceptAsync(r -> this.show(lookup, player, r), queryShowExecutor)// Resync to show information
             .exceptionally(t -> {
-                plugin.getLogger().error("Error showing reports", t);
+                plugin.logger().error("Error showing reports", t);
                 return null;
             });
         queryFuture.put(player.uniqueId(), future);

@@ -123,7 +123,7 @@ public class SimpleHealthCheckService implements HealthCheckService, WebHandler 
     }
 
     private static String prefix(PluginContainer plugin) {
-        return plugin.getMetadata().getId() + ":";
+        return plugin.metadata().id() + ":";
     }
 
     private static String identifier(PluginContainer plugin, String name) {

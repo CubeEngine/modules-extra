@@ -54,14 +54,14 @@ public class ObserveTest {
     public void themAll() throws IOException {
         final PluginContainer plugin = (PluginContainer) Proxy.newProxyInstance(PluginContainer.class.getClassLoader(), new Class[]{ PluginContainer.class }, (proxy, method, args) -> {
             switch (method.getName()) {
-                case "getLogger":
+                case "logger":
                     return LogManager.getLogger();
-                case "getMetadata":
+                case "metadata":
                     return PluginMetadata.builder()
-                            .setLoader("observe")
-                            .setId("observe")
-                            .setVersion("1.0.0")
-                            .setMainClass(Observe.class.getName())
+                            .loader("observe")
+                            .id("observe")
+                            .version("1.0.0")
+                            .mainClass(Observe.class.getName())
                             .build();
                 case "hashCode":
                     return 1;
@@ -75,8 +75,8 @@ public class ObserveTest {
         final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
         final InetSocketAddress addr = new InetSocketAddress("0.0.0.0", 0);
-        final WebServer webServer = new WebServer(addr, Thread::new, plugin.getLogger());
-        final PrometheusMetricsService metricsService = new PrometheusMetricsService(executorService, executorService, plugin.getLogger());
+        final WebServer webServer = new WebServer(addr, Thread::new, plugin.logger());
+        final PrometheusMetricsService metricsService = new PrometheusMetricsService(executorService, executorService, plugin.logger());
         CollectorRegistry registry = new CollectorRegistry();
         registry.register(new GarbageCollectorExports());
         registry.register(PullGaugeCollector.<DoubleSupplier>build(Math::random).withGauge(PullGauge.build("test", DoubleSupplier::getAsDouble).help("dummy").build()).build());

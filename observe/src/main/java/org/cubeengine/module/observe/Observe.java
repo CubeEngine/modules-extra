@@ -152,7 +152,7 @@ public class Observe
 
     private TracingService provideTracing() {
         final PrometheusMetricsFactory metricsFactory = new PrometheusMetricsFactory(asyncCollectorRegistry);
-        return new JaegerTracingService(plugin.getMetadata().getId(), metricsFactory);
+        return new JaegerTracingService(plugin.metadata().id(), metricsFactory);
     }
 
     @Listener
