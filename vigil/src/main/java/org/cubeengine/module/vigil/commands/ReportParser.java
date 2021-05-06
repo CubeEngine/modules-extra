@@ -25,6 +25,7 @@ import com.google.inject.Singleton;
 import org.cubeengine.libcube.service.command.annotation.ParserFor;
 import org.cubeengine.module.vigil.report.Report;
 import org.cubeengine.module.vigil.report.ReportManager;
+import org.spongepowered.api.command.CommandCompletion;
 import org.spongepowered.api.command.exception.ArgumentParseException;
 import org.spongepowered.api.command.parameter.ArgumentReader.Mutable;
 import org.spongepowered.api.command.parameter.CommandContext;
@@ -48,9 +49,9 @@ public class ReportParser implements ValueParser<Report>, ValueCompleter
     }
 
     @Override
-    public List<String> complete(CommandContext context, String currentInput)
+    public List<CommandCompletion> complete(CommandContext context, String currentInput)
     {
-        List<String> list = new ArrayList<>();
+        List<CommandCompletion> list = new ArrayList<>();
         String token = currentInput;
         for (String report : this.manager.getReports().keySet())
         {
@@ -60,7 +61,7 @@ public class ReportParser implements ValueParser<Report>, ValueCompleter
             }
             if (report.toLowerCase().startsWith(token.toLowerCase()))
             {
-                list.add(report);
+                list.add(CommandCompletion.of(report));
             }
         }
         return list;

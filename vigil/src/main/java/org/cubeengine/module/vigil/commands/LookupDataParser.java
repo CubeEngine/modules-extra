@@ -33,6 +33,7 @@ import org.cubeengine.module.vigil.report.entity.DestructReport;
 import org.cubeengine.module.vigil.report.inventory.ChangeInventoryReport;
 import org.cubeengine.module.vigil.report.inventory.InventoryOpenReport;
 import org.spongepowered.api.command.CommandCause;
+import org.spongepowered.api.command.CommandCompletion;
 import org.spongepowered.api.command.exception.ArgumentParseException;
 import org.spongepowered.api.command.parameter.ArgumentReader.Mutable;
 import org.spongepowered.api.command.parameter.CommandContext;
@@ -66,9 +67,9 @@ public class LookupDataParser implements ValueParser<LookupData>, ValueCompleter
     }
 
     @Override
-    public List<String> complete(CommandContext context, String currentInput)
+    public List<CommandCompletion> complete(CommandContext context, String currentInput)
     {
-        return this.types.keySet().stream().filter(k -> k.startsWith(currentInput)).collect(Collectors.toList());
+        return this.types.keySet().stream().filter(k -> k.startsWith(currentInput)).map(CommandCompletion::of).collect(Collectors.toList());
     }
 
     @Override

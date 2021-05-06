@@ -24,6 +24,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.cubeengine.libcube.service.command.annotation.ParserFor;
 import org.cubeengine.libcube.service.i18n.I18n;
+import org.spongepowered.api.command.CommandCompletion;
 import org.spongepowered.api.command.exception.ArgumentParseException;
 import org.spongepowered.api.command.parameter.ArgumentReader.Mutable;
 import org.spongepowered.api.command.parameter.CommandContext;
@@ -49,9 +50,9 @@ public class KitParser implements ValueParser<Kit>, ValueCompleter
     }
 
     @Override
-    public List<String> complete(CommandContext context, String currentInput)
+    public List<CommandCompletion> complete(CommandContext context, String currentInput)
     {
-        return manager.getKitsNames().stream().filter(name -> startsWithIgnoreCase(name, currentInput)).collect(Collectors.toList());
+        return manager.getKitsNames().stream().filter(name -> startsWithIgnoreCase(name, currentInput)).map(CommandCompletion::of).collect(Collectors.toList());
     }
 
     @Override
