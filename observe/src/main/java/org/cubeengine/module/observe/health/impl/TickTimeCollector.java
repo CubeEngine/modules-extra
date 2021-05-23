@@ -17,8 +17,6 @@
  */
 package org.cubeengine.module.observe.health.impl;
 
-import co.aikar.timings.Timing;
-import co.aikar.timings.Timings;
 import io.prometheus.client.GaugeMetricFamily;
 import org.cubeengine.libcube.service.task.TaskManager;
 import org.cubeengine.module.observe.metrics.SyncCollector;
@@ -44,14 +42,12 @@ public class TickTimeCollector extends SyncCollector {
     }
 
     private final Server server;
-    private final Timing timing;
 
     private long maxTime = 0;
     private long minTime = 0;
 
     public TickTimeCollector(Server server, TaskManager tm, PluginContainer plugin) {
         this.server = server;
-        this.timing = Timings.of(plugin, "tick-time-collector");
         final long[] tickTimes = getTickTimes(server);
         if (tickTimes != null) {
             tm.runTimer(t -> updateTimes(), Ticks.of(tickTimes.length));
@@ -85,20 +81,18 @@ public class TickTimeCollector extends SyncCollector {
 
     @Override
     public synchronized List<MetricFamilySamples> collect() {
-        try (Timing ignored = timing.startTiming()) {
-            List<MetricFamilySamples> metrics = new ArrayList<>(2);
-            if (minTime != 0) {
-                metrics.add(new GaugeMetricFamily("sponge_server_min_tick_time_millis", "Minimum tick time over the last 100 ticks", minTime / 1e6));
-                minTime = 0;
-            }
-
-            if (maxTime != 0) {
-                metrics.add(new GaugeMetricFamily("sponge_server_max_tick_time_millis", "Maximum tick time over the last 100 ticks", maxTime / 1e6));
-                maxTime = 0;
-            }
-
-            return metrics;
+        List<MetricFamilySamples> metrics = new ArrayList<>(2);
+        if (minTime != 0) {
+            metrics.add(new GaugeMetricFamily("sponge_server_min_tick_time_millis", "Minimum tick time over the last 100 ticks", minTime / 1e6));
+            minTime = 0;
         }
+
+        if (maxTime != 0) {
+            metrics.add(new GaugeMetricFamily("sponge_server_max_tick_time_millis", "Maximum tick time over the last 100 ticks", maxTime / 1e6));
+            maxTime = 0;
+        }
+
+        return metrics;
     }
 
     private static long[] getTickTimes(Server server) {

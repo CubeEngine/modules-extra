@@ -17,8 +17,6 @@
  */
 package org.cubeengine.module.observe.metrics.impl;
 
-import co.aikar.timings.Timing;
-import co.aikar.timings.Timings;
 import com.google.common.collect.Iterables;
 import org.cubeengine.module.observe.metrics.pullgauge.PullGauge;
 import org.cubeengine.module.observe.metrics.pullgauge.PullGauge.Label;
@@ -82,10 +80,7 @@ public class SpongeCollector extends SyncCollector {
             .help("Players online per world")
             .build();
 
-    private final Timing timing;
-
     public SpongeCollector(Server server, PluginContainer plugin) {
-        this.timing = Timings.of(plugin, "sponge-collector");
         this.collector = PullGaugeCollector.build(server)
                 .withGauge(PLAYERS)
                 .withGauge(MAX_PLAYERS)
@@ -138,8 +133,6 @@ public class SpongeCollector extends SyncCollector {
 
     @Override
     public List<MetricFamilySamples> collect() {
-        try (Timing ignore = timing.startTiming()) {
-            return collector.collect();
-        }
+        return collector.collect();
     }
 }
