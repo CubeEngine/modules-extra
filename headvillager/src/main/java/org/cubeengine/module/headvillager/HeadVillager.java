@@ -27,11 +27,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import com.google.gson.Gson;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.Sound.Source;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.apache.logging.log4j.Logger;
 import org.cubeengine.libcube.util.EventUtil;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.Server;
@@ -66,6 +68,7 @@ import org.spongepowered.math.vector.Vector3d;
 public class HeadVillager
 {
     private static final String mcHeadUrl = "https://minecraft-heads.com/scripts/api.php?tags=true&cat=";
+    @Inject Logger logger;
 
     @Listener
     public void onStartUp(StartedEngineEvent<Server> event)
@@ -78,7 +81,14 @@ public class HeadVillager
                 final InputStreamReader isr = new InputStreamReader(new URL(mcHeadUrl + category).openStream());
                 for (Head head : gson.fromJson(isr, Head[].class))
                 {
-                    head.init(category);
+                    try
+                    {
+                        head.init(category);
+                    }
+                    catch (Exception e)
+                    {
+                        logger.warn("Invalid Head: " + head, e);
+                    }
                 }
             }
             catch (IOException e)

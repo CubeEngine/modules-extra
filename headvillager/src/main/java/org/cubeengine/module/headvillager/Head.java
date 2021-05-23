@@ -32,7 +32,7 @@ import java.util.UUID;
 public class Head
 {
     public final String name;
-    public final UUID uuid;
+    public final String uuid;
     public final String value;
     public final String tags;
 
@@ -42,18 +42,24 @@ public class Head
     {
         category.heads.computeIfAbsent(this.name, n -> new ArrayList<>()).add(this);
 
-        final GameProfile gameProfile = GameProfile.of(uuid, name).withProperty(ProfileProperty.of(ProfileProperty.TEXTURES, value));
+        final GameProfile gameProfile = GameProfile.of(UUID.fromString(uuid), name).withProperty(ProfileProperty.of(ProfileProperty.TEXTURES, value));
         stack = ItemStack.of(ItemTypes.PLAYER_HEAD);
         stack.offer(Keys.GAME_PROFILE, gameProfile);
         stack.offer(Keys.CUSTOM_NAME, Component.text(name));
         stack.offer(Keys.LORE, Arrays.asList(Component.text(tags, NamedTextColor.GRAY)));
     }
 
-    public Head(String name, UUID uuid, String value, String tags)
+    public Head(String name, String uuid, String value, String tags)
     {
         this.name = name;
         this.uuid = uuid;
         this.value = value;
         this.tags = tags;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Head{" + "name='" + name + '\'' + ", uuid='" + uuid + '\'' + ", value='" + value + '\'' + ", tags='" + tags + '\'' + ", stack=" + stack + '}';
     }
 }
