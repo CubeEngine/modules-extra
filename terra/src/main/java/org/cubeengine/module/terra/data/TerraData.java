@@ -26,26 +26,17 @@ import org.spongepowered.api.data.value.Value;
 import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
-import org.spongepowered.api.util.TypeTokens;
 import java.util.UUID;
 
 public class TerraData
 {
-    public static final Key<Value<String>> WORLD_KEY = Key.builder()
-                                                          .key(ResourceKey.of(PluginTerra.TERRA_ID, "worldkey"))
-                                                          .type(TypeTokens.STRING_VALUE_TOKEN).build();
+    public static final Key<Value<String>> WORLD_KEY = Key.builder().key(ResourceKey.of(PluginTerra.TERRA_ID, "worldkey")).elementType(String.class).build();
 
-    public static final Key<Value<UUID>> WORLD_UUID = Key.builder()
-                                                         .key(ResourceKey.of(PluginTerra.TERRA_ID, "worlduuid"))
-                                                         .type(TypeTokens.UUID_VALUE_TOKEN).build();
+    public static final Key<Value<UUID>> WORLD_UUID = Key.builder().key(ResourceKey.of(PluginTerra.TERRA_ID, "worlduuid")).elementType(UUID.class).build();
 
-    public static final Key<Value<UUID>> POTION_UUID = Key.builder()
-                                                         .key(ResourceKey.of(PluginTerra.TERRA_ID, "potionuuid"))
-                                                         .type(TypeTokens.UUID_VALUE_TOKEN).build();
+    public static final Key<Value<UUID>> POTION_UUID = Key.builder().key(ResourceKey.of(PluginTerra.TERRA_ID, "potionuuid")).elementType(UUID.class).build();
 
-    public static final Key<Value<Boolean>> TERRA_POTION = Key.builder()
-                                                          .key(ResourceKey.of(PluginTerra.TERRA_ID, "terra"))
-                                                          .type(TypeTokens.BOOLEAN_VALUE_TOKEN).build();
+    public static final Key<Value<Boolean>> TERRA_POTION = Key.builder().key(ResourceKey.of(PluginTerra.TERRA_ID, "terra")).elementType(Boolean.class).build();
 
     public static void register(RegisterDataEvent event)
     {

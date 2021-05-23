@@ -24,11 +24,10 @@ import org.spongepowered.api.data.value.Value;
 import org.spongepowered.api.entity.living.trader.Villager;
 import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.api.util.TypeTokens;
 
 public interface HeadVillagerData
 {
-    Key<Value<String>> VILLAGER = Key.builder().key(ResourceKey.of(PluginHeadVillager.HEADVILLAGER_ID, "villager")).type(TypeTokens.STRING_VALUE_TOKEN).build();
+    Key<Value<String>> VILLAGER = Key.builder().key(ResourceKey.of(PluginHeadVillager.HEADVILLAGER_ID, "villager")).elementType(String.class).build();
 
     static void register(RegisterDataEvent event)
     {

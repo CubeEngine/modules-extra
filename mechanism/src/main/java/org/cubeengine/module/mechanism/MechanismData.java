@@ -27,18 +27,14 @@ import org.spongepowered.api.data.value.Value;
 import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
-import org.spongepowered.api.util.TypeTokens;
 
 public interface MechanismData
 {
-    Key<Value<String>> MECHANISM = Key.builder().key(ResourceKey.of(PluginMechanism.MECHANISM_ID, "mechanism"))
-                                    .type(TypeTokens.STRING_VALUE_TOKEN).build();
+    Key<Value<String>> MECHANISM = Key.builder().key(ResourceKey.of(PluginMechanism.MECHANISM_ID, "mechanism")).elementType(String.class).build();
 
-    Key<Value<Integer>> GATE_BLOCKS = Key.builder().key(ResourceKey.of(PluginMechanism.MECHANISM_ID, "gate-blocks"))
-                                      .type(TypeTokens.INTEGER_VALUE_TOKEN).build();
+    Key<Value<Integer>> GATE_BLOCKS = Key.builder().key(ResourceKey.of(PluginMechanism.MECHANISM_ID, "gate-blocks")).elementType(Integer.class).build();
 
-    Key<Value<String>> GATE_BLOCK_TYPE = Key.builder().key(ResourceKey.of(PluginMechanism.MECHANISM_ID, "gate-block-type"))
-                                           .type(TypeTokens.STRING_VALUE_TOKEN).build();
+    Key<Value<String>> GATE_BLOCK_TYPE = Key.builder().key(ResourceKey.of(PluginMechanism.MECHANISM_ID, "gate-block-type")).elementType(String.class).build();
 
     static void register(RegisterDataEvent event)
     {

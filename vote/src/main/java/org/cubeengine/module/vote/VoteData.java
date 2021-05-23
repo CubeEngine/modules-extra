@@ -25,13 +25,12 @@ import org.spongepowered.api.data.value.Value;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
-import org.spongepowered.api.util.TypeTokens;
 
 public interface VoteData
 {
-    Key<Value<Integer>> COUNT = Key.builder().type(TypeTokens.INTEGER_VALUE_TOKEN).key(ResourceKey.of(PluginVote.VOTE_ID, "count")).build();
-    Key<Value<Integer>> STREAK = Key.builder().type(TypeTokens.INTEGER_VALUE_TOKEN).key(ResourceKey.of(PluginVote.VOTE_ID, "streak")).build();
-    Key<Value<Long>> LAST_VOTE = Key.builder().type(TypeTokens.LONG_VALUE_TOKEN).key(ResourceKey.of(PluginVote.VOTE_ID, "last_vote")).build();
+    Key<Value<Integer>> COUNT = Key.builder().elementType(Integer.class).key(ResourceKey.of(PluginVote.VOTE_ID, "count")).build();
+    Key<Value<Integer>> STREAK = Key.builder().elementType(Integer.class).key(ResourceKey.of(PluginVote.VOTE_ID, "streak")).build();
+    Key<Value<Long>> LAST_VOTE = Key.builder().elementType(Long.class).key(ResourceKey.of(PluginVote.VOTE_ID, "last_vote")).build();
 
     static void register(RegisterDataEvent event)
     {

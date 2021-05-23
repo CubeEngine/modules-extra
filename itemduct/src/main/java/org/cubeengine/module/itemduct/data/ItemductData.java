@@ -29,7 +29,6 @@ import org.spongepowered.api.data.value.Value;
 import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.util.Direction;
-import org.spongepowered.api.util.TypeTokens;
 
 import java.util.List;
 
@@ -43,7 +42,7 @@ public interface ItemductData
 
     Key<Value<Integer>> USES = Key.builder()
             .key(ResourceKey.of(PluginItemduct.ITEMDUCT_ID, "uses"))
-            .type(TypeTokens.INTEGER_VALUE_TOKEN).build();
+            .elementType(Integer.class).build();
 
 
     static void register(RegisterDataEvent event)

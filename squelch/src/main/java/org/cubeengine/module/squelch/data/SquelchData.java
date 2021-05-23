@@ -28,20 +28,13 @@ import org.spongepowered.api.data.value.Value;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
-import org.spongepowered.api.util.TypeTokens;
 import java.util.UUID;
 
 public interface SquelchData
 {
-    TypeToken<ListValue<UUID>> TTV_UUIDs = new TypeToken<ListValue<UUID>>() {};
+    Key<ListValue<UUID>> IGNORED = Key.builder().key(ResourceKey.of(PluginSquelch.SQUELCH_ID, "ignored")).listElementType(UUID.class).build();
 
-    Key<ListValue<UUID>> IGNORED = Key.builder()
-                                  .key(ResourceKey.of(PluginSquelch.SQUELCH_ID, "ignored"))
-                                  .type(TTV_UUIDs).build();
-
-    Key<Value<Long>> MUTED = Key.builder()
-                                      .key(ResourceKey.of(PluginSquelch.SQUELCH_ID, "muted"))
-                                      .type(TypeTokens.LONG_VALUE_TOKEN).build();
+    Key<Value<Long>> MUTED = Key.builder().key(ResourceKey.of(PluginSquelch.SQUELCH_ID, "muted")).elementType(Long.class).build();
 
 
     static void register(RegisterDataEvent event)

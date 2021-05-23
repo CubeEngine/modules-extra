@@ -17,18 +17,16 @@
  */
 package org.cubeengine.module.discord;
 
-import org.cubeengine.module.discord.PluginDiscord;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.data.Key;
 import org.spongepowered.api.data.value.Value;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
-import org.spongepowered.api.util.TypeTokens;
 
 public interface DiscordData
 {
-    Key<Value<Boolean>> MUTED = Key.builder().key(ResourceKey.of(PluginDiscord.DISCORD_ID, "muted")).type(TypeTokens.BOOLEAN_VALUE_TOKEN).build();
+    Key<Value<Boolean>> MUTED = Key.builder().key(ResourceKey.of(PluginDiscord.DISCORD_ID, "muted")).elementType(Boolean.class).build();
 
     static void register(RegisterDataEvent event)
     {

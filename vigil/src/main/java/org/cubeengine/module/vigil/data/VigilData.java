@@ -28,17 +28,16 @@ import org.spongepowered.api.data.value.Value;
 import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
-import org.spongepowered.api.util.TypeTokens;
 
 public interface VigilData
 {
-    Key<Value<UUID>> CREATOR = Key.builder().type(TypeTokens.UUID_VALUE_TOKEN).key(ResourceKey.of(PluginVigil.VIGIL_ID, "creator")).build();
-    Key<Value<Boolean>> FULL_DATE = Key.builder().type(TypeTokens.BOOLEAN_VALUE_TOKEN).key(ResourceKey.of(PluginVigil.VIGIL_ID, "full-date")).build();
-    Key<Value<Boolean>> SHOW_LOC = Key.builder().type(TypeTokens.BOOLEAN_VALUE_TOKEN).key(ResourceKey.of(PluginVigil.VIGIL_ID, "show-loc")).build();
-    Key<Value<Boolean>> NO_DATE = Key.builder().type(TypeTokens.BOOLEAN_VALUE_TOKEN).key(ResourceKey.of(PluginVigil.VIGIL_ID, "no-date")).build();
-    Key<Value<Boolean>> FULL_LOC = Key.builder().type(TypeTokens.BOOLEAN_VALUE_TOKEN).key(ResourceKey.of(PluginVigil.VIGIL_ID, "full-loc")).build();
-    Key<Value<Boolean>> DETAIL_INV = Key.builder().type(TypeTokens.BOOLEAN_VALUE_TOKEN).key(ResourceKey.of(PluginVigil.VIGIL_ID, "detail-inv")).build();
-    Key<ListValue<String>> REPORTS = Key.builder().type(TypeTokens.LIST_STRING_VALUE_TOKEN).key(ResourceKey.of(PluginVigil.VIGIL_ID, "reports")).build();
+    Key<Value<UUID>> CREATOR = Key.builder().elementType(UUID.class).key(ResourceKey.of(PluginVigil.VIGIL_ID, "creator")).build();
+    Key<Value<Boolean>> FULL_DATE = Key.builder().elementType(Boolean.class).key(ResourceKey.of(PluginVigil.VIGIL_ID, "full-date")).build();
+    Key<Value<Boolean>> SHOW_LOC = Key.builder().elementType(Boolean.class).key(ResourceKey.of(PluginVigil.VIGIL_ID, "show-loc")).build();
+    Key<Value<Boolean>> NO_DATE = Key.builder().elementType(Boolean.class).key(ResourceKey.of(PluginVigil.VIGIL_ID, "no-date")).build();
+    Key<Value<Boolean>> FULL_LOC = Key.builder().elementType(Boolean.class).key(ResourceKey.of(PluginVigil.VIGIL_ID, "full-loc")).build();
+    Key<Value<Boolean>> DETAIL_INV = Key.builder().elementType(Boolean.class).key(ResourceKey.of(PluginVigil.VIGIL_ID, "detail-inv")).build();
+    Key<ListValue<String>> REPORTS = Key.builder().listElementType(String.class).key(ResourceKey.of(PluginVigil.VIGIL_ID, "reports")).build();
 
     static void register(RegisterDataEvent event)
     {
