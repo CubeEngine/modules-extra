@@ -24,7 +24,6 @@ import org.cubeengine.module.terra.data.TerraItems;
 import org.cubeengine.module.terra.data.TerraItems.Essence;
 import org.spongepowered.api.command.CommandCause;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
-import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ContainerTypes;
 import org.spongepowered.api.item.inventory.ItemStack;

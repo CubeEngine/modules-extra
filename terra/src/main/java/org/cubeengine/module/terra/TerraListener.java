@@ -30,7 +30,6 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Supplier;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import net.kyori.adventure.audience.Audience;
@@ -76,7 +75,6 @@ import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.api.world.server.WorldManager;
 import org.spongepowered.api.world.server.WorldTemplate;
-import org.spongepowered.math.matrix.Matrix3d;
 import org.spongepowered.math.vector.Vector3i;
 
 @Singleton
@@ -222,7 +220,7 @@ public class TerraListener
         {
             return;
         }
-        final ItemStackSnapshot original = event.transactions().get(0).original();
+        final ItemStackSnapshot original = event.cookingItem();
         if (TerraItems.isTerraEssence(original))
         {
             final Optional<String> worldKeyString = original.get(TerraData.WORLD_KEY);

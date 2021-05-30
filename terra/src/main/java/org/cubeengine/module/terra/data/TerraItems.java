@@ -251,7 +251,7 @@ public class TerraItems
             }
             else if (this == END)
             {
-                final StructureGenerationConfig endStructures = StructureGenerationConfig.builder().addStructure(Structures.END_CITY.get(), SeparatedStructureConfig.of(6, 4, random.nextInt())).build();
+                final StructureGenerationConfig endStructures = StructureGenerationConfig.builder().addStructure(Structures.ENDCITY.get(), SeparatedStructureConfig.of(6, 4, random.nextInt())).build();
                 noiseGeneratorConfig = NoiseGeneratorConfig.builder().from(NoiseGeneratorConfig.floatingIslands())
                                                            .defaultBlock(BlockTypes.END_STONE.get().defaultState())
                                                            .structureConfig(endStructures)
