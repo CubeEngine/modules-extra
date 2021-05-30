@@ -28,7 +28,7 @@ import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.filter.Getter;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.item.inventory.container.InteractContainerEvent;
-import org.spongepowered.api.event.message.MessageChannelEvent;
+import org.spongepowered.api.event.message.PlayerChatEvent;
 import org.spongepowered.api.event.network.ServerSideConnectionEvent;
 
 import static org.spongepowered.api.event.Order.POST;
@@ -75,7 +75,7 @@ public class AfkListener
     }
 
     @Listener(order = POST)
-    public void onChat(MessageChannelEvent event, @Root ServerPlayer player)
+    public void onChat(PlayerChatEvent event, @Root ServerPlayer player)
     {
         this.updateLastAction(player);
         afkCommand.checkAfk();

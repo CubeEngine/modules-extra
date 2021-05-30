@@ -31,7 +31,6 @@ import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.filter.cause.First;
-import org.spongepowered.api.event.message.MessageChannelEvent;
 import org.spongepowered.api.event.message.PlayerChatEvent;
 
 import static java.util.Collections.singletonList;
