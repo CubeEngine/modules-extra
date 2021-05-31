@@ -71,6 +71,7 @@ import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.scheduler.ScheduledTask;
 import org.spongepowered.api.util.Ticks;
 import org.spongepowered.api.world.SerializationBehavior;
+import org.spongepowered.api.world.border.WorldBorder.Builder;
 import org.spongepowered.api.world.server.ServerLocation;
 import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.api.world.server.WorldManager;
@@ -451,8 +452,10 @@ public class TerraListener
     private void setupWorld(ServerWorld w)
     {
         final Vector3i spawn = w.properties().spawnPosition();
-        w.border().setCenter(spawn.x(), spawn.z());
-        w.border().setDiameter(16 * 17);
+        final Builder newBorder = w.border().toBuilder();
+        newBorder.center(spawn.x(), spawn.z());
+        newBorder.targetDiameter(16 * 17);
+        w.setBorder(newBorder.build());
     }
 
     public ItemStack finalizePotion(ItemStack terraPotion)
