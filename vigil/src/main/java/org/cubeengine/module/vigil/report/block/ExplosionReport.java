@@ -44,7 +44,7 @@ tnt
 wither
  */
 // TODO wait for Sponge implementation
-public class ExplosionReport extends BaseBlockReport<ExplosionEvent.Post> implements Report.Readonly
+public class ExplosionReport extends BaseBlockReport<ExplosionEvent> implements Report.Readonly
 {
     @Override
     public void showReport(List<Action> actions, Receiver receiver)
@@ -64,30 +64,30 @@ public class ExplosionReport extends BaseBlockReport<ExplosionEvent.Post> implem
         return false;
     }
 
-    @Listener(order = Order.POST)
-    public void listen(ExplosionEvent.Post event, @First Player player)
-    {
-        // TODO cause filtering
-        report(event);
-    }
+//    @Listener(order = Order.POST)
+//    public void listen(ExplosionEvent.Post event, @First Player player)
+//    {
+//        // TODO cause filtering
+//        report(event);
+//    }
 
-    protected void report(ExplosionEvent.Post event)
-    {
-        for (BlockTransactionReceipt receipt : event.receipts())
-        {
-            final ServerLocation loc = receipt.originalBlock().location().get();
-            if (!isActive(loc.world()))
-            {
-                continue;
-            }
-
-            final Action action = observe(event);
-            action.addData(BLOCK_CHANGES, Observe.transactions(receipt));
-            action.addData(LOCATION, Observe.location(loc));
-            action.addData(OPERATION, receipt.operation().key(RegistryTypes.OPERATION).asString());
-
-            report(action);
-        }
-    }
+//    protected void report(ExplosionEvent.Post event)
+//    {
+//        for (BlockTransactionReceipt receipt : event.receipts())
+//        {
+//            final ServerLocation loc = receipt.originalBlock().location().get();
+//            if (!isActive(loc.world()))
+//            {
+//                continue;
+//            }
+//
+//            final Action action = observe(event);
+//            action.addData(BLOCK_CHANGES, Observe.transactions(receipt));
+//            action.addData(LOCATION, Observe.location(loc));
+//            action.addData(OPERATION, receipt.operation().key(RegistryTypes.OPERATION).asString());
+//
+//            report(action);
+//        }
+//    }
 
 }

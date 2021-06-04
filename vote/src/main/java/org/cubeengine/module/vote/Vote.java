@@ -31,6 +31,7 @@ import com.google.inject.Singleton;
 import com.vexsoftware.votifier.sponge8.event.VotifierEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import org.apache.logging.log4j.Logger;
 import org.cubeengine.libcube.service.Broadcaster;
 import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
@@ -136,7 +137,7 @@ public class Vote
 
     public static void renameItemStack(ItemStack stack, String name) {
         if (name != null) {
-            stack.offer(Keys.CUSTOM_NAME, SpongeComponents.legacyAmpersandSerializer().deserialize(name));
+            stack.offer(Keys.CUSTOM_NAME, PlainComponentSerializer.plain().deserialize(name));
         }
     }
 

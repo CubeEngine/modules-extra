@@ -73,7 +73,7 @@ public class ChatFormatListener
     @Listener(order = Order.EARLY)
     public void onPlayerChat(PlayerChatEvent event, @Root ServerPlayer player)
     {
-        final PlainComponentSerializer plainSerializer = SpongeComponents.plainSerializer();
+        final PlainComponentSerializer plainSerializer = PlainComponentSerializer.plain();
         String msg = plainSerializer.serialize(event.originalMessage());
 
         if (!msg.equals("+") && msg.endsWith("+") && perms.LONGER.check(player))
@@ -120,7 +120,7 @@ public class ChatFormatListener
     private Map<String, Component> getReplacements(ServerPlayer player, Component message, Subject subject)
     {
         String name = player.name();
-        final PlainComponentSerializer plainSerializer = SpongeComponents.plainSerializer();
+        final PlainComponentSerializer plainSerializer = PlainComponentSerializer.plain();
         Map<String, Component> replacements = new HashMap<>();
         replacements.put("NAME", Component.text(name));
         Component displayName = player.get(Keys.CUSTOM_NAME).orElse(Component.text(name));
