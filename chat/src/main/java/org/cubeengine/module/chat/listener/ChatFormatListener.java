@@ -34,7 +34,6 @@ import org.cubeengine.module.chat.Chat;
 import org.cubeengine.module.chat.ChatConfig;
 import org.cubeengine.module.chat.ChatPerm;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.api.adventure.SpongeComponents;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;

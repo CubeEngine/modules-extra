@@ -17,31 +17,21 @@
  */
 package org.cubeengine.module.vote;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.vexsoftware.votifier.sponge8.event.VotifierEvent;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import org.apache.logging.log4j.Logger;
 import org.cubeengine.libcube.service.Broadcaster;
 import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
-import org.cubeengine.libcube.util.ComponentUtil;
-import org.cubeengine.libcube.util.Pair;
 import org.cubeengine.processor.Dependency;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.adventure.SpongeComponents;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.living.player.User;
@@ -50,7 +40,6 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.RegisterDataEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 
-import static java.util.Collections.singletonList;
 import static org.cubeengine.libcube.util.ComponentUtil.clickableLink;
 import static org.cubeengine.libcube.util.ComponentUtil.legacyMessageTemplateToComponent;
 

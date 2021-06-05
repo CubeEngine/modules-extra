@@ -49,7 +49,6 @@ import org.cubeengine.libcube.util.ComponentUtil;
 import org.cubeengine.libcube.util.Pair;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.Server;
-import org.spongepowered.api.adventure.SpongeComponents;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
