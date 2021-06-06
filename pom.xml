@@ -82,6 +82,7 @@
         <module>mechanism</module>
         <module>discord</module>
         <module>headvillager</module>
+        <module>traders</module>
     </modules>
 
     <build>
