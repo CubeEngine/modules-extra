@@ -237,6 +237,10 @@ public class BlockReport extends BaseBlockReport<ChangeBlockEvent.Post>
     {
         for (BlockTransactionReceipt receipt : event.receipts())
         {
+            if (receipt.originalBlock().equals(receipt.finalBlock()))
+            {
+                continue;
+            }
             final ServerLocation loc = receipt.originalBlock().location().get();
             if (!isActive(loc.world()))
             {
@@ -281,7 +285,7 @@ public class BlockReport extends BaseBlockReport<ChangeBlockEvent.Post>
             {
                 return false;
             }
-            if (!repl1.get().state().equals(repl2.get().state()))
+             if (!repl1.get().state().equals(repl2.get().state()))
             {
                 return false;
             }
@@ -351,8 +355,8 @@ public class BlockReport extends BaseBlockReport<ChangeBlockEvent.Post>
 
         Optional<BlockSnapshot> orig1 = action.getCached(BLOCKS_ORIG, Recall::origSnapshot);
         Optional<BlockSnapshot> orig2 = otherAction.getCached(BLOCKS_ORIG, Recall::origSnapshot);
-        Optional<BlockSnapshot> repl1 = action.getCached(BLOCKS_ORIG, Recall::origSnapshot);
-        Optional<BlockSnapshot> repl2 = otherAction.getCached(BLOCKS_ORIG, Recall::origSnapshot);
+        Optional<BlockSnapshot> repl1 = action.getCached(BLOCKS_REPL, Recall::replSnapshot);
+        Optional<BlockSnapshot> repl2 = otherAction.getCached(BLOCKS_REPL, Recall::replSnapshot);
 
 
         return orig1.isPresent() && repl2.isPresent() && orig1.get().equals(repl2.get());

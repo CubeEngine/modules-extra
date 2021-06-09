@@ -218,7 +218,7 @@ public class Receiver
             }
             else
             {
-                final Component ldShort = Component.text(dateShort.format(firstDate), NamedTextColor.GRAY);
+                final Component ldShort = Component.text(dateShort.format(lastDate), NamedTextColor.GRAY);
                 return fdShort.append(Component.space()).append(ftShort).append(dash).append(ldShort).append(Component.space()).append(ltShort);
             }
         }
