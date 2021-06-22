@@ -23,9 +23,14 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.cubeengine.libcube.service.permission.Permission;
+import org.cubeengine.libcube.service.permission.PermissionContainer;
+import org.cubeengine.libcube.service.permission.PermissionManager;
+import org.cubeengine.module.mechanism.Mechanism;
 import org.cubeengine.module.mechanism.MechanismData;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.block.BlockState;
@@ -42,11 +47,19 @@ import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.BlockChangeFlags;
 import org.spongepowered.api.world.server.ServerLocation;
 
-public class Gate implements SignMechanism
+public class Gate extends PermissionContainer implements SignMechanism
 {
     public static final String NAME = "gate";
     public static final int HORIZONTAL_LIMIT = 16;
     private static final int VERTICAL_LIMIT = 16;
+
+    private final Permission gatePerm = this.register("sign.gate.use", "Allows using gates");;
+
+    @Inject
+    public Gate(PermissionManager pm)
+    {
+        super(pm, Mechanism.class);
+    }
 
     @Override
     public String getName()
@@ -71,7 +84,12 @@ public class Gate implements SignMechanism
             return false;
         }
 
-        final BlockType gateBlockType = loc.get(MechanismData.GATE_BLOCK_TYPE).flatMap(s -> RegistryTypes.BLOCK_TYPE.get().findValue(ResourceKey.resolve(s))).orElse(null);
+        if (!this.gatePerm.check(player))
+        {
+            return false;
+        }
+
+        final BlockType gateBlockType = (BlockType)loc.get(MechanismData.GATE_BLOCK_TYPE).flatMap(s -> RegistryTypes.BLOCK_TYPE.get().findValue(ResourceKey.resolve(s))).orElse(null);
         if (gateBlockType == null)
         {
             final Optional<BlockType> blockType = player.itemInHand(HandTypes.MAIN_HAND).type().block();

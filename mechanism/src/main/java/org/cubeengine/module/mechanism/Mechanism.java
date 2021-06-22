@@ -41,6 +41,7 @@ import org.spongepowered.api.world.server.ServerLocation;
 /**
  * A module to edit signs and signed books
  */
+// TODO missing permission for Gate
 @Singleton
 @Module
 public class Mechanism

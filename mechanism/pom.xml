@@ -10,9 +10,9 @@
     </parent>
 
     <artifactId>mechanism</artifactId>
-    <name>Mechansism</name>
+    <name>Mechanism</name>
     <version>1.0.0-SNAPSHOT</version>
-    <description>Mechansisms</description>
+    <description>Mechanisms</description>
 
     <scm>
         <url>scm:git:https://github.com/CubeEngine/modules-extra</url>
