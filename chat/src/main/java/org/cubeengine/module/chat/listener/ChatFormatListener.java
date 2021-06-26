@@ -27,7 +27,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.event.HoverEvent.Action;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.i18n.I18nTranslate.ChatType;
 import org.cubeengine.module.chat.Chat;
@@ -72,7 +72,7 @@ public class ChatFormatListener
     @Listener(order = Order.EARLY)
     public void onPlayerChat(PlayerChatEvent event, @Root ServerPlayer player)
     {
-        final PlainComponentSerializer plainSerializer = PlainComponentSerializer.plain();
+        final PlainTextComponentSerializer plainSerializer = PlainTextComponentSerializer.plainText();
         String msg = plainSerializer.serialize(event.originalMessage());
 
         if (!msg.equals("+") && msg.endsWith("+") && perms.LONGER.check(player))
@@ -119,7 +119,7 @@ public class ChatFormatListener
     private Map<String, Component> getReplacements(ServerPlayer player, Component message, Subject subject)
     {
         String name = player.name();
-        final PlainComponentSerializer plainSerializer = PlainComponentSerializer.plain();
+        final PlainTextComponentSerializer plainSerializer = PlainTextComponentSerializer.plainText();
         Map<String, Component> replacements = new HashMap<>();
         replacements.put("NAME", Component.text(name));
         Component displayName = player.get(Keys.CUSTOM_NAME).orElse(Component.text(name));

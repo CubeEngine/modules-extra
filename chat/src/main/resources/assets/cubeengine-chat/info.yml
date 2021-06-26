@@ -4,3 +4,7 @@ features:
   - Whisper chat commands
   - AFK detection
   - Chat colors
+pages:
+    Usage: usage
+config:
+  - org.cubeengine.module.chat.ChatConfig

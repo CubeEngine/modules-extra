@@ -39,7 +39,7 @@ public class ChatPerm extends PermissionContainer
 
     public final Permission LONGER = register("longer", "Allows using a + at the end of chat to write longer messages", null);
     public final Permission NEWLINE = register("newline", "Allows using newlines (\\n) in chat", null);
-    public final Permission COMMAND_NICK_OTHER = register("command.nick.other", "", null);
+    public final Permission COMMAND_NICK_OTHER = register("command.nick.other", "Allows to set the nickname of another player", null);
     public final Permission COMMAND_NICK_OFOTHER = register("command.nick.of-other", "Allows to set the nickname to a players name that plays on this server", null);
 
     public final Permission PREVENT_AUTOUNAFK = register("command.afk.prevent.autounafk", "Prevents from being displayed as no longer afk automatically unless using chat", null);
