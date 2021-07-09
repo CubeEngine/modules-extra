@@ -23,8 +23,8 @@ import io.prometheus.client.Gauge;
 import io.prometheus.client.Histogram;
 import io.prometheus.client.SimpleCollector;
 import io.prometheus.client.SimpleCollector.Builder;
-import org.cubeengine.module.observe.metrics.MetricCollection;
-import org.cubeengine.module.observe.metrics.MetricSubscriber;
+import org.spongepowered.observer.metrics.MetricSubscriber;
+import org.spongepowered.observer.metrics.meter.Metadata;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -43,23 +43,23 @@ public class PrometheusMetricSubscriber implements MetricSubscriber {
         this.registry = registry;
     }
 
-    private <CC, C extends SimpleCollector<CC>, B extends Builder<B, C>> CC getLabeledCollector(MetricCollection.Metadata metadata,
+    private <CC, C extends SimpleCollector<CC>, B extends Builder<B, C>> CC getLabeledCollector(Metadata metadata,
                                                                                                 Supplier<B> builder,
                                                                                                 ConcurrentMap<String[], C> cache,
                                                                                                 Object[] labelValues) {
         return getLabeledCollector(metadata, builder, cache, labelValues, ignored -> {});
     }
 
-    private <ChildT, CollectorT extends SimpleCollector<ChildT>, BuilderT extends Builder<BuilderT, CollectorT>> ChildT getLabeledCollector(MetricCollection.Metadata metadata,
+    private <ChildT, CollectorT extends SimpleCollector<ChildT>, BuilderT extends Builder<BuilderT, CollectorT>> ChildT getLabeledCollector(Metadata metadata,
                                                                                                                                             Supplier<BuilderT> builder,
                                                                                                                                             ConcurrentMap<String[], CollectorT> cache,
                                                                                                                                             Object[] labelValues,
                                                                                                                                             Consumer<BuilderT> customizer) {
-        final CollectorT collector = cache.computeIfAbsent(metadata.getName(), name -> {
+        final CollectorT collector = cache.computeIfAbsent(metadata.name, name -> {
             final BuilderT instance = builder.get();
             instance.name(String.join("_", name))
-                    .help(metadata.getHelp())
-                    .labelNames(metadata.getLabelNames());
+                    .help(metadata.help)
+                    .labelNames(metadata.labelNames);
             customizer.accept(instance);
             return instance.register(registry);
         });
@@ -72,22 +72,22 @@ public class PrometheusMetricSubscriber implements MetricSubscriber {
     }
 
     @Override
-    public void onCounterIncrement(MetricCollection.Metadata metadata, double incrementedBy, Object[] labelValues) {
+    public void onCounterIncrement(Metadata metadata, double incrementedBy, Object[] labelValues) {
         getLabeledCollector(metadata, Counter::build, counterCache, labelValues).inc(incrementedBy);
     }
 
     @Override
-    public void onGaugeSet(MetricCollection.Metadata metadata, double value, Object[] labelValues) {
+    public void onGaugeSet(Metadata metadata, double value, Object[] labelValues) {
         getLabeledCollector(metadata, Gauge::build, gaugeCache, labelValues).set(value);
     }
 
     @Override
-    public void onTimerObserved(MetricCollection.Metadata metadata, double seconds, Object[] labelValues) {
+    public void onTimerObserved(Metadata metadata, double seconds, Object[] labelValues) {
         getLabeledCollector(metadata, Histogram::build, timerCache, labelValues).observe(seconds);
     }
 
     @Override
-    public void onHistogramObserved(MetricCollection.Metadata metadata, double[] buckets, double value, Object[] labelValues) {
+    public void onHistogramObserved(Metadata metadata, double[] buckets, double value, Object[] labelValues) {
         getLabeledCollector(metadata, Histogram::build, histogramCache, labelValues, b -> b.buckets(buckets)).observe(value);
     }
 }
