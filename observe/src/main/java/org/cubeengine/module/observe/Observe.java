@@ -29,28 +29,20 @@ import io.prometheus.client.hotspot.VersionInfoExports;
 import org.apache.logging.log4j.Logger;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
 import org.cubeengine.libcube.service.task.TaskManager;
-import org.cubeengine.module.observe.health.HealthCheckService;
 import org.cubeengine.module.observe.health.impl.LastTickHealth;
 import org.cubeengine.module.observe.health.impl.SimpleHealthCheckService;
-import org.cubeengine.module.observe.health.impl.TickTimeCollector;
-import org.cubeengine.module.observe.metrics.Metric;
-import org.cubeengine.module.observe.metrics.MetricsService;
-import org.cubeengine.module.observe.metrics.impl.PrometheusMetricSubscriber;
-import org.cubeengine.module.observe.metrics.impl.PrometheusMetricsService;
-import org.cubeengine.module.observe.metrics.impl.SpongeCollector;
-import org.cubeengine.module.observe.tracing.impl.JaegerTracingService;
-import org.cubeengine.module.observe.tracing.TracingService;
-import org.cubeengine.module.observe.tracing.impl.PrometheusMetricsFactory;
+import org.cubeengine.module.observe.metrics.PrometheusMetricSubscriber;
+import org.cubeengine.module.observe.metrics.PrometheusMetricsService;
 import org.cubeengine.module.observe.web.WebServer;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
-import org.spongepowered.api.event.lifecycle.ProvideServiceEvent;
 import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 import org.spongepowered.api.scheduler.Scheduler;
 import org.spongepowered.api.scheduler.TaskExecutorService;
+import org.spongepowered.observer.metrics.Meter;
 import org.spongepowered.plugin.PluginContainer;
 
 import java.net.InetSocketAddress;
@@ -60,12 +52,12 @@ import java.util.concurrent.ThreadFactory;
 @Module
 public class Observe
 {
+
+
     @ModuleConfig private ObserveConfig config;
     private final PluginContainer plugin;
     private final Logger logger;
     private final ThreadFactory tf;
-    private final TaskManager tm;
-    private final CollectorRegistry asyncCollectorRegistry = new CollectorRegistry();
 
     private WebServer webServer;
     private PrometheusMetricSubscriber prometheusSubscriber;
@@ -75,7 +67,6 @@ public class Observe
         this.plugin = plugin;
         this.logger = logger;
         this.tf = tf;
-        this.tm = tm;
     }
 
     private synchronized WebServer getWebServer() {
@@ -88,58 +79,28 @@ public class Observe
     @Listener
     public void onStarted(StartedEngineEvent<Server> event)
     {
-        // TODO remove this once interfaces are part of the API
         provideHealth();
         provideMetrics();
     }
 
-    @Listener
-    public void onProvideMetrics(ProvideServiceEvent<MetricsService> event)
-    {
-        event.suggest(this::provideMetrics);
-    }
-
-    @Listener
-    public void onProvideHealth(ProvideServiceEvent<HealthCheckService> event)
-    {
-        event.suggest(this::provideHealth);
-    }
-
-    @Listener
-    public void onProvideTracing(ProvideServiceEvent<TracingService> event)
-    {
-        event.suggest(this::provideTracing);
-    }
-
-    private MetricsService provideMetrics() {
-        final TaskExecutorService syncExecutor = Sponge.server().scheduler().createExecutor(plugin);
+    private void provideMetrics() {
         final TaskExecutorService asyncExecutor = Sponge.asyncScheduler().createExecutor(plugin);
 
-        final PrometheusMetricsService service = new PrometheusMetricsService(syncExecutor, asyncExecutor, logger);
+        final CollectorRegistry registry = CollectorRegistry.defaultRegistry;
+        registry.register(new StandardExports());
+        registry.register(new MemoryPoolsExports());
+        registry.register(new GarbageCollectorExports());
+        registry.register(new ThreadExports());
+        registry.register(new ClassLoadingExports());
+        registry.register(new VersionInfoExports());
 
-        final CollectorRegistry asyncRegistry = new CollectorRegistry();
-        asyncRegistry.register(new StandardExports());
-        asyncRegistry.register(new MemoryPoolsExports());
-        asyncRegistry.register(new GarbageCollectorExports());
-        asyncRegistry.register(new ThreadExports());
-        asyncRegistry.register(new ClassLoadingExports());
-        asyncRegistry.register(new VersionInfoExports());
-        service.addCollectorRegistry(plugin, asyncRegistry, true);
-
-        prometheusSubscriber = new PrometheusMetricSubscriber(asyncRegistry);
-        Metric.DEFAULT.subscribe(prometheusSubscriber);
-
-        final CollectorRegistry syncRegistry = new CollectorRegistry();
-        final Server server = Sponge.server();
-        syncRegistry.register(new SpongeCollector(server, plugin));
-        syncRegistry.register(new TickTimeCollector(server, tm, plugin));
-        service.addCollectorRegistry(plugin, syncRegistry, false);
+        final PrometheusMetricsService service = new PrometheusMetricsService(registry, asyncExecutor);
+        Meter.DEFAULT.subscribe(service.getSubscriber());
 
         getWebServer().registerHandlerAndStart(config.metricsEndpoint, service);
-        return service;
     }
 
-    private HealthCheckService provideHealth() {
+    private void provideHealth() {
         final Scheduler scheduler = Sponge.server().scheduler();
         final TaskExecutorService executor = scheduler.createExecutor(plugin);
         final SimpleHealthCheckService service = new SimpleHealthCheckService(executor);
@@ -147,18 +108,12 @@ public class Observe
         service.registerProbe(plugin, "last-tick", new LastTickHealth(plugin, scheduler, 45000L));
 
         getWebServer().registerHandlerAndStart(config.healthEndpoint, service);
-        return service;
-    }
-
-    private TracingService provideTracing() {
-        final PrometheusMetricsFactory metricsFactory = new PrometheusMetricsFactory(asyncCollectorRegistry);
-        return new JaegerTracingService(plugin.metadata().id(), metricsFactory);
     }
 
     @Listener
     public void onStop(StoppingEngineEvent<Server> e)
     {
-        Metric.DEFAULT.unsubscribe(prometheusSubscriber);
+        Meter.DEFAULT.unsubscribe(prometheusSubscriber);
         prometheusSubscriber = null;
 
         if (webServer != null) {

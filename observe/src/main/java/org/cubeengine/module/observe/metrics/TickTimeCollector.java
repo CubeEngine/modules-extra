@@ -15,11 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cubeengine.module.observe.health.impl;
+package org.cubeengine.module.observe.metrics;
 
+import io.prometheus.client.Collector;
 import io.prometheus.client.GaugeMetricFamily;
 import org.cubeengine.libcube.service.task.TaskManager;
-import org.cubeengine.module.observe.metrics.SyncCollector;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.util.Ticks;
 import org.spongepowered.plugin.PluginContainer;
@@ -28,7 +28,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TickTimeCollector extends SyncCollector {
+public class TickTimeCollector {
     private static Field TICK_TIMES_FIELD = null;
 
     static {
@@ -79,9 +79,8 @@ public class TickTimeCollector extends SyncCollector {
         }
     }
 
-    @Override
-    public synchronized List<MetricFamilySamples> collect() {
-        List<MetricFamilySamples> metrics = new ArrayList<>(2);
+    public synchronized List<Collector.MetricFamilySamples> collect() {
+        List<Collector.MetricFamilySamples> metrics = new ArrayList<>(2);
         if (minTime != 0) {
             metrics.add(new GaugeMetricFamily("sponge_server_min_tick_time_millis", "Minimum tick time over the last 100 ticks", minTime / 1e6));
             minTime = 0;

@@ -19,17 +19,16 @@ package org.cubeengine.module.observe;
 
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.Counter;
-import io.prometheus.client.Histogram;
 import io.prometheus.client.hotspot.GarbageCollectorExports;
 import org.apache.logging.log4j.LogManager;
 import org.cubeengine.libcube.util.Pair;
 import org.cubeengine.module.observe.health.HealthState;
 import org.cubeengine.module.observe.health.impl.SimpleHealthCheckService;
-import org.cubeengine.module.observe.metrics.impl.PrometheusMetricsService;
-import org.cubeengine.module.observe.metrics.pullgauge.PullGauge;
-import org.cubeengine.module.observe.metrics.pullgauge.PullGaugeCollector;
+import org.cubeengine.module.observe.metrics.PrometheusMetricsService;
 import org.cubeengine.module.observe.web.WebServer;
 import org.junit.Test;
+import org.spongepowered.observer.metrics.Meter;
+import org.spongepowered.observer.metrics.meter.Gauge;
 import org.spongepowered.plugin.PluginContainer;
 import org.spongepowered.plugin.metadata.PluginMetadata;
 
@@ -44,7 +43,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.function.DoubleSupplier;
 
 import static org.junit.Assert.*;
 
@@ -76,11 +74,11 @@ public class ObserveTest {
 
         final InetSocketAddress addr = new InetSocketAddress("0.0.0.0", 0);
         final WebServer webServer = new WebServer(addr, Thread::new, plugin.logger());
-        final PrometheusMetricsService metricsService = new PrometheusMetricsService(executorService, executorService, plugin.logger());
         CollectorRegistry registry = new CollectorRegistry();
         registry.register(new GarbageCollectorExports());
-        registry.register(PullGaugeCollector.<DoubleSupplier>build(Math::random).withGauge(PullGauge.build("test", DoubleSupplier::getAsDouble).help("dummy").build()).build());
-        metricsService.addCollectorRegistry(plugin, registry, true);
+        final PrometheusMetricsService metricsService = new PrometheusMetricsService(registry, executorService);
+        final Gauge gauge = Meter.newGauge().name("test").help("dummy").build();
+        gauge.set(Math.random());
         assertTrue(webServer.registerHandlerAndStart("/metrics", metricsService));
 
         Counter.build().name("test_counter_default_registry").help("test counter").register();
