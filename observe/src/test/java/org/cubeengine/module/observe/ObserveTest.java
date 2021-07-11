@@ -22,11 +22,13 @@ import io.prometheus.client.Counter;
 import io.prometheus.client.hotspot.GarbageCollectorExports;
 import org.apache.logging.log4j.LogManager;
 import org.cubeengine.libcube.util.Pair;
-import org.cubeengine.module.observe.health.HealthState;
-import org.cubeengine.module.observe.health.impl.SimpleHealthCheckService;
+import org.cubeengine.module.observe.health.SimpleHealthCheckService;
 import org.cubeengine.module.observe.metrics.PrometheusMetricsService;
 import org.cubeengine.module.observe.web.WebServer;
 import org.junit.Test;
+import org.spongepowered.observer.healthcheck.HealthCheckCollection;
+import org.spongepowered.observer.healthcheck.HealthState;
+import org.spongepowered.observer.healthcheck.SimpleHealthCheckCollection;
 import org.spongepowered.observer.metrics.Meter;
 import org.spongepowered.observer.metrics.meter.Gauge;
 import org.spongepowered.plugin.PluginContainer;
@@ -83,12 +85,14 @@ public class ObserveTest {
 
         Counter.build().name("test_counter_default_registry").help("test counter").register();
 
-        final SimpleHealthCheckService healthyService = new SimpleHealthCheckService(executorService);
-        healthyService.registerProbe(plugin, "test", () -> HealthState.HEALTHY);
+        final HealthCheckCollection healthCollection = new SimpleHealthCheckCollection();
+        healthCollection.registerProbe("test", () -> HealthState.HEALTHY);
+        final SimpleHealthCheckService healthyService = new SimpleHealthCheckService(executorService, healthCollection, plugin.logger());
         assertTrue(webServer.registerHandlerAndStart("/healthy", healthyService));
 
-        final SimpleHealthCheckService brokenService = new SimpleHealthCheckService(executorService);
-        brokenService.registerProbe(plugin, "test", () -> HealthState.BROKEN);
+        final HealthCheckCollection brokenCollection = new SimpleHealthCheckCollection();
+        brokenCollection.registerProbe("test", () -> HealthState.BROKEN);
+        final SimpleHealthCheckService brokenService = new SimpleHealthCheckService(executorService, brokenCollection, plugin.logger());
         assertTrue(webServer.registerHandlerAndStart("/broken", brokenService));
 
         final String urlBase = "http://localhost:" + webServer.getBoundAddress().getPort();
@@ -103,7 +107,7 @@ public class ObserveTest {
         System.out.println(metricsResult.getRight());
 
 
-        assertEquals(new Pair<>(200, "{\"state\":\"HEALTHY\",\"details\":{\"observe:test\":\"HEALTHY\"}}"), readUrlData(new URL(urlBase + "/healthy")));
+        assertEquals(new Pair<>(200, "{\"state\":\"HEALTHY\",\"details\":{\"test\":\"HEALTHY\"}}"), readUrlData(new URL(urlBase + "/healthy")));
 
         assertThrows(IOException.class, () -> {
             readUrlData(new URL(urlBase + "/broken"));

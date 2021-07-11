@@ -17,8 +17,24 @@
  */
 package org.cubeengine.module.observe.health;
 
-import java.util.concurrent.CompletableFuture;
+import org.spongepowered.observer.healthcheck.HealthState;
 
-public interface AsyncHealthProbe {
-    CompletableFuture<HealthState> probe();
+import java.util.Map;
+
+public class HealthResult {
+    private final HealthState state;
+    private final Map<String, HealthState> details;
+
+    public HealthResult(HealthState state, Map<String, HealthState> details) {
+        this.state = state;
+        this.details = details;
+    }
+
+    public HealthState getState() {
+        return state;
+    }
+
+    public Map<String, HealthState> getDetails() {
+        return details;
+    }
 }

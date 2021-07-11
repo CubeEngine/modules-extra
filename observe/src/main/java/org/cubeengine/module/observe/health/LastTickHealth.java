@@ -15,13 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cubeengine.module.observe.health.impl;
+package org.cubeengine.module.observe.health;
 
-import org.cubeengine.module.observe.health.AsyncHealthProbe;
-import org.cubeengine.module.observe.health.HealthState;
 import org.spongepowered.api.scheduler.Scheduler;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.util.Ticks;
+import org.spongepowered.observer.healthcheck.AsyncHealthProbe;
+import org.spongepowered.observer.healthcheck.HealthState;
 import org.spongepowered.plugin.PluginContainer;
 
 import java.util.concurrent.CompletableFuture;

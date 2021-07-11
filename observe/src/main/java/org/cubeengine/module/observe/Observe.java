@@ -28,20 +28,20 @@ import io.prometheus.client.hotspot.ThreadExports;
 import io.prometheus.client.hotspot.VersionInfoExports;
 import org.apache.logging.log4j.Logger;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
-import org.cubeengine.libcube.service.task.TaskManager;
-import org.cubeengine.module.observe.health.impl.LastTickHealth;
-import org.cubeengine.module.observe.health.impl.SimpleHealthCheckService;
+import org.cubeengine.module.observe.health.LastTickHealth;
+import org.cubeengine.module.observe.health.SimpleHealthCheckService;
 import org.cubeengine.module.observe.metrics.PrometheusMetricSubscriber;
 import org.cubeengine.module.observe.metrics.PrometheusMetricsService;
 import org.cubeengine.module.observe.web.WebServer;
 import org.cubeengine.processor.Module;
+import org.spongepowered.api.Game;
 import org.spongepowered.api.Server;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
 import org.spongepowered.api.event.lifecycle.StoppingEngineEvent;
 import org.spongepowered.api.scheduler.Scheduler;
 import org.spongepowered.api.scheduler.TaskExecutorService;
+import org.spongepowered.observer.healthcheck.HealthCheck;
 import org.spongepowered.observer.metrics.Meter;
 import org.spongepowered.plugin.PluginContainer;
 
@@ -63,7 +63,7 @@ public class Observe
     private PrometheusMetricSubscriber prometheusSubscriber;
 
     @Inject
-    public Observe(PluginContainer plugin, Logger logger, ThreadFactory tf, TaskManager tm) {
+    public Observe(PluginContainer plugin, Logger logger, ThreadFactory tf) {
         this.plugin = plugin;
         this.logger = logger;
         this.tf = tf;
@@ -79,12 +79,13 @@ public class Observe
     @Listener
     public void onStarted(StartedEngineEvent<Server> event)
     {
-        provideHealth();
-        provideMetrics();
+        final Game game = event.game();
+        provideHealth(game);
+        provideMetrics(game);
     }
 
-    private void provideMetrics() {
-        final TaskExecutorService asyncExecutor = Sponge.asyncScheduler().createExecutor(plugin);
+    private void provideMetrics(Game game) {
+        final TaskExecutorService asyncExecutor = game.asyncScheduler().createExecutor(plugin);
 
         final CollectorRegistry registry = CollectorRegistry.defaultRegistry;
         registry.register(new StandardExports());
@@ -100,12 +101,12 @@ public class Observe
         getWebServer().registerHandlerAndStart(config.metricsEndpoint, service);
     }
 
-    private void provideHealth() {
-        final Scheduler scheduler = Sponge.server().scheduler();
+    private void provideHealth(Game game) {
+        final Scheduler scheduler = game.server().scheduler();
         final TaskExecutorService executor = scheduler.createExecutor(plugin);
-        final SimpleHealthCheckService service = new SimpleHealthCheckService(executor);
+        final SimpleHealthCheckService service = new SimpleHealthCheckService(executor, HealthCheck.DEFAULT, logger);
 
-        service.registerProbe(plugin, "last-tick", new LastTickHealth(plugin, scheduler, 45000L));
+        HealthCheck.registerProbe("last-tick", new LastTickHealth(plugin, scheduler, 45000L));
 
         getWebServer().registerHandlerAndStart(config.healthEndpoint, service);
     }

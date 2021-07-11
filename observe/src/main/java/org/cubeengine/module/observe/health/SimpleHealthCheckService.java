@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with CubeEngine.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.cubeengine.module.observe.health.impl;
+package org.cubeengine.module.observe.health;
 
 import com.google.gson.Gson;
 import io.netty.buffer.ByteBuf;
@@ -24,14 +24,15 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.QueryStringDecoder;
+import org.apache.logging.log4j.Logger;
 import org.cubeengine.libcube.util.Pair;
 import org.cubeengine.module.observe.web.FailureCallback;
 import org.cubeengine.module.observe.web.WebHandler;
 import org.cubeengine.module.observe.web.SuccessCallback;
-import org.cubeengine.module.observe.health.AsyncHealthProbe;
-import org.cubeengine.module.observe.health.HealthCheckService;
-import org.cubeengine.module.observe.health.HealthState;
-import org.cubeengine.module.observe.health.SyncHealthProbe;
+import org.spongepowered.observer.healthcheck.AsyncHealthProbe;
+import org.spongepowered.observer.healthcheck.HealthCheckCollection;
+import org.spongepowered.observer.healthcheck.HealthState;
+import org.spongepowered.observer.healthcheck.SyncHealthProbe;
 import org.spongepowered.plugin.PluginContainer;
 
 import java.nio.charset.StandardCharsets;
@@ -45,21 +46,37 @@ import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static org.cubeengine.module.observe.Util.sequence;
 
-public class SimpleHealthCheckService implements HealthCheckService, WebHandler {
+public class SimpleHealthCheckService implements WebHandler {
 
     private final ExecutorService syncExecutor;
+    private final HealthCheckCollection collection;
+    private final Logger logger;
 
     private final Gson gson = new Gson();
 
-    private final Map<String, SyncHealthProbe> syncProbes = new HashMap<>();
-    private final Map<String, AsyncHealthProbe> asyncProbes = new HashMap<>();
-
-    public SimpleHealthCheckService(ExecutorService syncExecutor) {
+    public SimpleHealthCheckService(ExecutorService syncExecutor, HealthCheckCollection collection, Logger logger) {
         this.syncExecutor = syncExecutor;
+        this.collection = collection;
+        this.logger = logger;
     }
 
     public void handleRequest(SuccessCallback success, FailureCallback failure, FullHttpRequest request, QueryStringDecoder queryStringDecoder) {
-        sequence(asList(getSyncStates(), getAsyncStates())).whenComplete((results, t) -> {
+
+        final Map<String, SyncHealthProbe> syncProbes = new HashMap<>();
+        final Map<String, AsyncHealthProbe> asyncProbes = new HashMap<>();
+        collection.probes().forEach((id, probe) -> {
+            if (probe instanceof AsyncHealthProbe) {
+                asyncProbes.put(id, (AsyncHealthProbe) probe);
+            }
+            else if (probe instanceof SyncHealthProbe) {
+                syncProbes.put(id, (SyncHealthProbe) probe);
+            }
+            else {
+                logger.warn("Encountered a health probe that is neither async nor sync with id '" + id + "': " + probe);
+            }
+        });
+
+        sequence(asList(getSyncStates(syncProbes), getAsyncStates(asyncProbes))).whenComplete((results, t) -> {
             if (t != null) {
                 failure.fail(HttpResponseStatus.INTERNAL_SERVER_ERROR, t);
                 return;
@@ -85,13 +102,13 @@ public class SimpleHealthCheckService implements HealthCheckService, WebHandler 
         });
     }
 
-    private CompletableFuture<Map<String, HealthState>> getSyncStates() {
+    private CompletableFuture<Map<String, HealthState>> getSyncStates(Map<String, SyncHealthProbe> syncProbes) {
         final Map<String, SyncHealthProbe> probes;
         synchronized (this) {
             if (syncProbes.isEmpty()) {
                 return CompletableFuture.completedFuture(Collections.emptyMap());
             }
-            probes = new HashMap<>(this.syncProbes);
+            probes = new HashMap<>(syncProbes);
         }
 
         return CompletableFuture.supplyAsync(() -> {
@@ -103,13 +120,13 @@ public class SimpleHealthCheckService implements HealthCheckService, WebHandler 
         }, syncExecutor);
     }
 
-    private CompletableFuture<Map<String, HealthState>> getAsyncStates() {
+    private CompletableFuture<Map<String, HealthState>> getAsyncStates(Map<String, AsyncHealthProbe> asyncProbes) {
         final Map<String, AsyncHealthProbe> probes;
         synchronized (this) {
-            if (this.asyncProbes.isEmpty()) {
+            if (asyncProbes.isEmpty()) {
                 return CompletableFuture.completedFuture(Collections.emptyMap());
             }
-            probes = new HashMap<>(this.asyncProbes);
+            probes = new HashMap<>(asyncProbes);
         }
 
         return sequence(probes.entrySet().stream().parallel().map(entry -> entry.getValue().probe().thenApply(r -> new Pair<>(entry.getKey(), r))).collect(toList()))
@@ -124,41 +141,5 @@ public class SimpleHealthCheckService implements HealthCheckService, WebHandler 
 
     private static String prefix(PluginContainer plugin) {
         return plugin.metadata().id() + ":";
-    }
-
-    private static String identifier(PluginContainer plugin, String name) {
-        return prefix(plugin) + name;
-    }
-
-    @Override
-    public synchronized void registerProbe(PluginContainer plugin, String id, SyncHealthProbe probe) {
-        String fullId = identifier(plugin, id);
-        asyncProbes.remove(fullId);
-        syncProbes.putIfAbsent(fullId, probe);
-    }
-
-    @Override
-    public synchronized void registerProbe(PluginContainer plugin, String id, AsyncHealthProbe probe) {
-        String fullId = identifier(plugin, id);
-        syncProbes.remove(fullId);
-        asyncProbes.putIfAbsent(identifier(plugin, id), probe);
-    }
-
-    @Override
-    public synchronized void unregisterProbe(PluginContainer plugin, String id) {
-        String fullId = identifier(plugin, id);
-        syncProbes.remove(fullId);
-        asyncProbes.remove(fullId);
-    }
-
-    @Override
-    public synchronized void unregisterProbes(PluginContainer plugin) {
-        String prefix = prefix(plugin);
-        removeByPrefix(syncProbes, prefix);
-        removeByPrefix(asyncProbes, prefix);
-    }
-
-    private static void removeByPrefix(Map<String, ?> map, String prefix) {
-        map.entrySet().removeIf(entry -> entry.getKey().startsWith(prefix));
     }
 }
