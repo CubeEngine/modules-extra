@@ -67,7 +67,7 @@ public class Vote
         final com.vexsoftware.votifier.model.Vote vote = event.getVote();
         final String username = event.getVote().getUsername();
         final Optional<ServerPlayer> player = Sponge.server().player(username);
-        final User user = Sponge.server().userManager().find(username).orElse(null);
+        final User user = Sponge.server().userManager().load(username).join().orElse(null);
         final DataHolder.Mutable dh = player.map(DataHolder.Mutable.class::cast).orElse(user);
         if (dh == null)
         {

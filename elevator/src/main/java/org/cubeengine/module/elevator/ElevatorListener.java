@@ -255,8 +255,8 @@ public class ElevatorListener
         startPos = previous == null ? startPos : previous;
         // Search for next Elevator sign
 
-        final int max = loc.world().blockMax().y();
-        final int min = loc.world().blockMin().y();
+        final int max = loc.world().max().y();
+        final int min = loc.world().min().y();
         final int blockX = loc.blockX();
         final int blockZ = loc.blockZ();
         final ServerWorld world = loc.world();

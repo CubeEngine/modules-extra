@@ -110,7 +110,7 @@ public class ChatCommands
         }
 
         if (name.length() >= 3 && name.length() <= 16
-                && Sponge.server().userManager().find(name).isPresent()
+                && Sponge.server().userManager().load(name).join().isPresent()
                 && !context.hasPermission(perms.COMMAND_NICK_OFOTHER.getId()))
         {
             i18n.send(ctxAudience, NEGATIVE, "This name has been taken by another player!");

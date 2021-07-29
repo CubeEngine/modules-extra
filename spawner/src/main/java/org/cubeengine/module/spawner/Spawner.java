@@ -148,7 +148,7 @@ public class Spawner
 
     private void initPerm(EntityType<?> type)
     {
-        final ResourceKey resourceKey = Sponge.game().registries().registry(RegistryTypes.ENTITY_TYPE).valueKey(type);
+        final ResourceKey resourceKey = type.key(RegistryTypes.ENTITY_TYPE);
         this.perms.put(type, pm.register(Spawner.class, resourceKey.value(), "Allows creating " + PlainComponentSerializer.plain().serialize(type.asComponent()) + " spawners", eggPerms));
     }
 
@@ -271,7 +271,7 @@ public class Spawner
             places(event, BlockTypes.SPAWNER.get()) &&
             hasEnchantment(inHand.get(), LURE.get()))
         {
-            EntityArchetype hidden = EntityArchetype.builder().type(SNOWBALL).add(Keys.IS_INVISIBLE, true)
+            EntityArchetype hidden = EntityArchetype.builder().type(SNOWBALL.get()).add(Keys.IS_INVISIBLE, true)
                                                     .build();
             for (Transaction<BlockSnapshot> trans : event.transactions())
             {

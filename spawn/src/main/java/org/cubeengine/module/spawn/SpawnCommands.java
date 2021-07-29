@@ -99,7 +99,7 @@ public class SpawnCommands
         String name = role.identifier();
         if (module.getPermissionService().userSubjects() == role.containingCollection())
         {
-            name = Sponge.server().userManager().find(UUID.fromString(name)).get().name();
+            name = Sponge.server().gameProfileManager().uncached().profile(UUID.fromString(name)).join().name().get();
         }
 
         final Audience ctxAudience = cause.audience();

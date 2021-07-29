@@ -211,7 +211,7 @@ public class TerraItems
         {
             for (RegistryReference<Biome> biome : biomeList)
             {
-                if (biome.get(world.registries()).equals(Biome))
+                if (biome.get(world).equals(Biome))
                 {
                     return true;
                 }
@@ -233,7 +233,7 @@ public class TerraItems
             final Random random = player.world().random();
 
             final List<AttributedBiome> biomes = biomeList.stream().map(biome -> {
-                final Biome originalBiome = biome.get(player.world().registries());
+                final Biome originalBiome = biome.get(player.world());
                 final BiomeAttributes biomeAttributes = BiomeAttributes.of((float) originalBiome.temperature(),
                                                                            (float) originalBiome.humidity(),
                                                                            random.nextFloat() * 4 - 2,

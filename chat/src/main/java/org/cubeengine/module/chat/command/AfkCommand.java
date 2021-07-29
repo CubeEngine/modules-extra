@@ -132,7 +132,7 @@ public class AfkCommand
     public void checkAfk()
     {
         afks.entrySet().stream().filter(Entry::getValue)
-            .map(Entry::getKey).map(uuid -> Sponge.server().userManager().find(uuid))
+            .map(Entry::getKey).map(uuid -> Sponge.server().userManager().load(uuid).join())
             .filter(Optional::isPresent)
             .map(Optional::get)
             .forEach(this::updateAfk);

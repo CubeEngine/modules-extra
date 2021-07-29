@@ -20,7 +20,9 @@ package org.cubeengine.module.spawn;
 import java.util.Optional;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.Keys;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
 import org.spongepowered.api.event.entity.living.player.RespawnPlayerEvent;
@@ -43,14 +45,15 @@ public class SpawnListener
     @Listener
     public void onJoin(ServerSideConnectionEvent.Login event)
     {
-        if (event.user().get(Keys.LAST_DATE_PLAYED).isPresent())
+        final User user = event.user();
+        if (user.get(Keys.LAST_DATE_PLAYED).isPresent())
         {
             return;
         }
 
-        final Optional<Vector3d> pos = SpawnCommands.getSubjectSpawnPos(event.user());
-        final Optional<Vector3d> rot = SpawnCommands.getSubjectSpawnRotation(event.user());
-        final Optional<ServerWorld> world = SpawnCommands.getSubjectSpawnWorld(event.user());
+        final Optional<Vector3d> pos = SpawnCommands.getSubjectSpawnPos(user);
+        final Optional<Vector3d> rot = SpawnCommands.getSubjectSpawnRotation(user);
+        final Optional<ServerWorld> world = SpawnCommands.getSubjectSpawnWorld(user);
         if (pos.isPresent() && rot.isPresent() && world.isPresent())
         {
             event.setToLocation(world.get().location(pos.get()));

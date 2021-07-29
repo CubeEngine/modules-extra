@@ -70,7 +70,7 @@ public class ToolListener
         }
         ItemStack itemInHand = player.itemInHand(HandTypes.MAIN_HAND);
         itemInHand.get(VigilData.REPORTS).ifPresent(reports -> {
-            if (!toolPerm.check(player) || event.block() == BlockSnapshot.NONE.get())
+            if (!toolPerm.check(player) || event.block() == BlockSnapshot.empty())
             {
                 return;
             }
