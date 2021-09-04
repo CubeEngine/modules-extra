@@ -18,7 +18,7 @@
 package org.cubeengine.module.vigil.report.entity.player;
 
 import java.util.List;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.cubeengine.module.vigil.Receiver;
 import org.cubeengine.module.vigil.report.Action;
 import org.cubeengine.module.vigil.report.BaseReport;
@@ -52,7 +52,7 @@ public class ChatReport extends BaseReport<PlayerChatEvent> implements Readonly,
     {
         Action action = newReport();
         action.addData(CAUSE, Observe.causes(event.cause()));
-        action.addData(CHAT, PlainComponentSerializer.plain().serialize(event.originalMessage()));
+        action.addData(CHAT, PlainTextComponentSerializer.plainText().serialize(event.originalMessage()));
         final ServerPlayer serverPlayer = event.cause().first(ServerPlayer.class).get(); // event-filter ensures this is present
         action.addData(LOCATION, Observe.location(serverPlayer.serverLocation()));
         return action;

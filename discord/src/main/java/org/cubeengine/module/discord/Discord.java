@@ -39,7 +39,7 @@ import discord4j.rest.util.AllowedMentions;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.cubeengine.libcube.InjectService;
 import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
 import org.cubeengine.libcube.service.filesystem.ModuleConfig;
@@ -132,7 +132,7 @@ public class Discord {
     }
 
     private static String toPlainString(Component component) {
-        return PlainComponentSerializer.plain().serialize(component);
+        return PlainTextComponentSerializer.plainText().serialize(component);
     }
 
     private void clientConnected(GatewayDiscordClient client) {

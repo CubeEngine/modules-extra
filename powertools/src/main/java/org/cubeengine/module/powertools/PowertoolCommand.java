@@ -26,7 +26,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.cubeengine.libcube.service.command.DispatcherCommand;
 import org.cubeengine.libcube.service.command.annotation.Alias;
 import org.cubeengine.libcube.service.command.annotation.Command;
@@ -92,7 +92,7 @@ public class PowertoolCommand extends DispatcherCommand
 
     @Alias(value = "ptc")
     @Command(desc = "Removes all commands from your powertool")
-    @Restricted(value = ServerPlayer.class, msg = "No more power for you!")
+    @Restricted(msg = "No more power for you!")
     public void clear(ServerPlayer context, @Flag boolean all)
     {
         if (all)
@@ -269,7 +269,7 @@ public class PowertoolCommand extends DispatcherCommand
 
         for (Component text : lore)
         {
-            if (PlainComponentSerializer.plain().serialize(text).equals("PowerTool"))
+            if (PlainTextComponentSerializer.plainText().serialize(text).equals("PowerTool"))
             {
                 break;
             }

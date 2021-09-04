@@ -32,7 +32,6 @@ import org.spongepowered.observer.healthcheck.SimpleHealthCheckCollection;
 import org.spongepowered.observer.metrics.Meter;
 import org.spongepowered.observer.metrics.meter.Gauge;
 import org.spongepowered.plugin.PluginContainer;
-import org.spongepowered.plugin.metadata.PluginMetadata;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -56,13 +55,6 @@ public class ObserveTest {
             switch (method.getName()) {
                 case "logger":
                     return LogManager.getLogger();
-                case "metadata":
-                    return PluginMetadata.builder()
-                            .loader("observe")
-                            .id("observe")
-                            .version("1.0.0")
-                            .mainClass(Observe.class.getName())
-                            .build();
                 case "hashCode":
                     return 1;
                 case "equals":

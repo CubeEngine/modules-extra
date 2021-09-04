@@ -24,7 +24,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.vexsoftware.votifier.sponge8.event.VotifierEvent;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.apache.logging.log4j.Logger;
 import org.cubeengine.libcube.service.Broadcaster;
 import org.cubeengine.libcube.service.command.annotation.ModuleCommand;
@@ -47,7 +47,7 @@ import static org.cubeengine.libcube.util.ComponentUtil.legacyMessageTemplateToC
  * A module to handle Votes coming from a {@link VotifierEvent}
  */
 @Singleton
-@Module(dependencies = @Dependency("nuvotifier"))
+@Module(dependencies = @Dependency(value = "nuvotifier", version = "3.0.0-SNAPSHOT"))
 public class Vote
 {
     @Inject private Broadcaster bc;
@@ -64,7 +64,6 @@ public class Vote
     @Listener
     public void onVote(VotifierEvent event)
     {
-        final com.vexsoftware.votifier.model.Vote vote = event.getVote();
         final String username = event.getVote().getUsername();
         final Optional<ServerPlayer> player = Sponge.server().player(username);
         final User user = Sponge.server().userManager().load(username).join().orElse(null);
@@ -126,7 +125,7 @@ public class Vote
 
     public static void renameItemStack(ItemStack stack, String name) {
         if (name != null) {
-            stack.offer(Keys.CUSTOM_NAME, PlainComponentSerializer.plain().deserialize(name));
+            stack.offer(Keys.CUSTOM_NAME, LegacyComponentSerializer.legacyAmpersand().deserialize(name));
         }
     }
 

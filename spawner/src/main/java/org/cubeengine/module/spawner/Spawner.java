@@ -24,11 +24,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.cubeengine.libcube.service.i18n.I18n;
 import org.cubeengine.libcube.service.permission.Permission;
 import org.cubeengine.libcube.service.permission.PermissionManager;
@@ -56,7 +55,6 @@ import org.spongepowered.api.event.block.InteractBlockEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.filter.IsCancelled;
 import org.spongepowered.api.event.filter.cause.First;
-import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.ItemTypes;
@@ -149,7 +147,7 @@ public class Spawner
     private void initPerm(EntityType<?> type)
     {
         final ResourceKey resourceKey = type.key(RegistryTypes.ENTITY_TYPE);
-        this.perms.put(type, pm.register(Spawner.class, resourceKey.value(), "Allows creating " + PlainComponentSerializer.plain().serialize(type.asComponent()) + " spawners", eggPerms));
+        this.perms.put(type, pm.register(Spawner.class, resourceKey.value(), "Allows creating " + PlainTextComponentSerializer.plainText().serialize(type.asComponent()) + " spawners", eggPerms));
     }
 
     private static boolean hasEnchantment(ItemStackSnapshot item, EnchantmentType ench)
