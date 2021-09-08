@@ -46,7 +46,10 @@ public class Head
         stack = ItemStack.of(ItemTypes.PLAYER_HEAD);
         stack.offer(Keys.GAME_PROFILE, gameProfile);
         stack.offer(Keys.CUSTOM_NAME, Component.text(name));
-        stack.offer(Keys.LORE, Arrays.asList(Component.text(tags, NamedTextColor.GRAY)));
+        if (this.tags != null)
+        {
+            stack.offer(Keys.LORE, Arrays.asList(Component.text(tags, NamedTextColor.GRAY)));
+        }
     }
 
     public Head(String name, String uuid, String value, String tags)
