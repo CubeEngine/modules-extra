@@ -85,7 +85,7 @@ public class Observe
     }
 
     private void provideMetrics(Game game) {
-        final TaskExecutorService asyncExecutor = game.asyncScheduler().createExecutor(plugin);
+        final TaskExecutorService asyncExecutor = game.asyncScheduler().executor(plugin);
 
         final CollectorRegistry registry = CollectorRegistry.defaultRegistry;
         registry.register(new StandardExports());
@@ -103,7 +103,7 @@ public class Observe
 
     private void provideHealth(Game game) {
         final Scheduler scheduler = game.server().scheduler();
-        final TaskExecutorService executor = scheduler.createExecutor(plugin);
+        final TaskExecutorService executor = scheduler.executor(plugin);
         final SimpleHealthCheckService service = new SimpleHealthCheckService(executor, HealthCheck.DEFAULT, logger);
 
         HealthCheck.registerProbe("last-tick", new LastTickHealth(plugin, scheduler, 45000L));

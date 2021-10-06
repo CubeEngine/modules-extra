@@ -34,7 +34,6 @@ public class LastTickHealth implements AsyncHealthProbe {
 
     public LastTickHealth(PluginContainer plugin, Scheduler executorService, long maximumTickDurationMillis) {
         final Task task = Task.builder()
-                .name("last-tick-health-check")
                 .delay(Ticks.zero())
                 .interval(Ticks.of(1))
                 .plugin(plugin)

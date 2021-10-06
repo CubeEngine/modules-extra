@@ -93,7 +93,7 @@ public class QueryManager
     {
         if (this.queryShowExecutor == null)
         {
-            this.queryShowExecutor = Sponge.server().scheduler().createExecutor(plugin);
+            this.queryShowExecutor = Sponge.server().scheduler().executor(plugin);
         }
     }
 
