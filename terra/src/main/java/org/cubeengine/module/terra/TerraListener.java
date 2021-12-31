@@ -282,7 +282,7 @@ public class TerraListener
             {
                 event.setRemainingDuration(15); // Gulp it down fast
                 final List<PotionEffect> potionEffects = player.get(Keys.POTION_EFFECTS).orElse(new ArrayList<>());
-                potionEffects.add(PotionEffect.of(PotionEffectTypes.BLINDNESS, 0, 60));
+                potionEffects.add(PotionEffect.of(PotionEffectTypes.BLINDNESS, 0, Ticks.of(60)));
                 player.offer(Keys.POTION_EFFECTS, potionEffects);
             }
         }
