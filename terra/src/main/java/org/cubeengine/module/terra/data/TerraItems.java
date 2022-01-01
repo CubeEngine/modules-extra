@@ -244,11 +244,13 @@ public class TerraItems
                                                                            (float) originalBiome.humidity(),
                                                                            random.nextFloat() * 4 - 2,
                                                                            random.nextFloat() * 4 - 2,
-                                                                           random.nextFloat() / 5);
+                                                                           random.nextFloat() * 4 - 2,
+                                                                           random.nextFloat() / 5,
+                                                                           0f);
                 return AttributedBiome.of(biome, biomeAttributes);
             }).collect(Collectors.toList());
 
-            final MultiNoiseBiomeConfig multiNoiseBiomeConfig = MultiNoiseBiomeConfig.builder().seed(random.nextLong()).addBiomes(biomes).build();
+            final MultiNoiseBiomeConfig multiNoiseBiomeConfig = MultiNoiseBiomeConfig.builder().addBiomes(biomes).build();
             final NoiseGeneratorConfig noiseGeneratorConfig;
             if (this == NETHER)
             {
