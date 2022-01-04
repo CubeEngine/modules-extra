@@ -19,6 +19,7 @@ package org.cubeengine.module.terra.data;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -168,22 +169,21 @@ public class TerraItems
 
     public enum Essence
     {
-        GREEN_LANDSCAPE("Green Landscape", Color.ofRgb(0x336633), Arrays.asList(PLAINS, SUNFLOWER_PLAINS, FOREST, BIRCH_FOREST, TALL_BIRCH_FOREST, BIRCH_FOREST_HILLS, FLOWER_FOREST), Arrays.asList()),
-        SWAMP_FOREST("Dark Swamp", Color.ofRgb(0x333333), Arrays.asList(DARK_FOREST, DARK_FOREST_HILLS, SWAMP), Arrays.asList()),
-        JUNGLE("Viney Jungle", Color.ofRgb(0x339933), Arrays.asList(Biomes.JUNGLE, MODIFIED_JUNGLE, JUNGLE_EDGE, MODIFIED_JUNGLE_EDGE, BAMBOO_JUNGLE), Arrays.asList()),
-        MUSHROOMS("Mushrooms", Color.ofRgb(0x996666), Arrays.asList(MUSHROOM_FIELD_SHORE, MUSHROOM_FIELDS), Arrays.asList(COLD_OCEAN)),
-        SAVANNA("Dry Savanna", Color.ofRgb(0x666633), Arrays.asList(Biomes.SAVANNA, SHATTERED_SAVANNA, SHATTERED_SAVANNA_PLATEAU, SAVANNA_PLATEAU), Arrays.asList()),
-        DESERT("Hot Desert", Color.ofRgb(0xCCCC99), Arrays.asList(Biomes.DESERT, DESERT_LAKES, DESERT_HILLS), Arrays.asList()),
-        MESA("Colorful Badlands", Color.ofRgb(0xCC6633), Arrays.asList(BADLANDS, ERODED_BADLANDS, WOODED_BADLANDS_PLATEAU, MODIFIED_WOODED_BADLANDS_PLATEAU, BADLANDS_PLATEAU), Arrays.asList( DESERT_HILLS)),
-        TAIGA("Chilly Mountains", Color.ofRgb(0x333300), Arrays.asList(Biomes.TAIGA, TAIGA_HILLS, TAIGA_MOUNTAINS, SNOWY_TAIGA, SNOWY_TAIGA_HILLS, SNOWY_TAIGA_MOUNTAINS, GIANT_TREE_TAIGA, GIANT_TREE_TAIGA_HILLS, GIANT_SPRUCE_TAIGA, GIANT_SPRUCE_TAIGA_HILLS), Arrays.asList(SNOWY_BEACH, COLD_OCEAN)),
-        TUNDRA("Cold Mountains", Color.ofRgb(0xFFFFFF), Arrays.asList(SNOWY_TUNDRA, SNOWY_MOUNTAINS, MOUNTAINS, MOUNTAIN_EDGE, GRAVELLY_MOUNTAINS, MODIFIED_GRAVELLY_MOUNTAINS, WOODED_MOUNTAINS), Arrays.asList()),
+        GREEN_LANDSCAPE("Green Landscape", Color.ofRgb(0x336633), Arrays.asList(PLAINS, SUNFLOWER_PLAINS, FOREST, BIRCH_FOREST, FLOWER_FOREST)),
+        SWAMP_FOREST("Dark Swamp", Color.ofRgb(0x333333), Arrays.asList(DARK_FOREST, SWAMP)),
+        JUNGLE("Viney Jungle", Color.ofRgb(0x339933), Arrays.asList(Biomes.JUNGLE, BAMBOO_JUNGLE)),
+        MUSHROOMS("Mushrooms", Color.ofRgb(0x996666), Arrays.asList(MUSHROOM_FIELDS), Arrays.asList(COLD_OCEAN)),
+        SAVANNA("Dry Savanna", Color.ofRgb(0x666633), Arrays.asList(Biomes.SAVANNA, SAVANNA_PLATEAU)),
+        DESERT("Hot Desert", Color.ofRgb(0xCCCC99), Arrays.asList(Biomes.DESERT)),
+        MESA("Colorful Badlands", Color.ofRgb(0xCC6633), Arrays.asList(BADLANDS, ERODED_BADLANDS)),
+        TAIGA("Chilly Mountains", Color.ofRgb(0x333300), Arrays.asList(Biomes.TAIGA, SNOWY_TAIGA), Arrays.asList(SNOWY_BEACH, COLD_OCEAN)),
         // Special Biomes
-        ICE_SPIKES("Frozen World", Color.ofRgb(0x6699CC), Arrays.asList(Biomes.ICE_SPIKES), Arrays.asList()),
-        CORAL_REEF("Coral Reef", Color.ofRgb(0xCC66CC), Arrays.asList(WARM_OCEAN), Arrays.asList()),
-        FLOWERY_FOREST("Flowery Forest", Color.ofRgb(0xCC6600), Arrays.asList(FLOWER_FOREST), Arrays.asList()),
+        ICE_SPIKES("Frozen World", Color.ofRgb(0x6699CC), Arrays.asList(Biomes.ICE_SPIKES)),
+        CORAL_REEF("Coral Reef", Color.ofRgb(0xCC66CC), Arrays.asList(WARM_OCEAN)),
+        FLOWERY_FOREST("Flowery Forest", Color.ofRgb(0xCC6600), Arrays.asList(FLOWER_FOREST)),
         // Needs special casing
-        END("End Highlands", Color.ofRgb(0x999966), Arrays.asList(END_HIGHLANDS, END_BARRENS, END_MIDLANDS, SMALL_END_ISLANDS, THE_END), Arrays.asList()),
-        NETHER("Hellscape", Color.ofRgb(0x330000), Arrays.asList(NETHER_WASTES, CRIMSON_FOREST, WARPED_FOREST, SOUL_SAND_VALLEY, BASALT_DELTAS), Arrays.asList()),
+        END("End Highlands", Color.ofRgb(0x999966), Arrays.asList(END_HIGHLANDS, END_BARRENS, END_MIDLANDS, SMALL_END_ISLANDS, THE_END)),
+        NETHER("Hellscape", Color.ofRgb(0x330000), Arrays.asList(NETHER_WASTES, CRIMSON_FOREST, WARPED_FOREST, SOUL_SAND_VALLEY, BASALT_DELTAS)),
         ;
 
 
@@ -198,6 +198,11 @@ public class TerraItems
             this.color = color;
             this.biomeList = biomeList;
             this.additionalBiomeList = additionalBiomeList;
+        }
+        
+        Essence(String name, Color color, List<RegistryReference<Biome>> biomeList)
+        {
+            this(name, color, biomeList, Collections.emptyList());
         }
 
         public List<RegistryReference<Biome>> getBiomes()
