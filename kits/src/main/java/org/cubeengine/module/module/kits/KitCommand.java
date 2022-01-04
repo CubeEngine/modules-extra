@@ -44,6 +44,7 @@ import org.spongepowered.api.item.inventory.ContainerTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.menu.InventoryMenu;
 import org.spongepowered.api.item.inventory.type.ViewableInventory;
+import org.spongepowered.plugin.PluginContainer;
 
 import static org.cubeengine.libcube.service.i18n.formatter.MessageType.*;
 import static org.cubeengine.libcube.util.ComponentUtil.fromLegacy;
@@ -55,16 +56,18 @@ import static org.cubeengine.libcube.util.ComponentUtil.fromLegacy;
 public class KitCommand extends DispatcherCommand
 {
     private final KitManager manager;
+    private final PluginContainer plugin;
     private final Kits module;
-    private I18n i18n;
+    private final I18n i18n;
 
     @Inject
-    public KitCommand(Kits module, I18n i18n, KitEditCommand editCommand)
+    public KitCommand(Kits module, I18n i18n, KitEditCommand editCommand, PluginContainer plugin)
     {
         super(Kits.class, editCommand);
         this.module = module;
         this.i18n = i18n;
         this.manager = module.getKitManager();
+        this.plugin = plugin;
     }
 
     @Command(alias = "remove", desc = "Deletes a kit")
@@ -85,7 +88,7 @@ public class KitCommand extends DispatcherCommand
             return;
         }
 
-        ViewableInventory inventory = ViewableInventory.builder().type(ContainerTypes.GENERIC_9X6).completeStructure().build();
+        ViewableInventory inventory = ViewableInventory.builder().type(ContainerTypes.GENERIC_9X6).completeStructure().plugin(plugin).build();
         List<ItemStack> itemList = new ArrayList<>();
         Kit kit = manager.getExactKit(kitname);
         if (kit == null)

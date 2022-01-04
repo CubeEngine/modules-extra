@@ -112,7 +112,7 @@ public class ItemductManager
             return;
         }
 
-        final ViewableInventory inventory = ViewableInventory.builder().type(ContainerTypes.GENERIC_9X3).completeStructure().build();
+        final ViewableInventory inventory = ViewableInventory.builder().type(ContainerTypes.GENERIC_9X3).completeStructure().plugin(plugin).build();
         networkFilter.getFilterStacks().forEach(inventory::offer);
         final InventoryMenu menu = InventoryMenu.of(inventory);
         boolean canEdit = perms.FILTER_EDIT.check(player);

@@ -28,15 +28,18 @@ import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ContainerTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.type.ViewableInventory;
+import org.spongepowered.plugin.PluginContainer;
 
 @Command(name = "terra", desc = "Terra Commands")
 public class TerraCommands extends DispatcherCommand
 {
+    private final PluginContainer plugin;
     private final TerraListener listener;
 
     @Inject
-    public TerraCommands(TerraListener listener)
+    public TerraCommands(PluginContainer plugin, TerraListener listener)
     {
+        this.plugin = plugin;
         this.listener = listener;
     }
 
@@ -55,7 +58,7 @@ public class TerraCommands extends DispatcherCommand
     @Command(desc = "Provides all basic essences")
     public void essence(ServerPlayer player)
     {
-        final ViewableInventory view = ViewableInventory.builder().type(ContainerTypes.GENERIC_9X6).completeStructure().build();
+        final ViewableInventory view = ViewableInventory.builder().type(ContainerTypes.GENERIC_9X6).completeStructure().plugin(plugin).build();
         for (Essence value : Essence.values())
         {
             final ItemStack essence = TerraItems.getEssence(value, player);
