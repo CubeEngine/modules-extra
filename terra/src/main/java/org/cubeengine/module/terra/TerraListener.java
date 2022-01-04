@@ -273,14 +273,14 @@ public class TerraListener
                     return;
                 }
                 i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "The liquid is too cold to drink.");
-                event.setRemainingDuration(20);
+                event.setRemainingDuration(Ticks.of(20));
                 event.setCancelled(true);
                 return;
             }
 
-            if (event.remainingDuration() > 15)
+            if (event.remainingDuration().ticks() > 15)
             {
-                event.setRemainingDuration(15); // Gulp it down fast
+                event.setRemainingDuration(Ticks.of(15)); // Gulp it down fast
                 final List<PotionEffect> potionEffects = player.get(Keys.POTION_EFFECTS).orElse(new ArrayList<>());
                 potionEffects.add(PotionEffect.of(PotionEffectTypes.BLINDNESS, 0, Ticks.of(60)));
                 player.offer(Keys.POTION_EFFECTS, potionEffects);

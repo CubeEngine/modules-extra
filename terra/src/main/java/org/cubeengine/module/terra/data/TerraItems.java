@@ -150,7 +150,7 @@ public class TerraItems
         final RecipeRegistration heatUpPotion = CookingRecipe.builder().type(RecipeTypes.CAMPFIRE_COOKING)
                                                      .ingredient(coldPotionIngredient)
                                                      .result(i -> TerraItems.heatedPotion(i), ItemStack.of(ItemTypes.POTION))
-                                                     .cookingTime(20).experience(0)
+                                                     .cookingTime(Ticks.of(20)).experience(0)
                                                      .key(ResourceKey.of(PluginTerra.TERRA_ID, "heatup-potion"))
                                                      .build();
         event.register(heatUpPotion);
