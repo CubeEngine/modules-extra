@@ -10,7 +10,7 @@
 
     <artifactId>chat</artifactId>
     <name>Chat</name>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
     <description>This module adds chat formatting functionality.</description>
 
     <scm>

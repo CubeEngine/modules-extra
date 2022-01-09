@@ -10,7 +10,7 @@
 
     <artifactId>terra</artifactId>
     <name>Terra</name>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.2.0</version>
     <description>Create farming worlds</description>
 
     <scm>
