@@ -10,7 +10,7 @@
 
     <artifactId>kits</artifactId>
     <name>Kits</name>
-    <version>1.1.0</version>
+    <version>1.1.1-SNAPSHOT</version>
     <description>Hand kits to your players</description>
 
     <scm>

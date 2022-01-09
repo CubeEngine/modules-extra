@@ -10,7 +10,7 @@
 
     <artifactId>mechanism</artifactId>
     <name>Mechanism</name>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <description>Mechanisms</description>
 
     <scm>

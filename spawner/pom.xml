@@ -10,7 +10,7 @@
 
     <artifactId>spawner</artifactId>
     <name>Spawner</name>
-    <version>1.0.1</version>
+    <version>1.0.2-SNAPSHOT</version>
     <description>Lets you move spawners</description>
 
     <scm>
