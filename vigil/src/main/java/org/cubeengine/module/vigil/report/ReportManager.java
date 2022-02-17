@@ -17,6 +17,7 @@
  */
 package org.cubeengine.module.vigil.report;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import com.google.inject.Inject;
@@ -61,7 +62,7 @@ public class ReportManager
     {
         try
         {
-            Report instance = report.newInstance();
+            Report instance = report.getDeclaredConstructor().newInstance();
             if (instance instanceof BaseReport)
             {
                 ((BaseReport) instance).init(module);
@@ -69,7 +70,7 @@ public class ReportManager
             reports.put(report.getName(), instance);
             em.registerListener(instance);
         }
-        catch (InstantiationException | IllegalAccessException e)
+        catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e)
         {
             e.printStackTrace();
         }
