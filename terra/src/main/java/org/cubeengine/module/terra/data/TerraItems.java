@@ -62,10 +62,8 @@ import org.spongepowered.api.world.biome.provider.MultiNoiseBiomeConfig;
 import org.spongepowered.api.world.difficulty.Difficulties;
 import org.spongepowered.api.world.generation.ChunkGenerator;
 import org.spongepowered.api.world.generation.config.NoiseGeneratorConfig;
+import org.spongepowered.api.world.generation.config.SurfaceRule;
 import org.spongepowered.api.world.generation.config.WorldGenerationConfig;
-import org.spongepowered.api.world.generation.config.structure.SeparatedStructureConfig;
-import org.spongepowered.api.world.generation.config.structure.StructureGenerationConfig;
-import org.spongepowered.api.world.generation.structure.Structures;
 import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.api.world.server.WorldTemplate;
 import org.spongepowered.api.world.server.WorldTemplate.Builder;
@@ -259,10 +257,12 @@ public class TerraItems
             }
             else if (this == END)
             {
-                final StructureGenerationConfig endStructures = StructureGenerationConfig.builder().addStructure(Structures.ENDCITY.get(), SeparatedStructureConfig.of(6, 4, random.nextInt())).build();
+                // TODO structureConfig
+//                final StructureGenerationConfig endStructures = StructureGenerationConfig.builder().addStructure(Structures.ENDCITY.get(), SeparatedStructureConfig.of(6, 4, random.nextInt())).build();
                 noiseGeneratorConfig = NoiseGeneratorConfig.builder().from(NoiseGeneratorConfig.floatingIslands())
+                                                           .surfaceRule(SurfaceRule.end())
                                                            .defaultBlock(BlockTypes.END_STONE.get().defaultState())
-                                                           .structureConfig(endStructures)
+//                                                           .structureConfig(endStructures)
                                                            .build();
 
                 templateBuilder.worldType(RegistryTypes.WORLD_TYPE.defaultReferenced(Terra.WORLD_TYPE_END));

@@ -188,6 +188,10 @@ public class TerraListener
                 return;
             }
             i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "The liquid is too cold to drink.");
+            player.transform(Keys.POTION_EFFECTS, l -> {
+                l.add(PotionEffect.of(PotionEffectTypes.NAUSEA, 1, Ticks.of(20 * 5)));
+                return l;
+            });
             event.setCancelled(true);
         }
     }
@@ -273,6 +277,10 @@ public class TerraListener
                     return;
                 }
                 i18n.send(ChatType.ACTION_BAR, player, MessageType.NEGATIVE, "The liquid is too cold to drink.");
+                player.transform(Keys.POTION_EFFECTS, l -> {
+                    l.add(PotionEffect.of(PotionEffectTypes.NAUSEA, 1, Ticks.of(20 * 5)));
+                    return l;
+                });
                 event.setRemainingDuration(Ticks.of(20));
                 event.setCancelled(true);
                 return;
