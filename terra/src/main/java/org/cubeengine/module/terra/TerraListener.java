@@ -70,6 +70,7 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.scheduler.ScheduledTask;
 import org.spongepowered.api.util.Ticks;
+import org.spongepowered.api.world.DefaultWorldKeys;
 import org.spongepowered.api.world.SerializationBehavior;
 import org.spongepowered.api.world.border.WorldBorder.Builder;
 import org.spongepowered.api.world.server.ServerLocation;
@@ -319,7 +320,7 @@ public class TerraListener
             taskManager.runTask(() -> {
                 i18n.send(player, MessageType.NEUTRAL, "The world you were in disappeared as if it was a dream.");
 
-                final ServerWorld defaultWorld = Sponge.server().worldManager().defaultWorld();
+                final ServerWorld defaultWorld = Sponge.server().worldManager().world(DefaultWorldKeys.DEFAULT).get();
                 player.setLocation(defaultWorld.location(defaultWorld.properties().spawnPosition()));
 
                 player.world().playSound(Sound.sound(SoundTypes.ITEM_TOTEM_USE, Source.PLAYER, 1, 1), player.position());
@@ -414,7 +415,7 @@ public class TerraListener
     private void evacuateWorld(ResourceKey worldKey)
     {
         final WorldManager wm = Sponge.server().worldManager();
-        final ServerWorld defaultWorld = wm.defaultWorld();
+        final ServerWorld defaultWorld = wm.world(DefaultWorldKeys.DEFAULT).get();
         wm.world(worldKey).ifPresent(w -> {
             final Collection<ServerPlayer> players = new ArrayList<>(w.players());
             for (ServerPlayer player : players)
