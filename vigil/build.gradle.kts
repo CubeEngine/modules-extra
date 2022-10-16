@@ -3,6 +3,6 @@ plugins {
 }
 
 dependencies {
-    compileOnly("org.cubeengine.module:bigdata:1.2.0-SNAPSHOT")
+    compileOnly(project(":bigdata"))
     // TODO worldedit?
 }
