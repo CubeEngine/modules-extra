@@ -25,7 +25,6 @@ import org.cubeengine.libcube.util.Pair;
 import org.cubeengine.module.observe.health.SimpleHealthCheckService;
 import org.cubeengine.module.observe.metrics.PrometheusMetricsService;
 import org.cubeengine.module.observe.web.WebServer;
-import org.junit.Test;
 import org.spongepowered.observer.healthcheck.HealthCheckCollection;
 import org.spongepowered.observer.healthcheck.HealthState;
 import org.spongepowered.observer.healthcheck.SimpleHealthCheckCollection;
@@ -45,7 +44,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ObserveTest {
 

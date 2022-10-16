@@ -4,6 +4,7 @@ pluginManagement {
     repositories {
         mavenCentral()
         gradlePluginPortal()
+        maven("https://repo.cubeengine.org")
         maven("https://repo.spongepowered.org/repository/maven-public")
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
         mavenLocal()
