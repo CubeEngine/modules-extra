@@ -2,12 +2,6 @@ plugins {
     id("org.cubeengine.parent.module")
 }
 
-group = "org.cubeengine.module"
-version = "1.2.0-SNAPSHOT"
-
-description = "Provides serialization to a MongoDB"
-
-
 dependencies {
+    implementation("org.mongodb:mongodb-driver-sync:4.2.0") // TODO shadow
 }
-

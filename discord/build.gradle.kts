@@ -2,12 +2,7 @@ plugins {
     id("org.cubeengine.parent.module")
 }
 
-group = "org.cubeengine.module"
-version = "1.0.0-SNAPSHOT"
-
-description = "Bridge Discord and Minecraft text chat."
-
-
 dependencies {
+    implementation("com.discord4j:discord4j-core:3.2.0-M3")
+// TODO shadow + relocate io.netty -> org.cubeengine.module.discord.reloacted.netty
 }
-

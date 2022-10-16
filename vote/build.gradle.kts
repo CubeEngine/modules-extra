@@ -2,12 +2,10 @@ plugins {
     id("org.cubeengine.parent.module")
 }
 
-group = "org.cubeengine.module"
-version = "1.1.0-SNAPSHOT"
-
-description = "This module integrates into Votifier to provide vote rewards"
-
+val nuvotifierVersion: String by project.properties
 
 dependencies {
+    compileOnly("com.vexsoftware:nuvotifier-sponge8:${nuvotifierVersion}")
+    compileOnly("com.vexsoftware:nuvotifier-common:${nuvotifierVersion}")
+    compileOnly("com.vexsoftware:nuvotifier-api:${nuvotifierVersion}")
 }
-
