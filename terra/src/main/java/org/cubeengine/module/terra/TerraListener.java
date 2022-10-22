@@ -117,10 +117,7 @@ public class TerraListener
             }
 
             // Save Template and Load
-            this.worldFuture = worldDeletedFuture.thenCompose(b -> {
-                wm.saveTemplate(template);
-                return wm.loadWorld(template);
-            });
+            this.worldFuture = worldDeletedFuture.thenCompose(b -> wm.loadWorld(template));
 
             this.worldFuture.handle((w, t) -> {
                 if (t != null)

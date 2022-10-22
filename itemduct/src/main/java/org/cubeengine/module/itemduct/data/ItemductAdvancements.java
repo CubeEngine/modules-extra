@@ -20,6 +20,7 @@ package org.cubeengine.module.itemduct.data;
 import net.kyori.adventure.text.Component;
 import org.spongepowered.api.ResourceKey;
 import org.spongepowered.api.advancement.Advancement;
+import org.spongepowered.api.advancement.AdvancementTemplate;
 import org.spongepowered.api.advancement.AdvancementTypes;
 import org.spongepowered.api.advancement.DisplayInfo;
 import org.spongepowered.api.advancement.criteria.AdvancementCriterion;
@@ -31,26 +32,26 @@ import org.spongepowered.plugin.PluginContainer;
 
 public class ItemductAdvancements {
 
-    public static Advancement ROOT;
-    public static Advancement ACTIVATE_NETWORK;
-    public static Advancement USE_FILTERS;
-    public static Advancement USE_NETWORK;
+    public static AdvancementTemplate ROOT;
+    public static AdvancementTemplate ACTIVATE_NETWORK;
+    public static AdvancementTemplate USE_FILTERS;
+    public static AdvancementTemplate USE_NETWORK;
     public static ScoreAdvancementCriterion USE_NETWORK_CRITERION;
 
     public static void init(PluginContainer plugin)
     {
-        ROOT = Advancement.builder().root().background(ResourceKey.minecraft("textures/gui/advancements/backgrounds/stone.png"))
-                .criterion(AdvancementCriterion.dummy())
-                .displayInfo(DisplayInfo.builder()
+        ROOT = AdvancementTemplate.builder().root().background(ResourceKey.minecraft("textures/gui/advancements/backgrounds/stone.png"))
+                                  .criterion(AdvancementCriterion.dummy())
+                                  .displayInfo(DisplayInfo.builder()
                         .icon(ItemTypes.HOPPER)
                         .title(Component.text("Item Logistics"))
                         .description(Component.text("Craft an ItemDuct Activator"))
                         .build())
-                .key(ResourceKey.of(plugin, "itemduct-start"))
-                .build();
+                                  .key(ResourceKey.of(plugin, "itemduct-start"))
+                                  .build();
 
-        ACTIVATE_NETWORK = Advancement.builder()
-                .parent(ROOT)
+        ACTIVATE_NETWORK = AdvancementTemplate.builder()
+                .parent(ROOT.advancement())
                 .displayInfo(DisplayInfo.builder()
                         .icon(ItemTypes.HOPPER)
                         .title(Component.text("First Activation"))
@@ -60,8 +61,8 @@ public class ItemductAdvancements {
                 .key(ResourceKey.of(plugin, "itemduct-activate"))
                 .build();
 
-        USE_FILTERS = Advancement.builder()
-                .parent(ACTIVATE_NETWORK)
+        USE_FILTERS = AdvancementTemplate.builder()
+                .parent(ACTIVATE_NETWORK.advancement())
                 .displayInfo(DisplayInfo.builder()
                         .icon(ItemTypes.PAPER)
                         .title(Component.text("Filters"))
@@ -75,8 +76,8 @@ public class ItemductAdvancements {
                 .goal(100)
                 .name("itemduct-prompt")
                 .build();
-        USE_NETWORK = Advancement.builder()
-                .parent(ACTIVATE_NETWORK)
+        USE_NETWORK = AdvancementTemplate.builder()
+                .parent(ACTIVATE_NETWORK.advancement())
                 .displayInfo(DisplayInfo.builder()
                         .icon(ItemTypes.NETHER_STAR)
                         .title(Component.text("Mastered"))
@@ -89,7 +90,7 @@ public class ItemductAdvancements {
                 .build();
     }
 
-    public static void register(RegisterDataPackValueEvent<Advancement>event) {
+    public static void register(RegisterDataPackValueEvent<AdvancementTemplate>event) {
         event.register(ACTIVATE_NETWORK);
         event.register(ROOT);
         event.register(USE_FILTERS);

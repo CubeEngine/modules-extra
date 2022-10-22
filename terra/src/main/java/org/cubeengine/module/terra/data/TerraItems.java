@@ -50,6 +50,7 @@ import org.spongepowered.api.item.recipe.crafting.ShapelessCraftingRecipe;
 import org.spongepowered.api.registry.RegistryReference;
 import org.spongepowered.api.registry.RegistryTypes;
 import org.spongepowered.api.util.Color;
+import org.spongepowered.api.util.RandomProvider.Source;
 import org.spongepowered.api.util.Ticks;
 import org.spongepowered.api.world.SerializationBehavior;
 import org.spongepowered.api.world.WorldTypes;
@@ -61,9 +62,10 @@ import org.spongepowered.api.world.biome.provider.BiomeProvider;
 import org.spongepowered.api.world.biome.provider.MultiNoiseBiomeConfig;
 import org.spongepowered.api.world.difficulty.Difficulties;
 import org.spongepowered.api.world.generation.ChunkGenerator;
-import org.spongepowered.api.world.generation.config.NoiseGeneratorConfig;
 import org.spongepowered.api.world.generation.config.SurfaceRule;
 import org.spongepowered.api.world.generation.config.WorldGenerationConfig;
+import org.spongepowered.api.world.generation.config.noise.NoiseGeneratorConfig;
+import org.spongepowered.api.world.generation.config.noise.NoiseGeneratorConfigs;
 import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.api.world.server.WorldTemplate;
 import org.spongepowered.api.world.server.WorldTemplate.Builder;
@@ -234,11 +236,11 @@ public class TerraItems
                 biomeList.add(END_HIGHLANDS);
             }
 
-            final Random random = player.world().random();
+            final Source random = player.world().random();
 
             final List<AttributedBiome> biomes = biomeList.stream().map(biome -> {
                 final Biome originalBiome = biome.get(player.world());
-                final BiomeAttributes biomeAttributes = BiomeAttributes.of((float) originalBiome.temperature(),
+                final BiomeAttributes biomeAttributes = BiomeAttributes.point((float) originalBiome.temperature(),
                                                                            (float) originalBiome.humidity(),
                                                                            random.nextFloat() * 4 - 2,
                                                                            random.nextFloat() * 4 - 2,
@@ -252,32 +254,33 @@ public class TerraItems
             final NoiseGeneratorConfig noiseGeneratorConfig;
             if (this == NETHER)
             {
-                noiseGeneratorConfig = NoiseGeneratorConfig.nether();
-                templateBuilder.worldType(WorldTypes.THE_NETHER);
+                noiseGeneratorConfig = NoiseGeneratorConfigs.NETHER.get();
+                templateBuilder.add(Keys.WORLD_TYPE, WorldTypes.THE_NETHER.get());
             }
             else if (this == END)
             {
                 // TODO structureConfig
 //                final StructureGenerationConfig endStructures = StructureGenerationConfig.builder().addStructure(Structures.ENDCITY.get(), SeparatedStructureConfig.of(6, 4, random.nextInt())).build();
-                noiseGeneratorConfig = NoiseGeneratorConfig.builder().from(NoiseGeneratorConfig.floatingIslands())
+                noiseGeneratorConfig = NoiseGeneratorConfig.builder().fromValue(NoiseGeneratorConfigs.FLOATING_ISLANDS.get())
                                                            .surfaceRule(SurfaceRule.end())
                                                            .defaultBlock(BlockTypes.END_STONE.get().defaultState())
 //                                                           .structureConfig(endStructures)
-                                                           .build();
+                                                           .build().config();
 
-                templateBuilder.worldType(RegistryTypes.WORLD_TYPE.defaultReferenced(Terra.WORLD_TYPE_END));
+                templateBuilder.add(Keys.WORLD_TYPE, RegistryTypes.WORLD_TYPE.get().findValue(Terra.WORLD_TYPE_END).get());
             }
             else
             {
-                noiseGeneratorConfig = NoiseGeneratorConfig.overworld();
+                noiseGeneratorConfig = NoiseGeneratorConfigs.OVERWORLD.get();
             }
-            return templateBuilder.serializationBehavior(SerializationBehavior.NONE)
-                                                          .displayName(Component.text("Dream world by " + player.name()))
-                                                          .generator(ChunkGenerator.noise(BiomeProvider.multiNoise(multiNoiseBiomeConfig), random.nextLong(), noiseGeneratorConfig))
-                                                          .difficulty(Difficulties.HARD)
-                                                          .generationConfig(WorldGenerationConfig.Mutable.builder().seed(random.nextLong()).build())
-                                                          .loadOnStartup(false)
-                                                          .build();
+            templateBuilder.add(Keys.SERIALIZATION_BEHAVIOR, SerializationBehavior.NONE);
+            templateBuilder.add(Keys.DISPLAY_NAME, Component.text("Dream world by " + player.name()));
+            templateBuilder.add(Keys.CHUNK_GENERATOR, ChunkGenerator.noise(BiomeProvider.multiNoise(multiNoiseBiomeConfig), noiseGeneratorConfig));
+            templateBuilder.add(Keys.SEED, random.nextLong()); // TODO check if this works
+            templateBuilder.add(Keys.WORLD_DIFFICULTY, Difficulties.HARD.get());
+            templateBuilder.add(Keys.WORLD_GEN_CONFIG, WorldGenerationConfig.builder().seed(random.nextLong()).build()); // TODO or this is where the seed is set
+            templateBuilder.add(Keys.IS_LOAD_ON_STARTUP, false);
+            return templateBuilder.build();
         }
     }
 

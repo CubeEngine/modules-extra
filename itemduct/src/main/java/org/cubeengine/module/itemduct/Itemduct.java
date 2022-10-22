@@ -29,6 +29,7 @@ import org.cubeengine.module.itemduct.listener.ItemductListener;
 import org.cubeengine.processor.Module;
 import org.spongepowered.api.Server;
 import org.spongepowered.api.advancement.Advancement;
+import org.spongepowered.api.advancement.AdvancementTemplate;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.filter.cause.Root;
@@ -79,7 +80,7 @@ public class Itemduct
     }
 
     @Listener
-    public void onRegisterAdvancements(RegisterDataPackValueEvent<Advancement> event)
+    public void onRegisterAdvancements(RegisterDataPackValueEvent<AdvancementTemplate> event)
     {
         ItemductAdvancements.init(plugin);
         ItemductAdvancements.register(event);
@@ -95,7 +96,7 @@ public class Itemduct
     public void onCraft(CraftItemEvent.Craft event, @Root ServerPlayer player)
     {
         if (event.recipe().isPresent() && ItemductItems.matchesRecipe(event.recipe().get())) {
-            player.progress(ItemductAdvancements.ROOT).grant();
+            player.progress(ItemductAdvancements.ROOT.advancement()).grant();
         }
     }
 

@@ -70,7 +70,8 @@ public class Terra
     @Listener
     public void onRegisterWorldType(RegisterDataPackValueEvent<WorldTypeTemplate> event)
     {
-        event.register(WorldTypeTemplate.builder().from(WorldTypeTemplate.theEnd()).key(WORLD_TYPE_END).createDragonFight(false).build());
+        // TODO createDragonFight(false)?
+        event.register(WorldTypeTemplate.theEnd().key(WORLD_TYPE_END).build());
     }
 
     @Listener
