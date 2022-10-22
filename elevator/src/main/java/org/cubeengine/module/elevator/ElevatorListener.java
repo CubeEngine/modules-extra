@@ -86,6 +86,10 @@ public class ElevatorListener
         {
             return;
         }
+        if (!(event instanceof Secondary) && !(event instanceof InteractBlockEvent.Primary.Start))
+        {
+            return;
+        }
 
         if (!event.block().location().flatMap(Location::blockEntity).map(l -> l.supports(Keys.SIGN_LINES)).orElse(false))
         {
