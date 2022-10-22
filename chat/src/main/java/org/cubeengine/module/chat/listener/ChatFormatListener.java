@@ -19,9 +19,7 @@ package org.cubeengine.module.chat.listener;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 import com.google.inject.Inject;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -34,10 +32,12 @@ import org.cubeengine.module.chat.Chat;
 import org.cubeengine.module.chat.ChatConfig;
 import org.cubeengine.module.chat.ChatPerm;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.api.adventure.ChatTypes;
 import org.spongepowered.api.data.Keys;
 import org.spongepowered.api.entity.living.player.server.ServerPlayer;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.filter.cause.First;
 import org.spongepowered.api.event.filter.cause.Root;
 import org.spongepowered.api.event.message.PlayerChatEvent;
 import org.spongepowered.api.service.permission.Subject;
@@ -70,20 +70,10 @@ public class ChatFormatListener
     }
 
     @Listener(order = Order.EARLY)
-    public void onPlayerChat(PlayerChatEvent event, @Root ServerPlayer player)
+    public void onPlayerChatDecorate(PlayerChatEvent.Decorate event, @First ServerPlayer player)
     {
         final PlainTextComponentSerializer plainSerializer = PlainTextComponentSerializer.plainText();
         String msg = plainSerializer.serialize(event.originalMessage());
-
-        if (!msg.equals("+") && msg.endsWith("+") && perms.LONGER.check(player))
-        {
-            msg = accumulated.getOrDefault(player.uniqueId(), "") + msg.substring(0, msg.length() - 1);
-            msg = msg.substring(0, Math.min(msg.length(), 50 * 20));
-            i18n.send(ChatType.ACTION_BAR, player, NEUTRAL, "{amount} characters in buffer.", msg.length());
-            accumulated.put(player.uniqueId(), msg);
-            event.setCancelled(true);
-            return;
-        }
 
         msg = accumulated.getOrDefault(player.uniqueId(), "") + msg;
         accumulated.remove(player.uniqueId());
@@ -102,21 +92,33 @@ public class ChatFormatListener
             msg = msg.replace("\\n", "\n");
         }
 
-        try
+        event.setMessage(fromLegacy(msg));
+    }
+
+    @Listener(order = Order.EARLY)
+    public void onPlayerChat(PlayerChatEvent.Submit event, @Root ServerPlayer player)
+    {
+        final PlainTextComponentSerializer plainSerializer = PlainTextComponentSerializer.plainText();
+        String msg = plainSerializer.serialize(event.originalMessage());
+
+        if (!msg.equals("+") && msg.endsWith("+") && perms.LONGER.check(player))
         {
-            Subject subject = module.getPermissionService().userSubjects().loadSubject(player.uniqueId().toString()).get();
-            event.setMessage(fromLegacy(msg));
-            event.setChatFormatter((p, audience, message, originalMessage) ->
-                   Optional.of(legacyMessageTemplateToComponent(this.getFormat(subject), getReplacements(player, message, subject))));
+            msg = accumulated.getOrDefault(player.uniqueId(), "") + msg.substring(0, msg.length() - 1);
+            msg = msg.substring(0, Math.min(msg.length(), 50 * 20));
+            i18n.send(ChatType.ACTION_BAR, player, NEUTRAL, "{amount} characters in buffer.", msg.length());
+            accumulated.put(player.uniqueId(), msg);
+            event.setCancelled(true);
+            return;
         }
-        catch (ExecutionException | InterruptedException e)
-        {
-            throw new IllegalStateException(e);
-        }
+
+        Subject subject = module.getPermissionService().userSubjects().loadSubject(player.uniqueId().toString()).join();
+        final Component component = legacyMessageTemplateToComponent(this.getFormat(subject), getReplacements(player, subject));
+        event.setSender(component);
+        event.setChatType(ChatTypes.CUSTOM_CHAT);
     }
 
     @NotNull
-    private Map<String, Component> getReplacements(ServerPlayer player, Component message, Subject subject)
+    private Map<String, Component> getReplacements(ServerPlayer player, Subject subject)
     {
         String name = player.name();
         final PlainTextComponentSerializer plainSerializer = PlainTextComponentSerializer.plainText();
@@ -129,8 +131,8 @@ public class ChatFormatListener
             displayName = Component.text().append(displayName).hoverEvent(hoverEvent).build();
         }
         replacements.put("DISPLAY_NAME", displayName);
-        replacements.put("MESSAGE", message);
-        replacements.put("WORLD", Component.text(player.world().properties().key().toString()));
+        replacements.put("MESSAGE", Component.empty()); // handle old message formats
+        replacements.put("WORLD", Component.text(player.world().key().toString()));
         replacements.put("PREFIX", fromLegacy(subject.option("chat-prefix").orElse("")));
         replacements.put("SUFFIX", fromLegacy(subject.option("chat-suffix").orElse("")));
         return replacements;
