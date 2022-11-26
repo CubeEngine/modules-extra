@@ -278,7 +278,7 @@ public class TerraItems
             templateBuilder.add(Keys.CHUNK_GENERATOR, ChunkGenerator.noise(BiomeProvider.multiNoise(multiNoiseBiomeConfig), noiseGeneratorConfig));
             templateBuilder.add(Keys.SEED, random.nextLong()); // TODO check if this works
             templateBuilder.add(Keys.WORLD_DIFFICULTY, Difficulties.HARD.get());
-            templateBuilder.add(Keys.WORLD_GEN_CONFIG, WorldGenerationConfig.builder().seed(random.nextLong()).build()); // TODO or this is where the seed is set
+//            templateBuilder.add(Keys.WORLD_GEN_CONFIG, WorldGenerationConfig.builder().seed(random.nextLong()).build()); // TODO or this is where the seed is set
             templateBuilder.add(Keys.IS_LOAD_ON_STARTUP, false);
             return templateBuilder.build();
         }
