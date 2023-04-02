@@ -47,10 +47,7 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Cause;
 import org.spongepowered.api.event.EventContextKey;
-import org.spongepowered.api.event.cause.entity.damage.source.BlockDamageSource;
 import org.spongepowered.api.event.cause.entity.damage.source.DamageSource;
-import org.spongepowered.api.event.cause.entity.damage.source.EntityDamageSource;
-import org.spongepowered.api.event.cause.entity.damage.source.IndirectEntityDamageSource;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.item.inventory.transaction.SlotTransaction;
 import org.spongepowered.api.registry.RegistryTypes;
@@ -106,30 +103,32 @@ public class Observe
         {
             return null;
         }
-        if (cause instanceof EntityDamageSource)
+        if (cause instanceof DamageSource damageSource)
         {
-            Entity source = ((EntityDamageSource)cause).source();
-            Map<String, Object> sourceCause = Observe.cause(source, set);
-            if (cause instanceof IndirectEntityDamageSource)
+            if (damageSource.source().isPresent())
             {
-                Map<String, Object> indirectCause = Observe.cause(((IndirectEntityDamageSource)cause).indirectSource(), set);
-                if (sourceCause == null)
+                Entity source = damageSource.source().orElse(null);
+                Map<String, Object> sourceCause = Observe.cause(source, set);
+                if (damageSource.indirectSource().isPresent())
                 {
-                    return indirectCause;
+                    Map<String, Object> indirectCause = Observe.cause(damageSource.indirectSource().get(), set);
+                    if (sourceCause == null)
+                    {
+                        return indirectCause;
+                    }
+                    set.add(indirectCause);
+                    sourceCause.put(CAUSE_INDIRECT, indirectCause);
                 }
-                set.add(indirectCause);
-                sourceCause.put(CAUSE_INDIRECT, indirectCause);
+                set.add(source);
+                return sourceCause;
             }
-            set.add(source);
-            return sourceCause;
-        }
-        else if (cause instanceof BlockDamageSource)
-        {
-            return Observe.cause(((BlockDamageSource)cause).blockSnapshot(), set);
-        }
-        else if (cause instanceof DamageSource)
-        {
-            return Observe.damageCause(((DamageSource)cause));
+
+            if (damageSource.blockSnapshot().isPresent())
+            {
+                return Observe.cause(damageSource.blockSnapshot().get(), set);
+            }
+            return Observe.damageCause(damageSource);
+
         }
         if (cause instanceof User)
         {
