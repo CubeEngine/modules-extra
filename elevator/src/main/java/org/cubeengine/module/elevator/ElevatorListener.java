@@ -147,11 +147,11 @@ public class ElevatorListener
                     final Vector3i newTarget = findNextSign(loc, target.orElse(null), loc.blockPosition(), event instanceof InteractBlockEvent.Primary);
                     if (newTarget == null)
                     {
-                        player.world().playSound(Sound.sound(SoundTypes.ENTITY_ENDERMAN_AMBIENT, Source.PLAYER, 5f, 10), loc.position());
+                        player.world().playSound(Sound.sound(SoundTypes.ENTITY_ENDERMAN_AMBIENT, Source.PLAYER, 1f, 10), loc.position());
                     }
                     else
                     {
-                        player.world().playSound(Sound.sound(SoundTypes.ENTITY_ENDER_EYE_DEATH, Source.PLAYER, 5f, 1), loc.position());
+                        player.world().playSound(Sound.sound(SoundTypes.ENTITY_ENDER_EYE_DEATH, Source.PLAYER, 1f, 2), loc.position());
                     }
                     updateSign(loc, newTarget);
                     if (event instanceof Cancellable)
@@ -201,7 +201,7 @@ public class ElevatorListener
                 if (safeLoc.isPresent())
                 {
                     player.setLocation(safeLoc.get());
-                    player.world().playSound(Sound.sound(SoundTypes.ITEM_CHORUS_FRUIT_TELEPORT, Source.PLAYER, 5f, 10f), safeLoc.get().position());
+                    player.world().playSound(Sound.sound(SoundTypes.ITEM_CHORUS_FRUIT_TELEPORT, Source.PLAYER, 0.5f, 10f), safeLoc.get().position());
                     final ParticleEffect particle = ParticleEffect.builder().type(ParticleTypes.PORTAL).quantity(50).offset(Vector3d.from(0.2, 0.5, 0.2)).build();
                     player.world().spawnParticles(particle, safeLoc.get().position().add(0, 1, 0));
                     player.world().spawnParticles(particle, pPos.add(0,1,0));
@@ -214,7 +214,7 @@ public class ElevatorListener
             }
             else if (owner.isPresent())
             {
-                player.world().playSound(Sound.sound(SoundTypes.ENTITY_ENDERMAN_AMBIENT, Source.PLAYER, 5f, 10), loc.position());
+                player.world().playSound(Sound.sound(SoundTypes.ENTITY_ENDERMAN_AMBIENT, Source.PLAYER, 1f, 10), loc.position());
                 updateSign(loc, null);
             }
         }
