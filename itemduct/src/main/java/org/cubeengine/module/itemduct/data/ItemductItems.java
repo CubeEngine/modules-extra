@@ -91,8 +91,8 @@ public class ItemductItems
         event.register(superRecipe);
     }
 
-    public static boolean matchesRecipe(CraftingRecipe craftingRecipe) {
-        return recipe.key().equals(craftingRecipe.key()) || superRecipe.key().equals(craftingRecipe.key());
+    public static boolean matchesRecipe(ResourceKey craftingRecipeKey) {
+        return recipe.key().equals(craftingRecipeKey) || superRecipe.key().equals(craftingRecipeKey);
     }
 
     @SuppressWarnings("unchecked")

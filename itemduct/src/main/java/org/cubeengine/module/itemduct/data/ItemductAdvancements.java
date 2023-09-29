@@ -51,7 +51,7 @@ public class ItemductAdvancements {
                                   .build();
 
         ACTIVATE_NETWORK = AdvancementTemplate.builder()
-                .parent(ROOT.advancement())
+                .parent(ROOT)
                 .displayInfo(DisplayInfo.builder()
                         .icon(ItemTypes.HOPPER)
                         .title(Component.text("First Activation"))
@@ -62,7 +62,7 @@ public class ItemductAdvancements {
                 .build();
 
         USE_FILTERS = AdvancementTemplate.builder()
-                .parent(ACTIVATE_NETWORK.advancement())
+                .parent(ACTIVATE_NETWORK)
                 .displayInfo(DisplayInfo.builder()
                         .icon(ItemTypes.PAPER)
                         .title(Component.text("Filters"))
@@ -77,7 +77,7 @@ public class ItemductAdvancements {
                 .name("itemduct-prompt")
                 .build();
         USE_NETWORK = AdvancementTemplate.builder()
-                .parent(ACTIVATE_NETWORK.advancement())
+                .parent(ACTIVATE_NETWORK)
                 .displayInfo(DisplayInfo.builder()
                         .icon(ItemTypes.NETHER_STAR)
                         .title(Component.text("Mastered"))

@@ -121,7 +121,7 @@ public class ItemductManager
                                 i18n.translate(player, "View ItemDuct Filters"));
         menu.registerClose((cause, container) -> onClose(inventory, networkFilter));
         menu.open(player);
-        player.progress(ItemductAdvancements.USE_FILTERS.advancement()).grant();
+        player.progress(ItemductAdvancements.USE_FILTERS).grant();
     }
 
     private void onClose(ViewableInventory inventory, NetworkFilter networkFilter)
@@ -160,7 +160,7 @@ public class ItemductManager
         networkFilter.setFilterStacks(new ArrayList<>());
         ItemductEffects.playCreateEffect(networkFilter.filterLoc);
 
-        player.progress(ItemductAdvancements.ACTIVATE_NETWORK.advancement()).grant();
+        player.progress(ItemductAdvancements.ACTIVATE_NETWORK).grant();
     }
 
     private final Map<ResourceKey, Map<Vector3i, Long>> triggers = new HashMap<>();
@@ -199,7 +199,7 @@ public class ItemductManager
             activationMap.computeIfAbsent(loc.blockPosition(), k -> System.currentTimeMillis());
             if (player != null)
             {
-                player.progress(ItemductAdvancements.USE_NETWORK.advancement()).get(ItemductAdvancements.USE_NETWORK_CRITERION).ifPresent(c -> c.add(1));
+                player.progress(ItemductAdvancements.USE_NETWORK).get(ItemductAdvancements.USE_NETWORK_CRITERION).ifPresent(c -> c.add(1));
             }
         }
     }

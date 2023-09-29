@@ -95,8 +95,8 @@ public class Itemduct
     @Listener
     public void onCraft(CraftItemEvent.Craft event, @Root ServerPlayer player)
     {
-        if (event.recipe().isPresent() && ItemductItems.matchesRecipe(event.recipe().get())) {
-            player.progress(ItemductAdvancements.ROOT.advancement()).grant();
+        if (event.recipe().isPresent() && ItemductItems.matchesRecipe(event.recipeKey().get())) {
+            player.progress(ItemductAdvancements.ROOT).grant();
         }
     }
 
