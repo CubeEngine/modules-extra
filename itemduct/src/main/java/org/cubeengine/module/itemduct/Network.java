@@ -33,8 +33,11 @@ import org.spongepowered.api.data.type.DyeColor;
 import org.spongepowered.api.item.inventory.Carrier;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.item.inventory.query.Query;
 import org.spongepowered.api.item.inventory.query.QueryTypes;
+import org.spongepowered.api.item.inventory.transaction.InventoryTransactionResult;
+import org.spongepowered.api.item.inventory.transaction.InventoryTransactionResult.Poll;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.server.ServerWorld;
 import org.spongepowered.math.vector.Vector3i;
@@ -272,17 +275,16 @@ public class Network
         for (Inventory slot : pollFrom.slots())
         {
             final ItemStack peek = slot.peek();
-            ItemStack itemStack = peek.copy();
-            // Try to insert into targetInventory
-            target.offer(itemStack);
-            // and poll the inserted amount
-            if (itemStack.isEmpty())
+            if (!peek.isEmpty())
             {
-                slot.poll();
-            }
-            else
-            {
-                slot.poll(peek.quantity() - itemStack.quantity());
+                final Poll pollResults = slot.poll();
+                final InventoryTransactionResult offerResult = target.offer(pollResults.polledItem().createStack());
+                InventoryTransactionResult combined = pollResults.and(offerResult);
+                for (final ItemStackSnapshot rejectedItem : offerResult.rejectedItems())
+                {
+                    final InventoryTransactionResult offerBackResult = slot.offer(rejectedItem.createStack());
+                    combined = combined.and(offerBackResult);
+                }
             }
         }
     }
