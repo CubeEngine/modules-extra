@@ -57,7 +57,7 @@ public interface TradersItems {
     {
         final ItemStack head = ItemStack.of(ItemTypes.PLAYER_HEAD);
         head.offer(TradersData.VILLAGER, "fisher");
-        final GameProfile profile = GameProfile.of(UUID.fromString("c0bbeabc-c17a-45af-995c-6d5b6e048442")).withProperty(ProfileProperty.of(ProfileProperty.TEXTURES,
+        final GameProfile profile = GameProfile.of(UUID.fromString("c0bbeabc-c17a-45af-995c-6d5b6e048442"), "Mini-Conduit").withProperty(ProfileProperty.of(ProfileProperty.TEXTURES,
     "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTI5NWExMWVlNjE5ZWQ1NzYxYmY3YTdlYTE5MGM3NWQyYmVlYjdkZWYxYjE1NWRlNjAzZmYyMTdhNmM4NzEyNyJ9fX0="));
         head.offer(Keys.GAME_PROFILE, profile);
         head.offer(Keys.CUSTOM_NAME, Component.text("Mini-Conduit", NamedTextColor.GOLD));
@@ -70,7 +70,7 @@ public interface TradersItems {
         final ItemStack head = ItemStack.of(ItemTypes.PLAYER_HEAD);
         head.offer(TradersData.VILLAGER, "ice");
         // 9f55e0a3-1911-4aac-8977-0ad7525d6b84
-        final GameProfile profile = GameProfile.of(UUID.fromString("c0bbeabc-c17a-45af-995c-6d5b6e048442")).withProperty(ProfileProperty.of(ProfileProperty.TEXTURES,
+        final GameProfile profile = GameProfile.of(UUID.fromString("c0bbeabc-c17a-45af-995c-6d5b6e048442"), "Icy Rune").withProperty(ProfileProperty.of(ProfileProperty.TEXTURES,
                     "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZGRiYTY0MmVmZmZhMTNlYzM3MzBlYWZjNTkxNGFiNjgxMTVjMWY5OTg4MDNmNzQ0NTJlMmUwY2QyNmFmMGI4In19fQ=="));
         head.offer(Keys.GAME_PROFILE, profile);
         head.offer(Keys.CUSTOM_NAME, Component.text("Icy Rune", NamedTextColor.GOLD));
